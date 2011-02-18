@@ -69,21 +69,21 @@ public class PageTitleCache {
         }
     }
 
+
     /**
      * Add a mapping for the given {@link WikiPage}'s title -> pageID to to the {@link #cache}.
      * 
      * @param page The page to add to the cache.
      */
     public void addPage(final int wikiID, final String pageTitle, final int pageID) {
-        if (cache.containsKey(wikiID)) {
-            final LRUMap<PageTitle, Integer> lruMap = cache.get(wikiID);
-            lruMap.put(new PageTitle(pageTitle), pageID);
-            if (DEBUG) {
-                LOGGER.debug("Added mapping wikiID=" + wikiID + " page=\"" + pageTitle + "\" -> pageID=" + pageID
-                        + " to cache.");
-            }
-        } else {
-            LOGGER.error("PAGE_TITLE_CACHE does not contain wikiID " + wikiID);
+        if (!cache.containsKey(wikiID)) {
+            addWiki(wikiID);
+        }
+        final LRUMap<PageTitle, Integer> lruMap = cache.get(wikiID);
+        lruMap.put(new PageTitle(pageTitle), pageID);
+        if (DEBUG) {
+            LOGGER.debug("Added mapping wikiID=" + wikiID + " page=\"" + pageTitle + "\" -> pageID=" + pageID
+                    + " to cache.");
         }
     }
 
@@ -110,7 +110,7 @@ public class PageTitleCache {
      * 
      * @param wikiID The ID of the Wiki the namespace is in.
      * @param pageTitle The name of the page (title) to be found in the Wiki.
-     * @return The pageID or {@code null} if there is no mapping for the given parameters.
+     * @return The pageID or <code>null</code> if there is no mapping for the given parameters.
      */
     public Integer getPageID(final int wikiID, final String pageTitle) {
         Integer pageID = null;

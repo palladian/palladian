@@ -115,8 +115,18 @@ public final class MediaWikiDatabase extends DatabaseManager {
 
     /** see sql */
     private static final String sqlGetAllPageTitlesToCrawl = "SELECT pageTitle FROM pages "
-        + "WHERE wikiID = ? AND namespaceID IN "
-        + "(SELECT namespaceID FROM namespaces WHERE pages.wikiID = namespaces.wikiID AND useForCrawling = 1)";
+            + "WHERE wikiID = ? AND namespaceID IN "
+            + "(SELECT namespaceID FROM namespaces WHERE pages.wikiID = namespaces.wikiID AND useForCrawling = 1)";
+
+    /** see sql */
+    private static final String sqlAddHyperlink = "INSERT INTO links(wikiID, pageIDSource, pageIDDest) VALUES (?,?,?)";
+
+    /** see sql */
+    private static final String sqlGetOutgoingHyperlinks = "SELECT pageIDDest FROM links WHERE wikiID = ? AND  pageIDSource = ?";
+
+    /** see sql */
+    private static final String sqlRemoveHyperlinks = "DELETE FROM links WHERE wikiID = ? AND pageIDSource = ?";
+
 
     /**
      * Constructor, prepares the {@link PageTitleCache}.
@@ -178,7 +188,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @return All namespace IDs that should be included into the crawling.
      */
     public HashSet<Integer> getNamespacesToCrawl(final int wikiID) {
-        
+
         RowConverter<Integer> converter = new RowConverter<Integer>() {
 
             @Override
@@ -186,7 +196,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
                 return resultSet.getInt(1);
             }
         };
-        
+
         List<Integer> namespacesList = runQuery(converter, sqlGetNamespaceIDsToCrawl, wikiID);
         return new HashSet<Integer>(namespacesList);
     }
@@ -204,10 +214,10 @@ public final class MediaWikiDatabase extends DatabaseManager {
             LOGGER.error("Can't add Wiki \"" + wd.getWikiName() + "\", Wiki is already contained in data base!");
             return false;
         }
-        
+
         List<Object> args = new ArrayList<Object>();
         args.add(wd.getWikiName());
-        args.add(wd.getWikiURL());
+        args.add(wd.getWikiURL().toString());
         args.add(wd.getRelativePathToAPI());
         if (wd.getLastCheckForModifications() != null) {
             args.add(convertDateToSQLDateTime(wd.getLastCheckForModifications()));
@@ -217,12 +227,12 @@ public final class MediaWikiDatabase extends DatabaseManager {
         args.add(wd.getCrawlerUserName());
         args.add(wd.getCrawlerPassword());
         runUpdate(sqlAddWiki, args);
-        
+
         // set namespaces to crawl
         for (int namespaceID : wd.getNamespacesToCrawl()) {
             addNamespace(getWikiDescriptor(wd.getWikiName()).getWikiID(), namespaceID, null, true);
         }
-        
+
         cache.addWiki(getWikiDescriptor(wd.getWikiName()).getWikiID());
         return true;
     }
@@ -270,60 +280,60 @@ public final class MediaWikiDatabase extends DatabaseManager {
         return wds;
     }
 
-//    /**
-//     * Helper to process the current line of a {@link ResultSet} that contains a {@link WikiDescriptor}. To get the
-//     * namespaces to crawl, {@link #getNamespacesToCrawl(int)} is called.
-//     * 
-//     * @param resultSet The {@link ResultSet} to fetch the {@link WikiDescriptor} from.
-//     * @return The {@link WikiDescriptor} from the current line, all parameters are set.
-//     * @throws SQLException if a parameter was not found in the {@link ResultSet}.
-//     */
-//    private WikiDescriptor fetchWikiDescriptorFromResultSetRow(final ResultSet resultSet) throws SQLException {
-//        WikiDescriptor wd = null;
-//        wd = new WikiDescriptor();
-//        wd.setWikiID(resultSet.getInt(1));
-//        wd.setWikiName(resultSet.getString(2));
-//        wd.setWikiURL(resultSet.getString(3));
-//        wd.setPathToAPI(resultSet.getString(4));
-//        if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
-//            Date lastCheck = null;
-//            try {
-//                lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
-//            } catch (Exception e) {
-//                LOGGER.error(
-//                        "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
-//                        + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
-//            }
-//            wd.setLastCheckForModifications(lastCheck);
-//        }
-//        wd.setCrawlerUserName(resultSet.getString(6));
-//        wd.setCrawlerPassword(resultSet.getString(7));
-//        wd.setNamespacesToCrawl(getNamespacesToCrawl(wd.getWikiID()));
-//        return wd;
-//    }
+    // /**
+    // * Helper to process the current line of a {@link ResultSet} that contains a {@link WikiDescriptor}. To get the
+    // * namespaces to crawl, {@link #getNamespacesToCrawl(int)} is called.
+    // *
+    // * @param resultSet The {@link ResultSet} to fetch the {@link WikiDescriptor} from.
+    // * @return The {@link WikiDescriptor} from the current line, all parameters are set.
+    // * @throws SQLException if a parameter was not found in the {@link ResultSet}.
+    // */
+    // private WikiDescriptor fetchWikiDescriptorFromResultSetRow(final ResultSet resultSet) throws SQLException {
+    // WikiDescriptor wd = null;
+    // wd = new WikiDescriptor();
+    // wd.setWikiID(resultSet.getInt(1));
+    // wd.setWikiName(resultSet.getString(2));
+    // wd.setWikiURL(resultSet.getString(3));
+    // wd.setPathToAPI(resultSet.getString(4));
+    // if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
+    // Date lastCheck = null;
+    // try {
+    // lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
+    // } catch (Exception e) {
+    // LOGGER.error(
+    // "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
+    // + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
+    // }
+    // wd.setLastCheckForModifications(lastCheck);
+    // }
+    // wd.setCrawlerUserName(resultSet.getString(6));
+    // wd.setCrawlerPassword(resultSet.getString(7));
+    // wd.setNamespacesToCrawl(getNamespacesToCrawl(wd.getWikiID()));
+    // return wd;
+    // }
 
-//    /**
-//     * Adds a new Wiki page and its revisions to the database.
-//     * 
-//     * @param page The {@link WikiPage} to add to the database.
-//     * @return True if page has been added to database or false, if it was already in data base or any error occurred
-//     *         while executing the {@link PreparedStatement}. If false, see error log for details.
-//     */
-//    private boolean addPage(final WikiPage page) {
-//        int errorCount = 0;
-//
-//        List<Object> args = getPageArgs(page);
-//        
-//        errorCount += runUpdate(sqlAddPage, args) >= 0 ? 0 : 1;
-//        
-//        for (Revision revision : page.getRevisions().values()) {
-//            errorCount += addRevision(page.getWikiID(), page.getPageID(), revision) ? 0 : 1;
-//        }
-//
-//        cache.addPage(page.getWikiID(), page.getTitle(), page.getPageID());
-//
-//        return errorCount == 0;
-//    }
+    // /**
+    // * Adds a new Wiki page and its revisions to the database.
+    // *
+    // * @param page The {@link WikiPage} to add to the database.
+    // * @return True if page has been added to database or false, if it was already in data base or any error occurred
+    // * while executing the {@link PreparedStatement}. If false, see error log for details.
+    // */
+    // private boolean addPage(final WikiPage page) {
+    // int errorCount = 0;
+    //
+    // List<Object> args = getPageArgs(page);
+    //
+    // errorCount += runUpdate(sqlAddPage, args) >= 0 ? 0 : 1;
+    //
+    // for (Revision revision : page.getRevisions().values()) {
+    // errorCount += addRevision(page.getWikiID(), page.getPageID(), revision) ? 0 : 1;
+    // }
+    //
+    // cache.addPage(page.getWikiID(), page.getTitle(), page.getPageID());
+    //
+    // return errorCount == 0;
+    // }
 
     private List<Object> getPageArgs(final WikiPage page) {
         List<Object> args = new ArrayList<Object>();
@@ -351,33 +361,39 @@ public final class MediaWikiDatabase extends DatabaseManager {
     }
 
     /**
-     * Adds a set of Wiki pages to the database. Use this to add multiple pages since database optimizations can be
-     * used, it is much faster than calling {@link #addPage(int, int, String, int, Float, String, Long)} for every
-     * single page.
+     * Adds a set of Wiki pages to the database.
      * 
      * @param wikiPages The pages to add to database.
      * @return The number of pages that have been skipped. See error log for details if return value > 0.
      */
     public int addPages(final Set<WikiPage> wikiPages) {
-        
+
         // data for batch update
         List<List<Object>> pageBatchArgs = new ArrayList<List<Object>>();
         List<List<Object>> revisionBatchArgs = new ArrayList<List<Object>>();
-        
+        List<List<Object>> hyperlinksBatchArgs = new ArrayList<List<Object>>();
+
         // prepare the data for batch updating
         for (WikiPage page : wikiPages) {
             cache.addPage(page.getWikiID(), page.getTitle(), page.getPageID());
             pageBatchArgs.add(getPageArgs(page));
-            for (Revision revision : page.getRevisions().values()) {
-                List<Object> args = new ArrayList<Object>();
-                args.add(page.getWikiID());
-                args.add(page.getPageID());
-                args.add(revision);
-                revisionBatchArgs.add(args);
+
+            if (page.getRevisions() != null) {
+                for (Revision revision : page.getRevisions().values()) {
+                    List<Object> args = getRevisionArgs(page.getWikiID(), page.getPageID(), revision);
+                    revisionBatchArgs.add(args);
+                }
+            }
+
+            if (page.getHyperLinks() != null) {
+                List<List<Object>> currentLinks = getHyperlinkArgs(page.getWikiID(), page.getPageID(),
+                        page.getHyperLinks());
+                hyperlinksBatchArgs.addAll(currentLinks);
             }
         }
         int[] result = runBatchUpdate(sqlAddPage, pageBatchArgs);
         runBatchUpdate(sqlAddRevision, revisionBatchArgs);
+        runBatchUpdate(sqlAddHyperlink, hyperlinksBatchArgs);
         int skipCounter = 0;
         for (int r : result) {
             if (r == -1) {
@@ -495,7 +511,10 @@ public final class MediaWikiDatabase extends DatabaseManager {
                 }
             };
             pageID = runSingleQuery(converter, sqlGetPageIDByPageTitle, wikiID, pageTitle);
-            cache.addPage(wikiID, pageTitle, pageID);
+
+            if (pageID != null) {
+                cache.addPage(wikiID, pageTitle, pageID);
+            }
         }
         return pageID;
     }
@@ -531,21 +550,22 @@ public final class MediaWikiDatabase extends DatabaseManager {
                     } catch (Exception e) {
                         LOGGER.error(
                                 "Could not process the timestamp the page has been checked for new revisions the last time. Wiki "
-                                + page.getWikiID() + ", page title: " + page.getTitle() + " ", e);
+                                        + page.getWikiID() + ", page title: " + page.getTitle() + " ", e);
                     }
                     page.setNextCheck(nextCheckD);
-                    if (resultSet.getString("fullURL") != null) {
-                        try {
-                            page.setPageURL(new URL(resultSet.getString("fullURL")));
-                        } catch (MalformedURLException e) {
-                            LOGGER.error("DB contains invalid URL of page \"" + page.getTitle() + "\". ", e);
-                        }
+                }
+                if (resultSet.getString("fullURL") != null) {
+                    try {
+                        page.setPageURL(new URL(resultSet.getString("fullURL")));
+                    } catch (MalformedURLException e) {
+                        LOGGER.error("DB contains invalid URL of page \"" + page.getTitle() + "\". ", e);
                     }
+
                 }
                 return page;
             }
         };
-        
+
         return runSingleQuery(converter, sqlGetPageByPageID, wikiID, pageID);
     }
 
@@ -588,7 +608,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
     }
 
     /**
-     * Get a page and its revisions from database.
+     * Get a complete page from database, i.e page, metadata, revisions and links to other pages.
      * 
      * @param wikiID The ID of the Wiki the page is in.
      * @param pageID The pageID to get.
@@ -599,6 +619,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
         for (Revision revision : getRevisions(wikiID, pageID)) {
             page.addRevision(revision);
         }
+        page.addHyperLinks(getAllHyperlinks(wikiID, pageID));
         return page;
     }
 
@@ -626,6 +647,14 @@ public final class MediaWikiDatabase extends DatabaseManager {
         return runUpdate(sqlAddRevision, args) >= 0;
     }
 
+    /**
+     * Prepares a {@link List} to be used as parameters for queries using {@link #sqlAddRevision}
+     * 
+     * @param wikiID The wikiID the revision belongs to.
+     * @param pageID The pageID the revision belongs to.
+     * @param revision The {@link Revision} itself.
+     * @return List containing {wikiID, pageID, revisionID, timestamp in SQL format, author}
+     */
     private List<Object> getRevisionArgs(final int wikiID, final int pageID, final Revision revision) {
         List<Object> args = new ArrayList<Object>();
         args.add(wikiID);
@@ -634,6 +663,26 @@ public final class MediaWikiDatabase extends DatabaseManager {
         args.add(convertDateToSQLDateTime(revision.getTimestamp()));
         args.add(revision.getAuthor());
         return args;
+    }
+
+    /**
+     * Prepares a {@link List} to be used as parameters for queries using {@link #sqlAddHyperlink}
+     * 
+     * @param wikiID The wikiID the hyperlink belongs to.
+     * @param pageIDSource The pageID the hyperlinks comes from.
+     * @param hyperLinks The pageIDs pageIDSource has hyperlinks to.
+     * @return List containing {{wikiID, pageIDSource, pageIDDest_1}, {wikiID, pageIDSource, pageIDDest_2}}
+     */
+    private List<List<Object>> getHyperlinkArgs(final int wikiID, final int pageIDSource, final Set<Integer> hyperLinks) {
+        List<List<Object>> hyperlinksBatchArgs = new ArrayList<List<Object>>();
+        for (Integer link : hyperLinks) {
+            List<Object> args = new ArrayList<Object>();
+            args.add(wikiID);
+            args.add(pageIDSource);
+            args.add(link);
+            hyperlinksBatchArgs.add(args);
+        }
+        return hyperlinksBatchArgs;
     }
 
     /**
@@ -663,8 +712,6 @@ public final class MediaWikiDatabase extends DatabaseManager {
         return skipCounter;
     }
 
-
-
     /**
      * Adds all {@link Revision}s to the database. Use this to add multiple revisions since database optimizations can
      * be used, it is much faster than calling {@link #addRevision(int, int, Revision)} for every single revision.
@@ -677,25 +724,25 @@ public final class MediaWikiDatabase extends DatabaseManager {
      *            also modifies autocommit, set this parameter to false to prevent committing the results to early.
      * @return The number of pages that have been skipped. See error log for details if return value > 0.
      */
-//    private int addRevisions(final int wikiID, final int pageID, final Collection<Revision> revisions,
-//            boolean modifyAutoCommit) {
-//
-//        if (modifyAutoCommit) {
-//            setAutoCommit(false);
-//        }
-//
-//        int skipCounter = 0;
-//        boolean added = false;
-//        for (final Revision revision : revisions) {
-//            added = addRevision(wikiID, pageID, revision);
-//            skipCounter += (!added) ? 1 : 0;
-//        }
-//
-//        if (modifyAutoCommit) {
-//            setAutoCommit(true);
-//        }
-//        return skipCounter;
-//    }
+    // private int addRevisions(final int wikiID, final int pageID, final Collection<Revision> revisions,
+    // boolean modifyAutoCommit) {
+    //
+    // if (modifyAutoCommit) {
+    // setAutoCommit(false);
+    // }
+    //
+    // int skipCounter = 0;
+    // boolean added = false;
+    // for (final Revision revision : revisions) {
+    // added = addRevision(wikiID, pageID, revision);
+    // skipCounter += (!added) ? 1 : 0;
+    // }
+    //
+    // if (modifyAutoCommit) {
+    // setAutoCommit(true);
+    // }
+    // return skipCounter;
+    // }
 
     // /**
     // * Checks whether the given triple (wikiID, pageID, revisionID) is already contained in the database.
@@ -729,7 +776,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @return A {@link List} of all page titles that are used for crawling.
      */
     public List<String> getAllPageTitlesToCrawl(final int wikiID) {
-        
+
         RowConverter<String> converter = new RowConverter<String>() {
 
             @Override
@@ -749,7 +796,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @return A {@link Set} of all pages that are used for crawling.
      */
     public Set<WikiPage> getPagesToUpdate(final int wikiID, final Date date) {
-        
+
         RowConverter<WikiPage> converter = new RowConverter<WikiPage>() {
 
             @Override
@@ -768,8 +815,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
                     } catch (Exception e) {
                         LOGGER.error(
                                 "Could not process the timestamp the page has been checked for new revisions the last time. Wiki \""
-                                + wikiID + ", page \"" + page.getTitle() + "\", timestamp: "
-                                + resultSet.getString(6) + " ", e);
+                                        + wikiID + ", page \"" + page.getTitle() + "\", timestamp: "
+                                        + resultSet.getString(6) + " ", e);
                     }
                     page.setNextCheck(nextCheck);
                 }
@@ -779,7 +826,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
                 return page;
             }
         };
-        
+
         List<WikiPage> pagesList = runQuery(converter, sqlGetPagesToUpdate, wikiID, convertDateToSQLDateTime(date));
         return new HashSet<WikiPage>(pagesList);
     }
@@ -872,7 +919,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
         } else {
 
             List<Object> args = new ArrayList<Object>();
-            args.add(wd.getWikiURL());
+            args.add(wd.getWikiURL().toString());
             args.add(wd.getRelativePathToAPI());
             args.add(wd.getRelativePathToContent());
             if (wd.getLastCheckForModifications() != null) {
@@ -936,17 +983,17 @@ public final class MediaWikiDatabase extends DatabaseManager {
      */
     public HashMap<Integer, Boolean> getAllNamespaces(final int wikiID) {
         final HashMap<Integer, Boolean> namespaces = new HashMap<Integer, Boolean>();
-        
+
         ResultSetCallback callback = new ResultSetCallback() {
 
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 int namespaceID = resultSet.getInt("namespaceID");
                 boolean useForCrawling = (Boolean) resultSet.getBoolean("useForCrawling");
-                namespaces.put(namespaceID, useForCrawling);                
+                namespaces.put(namespaceID, useForCrawling);
             }
         };
-        
+
         runQuery(callback, sqlAllNamespaces, wikiID);
         return namespaces;
     }
@@ -1014,7 +1061,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      */
     public boolean updatePage(final int wikiID, final int pageID, final long revisionID, final String pageContent,
             final Date nextCheck, final String fullURL) {
-        
+
         List<Object> args = new ArrayList<Object>();
         args.add(revisionID);
         args.add(pageContent);
@@ -1026,35 +1073,103 @@ public final class MediaWikiDatabase extends DatabaseManager {
         args.add(fullURL);
         args.add(wikiID);
         args.add(pageID);
-        
+
         return runUpdate(sqlUpdatePage, args) >= 0;
     }
 
-//    /**
-//     * En/disable the auto commit functionality of the data base. If disabled, execution of {@link PreparedStatement}s
-//     * is scheduled till auto commit is enabled or a manual {@link #commit()} is called.
-//     * 
-//     * @param autoCommit auto commit value to set.
-//     */
-//    private void setAutoCommit(final boolean autoCommit) {
-//        try {
-//            DatabaseManager.getInstance().getConnection().setAutoCommit(autoCommit);
-//        } catch (SQLException e) {
-//            LOGGER.error("Could not set Connection.setAutoCommit(" + autoCommit + ") ", e);
-//        }
-//    }
-//
-//    /**
-//     * Commit all scheduled {@link PreparedStatement}s.
-//     */
-//    @SuppressWarnings("unused")
-//    private void commit() {
-//        try {
-//            DatabaseManager.getInstance().getConnection().commit();
-//        } catch (SQLException e) {
-//            LOGGER.error("Could not commit() Connection ", e);
-//        }
-//    }
+    /**
+     * Remove all entries in table "links" for the given wiki and page as source of a link.
+     * 
+     * @param wikiID The wikiID of the Wiki.
+     * @param title The name of the page that is the source of a link.
+     * @return true if update was successful, false if any problem occurred while updating. If false, see error log for
+     *         details.
+     */
+    public boolean removeAllHyperlinks(final int wikiID, final String title) {
+        final Integer pageID = getPageID(wikiID, title);
+        if (pageID == null) {
+            LOGGER.error("Could not remove links for page \"" + title + "\", page it is unknown to database!");
+            return false;
+        }
+
+        List<Object> args = new ArrayList<Object>();
+        args.add(wikiID);
+        args.add(pageID);
+
+        return runUpdate(sqlRemoveHyperlinks, args) >= 0;
+    }
+
+    /**
+     * Store Wiki-internal hyperlinks from page source to pages destinations, e.g. from
+     * http://en.wikipedia.org/wiki/Albert_Einstein to http://en.wikipedia.org/wiki/Nobel_Prize_in_Physics
+     * 
+     * @param page The page to add all links for.
+     * @return The number of links that have been skipped. See error log for details if return value > 0.
+     */
+    public int addHyperlinks(final WikiPage page) {
+
+        // data for batch update
+        List<List<Object>> pageBatchArgs = getHyperlinkArgs(page.getWikiID(), page.getPageID(), page.getHyperLinks());
+
+        int[] result = runBatchUpdate(sqlAddHyperlink, pageBatchArgs);
+
+        int skipCounter = 0;
+        for (int r : result) {
+            if (r == -1) {
+                skipCounter++;
+            }
+        }
+        return skipCounter;
+    }
+
+    /**
+     * Returns a Set of all pageIDs the given page has hyperlinks to.
+     * 
+     * @param wikiID The wikiID to get all namespaces for.
+     * @param pageIDSource The pageID to get outgoing hyperlinks for.
+     * @return A Set of all pageIDs the given page has hyperlinks to.
+     */
+    public Set<Integer> getAllHyperlinks(final int wikiID, final int pageIDSource) {
+
+        final HashSet<Integer> hyperlinks = new HashSet<Integer>();
+        ResultSetCallback callback = new ResultSetCallback() {
+
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                int pageIDDest = resultSet.getInt("pageIDDest");
+                hyperlinks.add(pageIDDest);
+            }
+        };
+
+        runQuery(callback, sqlGetOutgoingHyperlinks, wikiID, pageIDSource);
+        return hyperlinks;
+    }
+
+    // /**
+    // * En/disable the auto commit functionality of the data base. If disabled, execution of {@link PreparedStatement}s
+    // * is scheduled till auto commit is enabled or a manual {@link #commit()} is called.
+    // *
+    // * @param autoCommit auto commit value to set.
+    // */
+    // private void setAutoCommit(final boolean autoCommit) {
+    // try {
+    // DatabaseManager.getInstance().getConnection().setAutoCommit(autoCommit);
+    // } catch (SQLException e) {
+    // LOGGER.error("Could not set Connection.setAutoCommit(" + autoCommit + ") ", e);
+    // }
+    // }
+    //
+    // /**
+    // * Commit all scheduled {@link PreparedStatement}s.
+    // */
+    // @SuppressWarnings("unused")
+    // private void commit() {
+    // try {
+    // DatabaseManager.getInstance().getConnection().commit();
+    // } catch (SQLException e) {
+    // LOGGER.error("Could not commit() Connection ", e);
+    // }
+    // }
 
     /**
      * Update the time stamp to check this page the next time for new revisions.
@@ -1066,7 +1181,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      *         details.
      */
     public boolean updatePage(final int wikiID, final int pageID, final Date nextCheck) {
-        
+
         List<Object> args = new ArrayList<Object>();
         if (nextCheck != null) {
             args.add(convertDateToSQLDateTime(nextCheck));
@@ -1075,9 +1190,9 @@ public final class MediaWikiDatabase extends DatabaseManager {
         }
         args.add(wikiID);
         args.add(pageID);
-        
+
         return runUpdate(sqlUpdatePageNextCheck, args) >= 0;
-    }    
+    }
 
     /**
      * Clear all wiki specific tables.
@@ -1089,9 +1204,10 @@ public final class MediaWikiDatabase extends DatabaseManager {
         runUpdate("TRUNCATE TABLE revisions");
         runUpdate("TRUNCATE TABLE wikis");
     }
-    
+
     public static void main(String[] args) {
         // new MediaWikiDatabase().clearTables();
+
     }
 
 }

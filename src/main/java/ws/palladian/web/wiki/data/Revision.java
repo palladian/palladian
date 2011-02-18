@@ -34,7 +34,13 @@ public class Revision {
      */
     public Revision(final long revisionID, final Date timestamp, final String user) {
         this.revisionID = revisionID;
+        if (timestamp == null) {
+            throw new IllegalArgumentException("timestamp may not be null!");
+        }
         this.timestamp = timestamp;
+        if (user == null || user.length() == 0) {
+            throw new IllegalArgumentException("user may not be null or empty string!");
+        }
         this.user = user;
     }
 
@@ -46,14 +52,16 @@ public class Revision {
     }
 
     /**
-     * @return The timestamp this revision has been created on the Wiki.
+     * @return The timestamp this revision has been created on the Wiki. It is guaranteed that the return value is not
+     *         <code>null</code>.
      */
     public final Date getTimestamp() {
         return timestamp;
     }
 
     /**
-     * @return The name of the Wiki user that created this revision.
+     * @return The name of the Wiki user that created this revision. It is guaranteed that the return value is not
+     *         <code>null</code> and of length > 0.
      */
     public final String getAuthor() {
         return user;

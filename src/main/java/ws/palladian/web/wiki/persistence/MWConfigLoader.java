@@ -2,6 +2,7 @@ package ws.palladian.web.wiki.persistence;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -132,7 +133,10 @@ public final class MWConfigLoader {
             if (wikisInDB.containsKey(wikiName)) {
                 // copy internal stuff from db that can not be contained in config file
                 wd.setWikiID(wikisInDB.get(wikiName).getWikiID());
-                wd.setLastCheckForModifications(wikisInDB.get(wikiName).getLastCheckForModifications());
+                Date lastCheck = wikisInDB.get(wikiName).getLastCheckForModifications();
+                if (lastCheck != null) {
+                    wd.setLastCheckForModifications(lastCheck);
+                }
                 mwDatabase.updateWiki(wd);
                 wikisInDB.remove(wd.getWikiName());
             } else {

@@ -2,6 +2,8 @@ package ws.palladian.web.wiki.data;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -20,7 +22,7 @@ public class WikiPage {
     private static final Logger LOGGER = Logger.getLogger(WikiPage.class);
 
     /** Unique identifier of the Wiki this page is in, created by data base. */
-    private int wikiID = -1;
+    private Integer wikiID = null;
 
     /** The page's title. */
     private String title = null;
@@ -29,10 +31,10 @@ public class WikiPage {
     private URL pageURL = null;
 
     /** The Wiki's internal id of this page. */
-    private int pageID = -1;
+    private Integer pageID = null;
 
     /** The Wiki's namespace id the page is in. */
-    private int namespaceID = -1;
+    private Integer namespaceID = null;
 
     /** Additional meta data, calculated from the page's revision history to express the page's update frequency. */
     private Float sourceDynamics = null;
@@ -44,7 +46,10 @@ public class WikiPage {
     private boolean pageDeleted = false;
 
     /** The page's revision history. */
-    private TreeMap<Long, Revision> revisions = new TreeMap<Long, Revision>();
+    private TreeMap<Long, Revision> revisions = null;
+
+    /** All Wiki-internal hyperlinks to other pages that do exist */
+    private Set<Integer> hyperLinks = new HashSet<Integer>();
 
     /**
      * The revisionID of the newest revision. Ugly hack since one have to be careful to synchronize it with
@@ -58,9 +63,10 @@ public class WikiPage {
     private Date nextCheck = null;
 
     /**
-     * @return Unique identifier of the Wiki this page is in, created by data base.
+     * @return Unique identifier of the Wiki this page is in, created by data base. <code>null</code> if the wikiID has
+     *         not been set yet.
      */
-    public final int getWikiID() {
+    public final Integer getWikiID() {
         return wikiID;
     }
 
@@ -72,16 +78,19 @@ public class WikiPage {
     }
 
     /**
-     * @return The page's title.
+     * @return The page's title. <code>null</code> if the title has not been set yet.
      */
     public final String getTitle() {
         return title;
     }
 
     /**
-     * @param pageTitle The page's title.
+     * @param pageTitle The page's title. Value may not be an empty {@link String}.
      */
     public final void setTitle(String pageTitle) {
+        if (pageTitle.length() == 0) {
+            throw new IllegalArgumentException("Value for pageTitle may not be an empty string!");
+        }
         this.title = pageTitle;
     }
 
@@ -100,9 +109,9 @@ public class WikiPage {
     }
 
     /**
-     * @return The Wiki's internal id of this page.
+     * @return The Wiki's internal id of this page or <code>null</code> if it has not been set.
      */
-    public final int getPageID() {
+    public final Integer getPageID() {
         return pageID;
     }
 
@@ -114,9 +123,9 @@ public class WikiPage {
     }
 
     /**
-     * @return The Wiki's namespace id the page is in.
+     * @return The Wiki's namespace id the page is in or <code>null</code> if it has not been set.
      */
-    public final int getNamespaceID() {
+    public final Integer getNamespaceID() {
         return namespaceID;
     }
 
@@ -129,6 +138,7 @@ public class WikiPage {
 
     /**
      * @return Additional meta data, calculated from the page's revision history to express the page's update frequency.
+     *         <code>null</code> if it has not been set.
      */
     public final Float getSourceDynamics() {
         return sourceDynamics;
@@ -143,17 +153,22 @@ public class WikiPage {
     }
 
     /**
-     * @return The page content as HTML representation, rendered by the Wiki.
+     * @return The page content as HTML representation, rendered by the Wiki, or <code>null</code> if it has not been
+     *         set.
      */
     public final String getPageContentHTML() {
         return pageContentHTML;
     }
 
     /**
-     * @return The page content without HTML tags.
+     * @return The page content without HTML tags or <code>null</code> if it has not been set.
      */
-    public final String getStripedPageContent() {
-        return HTMLHelper.documentToReadableText(pageContentHTML, false);
+    public final String getPageContentStriped() {
+        String stripedText = null;
+        if (pageContentHTML != null) {
+            stripedText = HTMLHelper.documentToReadableText(pageContentHTML, false);
+        }
+        return stripedText;
     }
 
     /**
@@ -164,44 +179,55 @@ public class WikiPage {
     }
 
     /**
-     * @return the pageDeleted
+     * Check whether this page still exists on the Wiki.
+     * 
+     * @return <code>true</code> if the page has been deleted from the Wiki.
      */
     public final boolean isPageDeleted() {
         return pageDeleted;
     }
 
     /**
-     * @param pageDeleted the pageDeleted to set
+     * @param pageDeleted <code>true</code> if page has been deleted on the Wiki.
      */
     public final void setPageDeleted(boolean pageDeleted) {
         this.pageDeleted = pageDeleted;
     }
 
     /**
-     * @return All authors that contributed to at least one revision of the page.
+     * @return All authors that contributed to at least one revision of the page or <code>null</code> if revisions are
+     *         not set and therefore authors are not known.
      */
-    public final TreeSet<String> getAuthors() {
-        TreeSet<String> authors = new TreeSet<String>();
-        for (Revision revision : revisions.values()) {
-            authors.add(revision.getAuthor());
+    public final Set<String> getAuthors() {
+        TreeSet<String> authors = null;
+
+        if (revisions != null) {
+            authors = new TreeSet<String>();
+            for (Revision revision : revisions.values()) {
+                authors.add(revision.getAuthor());
+            }
         }
         return authors;
     }
 
     /**
-     * @return The page's revision history as pairs of (revisionID, {@link Revision}).
+     * @return The page's revision history as pairs of (revisionID, {@link Revision}) or <code>null</code> if revisions
+     *         have not been set.
      */
     public final TreeMap<Long, Revision> getRevisions() {
         return revisions;
     }
 
     /**
-     * @return All revision time stamps.
+     * @return All revision time stamps or <code>null</code> if revisions have not been set.
      */
     public final TreeSet<Date> getRevisionTimeStamps() {
-        TreeSet<Date> timeStamps = new TreeSet<Date>();
-        for (Revision revision : revisions.values()) {
-            timeStamps.add(revision.getTimestamp());
+        TreeSet<Date> timeStamps = null;
+        if (revisions != null) {
+            timeStamps = new TreeSet<Date>();
+            for (Revision revision : revisions.values()) {
+                timeStamps.add(revision.getTimestamp());
+            }
         }
         return timeStamps;
     }
@@ -209,12 +235,11 @@ public class WikiPage {
     /**
      * Get the {@link Date} this {@link WikiPage} has been created.
      * 
-     * @return The {@link Date} this page has been created or <code>null</code> if there are no known revisions (which
-     *         should never be the case.)
+     * @return The {@link Date} this page has been created or <code>null</code> if revisions are not set.
      */
     public final Date getCreatedDate() {
         Date created = null;
-        if (!revisions.isEmpty()) {
+        if ((revisions != null) && (!revisions.isEmpty())) {
             created = revisions.firstEntry().getValue().getTimestamp();
         }
         return created;
@@ -223,12 +248,11 @@ public class WikiPage {
     /**
      * Get the {@link Date} this {@link WikiPage} has been modified the last time.
      * 
-     * @return The {@link Date} this page has been last modified or <code>null</code> if there are no known revisions
-     *         (which should never be the case.)
+     * @return The {@link Date} this page has been last modified or <code>null</code> if revisions are not set.
      */
     public final Date getLastModifiedDate() {
         Date lastModified = null;
-        if (!revisions.isEmpty()) {
+        if ((revisions != null) && (!revisions.isEmpty())) {
             lastModified = revisions.lastEntry().getValue().getTimestamp();
         }
         return lastModified;
@@ -240,6 +264,14 @@ public class WikiPage {
      * @param revision The revision from Wiki API.
      */
     public final void addRevision(final Revision revision) {
+        if (revision == null) {
+            throw new IllegalArgumentException("Revision may not be null!");
+        }
+
+        if (revisions == null){
+            revisions = new TreeMap<Long, Revision>();
+        }
+        
         if (revisions.containsKey(revision.getRevisionID())) {
             LOGGER.warn("Revision " + revision.getRevisionID() + " could not be added, it is already contained!");
         } else {
@@ -249,11 +281,11 @@ public class WikiPage {
     }
 
     /**
-     * Ugly hack to set and store the newest revisionID without setting complete revisions with
+     * USE WITH CAUTION! Ugly hack to set and store the newest revisionID without setting complete revisions with
      * {@link #addRevision(Revision)}. This is required since the newest revisionID can be fetched from API without
      * fetching all revisions. (speeds up crawler).
      * 
-     * @param newesRevisionID the revisionId read from table pages, might be null if page content has never been
+     * @param newesRevisionID The revisionId read from DB table pages, might be null if page content has never been
      *            crawled.
      */
     public final void setNewestRevisionID(Long newesRevisionID) {
@@ -261,19 +293,20 @@ public class WikiPage {
     }
 
     /**
-     * Get the highest revisionID of this page.
+     * Get the newest revisionID of this page.
      * 
-     * @return The highest revisionID of this page or null if no revision is known.
+     * @return The newest revisionID of this page or <code>null</code> if no revision is known.
      */
     public final Long getNewestRevisionID() {
         return newestRevisionID;
     }
 
     /**
-     * The date this page should be checked for new revisions the next time. This value is predicted by a predictor
-     * component.
+     * The date this page should be checked for new revisions the next time. This value is normally predicted by a
+     * predictor component.
      * 
-     * @return The date this page should be checked for new revisions the next time.
+     * @return The date this page should be checked for new revisions the next time or <code>null</code> if it is not
+     *         set.
      */
     public final Date getNextCheck() {
         return nextCheck;
@@ -289,6 +322,39 @@ public class WikiPage {
         this.nextCheck = nextCheck;
     }
 
+    /**
+     * Get a {@link Set} of all pageIds this page has hyperlinks to. This set contains pages that:
+     * <ul>
+     * <li>are in the same Wiki. No external links.</li>
+     * <li>already exist. Links to pages that do not exist yet are not included.</li>
+     * </ul>
+     * 
+     * @return a {@link Set} of all pageIds this page has hyperlinks to or <code>null</code> if it is not
+     *         set.
+     */
+    public final Set<Integer> getHyperLinks() {
+        return hyperLinks;
+    }
+
+    /**
+     * @param pageIDDestination The pageID this page has a hyperlink to.
+     * @return <code>true</code> if this set did not already contain the specified element.
+     */
+    public final boolean addHyperLink(int pageIDDestination) {
+        return hyperLinks.add(pageIDDestination);
+    }
+
+    /**
+     * @param pageIDDestination The pageID this page has a hyperlink to.
+     * @return <code>true</code> if this set did not already contain the specified element.
+     */
+    public final boolean addHyperLinks(Set<Integer> pageIDsDestination) {
+        if (pageIDsDestination == null) {
+            throw new IllegalArgumentException("Value for pageIDsDestination may not be null!");
+        }
+        return hyperLinks.addAll(pageIDsDestination);
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -297,8 +363,8 @@ public class WikiPage {
     public String toString() {
         return "WikiPage [wikiID=" + wikiID + ", title=" + title + ", pageURL=" + pageURL + ", pageID=" + pageID
                 + ", namespaceID=" + namespaceID + ", sourceDynamics=" + sourceDynamics + ", pageContentHTML="
-                + pageContentHTML + ", pageDeleted=" + pageDeleted + ", revisions=" + revisions + ", newestRevisionID="
-                + newestRevisionID + ", nextCheck=" + nextCheck + "]";
+                + pageContentHTML + ", pageDeleted=" + pageDeleted + ", revisions=" + revisions + ", hyperLinks="
+                + hyperLinks + ", newestRevisionID=" + newestRevisionID + ", nextCheck=" + nextCheck + "]";
     }
 
 }
