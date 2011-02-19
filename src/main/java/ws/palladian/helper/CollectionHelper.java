@@ -172,10 +172,19 @@ public final class CollectionHelper {
      * @param map
      */
     public static <K, V> void print(Map<K, V> map) {
+        print(map, -1);
+    }
+
+    public static <K, V> void print(Map<K, V> map, int limit) {
+        int c = 0;
         Iterator<Map.Entry<K, V>> mapIterator = map.entrySet().iterator();
         while (mapIterator.hasNext()) {
             Map.Entry<K, V> entry = mapIterator.next();
             System.out.println(entry.getKey() + " : " + entry.getValue());
+            c++;
+            if (c >= limit && limit > -1) {
+                break;
+            }
         }
         System.out.println("#Entries: " + map.entrySet().size());
     }

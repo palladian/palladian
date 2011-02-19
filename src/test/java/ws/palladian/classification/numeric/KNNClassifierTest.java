@@ -9,8 +9,6 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import ws.palladian.classification.Instances;
-import ws.palladian.classification.numeric.KNNClassifier;
-import ws.palladian.classification.numeric.NumericInstance;
 
 public class KNNClassifierTest extends TestCase {
 
@@ -111,7 +109,7 @@ public class KNNClassifierTest extends TestCase {
         // classify
         knn.classify(newInstance);
 
-        Assert.assertEquals(1.0000000001565293E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
+        Assert.assertEquals(1.0000000001339825E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
         Assert.assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 
@@ -151,7 +149,7 @@ public class KNNClassifierTest extends TestCase {
         // classify
         loadedKnn.classify(newInstance);
 
-        Assert.assertEquals(1.0000000079926668E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
+        Assert.assertEquals(1.0000000054326154E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
         Assert.assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 

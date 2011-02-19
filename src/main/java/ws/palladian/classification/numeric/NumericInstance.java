@@ -83,6 +83,27 @@ public class NumericInstance extends Instance {
 
     }
 
+    // @Override
+    // public int compareTo(NumericInstance o) {
+    // StringBuilder featureString1 = new StringBuilder();
+    // StringBuilder featureString2 = new StringBuilder();
+    //
+    // for (Double featureValue : getFeatures()) {
+    // featureString1.append(featureValue);
+    // }
+    // for (Double featureValue : o.getFeatures()) {
+    // featureString2.append(featureValue);
+    // }
+    //
+    // if (featureString1.toString().hashCode() < featureString1.toString().hashCode()) {
+    // return -1;
+    // }
+    //
+    // return 1;
+    // }
+
+
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -99,5 +120,43 @@ public class NumericInstance extends Instance {
         builder.append("]");
         return builder.toString();
     }
+
+    // @Override
+    // public int hashCode() {
+    // final int prime = 31;
+    // int result = 1;
+    // result = prime * result + ((features == null) ? 0 : features.hashCode());
+    // result = prime * result + ((instanceClass == null) ? 0 : instanceClass.hashCode());
+    // return result;
+    // }
+    //
+    // @Override
+    // public boolean equals(Object obj) {
+    // if (this == obj) {
+    // return true;
+    // }
+    // if (obj == null) {
+    // return false;
+    // }
+    // if (getClass() != obj.getClass()) {
+    // return false;
+    // }
+    // NumericInstance other = (NumericInstance) obj;
+    // if (features == null) {
+    // if (other.features != null) {
+    // return false;
+    // }
+    // } else if (!features.equals(other.features)) {
+    // return false;
+    // }
+    // if (instanceClass == null) {
+    // if (other.instanceClass != null) {
+    // return false;
+    // }
+    // } else if (!instanceClass.equals(other.instanceClass)) {
+    // return false;
+    // }
+    // return true;
+    // }
 
 }

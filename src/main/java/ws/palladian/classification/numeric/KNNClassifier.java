@@ -28,7 +28,10 @@ public final class KNNClassifier extends NumericClassifier {
     /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
     private Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
 
-    /** Number of nearest neighbors that are allowed to vote. */
+    /**
+     * Number of nearest neighbors that are allowed to vote. If neighbors have the same distance they will all be
+     * considered for voting, k might increase in these cases.
+     */
     private int k = 3;
 
     /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
@@ -86,13 +89,26 @@ public final class KNNClassifier extends NumericClassifier {
             neighbors.put(knownInstance, distance);
         }
 
+        // CollectionHelper.print(neighbors, 10);
+
         // sort near neighbor map by distance
         Map<NumericInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors.entrySet());
+
+        // CollectionHelper.print(sortedList, 10);
 
         // get votes from k nearest neighbors and decide in which category the document is in also consider distance for nearest neighbors
         Map<String, Double> votes = new HashMap<String, Double>();
         int ck = 0;
+
+        // if there are several instances at the same distance we take all of them into the voting, k might get bigger
+        // in those cases
+        double lastDistance = -1;
         for (Entry<NumericInstance, Double> entry : sortedList.entrySet()) {
+
+            if (ck >= k && entry.getValue() != lastDistance) {
+                break;
+            }
+
             NumericInstance votingDocument = entry.getKey();
 
             Category realCategory = votingDocument.getInstanceCategory();
@@ -104,9 +120,7 @@ public final class KNNClassifier extends NumericClassifier {
                 votes.put(realCategory.getName(), 1.0 / (entry.getValue() + 0.000000001));
             }
 
-            if (ck == k) {
-                break;
-            }
+            lastDistance = entry.getValue();
             ++ck;
         }
 

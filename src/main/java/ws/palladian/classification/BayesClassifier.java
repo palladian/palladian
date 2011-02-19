@@ -34,7 +34,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
      * Build the bayesProbabilityMap for nominal and numeric features.
      */
     public void train() {
-        
+
         bayesProbabilityTensor = new Tensor();
 
         // this is the index of the first numeric attribute, we need this to distinguish between the calculation of
@@ -43,15 +43,15 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
         // first we count how many times each feature value occurs with a class
         for (UniversalInstance instance : getTrainingInstances()) {
-            
+
             int featureIndex = 0;
             Category classValue = instance.getInstanceCategory();
 
             // add the counts of the values of the nominal features to the tensor
             List<String> nominalFeatures = instance.getNominalFeatures();
-            
+
             for (String nominalFeatureValue : nominalFeatures) {
-                
+
                 Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, classValue.getName(),
                         nominalFeatureValue);
                 if (currentCount == null) {
@@ -60,10 +60,10 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                     currentCount++;
                 }
                 bayesProbabilityTensor.set(featureIndex, classValue.getName(), nominalFeatureValue, currentCount);
-                
+
                 featureIndex++;
             }
-            
+
             // add the counts of the values of the numeric features to the tensor
             List<Double> numericFeatures = instance.getNumericFeatures();
 
@@ -113,7 +113,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                     int totalCount = 0;
                     int totalValues = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        totalCount += (Integer) valueAxis.getValue();
+                        totalCount += (Double) valueAxis.getValue();
                         totalValues++;
                     }
 
@@ -131,9 +131,9 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                     // f(x) = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         double densityFunctionValue = 1
-                                / (Math.sqrt(2 * Math.PI) * standardDeviation)
-                                * Math.pow(Math.E, -(Math.pow((Double) valueAxis.getValue() - mean, 2) / (2 * Math.pow(
-                                        standardDeviation, 2))));
+                        / (Math.sqrt(2 * Math.PI) * standardDeviation)
+                        * Math.pow(Math.E, -(Math.pow((Double) valueAxis.getValue() - mean, 2) / (2 * Math.pow(
+                                standardDeviation, 2))));
                         valueAxis.setValue(densityFunctionValue);
                     }
 
@@ -142,7 +142,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             }
 
         }
-        
+
     }
 
     // public Instances<UniversalInstance> getTrainingInstances() {
@@ -205,40 +205,44 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
         StopWatch sw = new StopWatch();
 
+        if (categories == null) {
+            getPossibleCategories(getTrainingInstances());
+        }
+
         int classType = getClassificationType();
 
         // calculate the probability for each class given the feature values
-        
+
         // category-probability map
         Map<Category, Double> probabilities = new HashMap<Category, Double>();
-        
+
         // fill map with prior probabilities
         Categories categories = getCategories();
         for (Category category : categories) {
             probabilities.put(category, category.getPrior());
         }
-        
+
         // multiply the probabilities from the probability/density tensor
         List<String> nominalFeatures = instance.getNominalFeatures();
-        
+
         int featureIndex = 0;
         for (String nominalFeatureValue : nominalFeatures) {
-            
+
             for (Category category : categories) {
                 Double prob = (Double) bayesProbabilityTensor
-                        .get(featureIndex, category.getName(), nominalFeatureValue);
+                .get(featureIndex, category.getName(), nominalFeatureValue);
                 // ignore if there was nothing learned for the featureValue class combination
                 if (prob == null) {
                     continue;
                 }
                 probabilities.put(category, probabilities.get(category) * prob);
             }
-            
+
             featureIndex++;
         }
-        
+
         // create category entries
-        
+
         CategoryEntries assignedEntries = new CategoryEntries();
         for (Category category : categories) {
             assignedEntries.add(new CategoryEntry(assignedEntries, category, probabilities.get(category)));
