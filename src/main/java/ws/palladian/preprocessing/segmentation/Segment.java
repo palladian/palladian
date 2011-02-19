@@ -1,10 +1,10 @@
 package ws.palladian.preprocessing.segmentation;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import ws.palladian.helper.ConfigHolder;
 
 /**
  * The class Segment contains all important values of a single segment of a document.
@@ -14,11 +14,8 @@ import org.w3c.dom.Node;
  */
 public class Segment {
 
-    /** The logger of the class segment */
-    private static final Logger LOGGER = Logger.getLogger(PageSegmenter.class);
-
     /** Reads the segmenter.config */
-    private PropertiesConfiguration config = null;
+    private PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
     // ///////////////////// Attributes of a segment ///////////////////////
 
@@ -87,43 +84,28 @@ public class Segment {
 
     public Color getColor() {
 
-        String configPath = "config/segmenter.conf";
-        try {
-            config = new PropertiesConfiguration(configPath);
-
-            if (variability >= config.getDouble("step1"))
-                color = Color.GREEN;
-            if (variability > config.getDouble("step2"))
-                color = Color.LIGHTGREEN;
-            if (variability > config.getDouble("step3"))
-                color = Color.GREENYELLOW;
-            if (variability > config.getDouble("step4"))
-                color = Color.YELLOW;
-            if (variability > config.getDouble("step5"))
-                color = Color.REDYELLOW;
-            if (variability > config.getDouble("step6"))
-                color = Color.LIGHTRED;
-            if (variability > config.getDouble("step7"))
-                color = Color.RED;
-
-        } catch (ConfigurationException e) {
-            LOGGER.warn("PageSegmenter configuration under " + configPath + " could not be loaded completely: "
-                    + e.getMessage());
-            if (variability >= 0)
-                color = Color.GREEN;
-            if (variability > 0.14)
-                color = Color.LIGHTGREEN;
-            if (variability > 0.28)
-                color = Color.GREENYELLOW;
-            if (variability > 0.42)
-                color = Color.YELLOW;
-            if (variability > 0.58)
-                color = Color.REDYELLOW;
-            if (variability > 0.72)
-                color = Color.LIGHTRED;
-            if (variability > 0.86)
-                color = Color.RED;
+        if (variability >= config.getDouble("pageSegmentation.step1", 0)) {
+            color = Color.GREEN;
         }
+        if (variability > config.getDouble("pageSegmentation.step2", 0.14)) {
+            color = Color.LIGHTGREEN;
+        }
+        if (variability > config.getDouble("pageSegmentation.step3", 0.28)) {
+            color = Color.GREENYELLOW;
+        }
+        if (variability > config.getDouble("pageSegmentation.step4", 0.42)) {
+            color = Color.YELLOW;
+        }
+        if (variability > config.getDouble("pageSegmentation.step5", 0.58)) {
+            color = Color.REDYELLOW;
+        }
+        if (variability > config.getDouble("pageSegmentation.step6", 0.72)) {
+            color = Color.LIGHTRED;
+        }
+        if (variability > config.getDouble("pageSegmentation.step7", 0.86)) {
+            color = Color.RED;
+        }
+
         return this.color;
     }
 
