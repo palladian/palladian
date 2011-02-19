@@ -4,10 +4,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.StopWatch;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
@@ -18,7 +18,7 @@ import com.jolbox.bonecp.BoneCPConfig;
  * @author Philipp Katz
  * 
  */
-public class ConnectionManager {
+/* package */ class ConnectionManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ConnectionManager.class);
@@ -49,6 +49,8 @@ public class ConnectionManager {
      * Setup the connection pool, read configuration from properties file.
      */
     private void setup() {
+        
+        StopWatch sw = new StopWatch();
 
         // The configuration file can be found under config/palladian.properties.
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
@@ -68,23 +70,8 @@ public class ConnectionManager {
 
             // setup the connection pool
             BoneCPConfig boneConfig = new BoneCPConfig();
-
-            // JDBC URL for the database
-            StringBuilder jdbcUrl = new StringBuilder();
-            jdbcUrl.append("jdbc:").append(config.getString("db.type")).append("://");
-            jdbcUrl.append(config.getString("db.host")).append(":").append(config.getString("db.port")).append("/");
-            jdbcUrl.append(config.getString("db.name"));
             
-            // additional parameters for the URL, if supplied
-            String[] params = config.getStringArray("db.parameter");
-            String paramString = StringUtils.join(params, "&");
-            if (!paramString.isEmpty()) {
-                jdbcUrl.append("?").append(paramString);                
-            }
-            
-            LOGGER.debug("JDBC URL : " + jdbcUrl);
-
-            boneConfig.setJdbcUrl(jdbcUrl.toString());
+            boneConfig.setJdbcUrl(config.getString("db.jdbcUrl"));
             boneConfig.setUsername(config.getString("db.username"));
             boneConfig.setPassword(config.getString("db.password"));
             boneConfig.setMinConnectionsPerPartition(5);
@@ -92,6 +79,8 @@ public class ConnectionManager {
             boneConfig.setPartitionCount(1);
 
             connectionPool = new BoneCP(boneConfig);
+            
+            LOGGER.debug("initialized the connection pool in " + sw.getElapsedTimeString());
 
         } catch (SQLException e) {
             LOGGER.error("error setting up connection pool : " + e.getMessage());
