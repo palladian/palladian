@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -332,6 +331,9 @@ public class FeedDownloader {
 
             String entryLink = getEntryLink(syndFeed, syndEntry);
             item.setLink(entryLink);
+            
+            String entryDescription = getEntryDescription(syndEntry);
+            item.setItemDescription(entryDescription);
 
             String entryText = getEntryText(syndEntry);
             item.setItemText(entryText);
@@ -374,6 +376,20 @@ public class FeedDownloader {
     private String getEntryTitle(SyndEntry syndEntry) {
         return cleanup(syndEntry.getTitle());
     }
+    
+    /**
+     * Get text description from {@link SyndEntry}.
+     * 
+     * @param syndEntry
+     * @return description, or <code>null</code> if no description.
+     */
+    private String getEntryDescription(SyndEntry syndEntry) {
+        String description = null;
+        if (syndEntry.getDescription() != null) {
+            description = syndEntry.getDescription().getValue();
+        }
+        return description;
+    }
 
     /**
      * Get text content from {@link SyndEntry}; either from content/summary/description element.
@@ -391,29 +407,33 @@ public class FeedDownloader {
         // or maybe better -- distinguish between summary/description vs. content?
         // http://web.resource.org/rss/1.0/modules/content/
 
-        List<String> contentCandidates = new ArrayList<String>();
+//        List<String> contentCandidates = new ArrayList<String>();
+        String entryText = null;
         List<SyndContent> contents = syndEntry.getContents();
         if (contents != null) {
             for (SyndContent content : contents) {
                 String contentValue = content.getValue();
                 if (contentValue != null && contentValue.length() != 0) {
                     String contentText = cleanup(contentValue);
-                    contentCandidates.add(contentText);
+                    // contentCandidates.add(contentText);
+                    if (entryText == null || contentText.length() > entryText.length()) {
+                        entryText = contentText;
+                    }
                 }
             }
         }
-        if (syndEntry.getDescription() != null) {
-            String description = syndEntry.getDescription().getValue();
-            contentCandidates.add(cleanup(description));
-        }
+//        if (syndEntry.getDescription() != null) {
+//            String description = syndEntry.getDescription().getValue();
+//            contentCandidates.add(cleanup(description));
+//        }
 
         // determine best candidate
-        String entryText = null;
-        for (String candidate : contentCandidates) {
-            if (entryText == null || entryText.length() < candidate.length()) {
-                entryText = candidate;
-            }
-        }
+//        String entryText = null;
+//        for (String candidate : contentCandidates) {
+//            if (entryText == null || entryText.length() < candidate.length()) {
+//                entryText = candidate;
+//            }
+//        }
 
         return entryText;
     }
@@ -670,6 +690,7 @@ public class FeedDownloader {
             for (FeedItem item : items) {
                 sb.append(item.getTitle()).append("\t");
                 if (includeText) {
+                    sb.append(item.getItemDescription()).append("\t");
                     sb.append(item.getItemText()).append("\t");
                 }
                 sb.append(item.getLink()).append("\t");
