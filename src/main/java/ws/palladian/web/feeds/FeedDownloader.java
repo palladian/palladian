@@ -63,19 +63,19 @@ public class FeedDownloader {
      * do support either ETag or LastModifiedSince).
      */
     private boolean useBandwidthSavingHTTPHeaders = false;
-    
+
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
-    
+
     /**
      * Whether to clean strings like text and title from feed's items; this means strip out HTML tags and entities. If
      * disabled, the raw content from the feed is aggregated without further treatment.
      */
     private boolean cleanStrings = true;
-    
+
     public FeedDownloader() {
         // suXXX that I have to set this explicitly;
-        // makes sense to have this setting for Neko, 
+        // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
         // think this over?
         crawler.getDownloadFilter().setMaxFileSize(-1);
@@ -244,19 +244,19 @@ public class FeedDownloader {
     public boolean isUseBandwidthSavingHTTPHeaders() {
         return useBandwidthSavingHTTPHeaders;
     }
-    
+
     public void setUseDateRecognition(boolean useDateRecognition) {
         this.useDateRecognition = useDateRecognition;
     }
-    
+
     public boolean isUseDateRecognition() {
         return useDateRecognition;
     }
-    
+
     public void setCleanStrings(boolean cleanStrings) {
         this.cleanStrings = cleanStrings;
     }
-    
+
     public boolean isCleanStrings() {
         return cleanStrings;
     }
@@ -331,7 +331,7 @@ public class FeedDownloader {
 
             String entryLink = getEntryLink(syndFeed, syndEntry);
             item.setLink(entryLink);
-            
+
             String entryDescription = getEntryDescription(syndEntry);
             item.setItemDescription(entryDescription);
 
@@ -376,7 +376,7 @@ public class FeedDownloader {
     private String getEntryTitle(SyndEntry syndEntry) {
         return cleanup(syndEntry.getTitle());
     }
-    
+
     /**
      * Get text description from {@link SyndEntry}.
      * 
@@ -392,7 +392,9 @@ public class FeedDownloader {
     }
 
     /**
-     * Get text content from {@link SyndEntry}; either from content/summary/description element.
+     * Get text content from {@link SyndEntry}. ROME also considers RSS content module.
+     * 
+     * @see http://web.resource.org/rss/1.0/modules/content/
      * 
      * @param syndEntry
      * @return text content or <code>null</code> if no content found.
@@ -402,12 +404,7 @@ public class FeedDownloader {
 
         // I modified this method to return the *longest* text fragment which we can retrieve
         // from the feed item. -- Philipp, 2011-01-28.
-        
-        // TODO ability to decide manually from where to take the text content,
-        // or maybe better -- distinguish between summary/description vs. content?
-        // http://web.resource.org/rss/1.0/modules/content/
 
-//        List<String> contentCandidates = new ArrayList<String>();
         String entryText = null;
         List<SyndContent> contents = syndEntry.getContents();
         if (contents != null) {
@@ -415,25 +412,12 @@ public class FeedDownloader {
                 String contentValue = content.getValue();
                 if (contentValue != null && contentValue.length() != 0) {
                     String contentText = cleanup(contentValue);
-                    // contentCandidates.add(contentText);
                     if (entryText == null || contentText.length() > entryText.length()) {
                         entryText = contentText;
                     }
                 }
             }
         }
-//        if (syndEntry.getDescription() != null) {
-//            String description = syndEntry.getDescription().getValue();
-//            contentCandidates.add(cleanup(description));
-//        }
-
-        // determine best candidate
-//        String entryText = null;
-//        for (String candidate : contentCandidates) {
-//            if (entryText == null || entryText.length() < candidate.length()) {
-//                entryText = candidate;
-//            }
-//        }
 
         return entryText;
     }
@@ -491,42 +475,21 @@ public class FeedDownloader {
         // There are still some feeds with entries where the publish date cannot be parsed though,
         // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
-            
-            
-//            Node node = item.getNode();
-//            Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
-//
-//            try {
-//                
-//                publishDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
-//                if (publishDate != null) {
-//                    LOGGER.debug("found publish date in original feed file: " + publishDate);
-//                }
-//                
-//            } catch (NullPointerException e) {
-//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-//                        + item.getFeedUrl() + ", " + e.getMessage());
-//            } catch (DOMException e) {
-//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-//                        + item.getFeedUrl() + ", " + e.getMessage());
-//            } catch (Exception e) {
-//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-//                        + item.getFeedUrl() + ", " + e.getMessage());
-//            }
-            
+
             Node node = item.getNode();
             if (node != null) {
-                
+
                 Node dateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
                 if (dateNode != null) {
-                    
+
                     ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
                     if (extractedDate != null) {
                         try {
                             publishDate = extractedDate.getNormalizedDate();
                             LOGGER.debug("found publish date in original feed file: " + publishDate);
                         } catch (Exception e) {
-                            LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: " + item.getFeedUrl() + ", " + e.getMessage());
+                            LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: "
+                                    + item.getFeedUrl() + ", " + e.getMessage());
                         }
                     }
                 }
@@ -554,7 +517,7 @@ public class FeedDownloader {
     private String getEntryAuthors(SyndFeed syndFeed, SyndEntry syndEntry) {
 
         List<String> authors = new ArrayList<String>();
-        
+
         // try to get authors as list
         List<SyndPerson> syndPersons = syndEntry.getAuthors();
         if (syndPersons != null) {
@@ -580,12 +543,12 @@ public class FeedDownloader {
                 }
             }
         }
-        
+
         String feedAuthor = syndFeed.getAuthor();
         if (authors.isEmpty() && feedAuthor != null && !feedAuthor.isEmpty()) {
             authors.add(syndFeed.getAuthor());
         }
-        
+
         String result = null;
         if (authors.size() > 0) {
             result = StringUtils.join(authors, "; ");
@@ -665,7 +628,7 @@ public class FeedDownloader {
                 result = HTMLHelper.documentToReadableText(dirty, false);
                 result = StringEscapeUtils.unescapeHtml(result);
                 result = result.trim();
-            }            
+            }
         } else {
             result = dirty;
         }
@@ -704,6 +667,7 @@ public class FeedDownloader {
         System.out.println(sb.toString());
 
     }
+
     public static void printFeed(Feed feed) {
         printFeed(feed, false);
     }
@@ -720,13 +684,12 @@ public class FeedDownloader {
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
         // Feed feed = downloader
-        //        .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
+        // .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
         // printFeed(feed);
-        
+
         // Feed feed = downloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
         Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
         FeedDownloader.printFeed(feed, true);
-        
 
     }
 
