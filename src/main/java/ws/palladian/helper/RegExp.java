@@ -11,17 +11,6 @@ package ws.palladian.helper;
  */
 public class RegExp {
 
-    // data types
-    private static final String NUMBER = "(?<!(\\w)-)(?<!(\\w))((\\d){1,}((,|\\.|\\s))?){1,}(?!((\\d)+-(\\d)+))(?!-(\\d)+)";
-    private static final String BOOLEAN = "(?<!(\\w))(?i)(yes|no)(?!(\\w))";
-    // TODO catch special chars differently
-    private static final String STRING = "([A-Z.]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)+([A-Z.0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)*";
-    private static final String MIXED = "(.)*";
-    private static final String URI = "(\\w)\\.(\\w)\\.(\\w){1,4}(\\/(\\w))*"; // TODO test
-    private static final String IMAGE = "src=\"";
-    private static final String DATE_ALL = "((\\d){4}-(\\d){2}-(\\d){2})|((\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4})|((?<!(\\d){2})(\\d){1,2}(th)?(\\.)?(\\s)?([A-Za-z]){3,9}((\\,)|(\\s))+(['])?(\\d){2,4})|((\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4})"; // date
-    // one to four (order is important)
-
     // TODO: Warning (10/11/2010): changed regexp without further testing, was:
     // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
     public static final String ENTITY = "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}";
@@ -38,6 +27,15 @@ public class RegExp {
     public static final String DATE4 = "(\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4}"; // Monthname DD
     // YYYY and
     // varieties
+
+    public static final String NUMBER = "(?<!(\\w)-)(?<!(\\w))((\\d){1,}((,|\\.|\\s))?){1,}(?!((\\d)+-(\\d)+))(?!-(\\d)+)";
+    public static final String BOOLEAN = "(?<!(\\w))(?i)(yes|no)(?!(\\w))";
+    // TODO catch special chars differently
+    public static final String STRING = "([A-Z.]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)+([A-Z.0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)*";
+    public static final String MIXED = "(.)*";
+    public static final String URI = "(\\w)\\.(\\w)\\.(\\w){1,4}(\\/(\\w))*"; // TODO test
+    public static final String IMAGE = "src=\"";
+    public static final String DATE_ALL = "((\\d){4}-(\\d){2}-(\\d){2})|((\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4})|((?<!(\\d){2})(\\d){1,2}(th)?(\\.)?(\\s)?([A-Za-z]){3,9}((\\,)|(\\s))+(['])?(\\d){2,4})|((\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4})"; // date
 
     // shortcuts
     private static final String LONG_YEAR = "((\\d){4})";
@@ -340,18 +338,7 @@ public class RegExp {
     public static final String[] RELATIVEDATEDAY = {"\\d* " + DAYUNIT + " ago", "day"};
     public static final String[] RELATIVEDATEMON = {"\\d* " + MONTHUNIT + " ago", "mon"};
     public static final String[] RELATIVEDATEYEAR = {"\\d* " + YEARUNIT + " ago", "year"};
-    
-    public static final int VALUE_NUMERIC = 1;
-    public static final int VALUE_STRING = 2;
-    public static final int VALUE_DATE = 3;
-    public static final int VALUE_BOOLEAN = 4;
-    public static final int VALUE_IMAGE = 5;
-    public static final int VALUE_VIDEO = 6;
-    public static final int VALUE_AUDIO = 7;
-    public static final int VALUE_MIXED = 8; // string and number
-    public static final int VALUE_URI = 9; // string and number
-    
-    
+
     // other dateformates
 
     /*
@@ -369,30 +356,6 @@ public class RegExp {
     private static final String COLON_FACT_REPRESENTATION_VALUE = "([A-Z]+|[a-z]+|[0-9.]+[A-Z]{1,2}(\\s|,|$)|[0-9.]+[a-z]{1,4}|[0-9.]+)";
     public static final String COLON_FACT_REPRESENTATION = "[A-Za-z0-9/() ]{1,20}:\\s?("
         + COLON_FACT_REPRESENTATION_VALUE + ")+((\\s|,)+" + COLON_FACT_REPRESENTATION_VALUE + ")*";
-
-    public static String getRegExp(int valueType) {
-        switch (valueType) {
-            case VALUE_NUMERIC:
-                return NUMBER; // TODO include ranges? 3-5hours, TODO? do not match numbers in strings
-            case VALUE_DATE:
-                return DATE_ALL;
-            case VALUE_STRING:
-                // return "(.)*"; // TODO test if that in combination with string commons is better
-                return STRING;
-                // return "([A-Z.]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]{1,}){1,}(\\s,|,)?(\\s)?)+"; // TODO
-                // string list "," separated
-            case VALUE_MIXED:
-                return MIXED; // TODO refine
-            case VALUE_IMAGE:
-                return IMAGE; // TODO catch images
-            case VALUE_BOOLEAN:
-                return BOOLEAN;
-            case VALUE_URI:
-                return URI;
-            default:
-                return "(.)*";
-        }
-    }
 
     /**
      * Get all regular Expressions in a ordered array.

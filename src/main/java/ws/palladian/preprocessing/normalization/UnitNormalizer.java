@@ -573,7 +573,7 @@ public class UnitNormalizer {
         // because of trimming RAM: 2GB - 80GB HDD becomes 2GB 80GB
         // second unit must be same type (time, distance etc.) and smaller
         restWordSequence = restWordSequence.trim();
-        Pattern pat = Pattern.compile("\\A" + RegExp.getRegExp(RegExp.VALUE_NUMERIC));
+        Pattern pat = Pattern.compile("\\A" + RegExp.NUMBER);
         Matcher m = pat.matcher(restWordSequence);
 
         m.region(0, restWordSequence.length());
