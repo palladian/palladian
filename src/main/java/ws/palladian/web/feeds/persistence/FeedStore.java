@@ -79,7 +79,7 @@ public interface FeedStore {
      * @param sqlQuery
      * @return
      */
-    List<FeedItem> getFeedItems(String sqlQuery);
+    List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery);
 
 
 }

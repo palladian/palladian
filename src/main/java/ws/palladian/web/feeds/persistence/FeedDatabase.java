@@ -252,7 +252,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return
      */
     @Override
-    public List<FeedItem> getFeedItems(String sqlQuery) {
+    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
         return runQuery(new FeedItemRowConverter(), sqlQuery);
     }
 

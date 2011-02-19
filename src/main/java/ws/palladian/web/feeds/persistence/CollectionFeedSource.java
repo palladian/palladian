@@ -85,7 +85,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public List<FeedItem> getFeedItems(String sqlQuery) {
+    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
         // TODO Auto-generated method stub
         return null;
     }
