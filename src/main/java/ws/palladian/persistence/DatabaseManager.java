@@ -266,7 +266,7 @@ public class DatabaseManager {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 for (int i = 1; i <= entries; i++) {
-                    resultEntries[i] = resultSet.getObject(i);
+                    resultEntries[i - 1] = resultSet.getObject(i);
                 }
 
             }
