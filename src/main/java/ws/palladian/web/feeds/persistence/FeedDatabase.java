@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
-import ws.palladian.persistence.RowConverter;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedItem;
 
@@ -194,7 +193,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getPageText());
         return parameters;
     }
-    
+
     @Override
     public int addFeedItems(Feed feed, List<FeedItem> feedItems) {
         LOGGER.trace(">addFeedItems " + feedItems.size() + " to " + feed);
@@ -255,19 +254,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     @Override
     public List<FeedItem> getFeedItems(String sqlQuery) {
         return runQuery(new FeedItemRowConverter(), sqlQuery);
-    }
-
-    public List<FeedItem> getFeedItemsForEvaluation(String sqlQuery) {        
-        RowConverter<FeedItem> converter = new FeedItemRowConverter() {
-            @Override
-            public FeedItem convert(ResultSet resultSet) throws SQLException {
-                FeedItem entry = super.convert(resultSet);
-                entry.putFeature("relevant", resultSet.getFloat("relevant"));
-                return entry;
-            }
-        };
-        
-        return runQuery(converter, sqlQuery);
     }
 
     public void deleteFeedItemById(int id) {

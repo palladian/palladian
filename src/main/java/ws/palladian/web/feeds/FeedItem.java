@@ -2,8 +2,6 @@ package ws.palladian.web.feeds;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -46,10 +44,10 @@ public class FeedItem {
 
     /** When the entry was aggregated */
     private Date added;
-    
+
     /** Author information. */
     private String authors;
-    
+
     /** Description text of feed entry */
     private String itemDescription;
 
@@ -58,9 +56,6 @@ public class FeedItem {
 
     /** Text which we downloaded from the corresponding web page. */
     private String pageText;
-
-    /** Arbitrary, numeric features, used for feature extraction and classification. */
-    private SortedMap<String, Double> features = new TreeMap<String, Double>();
 
     public int getId() {
         return id;
@@ -130,19 +125,19 @@ public class FeedItem {
         }
         return null;
     }
-    
+
     public String getAuthors() {
         return authors;
     }
-    
+
     public void setAuthors(String authors) {
         this.authors = authors;
     }
-    
+
     public String getItemDescription() {
         return itemDescription;
     }
-    
+
     public void setItemDescription(String itemDescription) {
         this.itemDescription = itemDescription;
     }
@@ -175,7 +170,7 @@ public class FeedItem {
         if (text == null || text.isEmpty()) {
             text = getItemText();
         }
-        
+
         if (text == null || text.isEmpty()) {
             text = getItemDescription();
         }
@@ -185,22 +180,6 @@ public class FeedItem {
         }
 
         return text;
-    }
-
-    public SortedMap<String, Double> getFeatures() {
-        return features;
-    }
-
-    public void setFeatures(SortedMap<String, Double> features) {
-        this.features = features;
-    }
-
-    public double getFeature(String key) {
-        return features.get(key);
-    }
-
-    public void putFeature(String key, double value) {
-        features.put(key, value);
     }
 
     @Override
@@ -215,7 +194,6 @@ public class FeedItem {
         // sb.append(" entryText:").append(entryText);
         return sb.toString();
     }
-
 
     /**
      * @return The raw XML markup for this feed entry.
@@ -241,9 +219,9 @@ public class FeedItem {
 
         // the feed's document representation
         Document document = getFeed().getDocument();
-        
+
         try {
-            
+
             // for rss
             node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
 
