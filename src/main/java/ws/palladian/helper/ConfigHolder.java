@@ -11,13 +11,17 @@ import org.apache.log4j.Logger;
 /**
  * <p>
  * Holds the configuration of the framework. This configuration is obtained from an external file called
- * <tt>palladian.properties</tt>. The file may be located either in the classpath in the config folder of the location
- * palladian is running from or in the config folder in the path specified by the environment variable
- * <tt>PALLADIAN_HOME</tt>.
- * </p>
+ * <tt>palladian.properties</tt>. The configuration is searched at the following places, in the specified order:</p>
+ * 
+ * <ol>
+ * <li>Path specified by the environment variable <tt>PALLADIAN_HOME</tt>,</li>
+ * <li>root of the classpath,</li>
+ * <li>path <tt>config/palladian.properties</tt>.</li>
+ * </ol>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * 
  */
 public final class ConfigHolder {
@@ -74,27 +78,27 @@ public final class ConfigHolder {
         try {
             File configFile = new File(CONFIG_PATH);
             File environmentConfig = new File(System.getenv("PALLADIAN_HOME") + "/" + CONFIG_PATH);
+            URL resource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
+
             PropertiesConfiguration propertiesConfiguration = null;
             if (environmentConfig.exists()) {
                 LOGGER.debug("Try to load palladian.properties from Environment: "
                         + environmentConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration();
+            } else if (resource != null) {
+                File classpathConfig = new File(resource.toURI());
+                LOGGER.debug("Try to load palladian.properties from Classpath: "
+                        + classpathConfig.getAbsolutePath());
+                propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
             } else if (configFile.exists()) {
                 LOGGER.debug("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(configFile);
-            } else {
-                URL resource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
-                if (resource != null) {
-                    File classpathConfig = new File(resource.toURI());
-                    LOGGER.debug("Try to load palladian.properties from Classpath: "
-                            + classpathConfig.getAbsolutePath());
-                    propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
-                }
             }
             if (propertiesConfiguration != null) {
                 setConfig(propertiesConfiguration);
             } else {
                 LOGGER.error("Palladian configuration file loading error.");
+                // we should throw an exception here
             }
         } catch (ConfigurationException e) {
             LOGGER.error("Palladian configuration under " + CONFIG_PATH + " could not be loaded completely: "
