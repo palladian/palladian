@@ -37,11 +37,11 @@ public class DateHelper {
     public static boolean containsDate(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_DATE));
+            pat = Pattern.compile(RegExp.DATE_ALL);
         } catch (PatternSyntaxException e) {
             org.apache.log4j.Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                            + RegExp.getRegExp(RegExp.VALUE_DATE), e);
+ + RegExp.DATE_ALL, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);

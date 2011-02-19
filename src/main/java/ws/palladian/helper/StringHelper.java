@@ -214,11 +214,11 @@ public class StringHelper {
     public static boolean containsProperNoun(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_STRING));
+            pat = Pattern.compile(RegExp.STRING);
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(RegExp.VALUE_STRING), e);
+ + RegExp.STRING, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -238,11 +238,11 @@ public class StringHelper {
     public static boolean containsNumber(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_NUMERIC));
+            pat = Pattern.compile(RegExp.NUMBER);
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(RegExp.VALUE_NUMERIC), e);
+ + RegExp.NUMBER, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -433,7 +433,7 @@ public class StringHelper {
             // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
 
-        Pattern pattern = Pattern.compile("^" + RegExp.getRegExp(RegExp.VALUE_NUMERIC));
+        Pattern pattern = Pattern.compile("^" + RegExp.NUMBER);
         Matcher m = pattern.matcher(string);
         try {
 
@@ -1438,7 +1438,7 @@ public class StringHelper {
         int colonIndex = neighborhood.indexOf(":");
         while (colonIndex > -1) {
 
-            Pattern cp = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_STRING) + ":$");
+            Pattern cp = Pattern.compile(RegExp.STRING + ":$");
             Matcher cpm = cp.matcher(neighborhood.substring(Math.max(0, colonIndex - 30), colonIndex + 1));
             // System.out.println("String before colon: " + neighborhood.substring(Math.max(0, colonIndex - 30),
             // colonIndex + 1));
