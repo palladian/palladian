@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
   `published` datetime DEFAULT NULL,
   `authors` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `description` text COLLATE utf8_unicode_ci,
   `text` text COLLATE utf8_unicode_ci,
   `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
   PRIMARY KEY (`id`),

@@ -49,6 +49,9 @@ public class FeedItem {
     
     /** Author information. */
     private String authors;
+    
+    /** Description text of feed entry */
+    private String itemDescription;
 
     /** Text directly from the feed entry */
     private String itemText;
@@ -135,6 +138,14 @@ public class FeedItem {
     public void setAuthors(String authors) {
         this.authors = authors;
     }
+    
+    public String getItemDescription() {
+        return itemDescription;
+    }
+    
+    public void setItemDescription(String itemDescription) {
+        this.itemDescription = itemDescription;
+    }
 
     public String getItemText() {
         return itemText;
@@ -163,6 +174,10 @@ public class FeedItem {
 
         if (text == null || text.isEmpty()) {
             text = getItemText();
+        }
+        
+        if (text == null || text.isEmpty()) {
+            text = getItemDescription();
         }
 
         if (text == null) {

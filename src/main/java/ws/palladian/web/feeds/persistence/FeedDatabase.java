@@ -30,7 +30,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     // ////////////////// feed prepared statements ////////////////////
-    private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, text = ?, pageText = ?";
+    private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, pageText = ?";
     private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?";
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
@@ -205,6 +205,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             parameters.add(feedItem.getRawId());
             parameters.add(feedItem.getPublishedSQLTimestamp());
             parameters.add(feedItem.getAuthors());
+            parameters.add(feedItem.getItemDescription());
             parameters.add(feedItem.getItemText());
             parameters.add(feedItem.getPageText());
             batchArgs.add(parameters);
