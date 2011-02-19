@@ -171,17 +171,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         LOGGER.trace(">addEntry " + entry + " to " + feed);
         boolean added = false;
 
-        List<Object> parameters = new ArrayList<Object>();
-        parameters.add(feed.getId());
-        parameters.add(entry.getTitle());
-        parameters.add(entry.getLink());
-        parameters.add(entry.getRawId());
-        parameters.add(entry.getPublishedSQLTimestamp());
-        parameters.add(entry.getAuthors());
-        parameters.add(entry.getItemText());
-        parameters.add(entry.getPageText());
-
-        int result = runInsertReturnId(ADD_FEED_ITEM, parameters);
+        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(feed, entry));
         if (result > 0) {
             entry.setId(result);
             added = true;
@@ -189,6 +179,20 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         LOGGER.trace("<addEntry " + added);
         return added;
+    }
+
+    private List<Object> getItemParameters(Feed feed, FeedItem entry) {
+        List<Object> parameters = new ArrayList<Object>();
+        parameters.add(feed.getId());
+        parameters.add(entry.getTitle());
+        parameters.add(entry.getLink());
+        parameters.add(entry.getRawId());
+        parameters.add(entry.getPublishedSQLTimestamp());
+        parameters.add(entry.getAuthors());
+        parameters.add(entry.getItemDescription());
+        parameters.add(entry.getItemText());
+        parameters.add(entry.getPageText());
+        return parameters;
     }
     
     @Override
@@ -198,16 +202,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         List<List<Object>> batchArgs = new ArrayList<List<Object>>();
         for (FeedItem feedItem : feedItems) {
-            List<Object> parameters = new ArrayList<Object>();
-            parameters.add(feed.getId());
-            parameters.add(feedItem.getTitle());
-            parameters.add(feedItem.getLink());
-            parameters.add(feedItem.getRawId());
-            parameters.add(feedItem.getPublishedSQLTimestamp());
-            parameters.add(feedItem.getAuthors());
-            parameters.add(feedItem.getItemDescription());
-            parameters.add(feedItem.getItemText());
-            parameters.add(feedItem.getPageText());
+            List<Object> parameters = getItemParameters(feed, feedItem);
             batchArgs.add(parameters);
         }
 
