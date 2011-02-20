@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
  * The MathHelper adds mathematical functionality.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class MathHelper {
 
@@ -412,5 +413,48 @@ public class MathHelper {
         alphaBeta[1] = beta;
 
         return alphaBeta;
+    }
+    
+    /**
+     * Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
+     * dimensional array, where the first dimension indicates the Rank k, the second dimension distinguishes between Pr
+     * and AP. Example:
+     * 
+     * <pre>
+     * double[][] ap = MathHelper.calculateAP(rankedList);
+     * int k = rankedList.size() - 1;
+     * double prAtK = ap[k][0];
+     * double apAtK = ap[k][1];
+     * </pre>
+     * 
+     * @param rankedList The ranked list with Boolean values indicating the relevancies of the items.
+     * @return A two dimensional array containing Precision @ Rank k and Average Precision @ Rank k.
+     */
+    public static double[][] calculateAP(List<Boolean> rankedList) {
+
+        int numRelevant = 0; // number of relevant entries at k
+        double relPrSum = 0; // sum of all relevant precisions at k
+        double[][] result = new double[rankedList.size()][2];
+
+        for (int k = 0; k < rankedList.size(); k++) {
+
+            boolean relevant = rankedList.get(k);
+
+            if (relevant) {
+                numRelevant++;
+            }
+
+            double prAtK = (double) numRelevant / (k + 1);
+
+            if (relevant) {
+                relPrSum += prAtK;
+            }
+
+            double ap = relPrSum / numRelevant;
+
+            result[k][0] = prAtK;
+            result[k][1] = ap;
+        }
+        return result;
     }
 }
