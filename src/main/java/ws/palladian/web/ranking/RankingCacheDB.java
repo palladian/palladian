@@ -27,13 +27,13 @@ public class RankingCacheDB extends RankingCache {
     private static final Logger LOGGER = Logger.getLogger(RankingCacheDB.class);
 
     /** Prepared statements to get ranking with TTL. */
-    private static final String getRankings = "SELECT ranking, service FROM rankingCache WHERE url = ? AND CURRENT_TIMESTAMP - updated < ?";
+    private static final String SQL_GET_RANKINGS = "SELECT ranking, service FROM rankingCache WHERE url = ? AND CURRENT_TIMESTAMP - updated < ?";
 
     /** Prepared statement to get ranking without TTL. */
-    private static final String getRankings2 = "SELECT ranking, service FROM rankingCache WHERE url = ?";
+    private static final String SQL_GET_RANKINGS_2 = "SELECT ranking, service FROM rankingCache WHERE url = ?";
 
     /** Prepared statement to add ranking. */
-    private static final String addRanking = "INSERT INTO rankingCache (url, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP";
+    private static final String SQL_ADD_RANKING = "INSERT INTO rankingCache (url, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP";
 
     /** The database manager. */
     private DatabaseManager databaseManager = new DatabaseManager();
@@ -63,10 +63,10 @@ public class RankingCacheDB extends RankingCache {
 
         if (getTtlSeconds() == -1) {
             // System.out.println("without ttl");
-            databaseManager.runQuery(callback, getRankings2, url);
+            databaseManager.runQuery(callback, SQL_GET_RANKINGS_2, url);
         } else {
             // System.out.println("with ttl");
-            databaseManager.runQuery(callback, getRankings, url, getTtlSeconds());
+            databaseManager.runQuery(callback, SQL_GET_RANKINGS, url, getTtlSeconds());
         }
 
         return result;
@@ -81,7 +81,7 @@ public class RankingCacheDB extends RankingCache {
     public void add(String url, Map<Service, Float> rankings) {
 
         for (Entry<Service, Float> ranking : rankings.entrySet()) {
-            databaseManager.runUpdate(addRanking, url, ranking.getKey().getServiceId(), ranking.getValue());
+            databaseManager.runUpdate(SQL_ADD_RANKING, url, ranking.getKey().getServiceId(), ranking.getValue());
         }
 
     }
