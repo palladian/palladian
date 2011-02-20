@@ -1,6 +1,7 @@
 package ws.palladian.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,8 +10,6 @@ import java.util.TreeSet;
 import junit.framework.Assert;
 
 import org.junit.Test;
-
-import ws.palladian.helper.MathHelper;
 
 public class MathHelperTest {
 
@@ -150,6 +149,21 @@ public class MathHelperTest {
                 3.607,
                 MathHelper.round(
                         MathHelper.calculateRMSE(MathHelperTest.class.getResource("/rmseInput.csv").getFile(), ";"), 3));
+    }
+    
+    @Test
+    public void testCalculateAP() {
+        
+        List<Boolean> rankedList = Arrays.asList(true, false, true, true, true, true, false);
+        
+        double[][] ap = MathHelper.calculateAP(rankedList);
+        int k = rankedList.size() - 1;
+        double prAtK = ap[k][0];
+        double apAtK = ap[k][1];
+        
+        Assert.assertEquals(5./7, prAtK);
+        Assert.assertEquals((1 + 2./3 + 3./4 + 4./5 + 5./6) / 5, apAtK);
+        
     }
 
 }
