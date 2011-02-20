@@ -200,7 +200,7 @@ The toolkit is free for non-commercial use and licensed under the RASP System Li
 The software is a commercial product.
 \item \textbf{Stanford NLP} \cite{stanfordnlp} is a set of Java-based natural language processing libraries. Their main features are PoS tagging, named entity recognition, Chinese word segmentation, and classification.
 The software distributions are licensed under the GNU Public License.
-\item \textbf{SRILM - The SRI Language Modeling Toolkit} \cite{stolcke2002srilm} is a C++-based toolkit for language modeling. Its main features are speech recognition, statistical tagging and segmentation, and machine translation.
+\item \textbf{SRILM -- The SRI Language Modeling Toolkit} \cite{stolcke2002srilm} is a C++-based toolkit for language modeling. Its main features are speech recognition, statistical tagging and segmentation, and machine translation.
 The toolkit is free for non-commercial use and licensed under the SRILM Research Community License.
 \item \textbf{TextAnalyst} \cite{textanalyst} is a commercial text processing software offering text summarization, semantic information retrieval, meaning extraction, and text clustering.
 \item \textbf{VisualText} \cite{visualtext} is a natural language processing software that addresses named entity recognition, text indexing, text filtering, text classification, text grading, and text summarization.
@@ -347,7 +347,7 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
  </plugins>
 </build>
 \end{verbatim}
-It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this open the project properties via the context menu and choose \textit{Java Compiler} there change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
+It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this open the project properties via the context menu and choose \textit{Java Compiler} there change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}. The project's encoding needs to be set to UTF-8 which can be adjusted in the \textit{Resource} section as shown in Fig.~\ref{fig:utf8}. These properties can also be set for your whole workspace via Eclipse preferences.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht08.png}
@@ -357,8 +357,14 @@ It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht09.png}
-\caption{configure Eclipse to use Java 1.6}
+\caption{Configure Eclipse to use Java 1.6}
 \label{fig:java603}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{img/ht16.png}
+\caption{Configure Eclipse for UTF-8 encoding}
+\label{fig:utf8}
 \end{figure}
 \paragraph{Writing your first Code with Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search Bing for a string term . The example is also shown in Fig.~\ref{fig:hellotoolkit}.
 \begin{figure}
