@@ -140,6 +140,9 @@ This sections outlines important evaluation measures which are typically used fo
 
 \subsection{Precision, Recall, F-Measure}
 
+Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative``, as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''.
+
+
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=0.6\textwidth]{img/PrecisionRecallMengen.pdf}
