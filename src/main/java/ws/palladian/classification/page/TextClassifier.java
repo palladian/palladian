@@ -9,6 +9,7 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Term;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.extraction.PageAnalyzer;
@@ -19,7 +20,7 @@ import ws.palladian.web.Crawler;
  * 
  * @author David Urbansky
  */
-public abstract class TextClassifier extends Classifier {
+public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -2602257661494177552L;
@@ -217,7 +218,7 @@ public abstract class TextClassifier extends Classifier {
      * classified.
      */
     public void classifyTestDocuments() {
-        for (ClassificationDocument testDocument : testDocuments) {
+        for (TextInstance testDocument : testDocuments) {
             classify(testDocument);
         }
     }
@@ -230,9 +231,9 @@ public abstract class TextClassifier extends Classifier {
      * @param document The web document that should be prepared for classification.
      * @return A document that can be classified.
      */
-    public abstract ClassificationDocument preprocessDocument(String text);
+    public abstract TextInstance preprocessDocument(String text);
 
-    public abstract ClassificationDocument preprocessDocument(String text, ClassificationDocument classificationDocument);
+    public abstract TextInstance preprocessDocument(String text, TextInstance classificationDocument);
 
     /**
      * Classify a document that is given with an URL. This method is implemented in concrete classifiers.
@@ -240,15 +241,15 @@ public abstract class TextClassifier extends Classifier {
      * @param url The URL of the document that has to be classified.
      * @return A classified document.
      */
-    public ClassificationDocument classify(String text) {
-        ClassificationDocument processedDocument;
+    public TextInstance classify(String text) {
+        TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
         processedDocument.setUrl(text);
         return classify(processedDocument);
     }
 
-    public ClassificationDocument classify(String text, Set<String> possibleClasses) {
-        ClassificationDocument processedDocument;
+    public TextInstance classify(String text, Set<String> possibleClasses) {
+        TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
         processedDocument.setUrl(text);
         return classify(processedDocument, possibleClasses);
@@ -260,9 +261,9 @@ public abstract class TextClassifier extends Classifier {
      * @param document The document that has to be classified.
      * @return A classified document.
      */
-    public abstract ClassificationDocument classify(ClassificationDocument document);
+    public abstract TextInstance classify(TextInstance document);
 
-    public abstract ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses);
+    public abstract TextInstance classify(TextInstance document, Set<String> possibleClasses);
 
     /**
      * Get the parameters used for the classifier.
@@ -299,10 +300,10 @@ public abstract class TextClassifier extends Classifier {
     public ClassifierPerformance getPerformanceCopy() {
         ClassifierPerformance cfpc = new ClassifierPerformance(this);
 
-        for (ClassificationDocument d : cfpc.getTestDocuments()) {
+        for (TextInstance d : cfpc.getTestDocuments()) {
             d.setWeightedTerms(null);
         }
-        for (ClassificationDocument d : cfpc.getTrainingDocuments()) {
+        for (TextInstance d : cfpc.getTrainingDocuments()) {
             d.setWeightedTerms(null);
         }
 
@@ -313,7 +314,7 @@ public abstract class TextClassifier extends Classifier {
     public String showTrainingDocuments() {
         StringBuilder show = new StringBuilder();
 
-        for (ClassificationDocument document : trainingDocuments) {
+        for (TextInstance document : trainingDocuments) {
 
             Iterator<Term> j = document.getWeightedTerms().keySet().iterator();
 
@@ -341,7 +342,7 @@ public abstract class TextClassifier extends Classifier {
         StringBuilder show = new StringBuilder("");
         // StringBuilder structuredOutput = new StringBuilder();
 
-        for (ClassificationDocument document : testDocuments) {
+        for (TextInstance document : testDocuments) {
 
             Iterator<CategoryEntry> j = document.getAssignedCategoryEntries(true).iterator();
 

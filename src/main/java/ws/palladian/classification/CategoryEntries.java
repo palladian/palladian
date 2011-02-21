@@ -96,6 +96,26 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         return listChanged;
     }
 
+    public boolean addAllRelative(Collection<? extends CategoryEntry> c) {
+        boolean listChanged = false;
+
+        setRelevancesUpToDate(false);
+
+        for (CategoryEntry newCategoryEntry : c) {
+            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
+                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
+                ce.addAbsoluteRelevance(newCategoryEntry.getRelevance());
+            } else {
+                CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
+                newCategoryEntry2.addAbsoluteRelevance(newCategoryEntry.getRelevance());
+                super.add(newCategoryEntry2);
+            }
+            listChanged = true;
+        }
+
+        return listChanged;
+    }
+
     /*
      * public boolean addMerge(CategoryEntry e) { if (e == null) { return false; } CategoryEntry c = this.getCategoryEntry(e.getCategory().getName()); if (c ==
      * null) { add(e); } else { c.addAbsoluteRelevance(e.getAbsoluteRelevance()); } setRelevancesUpToDate(false); if (c == null) { return true; } return false;

@@ -1,9 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c4891" href="./SearchWordMatcher.html" title="tud.iir.multimedia.SearchWordMatcher" alt="" coords="15,123,494,245"/>
-<area shape="rect" id="c4892" href="./MultimediaRetriever.html" title="tud.iir.multimedia.MultimediaRetriever" alt="" coords="539,35,1059,333"/>
-<area shape="rect" id="c4893" href="./Multimedia.html" title="tud.iir.multimedia.Multimedia" alt="" coords="1104,115,1261,253"/>
-<area shape="rect" id="c4894" href="./ImageHandler.html" title="tud.iir.multimedia.ImageHandler" alt="" coords="1307,11,1888,357"/>
-<area shape="rect" id="c4895" href="./Image.html" title="tud.iir.multimedia.Image" alt="" coords="1933,59,2246,309"/>
-<area shape="rect" id="c4897" href="./ExtractedImage.html" title="tud.iir.multimedia.ExtractedImage" alt="" coords="1960,417,2219,618"/>
-<area shape="rect" id="c4896" href="./ExtractedImageComparator.html" title="tud.iir.multimedia.ExtractedImageComparator" alt="" coords="2290,147,2705,221"/>
-</map>

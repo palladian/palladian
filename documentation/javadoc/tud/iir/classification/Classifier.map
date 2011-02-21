@@ -1,6 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c9480" href="./Classifier.html" title="tud.iir.classification.Classifier" alt="" coords="759,11,1371,965"/>
-<area shape="rect" id="c9497" href="./entity/EntityClassifier.html" title="tud.iir.classification.entity.EntityClassifier" alt="" coords="16,1049,816,1138"/>
-<area shape="rect" id="c9519" href="./qa/AnswerClassifier.html" title="tud.iir.classification.qa.AnswerClassifier" alt="" coords="861,1025,1269,1162"/>
-<area shape="rect" id="c9522" href="./snippet/SnippetClassifier.html" title="tud.iir.classification.snippet.SnippetClassifier" alt="" coords="1315,1033,2115,1154"/>
-</map>

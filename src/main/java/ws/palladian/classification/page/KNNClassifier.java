@@ -40,7 +40,7 @@ public class KNNClassifier extends TextClassifier {
      * Classify a given document.
      * @param document the document being classified
      */
-    public ClassificationDocument classify(ClassificationDocument document) {
+    public TextInstance classify(TextInstance document) {
         return classify(document, null);
     }
 
@@ -49,7 +49,7 @@ public class KNNClassifier extends TextClassifier {
      * Classify a given document.
      * @param document the document being classified
      */
-    public ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses) {
+    public TextInstance classify(TextInstance document, Set<String> possibleClasses) {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -68,20 +68,20 @@ public class KNNClassifier extends TextClassifier {
         }
 
         // find k nearest neighbors, compare document to every trained document
-        Map<ClassificationDocument, Double> neighbors = new HashMap<ClassificationDocument, Double>();
-        for (ClassificationDocument trainingDocument : getTrainingDocuments()) {
+        Map<TextInstance, Double> neighbors = new HashMap<TextInstance, Double>();
+        for (TextInstance trainingDocument : getTrainingDocuments()) {
             double distance = getDistanceBetween(trainingDocument, document);
             neighbors.put(trainingDocument, distance);
         }
 
         // sort near neighbor map by distance
-        Map<ClassificationDocument, Double> sortedList = CollectionHelper.sortByValue(neighbors.entrySet());
+        Map<TextInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors.entrySet());
 
         // get votes from k nearest neighbors and decide in which category the document is in also consider distance for nearest neighbors
         Map<String, Double> votes = new HashMap<String, Double>();
         int ck = 0;
-        for (Entry<ClassificationDocument, Double> entry : sortedList.entrySet()) {
-            ClassificationDocument votingDocument = entry.getKey();
+        for (Entry<TextInstance, Double> entry : sortedList.entrySet()) {
+            TextInstance votingDocument = entry.getKey();
 
             // all assigned categories from the voting document should have influence to outcome
             for (Category realCategory : votingDocument.getRealCategories()) {
@@ -149,7 +149,7 @@ public class KNNClassifier extends TextClassifier {
      * @param trainingDocument The document in the vector space with known categories.
      * @return distance The distance between the two documents in the vector space.
      */
-    private Double getDistanceBetween(ClassificationDocument classifyDocument, ClassificationDocument trainingDocument) {
+    private Double getDistanceBetween(TextInstance classifyDocument, TextInstance trainingDocument) {
 
         double matches = 0.0001;
 
@@ -195,12 +195,12 @@ public class KNNClassifier extends TextClassifier {
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String url) {
+    public TextInstance preprocessDocument(String url) {
         return preprocessor.preProcessDocument(url);
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String url, ClassificationDocument classificationDocument) {
+    public TextInstance preprocessDocument(String url, TextInstance classificationDocument) {
         return preprocessor.preProcessDocument(url, classificationDocument);
     }
 

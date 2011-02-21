@@ -7,9 +7,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.numeric.KNNClassifier;
 import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.numeric.NumericInstance;
-import ws.palladian.classification.page.ClassificationDocument;
 import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.FileHelper;
 
 
@@ -22,7 +21,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     protected static final Logger LOGGER = Logger.getLogger(UniversalClassifier.class);
     
     /** The text classifier which is used to classify the textual feature parts of the instances. */
-    private TextClassifier textClassifier;
+    private DictionaryClassifier textClassifier;
 
     /** The KNN classifier for numeric classification. */
     private NumericClassifier numericClassifier;
@@ -50,7 +49,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         List<String> nominalFeatures = instance.getNominalFeatures();
 
         // classify text using the dictionary classifier
-        ClassificationDocument textResult = textClassifier.classify(textFeature);
+        TextInstance textInstance = textClassifier.classify(textFeature);
 
         // classify numeric features with the KNN
         NumericInstance numericInstance = new NumericInstance(null);
@@ -60,22 +59,22 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // classify nominal features with the Bayes classifier
         UniversalInstance nominalInstance = new UniversalInstance(null);
         nominalInstance.setNominalFeatures(nominalFeatures);
-        // nominalClassifier.classify(nominalInstance);
+        nominalClassifier.classify(nominalInstance);
 
         // merge classification results
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
-        mergedCategoryEntries.addAll(textResult.getAssignedCategoryEntries());
-        mergedCategoryEntries.addAll(numericInstance.getAssignedCategoryEntries());
-        // mergedCategoryEntries.addAll(nominalInstance.getAssignedCategoryEntries());
+        mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
+        mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
+        mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
 
         instance.assignCategoryEntries(mergedCategoryEntries);
     }
 
-    public TextClassifier getTextClassifier() {
+    public DictionaryClassifier getTextClassifier() {
         return textClassifier;
     }
 
-    public void setTextClassifier(TextClassifier textClassifier) {
+    public void setTextClassifier(DictionaryClassifier textClassifier) {
         this.textClassifier = textClassifier;
     }
 
@@ -116,19 +115,14 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // cm.trainClassifier(dataset, classifier)
 
         // train the numeric classifier
+        getTextClassifier().train();
+
+        // train the numeric classifier
         // getNumericClassifier().train();
 
         // train the nominal classifier
         getNominalClassifier().train();
 
     }
-
-    /**
-     * Perform actions that make sure all classifiers work properly.
-     */
-    // public void init() {
-    // getTextClassifier().
-    //
-    // }
     
 }

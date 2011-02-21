@@ -150,71 +150,75 @@ public class HTMLHelper {
     public static List<String> listTags(String htmlText) {
         List<String> tags = new ArrayList<String>();
 
-
         List<String> lev = new ArrayList<String>();
-        String currentTag="";
+        String currentTag = "";
 
         Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(htmlText);
 
         while (matcher.find()) {
-            currentTag=matcher.group();
+            currentTag = matcher.group();
 
             // Delete arguments within the tags
             if (currentTag.contains(" ")) {
-                currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
+                currentTag = currentTag.substring(0, currentTag.indexOf(" ")) + ">";
 
-                //System.out.print("+++++++++++++++++++"+currentTag);
+                // System.out.print("+++++++++++++++++++"+currentTag);
 
                 if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
-                        || currentTag.contains("<title") || currentTag.contains("<body") /*|| currentTag.contains("meta_name")*/) {
+                        || currentTag.contains("<title") || currentTag.contains("<body") /*
+                                                                                          * ||
+                                                                                          * currentTag.contains("meta_name"
+                                                                                          * )
+                                                                                          */) {
                     continue;
                 }
 
-
-
-                //            	if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
-                //            		currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
-                //            	}
+                // if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
+                // currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
+                // }
                 //
-                //            	if (currentTag.contains("id=")) {
-                //            		currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
-                //            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1, currentTag.indexOf(">")+1));
-                //            	}
+                // if (currentTag.contains("id=")) {
+                // currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
+                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1,
+                // currentTag.indexOf(">")+1));
+                // }
                 //
-                //            	if (currentTag.contains("name=")) {
-                //            		currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
-                //            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1, currentTag.indexOf(">")+1));
-                //            	}
-                //
-                //
-                //
-                //            	if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
-                //            	if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
-                //            	if (currentTag.contains("<div class")) currentTag="<div>";
-                //            	if (currentTag.contains("<meta ")) currentTag="<meta>";
+                // if (currentTag.contains("name=")) {
+                // currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
+                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1,
+                // currentTag.indexOf(">")+1));
+                // }
                 //
                 //
                 //
-                //        		//System.out.println(" ersetzt zu "+currentTag);
+                // if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
+                // if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
+                // if (currentTag.contains("<div class")) currentTag="<div>";
+                // if (currentTag.contains("<meta ")) currentTag="<meta>";
                 //
                 //
-                //        		currentTag=currentTag.replaceAll(" ", "_");
+                //
+                // //System.out.println(" ersetzt zu "+currentTag);
+                //
+                //
+                // currentTag=currentTag.replaceAll(" ", "_");
             }
 
-            /*Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
-        	if (!currentTag.contains("/")) level++;
-        	tags.add(level+currentTag);
-        	if (currentTag.contains("/")) level--;
-        	tags.add(level+currentTag);*/
-
+            /*
+             * Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
+             * if (!currentTag.contains("/")) level++;
+             * tags.add(level+currentTag);
+             * if (currentTag.contains("/")) level--;
+             * tags.add(level+currentTag);
+             */
 
             if (!lev.contains(currentTag)) {
-                //System.out.println(currentTag+"..."+lev);
+                // System.out.println(currentTag+"..."+lev);
 
                 lev.add(currentTag);
-                //lev2.add("1"+"o"+currentTag);
-                //currentTag="1"+"o"+currentTag;
+                // lev2.add("1"+"o"+currentTag);
+                // currentTag="1"+"o"+currentTag;
 
             }
 
@@ -250,22 +254,24 @@ public class HTMLHelper {
 
         if (stripComments) {
             regExp += "(\\<!--.*?-->)|";
+            // htmlText = htmlText.replaceAll("<!--.*?-->", "");
         }
 
         if (stripJSAndCSS) {
             regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
+            // htmlText = removeConcreteHTMLTag(htmlText, "style");
+            // htmlText = removeConcreteHTMLTag(htmlText, "script");
         }
 
         if (stripTags) {
-            regExp += "(\\<.*?>)";
+            regExp += "(<.*?>)";
             // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
-            // htmlText = htmlText.replaceAll("\\<.*?\\>", "");
+            // htmlText = htmlText.replaceAll("<.*?>", "");
         }
 
         if (regExp.length() == 0) {
             return htmlText;
         }
-
 
         if (regExp.endsWith("|")) {
             regExp = regExp.substring(0, regExp.length() - 1);
@@ -275,13 +281,7 @@ public class HTMLHelper {
         Matcher matcher = pattern.matcher(htmlText);
 
         while (matcher.find()) {
-            htmlText = htmlText.replace(matcher.group(), " ");
-            // // and untested
-            // // 16/06/2009
-            // // replace with
-            // // whitespace
-            // // instead of
-            // // nothing
+            htmlText = htmlText.replace(matcher.group(), "");
         }
 
         // close gaps
@@ -407,7 +407,7 @@ public class HTMLHelper {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                throws SAXException {
+                        throws SAXException {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
@@ -640,40 +640,38 @@ public class HTMLHelper {
     public static String getXmlDump(Node node) {
         return getXmlDump(node, false, false);
     }
-    
 
-//    /**
-//     * Convert a node and his children to string.
-//     * 
-//     * duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
-//     * 
-//     * @param node the node
-//     * @return the node as string
-//     */
-//    public static String convertNodeToString(Node node) {
-//        Transformer trans = null;
-//        try {
-//            trans = TransformerFactory.newInstance().newTransformer();
-//        } catch (TransformerConfigurationException e1) {
-//            Logger.getRootLogger().error(e1.getMessage());
-//        } catch (TransformerFactoryConfigurationError e1) {
-//            Logger.getRootLogger().error(e1.getMessage());
-//        }
-//
-//        final StringWriter sWriter = new StringWriter();
-//        try {
-//            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-//            trans.transform(new DOMSource(node), new StreamResult(sWriter));
-//        } catch (TransformerException e) {
-//            Logger.getRootLogger().error(e.getMessage());
-//        }
-//        String result = sWriter.toString();
-//        result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-//        // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-//
-//        return result;
-//    }
-
+    // /**
+    // * Convert a node and his children to string.
+    // *
+    // * duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
+    // *
+    // * @param node the node
+    // * @return the node as string
+    // */
+    // public static String convertNodeToString(Node node) {
+    // Transformer trans = null;
+    // try {
+    // trans = TransformerFactory.newInstance().newTransformer();
+    // } catch (TransformerConfigurationException e1) {
+    // Logger.getRootLogger().error(e1.getMessage());
+    // } catch (TransformerFactoryConfigurationError e1) {
+    // Logger.getRootLogger().error(e1.getMessage());
+    // }
+    //
+    // final StringWriter sWriter = new StringWriter();
+    // try {
+    // trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    // trans.transform(new DOMSource(node), new StreamResult(sWriter));
+    // } catch (TransformerException e) {
+    // Logger.getRootLogger().error(e.getMessage());
+    // }
+    // String result = sWriter.toString();
+    // result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+    // // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+    //
+    // return result;
+    // }
 
     /**
      * Remove unnecessary whitespace from DOM nodes.
@@ -869,7 +867,7 @@ public class HTMLHelper {
 
         String input = FileHelper.readFileToString("NewFile2.xml");
         // input = StringEscapeUtils.unescapeXml(input);
-        //        System.out.println(input.hashCode());
+        // System.out.println(input.hashCode());
 
         input = StringEscapeUtils.unescapeHtml(input);
 
@@ -973,9 +971,9 @@ public class HTMLHelper {
 
         // ignore css and script nodes
         if (node == null || node.getNodeName().equalsIgnoreCase("script")
-                || node.getNodeName().equalsIgnoreCase("style")
-                || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option")
-                || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName().equalsIgnoreCase("head")) {
+                || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName().equalsIgnoreCase("#comment")
+                || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
+                || node.getNodeName().equalsIgnoreCase("head")) {
             return "";
         }
 

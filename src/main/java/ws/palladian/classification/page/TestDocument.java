@@ -11,7 +11,7 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
  * 
  * @author David Urbansky
  */
-public class TestDocument extends ClassificationDocument {
+public class TestDocument extends TextInstance {
 
     /** If true, the classification has been checked. */
     private boolean checkedClassification = false;
@@ -20,7 +20,7 @@ public class TestDocument extends ClassificationDocument {
     private boolean correctClassified = false;
 
     public TestDocument() {
-        setDocumentType(ClassificationDocument.TEST);
+        setDocumentType(TextInstance.TEST);
     }
 
     public CategoryEntries getCorrectlyAssignedCategoryEntries() {
