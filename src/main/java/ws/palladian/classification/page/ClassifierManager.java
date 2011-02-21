@@ -862,7 +862,7 @@ public class ClassifierManager {
         ClassifierManager classifierManager = new ClassifierManager();
 
         // the path to the classifier we want to use
-        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
+        String classifierPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
 
         // specify the dataset that should be used as testing data
         Dataset dataset = new Dataset();
@@ -907,7 +907,7 @@ public class ClassifierManager {
 
         // create a text classifier by giving a name and a path where it should be saved to
         TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
-                "data/models/palladianLanguageClassifier/");
+        "data/models/palladianLanguageClassifier/");
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
