@@ -7,7 +7,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.web.Crawler;
 
 /**
@@ -63,7 +62,7 @@ public class HTMLHelperTest extends TestCase {
         String result = HTMLHelper.stripHTMLTags(content, true, true, true, false);
         // System.out.println(result);
         // System.out.println(DigestUtils.md5Hex(result));
-        Assert.assertEquals("c104399f6ad077a642161ba03be83bdb", DigestUtils.md5Hex(result));
+        Assert.assertEquals("ecf0720bd7f9afc0dc40ec100ca8e96f", DigestUtils.md5Hex(result));
     }
 
     @Test

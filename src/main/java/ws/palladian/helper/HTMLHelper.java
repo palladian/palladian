@@ -167,10 +167,10 @@ public class HTMLHelper {
 
                 if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
                         || currentTag.contains("<title") || currentTag.contains("<body") /*
-                                                                                          * ||
-                                                                                          * currentTag.contains("meta_name"
-                                                                                          * )
-                                                                                          */) {
+                         * ||
+                         * currentTag.contains("meta_name"
+                         * )
+                         */) {
                     continue;
                 }
 
@@ -407,7 +407,7 @@ public class HTMLHelper {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                        throws SAXException {
+                throws SAXException {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
