@@ -89,7 +89,7 @@ Internet Information Retrieval (IIR) is a research domain in computer science co
 
 \section{What Palladian is}
 %TODO contributions
-Palladian is a collection of algorithms for text processing focused on {\textbf classification}, {\textbf extraction}, and {\textbf retrieval}. The concept of Palladian is system to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with many code snippets from various authors, this toolkit tries to ease this process by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
+Palladian is a collection of algorithms for text processing focused on \textbf{ classification}, \textbf{ extraction}, and \textbf{ retrieval}. The concept of Palladian is system to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with many code snippets from various authors, this toolkit tries to ease this process by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
 The best results from students at the Dresden University of Technology find their way into the toolkit allowing other users to create more advanced programs in the future.
 
 Our main contributions to the research community are:
@@ -109,7 +109,7 @@ Figure \ref{fig:architecture} shows the main packages of Palladian. The focus is
 \end{figure}
 
 \section{What Palladian is NOT}
-Palladian is not a full natural language processing suite nor does it contain a {\textit full} set of algorithms in the fields of classification, extraction, and information retrieval. Palladian is not a commercial product either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
+Palladian is not a full natural language processing suite nor does it contain a \textit{ full} set of algorithms in the fields of classification, extraction, and information retrieval. Palladian is not a commercial product either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
 
 \section{Who the Intended User is}
 In general everybody is welcome to use Palladian, but the researchers that would develop algorithms and would like to quickly test or compare them are the focus. Researchers likely to help other researchers, that won't mind a software that is not perfect, bug-free or commercial.
@@ -1145,7 +1145,7 @@ We used both content extraction approaches on the data set and scored their resu
 
 A named entity recognizer is therefore a system or technique that tries to detect entities in a given natural language text. For example, an NER system that is used to detect people, locations, and organizations should be able to find the bold entities in the following text:
 
-\textbf{Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
+\textbf{Bill Gates} founded \textbf{ Microsoft} with \textbf{ Paul Allen} in 1975 in \textbf{ Albuquerque, New Mexico}. The headquarter is located in \textbf{ Redmond, Washington} and the company is led by CEO \textbf{ Steve Ballmer}.
 
 \subsubsection{Taggers}
 Palladian wraps 8 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
@@ -1233,7 +1233,7 @@ Bill/PERSON Gates/PERSON founded Microsoft/ORG in 1975/DATE.
 [Bill Gates PERSON] founded [Microsoft ORG] in [1975 DATE].
 \end{verbatim}
 
-\subparagraph{Column (BIO)} The column notation is one of the most widely used. For example the CoNLL NER dataset uses this format. The text is tokenized and on each line of the tagged text there is only one token (word) with its related tag separated by a space or tab. The BIO format means {\textbf B}eginning, cont{\textbf I}nue, and {\textbf O}utside. The BIO format can help to distinguish entities of the same type that are written close together.
+\subparagraph{Column (BIO)} The column notation is one of the most widely used. For example the CoNLL NER dataset uses this format. The text is tokenized and on each line of the tagged text there is only one token (word) with its related tag separated by a space or tab. The BIO format means \textbf{ B}eginning, cont\textbf{ I}nue, and \textbf{ O}utside. The BIO format can help to distinguish entities of the same type that are written close together.
 
 The sample text in the column format would look as shown below. The ``O'' tag stands for ``outside'', that is no matching tag has been found.
 
@@ -1437,10 +1437,10 @@ System.out.println(r2);
 \subsection{Web Page Age Detection}
 The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. Palladian is able to detect the age of many web pages by using four main techniques:
 \begin{enumerate}
-\item Reading the {\textbf HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
-\item Recognize a date in the {\textbf URL} of the web page. Especially blogs use the URL style which often reads similar to ``http://domain.tld/posts/YYYY/MM/PostName''. In these cases the date in the domain is a very good indicator of the web page's age.
-\item Recognizing and ranking dates in the {\textbf structure and content} of the web page. Especially news pages start or end their news posts with the location and the date that the event they are reporting about happened. Since many dates might be found in the content it is necessary to rank them among each other. This is done using indicators such as the nearness to certain keywords such as ``published'' for example.
-\item Searching for {\textbf inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
+\item Reading the \textbf{ HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
+\item Recognize a date in the \textbf{ URL} of the web page. Especially blogs use the URL style which often reads similar to ``http://domain.tld/posts/YYYY/MM/PostName''. In these cases the date in the domain is a very good indicator of the web page's age.
+\item Recognizing and ranking dates in the \textbf{ structure and content} of the web page. Especially news pages start or end their news posts with the location and the date that the event they are reporting about happened. Since many dates might be found in the content it is necessary to rank them among each other. This is done using indicators such as the nearness to certain keywords such as ``published'' for example.
+\item Searching for \textbf{ inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
 \end{enumerate}
 
 Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. For more information on the algorithms used, see \cite{gregor2010bachelor}. You can also check out the functionality of the web page age detection online at \url{http://www.webknox.com/wi#detectAge}.
@@ -1465,11 +1465,11 @@ System.out.println(date);
 \end{codelisting}
 
 \subsection{FAQ Extractor}
-{\textit FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
+\textit{ FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
 \begin{enumerate}
-\item {\textbf Internal Link} In the beginning of the page, there is a list of questions that each link to the corresponding answer in on the same page.
-\item {\textbf External Link} In the beginning of the page, there is a list of questions that each link to the the web page that contains the answer.
-\item {\textbf No Link} Each question is immediately followed by its answer.
+\item \textbf{ Internal Link} In the beginning of the page, there is a list of questions that each link to the corresponding answer in on the same page.
+\item \textbf{ External Link} In the beginning of the page, there is a list of questions that each link to the the web page that contains the answer.
+\item \textbf{ No Link} Each question is immediately followed by its answer.
 \end{enumerate}
 
 Palladian can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
