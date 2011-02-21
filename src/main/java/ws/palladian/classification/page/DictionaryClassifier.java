@@ -197,7 +197,7 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         if (dictionaries.get(classType) == null) {
-            String modelFilePath = getDictionaryPath() + getDictionaryName() + ".ser";
+            String modelFilePath = getDictionaryPath() + getDictionaryName() + ".gz";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
@@ -491,7 +491,7 @@ public class DictionaryClassifier extends TextClassifier {
             } catch (Exception e) {
                 Logger.getRootLogger().error(
                         "class " + mc + " was not learned and could not be found in hierarchy tree: "
-                                + document.getMainCategoryEntry().getCategory().getName(), e);
+                        + document.getMainCategoryEntry().getCategory().getName(), e);
                 document.limitCategories(5, 5, 0.0);
             }
         }
@@ -500,7 +500,7 @@ public class DictionaryClassifier extends TextClassifier {
         else if (classType == ClassificationTypeSetting.TAG) {
             document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
                     classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
