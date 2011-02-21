@@ -16,6 +16,18 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`wiki_crawler` /*!40100 DEFAULT CHARACTE
 
 USE `wiki_crawler`;
 
+/*Table structure for table `links` */
+
+CREATE TABLE `links` (
+  `wikiID` int(10) unsigned NOT NULL COMMENT 'Unique ID of a Wiki',
+  `pageIDSource` int(10) unsigned NOT NULL COMMENT 'pageID of the source page, defined by each wiki. ',
+  `pageIDDest` int(10) unsigned NOT NULL COMMENT 'pageID of the destination page, defined by each wiki. ',
+  KEY `links_ibfk_1` (`wikiID`,`pageIDSource`),
+  KEY `links_ibfk_2` (`wikiID`,`pageIDDest`),
+  CONSTRAINT `links_ibfk_1` FOREIGN KEY (`wikiID`, `pageIDSource`) REFERENCES `pages` (`wikiID`, `pageID`) ON DELETE CASCADE,
+  CONSTRAINT `links_ibfk_2` FOREIGN KEY (`wikiID`, `pageIDDest`) REFERENCES `pages` (`wikiID`, `pageID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 /*Table structure for table `namespaces` */
 
 CREATE TABLE `namespaces` (
@@ -38,6 +50,7 @@ CREATE TABLE `pages` (
   `pageContent` mediumtext COLLATE utf8_bin COMMENT 'The page''s rendered content as shown in a browser, Wiki markup is not contained ',
   `revisionID` bigint(20) DEFAULT NULL COMMENT 'The Wiki''s revision id the pageContent has.',
   `nextCheck` datetime DEFAULT NULL COMMENT 'The timestamp to check this page for new revisions. Timestamp written by predictor.',
+  `fullURL` mediumtext COLLATE utf8_bin COMMENT 'The absolute path to the page as returned by API fullurl.',
   PRIMARY KEY (`wikiID`,`pageID`),
   KEY `wikiID` (`wikiID`,`namespaceID`),
   CONSTRAINT `pages_ibfk_1` FOREIGN KEY (`wikiID`, `namespaceID`) REFERENCES `namespaces` (`wikiID`, `namespaceID`) ON DELETE CASCADE
