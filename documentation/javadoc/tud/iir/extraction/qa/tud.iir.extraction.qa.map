@@ -1,9 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c3021" href="./QAUrlStack.html" title="tud.iir.extraction.qa.QAUrlStack" alt="" coords="15,531,219,605"/>
-<area shape="rect" id="c3022" href="./QAUrl.html" title="tud.iir.extraction.qa.QAUrl" alt="" coords="264,435,493,701"/>
-<area shape="rect" id="c3023" href="./QASites.html" title="tud.iir.extraction.qa.QASites" alt="" coords="539,523,736,613"/>
-<area shape="rect" id="c3024" href="./QASite.html" title="tud.iir.extraction.qa.QASite" alt="" coords="781,11,1141,1125"/>
-<area shape="rect" id="c3025" href="./QAExtractor.html" title="tud.iir.extraction.qa.QAExtractor" alt="" coords="1187,291,2013,845"/>
-<area shape="rect" id="c3026" href="./QAExtractionThread.html" title="tud.iir.extraction.qa.QAExtractionThread" alt="" coords="2059,467,2293,669"/>
-<area shape="rect" id="c3027" href="./QAExtractionProcess.html" title="tud.iir.extraction.qa.QAExtractionProcess" alt="" coords="2339,523,2520,613"/>
-</map>

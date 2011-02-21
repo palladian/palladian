@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.page.ClassificationDocument;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.ClassificationDocuments;
 import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
@@ -86,7 +86,7 @@ public class ClassifierPerformance implements Serializable {
     public int getNumberOfCorrectClassifiedDocumentsInCategory(Category category) {
         int number = 0;
 
-        for (ClassificationDocument document : getTestDocuments()) {
+        for (TextInstance document : getTestDocuments()) {
             TestDocument testDocument = (TestDocument) document;
 
             if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
@@ -337,7 +337,7 @@ public class ClassifierPerformance implements Serializable {
 
         if (getClassificationType() == ClassificationTypeSetting.TAG) {
 
-            for (ClassificationDocument document : getTestDocuments()) {
+            for (TextInstance document : getTestDocuments()) {
 
                 int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
                 int totalAssigned = document.getAssignedCategoryEntries().size();
@@ -406,7 +406,7 @@ public class ClassifierPerformance implements Serializable {
 
         if (getClassificationType() == ClassificationTypeSetting.TAG) {
 
-            for (ClassificationDocument document : getTestDocuments()) {
+            for (TextInstance document : getTestDocuments()) {
 
                 int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
                 int real = document.getRealCategories().size();

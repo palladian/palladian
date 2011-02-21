@@ -1,7 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c13102" href="./GradualEntityTrustVoting.html" title="tud.iir.classification.entity.GradualEntityTrustVoting" alt="" coords="15,289,254,410"/>
-<area shape="rect" id="c13103" href="./FeatureEntityTrustVoting.html" title="tud.iir.classification.entity.FeatureEntityTrustVoting" alt="" coords="298,289,531,410"/>
-<area shape="rect" id="c13106" href="./EntityTrustVoting.html" title="tud.iir.classification.entity.EntityTrustVoting" alt="" coords="126,11,991,213"/>
-<area shape="rect" id="c13109" href="./ClassifierEntityTrustVoting.html" title="tud.iir.classification.entity.ClassifierEntityTrustVoting" alt="" coords="576,289,829,410"/>
-<area shape="rect" id="c13110" href="./BooleanEntityTrustVoting.html" title="tud.iir.classification.entity.BooleanEntityTrustVoting" alt="" coords="874,273,1203,426"/>
-</map>

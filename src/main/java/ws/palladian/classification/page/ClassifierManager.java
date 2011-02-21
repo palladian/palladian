@@ -577,12 +577,12 @@ public class ClassifierManager {
         for (int i = 0; i < size; ++i) {
 
             String[] tData;
-            ClassificationDocument preprocessedDocument = null;
+            TextInstance preprocessedDocument = null;
 
             if (forTraining) {
 
                 tData = trainingUrls.get(i);
-                preprocessedDocument = new ClassificationDocument();
+                preprocessedDocument = new TextInstance();
 
             } else {
 
@@ -610,7 +610,7 @@ public class ClassifierManager {
                 categories.add(new Category(tData[j]));
             }
             if (forTraining) {
-                preprocessedDocument.setDocumentType(ClassificationDocument.TRAINING);
+                preprocessedDocument.setDocumentType(TextInstance.TRAINING);
                 preprocessedDocument.setRealCategories(categories);
                 classifier.getTrainingDocuments().add(preprocessedDocument);
 
@@ -619,7 +619,7 @@ public class ClassifierManager {
                 }
 
             } else {
-                preprocessedDocument.setDocumentType(ClassificationDocument.TEST);
+                preprocessedDocument.setDocumentType(TextInstance.TEST);
                 preprocessedDocument.setRealCategories(categories);
                 classifier.getTestDocuments().add(preprocessedDocument);
             }
@@ -645,10 +645,10 @@ public class ClassifierManager {
             LOGGER.info("processed " + MathHelper.round(100 * i / (double) size, 2) + "% of the documents, ngrams: "
                     + nGramFound.size() + ", time: " + DateHelper.getRuntime(classifier.initTime));
 
-            ClassificationDocument preprocessedDocument = null;
+            TextInstance preprocessedDocument = null;
 
             String[] tData = trainingUrls.get(i);
-            preprocessedDocument = preprocessDocument(tData, ClassificationDocument.TRAINING);
+            preprocessedDocument = preprocessDocument(tData, TextInstance.TRAINING);
             classifier.getTrainingDocuments().add(preprocessedDocument);
 
             // all nGrams of the current URL are saved in the map with their
@@ -674,8 +674,8 @@ public class ClassifierManager {
             // find same nGrams in all following documents
             for (int j = i + 1; j < size; ++j) {
                 String[] tData2 = trainingUrls.get(j);
-                ClassificationDocument preprocessedDocument2 = preprocessDocument(tData2,
-                        ClassificationDocument.TRAINING);
+                TextInstance preprocessedDocument2 = preprocessDocument(tData2,
+                        TextInstance.TRAINING);
 
                 // add categories and relevances to temporaryNGramMap
                 HashMap<String, Double> categoryMap2 = new HashMap<String, Double>();
@@ -745,19 +745,19 @@ public class ClassifierManager {
         for (int i = trainingUrls.size(); i < size; ++i) {
             TestDocument preprocessedDocument = null;
             String[] tData = testUrls.get(i - trainingUrls.size());
-            preprocessedDocument = (TestDocument) preprocessDocument(tData, ClassificationDocument.TEST);
+            preprocessedDocument = (TestDocument) preprocessDocument(tData, TextInstance.TEST);
             classifier.getTestDocuments().add(preprocessedDocument);
         }
 
     }
 
-    private ClassificationDocument preprocessDocument(String[] data, int type) {
-        ClassificationDocument preprocessedDocument = null;
+    private TextInstance preprocessDocument(String[] data, int type) {
+        TextInstance preprocessedDocument = null;
 
-        if (type == ClassificationDocument.TEST) {
+        if (type == TextInstance.TEST) {
             preprocessedDocument = new TestDocument();
         } else {
-            preprocessedDocument = new ClassificationDocument();
+            preprocessedDocument = new TextInstance();
         }
         preprocessedDocument = classifier.preprocessDocument(data[0], preprocessedDocument);
 
@@ -842,7 +842,7 @@ public class ClassifierManager {
         TextClassifier classifier = DictionaryClassifier.load(classifierPath);
 
         // create a classification document that holds the result
-        ClassificationDocument classifiedDocument = null;
+        TextInstance classifiedDocument = null;
 
         // classify the little text (if classifier works it would say Spanish)
         classifiedDocument = classifier.classify("Yo solo sé que no sé nada.");

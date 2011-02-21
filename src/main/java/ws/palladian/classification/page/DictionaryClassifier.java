@@ -8,11 +8,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Term;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.DateHelper;
@@ -74,7 +76,7 @@ public class DictionaryClassifier extends TextClassifier {
             dictionary.setClassType(classType);
         }
 
-        for (ClassificationDocument document : getTrainingDocuments()) {
+        for (TextInstance document : getTrainingDocuments()) {
             addToDictionary(document, classType);
         }
 
@@ -83,7 +85,7 @@ public class DictionaryClassifier extends TextClassifier {
         ClassifierManager.log("dictionary built");
     }
 
-    public void addToDictionary(ClassificationDocument trainingDocument, int classType) {
+    public void addToDictionary(TextInstance trainingDocument, int classType) {
 
         long t1 = System.currentTimeMillis();
 
@@ -221,6 +223,44 @@ public class DictionaryClassifier extends TextClassifier {
         loadDictionary(ClassificationTypeSetting.TAG);
     }
 
+    public void train() {
+
+        Categories categories = new Categories();
+
+        // set the feature settings
+        // FeatureSetting fs = new FeatureSetting();
+        // fs.setMinNGramLength(2);
+        // fs.setMaxNGramLength(9);
+        // dictionaryClassifier.setFeatureSetting(fs);
+
+        getDictionary().setDatabaseType(Dictionary.DB_H2);
+
+        Preprocessor preprocessor = getPreprocessor();
+
+        for (UniversalInstance instance : getTrainingInstances()) {
+
+            Categories documentCategories = new Categories();
+
+            Category knownCategory = categories.getCategoryByName(instance.getInstanceCategory().getName());
+            if (knownCategory == null) {
+                knownCategory = new Category(instance.getInstanceCategory().getName());
+                categories.add(knownCategory);
+            }
+
+            documentCategories.add(knownCategory);
+
+            TextInstance trainingDocument = preprocessor.preProcessDocument(instance.getTextFeature());
+            // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
+            // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
+            trainingDocument.setDocumentType(TextInstance.TRAINING);
+            trainingDocument.setRealCategories(documentCategories);
+            // getTrainingDocuments().add(trainingDocument);
+
+            addToDictionary(trainingDocument, getClassificationType());
+        }
+
+    }
+
     // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry,
     // Map.Entry<String, Double> weightedTerm);
     protected double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> map) {
@@ -230,20 +270,20 @@ public class DictionaryClassifier extends TextClassifier {
     // weightedTerm);
 
     @Override
-    public ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses) {
+    public TextInstance classify(TextInstance document, Set<String> possibleClasses) {
         return classify(document, false, possibleClasses);
     }
-    public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary) {
+    public TextInstance classify(TextInstance document, boolean loadDictionary) {
         return classify(document, loadDictionary, null);
     }
 
-    public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary,
+    public TextInstance classify(TextInstance document, boolean loadDictionary,
             Set<String> possibleClasses) {
 
         int classType = getClassificationType();
 
         if (document == null) {
-            return new ClassificationDocument();
+            return new TextInstance();
         }
 
         long t1 = System.currentTimeMillis();
@@ -497,23 +537,23 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     @Override
-    public ClassificationDocument classify(ClassificationDocument document) {
+    public TextInstance classify(TextInstance document) {
         return classify(document, true);
     }
 
     public void classifyTestDocuments(boolean loadDictionary) {
-        for (ClassificationDocument testDocument : getTestDocuments()) {
+        for (TextInstance testDocument : getTestDocuments()) {
             classify(testDocument, loadDictionary);
         }
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String text, ClassificationDocument classificationDocument) {
+    public TextInstance preprocessDocument(String text, TextInstance classificationDocument) {
         return preprocessor.preProcessDocument(text, classificationDocument);
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String text) {
+    public TextInstance preprocessDocument(String text) {
         return preprocessor.preProcessDocument(text);
     }
 

@@ -1,6 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c20347" href="./Query.html" title="tud.iir.extraction.Query" alt="" coords="543,11,763,149"/>
-<area shape="rect" id="c20367" href="./entity/EntityQuery.html" title="tud.iir.extraction.entity.EntityQuery" alt="" coords="15,273,387,426"/>
-<area shape="rect" id="c20382" href="./fact/FactQuery.html" title="tud.iir.extraction.fact.FactQuery" alt="" coords="431,209,875,490"/>
-<area shape="rect" id="c20397" href="./snippet/SnippetQuery.html" title="tud.iir.extraction.snippet.SnippetQuery" alt="" coords="920,305,1192,394"/>
-</map>

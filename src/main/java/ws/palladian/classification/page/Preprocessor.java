@@ -18,7 +18,7 @@ import ws.palladian.web.Crawler;
 /**
  * The preprocessor reads the terms for a given resource and weights them according to their relevance.
  * 
- * 2010-06-09, Philipp, added {@link #preProcessText(String)} and {@link #preProcessText(String, ClassificationDocument)}
+ * 2010-06-09, Philipp, added {@link #preProcessText(String)} and {@link #preProcessText(String, TextInstance)}
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -143,7 +143,12 @@ public final class Preprocessor implements Serializable {
      * @param classificationDocument The classification document.
      * @return The classification document with the n-gram map.
      */
-    public ClassificationDocument preProcessDocument(String inputString, ClassificationDocument classificationDocument) {
+    public TextInstance preProcessDocument(String inputString, TextInstance classificationDocument) {
+
+        // the term map is transient and might need to be initialized
+        if (termMap == null) {
+            termMap = new HashMap<String, Term>();
+        }
 
         // create a new term map for the classification document
         map = new HashMap<Term, Double>();
@@ -182,8 +187,8 @@ public final class Preprocessor implements Serializable {
         return classificationDocument;
     }
 
-    public ClassificationDocument preProcessDocument(String url) {
-        return preProcessDocument(url, new ClassificationDocument());
+    public TextInstance preProcessDocument(String url) {
+        return preProcessDocument(url, new TextInstance());
     }
 
     /**
@@ -198,7 +203,7 @@ public final class Preprocessor implements Serializable {
      * @return The classification document with the n-gram map.
      */
     @Deprecated
-    public ClassificationDocument preProcessString(String inputString, ClassificationDocument classificationDocument) {
+    public TextInstance preProcessString(String inputString, TextInstance classificationDocument) {
 
         // create a new term map for the classification document
         map = new HashMap<Term, Double>();
@@ -225,8 +230,8 @@ public final class Preprocessor implements Serializable {
         return classificationDocument;
     }
 
-    public ClassificationDocument preProcessString(String url) {
-        return preProcessString(url, new ClassificationDocument());
+    public TextInstance preProcessString(String url) {
+        return preProcessString(url, new TextInstance());
     }
 
     /**
@@ -241,7 +246,7 @@ public final class Preprocessor implements Serializable {
      * @return The classification document with the n-gram map.
      */
     @Deprecated
-    public ClassificationDocument preProcessPage(String url, ClassificationDocument classificationDocument) {
+    public TextInstance preProcessPage(String url, TextInstance classificationDocument) {
 
         Document webPage = crawler.getWebDocument(url);
 
@@ -283,12 +288,12 @@ public final class Preprocessor implements Serializable {
      * @return
      */
     @Deprecated
-    public ClassificationDocument preProcessPage(String url) {
-        return preProcessPage(url, new ClassificationDocument());
+    public TextInstance preProcessPage(String url) {
+        return preProcessPage(url, new TextInstance());
     }
 
     /**
-     * Preprocesses a long string of text similar to {@link #preProcessPage(String, ClassificationDocument)}, but the
+     * Preprocesses a long string of text similar to {@link #preProcessPage(String, TextInstance)}, but the
      * text content is not downloaded from the
      * web but passed via the url parameter. XXX This is a quick and dirty hack to allow classification of text content
      * and should be refactored somehow in the
@@ -303,7 +308,7 @@ public final class Preprocessor implements Serializable {
      * @return
      */
     @Deprecated
-    public ClassificationDocument preProcessText(String text, ClassificationDocument classificationDocument) {
+    public TextInstance preProcessText(String text, TextInstance classificationDocument) {
 
         map = new HashMap<Term, Double>();
 
@@ -329,8 +334,8 @@ public final class Preprocessor implements Serializable {
      * @return
      */
     @Deprecated
-    public ClassificationDocument preProcessText(String text) {
-        return preProcessText(text, new ClassificationDocument());
+    public TextInstance preProcessText(String text) {
+        return preProcessText(text, new TextInstance());
     }
 
     /**

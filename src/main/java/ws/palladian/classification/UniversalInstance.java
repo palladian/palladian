@@ -5,6 +5,9 @@ import java.util.List;
 
 public class UniversalInstance extends Instance {
 
+    /** The serial versionID. */
+    private static final long serialVersionUID = 55203846826273834L;
+
     private List<Double> numericFeatures = new ArrayList<Double>();
     private List<String> nominalFeatures = new ArrayList<String>();
     private String textFeature = "";

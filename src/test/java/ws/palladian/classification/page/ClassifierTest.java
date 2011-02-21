@@ -12,7 +12,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Term;
-import ws.palladian.classification.page.ClassificationDocument;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -100,7 +100,7 @@ public class ClassifierTest extends TestCase {
         classifierManager.trainClassifier(dataset, classifier);
 
         // test different documents
-        ClassificationDocument classifiedDocument;
+        TextInstance classifiedDocument;
 
         classifiedDocument = classifier.classify("a");
         Assert.assertEquals("1.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());

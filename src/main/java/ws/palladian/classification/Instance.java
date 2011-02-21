@@ -23,7 +23,7 @@ public abstract class Instance<T> implements Serializable {
      * The list of instances to which this instance belongs to. This is important so that categories can be set
      * correctly.
      */
-    private Instances<Instance> instances;
+    private Instances<Instance<T>> instances;
 
     /**
      * Get the category that is most relevant to this document.
@@ -173,12 +173,17 @@ public abstract class Instance<T> implements Serializable {
         return instanceCategory;
     }
 
-    public void setInstances(Instances<Instance> instances) {
+    public void setInstances(Instances<Instance<T>> instances) {
         this.instances = instances;
     }
 
-    public Instances<Instance> getInstances() {
+    public Instances<Instance<T>> getInstances() {
         return instances;
+    }
+
+    @Override
+    public String toString() {
+        return getAssignedCategoryEntries().toString();
     }
 
 }

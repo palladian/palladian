@@ -1,7 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="c16491" href="./WebPageClassifier.html" title="tud.iir.classification.page.WebPageClassifier" alt="" coords="723,11,1384,933"/>
-<area shape="rect" id="c16500" href="./DictionaryClassifier.html" title="tud.iir.classification.page.DictionaryClassifier" alt="" coords="736,993,1371,1274"/>
-<area shape="rect" id="c16493" href="./URLClassifier.html" title="tud.iir.classification.page.URLClassifier" alt="" coords="16,1334,677,1455"/>
-<area shape="rect" id="c16499" href="./FullPageClassifier.html" title="tud.iir.classification.page.FullPageClassifier" alt="" coords="723,1342,1384,1447"/>
-<area shape="rect" id="c16502" href="./CombinedClassifier.html" title="tud.iir.classification.page.CombinedClassifier" alt="" coords="1429,1334,2091,1455"/>
-</map>

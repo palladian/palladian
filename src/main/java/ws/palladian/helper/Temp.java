@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.classification.page.ClassificationDocument;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -90,7 +90,7 @@ public class Temp {
         for (String movie : movies) {
             String[] parts = movie.split("###");
 
-            ClassificationDocument cd = classifier.classify(parts[0]);
+            TextInstance cd = classifier.classify(parts[0]);
             sb.append(cd.getMainCategoryEntry().getCategory().getName()).append(";").append(parts[1]).append("\n");
             totalRealRating += Integer.valueOf(parts[1]);
         }

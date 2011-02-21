@@ -8,7 +8,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.ClassificationDocument;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
 import ws.palladian.helper.StringHelper;
@@ -224,7 +224,7 @@ public class Annotation extends UniversalInstance {
         // classify each word
         for (int i = 0; i < words.length; i++) {
 
-            ClassificationDocument document = preprocessor.preProcessDocument(words[i]);
+            TextInstance document = preprocessor.preProcessDocument(words[i]);
             classifier.classify(document, false);
             tags[i] = document.getMainCategoryEntry().getCategory().getName();
 
@@ -263,6 +263,7 @@ public class Annotation extends UniversalInstance {
      * <li>#Chars: The number of characters of the annotation.</li>
      * <li>#Digits: The number of digits of the annotation.</li>
      * <li>#UpperCaseChars: The number of upper case chars of the annotation.</li>
+     * <li>(#SpecialChars: The number of special chars of the annotation such as ,"':-=?!.#.)</li>
      * </ol>
      * 
      * Nominal features<br>
@@ -270,6 +271,8 @@ public class Annotation extends UniversalInstance {
      * <li>Whether the annotation is at the start of a sentence (yes/no)</li>
      * <li>Whether the annotation is in quotes (yes/no)</li>
      * <li>Whether the annotation is all uppercase (yes/no)</li>
+     * <li>Whether the annotation is in brackets ()[]{}(yes/no)</li>
+     * <li>Whether the annotation ends with apostrophe ' (yes/no)</li>
      * </ol>
      */
     public void createFeatures() {
@@ -296,6 +299,10 @@ public class Annotation extends UniversalInstance {
         // get the number of uppercase chars
         double numberOfUppercaseChars = StringHelper.countOccurences(entity, "[A-Z]", false);
         numericFeatures.add(numberOfUppercaseChars);
+        
+        // get the number of special chars (no positive effect)
+        // double numberOfSpecialChars = StringHelper.countOccurences(entity, "[\"':;-=?!.#()/&%$§°\\[\\]]", false);
+        // numericFeatures.add(numberOfSpecialChars);
 
         // // get the nominal features
         List<String> nominalFeatures = new ArrayList<String>();
@@ -316,8 +323,28 @@ public class Annotation extends UniversalInstance {
         boolean completelyUppercase = StringHelper.isCompletelyUppercase(entity);
         nominalFeatures.add(String.valueOf(completelyUppercase));
 
+        // is the entity in brackets? ()[]{}
+        boolean inBrackets = false;
+        if (leftContext.endsWith("(") && rightContext.startsWith(")") || leftContext.endsWith("[")
+                && rightContext.startsWith("]") || leftContext.endsWith("{") && rightContext.startsWith("}")) {
+            inBrackets = true;
+        }
+        nominalFeatures.add(String.valueOf(inBrackets));
+
+        // does the entity end with apostrophe? '
+        boolean endsWithApostrophe = false;
+        if (rightContext.startsWith("'")) {
+            endsWithApostrophe = true;
+        }
+        nominalFeatures.add(String.valueOf(endsWithApostrophe));
+
+        nominalFeatures.add(String.valueOf(numberOfChars));
+        // nominalFeatures.add(String.valueOf(numberOfWords));
+        nominalFeatures.add(String.valueOf(numberOfUppercaseChars));
+
+        setTextFeature(entity);
         setNumericFeatures(numericFeatures);
-        setNominalFeatures(nominalFeatures);        
+        setNominalFeatures(nominalFeatures);
     }
 
 }
