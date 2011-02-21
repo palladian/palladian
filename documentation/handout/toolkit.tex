@@ -1622,6 +1622,47 @@ crawler.startCrawl("http://www.dmoz.org/", true, true);
 \end{lstlisting}
 \end{codelisting}
 
+\subsection{News}
+Palladian's \texttt{feeds} package offers various functionalities for tasks related to RSS and Atom web feeds. The most important classes include:
+
+\begin{itemize}
+
+	\item \texttt{FeedDownloader} can be used for retrieving web feeds. The class basically wraps ROME library~\cite{rome} for feed parsing but adds some additional techniques and fallbacks for parsing non-standard and malformed feeds, which ROME normally cannot parse.
+
+	\item \texttt{FeedReader} is responsible for continuously aggregating web feeds using various different algorithms to predict feed's update behaviours.
+
+	\item \texttt{FeedDiscovery} allows searching for web feeds using standard web search engines like Yahoo! and the so called ``autodiscovery'' feature\footnote{\url{http://diveintomark.org/archives/2003/12/19/atom-autodiscovery} (also works for RSS)}.
+
+	\item \texttt{FeedDatabase} implements the feed's package persistence layer using a relational database. The necessary MySQL database schema can be found in \texttt{config/feedsDbSchema.sql}.
+
+	\item \texttt{FeedImporter} is used for adding new web feeds to the database.
+
+	\item The class \texttt{Feed} and its associated \texttt{FeedItem}s model a web feed's data structure.
+
+\end{itemize}
+
+Code Listing~\ref{listing:feeds} gives a minimal sample use case employing the described classes.
+
+\begin{codelisting}
+\begin{lstlisting}[caption=Using the feeds package.,frame=tb,label=listing:feeds]
+// search feeds
+FeedDiscovery feedDiscovery = new FeedDiscovery();
+feedDiscovery.setSearchEngine(SourceRetrieverManager.YAHOO_BOSS);
+feedDiscovery.addQuery("Porsche 911");
+feedDiscovery.setResultLimit(100);
+feedDiscovery.findFeeds();
+Collection<String> feedUrls = feedDiscovery.getFeeds();
+CollectionHelper.print(feedUrls);
+        
+// download a feed
+FeedDownloader feedDownloader = new FeedDownloader();
+Feed feed = feedDownloader.getFeed("http://rss.cnn.com/rss/edition.rss");
+List<FeedItem> feedItems = feed.getItems();
+CollectionHelper.print(feedItems);
+\end{lstlisting}
+\end{codelisting}
+
+
 \section{Preprocessing}
 \subsection{Tokenization}
 A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. Palladian uses regular expressions to perform the tokenization.
