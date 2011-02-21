@@ -481,7 +481,7 @@ bing.api.key =
 
 \subsection{classification.conf}
 \label{sec:classification.conf}
-Classification settings for the tud.iir.classification.page.ClassifierManager.
+Classification settings for the ws.palladian.classification.page.ClassifierManager.
 
 \begin{verbatim}
 # percentage of the training/testing file to use as training data
@@ -502,7 +502,7 @@ page.dictionaryClassifierIndexType = 1
 
 \subsection{crawler.conf}
 \label{sec:crawler.conf}
-Crawler settings for the tud.iir.web.Crawler. All settings can be set in Java code as well.
+Crawler settings for the ws.palladian.web.Crawler. All settings can be set in Java code as well.
 
 \begin{verbatim}
 # maximum number of threads during crawling
@@ -527,7 +527,7 @@ proxyList = 67.159.31.22:8080
 \end{verbatim}
 
 \subsection{db.conf}
-Database settings for the tud.iir.persistence.DatabaseManager.
+Database settings for the ws.palladian.persistence.DatabaseManager.
 
 \begin{verbatim}
 db.type = mysql
@@ -540,13 +540,13 @@ db.password = rootpass
 \end{verbatim}
 
 \subsection{general.conf}
-General settings used by the tud.iir.control.Controller.
+General settings used by the ws.palladian.control.Controller.
 
 \section{Data Folder}
 The data folder contains files that are used during runtime of several components.
 
 \subsection{knowledgeBase} 
-The knowledge base folder contains the OWL ontology files used for the extraction tasks in the tud.iir.extraction package.
+The knowledge base folder contains the OWL ontology files used for the extraction tasks in the ws.palladian.extraction package.
 
 \subsection{models}
 The models folder contains learned models that can be reused. See section \ref{sec:AccessModelsDataSets} for an explanation on how to access our extensive collection of data sets and models.
@@ -633,7 +633,7 @@ Checkstyle, PMD, and FindBugs can be initiated by right clicking a package or cl
 Using these plugins raises the chances to win in the continuous integration game as described in Section \ref{sec:cigame}.
 
 \subsection{Tests}
-To guarantee that all components work as expected, we use jUnit tests. Before major check-ins to the repository, all jUnit Tests must run successfully. Run the tud.iir.control.AllTests.java to make sure all components work correctly.
+To guarantee that all components work as expected, we use jUnit tests. Before major check-ins to the repository, all jUnit Tests must run successfully. Run the ws.palladian.control.AllTests.java to make sure all components work correctly.
 After finishing a new component, new testing code must be written.
 
 %\section{Project Management}
@@ -725,7 +725,7 @@ The dictionary can be stored in memory, in an embedded H2 database, or in a clie
 %TODO cooccurrence
 
 \subsubsection{Evaluation}
-In order to find out which classifier works best with which feature settings, you can evaluate these combinations. The tud.iir.classification.page.ClassifierManager has the $learnBestClassifier$ method to run the evaluation on all given classifiers with the given evaluation setting object tud.iir.classification.page.EvaluationSetting. See Section \ref{sec:bpTextClassification} for more details of how to perform the evaluation programmatically.
+In order to find out which classifier works best with which feature settings, you can evaluate these combinations. The ws.palladian.classification.page.ClassifierManager has the $learnBestClassifier$ method to run the evaluation on all given classifiers with the given evaluation setting object ws.palladian.classification.page.EvaluationSetting. See Section \ref{sec:bpTextClassification} for more details of how to perform the evaluation programmatically.
 
 The output of the evaluation will be three csv files that hold information about the combinations of classifier, dataset, training percentage, and the final performance for the combination. The performance is measured in precision, recall, and F1. The three files are stored in the data/temp folder and hold the following information.
 
@@ -1622,8 +1622,8 @@ crawler.startCrawl("http://www.dmoz.org/", true, true);
 \end{lstlisting}
 \end{codelisting}
 
-\subsection{News}
-Palladian's \texttt{feeds} package offers various functionalities for tasks related to RSS and Atom web feeds. The most important classes include:
+\subsection{Web Feeds}
+Palladian's \texttt{ws.palladian.web.feeds} package offers various functionalities for tasks related to RSS and Atom web feeds. The most important classes include:
 
 \begin{itemize}
 
@@ -1631,9 +1631,9 @@ Palladian's \texttt{feeds} package offers various functionalities for tasks rela
 
 	\item \texttt{FeedReader} is responsible for continuously aggregating web feeds using various different algorithms to predict feed's update behaviours.
 
-	\item \texttt{FeedDiscovery} allows searching for web feeds using standard web search engines like Yahoo! and the so called ``autodiscovery'' feature\footnote{\url{http://diveintomark.org/archives/2003/12/19/atom-autodiscovery} (also works for RSS)}.
+	\item \texttt{FeedDiscovery} allows searching for web feeds using standard web search engines like Yahoo! and the so called ``autodiscovery'' feature\footnote{\url{http://diveintomark.org/archives/2003/12/19/atom-autodiscovery} (also works for RSS)}, to detect feeds on web pages.
 
-	\item \texttt{FeedDatabase} implements the feed's package persistence layer using a relational database. The necessary MySQL database schema can be found in \texttt{config/feedsDbSchema.sql}.
+	\item \texttt{FeedDatabase} implements the feed's package persistence layer using a relational database. The necessary MySQL database schema can be found in \texttt{config/feedsDbSchema.sql}\footnote{You can use phphMyAdmin or MySQL command line utilities to import the schema into your database.}.
 
 	\item \texttt{FeedImporter} is used for adding new web feeds to the database.
 
@@ -1644,8 +1644,8 @@ Palladian's \texttt{feeds} package offers various functionalities for tasks rela
 Code Listing~\ref{listing:feeds} gives a minimal sample use case employing the described classes.
 
 \begin{codelisting}
-\begin{lstlisting}[caption=Using the feeds package.,frame=tb,label=listing:feeds]
-// search feeds
+\begin{lstlisting}[caption=Using the \texttt{feeds} package.,frame=tb,label=listing:feeds]
+// search feeds for "Porsche 911"
 FeedDiscovery feedDiscovery = new FeedDiscovery();
 feedDiscovery.setSearchEngine(SourceRetrieverManager.YAHOO_BOSS);
 feedDiscovery.addQuery("Porsche 911");
@@ -1653,12 +1653,24 @@ feedDiscovery.setResultLimit(100);
 feedDiscovery.findFeeds();
 Collection<String> feedUrls = feedDiscovery.getFeeds();
 CollectionHelper.print(feedUrls);
-        
+
 // download a feed
 FeedDownloader feedDownloader = new FeedDownloader();
 Feed feed = feedDownloader.getFeed("http://rss.cnn.com/rss/edition.rss");
 List<FeedItem> feedItems = feed.getItems();
 CollectionHelper.print(feedItems);
+
+// initialize the FeedDatabase for storing the data
+FeedStore feedStore = new FeedDatabase();
+
+// add some feed URLs to the database
+FeedImporter feedImporter = new FeedImporter(feedStore);
+feedImporter.addFeeds(feedUrls);
+
+// start aggregating news for the feeds in the database
+// (this is an infinite loop)
+FeedReader feedReader = new FeedReader(feedStore);
+feedReader.aggregate(false);
 \end{lstlisting}
 \end{codelisting}
 
@@ -1763,8 +1775,7 @@ System.out.println(plural);
 \end{codelisting}
 
 \section{Miscellaneous}
-The toolkit contains many helper functionalities for reoccurring tasks in the tud.iir.helper package.
-The following code snippet shows several sample usages of some of the functions.
+The toolkit contains many helper functionalities for reoccurring tasks in the \texttt{ws.palladian.helper} package. The following code snippet shows several sample usages of some of the functions.
 
 \begin{codelisting}
 \begin{lstlisting}[caption=Miscellaneous functions.,frame=tb]
