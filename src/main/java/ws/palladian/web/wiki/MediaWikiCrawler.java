@@ -548,8 +548,8 @@ public class MediaWikiCrawler implements Runnable {
         }
 
         if (INFO) {
-            LOGGER.info("finished crawling content and revisions of all pages, crawling took "
-                    + stopWatch.getElapsedTimeString());
+            LOGGER.info("finished crawling content, links and revisions of all pages. Crawling of  " + pageCounter
+                    + " pages took " + stopWatch.getElapsedTimeString());
         }
     }
 
