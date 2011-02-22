@@ -1,7 +1,7 @@
 %http://www.maths.manchester.ac.uk/~kd/latextut/pdfbyex.htm
 \documentclass[a4paper,twoside]{book}      % Comments after  % are ignored
 \usepackage{amsmath,amssymb,amsfonts} % Typical maths resource packages
-\usepackage{graphics}                 % Packages to allow inclusion of graphics
+%\usepackage{graphics}                 % Packages to allow inclusion of graphics
 \usepackage{graphicx}
 \usepackage{color}                    % For creating coloured text and background
 \usepackage{hyperref}                 % For creating hyperlinks in cross references
@@ -1200,7 +1200,6 @@ ner.tag(inputText);
 In order to find out which tags were trained for the model you can create a meta file with one tag name per line, give it the same name as the model adding the suffix ``\_meta'' and save it as a text file next to the model. Listing \ref{listing:nerMeta} shows how you can get a list of tags that a model can apply.
 
 \begin{codelisting}
-\label{listing:nerMeta}
 \begin{lstlisting}[label=listing:nerMeta,caption=Reading a model's meta data.,frame=tb]
 // create the tagger
 NamedEntityRecognizer ner = new TUDNER();
@@ -1677,6 +1676,109 @@ feedReader.aggregate(false);
 \end{lstlisting}
 \end{codelisting}
 
+\subsection{MediaWiki Crawler}
+The MediaWiki crawler can be used to retrieve content and metadata from Wiki pages. This component is not really a crawler since it uses the MediaWiki API \cite{MWAPI2011} to get all information, anyhow, we call it a crawler. To communicate with the API, the crawler is based on the Java Wiki Bot Framework (jwbf) \cite{jwbf2011}. 
+
+\subsubsection{Basic Features}
+Basic functionalities include:
+\begin{itemize}
+\item Download the content of a complete wiki.
+\item Store content in relational data base.
+\item Select namespaces to crawl.
+\item Access login protected Wikis.
+\item For a single page, extract: 
+	\begin{itemize}
+	\item page title,
+	\item HTML content of the most recent version, rendered by wiki (without navigation bar on left side),
+	\item complete history, for every revision: revisionID, timestamp of modification and author,
+	\item all links to other pages within the same wiki.
+	\end{itemize}	
+\item Contineous crawling, i.e. keep data base up to date.
+\item Crawl multiple Wikis in parallel.
+\item Notification to process new pages in your own code.
+\end{itemize}
+
+\subsubsection{Architecture}
+
+Figure~\ref{fig:MWCrawler-architecture} shows the architecture of the MediaWiki crawler. The classes \emph{MediaWikiCrawler} and \emph{PageConsumer} are the central classes, holding the control flow for fetching pages from the wiki (MediaWikiCrawlerfrom) and processing the extracted data (PageConsumer), for details see~\ref{sec:mw_extend}. Package \emph{data} provides classes to temporary store fetched pages and their metadata while package \emph{persistence} is used as a persistance layer to store extracted data in a database and load the crawler configuration. Package \emph{queries} extends some queries of the Java Wiki Bot Framework (jwbf). All communication with the MediaWiki API is done via jwbf. 
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.6\textwidth]{img/MediaWiki_Crawler_Architecture.pdf}
+\caption{MediaWiki crawler architecture.}
+\label{fig:MWCrawler-architecture}
+\end{figure}
+
+\subsubsection{How To}
+The necessary MySQL database schema can be found in \texttt{config/mwCrawlerDbSchema.sql}, the crawler's configuration can be found in \texttt{config/mwCrawlerConfiguration.yml}, see \ref{listing:MWCrawler_config}. For every Wiki to crawl, at least \emph{wikiName} and \emph{wikiURL} are required.
+
+\begin{codelisting}
+\begin{lstlisting}[caption=MediaWiki crawler configuration.,frame=tb,language=tex,breaklines=true,label=listing:MWCrawler_config]
+# sample
+    # Unique name of this wiki, like "Wikipedia (en)". Required parameter.
+- wikiName: "Wikipedia (en)"
+    # Path to the Wiki, like "http://en.wikipedia.org/". Required parameter.
+  wikiURL: "http://en.wikipedia.org/"
+    # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php.
+    # Do not forget the "/" in  the end of the path if there is any.
+    # Optional parameter. Leave empty if unknown. 		
+  pathToAPI: "/w/" 
+    # Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/).         
+    # Do not forget the "/" in  the end of the path if there is any. 
+    # Optional parameter. Leave empty if unknown.
+  pathToContent: "/wiki/"
+    # User name to use for crawling.
+    # Optional parameter. 
+  crawlerUserName: "myname" 
+    # The user's password. Optional parameter. 
+  crawlerPassword: "mysecret"
+    # The namespaceIDs to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
+    # namespaceIDs that do not exist in the Wiki are ignored.
+    # known bug: to crawl a single namespace, add comma like "1,", otherwise all namespaces are crawled! 
+    # Optional parameter. Leave empty to crawl all namespaces.
+  namespacesToCrawl: "0, 1, 12" 
+\end{lstlisting}
+\end{codelisting}
+
+To run the MediaWiki crawler, do the following three steps: 
+\begin{enumerate}
+	\item Create the required database tables by executing mwCrawlerDbSchema.sql.
+	\item Change the configuration mwCrawlerConfiguration.yml to setup all Wikis to crawl.
+	\item Start the crawler like in listing~\ref{listing:MWCrawler_initialize}.
+\end{enumerate}  
+
+\begin{codelisting}
+\begin{lstlisting}[caption=MediaWiki crawler initialization.,frame=tb,breaklines=true,label=listing:MWCrawler_initialize]
+final int queueCapacity = 1000;
+final int pageConsumers = 5;
+
+LinkedBlockingQueue<WikiPage> pageQueue = new LinkedBlockingQueue<WikiPage>(queueCapacity);
+MWConfigLoader.initialize(pageQueue);
+for (int i = 1; i <= pageConsumers; i++) {
+  Thread consumer = new Thread(new PageConsumer(pageQueue), "Consum-" + i);
+  consumer.start();
+}
+\end{lstlisting}
+\end{codelisting}
+
+\subsubsection{Understand and extend the crawler}\label{sec:mw_extend}
+
+As already introduced, the crawler has two central classes---MediaWikiCrawler and PageConsumer---to control the work flow. For every wiki to crawl one MediaWikiCrawler is created, running as a thread, "producing" \emph{WikiPage}-objects when fetching a new page or revision and adding them to a central \emph{pageQueue}. PageConsumer-threads wait for new pages and are used to process the extracted data. The current PageConsumer implementation contains basic functionality only, it has to be extended (inheritance). Override \emph{consume(WikiPage page)} to do something useful with every page that is taken from the pageQueue. 
+
+The MediaWikiCrawler itself should not be changed unless more information (e.g. the page content of every revision) is required. Figure~\ref{fig:MWCrawler-state_machine} shows the state machine of the crawler. The initialization is done by \emph{MWConfigLoader} which loads the configuration from data/mwCrawlerConfiguration.yml, updates the configuration in the database and starts one MediaWikiCrawler-thread per Wiki to crawl. Every MediaWikiCrawler does the following: 
+
+\textbf{first start}: If the crawler is started the first time, it gets all namespaces from the API and stores them in the database. Depending on the parameter \emph{namespacesToCrawl} in mwCrawlerConfiguration.yml, all or the selected namespaces are marked for crawling. The next step is to fetch the titles of all page from the API. Next, for each title, the page content, Wiki-links to other pages in the same Wiki and all revisions are fetched from the API. As soon as a page has been processed completely, it is put to the pageQueue to be processed by one of the PageConsumers. When done, the crawler writes the current time to database and enters a continuous crawling mode. Caution: On startup, every crawler checks whether this Wiki has been crawled completely before. If not, it deletes all page-reated data from database. 
+
+\textbf{wiki already crawled}: If the wiki has already been crawled completely, the crawler enters the continuous crawling mode. It wakes up periodically and checks the Wiki for new pages and new revisions of existing pages. Every new/updated page is added to the pageQueue.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{img/MediaWikiCrawler-UMLStateMachine.pdf}
+\caption{MediaWiki crawler UML state machine.}
+\label{fig:MWCrawler-state_machine}
+\end{figure}
+
+% bis hier 67 Sätze
 
 \section{Preprocessing}
 \subsection{Tokenization}
@@ -1735,7 +1837,6 @@ The document preprocessor allows you to create a set of n-grams with different l
 Listing \ref{listing:ngrams} shows how you can create n-grams from a given text.
 
 \begin{codelisting}
-\label{listing:ngrams}
 \begin{lstlisting}[label=listing:ngrams,caption=Creating n-grams.,frame=tb]
 // the input text that we want to separate into n-grams
 String inputText = "a cat runs funnily";
@@ -1763,7 +1864,6 @@ Palladian is able to transform most English singular nouns to their plural and b
 Listing \ref{listing:singularPlural} shows the simple usage of the singularization and pluralization using the WordTransformer class.
 
 \begin{codelisting}
-\label{listing:singularPlural}
 \begin{lstlisting}[label=listing:singularPlural,caption=Transforming words from singular to plural and vice versa.,frame=tb]
 String singular = "city";
 String plural = "";
