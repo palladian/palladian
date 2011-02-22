@@ -545,6 +545,40 @@ db.password = rootpass
 \subsection{general.conf}
 General settings used by the ws.palladian.control.Controller.
 
+
+\subsection{mwCrawlerConfiguration.yml}
+
+Settings for the MediaWiki crawler (ws.palladian..web.wiki.). For every Wiki to crawl, at least \emph{wikiName} and \emph{wikiURL} are required. For further details, see~\ref{sec:MWCrawler}.
+
+\begin{codelisting}
+\begin{lstlisting}[caption=MediaWiki crawler configuration.,frame=tb,language=tex,breaklines=true,label=listing:MWCrawler_configA]
+# sample
+    # Unique name of this wiki, like "Wikipedia (en)". Required parameter.
+- wikiName: "Wikipedia (en)"
+    # Path to the Wiki, like "http://en.wikipedia.org/". Required parameter.
+  wikiURL: "http://en.wikipedia.org/"
+    # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php.
+    # Do not forget the "/" in  the end of the path if there is any.
+    # Optional parameter. Leave empty if unknown. 		
+  pathToAPI: "/w/" 
+    # Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/).         
+    # Do not forget the "/" in  the end of the path if there is any. 
+    # Optional parameter. Leave empty if unknown.
+  pathToContent: "/wiki/"
+    # User name to use for crawling.
+    # Optional parameter. 
+  crawlerUserName: "myname" 
+    # The user's password. Optional parameter. 
+  crawlerPassword: "mysecret"
+    # The namespaceIDs to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
+    # namespaceIDs that do not exist in the Wiki are ignored.
+    # known bug: to crawl a single namespace, add comma like "1,", otherwise all namespaces are crawled! 
+    # Optional parameter. Leave empty to crawl all namespaces.
+  namespacesToCrawl: "0, 1, 12" 
+\end{lstlisting}
+\end{codelisting}
+
+
 \section{Data Folder}
 The data folder contains files that are used during runtime of several components.
 
@@ -1676,7 +1710,7 @@ feedReader.aggregate(false);
 \end{lstlisting}
 \end{codelisting}
 
-\subsection{MediaWiki Crawler}
+\subsection{MediaWiki Crawler}\label{sec:MWCrawler}
 The MediaWiki crawler can be used to retrieve content and metadata from Wiki pages. This component is not really a crawler since it uses the MediaWiki API \cite{MWAPI2011} to get all information, anyhow, we call it a crawler. To communicate with the API, the crawler is based on the Java Wiki Bot Framework (jwbf) \cite{jwbf2011}. 
 
 \subsubsection{Basic Features}
