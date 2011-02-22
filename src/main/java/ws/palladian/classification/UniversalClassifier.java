@@ -54,18 +54,18 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // classify numeric features with the KNN
         NumericInstance numericInstance = new NumericInstance(null);
         numericInstance.setFeatures(numericFeatures);
-        numericClassifier.classify(numericInstance);
+        // numericClassifier.classify(numericInstance);
 
         // classify nominal features with the Bayes classifier
         UniversalInstance nominalInstance = new UniversalInstance(null);
         nominalInstance.setNominalFeatures(nominalFeatures);
-        nominalClassifier.classify(nominalInstance);
+        // nominalClassifier.classify(nominalInstance);
 
         // merge classification results
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
         mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
-        mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
-        mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
+        // mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
+        // mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
 
         instance.assignCategoryEntries(mergedCategoryEntries);
     }

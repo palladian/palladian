@@ -451,7 +451,7 @@ public class RegExp {
      * 
      * @return A set of regular expressions.
      */
-    public static String[] getDateFramentRegExp() {
+    public static String[] getDateFragmentRegExp() {
         return new String[] { MONTH_NAME_SHORT_ENG, MONTH_NAME_LONG_ENG, WEEKDAY_NAME_SHORT, WEEKDAY_NAME_LONG };
     }
 

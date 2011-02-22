@@ -8,9 +8,10 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
+import ws.palladian.classification.page.TextInstance;
+import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StringHelper;
 
 /**
@@ -264,6 +265,7 @@ public class Annotation extends UniversalInstance {
      * <li>#Digits: The number of digits of the annotation.</li>
      * <li>#UpperCaseChars: The number of upper case chars of the annotation.</li>
      * <li>(#SpecialChars: The number of special chars of the annotation such as ,"':-=?!.#.)</li>
+     * <li>#DateFragements: The number of date fragments such as "July" or "Jul" in the annotation.</li>
      * </ol>
      * 
      * Nominal features<br>
@@ -304,6 +306,10 @@ public class Annotation extends UniversalInstance {
         // double numberOfSpecialChars = StringHelper.countOccurences(entity, "[\"':;-=?!.#()/&%$§°\\[\\]]", false);
         // numericFeatures.add(numberOfSpecialChars);
 
+        // get the number of date fragments
+        double numberOfDateFragments = containsDateFragment(entity);
+        numericFeatures.add(numberOfDateFragments);
+
         // // get the nominal features
         List<String> nominalFeatures = new ArrayList<String>();
         
@@ -340,11 +346,27 @@ public class Annotation extends UniversalInstance {
 
         nominalFeatures.add(String.valueOf(numberOfChars));
         // nominalFeatures.add(String.valueOf(numberOfWords));
-        nominalFeatures.add(String.valueOf(numberOfUppercaseChars));
+        // nominalFeatures.add(String.valueOf(numberOfUppercaseChars));
+        // nominalFeatures.add(String.valueOf(containsDateFragment(entity)));
 
         setTextFeature(entity);
         setNumericFeatures(numericFeatures);
         setNominalFeatures(nominalFeatures);
+    }
+
+    private int containsDateFragment(String text) {
+        text = text.toLowerCase();
+        String[] regExps = RegExp.getDateFragmentRegExp();
+
+        int fragments = 0;
+        for (String regExp : regExps) {
+            if (text.matches(regExp.toLowerCase())) {
+                fragments++;
+            }
+
+        }
+
+        return fragments;
     }
 
 }
