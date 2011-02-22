@@ -150,6 +150,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
         // be in ERROR1 set and NOT in the gold standard
+        Annotations wrongAnnotations = new Annotations();
         for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
 
             // for the numeric classifier it is better if only annotations are removed that never appeared in the gold
@@ -178,12 +179,14 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                 numericInstance.setInstanceCategory("###NO_ENTITY###");
                 numericInstances.add(numericInstance);
 
+                removeAnnotations.add(wrongAnnotation);
                 // UniversalInstance nominalInstance = new UniversalInstance(nominalInstances);
                 // nominalInstance.setNominalFeatures(wrongAnnotation.getNominalFeatures());
                 // nominalInstance.setInstanceCategory("###NO_ENTITY###");
                 // nominalInstances.add(nominalInstance);
             }
         }
+        System.out.println(removeAnnotations.size() + " annotations need to be completely removed");
         // //////////////////////////////////////////////////////////////////////////////////////////////////
 
         universalClassifier.getNumericClassifier().setTrainingInstances(numericInstances);
@@ -301,6 +304,13 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         Annotations toRemove = new Annotations();
 
+        // remove dates
+        for (Annotation annotation : annotations) {
+            if (containsDateFragment(annotation.getEntity())) {
+                toRemove.add(annotation);
+            }
+        }
+
         // remove all annotations with "DOCSTART- " in them because that is for format purposes
         for (Annotation annotation : annotations) {
             if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
@@ -316,7 +326,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             String removeName = removeAnnotation.getEntity().toLowerCase();
             for (Annotation annotation : annotations) {
                 if (removeName.equals(annotation.getEntity().toLowerCase())) {
-                    // toRemove.add(annotation);
+                    toRemove.add(annotation);
                 }
             }
         }
@@ -717,10 +727,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     private boolean containsDateFragment(String text) {
         text = text.toLowerCase();
-        String[] regExps = RegExp.getDateFramentRegExp();
+        String[] regExps = RegExp.getDateFragmentRegExp();
 
         for (String regExp : regExps) {
-            if (text.replaceAll(regExp.toLowerCase(), "").isEmpty()) {
+            if (text.replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
                 return true;
             }
 
