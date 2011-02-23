@@ -477,8 +477,8 @@ public class DatabaseManager {
             rs = ps.getGeneratedKeys();
             for (int result : batchResult) {
                 int id = -1;
-                if (result > 0) {
-                    rs.next();
+                if (result > 0 && rs.next()) {
+                    // rs.next();
                     id = rs.getInt(1);
                 }
                 generatedIds.add(id);
