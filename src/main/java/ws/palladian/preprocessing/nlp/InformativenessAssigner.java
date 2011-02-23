@@ -1,11 +1,11 @@
 package ws.palladian.preprocessing.nlp;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -15,12 +15,18 @@ import ws.palladian.extraction.content.PageSentenceExtractor;
 import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.CountMap;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.Tokenizer;
+import ws.palladian.web.Crawler;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
 import ws.palladian.web.URLDownloader;
+import ws.palladian.web.URLDownloader.URLDownloaderCallback;
 
 public class InformativenessAssigner {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(InformativenessAssigner.class);
 
     private TokenFrequencyMap tokenFrequencies = new TokenFrequencyMap();
     private Map<String, Double> normalizedTokenFrequencies = new HashMap<String, Double>();
@@ -51,27 +57,37 @@ public class InformativenessAssigner {
 
     public void initTokenFrequencyMap() {
 
-        // get texts from web pages
-        List<String> texts = getTexts();
-
         CountMap tokenFrequencyMap = new CountMap();
 
-        // calculate token frequencies
-        int totalTokens = 0;
-        for (String text : texts) {
-            List<String> tokens = Tokenizer.tokenize(text);
+        for (int i = 0; i < 200; i++) {
+            // get texts from web pages
+            List<String> texts = getTexts();
 
-            for (String token : tokens) {
-                tokenFrequencyMap.increment(token);
+            // calculate token frequencies
+            int totalTokens = 0;
+            for (String text : texts) {
+                List<String> tokens = Tokenizer.tokenize(text);
+
+                for (String token : tokens) {
+                    tokenFrequencyMap.increment(token);
+                }
+
+                totalTokens += tokens.size();
             }
 
-            totalTokens += tokens.size();
-        }
+            for (Entry<Object, Integer> entry : tokenFrequencyMap.entrySet()) {
+                tokenFrequencies.put(entry.getKey().toString(), entry.getValue() / (double) totalTokens);
+            }
 
-        for (Entry<Object, Integer> entry : tokenFrequencyMap.entrySet()) {
-            tokenFrequencies.put(entry.getKey().toString(), entry.getValue() / (double) totalTokens);
+            LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now "
+                    + tokenFrequencies.keySet().size());
+            
+            if ((i+1) % 10 == 0) {
+                LOGGER.debug("saving frequency map (i = "+i+"...");
+                saveFrequencyMap();                
+            }
+            
         }
-
         saveFrequencyMap();
 
         FileHelper.writeToFile("data/temp/tfmap.txt",
@@ -79,7 +95,9 @@ public class InformativenessAssigner {
     }
 
     private List<String> getTexts() {
-        List<String> texts = new ArrayList<String>();
+        StopWatch sw = new StopWatch();
+
+        final List<String> texts = new ArrayList<String>();
 
         SourceRetriever sr = new SourceRetriever();
         sr.setSource(SourceRetrieverManager.BING);
@@ -87,20 +105,37 @@ public class InformativenessAssigner {
 
         // List<String> urls = sr.getURLs("and with many in of");
         List<String> urls = new ArrayList<String>();
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 50; i++) {
             urls.add("http://en.wikipedia.org/wiki/Special:Random?a=" + Math.random());
+            urls.add("http://random.yahoo.com/bin/ryl?a=" + Math.random());
+            urls.add("http://www.randomwebsite.com/cgi-bin/random.pl?a=" + Math.random());
         }
+
+        final PageSentenceExtractor pse = new PageSentenceExtractor();
+        final Crawler crawler = new Crawler();
+
+        URLDownloaderCallback callback = new URLDownloaderCallback() {
+
+            @Override
+            public void finished(String url, InputStream inputStream) {
+                Document document = crawler.getWebDocument(inputStream, url);
+                pse.setDocument(document);
+                texts.add(pse.getSentencesString());
+            }
+        };
 
         URLDownloader ud = new URLDownloader();
+        ud.setMaxFails(20000);
         ud.add(urls);
-        Set<Document> documents = ud.start();
+        ud.start(callback);
+        // Set<Document> documents = ud.start();
 
-        PageSentenceExtractor pse = new PageSentenceExtractor();
+        // for (Document document : documents) {
+        // pse.setDocument(document);
+        // texts.add(pse.getSentencesString());
+        // }
 
-        for (Document document : documents) {
-            pse.setDocument(document);
-            texts.add(pse.getSentencesString());
-        }
+        LOGGER.info("got " + texts.size() + " in " + sw.getElapsedTimeString());
 
         return texts;
     }
@@ -149,7 +184,7 @@ public class InformativenessAssigner {
 
     public void saveAsHTML(String text, String path) {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
         sb.append("<html>");
         sb.append("<head>");
@@ -159,14 +194,17 @@ public class InformativenessAssigner {
         sb.append(text);
         sb.append("</body>");
         sb.append("</html>");
-        
-        FileHelper.writeToFile(path, sb);        
+
+        FileHelper.writeToFile(path, sb);
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
+
+        StopWatch sw = new StopWatch();
+
         Logger.getRootLogger().setLevel(Level.DEBUG);
         InformativenessAssigner ia = new InformativenessAssigner();
 
@@ -178,6 +216,8 @@ public class InformativenessAssigner {
 
         String taggedText = ia.tagText(text);
         ia.saveAsHTML(taggedText, "data/temp/taggedInformativeness.html");
+
+        LOGGER.info("process took " + sw.getElapsedTimeString());
     }
 
 }
