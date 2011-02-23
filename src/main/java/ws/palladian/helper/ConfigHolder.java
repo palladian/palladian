@@ -104,7 +104,9 @@ public final class ConfigHolder {
             LOGGER.error("Palladian configuration under " + CONFIG_PATH + " could not be loaded completely: "
                     + e.getMessage());
         } catch (URISyntaxException e) {
-            LOGGER.error("Palladian configuration file loading error.");
+            LOGGER.error("Palladian configuration file loading error, " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Palladian configuration file loading error, " + e.getMessage());
         }
     }
 
