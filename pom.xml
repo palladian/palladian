@@ -420,7 +420,9 @@
 		<dependency>
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>
-			<version>0.7.0</version>
+			<!--<version>0.7.0</version>-->
+			<!-- http://forum.jolbox.com/viewtopic.php?f=3&t=159 -->
+			<version>0.7.1-SNAPSHOT</version>			
 		</dependency>
 		<dependency>
 			<groupId>org.prefuse</groupId>
