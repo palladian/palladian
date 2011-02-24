@@ -180,7 +180,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     private void saveCorpus() {
-        String filePath = settings.getModelPath() + "/corpus.ser";
+        //String filePath = settings.getModelPath() + "/corpus.ser";
+        String filePath = settings.getModelPath() + "/corpus.ser.gz";
+
         LOGGER.info("saving corpus to " + filePath + " ...");
         StopWatch sw = new StopWatch();
         corpus.makeRelativeScores();
@@ -191,7 +193,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     private void loadCorpus() {
         LOGGER.info("loading corpus ...");
         StopWatch sw = new StopWatch();
-        corpus = FileHelper.deserialize(settings.getModelPath() + "/corpus.ser");
+        // corpus = FileHelper.deserialize(settings.getModelPath() + "/corpus.ser");
+        corpus = FileHelper.deserialize(settings.getModelPath() + "/corpus.ser.gz");
+
         LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
     }
 
@@ -565,7 +569,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         
         final PalladianKeyphraseExtractor extractor = new PalladianKeyphraseExtractor();
-        System.out.println(extractor.stem("the quick brown fox jumps over the lazy dog"));
+        // System.out.println(extractor.stem("the quick brown fox jumps over the lazy dog"));
+        extractor.load();
+        // System.out.println(extractor.corpus.toString());
         System.exit(0);
         
 
@@ -588,7 +594,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
         // extractorSettings.setReRankingMode(ReRankingMode.DEEP_CORRELATION_RERANKING);
         // extractorSettings.setCorrelationWeight(50000);
-        // XXX extractorSettings.setControlledMode(false);
+        // extractorSettings.setControlledMode(false);
         extractorSettings.setControlledMode(true);
 
         // //////////////////////////////////////////////
