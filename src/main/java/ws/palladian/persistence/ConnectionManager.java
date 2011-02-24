@@ -95,9 +95,9 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
                 public void onCheckOut(ConnectionHandle connection) {
                     try {
                         connection.setAutoCommit(true);
-                    } catch (SQLException ignore) { }
+                    } catch (SQLException ignore) {
+                    }
                 }
-
             };
             boneConfig.setConnectionHook(connectionHook);
 
