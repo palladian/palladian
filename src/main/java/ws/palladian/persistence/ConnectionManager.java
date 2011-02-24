@@ -11,11 +11,15 @@ import ws.palladian.helper.StopWatch;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
+import com.jolbox.bonecp.ConnectionHandle;
+import com.jolbox.bonecp.hooks.AbstractConnectionHook;
+import com.jolbox.bonecp.hooks.ConnectionHook;
 
 /**
- * This class is responsible for maintaining connections to the database.
+ * This class is responsible for maintaining connections to the database. The BoneCP library is used as a connection pool.
  * 
  * @author Philipp Katz
+ * @see http://jolbox.com/
  * 
  */
 /* package */ class ConnectionManager {
@@ -77,6 +81,25 @@ import com.jolbox.bonecp.BoneCPConfig;
             boneConfig.setMinConnectionsPerPartition(5);
             boneConfig.setMaxConnectionsPerPartition(10);
             boneConfig.setPartitionCount(1);
+            
+            // only enable this for debugging purposes!
+            // boneConfig.setCloseConnectionWatch(true);
+            
+            // BoneCP is reluctant/lazy to change auto-commit state. This means, that logic connections which are handed
+            // back to the pool and which auto-commit state has been disabled and enabled again, might actually still be
+            // in auto-commit = false, which has led to long hangs (java.sql.SQLException: Lock wait timeout exceeded;
+            // try restarting transaction). This hook ensures, that all connections handed out by pool have their
+            // auto-commit enabled.
+            ConnectionHook connectionHook = new AbstractConnectionHook() {
+                @Override
+                public void onCheckOut(ConnectionHandle connection) {
+                    try {
+                        connection.setAutoCommit(true);
+                    } catch (SQLException ignore) { }
+                }
+
+            };
+            boneConfig.setConnectionHook(connectionHook);
 
             connectionPool = new BoneCP(boneConfig);
             
@@ -97,6 +120,7 @@ import com.jolbox.bonecp.BoneCPConfig;
      */
     public Connection getConnection() throws SQLException {
         Connection connection = connectionPool.getConnection();
+        assert connection.getAutoCommit() == true;
         // check if logging is enabled before creating the log output;
         // this is saves time, es this method might be called millions of times.
         if (LOGGER.isTraceEnabled()) {
