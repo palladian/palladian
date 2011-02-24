@@ -11,6 +11,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
 import ws.palladian.classification.page.TextInstance;
+import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StringHelper;
 
@@ -44,6 +45,7 @@ public class Annotation extends UniversalInstance {
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
+        setInstanceCategory(annotation.getInstanceCategory());
         assignedCategoryEntries = annotation.getTags();
     }
 
@@ -87,6 +89,14 @@ public class Annotation extends UniversalInstance {
         this.assignedCategoryEntries = tags;
     }
 
+    public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
+        super(annotations);
+        this.offset = offset;
+        this.length = entityName.length();
+        entity = entityName;
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+    }
+
     public boolean matches(Annotation annotation) {
         if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
             return true;
@@ -97,6 +107,21 @@ public class Annotation extends UniversalInstance {
     public boolean overlaps(Annotation annotation) {
         if (getOffset() <= annotation.getOffset() && getEndIndex() >= annotation.getOffset()
                 || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getOffset()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Compare this annotation with an annotation where the correct tag is known (gold standard / evaluation
+     * annotation).
+     * 
+     * @param goldStandardAnnotation The gold standard annotation.
+     * @return
+     */
+    public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
+        if (getMostLikelyTag().getCategory().getName()
+.equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
             return true;
         }
         return false;

@@ -59,7 +59,7 @@ public class InformativenessAssigner {
 
         CountMap tokenFrequencyMap = new CountMap();
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 100; i++) {
             // get texts from web pages
             List<String> texts = getTexts();
 

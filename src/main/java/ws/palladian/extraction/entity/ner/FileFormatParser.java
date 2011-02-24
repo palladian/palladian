@@ -540,12 +540,10 @@ public class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
-
-            Entity namedEntity = new Entity(entityName, conceptName);
-
-            Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
+            Annotation annotation = new Annotation(offset, entityName, "", annotations);
             annotation.setLeftContext(leftContext);
             annotation.setRightContext(rightContext);
+            annotation.setInstanceCategory(conceptName);
             annotation.createFeatures();
             annotations.add(annotation);
 
