@@ -237,6 +237,11 @@ public class MediaWikiCrawler implements Runnable {
         }
 
         // process the single page that was requested.
+        if (!basicInfo.hasNext()) {
+            LOGGER.warn("Can't get basic information for page \"" + pageTitle + "\", page skipped.");
+            return false;
+        }
+
         WikiPage page = basicInfo.next();
         // Check whether there is a result. If not, the page has been deleted.
         if (page != null) {
@@ -650,7 +655,7 @@ public class MediaWikiCrawler implements Runnable {
             if (pageIDDest == null) { // identified a link to not existing page (link has red font in Wiki)
                 if (DEBUG) {
                     LOGGER.debug("Page \"" + pageTitleSource + "\" links to page \"" + pageDest.getTitle()
-                            + "\", but this destination page does not jet exist in the Wiki, "
+                            + "\", but this destination page does not yet exist in the Wiki, "
                             + "so we do not store the hyperlink to it.");
                 }
             } else {
@@ -998,11 +1003,6 @@ public class MediaWikiCrawler implements Runnable {
             Thread consumer = new Thread(new PageConsumer(pageQueue), "Consum-" + i);
             consumer.start();
         }
-
-        // String eingabe = "http://de-s-0113195.de.abb.com/kb/index.php/Fehler_2_%22Uref%22_zu_klein";
-        // System.out.println(eingabe + " = eingabe");
-        // System.out.println(MediaWiki.decode(eingabe) + " = MediaWiki.decode(eingabe)");
-
     }
 
 }

@@ -23,7 +23,6 @@
 
 package ws.palladian.web.wiki.queries;
 
-
 import static net.sourceforge.jwbf.mediawiki.actions.MediaWiki.Version.MW1_13;
 import static net.sourceforge.jwbf.mediawiki.actions.MediaWiki.Version.MW1_16;
 
@@ -71,7 +70,7 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
     /** Pattern to parse returned page, @see {@link #parseHasMore(String)}. */
     private static final Pattern HAS_MORE_PATTERN = Pattern.compile(
             "<query-continue>.*?<revisions *rvstartid=\"([1-9][0-9]*)\" */>.*?</query-continue>", Pattern.DOTALL
-            | Pattern.MULTILINE);
+                    | Pattern.MULTILINE);
 
     /** Constant value for the aplimit-parameter. **/
     private static final int LIMIT = 500;
@@ -106,7 +105,7 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
      * @throws VersionException if version is incompatible
      */
     public RevisionsByTitleQuery(final MediaWikiBot bot, final String pageTitle, final Long rvStartID)
-    throws VersionException {
+            throws VersionException {
         super(bot);
 
         this.bot = bot;
@@ -133,9 +132,9 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
         rvprop = rvprop.substring(0, rvprop.length() - 1);
 
         final String query = "/api.php?action=query&prop=revisions&titles=" + MediaWiki.encode(pageTitle)
-        + ((properties != null && rvprop.length() > 0) ? ("&rvprop=" + MediaWiki.encode(rvprop)) : "")
-        + ((rvStartID != null && rvStartID.length() > 0) ? ("&rvstartid=" + rvStartID) : "") + "&rvdir=newer"
-        + "&rvlimit=" + LIMIT + "&format=xml";
+                + ((properties != null && rvprop.length() > 0) ? ("&rvprop=" + MediaWiki.encode(rvprop)) : "")
+                + ((rvStartID != null && rvStartID.length() > 0) ? ("&rvstartid=" + rvStartID) : "") + "&rvdir=newer"
+                + "&rvlimit=" + LIMIT + "&format=xml";
 
         return new Get(query);
     }
@@ -165,27 +164,49 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
 
         try {
             final Document document = DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse(new StringInputStream(StringHelper.stripNonValidXMLCharacters(StringHelper
-                    .removeNonAsciiCharacters(XML))));
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(new StringInputStream(StringHelper.stripNonValidXMLCharacters(StringHelper
+                            .removeNonAsciiCharacters(XML))));
+
+            // try to get asian characters to work:
+            // StringInputStream dataStream = new StringInputStream(XML);
+            // XmlReader xmlReader = new XmlReader(dataStream);
+            // Xml10FilterReader filterReader = new Xml10FilterReader(xmlReader);
+            // InputSource is = new InputSource(filterReader);
+            //
+            // final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+
             for (Node revision : XPathHelper.getNodes(document, "//rev")) {
                 final long revisionID = Long.parseLong(MediaWiki.decode(revision.getAttributes().getNamedItem("revid")
                         .getTextContent()));
 
                 final Node userNode = revision.getAttributes().getNamedItem("user");
-                final String author = (userNode == null) ? "User has been deleted!" : MediaWiki.decode(userNode
+                String author = (userNode == null) ? "User has been deleted!" : MediaWiki.decode(userNode
                         .getTextContent());
+                if (author.length() == 0) {
+                    author = "Illeagal user name, contained non-ASCII characters only.";
+                }
+
                 try {
                     final Date timestamp = DateGetterHelper.findDate(
                             revision.getAttributes().getNamedItem("timestamp").getTextContent()).getNormalizedDate();
                     revisions.add(new Revision(revisionID, timestamp, author));
                 } catch (Exception e) {
-                    LOGGER.error(
-                            "Error parsing Wiki timestamp \""
-                            + MediaWiki.decode(revision.getAttributes().getNamedItem("timestamp")
-                                    .getTextContent()) + "\", revisionID " + revisionID
-                                    + " has not been added. ", e);
+                    LOGGER.error("Error parsing Wiki timestamp \""
+                                    + MediaWiki.decode(revision.getAttributes().getNamedItem("timestamp")
+                                            .getTextContent()) + "\", revisionID " + revisionID
+                                    + " has not been added. Error: ", e);
+                    // FIXME: remove DEBUG code
+                    if ((author == null || author.length() == 0) && userNode != null) {
+                        LOGGER.error("userNode.toString() = \"" + userNode.toString()
+                                + "\", userNode.getTextContent() = \"" + userNode.getTextContent() + "\"");
+                    }
+
+                    if (author == null || author.length() == 0) {
+
+                    }// end remove
+
                 }
             }
         } catch (Exception e) {
@@ -241,7 +262,6 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
             return generateRequest(getNextRevisionID());
         }
     }
-
 
     /**
      * {@inheritDoc}
