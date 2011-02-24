@@ -114,17 +114,17 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         for (Annotation annotation : annotations) {
             UniversalInstance textInstance = new UniversalInstance(textInstances);
             textInstance.setTextFeature(annotation.getEntity());
-            textInstance.setInstanceCategory(annotation.getTags().getMostLikelyCategoryEntry().getCategory());
+            textInstance.setInstanceCategory(annotation.getInstanceCategory());
             textInstances.add(textInstance);
 
             UniversalInstance nominalInstance = new UniversalInstance(nominalInstances);
             nominalInstance.setNominalFeatures(annotation.getNominalFeatures());
-            nominalInstance.setInstanceCategory(annotation.getTags().getMostLikelyCategoryEntry().getCategory());
+            nominalInstance.setInstanceCategory(annotation.getInstanceCategory());
             nominalInstances.add(nominalInstance);
 
             NumericInstance numericInstance = new NumericInstance(numericInstances);
             numericInstance.setFeatures(annotation.getNumericFeatures());
-            numericInstance.setInstanceCategory(annotation.getTags().getMostLikelyCategoryEntry().getCategory());
+            numericInstance.setInstanceCategory(annotation.getInstanceCategory());
             numericInstances.add(numericInstance);
         }
 
@@ -138,55 +138,58 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // train the nominal classifier with nominal features from the annotations
         universalClassifier.getNominalClassifier().setTrainingInstances(nominalInstances);
 
-        // //////////////////////////////////////////// wrong entities //////////////////////////////////////
         universalClassifier.trainAll();
-        finishTraining(modelFilePath);
-        // String inputText = FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN);
-        // Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
-        // Annotations classifiedAnnotations = verifyAnnotationsWithNumericClassifier(entityCandidates, inputText);
-        removeAnnotations = new Annotations();
-        EvaluationResult evaluationResult = evaluate("data/datasets/ner/conll/training.txt", "data/temp/tudner.model",
-                TaggingFormat.COLUMN);
+        universalClassifier.learnClassifierWeights(annotations);
 
-        // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
-        // be in ERROR1 set and NOT in the gold standard
-        Annotations wrongAnnotations = new Annotations();
-        for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
-
-            // for the numeric classifier it is better if only annotations are removed that never appeared in the gold
-            // standard
-            // for the text classifier it is better to remove annotations that are just wrong even when they were
-            // correct in the gold standard at some point
-            boolean addAnnotationNumeric = true;
-
-            // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
-            String wrongName = wrongAnnotation.getEntity().toLowerCase();
-            for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
-                if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
-                    addAnnotationNumeric = false;
-                    break;
-                }
-            }
-
-            UniversalInstance textInstance = new UniversalInstance(textInstances);
-            textInstance.setTextFeature(wrongAnnotation.getEntity());
-            textInstance.setInstanceCategory("###NO_ENTITY###");
-            textInstances.add(textInstance);
-
-            if (addAnnotationNumeric) {
-                NumericInstance numericInstance = new NumericInstance(numericInstances);
-                numericInstance.setFeatures(wrongAnnotation.getNumericFeatures());
-                numericInstance.setInstanceCategory("###NO_ENTITY###");
-                numericInstances.add(numericInstance);
-
-                removeAnnotations.add(wrongAnnotation);
-                // UniversalInstance nominalInstance = new UniversalInstance(nominalInstances);
-                // nominalInstance.setNominalFeatures(wrongAnnotation.getNominalFeatures());
-                // nominalInstance.setInstanceCategory("###NO_ENTITY###");
-                // nominalInstances.add(nominalInstance);
-            }
-        }
-        System.out.println(removeAnnotations.size() + " annotations need to be completely removed");
+        // //////////////////////////////////////////// wrong entities //////////////////////////////////////
+        // universalClassifier.trainAll();
+        // finishTraining(modelFilePath);
+        // // String inputText = FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN);
+        // // Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
+        // // Annotations classifiedAnnotations = verifyAnnotationsWithNumericClassifier(entityCandidates, inputText);
+        // removeAnnotations = new Annotations();
+        // EvaluationResult evaluationResult = evaluate("data/datasets/ner/conll/training.txt",
+        // "data/temp/tudner.model",
+        // TaggingFormat.COLUMN);
+        //
+        // // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
+        // // be in ERROR1 set and NOT in the gold standard
+        // for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
+        //
+        // // for the numeric classifier it is better if only annotations are removed that never appeared in the gold
+        // // standard
+        // // for the text classifier it is better to remove annotations that are just wrong even when they were
+        // // correct in the gold standard at some point
+        // boolean addAnnotationNumeric = true;
+        //
+        // // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
+        // String wrongName = wrongAnnotation.getEntity().toLowerCase();
+        // for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
+        // if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
+        // addAnnotationNumeric = false;
+        // break;
+        // }
+        // }
+        //
+        // UniversalInstance textInstance = new UniversalInstance(textInstances);
+        // textInstance.setTextFeature(wrongAnnotation.getEntity());
+        // textInstance.setInstanceCategory("###NO_ENTITY###");
+        // textInstances.add(textInstance);
+        //
+        // if (addAnnotationNumeric) {
+        // NumericInstance numericInstance = new NumericInstance(numericInstances);
+        // numericInstance.setFeatures(wrongAnnotation.getNumericFeatures());
+        // numericInstance.setInstanceCategory("###NO_ENTITY###");
+        // numericInstances.add(numericInstance);
+        //
+        // removeAnnotations.add(wrongAnnotation);
+        // // UniversalInstance nominalInstance = new UniversalInstance(nominalInstances);
+        // // nominalInstance.setNominalFeatures(wrongAnnotation.getNominalFeatures());
+        // // nominalInstance.setInstanceCategory("###NO_ENTITY###");
+        // // nominalInstances.add(nominalInstance);
+        // }
+        // }
+        // System.out.println(removeAnnotations.size() + " annotations need to be completely removed");
         // //////////////////////////////////////////////////////////////////////////////////////////////////
 
         universalClassifier.getNumericClassifier().setTrainingInstances(numericInstances);
@@ -331,7 +334,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             }
         }
 
-        annotations.removeAll(toRemove);
+        // annotations.removeAll(toRemove);
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
 

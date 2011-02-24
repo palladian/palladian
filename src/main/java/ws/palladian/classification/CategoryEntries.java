@@ -97,6 +97,10 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     }
 
     public boolean addAllRelative(Collection<? extends CategoryEntry> c) {
+        return addAllRelative(1.0, c);
+    }
+
+    public boolean addAllRelative(double coefficient, Collection<? extends CategoryEntry> c) {
         boolean listChanged = false;
 
         setRelevancesUpToDate(false);
@@ -104,10 +108,10 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         for (CategoryEntry newCategoryEntry : c) {
             if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
                 CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-                ce.addAbsoluteRelevance(newCategoryEntry.getRelevance());
+                ce.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
             } else {
                 CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
-                newCategoryEntry2.addAbsoluteRelevance(newCategoryEntry.getRelevance());
+                newCategoryEntry2.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
                 super.add(newCategoryEntry2);
             }
             listChanged = true;

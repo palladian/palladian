@@ -173,6 +173,10 @@ public abstract class Instance<T> implements Serializable {
         return instanceCategory;
     }
 
+    public String getInstanceCategoryName() {
+        return instanceCategory.getName();
+    }
+
     public void setInstances(Instances<Instance<T>> instances) {
         this.instances = instances;
     }
