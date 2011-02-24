@@ -18,13 +18,13 @@ import ws.palladian.helper.FileHelper;
 
 
 public class UniversalClassifier extends Classifier<UniversalInstance> {
-    
+
     /** The serialize version ID. */
     private static final long serialVersionUID = 6434885229397022001L;
 
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(UniversalClassifier.class);
-    
+
     /** The text classifier which is used to classify the textual feature parts of the instances. */
     private DictionaryClassifier textClassifier;
 
@@ -37,6 +37,8 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     // /////////////////////////////////////
     LinearRegression linearRegression = new LinearRegression();
     weka.core.Instances wekaInstances;
+    private int[] correctlyClassified = new int[3];
+    private double[] weights = new double[3];
 
     public UniversalClassifier() {
 
@@ -51,6 +53,13 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     }
 
     public void learnClassifierWeights(Annotations annotations) {
+
+        correctlyClassified = new int[3];
+        correctlyClassified[0] = 0;
+        correctlyClassified[1] = 0;
+        correctlyClassified[2] = 0;
+
+        weights = new double[3];
 
         Attribute textAttribute = new Attribute("text");
         Attribute numericAttribute = new Attribute("numeric");
@@ -75,8 +84,13 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
                 System.out.println(100 * c / (double) annotations.size());
             }
         }
+
+        weights[0] = correctlyClassified[0] / (double) annotations.size();
+        weights[1] = correctlyClassified[1] / (double) annotations.size();
+        weights[2] = correctlyClassified[2] / (double) annotations.size();
+
     }
-    
+
     public void classify(UniversalInstance instance) {
 
         // separate instance in feature types
@@ -106,17 +120,20 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
             if (textInstance.getMainCategoryEntry().getCategory().getName().equals(instance.getInstanceCategoryName())) {
                 text = 1.0;
+                correctlyClassified[0]++;
             }
             if (numericInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
                 numeric = 1.0;
+                correctlyClassified[1]++;
             }
             if (nominalInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
                 nominal = 1.0;
+                correctlyClassified[2]++;
             }
 
-            weightClassifierOutputs(text, numeric, nominal);
+            // weightClassifierOutputs(text, numeric, nominal);
 
             mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
             mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
@@ -124,12 +141,16 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         } else if (instance.getInstanceCategory() != null && instance.getInstanceCategoryName().equals("CANDIDATE")) {
 
-            double[] coefficients = linearRegression.coefficients();
+            // double[] coefficients = linearRegression.coefficients();
+            double[] coefficients = new double[3];
+            coefficients[0] = 1.0;
+            coefficients[1] = 1.0;
+            coefficients[2] = 1.0;
 
             // merge classification results
-            mergedCategoryEntries.addAllRelative(coefficients[0], textInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(coefficients[1], numericInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(coefficients[2], nominalInstance.getAssignedCategoryEntries());
+            mergedCategoryEntries.addAllRelative(weights[0], textInstance.getAssignedCategoryEntries());
+            mergedCategoryEntries.addAllRelative(weights[1], numericInstance.getAssignedCategoryEntries());
+            mergedCategoryEntries.addAllRelative(weights[2], nominalInstance.getAssignedCategoryEntries());
 
         }
 
@@ -210,5 +231,5 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         getNominalClassifier().train();
 
     }
-    
+
 }
