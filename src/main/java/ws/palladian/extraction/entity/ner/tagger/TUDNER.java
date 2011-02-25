@@ -142,7 +142,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         universalClassifier.learnClassifierWeights(annotations);
 
         // //////////////////////////////////////////// wrong entities //////////////////////////////////////
-        universalClassifier.trainAll();
+        // universalClassifier.trainAll();
         finishTraining(modelFilePath);
         // String inputText = FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN);
         // Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
@@ -333,7 +333,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             }
         }
 
-        // annotations.removeAll(toRemove);
+        annotations.removeAll(toRemove);
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
 
