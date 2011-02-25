@@ -18,6 +18,7 @@ import org.cyberneko.html.filters.DefaultFilter;
  * See:
  * http://nekohtml.sourceforge.net/changes.html (Version 1.9.13 (2 Sept 2009))
  * http://redmine.effingo.de/issues/5
+ * https://sourceforge.net/tracker/?func=detail&atid=952181&aid=3152446&group_id=195122
  * 
  * @author Philipp Katz
  * 
