@@ -56,10 +56,10 @@ public class PageSegmenter {
     private String storeLocation = "";
 
     /** a list of all segments */
-    private ArrayList<Segment> segments = null;
+    private List<Segment> segments = null;
 
     /** a map of similar files */
-    private ArrayList<Document> similarFiles = null;
+    private List<Document> similarFiles = null;
 
     // ///////////////////// important values ///////////////////////
     // all can be set in the segmenter.conf
@@ -96,7 +96,7 @@ public class PageSegmenter {
     }
 
     // only needed for evaluation
-    public void setSimilarFiles(ArrayList<Document> similarFiles) {
+    public void setSimilarFiles(List<Document> similarFiles) {
         this.similarFiles = similarFiles;
     }
 
@@ -138,7 +138,7 @@ public class PageSegmenter {
      * 
      * @return A list of Segments.
      */
-    public ArrayList<Segment> getAllSegments() {
+    public List<Segment> getAllSegments() {
         return this.segments;
     }
 
@@ -147,8 +147,8 @@ public class PageSegmenter {
      * 
      * @return A list of XPaths.
      */
-    public ArrayList<String> getAllXPaths() {
-        ArrayList<String> XPaths = new ArrayList<String>();
+    public List<String> getAllXPaths() {
+        List<String> XPaths = new ArrayList<String>();
 
         for (int i = 0; i < segments.size(); i++) {
             XPaths.add(segments.get(i).getXPath());
@@ -162,7 +162,7 @@ public class PageSegmenter {
      * 
      * @return A list of similar files.
      */
-    public ArrayList<Document> getSimilarFiles() {
+    public List<Document> getSimilarFiles() {
         return similarFiles;
     }
 
@@ -172,8 +172,8 @@ public class PageSegmenter {
      * @param color The color of segments to return. E.g. "Segment.Color.RED"
      * @return A list of Segments.
      */
-    public ArrayList<Segment> getSpecificSegments(Segment.Color color) {
-        ArrayList<Segment> allSegs = new ArrayList<Segment>();
+    public List<Segment> getSpecificSegments(Segment.Color color) {
+        List<Segment> allSegs = new ArrayList<Segment>();
 
         for (int i = 0; i < segments.size(); i++) {
             Segment seg = segments.get(i);
@@ -192,8 +192,8 @@ public class PageSegmenter {
      * @param endValue The end value of variability
      * @return A list of Segments.
      */
-    public ArrayList<Segment> getSpecificSegments(double beginValue, double endValue) {
-        ArrayList<Segment> allSegs = new ArrayList<Segment>();
+    public List<Segment> getSpecificSegments(double beginValue, double endValue) {
+        List<Segment> allSegs = new ArrayList<Segment>();
 
         for (int i = 0; i < segments.size(); i++) {
             Segment seg = segments.get(i);
@@ -247,7 +247,7 @@ public class PageSegmenter {
      * 
      * @return A list of documents similar to the given URL.
      */
-    private ArrayList<Document> findSimilarFiles(Document document, int qgramNumber, int qgramLength,
+    private List<Document> findSimilarFiles(Document document, int qgramNumber, int qgramLength,
             double similarityNeed, int limit) throws MalformedURLException, IOException {
         Map<Document, Double> result = new LinkedHashMap<Document, Double>();
 
@@ -260,7 +260,7 @@ public class PageSegmenter {
 
         Set<String> links = new HashSet<String>();
         links.addAll(c.getLinks(d, true, false, ""));
-        System.out.println("Anzahl Links: " + links.size());
+        LOGGER.info("Anzahl Links: " + links.size());
 
         Iterator<String> iter2 = links.iterator();
         int zaehler = 0;
@@ -269,17 +269,17 @@ public class PageSegmenter {
             int mod = links.size() / 10;
             if (zaehler % mod == 0) {
                 urlDownloader.add(newURL);
-                System.out.println("added1: " + newURL);
+                LOGGER.info("added1: " + newURL);
             }
             zaehler++;
         }
 
-        HashSet<String> te3 = new HashSet<String>();
+        Set<String> te3 = new HashSet<String>();
         String newURL2 = document.getDocumentURI();
         Boolean moreSlashs2 = true;
         while (moreSlashs2) {
             urlDownloader.add(newURL2);
-            System.out.println("added2: " + newURL2);
+            LOGGER.info("added2: " + newURL2);
             int lastSlash = newURL2.lastIndexOf("/");
             if (!newURL2.substring(lastSlash - 1, lastSlash).equals("/")) {
                 newURL2 = newURL2.substring(0, lastSlash);
@@ -314,7 +314,7 @@ public class PageSegmenter {
 
         // Vorfiltern anhand des URL-Teilstrings
         String label = PageSegmenterHelper.getLabelOfURL(document.getDocumentURI());
-        System.out.println("label: " + label);
+        LOGGER.info("label: " + label);
 
         List<String> te2 = new ArrayList<String>(te3);
         int size = te2.size();
@@ -353,7 +353,7 @@ public class PageSegmenter {
                 Document currentDocument = it2.next();
 
                 if (HTMLHelper.documentToReadableText(d).equals(HTMLHelper.documentToReadableText(currentDocument))) {
-                    System.out.println("#####################################################");
+                    LOGGER.info("#####################################################");
                     continue;
                 }
 
@@ -369,24 +369,22 @@ public class PageSegmenter {
 
                 if (erg >= similarityNeed && erg < 1.0) {
                     result.put(currentDocument, erg);
-                    System.out.println("Seiten verwenden wahrscheinlich dasselbe Template. (" + variString
+                    LOGGER.info("Seiten verwenden wahrscheinlich dasselbe Template. (" + variString
                             + "%, Jaccard=" + jacc + ")----------" + result.size());
 
                 } else {
-                    System.out
-                            .println("Unterschied zu groß. Seiten verwenden wahrscheinlich nicht dasselbe Template. ("
+                    LOGGER.info("Unterschied zu groß. Seiten verwenden wahrscheinlich nicht dasselbe Template. ("
                                     + variString + "%, Jaccard=" + jacc + ")");
                 }
 
-                System.out
-                        .println("----------------------------------------------------------------------------------------");
+                LOGGER.info("----------------------------------------------------------------------------------------");
 
                 if (result.size() >= limit) {
                     break;
                 }
             }
             if (result.size() >= limit) {
-                System.out.println("---Erg.: " + result);
+                LOGGER.info("---Erg.: " + result);
                 break;
             }
         }
@@ -395,8 +393,7 @@ public class PageSegmenter {
 
         // End of find similar URSs (step 2) ////////////////////////////////////////////////////////
 
-        ArrayList<Document> simFiles = new ArrayList<Document>();
-        simFiles = new ArrayList<Document>(result.keySet());
+        List<Document> simFiles = new ArrayList<Document>(result.keySet());
 
         return simFiles;
     }
@@ -414,8 +411,8 @@ public class PageSegmenter {
      * @param xPath The xPath generated by recursion.
      * @return A list of two ArrayLists. Conflict-nodes and non-conflict-nodes.
      */
-    private ArrayList<ArrayList<String>>[] compareDocuments(Document document1, Document document2,
-            ArrayList<String> conflictNodes, ArrayList<String> nonConflictNodes, int level, String xPath)
+    private List<List<String>>[] compareDocuments(Document document1, Document document2,
+            List<String> conflictNodes, List<String> nonConflictNodes, int level, String xPath)
             throws ParserConfigurationException {
         NodeList helpList1 = document1.getFirstChild().getChildNodes();
         NodeList helpList2 = document2.getFirstChild().getChildNodes();
@@ -470,7 +467,7 @@ public class PageSegmenter {
                     Document doc1 = PageSegmenterHelper.transformNodeToDocument(n1);
                     Document doc2 = PageSegmenterHelper.transformNodeToDocument(n2);
 
-                    // System.out.println("--------------"+newXPath);
+                    // LOGGER.info("--------------"+newXPath);
 
                     // checkChilden
                     if (level >= 0) {
@@ -481,7 +478,7 @@ public class PageSegmenter {
             }
         }
 
-        return new ArrayList[] { conflictNodes, nonConflictNodes };
+        return new List[] { conflictNodes, nonConflictNodes };
     }
 
     public void colorSegments() {
@@ -489,7 +486,7 @@ public class PageSegmenter {
     }
 
     public void colorSegments(Segment.Color color) {
-        ArrayList<Segment> coloredSegments = getSpecificSegments(color);
+        List<Segment> coloredSegments = getSpecificSegments(color);
         colorSegments(coloredSegments, true);
     }
 
@@ -503,7 +500,7 @@ public class PageSegmenter {
      * @param kindOfColoring Defines the kind of the coloring of segments. true for borders,
      *            false for background
      */
-    public void colorSegments(ArrayList<?> chosenSegmentsInput, Boolean kindOfColoring) {
+    public void colorSegments(List<?> chosenSegmentsInput, Boolean kindOfColoring) {
 
         ArrayList<Segment> chosenSegments = new ArrayList<Segment>();
 
@@ -538,10 +535,10 @@ public class PageSegmenter {
         }
 
         // if input is a list of xPaths, turn it into a list of Segments
-        System.out.println(chosenSegmentsInput.get(0).getClass().getSimpleName());
-        System.out.println(chosenSegmentsInput.get(0));
+        LOGGER.info(chosenSegmentsInput.get(0).getClass().getSimpleName());
+        LOGGER.info(chosenSegmentsInput.get(0));
         if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("String")) {
-            System.out.println("... War ein String");
+            LOGGER.info("... War ein String");
 
             ArrayList<Segment> chosenSegments2 = new ArrayList<Segment>();
             for (int i = 0; i < segments.size(); i++) {
@@ -559,12 +556,11 @@ public class PageSegmenter {
         // checks the similarity of ALL nodes
         for (int i = 0; i < chosenSegments.size(); i++) {
             Segment testSeg = chosenSegments.get(i);
-            System.out.println(testSeg.getVariability() + " " + testSeg.getColor() + " " + testSeg.getXPath());
+            LOGGER.info(testSeg.getVariability() + " " + testSeg.getColor() + " " + testSeg.getXPath());
 
             Element e2 = (Element) XPathHelper.getXhtmlNode(document, testSeg.getXPath());
 
             String border = "";
-            double value = testSeg.getVariability();
             Segment.Color color = testSeg.getColor();
 
             if (color == Segment.Color.RED) {
@@ -673,7 +669,7 @@ public class PageSegmenter {
 
         // "if" makes it possible to set similar files; e.g. for the evaluation
         if (similarFiles == null) {
-            System.out.println("Start findSimilarFiles------------------");
+            LOGGER.info("Start findSimilarFiles------------------");
             similarFiles = findSimilarFiles(document, amountOfQGrams, lengthOfQGrams, similarityNeed,
                     numberOfSimilarDocuments);
         }
@@ -688,7 +684,7 @@ public class PageSegmenter {
         ArrayList<String> nonConflictNodes = new ArrayList<String>();
 
         for (int i = 0; i < similarFiles.size(); i++) {
-            System.out.println(i + 1 + ".Runde-----------------------------------------");
+            LOGGER.info(i + 1 + ".Runde-----------------------------------------");
 
             Document document2 = similarFiles.get(i);
             Node bodyNode2 = document2.getElementsByTagName("body").item(0);
@@ -698,10 +694,10 @@ public class PageSegmenter {
             Document doc2 = PageSegmenterHelper.transformNodeToDocument(bodyNode2);
 
             // returns a list of xpaths of all conflict and a second of all non-conflict nodes of the actual compare
-            ArrayList[] allNodes = compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(),
+            List[] allNodes = compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(),
                     maxDepth, "/HTML/BODY");
 
-            System.out.println(allNodes[0].size() + "-" + conflictNodes.size() + "="
+            LOGGER.info(allNodes[0].size() + "-" + conflictNodes.size() + "="
                     + (allNodes[0].size() - conflictNodes.size()) + " zu " + conflictNodes.size() * 50 / 100);
             if (allNodes[0].size() - conflictNodes.size() < conflictNodes.size() * 50 / 100
                     || conflictNodes.size() == 0) {
@@ -717,10 +713,10 @@ public class PageSegmenter {
                         nonConflictNodes.add((String) allNodes[1].get(j));
                     }
                 }
-                System.out.println("Size conflictNodes: " + conflictNodes.size());
-                System.out.println("Size nonConflictNodes: " + nonConflictNodes.size());
+                LOGGER.info("Size conflictNodes: " + conflictNodes.size());
+                LOGGER.info("Size nonConflictNodes: " + nonConflictNodes.size());
             } else {
-                System.out.println("Zu viele neue Konflikte. Wahrscheinlich Inkompatibel.");
+                LOGGER.info("Zu viele neue Konflikte. Wahrscheinlich Inkompatibel.");
                 similarFiles.remove(document2);
 
             }
@@ -750,8 +746,8 @@ public class PageSegmenter {
 
         // End of rating the segments (step 4) ////////////////////////////////////////////////////////
 
-        System.out.println("Size conflictNodes: " + conflictNodes.size());
-        System.out.println("Size nonConflictNodes: " + nonConflictNodes.size());
+        LOGGER.info("Size conflictNodes: " + conflictNodes.size());
+        LOGGER.info("Size nonConflictNodes: " + nonConflictNodes.size());
 
     }
 
@@ -806,12 +802,12 @@ public class PageSegmenter {
      * @param level The number of rounds. 1 is enough.
      * @return A list of segments under the mutual xPath.
      */
-    public ArrayList<String> makeMutual(ArrayList<Segment> allSegments, int level) {
+    public List<String> makeMutual(List<Segment> allSegments, int level) {
 
-        ArrayList<String> xPathList = new ArrayList<String>();
+        List<String> xPathList = new ArrayList<String>();
         PageAnalyzer pa2 = new PageAnalyzer();
 
-        HashSet<String> s = new HashSet<String>();
+        Set<String> s = new HashSet<String>();
         for (int i = 0; i < allSegments.size(); i++) {
             Segment actualSeg = allSegments.get(i);
             s.add(actualSeg.getXPath());
@@ -820,24 +816,24 @@ public class PageSegmenter {
         for (int l = 0; l < level; l++) {
 
             String mutual = pa2.makeMutualXPath(s);
-            System.out.println("mutual: " + mutual);
+            LOGGER.info("mutual: " + mutual);
 
             String xp = mutual;
-            System.out.println(xp.substring(xp.lastIndexOf("/") + 1, xp.length()));
+            LOGGER.info(xp.substring(xp.lastIndexOf("/") + 1, xp.length()));
             if (xp.substring(xp.lastIndexOf("/") + 1, xp.length()).equals("TR")) {
                 xp = xp + "/TD";
             }
-            ArrayList<Node> list = (ArrayList<Node>) XPathHelper.getXhtmlNodes(document, xp);
-            System.out.println("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
+            List<Node> list = (ArrayList<Node>) XPathHelper.getXhtmlNodes(document, xp);
+            LOGGER.info("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
             for (int i = 0; i < list.size(); i++) {
                 Node n = list.get(i);
                 String constructXPath = pa2.constructXPath(n);
-                System.out.println(constructXPath);
+                LOGGER.info(constructXPath);
                 xPathList.add(constructXPath);
                 s.remove(constructXPath);
             }
-            System.out.println("S.size neu: " + s.size());
-            System.out.println(s);
+            LOGGER.info("S.size neu: " + s.size());
+            LOGGER.info(s);
         }
 
         return xPathList;
@@ -850,8 +846,8 @@ public class PageSegmenter {
      *            find only the RED and GREEN main segments.
      * @return A list of main segments.
      */
-    public ArrayList<Segment> findMainSegments(ArrayList<Segment> segments) {
-        System.out.println("biggest-begin: " + segments.size());
+    public List<Segment> findMainSegments(List<Segment> segments) {
+        LOGGER.info("biggest-begin: " + segments.size());
 
         for (int i1 = 0; i1 < segments.size(); i1++) {
             Segment seg1 = segments.get(i1);
@@ -884,10 +880,10 @@ public class PageSegmenter {
         }
 
         for (int i1 = 0; i1 < segments.size(); i1++) {
-            System.out.println(segments.get(i1).getVariability() + " " + segments.get(i1).getXPath());
+            LOGGER.info(segments.get(i1).getVariability() + " " + segments.get(i1).getXPath());
         }
 
-        System.out.println("biggest-end: " + segments.size());
+        LOGGER.info("biggest-end: " + segments.size());
         return segments;
     }
 
@@ -901,9 +897,9 @@ public class PageSegmenter {
         // String URL="http://blogalm.de/";
         // Document d = c.getWebDocument(URL);
 
-        System.out.println("test: " + lengthOfQGrams);
+        LOGGER.info("test: " + lengthOfQGrams);
         PageSegmenter seg = new PageSegmenter();
-        System.out.println("test: " + lengthOfQGrams + " " + amountOfQGrams + " " + similarityNeed + " " + maxDepth
+        LOGGER.info("test: " + lengthOfQGrams + " " + amountOfQGrams + " " + similarityNeed + " " + maxDepth
                 + " " + numberOfSimilarDocuments);
 
         // seg.setDocument("http://www.informatikforum.de/forumdisplay.php?f=98");

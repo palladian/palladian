@@ -5,13 +5,13 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.HTMLHelper;
@@ -25,6 +25,9 @@ import ws.palladian.helper.XPathHelper;
  * 
  */
 public class SimilarityCalculator {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(SimilarityCalculator.class);
 
     /**
      * Calculates the similarity between two documents by counting their tag-q-grams.
@@ -37,20 +40,16 @@ public class SimilarityCalculator {
 
         double result = 0;
         List<Double> variance = new ArrayList<Double>();
-        String key = "";
 
-        Iterator<String> it = page1.keySet().iterator();
-        while (it.hasNext()) {
-            key = (String) it.next();
-
+        for (String key : page1.keySet()) {
             // If both maps contain same key, exermine if there is a difference in the value
             if (page2.keySet().contains(key)) {
                 // Calculate the difference in the value
                 if (page2.get(key) == page1.get(key)) {
                     variance.add(new Double(0));
                 } else {
-                    Integer value = ((Integer) page1.get(key));
-                    Integer value2 = ((Integer) page2.get(key));
+                    Integer value = page1.get(key);
+                    Integer value2 = page2.get(key);
 
                     double d = 0;
                     if (value > value2)
@@ -68,12 +67,11 @@ public class SimilarityCalculator {
         }
 
         // Evaluation
-        System.out.println(variance);
+        LOGGER.info("variance: " + variance);
 
         double countUp = 0;
-        Iterator<Double> it3 = variance.iterator();
-        while (it3.hasNext()) {
-            countUp = countUp + ((Double) it3.next());
+        for (Double value : variance) {
+            countUp = countUp + value;
         }
         result = countUp / variance.size();
 
@@ -118,13 +116,11 @@ public class SimilarityCalculator {
      * @param xPath The xpath to the node to compare in all documents.
      * @return A value of similarity.
      */
-    public static double calculateSimilarityForNode(ArrayList<Document> list, String xPath) {
+    public static double calculateSimilarityForNode(List<Document> list, String xPath) {
         double result = 0.0;
-        ArrayList<Map<String, Integer>> listOfNodeLines = new ArrayList<Map<String, Integer>>();
+        List<Map<String, Integer>> listOfNodeLines = new ArrayList<Map<String, Integer>>();
 
-        Iterator<Document> it = list.iterator();
-        while (it.hasNext()) {
-            Document doc = (Document) it.next();
+        for (Document doc : list) {
 
             String simNode = HTMLHelper.documentToReadableText(XPathHelper.getXhtmlNode(doc, xPath));
 
@@ -138,14 +134,14 @@ public class SimilarityCalculator {
             listOfNodeLines.add(nodeLines);
         }
 
-        ArrayList<Double> allJaccAverage = new ArrayList<Double>();
+        List<Double> allJaccAverage = new ArrayList<Double>();
         for (int i = 0; i < listOfNodeLines.size(); i++) {
-            Map<String, Integer> currentNodeLines = (Map<String, Integer>) listOfNodeLines.get(i);
-            ArrayList<Double> jaccArray = new ArrayList<Double>();
+            Map<String, Integer> currentNodeLines = listOfNodeLines.get(i);
+            List<Double> jaccArray = new ArrayList<Double>();
             double jaccAverage = 0.0;
 
             for (int j = 0; j < listOfNodeLines.size(); j++) {
-                Map<String, Integer> compareNodeLines = (Map<String, Integer>) listOfNodeLines.get(j);
+                Map<String, Integer> compareNodeLines = listOfNodeLines.get(j);
 
                 if (currentNodeLines != compareNodeLines) {
                     Double jacc = calculateJaccard(currentNodeLines, compareNodeLines);
@@ -156,14 +152,14 @@ public class SimilarityCalculator {
             }
 
             for (int j = 0; j < jaccArray.size(); j++) {
-                jaccAverage = jaccAverage + (Double) jaccArray.get(j);
+                jaccAverage = jaccAverage + jaccArray.get(j);
             }
             jaccAverage = jaccAverage / jaccArray.size();
             allJaccAverage.add(jaccAverage);
         }
 
         for (int j = 0; j < allJaccAverage.size(); j++) {
-            result = result + (Double) allJaccAverage.get(j);
+            result = result + allJaccAverage.get(j);
         }
         result = result / allJaccAverage.size();
 
@@ -178,19 +174,16 @@ public class SimilarityCalculator {
      * @param similarFiles A list of similar documents.
      * @return A map of all conflict nodes combined with its similarity values.
      */
-    public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, ArrayList<String> conflictNodes,
-            ArrayList<Document> similarFiles) throws MalformedURLException, IOException {
+    public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, List<String> conflictNodes,
+            List<Document> similarFiles) throws MalformedURLException, IOException {
 
         Map<String, Double> similarityOfNodes = new LinkedHashMap<String, Double>();
 
-        ArrayList<Document> listOfSimilarDocuments = new ArrayList<Document>();
-        listOfSimilarDocuments = similarFiles;
-
-        ArrayList<Document> listOfSimilarDocumentsIncOrg = new ArrayList<Document>(listOfSimilarDocuments);
+        List<Document> listOfSimilarDocumentsIncOrg = new ArrayList<Document>(similarFiles);
         listOfSimilarDocumentsIncOrg.add(docu);
 
         for (int i = 0; i < conflictNodes.size(); i++) {
-            String path = (String) conflictNodes.get(i);
+            String path = conflictNodes.get(i);
 
             similarityOfNodes.put(path, calculateSimilarityForNode(listOfSimilarDocumentsIncOrg, path));
         }
