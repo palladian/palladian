@@ -153,7 +153,7 @@ public class WordTransformer {
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsValue(plural)) {
-            singular = (String) CollectionHelper.getKeyByValue(getIrregularNouns(), singular);
+            singular = CollectionHelper.getKeyByValue(getIrregularNouns(), singular);
 
             if (StringHelper.startsUppercase(plural)) {
                 singular = StringHelper.upperCaseFirstLetter(singular);

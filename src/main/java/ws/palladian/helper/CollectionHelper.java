@@ -27,6 +27,10 @@ public final class CollectionHelper {
 
     public static boolean ASCENDING = true;
     public static boolean DESCENDING = false;
+    
+    private CollectionHelper() {
+        // prevent instantiation.
+    }
 
     /**
      * Sort a {@link Map} by value.

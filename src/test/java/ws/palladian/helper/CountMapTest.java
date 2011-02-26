@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ws.palladian.helper.CountMap;
-
 public class CountMapTest {
 
     @Test
@@ -27,8 +25,8 @@ public class CountMapTest {
         Assert.assertEquals(5, (int) countMap.get("two"));
         Assert.assertEquals(2, (int) countMap.get("three"));
 
-        Assert.assertEquals(3, (int) countMap.size());
-        Assert.assertEquals(10, (int) countMap.totalSize());
+        Assert.assertEquals(3, countMap.size());
+        Assert.assertEquals(10, countMap.totalSize());
 
     }
 

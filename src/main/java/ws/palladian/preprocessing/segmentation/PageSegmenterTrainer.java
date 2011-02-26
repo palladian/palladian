@@ -252,7 +252,7 @@ public class PageSegmenterTrainer {
         String labelOfURL = PageSegmenterHelper.getLabelOfURL(URL);
 
         while (it.hasNext() && count < limit) {
-            currentElement = (String) it.next();
+            currentElement = it.next();
             LOGGER.info(currentElement);
 
             label = PageSegmenterHelper.getLabelOfURL(currentElement);
@@ -340,7 +340,7 @@ public class PageSegmenterTrainer {
         int i = 0;
         Iterator<String> it = te.iterator();
         while (it.hasNext()) {
-            String actURL = (String) it.next();
+            String actURL = it.next();
 
             if (i == count) {
                 evaLinks.add(actURL);

@@ -41,6 +41,7 @@ public class RankAggregation {
         switch (method) {
             case RANK_AVERAGE:
                 aggregatedList = rankAverage(lists);
+                break;
             default:
                 break;
         }

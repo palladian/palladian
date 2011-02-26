@@ -21,7 +21,7 @@ public class CollectionHelperTest {
         Assert.assertEquals(2, (int) map.get(2.));
         Assert.assertEquals(2, (int) map.get(3.));
         Assert.assertEquals(1, (int) map.get(4.));
-        Assert.assertEquals(4, (int) map.size());
+        Assert.assertEquals(4, map.size());
     }
 
 }
