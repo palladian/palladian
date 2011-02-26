@@ -52,12 +52,14 @@ public class PageSegmenterHelper {
      */
     public static Map<Document, Double> sortMapByDoubleValues(final Map<Document, Double> map) {
         Comparator<Document> valueComparator = new Comparator<Document>() {
+            @Override
             public int compare(Document k1, Document k2) {
                 int compare = map.get(k2).compareTo(map.get(k1));
-                if (compare == 0)
+                if (compare == 0) {
                     return 1;
-                else
+                } else {
                     return compare;
+                }
             }
         };
 
@@ -74,12 +76,14 @@ public class PageSegmenterHelper {
      */
     public static Map<String, Integer> sortMapByIntegerValues(final Map<String, Integer> map) {
         Comparator<String> valueComparator = new Comparator<String>() {
+            @Override
             public int compare(String k1, String k2) {
                 int compare = map.get(k2).compareTo(map.get(k1));
-                if (compare == 0)
+                if (compare == 0) {
                     return 1;
-                else
+                } else {
                     return compare;
+                }
             }
         };
 
@@ -100,10 +104,11 @@ public class PageSegmenterHelper {
         Map<String, Integer> result = new TreeMap<String, Integer>();
 
         int limit = 0;
-        if (map.size() < number)
+        if (map.size() < number) {
             limit = map.size();
-        else
+        } else {
             limit = number;
+        }
 
         for (int i = 0; i < limit; i++) {
             result.put((String) map.keySet().toArray()[i], (Integer) map.values().toArray()[i]);
@@ -119,8 +124,9 @@ public class PageSegmenterHelper {
      */
     public static int getNodeLevel(Node node) {
         int level = 0;
-        if (node == null)
+        if (node == null) {
             return 0;
+        }
         while (node.getParentNode() != null) {
             node = node.getParentNode();
             level++;
@@ -156,7 +162,7 @@ public class PageSegmenterHelper {
         Crawler c = new Crawler();
         Document d = c.getWebDocument(URL);
 
-        String dText = c.documentToString(d);
+        String dText = Crawler.documentToString(d);
 
         return dText;
     }
@@ -170,19 +176,19 @@ public class PageSegmenterHelper {
      */
     public static String getLabelOfURL(String title) {
         String label = "";
-        Crawler c = new Crawler();
-        String domain = c.getDomain(title);
-        title = c.getCleanURL(title);
-        label = title.replace(c.getCleanURL(domain), "");
+        String domain = Crawler.getDomain(title);
+        title = Crawler.getCleanURL(title);
+        label = title.replace(Crawler.getCleanURL(domain), "");
         title = title.replace("/", "_");
 
         title = title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
         label = label.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
 
-        if (label.length() > 3 && label.indexOf("_", 0) != label.lastIndexOf("_"))
+        if (label.length() > 3 && label.indexOf("_", 0) != label.lastIndexOf("_")) {
             label = label.substring(label.indexOf("_", 0) + 1, label.indexOf("_", 2));
-        else
+        } else {
             label = label.substring(label.indexOf("_", 0) + 1, label.length());
+        }
 
         return label;
     }

@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.FileHelper;
@@ -31,6 +33,9 @@ import ws.palladian.web.Crawler;
  * 
  */
 public class PageSegmenterTrainer {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(PageSegmenterTrainer.class);
 
     /**
      * Evaluation help function for the similarity check of documents with specific parameters.
@@ -67,14 +72,14 @@ public class PageSegmenterTrainer {
         for (int i = 0; i < files.length; i++) {
             Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
-            System.out.println(page2);
+            LOGGER.info(page2);
 
-            Double vari = (Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100)) / 100.0;
-            Double jacc = (Math.round((SimilarityCalculator.calculateJaccard(page1, page2)) * 100)) / 100.0;
+            Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
+            Double jacc = Math.round(SimilarityCalculator.calculateJaccard(page1, page2) * 100) / 100.0;
 
-            Double aver = (Math.round((vari + jacc) / 2 * 100)) / 100.0;
+            Double aver = Math.round((vari + jacc) / 2 * 100) / 100.0;
 
-            System.out.println("vari: " + vari + "   jacc: " + jacc + "   aver: " + aver);
+            LOGGER.info("vari: " + vari + "   jacc: " + jacc + "   aver: " + aver);
 
             doc1.write(vari + "\t" + jacc + "\t" + aver + "\t" + files[i].toString().replace(place, ""));
             doc1.newLine();
@@ -114,10 +119,10 @@ public class PageSegmenterTrainer {
             Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
 
-            Double vari = (Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100)) / 100.0;
-            Double jacc = (Math.round((SimilarityCalculator.calculateJaccard(page1, page2)) * 100)) / 100.0;
+            Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
+            Double jacc = Math.round(SimilarityCalculator.calculateJaccard(page1, page2) * 100) / 100.0;
 
-            Double aver = (Math.round((vari + jacc) / 2 * 100)) / 100.0;
+            Double aver = Math.round((vari + jacc) / 2 * 100) / 100.0;
 
             average.add(aver);
 
@@ -153,11 +158,11 @@ public class PageSegmenterTrainer {
 
             for (int j = 0; j < lengthOfQgrams.length; j++) {
 
-                System.out.println("number: " + numberOfQgrams[i] + ", length: " + lengthOfQgrams[j]);
+                LOGGER.info("number: " + numberOfQgrams[i] + ", length: " + lengthOfQgrams[j]);
 
-                if (detailedCheck)
+                if (detailedCheck) {
                     performDetailedParameterCheckForGivenValues(orgURL, place, numberOfQgrams[i], lengthOfQgrams[j]);
-                else {
+                } else {
                     Double result = performAverageParameterCheckForGivenValues(orgURL, place, numberOfQgrams[i],
                             lengthOfQgrams[j]);
                     averageValues.add("[" + numberOfQgrams[i] + "][" + lengthOfQgrams[j] + "] " + result);
@@ -168,7 +173,7 @@ public class PageSegmenterTrainer {
         }
 
         for (int i = 0; i < averageValues.size(); i++) {
-            System.out.println(averageValues.get(i));
+            LOGGER.info(averageValues.get(i));
         }
 
     }
@@ -187,7 +192,7 @@ public class PageSegmenterTrainer {
         String line = "";
         BufferedWriter doc1 = new BufferedWriter(new FileWriter(place));
 
-        System.out.println("geht los-----");
+        LOGGER.info("geht los-----");
         while ((line = bufferedreader.readLine()) != null) {
             doc1.write(line);
             doc1.newLine();
@@ -213,7 +218,7 @@ public class PageSegmenterTrainer {
             }
         });
 
-        System.out.println("files(" + files.length + "):----------\n" + files[0]);
+        LOGGER.info("files(" + files.length + "):----------\n" + files[0]);
 
         return files;
     }
@@ -228,13 +233,13 @@ public class PageSegmenterTrainer {
     public static void saveAllURLsToDisc(String URL, int limit) throws TransformerFactoryConfigurationError,
             TransformerException, IOException {
         Crawler c = new Crawler();
-        String domain = c.getDomain(URL);
+        String domain = Crawler.getDomain(URL);
         Document d = c.getWebDocument(domain);
 
         Set<String> te = new HashSet<String>();
         te = c.getLinks(d, true, false, "");
-        System.out.println(te.size() + " intern verlinkte URLs gefunden!");
-        System.out.println(te);
+        LOGGER.info(te.size() + " intern verlinkte URLs gefunden!");
+        LOGGER.info(te);
 
         Iterator<String> it = te.iterator();
         String currentElement = "";
@@ -247,23 +252,23 @@ public class PageSegmenterTrainer {
 
         while (it.hasNext() && count < limit) {
             currentElement = (String) it.next();
-            System.out.println(currentElement);
+            LOGGER.info(currentElement);
 
             label = PageSegmenterHelper.getLabelOfURL(currentElement);
-            title = c.getCleanURL(currentElement);
+            title = Crawler.getCleanURL(currentElement);
 
             title = title.replace("/", "_");
             title = title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
 
-            System.out.println(title + "\n" + label);
+            LOGGER.info(title + "\n" + label);
 
             if (labelOfURL.equals(label)
             /* && URL.length()>=currentElement.length()-1 && URL.length()<=currentElement.length()+1 */) {
                 place = "test\\aehnlich\\" + title;
-                System.out.println("-->ähnlich");
+                LOGGER.info("-->ähnlich");
             } else {
                 place = "test\\unaehnlich\\" + title;
-                System.out.println("-->nicht ähnlich");
+                LOGGER.info("-->nicht ähnlich");
             }
             saveURLToDisc(currentElement, place);
 
@@ -306,7 +311,7 @@ public class PageSegmenterTrainer {
             title = title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
 
             saveURLToDisc(collectionOfURL[i], "test_2\\unaehnlich2\\" + title);
-            System.out.println(title + " erfolgreich!");
+            LOGGER.info(title + " erfolgreich!");
         }
 
     }
@@ -322,7 +327,7 @@ public class PageSegmenterTrainer {
         HashSet<String> evaLinks = new HashSet<String>();
         int limitHelp = 0;
 
-        System.out.println("Ausgangs-URL: " + siteWithLinks);
+        LOGGER.info("Ausgangs-URL: " + siteWithLinks);
 
         Crawler c = new Crawler();
 
@@ -338,7 +343,7 @@ public class PageSegmenterTrainer {
 
             if (i == count) {
                 evaLinks.add(actURL);
-                System.out.println("1actURL: " + actURL);
+                LOGGER.info("1actURL: " + actURL);
 
                 limitHelp++;
                 i = 0;
@@ -350,10 +355,10 @@ public class PageSegmenterTrainer {
             }
         }
 
-        System.out.println("---------------\nEVA-LINKS:");
+        LOGGER.info("---------------\nEVA-LINKS:");
         it = evaLinks.iterator();
         while (it.hasNext()) {
-            System.out.println(it.next());
+            LOGGER.info(it.next());
         }
 
     }
@@ -375,8 +380,9 @@ public class PageSegmenterTrainer {
             String actSplit = split[i];
 
             if (i >= 3) {
-                if (!actSplit.endsWith("]"))
+                if (!actSplit.endsWith("]")) {
                     actSplit = actSplit + "[1]";
+                }
             }
 
             conXPath = conXPath + "/" + actSplit;
@@ -395,7 +401,7 @@ public class PageSegmenterTrainer {
      * @param name The name to save.
      * @return A list of paths of the saved files.
      */
-    private static ArrayList<String> saveEvaluationFiles(String URL, ArrayList<Document> similarFiles, String place,
+    private static List<String> saveEvaluationFiles(String URL, List<Document> similarFiles, String place,
             String name) throws TransformerFactoryConfigurationError, TransformerException, IOException {
         ArrayList<String> result = new ArrayList<String>();
         String fullName = place + name + ".html";
@@ -421,8 +427,9 @@ public class PageSegmenterTrainer {
         ArrayList<String> result = new ArrayList<String>();
         result.add(place + name + ".html");
         for (int i = 0; i < 5; i++) {
-            if (FileHelper.readFileToString(place + name + "a" + (i + 1) + ".html").length() > 0)
+            if (FileHelper.readFileToString(place + name + "a" + (i + 1) + ".html").length() > 0) {
                 result.add(place + name + "a" + (i + 1) + ".html");
+            }
         }
 
         return result;
@@ -447,9 +454,9 @@ public class PageSegmenterTrainer {
         String[] vals = liste.get(1).split(sep);
         String URL = vals[0];
 
-        System.out.println("Länge: " + liste.size());
+        LOGGER.info("Länge: " + liste.size());
 
-        ArrayList<String> savedFiles = new ArrayList<String>();
+        List<String> savedFiles = new ArrayList<String>();
         if (buildNew) {
             PageSegmenter seg = new PageSegmenter();
             seg.setDocument(URL);
@@ -472,7 +479,7 @@ public class PageSegmenterTrainer {
         seg2.setSimilarFiles(simMap);
 
         seg2.startPageSegmentation();
-        ArrayList<?> allSegments = seg2.getAllSegments();
+        List<?> allSegments = seg2.getAllSegments();
 
         int allFound = 0;
         int allCorrect = 0;
@@ -482,26 +489,27 @@ public class PageSegmenterTrainer {
             String guessedXPath = liste.get(i).split(sep)[1];
             guessedXPath = convertXPath(guessedXPath);
             String guessedColor = liste.get(i).split(sep)[3];
-            System.out.println("guessPath: " + guessedXPath);
+            LOGGER.info("guessPath: " + guessedXPath);
 
             for (int i2 = 0; i2 < allSegments.size(); i2++) {
                 Segment segment = (Segment) allSegments.get(i2);
                 String foundXPath = convertXPath(segment.getXPath());
                 String foundColor = "";
-                if (segment.getVariability() < 0.42)
+                if (segment.getVariability() < 0.42) {
                     foundColor = "u";
-                else if (segment.getVariability() >= 0.58)
+                } else if (segment.getVariability() >= 0.58) {
                     foundColor = "v";
-                else
+                } else {
                     foundColor = "n";
+                }
 
                 if (guessedXPath.equals(foundXPath)/* || (guessedXPath+"[1]").equals(foundXPath) */) {
-                    System.out.println("gefunden!");
+                    LOGGER.info("gefunden!");
                     allFound++;
                     liste.set(i, liste.get(i) + sep + "1" + sep + foundColor);
 
                     if (guessedColor.equals(foundColor)) {
-                        System.out.println("farbe stimmt");
+                        LOGGER.info("farbe stimmt");
                         allCorrect++;
                     }
 
