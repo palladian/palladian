@@ -597,7 +597,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
                     }
                 }
 
-                String user = (String) resultSet.getString("author");
+                String user = resultSet.getString("author");
                 Revision revision = new Revision(revisionID, timestamp, user);
                 revisions.add(revision);
             }

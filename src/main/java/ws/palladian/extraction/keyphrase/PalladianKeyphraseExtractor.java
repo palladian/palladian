@@ -396,7 +396,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             // normalization factor; we have (n - 1) + (n - 2) + ... + 1 = n * (n - 1) / 2 re-rankings.
             int numReRanking = candidatesArray.length * (candidatesArray.length - 1) / 2;
             // FIX-ME why dont we put the numReRanking division outside the loop?
-            float factor = (float) settings.getCorrelationWeight() / numReRanking;
+            float factor = settings.getCorrelationWeight() / numReRanking;
 
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
