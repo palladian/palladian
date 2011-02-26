@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.content.PageContentExtractorException;
+import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.Tokenizer;
@@ -42,6 +43,7 @@ import ws.palladian.web.URLDownloader;
  * 
  * @author Silvio Rabe
  * @author David Urbansky
+ * @author Philipp Katz
  * 
  */
 public class PageSegmenter {
@@ -219,17 +221,18 @@ public class PageSegmenter {
 
         String dText = Crawler.documentToString(doc);
 
-        String tagList = "";
-        Iterator<String> it = HTMLHelper.listTags(dText).iterator();
-        while (it.hasNext()) {
-            tagList = tagList + " " + it.next();
+        StringBuilder tagList = new StringBuilder();
+        for (String tag : HTMLHelper.listTags(dText)) {
+            tagList.append(" ").append(tag);
         }
 
-        List<String> listOfTags = new ArrayList<String>(Tokenizer.calculateWordNGramsAsList(tagList, length));
+        List<String> listOfTags = new ArrayList<String>(Tokenizer.calculateWordNGramsAsList(tagList.toString(), length));
 
-        Map<String, Integer> mapOfTags = PageSegmenterHelper.convertListToMap(listOfTags);
+        // Map<String, Integer> mapOfTags = PageSegmenterHelper.convertListToMap(listOfTags);
+        Map<String, Integer> mapOfTags = CollectionHelper.toMap(listOfTags);
 
-        mapOfTags = PageSegmenterHelper.sortMapByIntegerValues(mapOfTags);
+        // mapOfTags = PageSegmenterHelper.sortMapByIntegerValues(mapOfTags);
+        mapOfTags = CollectionHelper.sortByValue(mapOfTags);
 
         Map<String, Integer> testMap = PageSegmenterHelper.limitMap(mapOfTags, number);
 
@@ -262,10 +265,8 @@ public class PageSegmenter {
         links.addAll(c.getLinks(d, true, false, ""));
         LOGGER.info("Anzahl Links: " + links.size());
 
-        Iterator<String> iter2 = links.iterator();
         int zaehler = 0;
-        while (iter2.hasNext()) {
-            String newURL = iter2.next();
+        for (String newURL : links) {
             int mod = links.size() / 10;
             if (zaehler % mod == 0) {
                 urlDownloader.add(newURL);
@@ -290,10 +291,8 @@ public class PageSegmenter {
 
         Set<Document> documents = urlDownloader.start();
 
-        Iterator<Document> iter = documents.iterator();
-        while (iter.hasNext()) {
-            Document doc = iter.next();
-            te3.addAll(c.getLinks(doc, true, false, ""));
+        for (Document doc : documents) {
+            te3.addAll(c.getLinks(doc, true, false, ""));            
         }
 
         // //delete all duplicates of the URL like ...www.URL.de?something... = duplicate content
@@ -348,9 +347,7 @@ public class PageSegmenter {
             }
             Set<Document> currentDocuments = urlDownloader2.start();
 
-            Iterator<Document> it2 = currentDocuments.iterator();
-            while (it2.hasNext()) {
-                Document currentDocument = it2.next();
+            for (Document currentDocument : currentDocuments) {
 
                 if (HTMLHelper.documentToReadableText(d).equals(HTMLHelper.documentToReadableText(currentDocument))) {
                     LOGGER.info("#####################################################");
@@ -389,7 +386,8 @@ public class PageSegmenter {
             }
         }
 
-        result = PageSegmenterHelper.sortMapByDoubleValues(result);
+        // result = PageSegmenterHelper.sortMapByDoubleValues(result);
+        result = CollectionHelper.sortByValue(result);
 
         // End of find similar URSs (step 2) ////////////////////////////////////////////////////////
 
@@ -502,7 +500,7 @@ public class PageSegmenter {
      */
     public void colorSegments(List<?> chosenSegmentsInput, Boolean kindOfColoring) {
 
-        ArrayList<Segment> chosenSegments = new ArrayList<Segment>();
+        List<Segment> chosenSegments = new ArrayList<Segment>();
 
         // set colorscale
         String[] colorScale = { "#ff0000", "#ff9600", "#ffc800", "#ffff00", "#e6ff00", "#c8ff00", "green"// "#00ff00"
@@ -540,7 +538,7 @@ public class PageSegmenter {
         if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("String")) {
             LOGGER.info("... War ein String");
 
-            ArrayList<Segment> chosenSegments2 = new ArrayList<Segment>();
+            List<Segment> chosenSegments2 = new ArrayList<Segment>();
             for (int i = 0; i < segments.size(); i++) {
                 if (chosenSegmentsInput.contains(segments.get(i).getXPath())) {
                     chosenSegments2.add(segments.get(i));
@@ -550,7 +548,7 @@ public class PageSegmenter {
         }
 
         if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("Segment")) {
-            chosenSegments = (ArrayList<Segment>) chosenSegmentsInput;
+            chosenSegments = (List<Segment>) chosenSegmentsInput;
         }
 
         // checks the similarity of ALL nodes
@@ -653,9 +651,9 @@ public class PageSegmenter {
             }
             print.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
     }
@@ -680,8 +678,8 @@ public class PageSegmenter {
         // ////////////////////////////////////////////////////////
 
         Node bodyNode1 = document.getElementsByTagName("body").item(0);
-        ArrayList<String> conflictNodes = new ArrayList<String>();
-        ArrayList<String> nonConflictNodes = new ArrayList<String>();
+        List<String> conflictNodes = new ArrayList<String>();
+        List<String> nonConflictNodes = new ArrayList<String>();
 
         for (int i = 0; i < similarFiles.size(); i++) {
             LOGGER.info(i + 1 + ".Runde-----------------------------------------");
@@ -759,10 +757,10 @@ public class PageSegmenter {
      * @param nonConflictNodes The non-conflict nodes of the document.
      * @return A list of segments.
      */
-    private ArrayList<Segment> generateListOfSegments(Document document, Map<String, Double> conflictNodes,
-            ArrayList<String> nonConflictNodes) {
+    private List<Segment> generateListOfSegments(Document document, Map<String, Double> conflictNodes,
+            List<String> nonConflictNodes) {
 
-        ArrayList<Segment> allSegments = new ArrayList<Segment>();
+        List<Segment> allSegments = new ArrayList<Segment>();
 
         for (int i = 0; i < nonConflictNodes.size(); i++) {
             String xPath = nonConflictNodes.get(i);
@@ -775,13 +773,10 @@ public class PageSegmenter {
             Segment seg = new Segment(document, xPath, node, depth, 0.0);
             allSegments.add(seg);
         }
-
-        Iterator<?> it = conflictNodes.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-
-            String xPath = (String) pairs.getKey();
-            Double significance = (Double) pairs.getValue();
+        
+        for (Map.Entry<String, Double> pairs : conflictNodes.entrySet()) {
+            String xPath = pairs.getKey();
+            Double significance = pairs.getValue();
             Element node = (Element) XPathHelper.getXhtmlNode(document, xPath);
             if (node == null) {
                 continue;

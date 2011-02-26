@@ -130,7 +130,7 @@ public class PageSegmenterTrainer {
 
         Double helper = 0.00;
         for (int i = 0; i < average.size(); i++) {
-            helper = helper + (Double) average.get(i);
+            helper = helper + average.get(i);
         }
         result = helper / average.size();
 
@@ -213,6 +213,7 @@ public class PageSegmenterTrainer {
 
         File maindir = new File(place);
         File files[] = maindir.listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".html");
             }
@@ -324,7 +325,7 @@ public class PageSegmenterTrainer {
      * @param limit The total number of links needed.
      */
     public static void downladRandomSitesForEvaluation2(String siteWithLinks, int count, int limit) {
-        HashSet<String> evaLinks = new HashSet<String>();
+        Set<String> evaLinks = new HashSet<String>();
         int limitHelp = 0;
 
         LOGGER.info("Ausgangs-URL: " + siteWithLinks);
@@ -403,7 +404,7 @@ public class PageSegmenterTrainer {
      */
     private static List<String> saveEvaluationFiles(String URL, List<Document> similarFiles, String place,
             String name) throws TransformerFactoryConfigurationError, TransformerException, IOException {
-        ArrayList<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<String>();
         String fullName = place + name + ".html";
         saveURLToDisc(URL, fullName);
         result.add(fullName);
@@ -423,8 +424,8 @@ public class PageSegmenterTrainer {
      * @param name The name of the files.
      * @return A list of paths of the saved files.
      */
-    private static ArrayList<String> readEvaluationFiles(String place, String name) {
-        ArrayList<String> result = new ArrayList<String>();
+    private static List<String> readEvaluationFiles(String place, String name) {
+        List<String> result = new ArrayList<String>();
         result.add(place + name + ".html");
         for (int i = 0; i < 5; i++) {
             if (FileHelper.readFileToString(place + name + "a" + (i + 1) + ".html").length() > 0) {
@@ -449,7 +450,7 @@ public class PageSegmenterTrainer {
         String fullPlace = place + label + "\\" + name + "\\";
         String mainFile = place + "\\" + "evaluation.csv";
 
-        ArrayList<String> liste = (ArrayList<String>) FileHelper.readFileToArray(fullPlace + name + ".csv");
+        List<String> liste = (ArrayList<String>) FileHelper.readFileToArray(fullPlace + name + ".csv");
         String sep = ";";
         String[] vals = liste.get(1).split(sep);
         String URL = vals[0];
@@ -472,7 +473,7 @@ public class PageSegmenterTrainer {
 
         Crawler c = new Crawler();
 
-        ArrayList<Document> simMap = new ArrayList<Document>();
+        List<Document> simMap = new ArrayList<Document>();
         for (int j = 1; j < savedFiles.size(); j++) {
             simMap.add(c.getWebDocument(savedFiles.get(j)));
         }
@@ -550,7 +551,7 @@ public class PageSegmenterTrainer {
 
         FileHelper.writeToFile(fullPlace + name + "_ausgewertet.csv", liste);
 
-        ArrayList<String> mainListe = (ArrayList<String>) FileHelper.readFileToArray(mainFile);
+        List<String> mainListe = (ArrayList<String>) FileHelper.readFileToArray(mainFile);
         boolean foundEntry = false;
         for (int i = 1; i < mainListe.size(); i++) {
             if (mainListe.get(i).split(sep)[0].equals(liste.get(1).split(sep)[0])) {

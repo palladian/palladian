@@ -305,5 +305,26 @@ public final class CollectionHelper {
         }
         return map;
     }
+    
+
+    /**
+     * Converts a List to a Map. The values of the Map represent the number of duplicate entries.
+     * 
+     * @param <K> Type of items.
+     * @param values List with potentially duplicate items.
+     * @return Map with items as keys, duplicate count as values.
+     */
+    public static <K> Map<K, Integer> toMap(List<K> values) {
+        Map<K, Integer> map = new LinkedHashMap<K, Integer>();
+
+        for (int i = 0; i < values.size(); i++) {
+            if (!map.keySet().contains(values.get(i))) {
+                map.put(values.get(i), 1);
+            } else {
+                map.put(values.get(i), map.get(values.get(i)) + 1);
+            }
+        }
+        return map;
+    }
 
 }
