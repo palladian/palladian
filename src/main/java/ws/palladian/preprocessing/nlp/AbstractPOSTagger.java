@@ -50,14 +50,23 @@ public abstract class AbstractPOSTagger {
     }
 
     /**
-     * also tags a sentence and returns the @see {@link #tags}
+     * Also tags a sentence and returns the @see {@link #tags}.
      * 
      * @param sentence
      * @return the tag annotations
      */
     public TagAnnotations getTags(String sentence) {
         this.tag(sentence);
-        return this.getTagAnnotations();
+        return getTagAnnotations();
+    }
+
+    public String getTaggedString() {
+        StringBuilder sb = new StringBuilder();
+        for (TagAnnotation tagAnnotation : getTagAnnotations()) {
+            sb.append(tagAnnotation.getChunk()).append("/").append(tagAnnotation.getTag()).append(" ");
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -81,7 +90,7 @@ public abstract class AbstractPOSTagger {
      * @return
      */
     public AbstractPOSTagger loadModel() {
-        return this.loadDefaultModel();
+        return loadDefaultModel();
     }
 
     /**

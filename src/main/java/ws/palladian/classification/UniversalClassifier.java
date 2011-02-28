@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import weka.classifiers.functions.LinearRegression;
-import weka.core.Attribute;
-import weka.core.FastVector;
 import ws.palladian.classification.numeric.KNNClassifier;
 import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.numeric.NumericInstance;
@@ -34,9 +31,15 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     /** The Bayes classifier for nominal classification. */
     private BayesClassifier nominalClassifier;
 
-    // /////////////////////////////////////
-    LinearRegression linearRegression = new LinearRegression();
-    weka.core.Instances wekaInstances;
+    /** Whether or not to use the text classifier. */
+    private boolean useTextClassifier = true;
+
+    /** Whether or not to use the numeric classifier. */
+    private boolean useNumericClassifier = true;
+
+    /** Whether or not to use the nominal classifier. */
+    private boolean useNominalClassifier = true;
+
     private int[] correctlyClassified = new int[3];
     private double[] weights = new double[3];
 
@@ -50,6 +53,14 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         numericClassifier = new KNNClassifier();
         nominalClassifier = new BayesClassifier();
 
+        weights[0] = 1.0;
+        weights[1] = 1.0;
+        weights[2] = 1.0;
+
+        // weights[0] = 0.9242047500643059;
+        // weights[1] = 0.7517362599674183;
+        // weights[2] = 0.501929177741576;
+
     }
 
     public void learnClassifierWeights(Annotations annotations) {
@@ -60,21 +71,6 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         correctlyClassified[2] = 0;
 
         weights = new double[3];
-
-        Attribute textAttribute = new Attribute("text");
-        Attribute numericAttribute = new Attribute("numeric");
-        Attribute nominalAttribute = new Attribute("nominal");
-        Attribute classAttribute = new Attribute("theClass");
-
-        // Declare the feature vector
-        FastVector fvWekaAttributes = new FastVector(4);
-        fvWekaAttributes.addElement(textAttribute);
-        fvWekaAttributes.addElement(numericAttribute);
-        fvWekaAttributes.addElement(nominalAttribute);
-        fvWekaAttributes.addElement(classAttribute);
-
-        wekaInstances = new weka.core.Instances("Rel", fvWekaAttributes, annotations.size());
-        wekaInstances.setClassIndex(3);
 
         int c = 0;
         for (Annotation annotation : annotations) {
@@ -89,6 +85,10 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         weights[1] = correctlyClassified[1] / (double) annotations.size();
         weights[2] = correctlyClassified[2] / (double) annotations.size();
 
+        System.out.println("weight text   : " + weights[0]);
+        System.out.println("weight numeric: " + weights[1]);
+        System.out.println("weight nominal: " + weights[2]);
+
     }
 
     public void classify(UniversalInstance instance) {
@@ -99,82 +99,66 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         List<String> nominalFeatures = instance.getNominalFeatures();
 
         // classify text using the dictionary classifier
-        TextInstance textInstance = textClassifier.classify(textFeature);
+        TextInstance textInstance = null;
+        if (isUseTextClassifier()) {
+            textInstance = textClassifier.classify(textFeature);
+        }
 
         // classify numeric features with the KNN
-        NumericInstance numericInstance = new NumericInstance(null);
-        numericInstance.setFeatures(numericFeatures);
-        numericClassifier.classify(numericInstance);
+        NumericInstance numericInstance = null;
+        if (isUseNumericClassifier()) {
+            numericInstance = new NumericInstance(null);
+            numericInstance.setFeatures(numericFeatures);
+            numericClassifier.classify(numericInstance);
+        }
 
         // classify nominal features with the Bayes classifier
-        UniversalInstance nominalInstance = new UniversalInstance(null);
-        nominalInstance.setNominalFeatures(nominalFeatures);
-        nominalClassifier.classify(nominalInstance);
+        UniversalInstance nominalInstance = null;
+        if (isUseNominalClassifier()) {
+            nominalInstance = new UniversalInstance(null);
+            nominalInstance.setNominalFeatures(nominalFeatures);
+            nominalClassifier.classify(nominalInstance);
+        }
 
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
 
         if (instance.getInstanceCategory() != null && !instance.getInstanceCategoryName().equals("CANDIDATE")) {
-            double text = 0;
-            double numeric = 0;
-            double nominal = 0;
 
-            if (textInstance.getMainCategoryEntry().getCategory().getName().equals(instance.getInstanceCategoryName())) {
-                text = 1.0;
+            if (isUseTextClassifier()
+                    && textInstance.getMainCategoryEntry().getCategory().getName()
+                            .equals(instance.getInstanceCategoryName())) {
                 correctlyClassified[0]++;
+                mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
             }
-            if (numericInstance.getMainCategoryEntry().getCategory().getName()
+            if (isUseNumericClassifier()
+                    && numericInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
-                numeric = 1.0;
                 correctlyClassified[1]++;
+                mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
             }
-            if (nominalInstance.getMainCategoryEntry().getCategory().getName()
+            if (isUseNominalClassifier()
+                    && nominalInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
-                nominal = 1.0;
                 correctlyClassified[2]++;
+                mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
             }
-
-            // weightClassifierOutputs(text, numeric, nominal);
-
-            mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
 
         } else if (instance.getInstanceCategory() != null && instance.getInstanceCategoryName().equals("CANDIDATE")) {
 
-            // double[] coefficients = linearRegression.coefficients();
-            double[] coefficients = new double[3];
-            coefficients[0] = 1.0;
-            coefficients[1] = 1.0;
-            coefficients[2] = 1.0;
-
             // merge classification results
-            mergedCategoryEntries.addAllRelative(weights[0], textInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(weights[1], numericInstance.getAssignedCategoryEntries());
-            mergedCategoryEntries.addAllRelative(weights[2], nominalInstance.getAssignedCategoryEntries());
+            if (isUseTextClassifier()) {
+                mergedCategoryEntries.addAllRelative(weights[0], textInstance.getAssignedCategoryEntries());
+            }
+            if (isUseNumericClassifier()) {
+                mergedCategoryEntries.addAllRelative(weights[1], numericInstance.getAssignedCategoryEntries());
+            }
+            if (isUseNominalClassifier()) {
+                mergedCategoryEntries.addAllRelative(weights[2], nominalInstance.getAssignedCategoryEntries());
+            }
 
         }
 
         instance.assignCategoryEntries(mergedCategoryEntries);
-    }
-
-    public void weightClassifierOutputs(double text, double numeric, double nominal) {
-
-        weka.core.Instance instance;
-        instance = new weka.core.Instance(4);
-        instance.setDataset(wekaInstances);
-        instance.setValue(0, text);
-        instance.setValue(1, numeric);
-        instance.setValue(2, nominal);
-        instance.setClassValue(1.0);
-        wekaInstances.add(instance);
-
-        try {
-            linearRegression.buildClassifier(wekaInstances);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
     }
 
     public DictionaryClassifier getTextClassifier() {
@@ -222,14 +206,49 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // cm.trainClassifier(dataset, classifier)
 
         // train the numeric classifier
-        getTextClassifier().train();
+        if (isUseTextClassifier()) {
+            getTextClassifier().train();
+        }
 
         // train the numeric classifier
-        // getNumericClassifier().train();
+        if (isUseNumericClassifier()) {
+            // getNumericClassifier().train();
+        }
 
         // train the nominal classifier
-        getNominalClassifier().train();
+        if (isUseNominalClassifier()) {
+            getNominalClassifier().train();
+        }
 
     }
 
+    public boolean isUseTextClassifier() {
+        return useTextClassifier;
+    }
+
+    public void setUseTextClassifier(boolean useTextClassifier) {
+        this.useTextClassifier = useTextClassifier;
+    }
+
+    public boolean isUseNumericClassifier() {
+        return useNumericClassifier;
+    }
+
+    public void setUseNumericClassifier(boolean useNumericClassifier) {
+        this.useNumericClassifier = useNumericClassifier;
+    }
+
+    public boolean isUseNominalClassifier() {
+        return useNominalClassifier;
+    }
+
+    public void setUseNominalClassifier(boolean useNominalClassifier) {
+        this.useNominalClassifier = useNominalClassifier;
+    }
+
+    public void switchClassifiers(boolean text, boolean numeric, boolean nominal) {
+        setUseTextClassifier(text);
+        setUseNumericClassifier(numeric);
+        setUseNominalClassifier(nominal);
+    }
 }
