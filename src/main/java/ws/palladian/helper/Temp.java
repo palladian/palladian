@@ -11,14 +11,18 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
+import ws.palladian.preprocessing.nlp.TagAnnotation;
+import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.tagging.StringTagger;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.evaluation.FeedReaderEvaluator;
@@ -276,6 +280,56 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+        // pos tagging
+
+        // Object[] o = TUDNER.removeDateFragment("January James Hatfield Feb");
+        // CollectionHelper.print(o);
+        // System.exit(0);
+
+        CountMap posCounts = new CountMap();
+        LingPipePOSTagger lpt = new LingPipePOSTagger();
+        lpt.loadDefaultModel();
+
+        List<String> gs = FileHelper.readFileToArray("data/datasets/ner/conll/goldStandard.txt");
+        for (String line : gs) {
+            String[] parts = line.split(";");
+            TagAnnotations tagAnnotations = lpt.tag(parts[3]).getTagAnnotations();
+            for (TagAnnotation ta : tagAnnotations) {
+                posCounts.increment(ta.getTag());
+            }
+        }
+        CollectionHelper.print(posCounts);
+        System.exit(0);
+
+        TagAnnotations tagAnnotations = lpt.loadDefaultModel().tag("Jim Carrey is an actor living in Los Angeles.")
+                .getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("Each").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("An").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("The").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("Our").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("Peter").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+        tagAnnotations = lpt.loadDefaultModel().tag("U.S.").getTagAnnotations();
+        CollectionHelper.print(tagAnnotations);
+
+        String taggedString = lpt
+                .loadDefaultModel()
+                .tag("Jim Carrey is an actor living in Los Angeles. He is not the only actor there. However, Jim is an awesome comedian. Two men in December on a Thursday. LONDON IS A CITY IN ENGLAND. In his book The Groove, Mr. Harrison explains a lot.")
+                .getTaggedString();
+
+        System.out.println(taggedString);
+
+        taggedString = StringTagger.tagPosString(taggedString);
+
+        System.out.println(taggedString);
+
+        System.exit(0);
 
         Temp.classify();
         System.exit(0);

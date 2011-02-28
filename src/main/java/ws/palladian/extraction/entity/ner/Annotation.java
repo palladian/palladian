@@ -12,8 +12,12 @@ import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
+import ws.palladian.helper.DataHolder;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StringHelper;
+import ws.palladian.preprocessing.nlp.InformativenessAssigner;
+import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
+import ws.palladian.preprocessing.nlp.TagAnnotation;
 
 /**
  * An annotation made by a {@link NamedEntityRecognizer} when tagging a text.
@@ -226,9 +230,10 @@ public class Annotation extends UniversalInstance {
         for (Annotation annotation : annotations) {
             if (annotation.getLength() < length) {
                 int index = entityName.indexOf(" " + annotation.getEntity().toLowerCase() + " ");
-                if (index > -1) {
+                if (index > -1 && annotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
-                            annotation.getMostLikelyTagName());
+                            annotation.getMostLikelyTagName(), annotations);
+                    wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }
@@ -335,11 +340,15 @@ public class Annotation extends UniversalInstance {
         double numberOfDateFragments = containsDateFragment(entity);
         numericFeatures.add(numberOfDateFragments);
 
+        // get the informativeness score
+        double informativeness = InformativenessAssigner.getInstance().getInformativeness(entity);
+        numericFeatures.add(informativeness);
+
         // // get the nominal features
         List<String> nominalFeatures = new ArrayList<String>();
         
         // is the entity at the start of a sentence? check if there is a period in the immediate left context
-        boolean startOfSentence = leftContext.endsWith(".");
+        boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!");
         nominalFeatures.add(String.valueOf(startOfSentence));
 
         // is the entity in quotes? ",',´
@@ -373,6 +382,20 @@ public class Annotation extends UniversalInstance {
         // nominalFeatures.add(String.valueOf(numberOfWords));
         // nominalFeatures.add(String.valueOf(numberOfUppercaseChars));
         // nominalFeatures.add(String.valueOf(containsDateFragment(entity)));
+
+        // POS signature
+        String posSignature = "";
+        LingPipePOSTagger lpt = new LingPipePOSTagger();
+        Object model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
+        if (model == null) {
+            DataHolder.getInstance().putDataObject("models.lingpipe.en.postag", lpt.loadDefaultModel().getModel());
+            model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
+        }
+        lpt.setModel(model);
+        for (TagAnnotation annotation : lpt.loadDefaultModel().tag(entity).getTagAnnotations()) {
+            posSignature += annotation.getTag();
+        }
+        nominalFeatures.add(posSignature);
 
         setTextFeature(entity);
         setNumericFeatures(numericFeatures);

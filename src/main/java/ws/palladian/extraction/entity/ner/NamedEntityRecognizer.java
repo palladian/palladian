@@ -342,7 +342,8 @@ public abstract class NamedEntityRecognizer {
 
         nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult.txt");
+        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + DateHelper.getCurrentDatetime()
+                + ".txt");
 
         // see EvaluationResult for explanation of that field
         Map<String, CountMap> assignments = new HashMap<String, CountMap>();
@@ -644,7 +645,11 @@ public abstract class NamedEntityRecognizer {
     private static CountMap getAnnotationCountForTag(Annotations annotations) {
         CountMap cm = new CountMap();
         for (Annotation annotation : annotations) {
-            cm.increment(annotation.getMostLikelyTagName());
+            if (annotation instanceof EvaluationAnnotation) {
+                cm.increment(annotation.getInstanceCategoryName());
+            } else {
+                cm.increment(annotation.getMostLikelyTagName());
+            }
         }
         return cm;
     }

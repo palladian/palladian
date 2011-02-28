@@ -22,7 +22,109 @@ public class StringTagger {
         return tagString(text);
     }
 
+    public static String tagString2(String s) {
+
+        String entityTag = "<CANDIDATE>$0</CANDIDATE>";
+
+        String of = "(of |of the )?"; // "";
+        String t = "( )?"; // " ";
+
+        String regexp = "";
+        // names
+        regexp += "([A-Z]\\.)( )?[A-Z]{1}['A-Za-z]{1,100}";
+        // OLD: regexp += "([A-Z][a-z]{0,2}\\.) [A-Z]{1}[A-Za-z]{1,100}";
+
+
+        regexp += "|";
+        // regexp +=
+        // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
+
+        // abbreviations
+        regexp += "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})*";
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9']+))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // small with dash (ex-President)
+        regexp += "|";
+        regexp += "([A-Z][A-Za-z]+ )?([a-z]+-[A-Z][A-Za-z0-9]+)";
+
+        // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
+        regexp += "|";
+        regexp += "([A-Z][a-z]\\. )?([A-Z]{1}[A-Za-z]+(-[a-z]+)(-[A-Za-z]+)*)";
+
+        // names (such as "O'Sullivan") and number 1961 Ford Mustang
+        regexp += "|";
+        regexp += "([0-9]+ )?((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|'[A-Z][A-Za-z]{2,20}))+(([ &])*" + of
+                + "[A-Z0-9]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // camel case (iPhone 4)
+        regexp += "|";
+        regexp += "([a-z][A-Z][A-Za-z0-9]+( [A-Z0-9][A-Za-z0-9]{0,20}){0,20})";
+
+        // numbers
+        // regexp += "|";
+        // regexp += "([0-9]+ )?((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|'[A-Z][A-Za-z]{2,20}))+(([ &])*" + of
+        // + "[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // regexp += "|";
+        // regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ &])*" + of
+        // + "[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        s = s.replaceAll(regexp, entityTag);
+
+        return s;
+    }
+
     public static String tagString(String s) {
+
+        String entityTag = "<CANDIDATE>$0</CANDIDATE>";
+
+        String regexp = "";
+
+        // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
+        regexp += "([A-Z][a-z]\\. )?([A-Z]{1}[A-Za-z]+(-[a-z]+)(-[A-Za-z]+)*)";
+
+        // names
+        regexp += "|";
+        regexp += "([A-Z]\\.)( )?[A-Z]{1}['A-Za-z]{1,100}";
+        regexp += "|";
+        regexp += "([A-Z][a-z]{0,2}\\.) [A-Z]{1}[A-Za-z]{1,100}";
+        regexp += "|";
+        // regexp +=
+        // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
+        regexp += "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})*";
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9']+))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // small with dash (ex-President)
+        regexp += "|";
+        regexp += "([A-Z][A-Za-z]+ )?([a-z]+-[A-Z][A-Za-z0-9]+)";
+
+        // ___ of ___ (such as "National Bank of Scotland" or "Duke of South Carolina") always in the form of X Y of Z
+        // OR X of Y Z
+        regexp += "|";
+        regexp += "(([A-Z]{1}[A-Za-z]+ ){2,}of (([A-Z]{1}[A-Za-z-]+)(?!([a-z-]{0,20}\\s[A-Z]))))|([A-Z]{1}[A-Za-z-]+ of( [A-Z]{1}[A-Za-z]+){1,})";
+
+        // names (such as "O'Sullivan")
+        regexp += "|";
+        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|'[A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ &])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // camel case (iPhone 4)
+        regexp += "|";
+        regexp += "([a-z][A-Z][A-Za-z0-9]+( [A-Z0-9][A-Za-z0-9]{0,20}){0,20})";
+
+        s = s.replaceAll(regexp, entityTag);
+
+        return s;
+    }
+
+    public static String tagString3Backup(String s) {
 
         String entityTag = "<CANDIDATE>$0</CANDIDATE>";
 
@@ -43,9 +145,29 @@ public class StringTagger {
         String regexp = "";
         regexp += "([A-Z][a-z]{0,2}\\.) [A-Z]{1}[A-Za-z]{1,100}";
         regexp += "|";
-        regexp += "([A-Z]\\.)+";
+        // regexp +=
+        // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
+        regexp += "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})*";
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9']+))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
         regexp += "|";
-        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+))+(( )?[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ &])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // capturing T'Gorman
+        // regexp += "([A-Z][a-z]{0,2}\\.)( )?[A-Z]{1}['A-Za-z]{1,100}";
+        // regexp += "|";
+        // // regexp +=
+        // //
+        // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
+        // regexp +=
+        // "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})*";
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+|'[A-Z][A-Za-z]{2,20}))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]{2,20})){0,10})(?!(\\.[A-Z])+))";
+        // regexp += "|";
+        // regexp +=
+        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ &])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
 
         // s =
         // s.replaceAll("(([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+))+(( )?[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})",
@@ -77,6 +199,18 @@ public class StringTagger {
         return s;
     }
 
+    public static String tagPosString(String s) {
+
+        String entityTag = "<CANDIDATE>$0</CANDIDATE>";
+
+        String regexp = "";
+        regexp += "[^/ ]*?/NP( [^/ ]*?/NP)?";
+
+        s = s.replaceAll(regexp, entityTag);
+
+        return s;
+    }
+
     public static Annotations getTaggedEntities(String text) {
         Annotations annotations = new Annotations();
         String taggedText = tagString(text);
@@ -96,13 +230,14 @@ public class StringTagger {
                 + "Sketch of a young Abraham Lincoln\n"
                 + "Main articles: Abraham Lincoln on slavery and Emancipation Proclamation\n";
 
+        testText = "The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast. The U.S. Gulf stream fleet is...while the U.N. is ";
+
         // testText =
-        // "The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.";
+        // "Mrs. Smithers is not called F. Smithers. Tim O'Brien, or O'Brien or just T.O'Brien or T. O'Brien, not Saturday's night, Friday's Night or THURSDAY'S NIGHT.";
 
-        // testText = "Mrs. Smithers is not called F. Smithers.";
-
-        testText = "The so called BBC is the British Broadcasting Corporation (BBC) or ( BBC )";
-
+        // testText =
+        // "The so called BBC is the British Broadcasting Corporation (BBC) or ( BBC ). The Saturday's World Cup and Keith O'Neill played. Gold Fields of East, with S&P. Douglas& Lomason CO is a company. Henson & Sons.";
+        // testText = "in the U.S. Gulf there are";
         // CollectionHelper.print(Tokenizer.tokenize(testText));
         System.out.println(StringTagger.tagString(testText));
 
