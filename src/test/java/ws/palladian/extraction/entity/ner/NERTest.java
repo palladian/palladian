@@ -5,9 +5,6 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.ner.Annotations;
-import ws.palladian.extraction.entity.ner.FileFormatParser;
-import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
 import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
 import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
@@ -50,7 +47,7 @@ public class NERTest {
     }
 
     @Test
-    @Ignore
+    // @Ignore
     public void testStanfordNER() {
         StanfordNER tagger = new StanfordNER();
         // // tagger.train("data/test/ner/training.txt", "data/test/ner/stanfordner.ser.gz");

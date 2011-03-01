@@ -29,4 +29,18 @@ public class WebLink {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("WebLink [url=");
+        builder.append(url);
+        builder.append(", text=");
+        builder.append(text);
+        builder.append(", title=");
+        builder.append(title);
+        builder.append("]\n");
+        return builder.toString();
+    }
+
 }

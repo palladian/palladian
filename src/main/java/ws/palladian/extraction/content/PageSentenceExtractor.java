@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -90,6 +90,7 @@ public class PageSentenceExtractor {
         PageAnalyzer pa = new PageAnalyzer();
         pa.setDocument(getDocument());
         XPathSet xpathset = new XPathSet();
+
         Set<String> uniqueSentences = new HashSet<String>(sentences);
         for (String sentence : uniqueSentences) {
             Set<String> xPaths = pa.constructAllXPaths(sentence);
@@ -158,11 +159,11 @@ public class PageSentenceExtractor {
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
         String imgXPath = "//IMG";
-        if (XPathHelper.hasXhtmlNs(document)) {
-            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
-        }
+        // if (XPathHelper.hasXhtmlNs(document)) {
+        // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
+        // }
 
-        List<Node> imageNodes = XPathHelper.getChildNodes(mainContentNode, imgXPath);
+        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(mainContentNode, imgXPath);
         for (Node node : imageNodes) {
             try {
 

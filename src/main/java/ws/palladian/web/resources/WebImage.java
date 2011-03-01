@@ -73,7 +73,7 @@ public class WebImage {
         builder.append(title);
         builder.append(", type=");
         builder.append(getType());
-        builder.append("]");
+        builder.append("]\n");
         return builder.toString();
     }
 

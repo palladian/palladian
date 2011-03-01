@@ -179,7 +179,7 @@ public class Crawler {
     private double compressionSaving = 0.5;
 
     protected boolean sanitizeXml = true;
-    
+
     // ////////////////// crawl settings ////////////////////
     /** whether to crawl within a certain domain */
     private boolean inDomain = true;
@@ -568,7 +568,7 @@ public class Crawler {
     public static String extractTitle(Document webPage) {
         String title = "";
 
-        List<Node> titleNodes = XPathHelper.getNodes(webPage, "//TITLE");
+        List<Node> titleNodes = XPathHelper.getXhtmlNodes(webPage, "//TITLE");
         for (Node node : titleNodes) {
             title = node.getTextContent();
             break;
@@ -995,17 +995,17 @@ public class Crawler {
 
         if (isXML) {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            
+
             // added by Philipp, 2011-01-28
             docBuilderFactory.setNamespaceAware(true);
-            
+
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-            
+
             if (sanitizeXml) {
                 // fix to parse XML documents with illegal characters, 2011-02-15
                 // see http://java.net/projects/rome/lists/users/archive/2009-04/message/12
                 // and http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
-                // although XmlReader is from ROME, I suppose it can be used for general XML applications 
+                // although XmlReader is from ROME, I suppose it can be used for general XML applications
                 XmlReader xmlReader = new XmlReader(dataStream);
                 Xml10FilterReader filterReader = new Xml10FilterReader(xmlReader);
                 InputSource is = new InputSource(filterReader);
@@ -1015,7 +1015,7 @@ public class Crawler {
             } else {
                 document = docBuilder.parse(dataStream);
             }
-            
+
         } else {
             InputSource is = new InputSource(dataStream);
             parser.parse(is);
