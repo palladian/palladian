@@ -3,6 +3,7 @@ package ws.palladian.preprocessing.tagging;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.ner.Annotations;
@@ -17,6 +18,7 @@ public class StringTaggerTest extends TestCase {
     }
 
     @Test
+    @Ignore
     public void testTagString() {
 
         Annotations annotations = null;

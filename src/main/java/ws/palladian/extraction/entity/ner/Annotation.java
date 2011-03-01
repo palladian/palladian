@@ -125,7 +125,7 @@ public class Annotation extends UniversalInstance {
      */
     public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
         if (getMostLikelyTag().getCategory().getName()
-.equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
+                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
             return true;
         }
         return false;
@@ -308,14 +308,14 @@ public class Annotation extends UniversalInstance {
      * </ol>
      */
     public void createFeatures() {
-        
+
         String entity = getEntity();
         String leftContext = getLeftContext().trim();
         String rightContext = getRightContext().trim();
 
         // // get the numeric features
         List<Double> numericFeatures = new ArrayList<Double>();
-        
+
         // get the number of words
         double numberOfWords = entity.split(" ").length;
         numericFeatures.add(numberOfWords);
@@ -323,15 +323,15 @@ public class Annotation extends UniversalInstance {
         // get the number of chars
         double numberOfChars = entity.length();
         numericFeatures.add(numberOfChars);
-        
+
         // get the number of digits
         double numberOfDigits = StringHelper.countOccurences(entity, "[0-9]", true);
         numericFeatures.add(numberOfDigits);
-        
+
         // get the number of uppercase chars
         double numberOfUppercaseChars = StringHelper.countOccurences(entity, "[A-Z]", false);
         numericFeatures.add(numberOfUppercaseChars);
-        
+
         // get the number of special chars (no positive effect)
         // double numberOfSpecialChars = StringHelper.countOccurences(entity, "[\"':;-=?!.#()/&%$§°\\[\\]]", false);
         // numericFeatures.add(numberOfSpecialChars);
@@ -346,7 +346,7 @@ public class Annotation extends UniversalInstance {
 
         // // get the nominal features
         List<String> nominalFeatures = new ArrayList<String>();
-        
+
         // is the entity at the start of a sentence? check if there is a period in the immediate left context
         boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!");
         nominalFeatures.add(String.valueOf(startOfSentence));
