@@ -61,22 +61,6 @@ public class Annotation extends UniversalInstance {
         assignedCategoryEntries = annotation.getTags();
     }
 
-    public Annotation(int offset, String entityName, String tagName) {
-        super(null);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
-    }
-
-    public Annotation(int offset, String entityName, String tagName, Instances<UniversalInstance> instances) {
-        super(instances);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
-    }
-
     public Annotation(int offset, String entityName, CategoryEntries tags) {
         super(null);
         this.offset = offset;
@@ -93,6 +77,14 @@ public class Annotation extends UniversalInstance {
         this.assignedCategoryEntries = tags;
     }
 
+    public Annotation(int offset, String entityName, String tagName) {
+        super(null);
+        this.offset = offset;
+        this.length = entityName.length();
+        entity = entityName;
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+    }
+
     public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
         super(annotations);
         this.offset = offset;
@@ -101,189 +93,27 @@ public class Annotation extends UniversalInstance {
         assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
     }
 
-    public boolean matches(Annotation annotation) {
-        if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean overlaps(Annotation annotation) {
-        if (getOffset() <= annotation.getOffset() && getEndIndex() >= annotation.getOffset()
-                || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getOffset()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Compare this annotation with an annotation where the correct tag is known (gold standard / evaluation
-     * annotation).
-     * 
-     * @param goldStandardAnnotation The gold standard annotation.
-     * @return
-     */
-    public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean sameTag(Annotation annotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory().getName())) {
-            return true;
-        }
-        return false;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
+    public Annotation(int offset, String entityName, String tagName, Instances<UniversalInstance> instances) {
+        super(instances);
         this.offset = offset;
+        this.length = entityName.length();
+        entity = entityName;
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
     }
 
-    public int getLength() {
-        return length;
-    }
+    private int containsDateFragment(String text) {
+        text = text.toLowerCase();
+        String[] regExps = RegExp.getDateFragmentRegExp();
 
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public int getEndIndex() {
-        return getOffset() + getLength();
-    }
-
-    public String getEntity() {
-        return entity;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
-    }
-
-    public CategoryEntries getTags() {
-        return getAssignedCategoryEntries();
-    }
-
-    public void setTags(CategoryEntries tags) {
-        this.assignedCategoryEntries = tags;
-    }
-
-    public CategoryEntry getMostLikelyTag() {
-        return getTags().getMostLikelyCategoryEntry();
-    }
-
-    public String getMostLikelyTagName() {
-        return getTags().getMostLikelyCategoryEntry().getCategory().getName();
-    }
-
-    public String getLeftContext() {
-        return leftContext;
-    }
-
-    public void setLeftContext(String leftContext) {
-        this.leftContext = leftContext;
-    }
-
-    public String getRightContext() {
-        return rightContext;
-    }
-
-    public void setRightContext(String rightContext) {
-        this.rightContext = rightContext;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Annotation [offset=");
-        builder.append(offset);
-        builder.append(", length=");
-        builder.append(length);
-        builder.append(", entity=");
-        builder.append(entity);
-        builder.append(", tag=");
-        builder.append(getMostLikelyTagName());
-        builder.append("]");
-        return builder.toString();
-    }
-
-    /**
-     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
-     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
-     * 
-     * @param annotations The annotations we are searching for in this entity.
-     * @return A set of annotations found in this annotation.
-     */
-    public Annotations unwrapAnnotations(Annotations annotations) {
-        Annotations unwrappedAnnotations = new Annotations();
-
-        String entityName = getEntity().toLowerCase();
-        int length = entityName.length();
-
-        for (Annotation annotation : annotations) {
-            if (annotation.getLength() < length) {
-                int index = entityName.indexOf(" " + annotation.getEntity().toLowerCase() + " ");
-                if (index > -1 && annotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
-                            annotation.getMostLikelyTagName(), annotations);
-                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
+        int fragments = 0;
+        for (String regExp : regExps) {
+            if (text.matches(regExp.toLowerCase())) {
+                fragments++;
             }
-        }
-
-        return unwrappedAnnotations;
-    }
-
-    public Annotations unwrapAnnotations(DictionaryClassifier classifier, Preprocessor preprocessor) {
-        Annotations unwrappedAnnotations = new Annotations();
-
-        if (getEntity().indexOf(" ") == -1) {
-            return unwrappedAnnotations;
-        }
-
-        String[] words = getEntity().split(" ");
-        String[] tags = new String[words.length];
-
-        // classify each word
-        for (int i = 0; i < words.length; i++) {
-
-            TextInstance document = preprocessor.preProcessDocument(words[i]);
-            classifier.classify(document, false);
-            tags[i] = document.getMainCategoryEntry().getCategory().getName();
 
         }
 
-
-        // create annotations
-        Annotation lastAnnotation = new Annotation(0, "", "");
-        for (int i = 0; i < words.length; i++) {
-            String tag = tags[i];
-
-            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
-                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
-                int offsetPlus = 0;
-                if (i > 0) {
-                    offsetPlus = indexList.get(i - 1) + 1;
-                }
-                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i],
-                        tags[i]);
-                unwrappedAnnotations.add(lastAnnotation);
-            } else {
-                // update last annotation
-                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
-                lastAnnotation.setLength(lastAnnotation.getEntity().length());
-            }
-        }
-
-        return unwrappedAnnotations;
+        return fragments;
     }
 
     /**
@@ -388,11 +218,11 @@ public class Annotation extends UniversalInstance {
         LingPipePOSTagger lpt = new LingPipePOSTagger();
         Object model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
         if (model == null) {
-            DataHolder.getInstance().putDataObject("models.lingpipe.en.postag", lpt.loadDefaultModel().getModel());
+            DataHolder.getInstance().putDataObject("models.lingpipe.en.postag", lpt.loadModel().getModel());
             model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
         }
         lpt.setModel(model);
-        for (TagAnnotation annotation : lpt.loadDefaultModel().tag(entity).getTagAnnotations()) {
+        for (TagAnnotation annotation : lpt.loadModel().tag(entity).getTagAnnotations()) {
             posSignature += annotation.getTag();
         }
         nominalFeatures.add(posSignature);
@@ -402,19 +232,187 @@ public class Annotation extends UniversalInstance {
         setNominalFeatures(nominalFeatures);
     }
 
-    private int containsDateFragment(String text) {
-        text = text.toLowerCase();
-        String[] regExps = RegExp.getDateFragmentRegExp();
+    public int getEndIndex() {
+        return getOffset() + getLength();
+    }
 
-        int fragments = 0;
-        for (String regExp : regExps) {
-            if (text.matches(regExp.toLowerCase())) {
-                fragments++;
+    public String getEntity() {
+        return entity;
+    }
+
+    public String getLeftContext() {
+        return leftContext;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public CategoryEntry getMostLikelyTag() {
+        return getTags().getMostLikelyCategoryEntry();
+    }
+
+    public String getMostLikelyTagName() {
+        return getTags().getMostLikelyCategoryEntry().getCategory().getName();
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public String getRightContext() {
+        return rightContext;
+    }
+
+    public CategoryEntries getTags() {
+        return getAssignedCategoryEntries();
+    }
+
+    public boolean matches(Annotation annotation) {
+        if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean overlaps(Annotation annotation) {
+        if (getOffset() <= annotation.getOffset() && getEndIndex() >= annotation.getOffset()
+                || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getOffset()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sameTag(Annotation annotation) {
+        if (getMostLikelyTag().getCategory().getName().equalsIgnoreCase(
+                annotation.getMostLikelyTag().getCategory().getName())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Compare this annotation with an annotation where the correct tag is known (gold standard / evaluation
+     * annotation).
+     * 
+     * @param goldStandardAnnotation The gold standard annotation.
+     * @return
+     */
+    public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
+        if (getMostLikelyTag().getCategory().getName().equalsIgnoreCase(
+                goldStandardAnnotation.getInstanceCategoryName())) {
+            return true;
+        }
+        return false;
+    }
+
+    public void setEntity(String entity) {
+        this.entity = entity;
+    }
+
+    public void setLeftContext(String leftContext) {
+        this.leftContext = leftContext;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public void setRightContext(String rightContext) {
+        this.rightContext = rightContext;
+    }
+
+    public void setTags(CategoryEntries tags) {
+        this.assignedCategoryEntries = tags;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Annotation [offset=");
+        builder.append(offset);
+        builder.append(", length=");
+        builder.append(length);
+        builder.append(", entity=");
+        builder.append(entity);
+        builder.append(", tag=");
+        builder.append(getMostLikelyTagName());
+        builder.append("]");
+        return builder.toString();
+    }
+
+    /**
+     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
+     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
+     * 
+     * @param annotations The annotations we are searching for in this entity.
+     * @return A set of annotations found in this annotation.
+     */
+    public Annotations unwrapAnnotations(Annotations annotations) {
+        Annotations unwrappedAnnotations = new Annotations();
+
+        String entityName = getEntity().toLowerCase();
+        int length = entityName.length();
+
+        for (Annotation annotation : annotations) {
+            if (annotation.getLength() < length) {
+                int index = entityName.indexOf(" " + annotation.getEntity().toLowerCase() + " ");
+                if (index > -1 && annotation.getEntity().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
+                            annotation.getMostLikelyTagName(), annotations);
+                    wrappedAnnotation.createFeatures();
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
             }
+        }
+
+        return unwrappedAnnotations;
+    }
+
+    public Annotations unwrapAnnotations(DictionaryClassifier classifier, Preprocessor preprocessor) {
+        Annotations unwrappedAnnotations = new Annotations();
+
+        if (getEntity().indexOf(" ") == -1) {
+            return unwrappedAnnotations;
+        }
+
+        String[] words = getEntity().split(" ");
+        String[] tags = new String[words.length];
+
+        // classify each word
+        for (int i = 0; i < words.length; i++) {
+
+            TextInstance document = preprocessor.preProcessDocument(words[i]);
+            classifier.classify(document, false);
+            tags[i] = document.getMainCategoryEntry().getCategory().getName();
 
         }
 
-        return fragments;
+        // create annotations
+        Annotation lastAnnotation = new Annotation(0, "", "");
+        for (int i = 0; i < words.length; i++) {
+            String tag = tags[i];
+
+            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
+                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
+                int offsetPlus = 0;
+                if (i > 0) {
+                    offsetPlus = indexList.get(i - 1) + 1;
+                }
+                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
+                unwrappedAnnotations.add(lastAnnotation);
+            } else {
+                // update last annotation
+                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
+                lastAnnotation.setLength(lastAnnotation.getEntity().length());
+            }
+        }
+
+        return unwrappedAnnotations;
     }
 
 }

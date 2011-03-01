@@ -6,11 +6,13 @@ package ws.palladian.preprocessing.nlp;
 import org.apache.log4j.Logger;
 
 /**
+ * This is the abstract base class for all Part of Speech taggers used by <tt>PALLADIAN</tt>.
+ * 
  * @author Martin Wunderwald
  */
 public abstract class AbstractPOSTagger {
 
-    /** the logger for this class. */
+    /** the logger for this class. Adapt <tt>src/main/resources/log4j.properties</tt>. */
     protected static final Logger LOGGER = Logger.getLogger(AbstractPOSTagger.class);
 
     /** model for open nlp pos-tagging. */
@@ -70,41 +72,30 @@ public abstract class AbstractPOSTagger {
     }
 
     /**
-     * loads the default model into @see {@link #model}. Method returns <code>this</code> instance of AbstractPOSTagger,
+     * Loads a default PoS tagging model. Method returns <code>this</code> instance of {@code AbstractPOSTagger},
      * to allow convenient
      * concatenations of method invocations, like:
      * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
      * 
-     * @param configModelFilePath
-     * @return
+     * @return This object for method chaining.
      */
-    public abstract AbstractPOSTagger loadDefaultModel();
+    public abstract AbstractPOSTagger loadModel();
 
-    /**
-     * loads the default model into @see {@link #model}. Method returns <code>this</code> instance of AbstractPOSTagger,
-     * to allow convenient
-     * concatenations of method invocations, like:
-     * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
-     * 
-     * @param configModelFilePath
-     * @return
-     */
-    public AbstractPOSTagger loadModel() {
-        return loadDefaultModel();
-    }
 
     /**
      * Loads a model trained on sample data to recognize PoS tags.
      * 
-     * @param modelFilePath
+     * @param modelFilePath The path on the local file system pointing to the file containing the model to load.
      * @return This object for method chaining.
      */
     public abstract AbstractPOSTagger loadModel(String modelFilePath);
 
     /**
-     * Settermethod for the model.
+     * Sets the model containing information on how to tag natural language texts. Each domain might need its own model,
+     * so even though there are some preprepared models, like the brown corpus, available, you might need to train a new
+     * model that fits your application domain before getting high quality results from this PoS tagger.
      * 
-     * @param model
+     * @param model The model to use by this PoS tagger.
      */
     public void setModel(Object model) {
         this.model = model;
@@ -130,23 +121,21 @@ public abstract class AbstractPOSTagger {
     }
 
     /**
-     * Tags a string and writes the tags into @see {@link #tags} and @see {@link #tokens}. Method returns
-     * <code>this</code> instance of
+     * Tags a string and writes the tags. Method returns {@code this} instance of
      * AbstractPOSTagger, to allow convenient concatenations of method
      * invocations, like: <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
      * 
-     * @param sentence
+     * @param sentence The sentence to tag.
      */
     public abstract AbstractPOSTagger tag(String sentence);
 
     /**
-     * tags a string and writes the tags into @see {@link #tags} and @see {@link #tokens}. Method returns
-     * <code>this</code> instance of
+     * Tags a string and writes the tags. Method returns {@code this} instance of
      * AbstractPOSTagger, to allow convenient concatenations of method
-     * invocations, like: <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
+     * invocations, like: {@code new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();}
      * 
-     * @param sentence
-     * @param modelFilePath
+     * @param sentence The sentence to tag.
+     * @param modelFilePath A path to a prepared model file containing information on how to tag sentences.
      */
     public abstract AbstractPOSTagger tag(String sentence, String modelFilePath);
 

@@ -65,7 +65,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
      */
     @Override
-    public OpenNLPPOSTagger loadDefaultModel() {
+    public OpenNLPPOSTagger loadModel() {
         return loadModel(MODEL).loadTokenizer(MODEL_TOK);
     }
 

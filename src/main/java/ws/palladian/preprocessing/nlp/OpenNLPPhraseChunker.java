@@ -44,7 +44,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     public final OpenNLPPhraseChunker chunk(String sentence) {
 
         final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
-        tagger.loadDefaultModel().tag(sentence);
+        tagger.loadModel().tag(sentence);
 
         return chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger.getTagAnnotations().getTagList());
 

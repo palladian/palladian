@@ -79,7 +79,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
      */
     @Override
-    public OpenNLPSentenceDetector loadDefaultModel() {
+    public OpenNLPSentenceDetector loadModel() {
         return loadModel(MODEL);
     }
 

@@ -54,7 +54,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
      */
     @Override
-    public LingPipePOSTagger loadDefaultModel() {
+    public LingPipePOSTagger loadModel() {
         return this.loadModel(MODEL);
     }
 

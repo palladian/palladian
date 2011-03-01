@@ -1,7 +1,6 @@
 package ws.palladian.helper;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -11,7 +10,8 @@ import org.apache.log4j.Logger;
 /**
  * <p>
  * Holds the configuration of the framework. This configuration is obtained from an external file called
- * <tt>palladian.properties</tt>. The configuration is searched at the following places, in the specified order:</p>
+ * <tt>palladian.properties</tt>. The configuration is searched at the following places, in the specified order:
+ * </p>
  * 
  * <ol>
  * <li>Path specified by the environment variable <tt>PALLADIAN_HOME</tt>,</li>
@@ -25,22 +25,6 @@ import org.apache.log4j.Logger;
  * 
  */
 public final class ConfigHolder {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ConfigHolder.class);
-
-    /**
-     * <p>
-     * The name of the palladian configuration properties file.
-     * </p>
-     */
-    private static final String CONFIG_NAME = "palladian.properties";
-
-    /** The path under which the Palladian configuration file must lie. */
-    private static final String CONFIG_PATH = "config/" + CONFIG_NAME;
-
-    /** Configs for Palladian are held in the config field. */
-    private PropertiesConfiguration config = null;
 
     /**
      * <p>
@@ -59,10 +43,23 @@ public final class ConfigHolder {
         private static ConfigHolder instance = new ConfigHolder();
     }
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ConfigHolder.class);
+
     /**
      * <p>
-     * This method realizes the singleton design pattern by providing the one single instance of the
-     * {@code ConfigHolder} class.
+     * The name of the palladian configuration properties file.
+     * </p>
+     */
+    private static final String CONFIG_NAME = "palladian.properties";
+
+    /** The path under which the Palladian configuration file must lie. */
+    private static final String CONFIG_PATH = "config/" + CONFIG_NAME;
+
+    /**
+     * <p>
+     * This method realizes the singleton design pattern by providing the one single instance of the {@code
+     * ConfigHolder} class.
      * </p>
      * 
      * @return The one instance of {@code ConfigHolder}.
@@ -70,6 +67,9 @@ public final class ConfigHolder {
     public static ConfigHolder getInstance() {
         return SingletonHolder.instance;
     }
+
+    /** Configs for Palladian are held in the config field. */
+    private PropertiesConfiguration config = null;
 
     /**
      * This class is a singleton and therefore the constructor is private.
@@ -82,16 +82,16 @@ public final class ConfigHolder {
 
             PropertiesConfiguration propertiesConfiguration = null;
             if (environmentConfig.exists()) {
-                LOGGER.debug("Try to load palladian.properties from Environment: "
-                        + environmentConfig.getAbsolutePath());
+                LOGGER
+                        .info("Try to load palladian.properties from Environment: "
+                                + environmentConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration();
             } else if (resource != null) {
-                File classpathConfig = new File(resource.toURI());
-                LOGGER.debug("Try to load palladian.properties from Classpath: "
-                        + classpathConfig.getAbsolutePath());
+                File classpathConfig = new File(resource.getFile());
+                LOGGER.info("Try to load palladian.properties from Classpath: " + classpathConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
             } else if (configFile.exists()) {
-                LOGGER.debug("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
+                LOGGER.info("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(configFile);
             }
             if (propertiesConfiguration != null) {
@@ -103,11 +103,18 @@ public final class ConfigHolder {
         } catch (ConfigurationException e) {
             LOGGER.error("Palladian configuration under " + CONFIG_PATH + " could not be loaded completely: "
                     + e.getMessage());
-        } catch (URISyntaxException e) {
-            LOGGER.error("Palladian configuration file loading error, " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Palladian configuration file loading error, " + e.getMessage());
         }
+    }
+
+    /**
+     * <p>
+     * Provides the current configuration held by this object.
+     * </p>
+     * 
+     * @return The current palladian configuration.
+     */
+    public PropertiesConfiguration getConfig() {
+        return config;
     }
 
     /**
@@ -131,16 +138,5 @@ public final class ConfigHolder {
      */
     private void setConfig(PropertiesConfiguration config) {
         this.config = config;
-    }
-
-    /**
-     * <p>
-     * Provides the current configuration held by this object.
-     * </p>
-     * 
-     * @return The current palladian configuration.
-     */
-    public PropertiesConfiguration getConfig() {
-        return config;
     }
 }

@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +60,186 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     private static final long serialVersionUID = -8793232373094322955L;
 
+    /**
+     * @param args
+     */
+    @SuppressWarnings("static-access")
+    public static void main(String[] args) {
+
+        // System.out.println(containsDateFragment("January"));
+        // System.exit(0);
+        // NERCer nercer1 = new NERCer();
+        // nercer1.calculatePatterns();
+        // if (true) return;
+
+        // // training can be done with NERCLearner also
+        TUDNER tagger = new TUDNER();
+
+        if (args.length > 0) {
+
+            Options options = new Options();
+            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
+                    .create());
+
+            OptionGroup modeOptionGroup = new OptionGroup();
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
+                    .create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train").withDescription(
+                    "train a model").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate").withDescription(
+                    "evaluate a model").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo").withDescription(
+                    "demo mode of the tagger").create());
+            modeOptionGroup.setRequired(true);
+            options.addOptionGroup(modeOptionGroup);
+
+            options.addOption(OptionBuilder.withLongOpt("trainingFile").withDescription(
+                    "the path and name of the training file for the tagger (only if mode = train)").hasArg()
+                    .withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("testFile").withDescription(
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)").hasArg()
+                    .withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("configFile").withDescription(
+                    "the path and name of the config file for the tagger").hasArg().withArgName("text").withType(
+                    String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("inputText").withDescription(
+                    "the text that should be tagged (only if mode = tag)").hasArg().withArgName("text").withType(
+                    String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription(
+                    "the path and name of the file where the tagged text should be saved to").hasArg().withArgName(
+                    "text").withType(String.class).create());
+
+            HelpFormatter formatter = new HelpFormatter();
+
+            CommandLineParser parser = new PosixParser();
+            CommandLine cmd = null;
+            try {
+                cmd = parser.parse(options, args);
+
+                if (cmd.hasOption("tag")) {
+
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+
+                    if (cmd.hasOption("outputFile")) {
+                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
+                    } else {
+                        System.out.println("No output file given so tagged text will be printed to the console:");
+                        System.out.println(taggedText);
+                    }
+
+                } else if (cmd.hasOption("train")) {
+
+                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
+
+                } else if (cmd.hasOption("evaluate")) {
+
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
+                            TaggingFormat.XML);
+
+                } else if (cmd.hasOption("demo")) {
+
+                    tagger.demo(cmd.getOptionValue("inputText"));
+
+                }
+
+            } catch (ParseException e) {
+                LOGGER.debug("Command line arguments could not be parsed!");
+                formatter.printHelp("FeedChecker", options);
+            }
+
+        }
+
+        // ################################# HOW TO USE #################################
+        // HashSet<String> trainingTexts = new HashSet<String>();
+        // trainingTexts.add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
+        // trainingTexts
+        // .add("Many countries, such as Germany and Great Britain, have a strong economy. Other countries such as Iceland and Norway are in the north and have a smaller population");
+        // trainingTexts.add("In south Europe, a nice country named Italy is formed like a boot.");
+        // trainingTexts.add("In the western part of Europe, the is a country named Spain which is warm.");
+        // trainingTexts.add("Bruce Willis is an actor, Jim Carrey is an actor too, but Trinidad is a country name and and actor name as well.");
+        // trainingTexts.add("In west Europe, a warm country named Spain has good seafood.");
+        // trainingTexts.add("Another way of thinking of it is to drive to another coutry and have some fun.");
+        //
+        // // set the kb communicator that knows the entities
+        // nercer.setKbCommunicator(new TestKnowledgeBaseCommunicator());
+
+        // possible tags
+        // CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
+
+        // train
+        // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
+
+        // tag
+        // tagger.loadModel("data/models/tudner/tudner.model");
+        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+
+        // tagger.tag(
+        // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
+        // "data/models/tudner/tudner.model");
+
+        // evaluate
+        // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
+        // TaggingFormat.COLUMN);
+
+        // FileFormatParser.xmlToColumn("data/temp/taggedText.txt", "data/temp/allColumnTaggedText.tsv", "\t");
+        // nercer.train("data/temp/allColumnTaggedText.tsv", "data/temp/nercer.model");
+
+        // System.out
+        // .println(nercer
+        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
+        // "data/temp/nercer.model"));
+        //
+        // System.out
+        // .println(nercer
+        // .tag("John J. Smith and the John Reilly location mention Samsung Galaxy in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
+        // "data/temp/nercer.model"));
+
+        // tagger.evaluate("data/temp/evaluate/taggedTextTesting.xml", "data/temp/nercer.model", TaggingFormat.XML);
+
+        // use the trained model to recognize entities in a text
+        // EntityList recognizedEntities = null;
+        // recognizedEntities = nercer
+        // .recognizeEntities("In the north of Europe, there is a country called Sweden which is not far from Norway, there is also a country named Scotland in the north of Europe. But also Denzel Washington is an actor.");
+        //
+        // CollectionHelper.print(recognizedEntities);
+
+        // /////////////////////////// train and test /////////////////////////////
+        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
+        // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+
+        // using a column trainig and testing file
+        StopWatch stopWatch = new StopWatch();
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        // System.exit(0);
+        TUDNER.remove = true;
+        tagger.loadModel("data/temp/tudner.model");
+        // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner.model",
+                TaggingFormat.COLUMN);
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
+
+        System.out.println(stopWatch.getElapsedTimeString());
+
+        // Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test2/index_split1.txt");
+        // tagger.train(trainingDataset, "data/models/tudner/tudner.model");
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test2/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+
+    }
+
     /** pattern candidates in the form of: prefix (TODO: ENTITY suffix) */
     private Map<String, CategoryEntries> patternCandidates = null;
 
@@ -86,12 +266,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         patternCandidates = new TreeMap<String, CategoryEntries>();
         patterns = new HashMap<String, CategoryEntries>();
         universalClassifier = new UniversalClassifier();
-        universalClassifier.getTextClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
-        universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
-        universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        universalClassifier.getTextClassifier().getClassificationTypeSetting().setClassificationType(
+                ClassificationTypeSetting.TAG);
+        universalClassifier.getNumericClassifier().getClassificationTypeSetting().setClassificationType(
+                ClassificationTypeSetting.TAG);
+        universalClassifier.getNominalClassifier().getClassificationTypeSetting().setClassificationType(
+                ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
 
@@ -100,9 +280,449 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         dictionaryEntities = new HashMap<String, Category>();
     }
 
+    private void calculatePatterns() {
+
+        // patternCandidates.put("1334abcdefg", null);
+        // patternCandidates.put("0334abcdefg", null);
+        // patternCandidates.put("262323abcde235", null);
+        // patternCandidates.put("232323abcde235", null);
+        // patternCandidates.put("abvasdfertaay", null);
+        // patternCandidates.put("abcasdfertaay", null);
+
+        LOGGER.info("calculate patterns");
+        int minPatternLength = 7;
+
+        // keep information about frequency of possible patterns
+        LinkedHashMap<String, Integer> possiblePatterns = new LinkedHashMap<String, Integer>();
+
+        // in each iteration the common strings of the last level are compared
+        Set<String> currentLevelPatternCandidatesSet = patternCandidates.keySet();
+        LinkedHashSet<String> currentLevelPatternCandidates = new LinkedHashSet<String>();
+        for (String pc : currentLevelPatternCandidatesSet) {
+            if (pc.length() >= minPatternLength) {
+                currentLevelPatternCandidates.add(pc);
+            }
+        }
+
+        LOGGER.info(currentLevelPatternCandidates.size() + " pattern candidates");
+
+        LinkedHashSet<String> nextLevelPatternCandidates = null;
+
+        for (int level = 0; level < 3; level++) {
+            nextLevelPatternCandidates = new LinkedHashSet<String>();
+
+            LOGGER.info("level " + level + ", " + currentLevelPatternCandidates.size() + " pattern candidates");
+
+            int it1Position = 0;
+            Iterator<String> iterator1 = currentLevelPatternCandidates.iterator();
+            while (iterator1.hasNext()) {
+
+                String patternCandidate1 = iterator1.next();
+                patternCandidate1 = StringHelper.reverseString(patternCandidate1);
+                it1Position++;
+
+                Iterator<String> iterator2 = currentLevelPatternCandidates.iterator();
+                int it2Position = 0;
+
+                while (iterator2.hasNext()) {
+
+                    // jump to the position after iterator1
+                    if (it2Position < it1Position) {
+                        iterator2.next();
+                        it2Position++;
+                        continue;
+                    }
+
+                    String patternCandidate2 = iterator2.next();
+                    patternCandidate2 = StringHelper.reverseString(patternCandidate2);
+
+                    // logger.info("get longest common string:");
+                    // logger.info(patternCandidate1);
+                    // logger.info(patternCandidate2);
+                    String possiblePattern = StringHelper.getLongestCommonString(patternCandidate1, patternCandidate2,
+                            false, false);
+                    possiblePattern = StringHelper.reverseString(possiblePattern);
+
+                    if (possiblePattern.length() < minPatternLength) {
+                        continue;
+                    }
+
+                    Integer c = possiblePatterns.get(possiblePattern);
+                    if (c == null) {
+                        possiblePatterns.put(possiblePattern, 1);
+                    } else {
+                        possiblePatterns.put(possiblePattern, c + 1);
+                    }
+                    nextLevelPatternCandidates.add(possiblePattern);
+
+                }
+            }
+            currentLevelPatternCandidates = nextLevelPatternCandidates;
+        }
+
+        possiblePatterns = CollectionHelper.sortByValue(possiblePatterns.entrySet());
+        // CollectionHelper.print(possiblePatterns);
+
+        // use only patterns longer or equal 7 characters
+        LOGGER.info("filtering patterns");
+        for (Entry<String, Integer> pattern : possiblePatterns.entrySet()) {
+            if (pattern.getKey().length() >= minPatternLength) {
+
+                // Categories categories = null;
+                CategoryEntries categoryEntries = new CategoryEntries();
+
+                // find out which categories the original pattern candidates belonged to
+                for (Entry<String, CategoryEntries> originalPatternCandidate : patternCandidates.entrySet()) {
+                    if (originalPatternCandidate.getKey().toLowerCase().indexOf(pattern.getKey().toLowerCase()) > -1) {
+                        categoryEntries = originalPatternCandidate.getValue();
+                        break;
+                    }
+                }
+
+                if (categoryEntries == null) {
+                    categoryEntries = new CategoryEntries();
+                }
+
+                for (CategoryEntry c : categoryEntries) {
+                    c.addAbsoluteRelevance(pattern.getValue().doubleValue());
+                }
+                patterns.put(pattern.getKey(), categoryEntries);
+            }
+        }
+
+        LOGGER.info("calculated " + patterns.size() + " patterns:");
+        for (Entry<String, CategoryEntries> pattern : patterns.entrySet()) {
+            LOGGER.info(" " + pattern);
+        }
+
+    }
+
+    public void calculateRemoveAnnotatations(String inputText) {
+        // run annotation on training set and discard all entities that were tagged but should not have been tagged
+        // (error1)
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
+        Annotations annotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
+        removeAnnotations = new Annotations();
+        EvaluationResult evaluationResult = evaluate("data/datasets/ner/conll/training.txt", "data/temp/tudner.model",
+                TaggingFormat.COLUMN);
+
+        // get only those annotations that were incorrectly tagged and were never a real entity that is they have to be
+        // in ERROR1 set and NOT in the gold standard
+        Annotations wrongAnnotations = new Annotations();
+        for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
+            String wrongName = wrongAnnotation.getEntity().toLowerCase();
+            boolean addAnnotation = true;
+
+            // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
+            for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
+                if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
+                    addAnnotation = false;
+                    break;
+                }
+            }
+            if (addAnnotation) {
+                wrongAnnotations.add(wrongAnnotation);
+            }
+        }
+
+        for (Annotation wrongAnnotation : wrongAnnotations) {
+            String wrongName = wrongAnnotation.getEntity().toLowerCase();
+            for (Annotation annotationCandidate : annotations) {
+                if (wrongName.equals(annotationCandidate.getEntity().toLowerCase())) {
+                    removeAnnotations.add(annotationCandidate);
+                }
+            }
+        }
+    }
+
+    private boolean containsDateFragment(String text) {
+        text = text.toLowerCase();
+        String[] regExps = RegExp.getDateFragmentRegExp();
+
+        for (String regExp : regExps) {
+            if (text.replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+    private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
+
+        String xmlTraingFilePath = trainingFilePath.substring(0, trainingFilePath.length() - 4) + "_transformed."
+                + FileHelper.getFileType(trainingFilePath);
+        FileFormatParser.columnToXML(trainingFilePath, xmlTraingFilePath, "\t");
+        String inputText = FileFormatParser.getText(xmlTraingFilePath, TaggingFormat.XML);
+
+        // get all pre- and suffixes
+        for (Annotation annotation : annotations) {
+
+            // String sentence = StringHelper.getSentence(text, m.start());
+
+            String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
+            // System.out.println("annotation text: " + annotationText);
+
+            // use prefixes only
+            String[] windowWords = getWindowWords(inputText, annotation.getOffset(), annotation.getEndIndex(), true,
+                    false);
+
+            StringBuilder patternCandidate = new StringBuilder();
+            for (String word : windowWords) {
+                patternCandidate.append(StringHelper.trim(word)).append(" ");
+            }
+
+            CategoryEntries categoryEntries = patternCandidates.get(patternCandidate.toString());
+            if (categoryEntries == null) {
+                categoryEntries = new CategoryEntries();
+                categoryEntries.addAll(annotation.getTags());
+            }
+
+            patternCandidates.put(patternCandidate.toString(), categoryEntries);
+
+        }
+    }
+
+    private void demo(String optionValue) {
+        System.out.println(tag(
+                "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
+                "data/models/tudnerdemo.model"));
+
+    }
+
+    private void finishTraining(String modelFilePath) {
+        // now that we have seen all training texts and have the pattern candidates we can calculate the patterns
+        calculatePatterns();
+
+        LOGGER.info("serializing NERCer");
+        FileHelper.serialize(this, modelFilePath);
+
+        // LOGGER.info("dictionary size: " + dictionary.size());
+        //
+        // // write model meta information
+        // StringBuilder supportedConcepts = new StringBuilder();
+        // for (Category c : dictionary.getCategories()) {
+        // supportedConcepts.append(c.getName()).append("\n");
+        // }
+
+        LOGGER.info("dictionary size: " + universalClassifier.getTextClassifier().getDictionary().size());
+
+        // write model meta information
+        StringBuilder supportedConcepts = new StringBuilder();
+        for (Category c : universalClassifier.getTextClassifier().getDictionary().getCategories()) {
+            supportedConcepts.append(c.getName()).append("\n");
+        }
+
+        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
+                + "_meta.txt", supportedConcepts);
+        LOGGER.info("model meta information written");
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+        Annotations annotations = new Annotations();
+
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
+
+        // Annotations kbRecognizedAnnotations = verifyEntitiesWithKB(entityCandidates);
+        // annotations.addAll(kbRecognizedAnnotations);
+        //
+        // Annotations patternRecognizedAnnotations = verifyEntitiesWithPattern(entityCandidates, inputText);
+        // annotations.addAll(patternRecognizedAnnotations);
+
+        // Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
+        // annotations.addAll(dictionaryRecognizedAnnotations);
+
+        // classify annotations with the UniversalClassifier
+        annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates, inputText));
+
+        if (remove) {
+            Annotations toRemove = new Annotations();
+
+            // remove dates
+            for (Annotation annotation : annotations) {
+                if (containsDateFragment(annotation.getEntity())) {
+                    toRemove.add(annotation);
+                }
+            }
+
+            // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
+            for (Annotation annotation : annotations) {
+
+                Object[] result = removeDateFragment(annotation.getEntity());
+                String entity = (String) result[0];
+
+                annotation.setEntity(entity);
+                annotation.setOffset(annotation.getOffset() + (Integer) result[1]);
+                annotation.setLength(annotation.getEntity().length());
+
+            }
+
+            // remove all annotations with "DOCSTART- " in them because that is for format purposes
+            for (Annotation annotation : annotations) {
+                if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
+                    annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
+                    annotation.setOffset(annotation.getOffset() + 10);
+                    annotation.setLength(annotation.getEntity().length());
+                    toRemove.add(annotation);
+                }
+            }
+
+            // remove annotations that were found to be incorrectly tagged in the training data
+            for (Annotation removeAnnotation : removeAnnotations) {
+                String removeName = removeAnnotation.getEntity().toLowerCase();
+                for (Annotation annotation : annotations) {
+                    if (removeName.equals(annotation.getEntity().toLowerCase())) {
+                        toRemove.add(annotation);
+                    }
+                }
+            }
+
+            // switch annotations that are in the dictionary
+            for (Annotation annotation : annotations) {
+
+                Category category = dictionaryEntities.get(annotation.getEntity());
+                if (category != null) {
+                    CategoryEntries ce = new CategoryEntries();
+                    ce.add(new CategoryEntry(ce, category, 1));
+                    annotation.assignCategoryEntries(ce);
+                }
+
+            }
+
+            // remove entities which contain only one word which is not a noun
+            LingPipePOSTagger lpt = new LingPipePOSTagger();
+            lpt.loadModel();
+            for (Annotation annotation : annotations) {
+
+                // check only annotations at beginning of sentences
+                // if (annotation.getNominalFeatures().size() > 0
+                // && !Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
+                // continue;
+                // }
+
+                TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") == -1
+                        && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
+                    toRemove.add(annotation);
+                    System.out.println("removing: " + annotation.getEntity() + " has POS tag: " + ta.get(0).getTag());
+                }
+
+            }
+
+            annotations.removeAll(toRemove);
+        }
+
+        FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
+
+        return annotations;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String modelPath) {
+        loadModel(modelPath);
+        return getAnnotations(inputText);
+    }
+
+    public KnowledgeBaseCommunicatorInterface getKbCommunicator() {
+        return kbCommunicator;
+    }
+
     @Override
     public String getModelFileEnding() {
         return "model";
+    }
+
+    public EntityList getTrainingEntities(double percentage) {
+        if (kbCommunicator == null) {
+            LOGGER.debug("could not get training entities because no KnowledgeBaseCommunicator has been defined");
+            return new EntityList();
+        }
+        return kbCommunicator.getTrainingEntities(percentage);
+    }
+
+    private String[] getWindowWords(String text, int startIndex, int endIndex) {
+        return getWindowWords(text, startIndex, endIndex, true, true);
+    }
+
+    private String[] getWindowWords(String text, int startIndex, int endIndex, boolean capturePrefix,
+            boolean captureSuffix) {
+
+        // get all words around entities within window (number of characters)
+        int windowSize = 30;
+
+        String prefix = "";
+        if (capturePrefix) {
+            prefix = text.substring(Math.max(0, startIndex - windowSize), startIndex);
+        }
+
+        String suffix = "";
+        if (captureSuffix) {
+            suffix = text.substring(endIndex, Math.min(endIndex + windowSize, text.length()));
+        }
+
+        String context = prefix + suffix;
+        String[] words = context.split("\\s");
+
+        return words;
+    }
+
+    @Override
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
+
+        TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
+        // this.dictionary = n.dictionary;
+        // if (this.dictionary.isUseIndex()) {
+        // dictionary.useIndex();
+        // }
+        this.kbCommunicator = n.kbCommunicator;
+        this.patterns = n.patterns;
+        this.universalClassifier = n.universalClassifier;
+
+        setModel(n);
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    private Object[] removeDateFragment(String text) {
+        String[] regExps = RegExp.getDateFragmentRegExp();
+
+        Object[] result = new Object[2];
+        int offsetChange = 0;
+
+        for (String regExp : regExps) {
+            int textLength = text.length();
+
+            // for example "Apr John Hiatt"
+            if (StringHelper.countOccurences(text, "^" + regExp + " ", false) > 0) {
+                text = text.replaceAll("^" + regExp + " ", "").trim();
+                offsetChange += textLength - text.length();
+            }
+            if (StringHelper.countOccurences(text, " " + regExp + "$", false) > 0) {
+                text = text.replaceAll(" " + regExp + "$", "").trim();
+            }
+
+            // for example "Apr. John Hiatt"
+            if (StringHelper.countOccurences(text, "^" + regExp + "\\. ", false) > 0) {
+                text = text.replaceAll("^" + regExp + "\\. ", "").trim();
+                offsetChange += textLength - text.length();
+            }
+            if (StringHelper.countOccurences(text, " " + regExp + "\\.$", false) > 0) {
+                text = text.replaceAll(" " + regExp + "\\.$", "").trim();
+            }
+        }
+
+        result[0] = text;
+        result[1] = offsetChange;
+
+        return result;
+    }
+
+    public void setKbCommunicator(KnowledgeBaseCommunicatorInterface kbCommunicator) {
+        this.kbCommunicator = kbCommunicator;
     }
 
     @Override
@@ -230,392 +850,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return true;
     }
 
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        StopWatch stopWatch = new StopWatch();
-
-        TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
-        // this.dictionary = n.dictionary;
-        // if (this.dictionary.isUseIndex()) {
-        // dictionary.useIndex();
-        // }
-        this.kbCommunicator = n.kbCommunicator;
-        this.patterns = n.patterns;
-        this.universalClassifier = n.universalClassifier;
-
-        setModel(n);
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
-
-        return true;
-    }
-
-    public void calculateRemoveAnnotatations(String inputText) {
-        // run annotation on training set and discard all entities that were tagged but should not have been tagged
-        // (error1)
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
-        Annotations annotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
-        removeAnnotations = new Annotations();
-        EvaluationResult evaluationResult = evaluate("data/datasets/ner/conll/training.txt", "data/temp/tudner.model",
-                TaggingFormat.COLUMN);
-
-        // get only those annotations that were incorrectly tagged and were never a real entity that is they have to be
-        // in ERROR1 set and NOT in the gold standard
-        Annotations wrongAnnotations = new Annotations();
-        for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
-            String wrongName = wrongAnnotation.getEntity().toLowerCase();
-            boolean addAnnotation = true;
-
-            // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
-            for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
-                if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
-                    addAnnotation = false;
-                    break;
-                }
-            }
-            if (addAnnotation) {
-                wrongAnnotations.add(wrongAnnotation);
-            }
-        }
-
-        for (Annotation wrongAnnotation : wrongAnnotations) {
-            String wrongName = wrongAnnotation.getEntity().toLowerCase();
-            for (Annotation annotationCandidate : annotations) {
-                if (wrongName.equals(annotationCandidate.getEntity().toLowerCase())) {
-                    removeAnnotations.add(annotationCandidate);
-                }
-            }
-        }
-    }
-
-    private Annotations verifyAnnotationsWithUniversalClassifier(Annotations entityCandidates, String inputText) {
-        Annotations annotations = new Annotations();
-
-        int i = 0;
-        for (Annotation annotation : entityCandidates) {
-
-            if (annotation.getEntity().indexOf(" of ") > -1) {
-                System.out.println("wait here, " + annotation.getEntity());
-            }
-
-            Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
-
-            if (!wrappedAnnotations.isEmpty()) {
-                for (Annotation annotation2 : wrappedAnnotations) {
-                    if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
-                        annotations.add(annotation2);
-                    }
-                }
-                System.out.println("tried to unwrap " + annotation.getEntity());
-            } else {
-                universalClassifier.classify(annotation);
-                if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
-                    annotations.add(annotation);
-                }
-            }
-
-            if (i % 100 == 0) {
-                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
-            }
-            i++;
-        }
-
-        return annotations;
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
-
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
-
-        // Annotations kbRecognizedAnnotations = verifyEntitiesWithKB(entityCandidates);
-        // annotations.addAll(kbRecognizedAnnotations);
-        //
-        // Annotations patternRecognizedAnnotations = verifyEntitiesWithPattern(entityCandidates, inputText);
-        // annotations.addAll(patternRecognizedAnnotations);
-
-        // Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
-        // annotations.addAll(dictionaryRecognizedAnnotations);
-
-        // classify annotations with the UniversalClassifier
-        annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates, inputText));
-
-        if (remove) {
-            Annotations toRemove = new Annotations();
-
-            // remove dates
-            for (Annotation annotation : annotations) {
-                if (containsDateFragment(annotation.getEntity())) {
-                    toRemove.add(annotation);
-                }
-            }
-
-            // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-            for (Annotation annotation : annotations) {
-
-                Object[] result = removeDateFragment(annotation.getEntity());
-                String entity = (String) result[0];
-
-                annotation.setEntity(entity);
-                annotation.setOffset(annotation.getOffset() + (Integer) result[1]);
-                annotation.setLength(annotation.getEntity().length());
-
-            }
-
-            // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            for (Annotation annotation : annotations) {
-                if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
-                    annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
-                    annotation.setOffset(annotation.getOffset() + 10);
-                    annotation.setLength(annotation.getEntity().length());
-                    toRemove.add(annotation);
-                }
-            }
-
-            // remove annotations that were found to be incorrectly tagged in the training data
-            for (Annotation removeAnnotation : removeAnnotations) {
-                String removeName = removeAnnotation.getEntity().toLowerCase();
-                for (Annotation annotation : annotations) {
-                    if (removeName.equals(annotation.getEntity().toLowerCase())) {
-                        toRemove.add(annotation);
-                    }
-                }
-            }
-
-            // switch annotations that are in the dictionary
-            for (Annotation annotation : annotations) {
-
-                Category category = dictionaryEntities.get(annotation.getEntity());
-                if (category != null) {
-                    CategoryEntries ce = new CategoryEntries();
-                    ce.add(new CategoryEntry(ce, category, 1));
-                    annotation.assignCategoryEntries(ce);
-                }
-
-            }
-
-            // remove entities which contain only one word which is not a noun
-            LingPipePOSTagger lpt = new LingPipePOSTagger();
-            lpt.loadDefaultModel();
-            for (Annotation annotation : annotations) {
-
-                // check only annotations at beginning of sentences
-                // if (annotation.getNominalFeatures().size() > 0
-                // && !Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
-                // continue;
-                // }
-
-                TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
-                if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") == -1
-                        && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
-                    toRemove.add(annotation);
-                    System.out.println("removing: " + annotation.getEntity() + " has POS tag: " + ta.get(0).getTag());
-                }
-
-            }
-
-            annotations.removeAll(toRemove);
-        }
-
-        FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
-
-        return annotations;
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String modelPath) {
-        loadModel(modelPath);
-        return getAnnotations(inputText);
-    }
-
-    public EntityList getTrainingEntities(double percentage) {
-        if (kbCommunicator == null) {
-            LOGGER.debug("could not get training entities because no KnowledgeBaseCommunicator has been defined");
-            return new EntityList();
-        }
-        return kbCommunicator.getTrainingEntities(percentage);
-    }
-
-    private void finishTraining(String modelFilePath) {
-        // now that we have seen all training texts and have the pattern candidates we can calculate the patterns
-        calculatePatterns();
-
-        LOGGER.info("serializing NERCer");
-        FileHelper.serialize(this, modelFilePath);
-
-        // LOGGER.info("dictionary size: " + dictionary.size());
-        //
-        // // write model meta information
-        // StringBuilder supportedConcepts = new StringBuilder();
-        // for (Category c : dictionary.getCategories()) {
-        // supportedConcepts.append(c.getName()).append("\n");
-        // }
-
-        LOGGER.info("dictionary size: " + universalClassifier.getTextClassifier().getDictionary().size());
-
-        // write model meta information
-        StringBuilder supportedConcepts = new StringBuilder();
-        for (Category c : universalClassifier.getTextClassifier().getDictionary().getCategories()) {
-            supportedConcepts.append(c.getName()).append("\n");
-        }
-
-        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
-                + "_meta.txt", supportedConcepts);
-        LOGGER.info("model meta information written");
-    }
-
-    private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
-
-        String xmlTraingFilePath = trainingFilePath.substring(0, trainingFilePath.length() - 4) + "_transformed."
-                + FileHelper.getFileType(trainingFilePath);
-        FileFormatParser.columnToXML(trainingFilePath, xmlTraingFilePath, "\t");
-        String inputText = FileFormatParser.getText(xmlTraingFilePath, TaggingFormat.XML);
-
-        // get all pre- and suffixes
-        for (Annotation annotation : annotations) {
-
-            // String sentence = StringHelper.getSentence(text, m.start());
-
-            String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
-            // System.out.println("annotation text: " + annotationText);
-
-            // use prefixes only
-            String[] windowWords = getWindowWords(inputText, annotation.getOffset(), annotation.getEndIndex(), true,
-                    false);
-
-            StringBuilder patternCandidate = new StringBuilder();
-            for (String word : windowWords) {
-                patternCandidate.append(StringHelper.trim(word)).append(" ");
-            }
-
-            CategoryEntries categoryEntries = patternCandidates.get(patternCandidate.toString());
-            if (categoryEntries == null) {
-                categoryEntries = new CategoryEntries();
-                categoryEntries.addAll(annotation.getTags());
-            }
-
-            patternCandidates.put(patternCandidate.toString(), categoryEntries);
-
-        }
-    }
-
-    private void calculatePatterns() {
-
-        // patternCandidates.put("1334abcdefg", null);
-        // patternCandidates.put("0334abcdefg", null);
-        // patternCandidates.put("262323abcde235", null);
-        // patternCandidates.put("232323abcde235", null);
-        // patternCandidates.put("abvasdfertaay", null);
-        // patternCandidates.put("abcasdfertaay", null);
-
-        LOGGER.info("calculate patterns");
-        int minPatternLength = 7;
-
-        // keep information about frequency of possible patterns
-        LinkedHashMap<String, Integer> possiblePatterns = new LinkedHashMap<String, Integer>();
-
-        // in each iteration the common strings of the last level are compared
-        Set<String> currentLevelPatternCandidatesSet = patternCandidates.keySet();
-        LinkedHashSet<String> currentLevelPatternCandidates = new LinkedHashSet<String>();
-        for (String pc : currentLevelPatternCandidatesSet) {
-            if (pc.length() >= minPatternLength) {
-                currentLevelPatternCandidates.add(pc);
-            }
-        }
-
-        LOGGER.info(currentLevelPatternCandidates.size() + " pattern candidates");
-
-        LinkedHashSet<String> nextLevelPatternCandidates = null;
-
-        for (int level = 0; level < 3; level++) {
-            nextLevelPatternCandidates = new LinkedHashSet<String>();
-
-            LOGGER.info("level " + level + ", " + currentLevelPatternCandidates.size() + " pattern candidates");
-
-            int it1Position = 0;
-            Iterator<String> iterator1 = currentLevelPatternCandidates.iterator();
-            while (iterator1.hasNext()) {
-
-                String patternCandidate1 = iterator1.next();
-                patternCandidate1 = StringHelper.reverseString(patternCandidate1);
-                it1Position++;
-
-                Iterator<String> iterator2 = currentLevelPatternCandidates.iterator();
-                int it2Position = 0;
-
-                while (iterator2.hasNext()) {
-
-                    // jump to the position after iterator1
-                    if (it2Position < it1Position) {
-                        iterator2.next();
-                        it2Position++;
-                        continue;
-                    }
-
-                    String patternCandidate2 = iterator2.next();
-                    patternCandidate2 = StringHelper.reverseString(patternCandidate2);
-
-                    // logger.info("get longest common string:");
-                    // logger.info(patternCandidate1);
-                    // logger.info(patternCandidate2);
-                    String possiblePattern = StringHelper.getLongestCommonString(patternCandidate1, patternCandidate2,
-                            false, false);
-                    possiblePattern = StringHelper.reverseString(possiblePattern);
-
-                    if (possiblePattern.length() < minPatternLength) {
-                        continue;
-                    }
-
-                    Integer c = possiblePatterns.get(possiblePattern);
-                    if (c == null) {
-                        possiblePatterns.put(possiblePattern, 1);
-                    } else {
-                        possiblePatterns.put(possiblePattern, c + 1);
-                    }
-                    nextLevelPatternCandidates.add(possiblePattern);
-
-                }
-            }
-            currentLevelPatternCandidates = nextLevelPatternCandidates;
-        }
-
-        possiblePatterns = CollectionHelper.sortByValue(possiblePatterns.entrySet());
-        // CollectionHelper.print(possiblePatterns);
-
-        // use only patterns longer or equal 7 characters
-        LOGGER.info("filtering patterns");
-        for (Entry<String, Integer> pattern : possiblePatterns.entrySet()) {
-            if (pattern.getKey().length() >= minPatternLength) {
-
-                // Categories categories = null;
-                CategoryEntries categoryEntries = new CategoryEntries();
-
-                // find out which categories the original pattern candidates belonged to
-                for (Entry<String, CategoryEntries> originalPatternCandidate : patternCandidates.entrySet()) {
-                    if (originalPatternCandidate.getKey().toLowerCase().indexOf(pattern.getKey().toLowerCase()) > -1) {
-                        categoryEntries = originalPatternCandidate.getValue();
-                        break;
-                    }
-                }
-
-                if (categoryEntries == null) {
-                    categoryEntries = new CategoryEntries();
-                }
-
-                for (CategoryEntry c : categoryEntries) {
-                    c.addAbsoluteRelevance(pattern.getValue().doubleValue());
-                }
-                patterns.put(pattern.getKey(), categoryEntries);
-            }
-        }
-
-        LOGGER.info("calculated " + patterns.size() + " patterns:");
-        for (Entry<String, CategoryEntries> pattern : patterns.entrySet()) {
-            LOGGER.info(" " + pattern);
-        }
-
-    }
-
     private void updateDictionary(Annotations annotations, String modelFilePath) {
 
         Categories categories = new Categories();
@@ -693,65 +927,36 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // }
     }
 
-    private String[] getWindowWords(String text, int startIndex, int endIndex, boolean capturePrefix,
-            boolean captureSuffix) {
-
-        // get all words around entities within window (number of characters)
-        int windowSize = 30;
-
-        String prefix = "";
-        if (capturePrefix) {
-            prefix = text.substring(Math.max(0, startIndex - windowSize), startIndex);
-        }
-
-        String suffix = "";
-        if (captureSuffix) {
-            suffix = text.substring(endIndex, Math.min(endIndex + windowSize, text.length()));
-        }
-
-        String context = prefix + suffix;
-        String[] words = context.split("\\s");
-
-        return words;
-    }
-
-    private String[] getWindowWords(String text, int startIndex, int endIndex) {
-        return getWindowWords(text, startIndex, endIndex, true, true);
-    }
-
-    private Annotations verifyEntitiesWithKB(HashSet<String> entityCandidates) {
+    private Annotations verifyAnnotationsWithUniversalClassifier(Annotations entityCandidates, String inputText) {
         Annotations annotations = new Annotations();
 
-        for (String entityCandidate : entityCandidates) {
-            entityCandidate = StringHelper.trim(entityCandidate);
-            CategoryEntries categoryEntries = kbCommunicator.categoryEntriesInKB(entityCandidate);
-            if (categoryEntries != null) {
-                Annotation annotation = new Annotation(0, entityCandidate, categoryEntries);
-                annotations.add(annotation);
+        int i = 0;
+        for (Annotation annotation : entityCandidates) {
+
+            if (annotation.getEntity().indexOf(" of ") > -1) {
+                System.out.println("wait here, " + annotation.getEntity());
             }
-        }
 
-        return annotations;
-    }
+            Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
 
-    private Annotations verifyEntitiesWithPattern(HashSet<String> entityCandidates, String text) {
-        Annotations annotations = new Annotations();
-
-        for (String entityCandidate : entityCandidates) {
-
-            for (Entry<String, CategoryEntries> pattern : patterns.entrySet()) {
-                Pattern pat = Pattern.compile(pattern.getKey() + entityCandidate);
-                Matcher m = pat.matcher(text);
-
-                if (m.find()) {
-                    CategoryEntries categoryEntries = new CategoryEntries();
-                    for (CategoryEntry categoryEntry : pattern.getValue()) {
-                        categoryEntries.add(categoryEntry);
+            if (!wrappedAnnotations.isEmpty()) {
+                for (Annotation annotation2 : wrappedAnnotations) {
+                    if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                        annotations.add(annotation2);
                     }
-                    Annotation annotation = new Annotation(m.start(), entityCandidate, categoryEntries);
+                }
+                System.out.println("tried to unwrap " + annotation.getEntity());
+            } else {
+                universalClassifier.classify(annotation);
+                if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
                     annotations.add(annotation);
                 }
             }
+
+            if (i % 100 == 0) {
+                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+            }
+            i++;
         }
 
         return annotations;
@@ -809,249 +1014,42 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return annotations;
     }
 
-    private boolean containsDateFragment(String text) {
-        text = text.toLowerCase();
-        String[] regExps = RegExp.getDateFragmentRegExp();
+    private Annotations verifyEntitiesWithKB(HashSet<String> entityCandidates) {
+        Annotations annotations = new Annotations();
 
-        for (String regExp : regExps) {
-            if (text.replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-
-    private Object[] removeDateFragment(String text) {
-        String[] regExps = RegExp.getDateFragmentRegExp();
-
-        Object[] result = new Object[2];
-        int offsetChange = 0;
-
-        for (String regExp : regExps) {
-            int textLength = text.length();
-
-            // for example "Apr John Hiatt"
-            if (StringHelper.countOccurences(text, "^" + regExp + " ", false) > 0) {
-                text = text.replaceAll("^" + regExp + " ", "").trim();
-                offsetChange += textLength - text.length();
-            }
-            if (StringHelper.countOccurences(text, " " + regExp + "$", false) > 0) {
-                text = text.replaceAll(" " + regExp + "$", "").trim();
-            }
-
-            // for example "Apr. John Hiatt"
-            if (StringHelper.countOccurences(text, "^" + regExp + "\\. ", false) > 0) {
-                text = text.replaceAll("^" + regExp + "\\. ", "").trim();
-                offsetChange += textLength - text.length();
-            }
-            if (StringHelper.countOccurences(text, " " + regExp + "\\.$", false) > 0) {
-                text = text.replaceAll(" " + regExp + "\\.$", "").trim();
+        for (String entityCandidate : entityCandidates) {
+            entityCandidate = StringHelper.trim(entityCandidate);
+            CategoryEntries categoryEntries = kbCommunicator.categoryEntriesInKB(entityCandidate);
+            if (categoryEntries != null) {
+                Annotation annotation = new Annotation(0, entityCandidate, categoryEntries);
+                annotations.add(annotation);
             }
         }
 
-        result[0] = text;
-        result[1] = offsetChange;
-
-        return result;
+        return annotations;
     }
 
-    public KnowledgeBaseCommunicatorInterface getKbCommunicator() {
-        return kbCommunicator;
-    }
+    private Annotations verifyEntitiesWithPattern(HashSet<String> entityCandidates, String text) {
+        Annotations annotations = new Annotations();
 
-    public void setKbCommunicator(KnowledgeBaseCommunicatorInterface kbCommunicator) {
-        this.kbCommunicator = kbCommunicator;
-    }
+        for (String entityCandidate : entityCandidates) {
 
-    private void demo(String optionValue) {
-        System.out.println(tag(
-                "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
-                "data/models/tudnerdemo.model"));
+            for (Entry<String, CategoryEntries> pattern : patterns.entrySet()) {
+                Pattern pat = Pattern.compile(pattern.getKey() + entityCandidate);
+                Matcher m = pat.matcher(text);
 
-    }
-
-    /**
-     * @param args
-     */
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-
-        // System.out.println(containsDateFragment("January"));
-        // System.exit(0);
-        // NERCer nercer1 = new NERCer();
-        // nercer1.calculatePatterns();
-        // if (true) return;
-
-        // // training can be done with NERCLearner also
-        TUDNER tagger = new TUDNER();
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
-                    .create());
-
-            OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
-                    .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
-                    .withDescription("train a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
-                    .withDescription("evaluate a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
-                    .withDescription("demo mode of the tagger").create());
-            modeOptionGroup.setRequired(true);
-            options.addOptionGroup(modeOptionGroup);
-
-            options.addOption(OptionBuilder.withLongOpt("trainingFile")
-                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder
-                    .withLongOpt("testFile")
-                    .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("configFile")
-                    .withDescription("the path and name of the config file for the tagger").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                if (cmd.hasOption("tag")) {
-
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
-
-                    if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                    } else {
-                        System.out.println("No output file given so tagged text will be printed to the console:");
-                        System.out.println(taggedText);
+                if (m.find()) {
+                    CategoryEntries categoryEntries = new CategoryEntries();
+                    for (CategoryEntry categoryEntry : pattern.getValue()) {
+                        categoryEntries.add(categoryEntry);
                     }
-
-                } else if (cmd.hasOption("train")) {
-
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
-
-                } else if (cmd.hasOption("evaluate")) {
-
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
-                            TaggingFormat.XML);
-
-                } else if (cmd.hasOption("demo")) {
-
-                    tagger.demo(cmd.getOptionValue("inputText"));
-
+                    Annotation annotation = new Annotation(m.start(), entityCandidate, categoryEntries);
+                    annotations.add(annotation);
                 }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("FeedChecker", options);
             }
-
         }
 
-        // ################################# HOW TO USE #################################
-        // HashSet<String> trainingTexts = new HashSet<String>();
-        // trainingTexts.add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
-        // trainingTexts
-        // .add("Many countries, such as Germany and Great Britain, have a strong economy. Other countries such as Iceland and Norway are in the north and have a smaller population");
-        // trainingTexts.add("In south Europe, a nice country named Italy is formed like a boot.");
-        // trainingTexts.add("In the western part of Europe, the is a country named Spain which is warm.");
-        // trainingTexts.add("Bruce Willis is an actor, Jim Carrey is an actor too, but Trinidad is a country name and and actor name as well.");
-        // trainingTexts.add("In west Europe, a warm country named Spain has good seafood.");
-        // trainingTexts.add("Another way of thinking of it is to drive to another coutry and have some fun.");
-        //
-        // // set the kb communicator that knows the entities
-        // nercer.setKbCommunicator(new TestKnowledgeBaseCommunicator());
-
-        // possible tags
-        // CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
-
-        // train
-        // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
-
-        // tag
-        // tagger.loadModel("data/models/tudner/tudner.model");
-        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
-
-        // tagger.tag(
-        // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
-        // "data/models/tudner/tudner.model");
-
-        // evaluate
-        // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
-        // TaggingFormat.COLUMN);
-
-        // FileFormatParser.xmlToColumn("data/temp/taggedText.txt", "data/temp/allColumnTaggedText.tsv", "\t");
-        // nercer.train("data/temp/allColumnTaggedText.tsv", "data/temp/nercer.model");
-
-        // System.out
-        // .println(nercer
-        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
-        // "data/temp/nercer.model"));
-        //
-        // System.out
-        // .println(nercer
-        // .tag("John J. Smith and the John Reilly location mention Samsung Galaxy in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
-        // "data/temp/nercer.model"));
-
-        // tagger.evaluate("data/temp/evaluate/taggedTextTesting.xml", "data/temp/nercer.model", TaggingFormat.XML);
-
-        // use the trained model to recognize entities in a text
-        // EntityList recognizedEntities = null;
-        // recognizedEntities = nercer
-        // .recognizeEntities("In the north of Europe, there is a country called Sweden which is not far from Norway, there is also a country named Scotland in the north of Europe. But also Denzel Washington is an actor.");
-        //
-        // CollectionHelper.print(recognizedEntities);
-
-        // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
-        // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
-        // using a column trainig and testing file
-        StopWatch stopWatch = new StopWatch();
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
-        // System.exit(0);
-        TUDNER.remove = true;
-        tagger.loadModel("data/temp/tudner.model");
-        // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner.model",
-                TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
-
-        System.out.println(stopWatch.getElapsedTimeString());
-
-        // Dataset trainingDataset = new Dataset();
-        // trainingDataset.setPath("data/datasets/ner/www_test2/index_split1.txt");
-        // tagger.train(trainingDataset, "data/models/tudner/tudner.model");
-        //
-        // Dataset testingDataset = new Dataset();
-        // testingDataset.setPath("data/datasets/ner/www_test2/index_split2.txt");
-        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
+        return annotations;
     }
 
 }

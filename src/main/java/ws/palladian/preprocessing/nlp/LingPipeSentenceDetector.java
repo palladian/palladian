@@ -50,9 +50,17 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * , java.lang.String)
      */
     @Override
-    public LingPipeSentenceDetector detect(final String text,
-            final String configModelFilePath) {
+    public LingPipeSentenceDetector detect(final String text, final String configModelFilePath) {
         return detect(text);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
+     */
+    @Override
+    public LingPipeSentenceDetector loadModel() {
+        return loadModel(null);
     }
 
     /*
@@ -66,19 +74,9 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 
-        final SentenceChunker sentenceChunker = new SentenceChunker(
-                tokenizerFactory, sentenceModel);
+        final SentenceChunker sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
         setModel(sentenceChunker);
         return this;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
-     */
-    @Override
-    public LingPipeSentenceDetector loadDefaultModel() {
-        return loadModel(null);
     }
 
 }

@@ -136,9 +136,9 @@ public class Temp {
                 }
 
                 String safeFeedName = feed.getId()
-                + "_"
-                + StringHelper.makeSafeName(
-                        feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
+                        + "_"
+                        + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
+                                "www.", ""), 30);
 
                 String fileName = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -160,7 +160,6 @@ public class Temp {
 
                     intervals.add(interval);
                 }
-
 
                 // move a 6 item long window through the file, 5 variables + 1 outcome
                 for (int i = 0; i < intervals.size() - 6; i++) {
@@ -207,7 +206,7 @@ public class Temp {
         String rawMarkup = HTMLHelper.documentToHTMLString(webPage);
         // String plainContent = Crawler.extractBodyContent(rawMarkup, true);
         String plainContent = Crawler.extractBodyContent(webPage);
-        //plainContent = PageAnalyzer.getReadableTextDump(webPage);
+        // plainContent = PageAnalyzer.getReadableTextDump(webPage);
 
         // search for company name
         String regex = "^.*\\s(gmbh|e.v.|ltd.|limited|co. kg|gbr)";
@@ -274,7 +273,6 @@ public class Temp {
 
     }
 
-
     /**
      * @param args
      * @throws Exception
@@ -289,7 +287,7 @@ public class Temp {
 
         CountMap posCounts = new CountMap();
         LingPipePOSTagger lpt = new LingPipePOSTagger();
-        lpt.loadDefaultModel();
+        lpt.loadModel();
 
         List<String> gs = FileHelper.readFileToArray("data/datasets/ner/conll/goldStandard.txt");
         for (String line : gs) {
@@ -302,25 +300,26 @@ public class Temp {
         CollectionHelper.print(posCounts);
         System.exit(0);
 
-        TagAnnotations tagAnnotations = lpt.loadDefaultModel().tag("Jim Carrey is an actor living in Los Angeles.")
+        TagAnnotations tagAnnotations = lpt.loadModel().tag("Jim Carrey is an actor living in Los Angeles.")
                 .getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("Each").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("Each").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("An").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("An").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("The").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("The").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("Our").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("Our").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("Peter").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("Peter").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadDefaultModel().tag("U.S.").getTagAnnotations();
+        tagAnnotations = lpt.loadModel().tag("U.S.").getTagAnnotations();
         CollectionHelper.print(tagAnnotations);
 
         String taggedString = lpt
-                .loadDefaultModel()
-                .tag("Jim Carrey is an actor living in Los Angeles. He is not the only actor there. However, Jim is an awesome comedian. Two men in December on a Thursday. LONDON IS A CITY IN ENGLAND. In his book The Groove, Mr. Harrison explains a lot.")
+                .loadModel()
+                .tag(
+                        "Jim Carrey is an actor living in Los Angeles. He is not the only actor there. However, Jim is an awesome comedian. Two men in December on a Thursday. LONDON IS A CITY IN ENGLAND. In his book The Groove, Mr. Harrison explains a lot.")
                 .getTaggedString();
 
         System.out.println(taggedString);
@@ -335,19 +334,21 @@ public class Temp {
         System.exit(0);
 
         FileHelper
-        .removeDuplicateLines(
-                "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix.txt",
-        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix_deduplicated.txt");
+                .removeDuplicateLines(
+                        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix.txt",
+                        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix_deduplicated.txt");
         System.exit(0);
 
         Temp.imprintExtractor("http://www.autozubehoer.de/Impressum:_:4.html?XTCsid=6i9fm908jrt6j62pefmqi4p200");
         Temp.imprintExtractor("http://www.granzow.de/web/index.php/impressum.html");
         Temp.imprintExtractor("http://domcam.de/impressum.html");
         Temp.imprintExtractor("http://www.sos-kinderdorf.de/sos_kinderdorf/de/impressum,np=76590.html");
-        Temp.imprintExtractor("http://www.clickandprint.de/ServiceImpressum.php?UID=1290466142037850A85D51A5F2E12F836FDDB6688E4CEAF35EA4606");
+        Temp
+                .imprintExtractor("http://www.clickandprint.de/ServiceImpressum.php?UID=1290466142037850A85D51A5F2E12F836FDDB6688E4CEAF35EA4606");
         Temp.imprintExtractor("http://www.ti-sa.com/shop/shop_content.php?coID=4&XTCsid=ae0fehu5vlrsit0c04rq38onq1");
         Temp.imprintExtractor("http://www.schloesser-gbr.de/impressum.php");
-        Temp.imprintExtractor("http://www.goldhahnundsampson.de/shop/About-us-Imprint-Customer-Service:_:4.html?XTCsid=41d7e6492b00e13e54f5a205ba0070dc");
+        Temp
+                .imprintExtractor("http://www.goldhahnundsampson.de/shop/About-us-Imprint-Customer-Service:_:4.html?XTCsid=41d7e6492b00e13e54f5a205ba0070dc");
         Temp.imprintExtractor("http://www.reifen-server.de/cgi-bin/kfzshop/reifenversand.pl?t=impressum&userid=78376");
         Temp.imprintExtractor("http://www.ledick.de/oxid/Impressum/");
 
