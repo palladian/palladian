@@ -3,6 +3,8 @@ package ws.palladian.preprocessing.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aliasi.util.Arrays;
+
 /**
  * <p>
  * A list of PoS tag annotations on a text. This class allows fast access to the attributes of each annotation.
@@ -53,6 +55,21 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
     }
 
     /**
+     * Provides all entries fitting one of the provided tags. This method is like a filter or whitelist for tags.
+     * 
+     * @param tags The tags to consider in the returned tag list.
+     */
+    public List<TagAnnotation> getTagList(String[] tags) {
+        ArrayList<TagAnnotation> ret = new ArrayList<TagAnnotation>();
+        for (TagAnnotation tag : this) {
+            if (Arrays.member(tag.getTag(), tags)) {
+                ret.add(tag);
+            }
+        }
+        return ret;
+    }
+
+    /**
      * <p>
      * Provides the list of token, which are the actual words PoS tags refer to.
      * </p>
@@ -61,9 +78,9 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
      */
     public List<String> getTokenList() {
 
-        final ArrayList<String> tokenList = new ArrayList<String>();
+        ArrayList<String> tokenList = new ArrayList<String>(this.size());
 
-        for (final TagAnnotation tag : this) {
+        for (TagAnnotation tag : this) {
             tokenList.add(tag.getChunk());
         }
 
