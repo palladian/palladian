@@ -138,12 +138,29 @@ This sections outlines important evaluation measures which are typically used fo
 
 % TODO ... work for the holidays
 
-\subsection{Precision, Recall, F-Measure}
+\subsection{Precision, Recall, and F-measure}
 
-Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative``, as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''.
+Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative``, as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
+
+\begin{align}
+%	
+	\textit{Precision} &= P = \frac{\left|\,\textit{relevant, retrieved docs}\,\right|}{\left|\,\textit{retrieved docs}\,\right|} = \frac{\left|\,\textit{true positives}\,\right|}{\left|\,\textit{true positives}\,\right| + \left|\,\textit{false positives}\,\right|}
+	\label{eqn:Precision} \\[5mm]
+%	
+	\textit{Recall} &= R = \frac{\left|\,\textit{relevant, retrieved docs}\,\right|}{\left|\,\textit{relevant docs}\,\right|} = \frac{\left|\,\textit{true positives}\,\right|}{\left|\,\textit{true positives}\,\right| + \left|\,\textit{false negatives}\,\right|}
+	\label{eqn:Recall}
+%	
+\end{align}
+
+The F-measure combines both the Precsion and the Recall to one value. Usually the so called $F_1$ score is calculated by employing a harmonic mean as depicted in Equation~\ref{eqn:F1Measure}. The universal F-measure which allows weighting, and thus prioritizing, Precision and Recall values differently is described in \cite[p.\,156]{Manning:2009}. 
+
+\begin{equation}
+	F_1 = \frac{2 \cdot P \cdot R}{P + R}
+	\label{eqn:F1Measure}
+\end{equation}
 
 
-\begin{figure}[ht!]
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.6\textwidth]{img/PrecisionRecallMengen.pdf}
 \caption{Set of Documents as Basis for Precision and Recall.}
@@ -1812,7 +1829,7 @@ The MediaWikiCrawler itself should not be changed unless more information (e.g. 
 \label{fig:MWCrawler-state_machine}
 \end{figure}
 
-% bis hier 67 Sätze
+% bis hier 67 Sï¿½tze
 
 \section{Preprocessing}
 \subsection{Tokenization}
