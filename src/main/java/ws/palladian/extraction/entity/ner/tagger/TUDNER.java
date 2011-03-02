@@ -87,11 +87,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         patterns = new HashMap<String, CategoryEntries>();
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
 
@@ -384,7 +384,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"
             LingPipePOSTagger lpt = new LingPipePOSTagger();
-            lpt.loadDefaultModel();
+            lpt.loadModel();
 
             for (Annotation annotation : annotations) {
 
@@ -495,7 +495,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
 
         String xmlTraingFilePath = trainingFilePath.substring(0, trainingFilePath.length() - 4) + "_transformed."
-                + FileHelper.getFileType(trainingFilePath);
+        + FileHelper.getFileType(trainingFilePath);
         FileFormatParser.columnToXML(trainingFilePath, xmlTraingFilePath, "\t");
         String inputText = FileFormatParser.getText(xmlTraingFilePath, TaggingFormat.XML);
 
@@ -666,7 +666,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             Categories documentCategories = new Categories();
 
             Category knownCategory = categories
-                    .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
+            .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
             if (knownCategory == null) {
                 knownCategory = new Category(annotation.getMostLikelyTag().getCategory().getName());
                 categories.add(knownCategory);
@@ -896,7 +896,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void demo(String optionValue) {
         System.out.println(tag(
                 "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
-                "data/models/tudnerdemo.model"));
+        "data/models/tudnerdemo.model"));
 
     }
 
@@ -940,7 +940,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
