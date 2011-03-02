@@ -47,7 +47,7 @@ public class NERTest {
     }
 
     @Test
-    // @Ignore
+    @Ignore
     public void testStanfordNER() {
         StanfordNER tagger = new StanfordNER();
         // // tagger.train("data/test/ner/training.txt", "data/test/ner/stanfordner.ser.gz");
