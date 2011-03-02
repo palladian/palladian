@@ -29,6 +29,7 @@ import net.sourceforge.jwbf.mediawiki.actions.util.SupportedBy;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -47,7 +48,13 @@ import org.xml.sax.InputSource;
 @SupportedBy({ MW1_12, MW1_13, MW1_14, MW1_15, MW1_16 })
 public class GetRendering extends MWAction {
 
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(GetRendering.class);
+
     private final Get msg;
+
+    /** The page title to get the rendered text for. */
+    private final String title;
 
     /** The html representation of the page */
     private String html = "";
@@ -67,6 +74,7 @@ public class GetRendering extends MWAction {
     public GetRendering(final MediaWikiBot bot, final String title) throws VersionException {
         super(bot.getVersion());
         this.bot = bot;
+        this.title = title;
         msg = new Get("/api.php?action=parse&page=" + MediaWiki.encode(title) + "&titles=API&format=xml");
 
     }
@@ -95,7 +103,12 @@ public class GetRendering extends MWAction {
      */
     @Override
     public String processAllReturningText(final String wikiResponse) throws ProcessException {
+        try {
         html = findElement("text", wikiResponse).getTextTrim();
+        } catch (NoSuchElementException e) {
+            LOGGER.warn("MediaWiki API response for page \"" + title
+                    + "\" did nor contain a text element, page content could not be found.");
+        }
         html = html.replace("\n", "");
         switch (bot.getVersion()) {
             case MW1_12:
