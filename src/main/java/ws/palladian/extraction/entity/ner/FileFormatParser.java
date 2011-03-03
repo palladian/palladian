@@ -505,6 +505,8 @@ public class FileFormatParser {
 
         // get locations of annotations
         Pattern pattern = Pattern.compile("<(.*?)>(.{1,1000}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        // Pattern pattern = Pattern.compile("(?<=[.?!]\\s?)([A-Z][A-Za-z]*)", Pattern.DOTALL |
+        // Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {
@@ -520,10 +522,10 @@ public class FileFormatParser {
              */
 
             // get the left and right context of the annotation
-            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 10),
+            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 20),
                     matcher.start()));
             String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
-                    Math.min(taggedText.length(), matcher.end() + 10)));
+                    Math.min(taggedText.length(), matcher.end() + 20)));
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
@@ -532,7 +534,7 @@ public class FileFormatParser {
             int nestedTagLength = HTMLHelper.countTagLength(entityName);
 
             // remove nested tags
-            entityName = HTMLHelper.stripHTMLTags(matcher.group(2));
+            entityName = HTMLHelper.stripHTMLTags(entityName);
 
             // add tag < + name + > to cumulated tag offset
             int tagOffset = conceptName.length() + 2;

@@ -178,7 +178,8 @@ public class Annotation extends UniversalInstance {
         List<String> nominalFeatures = new ArrayList<String>();
 
         // is the entity at the start of a sentence? check if there is a period in the immediate left context
-        boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!");
+        boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!")
+                || leftContext.endsWith("-DOCSTART-");
         nominalFeatures.add(String.valueOf(startOfSentence));
 
         // is the entity in quotes? ",',´

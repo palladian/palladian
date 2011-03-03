@@ -1,14 +1,17 @@
 package ws.palladian.helper;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 public class CountMap extends HashMap<Object, Integer> {
 
-    /**
-     * 
-     */
+    /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
+
+    public LinkedHashMap<Object, Integer> getSortedMap() {
+        return CollectionHelper.sortByValue(this);
+    }
 
     public void increment(Object key) {
         Integer count = get(key);
@@ -36,7 +39,7 @@ public class CountMap extends HashMap<Object, Integer> {
      */
     public int totalSize() {
         int totalSize = 0;
-        for (Entry<Object, Integer> entry : this.entrySet()) {
+        for (Entry<Object, Integer> entry : entrySet()) {
             totalSize += entry.getValue();
         }
         return totalSize;
