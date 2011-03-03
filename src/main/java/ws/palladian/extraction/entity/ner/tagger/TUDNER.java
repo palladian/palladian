@@ -43,6 +43,7 @@ import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
 import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.CountMap;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.RegExp;
@@ -362,16 +363,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             }
 
-            // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            for (Annotation annotation : annotations) {
-                if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
-                    annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
-                    annotation.setOffset(annotation.getOffset() + 10);
-                    annotation.setLength(annotation.getEntity().length());
-                    toRemove.add(annotation);
-                }
-            }
-
             // remove annotations that were found to be incorrectly tagged in the training data
             for (Annotation removeAnnotation : removeAnnotations) {
                 String removeName = removeAnnotation.getEntity().toLowerCase();
@@ -423,6 +414,67 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             }
 
+            // remove annotations which are at the beginning of a sentence, are some kind of noun but because of the
+            // following POS tag probably not an entity
+            int c = 0;
+            for (Annotation annotation : annotations) {
+
+                // if the annotation is at the start of a sentence
+                if (Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                        && annotation.getEntity().indexOf(" ") == -1) {
+
+                    TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                    if (ta.size() >= 1 && ta.get(0).getTag().indexOf("NP") == -1
+                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
+                            && ta.get(0).getTag().indexOf("UH") == -1) {
+                        continue;
+                    }
+
+                    String[] rightContextParts = annotation.getRightContext().split(" ");
+
+                    if (rightContextParts.length == 0) {
+                        continue;
+                    }
+
+                    ta = lpt.tag(rightContextParts[0]).getTagAnnotations();
+
+                    Set<String> allowedPosTags = new HashSet<String>();
+                    allowedPosTags.add("CD");
+                    allowedPosTags.add("VB");
+                    allowedPosTags.add("VBZ");
+                    allowedPosTags.add("VBD");
+                    allowedPosTags.add("VBN");
+                    allowedPosTags.add("MD");
+                    allowedPosTags.add("RB");
+                    allowedPosTags.add("NN");
+                    allowedPosTags.add("NNS");
+                    allowedPosTags.add("NP");
+                    allowedPosTags.add("HV");
+                    allowedPosTags.add("HVD");
+                    allowedPosTags.add("HVZ");
+                    allowedPosTags.add("BED");
+                    allowedPosTags.add("BER");
+                    allowedPosTags.add("BEZ");
+                    allowedPosTags.add("BEDZ");
+                    allowedPosTags.add(",");
+                    allowedPosTags.add("(");
+                    allowedPosTags.add("-");
+                    allowedPosTags.add(".");
+                    allowedPosTags.add("CC");
+                    allowedPosTags.add("'");
+                    allowedPosTags.add("AP");
+
+                    if (ta.size() > 0 && !allowedPosTags.contains(ta.get(0).getTag())) {
+                        c++;
+                        toRemove.add(annotation);
+                        System.out.println("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
+                                + rightContextParts[0] + "|" + ta.get(0).getTag());
+                    }
+
+                }
+            }
+            System.out.println("removed nouns at beginning of sentence: " + c);
+
             // remove entities which contain only one word which is not a noun
             for (Annotation annotation : annotations) {
 
@@ -443,6 +495,49 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             }
 
             annotations.removeAll(toRemove);
+
+            // remove all annotations with "DOCSTART- " in them because that is for format purposes
+            Annotations toAdd = new Annotations();
+            for (Annotation annotation : annotations) {
+                if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
+                    // toRemove.add(annotation);
+                    // if (true) {
+                    // continue;
+                    // }
+
+                    // if all uppercase, try to find known annotations
+                    if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
+                            Math.min(12, annotation.getEntity().length())))) {
+
+                        Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
+
+                        if (!wrappedAnnotations.isEmpty()) {
+                            for (Annotation annotation2 : wrappedAnnotations) {
+                                if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                                    toAdd.add(annotation2);
+                                }
+                            }
+                            System.out.print("tried to unwrap " + annotation.getEntity());
+                            for (Annotation wrappedAnnotation : wrappedAnnotations) {
+                                System.out.print(" | " + wrappedAnnotation.getEntity());
+                            }
+                            System.out.print("\n");
+                        }
+
+                    } else {
+                        // else, try to handle normally without the docstart
+                        annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
+                        annotation.setOffset(annotation.getOffset() + 10);
+                        annotation.setLength(annotation.getEntity().length());
+                        toRemove.add(annotation);
+                    }
+                    // toRemove.add(annotation);
+                }
+            }
+            annotations.addAll(toAdd);
+
+            annotations.removeAll(toRemove);
+
         }
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
@@ -900,11 +995,64 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     }
 
+    public void analyzeSentenceStarts(String trainingFilePath) {
+
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        CountMap posTagCounts = new CountMap();
+
+        LingPipePOSTagger lpt = new LingPipePOSTagger();
+        lpt.loadModel();
+
+        for (Annotation annotation : annotations) {
+
+            boolean startOfSentence = Boolean.valueOf(annotation.getNominalFeatures().get(0));
+
+            if (startOfSentence) {
+
+                String[] rightContextParts = annotation.getRightContext().split(" ");
+
+                if (rightContextParts.length == 0) {
+                    continue;
+                }
+
+                // TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                // if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") ==
+                // -1
+                // && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
+                // continue;
+                // }
+
+                if (annotation.getEntity().indexOf(" ") > -1) {
+                    continue;
+                }
+
+                TagAnnotations ta = lpt.tag(rightContextParts[0]).getTagAnnotations();
+                posTagCounts.increment(ta.get(0).getTag());
+
+                System.out.println("--------------------");
+                System.out.print(annotation.getEntity());
+                System.out.print(" | " + rightContextParts[0]);
+                System.out.println(" | " + ta.get(0).getTag());
+
+            }
+
+        }
+
+        CollectionHelper.print(posTagCounts.getSortedMap());
+
+    }
+
     /**
      * @param args
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
+
+        // TUDNER tdner = new TUDNER();
+        // tdner.analyzeSentenceStarts("data/datasets/ner/conll/training.txt");
+        // System.exit(0);
 
         // System.out.println(containsDateFragment("January"));
         // System.exit(0);
