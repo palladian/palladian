@@ -469,58 +469,44 @@ palladian
     |- models
     |- test
  |- documentation
-    |- handout
+    |- book
     |- javadoc
  |- exe
  |- src
     |- main
        |- java
+       |- resources
     |- test
        |- java
+       |- resources
  |- dev
 \end{verbatim}
 
 \section{Config Folder}
-
-% TODO this needs to be adapted to the new single config file ...
-
 \label{sec:config.conf}
-The config folder contains configuration files for several components of the toolkit. The files are explained in the following sections.
+The config folder contains a template for the default Palladian configuration file and the database schemas needed to run some of the components. The files are explained in the following sections.
 
-\subsection{apikeys.conf}
-\label{sec:apikeys.conf}
-The api keys that are used by the toolkit components are specified here. You may need to apply for API keys at the provider's page.
+\subsection{palladian.properties.default}
+\label{sec:palladian.properties.default}
+The file \texttt{palladian.properties.default} is a template for the main Palladian configuration file. You need to copy this file and rename it to \texttt{palladian.properties}. The file might be located at one of three positions. The toolkit checks them in the following order:
+\begin{enumerate}
+\item The folder config inside folder on the local file system specified by the environment variable \texttt{\$PALLADIAN\_HOME}.
+\item In the root of the classpath the application is run from. This usually is the root of the JAR you are running or the root folder where all \texttt{*.class} files are located.
+\item Inside the \texttt{config} folder at the folder you are running your Palladian powered application from.
+\end{enumerate}
 
-\begin{verbatim}
-yahoo.api.key = 
-yahoo_boss.api.key = 
-hakia.api.key = 
-google.api.key = 
-bing.api.key = 
-\end{verbatim}
+The configuration file is structured into several sections explained in the following paragraphs. Inside your own copy of \texttt{palladian.properties} you need to adapt these settings to your local requirements.
 
-\subsection{classification.conf}
-\label{sec:classification.conf}
-Classification settings for the ws.palladian.classification.page.ClassifierManager.
+\paragraph{Model Paths}
+\label{par:modelpaths}
 
-\begin{verbatim}
-# percentage of the training/testing file to use as training data
-page.trainingPercentage = 80
+\paragraph{Dataset Paths}
+\label{par:datasetpaths}
 
-# create dictionary on the fly (lowers memory consumption but is slower)
-page.createDictionaryIteratively = false
+\paragraph{Database}
+\label{par:database}
 
-# alternative algorithm for n-gram finding (lowers memory consumption but is slower)
-page.createDictionaryNGramSearchMode = true
-
-# index type of the classifier:
-# 1: use database with single table (fast but not normalized and more disk space needed)
-# 2: use database with 3 tables (normalized and less disk space needed but slightly slower)
-# 3: use lucene index on disk (slow)
-page.dictionaryClassifierIndexType = 1
-\end{verbatim}
-
-\subsection{crawler.conf}
+\paragraph{Crawler}
 \label{sec:crawler.conf}
 Crawler settings for the ws.palladian.web.Crawler. All settings can be set in Java code as well.
 
@@ -546,6 +532,39 @@ proxyList = 83.244.106.73:80
 proxyList = 67.159.31.22:8080
 \end{verbatim}
 
+\paragraph{Classification}
+\label{sec:classification.conf}
+Classification settings for the ws.palladian.classification.page.ClassifierManager.
+
+\begin{verbatim}
+# percentage of the training/testing file to use as training data
+page.trainingPercentage = 80
+
+# create dictionary on the fly (lowers memory consumption but is slower)
+page.createDictionaryIteratively = false
+
+# alternative algorithm for n-gram finding (lowers memory consumption but is slower)
+page.createDictionaryNGramSearchMode = true
+
+# index type of the classifier:
+# 1: use database with single table (fast but not normalized and more disk space needed)
+# 2: use database with 3 tables (normalized and less disk space needed but slightly slower)
+# 3: use lucene index on disk (slow)
+page.dictionaryClassifierIndexType = 1
+\end{verbatim}
+
+\paragraph{API keys}
+\label{sec:apikeys.conf}
+The api keys that are used by the toolkit components are specified here. You may need to apply for API keys at the provider's page.
+
+\begin{verbatim}
+yahoo.api.key = 
+yahoo_boss.api.key = 
+hakia.api.key = 
+google.api.key = 
+bing.api.key = 
+\end{verbatim}
+
 \subsection{db.conf}
 Database settings for the ws.palladian.persistence.DatabaseManager.
 
@@ -559,42 +578,11 @@ db.username = root
 db.password = rootpass
 \end{verbatim}
 
-\subsection{general.conf}
-General settings used by the ws.palladian.control.Controller.
+\paragraph{Feed Discovery}
+\label{par:feeddiscovery}
 
-
-\subsection{mwCrawlerConfiguration.yml}
-
-Settings for the MediaWiki crawler (ws.palladian..web.wiki.). For every Wiki to crawl, at least \emph{wikiName} and \emph{wikiURL} are required. For further details, see~\ref{sec:MWCrawler}.
-
-\begin{codelisting}
-\begin{lstlisting}[caption=MediaWiki crawler configuration.,frame=tb,language=tex,breaklines=true,label=listing:MWCrawler_configA]
-# sample
-    # Unique name of this wiki, like "Wikipedia (en)". Required parameter.
-- wikiName: "Wikipedia (en)"
-    # Path to the Wiki, like "http://en.wikipedia.org/". Required parameter.
-  wikiURL: "http://en.wikipedia.org/"
-    # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php.
-    # Do not forget the "/" in  the end of the path if there is any.
-    # Optional parameter. Leave empty if unknown. 		
-  pathToAPI: "/w/" 
-    # Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/).         
-    # Do not forget the "/" in  the end of the path if there is any. 
-    # Optional parameter. Leave empty if unknown.
-  pathToContent: "/wiki/"
-    # User name to use for crawling.
-    # Optional parameter. 
-  crawlerUserName: "myname" 
-    # The user's password. Optional parameter. 
-  crawlerPassword: "mysecret"
-    # The namespaceIDs to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
-    # namespaceIDs that do not exist in the Wiki are ignored.
-    # known bug: to crawl a single namespace, add comma like "1,", otherwise all namespaces are crawled! 
-    # Optional parameter. Leave empty to crawl all namespaces.
-  namespacesToCrawl: "0, 1, 12" 
-\end{lstlisting}
-\end{codelisting}
-
+\paragraph{Page Segmentation}
+\label{par:pagesegmentation}
 
 \section{Data Folder}
 The data folder contains files that are used during runtime of several components.
