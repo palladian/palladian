@@ -54,7 +54,9 @@ public class FeedDownloaderTest {
         // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed004.xml").getFile());
 
         // The processing instruction target matching "[xX][mM][lL]" is not allowed.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed009.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed009.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed085.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed086.xml").getFile());
 
         // The reference to entity "L" must end with the ';' delimiter.
         // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed010.xml").getFile());
@@ -100,13 +102,6 @@ public class FeedDownloaderTest {
         // UTF-16
         feedDownloader.setCleanStrings(false);
         feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed102.xml").getFile());
-
-        // ???
-        Feed f = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed086.xml").getFile());
-        System.out.println(f);
-
-        f = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed085.xml").getFile());
-        System.out.println(f);
 
     }
 
