@@ -18,10 +18,6 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.web.Crawler;
-import ws.palladian.web.feeds.Feed;
-import ws.palladian.web.feeds.FeedDownloader;
-import ws.palladian.web.feeds.FeedDownloaderException;
-import ws.palladian.web.feeds.FeedItem;
 
 public class FeedDownloaderTest {
 
@@ -100,10 +96,17 @@ public class FeedDownloaderTest {
         // An invalid XML character (Unicode: 0x4) was found in the CDATA section.
         feedDownloader.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile());
         feedDownloader.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile());
-        
+
         // UTF-16
         feedDownloader.setCleanStrings(false);
         feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed102.xml").getFile());
+
+        // ???
+        Feed f = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed086.xml").getFile());
+        System.out.println(f);
+
+        f = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed085.xml").getFile());
+        System.out.println(f);
 
     }
 
@@ -122,7 +125,7 @@ public class FeedDownloaderTest {
         feedDownloader.setCleanStrings(false);
 
         // verify, if author information is parsed correctly
-        
+
         // //////////// Atom feeds ////////////
         Feed feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
         FeedItem feedItem = feed.getItems().iterator().next();
@@ -133,13 +136,13 @@ public class FeedDownloaderTest {
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
         Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
-        
+
         // //////////// RSS feeds ////////////
         feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/rss20Sample1.xml").getFile());
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
         Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
-        
+
         // RDF Site Summary 1.0; Content Module
         // http://web.resource.org/rss/1.0/modules/content/
         feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/rssRdf10.xml").getFile());
