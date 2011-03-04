@@ -17,6 +17,8 @@ import com.sun.org.apache.xerces.internal.util.XMLChar;
  */
 public class Xml10FilterReader extends FilterReader {
 
+    private boolean ignoreCharacter = true;
+
     /**
      * Creates filter reader which skips invalid xml characters.
      * 
@@ -50,8 +52,14 @@ public class Xml10FilterReader extends FilterReader {
         int pos = off - 1;
 
         for (int readPos = off; readPos < off + read; readPos++) {
-            if (XMLChar.isValid(cbuf[readPos])) {
+
+            if (!Character.isWhitespace(cbuf[readPos]) && ignoreCharacter) {
+                ignoreCharacter = false;
+            }
+
+            if (XMLChar.isValid(cbuf[readPos]) && !ignoreCharacter) {
                 pos++;
+
             } else {
                 continue;
             }

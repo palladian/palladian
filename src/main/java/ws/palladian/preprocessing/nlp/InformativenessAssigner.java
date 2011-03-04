@@ -44,12 +44,12 @@ public class InformativenessAssigner {
     }
 
     public void loadFrequencyMap() {
-        tokenFrequencies = FileHelper.deserialize("data/temp/tokenFreuqencyMap.gz");
+        tokenFrequencies = FileHelper.deserialize("data/temp/tokenFrequencyMap.gz");
         normalizeFrequencyMap();
     }
 
     public void saveFrequencyMap() {
-        FileHelper.serialize(tokenFrequencies, "data/temp/tokenFreuqencyMap.gz");
+        FileHelper.serialize(tokenFrequencies, "data/temp/tokenFrequencyMap.gz");
     }
 
     private void normalizeFrequencyMap() {
@@ -98,12 +98,12 @@ public class InformativenessAssigner {
 
             LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now "
                     + tokenFrequencies.keySet().size());
-            
+
             if ((i+1) % 10 == 0) {
                 LOGGER.debug("saving frequency map (i = "+i+"...");
-                saveFrequencyMap();                
+                saveFrequencyMap();
             }
-            
+
         }
         saveFrequencyMap();
 

@@ -62,7 +62,7 @@ public class DatasetCreator {
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
         FixUpdateStrategy updateStrategy = new FixUpdateStrategy();
-        updateStrategy.setCheckInterval(1);
+        updateStrategy.setCheckInterval(10);
         feedChecker.setUpdateStrategy(updateStrategy, true);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
@@ -87,7 +87,10 @@ public class DatasetCreator {
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
                         .replaceFirst("www.", ""), 30);
-                String filePath = DATASET_PATH + feed.getId() + "_" + safeFeedName + ".csv";
+
+                int slice = (int) Math.floor(feed.getId() / 1000.0);
+
+                String filePath = DATASET_PATH + slice + "/" + feed.getId() + "_" + safeFeedName + ".csv";
                 LOGGER.debug("Saving feed to: "+filePath);
 
                 // get entries from the file

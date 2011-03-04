@@ -238,6 +238,10 @@ public class FeedItem {
             LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
         }
 
+        if (node == null) {
+            LOGGER.error("feed: " + getFeedUrl() + ", node = null");
+        }
+
         return node;
     }
 
