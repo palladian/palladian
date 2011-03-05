@@ -1,4 +1,4 @@
-package ws.palladian.extraction.content;
+package ws.palladian.preprocessing.scraping;
 
 import java.io.File;
 import java.io.FileInputStream;

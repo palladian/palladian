@@ -29,12 +29,12 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.Tokenizer;
 import ws.palladian.helper.XPathHelper;
+import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.URLDownloader;
 

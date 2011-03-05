@@ -3,9 +3,9 @@ package ws.palladian.extraction.keyphrase;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.content.PageContentExtractor;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
 import ws.palladian.helper.CollectionHelper;
+import ws.palladian.preprocessing.scraping.PageContentExtractor;
 
 /**
  * Example on {@link PalladianKeyphraseExtractor} usage.
