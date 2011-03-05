@@ -25,15 +25,12 @@ import ws.palladian.web.feeds.persistence.FeedStore;
 import ws.palladian.web.feeds.updates.FixUpdateStrategy;
 
 /**
- * <p>
  * Creates a dataset of feed posts.
- * </p>
  * <p>
  * For each feed, a csv file is created in the data/datasets/feedPosts/ folder. Each file contains all distinct posts
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * TIMESTAMP;"TITLE";LINK
- * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -45,212 +42,8 @@ public class DatasetCreator {
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    protected static final String DATASET_PATH = "data"+System.getProperty("file.separator")+"datasets"+System.getProperty("file.separator")+"feedPosts"+System.getProperty("file.separator");
-
-    /**
-     * Start creating the dataset.
-     */
-    public void createDataset() {
-
-        FeedStore feedStore = new FeedDatabase();
-
-        // all feeds need to be classified in advance to filter them accordingly
-        // FeedClassifier.classifyFeedInStore(feedStore);
-
-        FeedReader feedChecker = new FeedReader(feedStore);
-
-        FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
-
-        FixUpdateStrategy updateStrategy = new FixUpdateStrategy();
-        updateStrategy.setCheckInterval(10);
-        feedChecker.setUpdateStrategy(updateStrategy, true);
-
-        // create the dataset only with feeds that are parsable, have at least one entry, and are alive
-        Collection<Integer> updateClasses = new HashSet<Integer>();
-        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
-        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
-        updateClasses.add(FeedClassifier.CLASS_SLICED);
-        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
-        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
-        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
-        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
-        // feedChecker.filterFeeds(updateClasses);
-
-        FeedProcessingAction fpa = new FeedProcessingAction() {
-
-            @Override
-            public void performAction(Feed feed) {
-                // System.out.println("do stuff with " + feed.getFeedUrl());
-                // System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
-                // + feed.getChecks());
-
-                // get the filename of the feed
-                String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
-                        .replaceFirst("www.", ""), 30);
-
-                int slice = (int) Math.floor(feed.getId() / 1000.0);
-
-                String filePath = DATASET_PATH + slice + "/" + feed.getId() + "_" + safeFeedName + ".csv";
-                LOGGER.debug("Saving feed to: "+filePath);
-
-                // get entries from the file
-                File postEntryFile = new File(filePath);
-                if (!postEntryFile.exists()) {
-                    boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
-                    try {
-                        if (directoriesCreated) {
-                            postEntryFile.createNewFile();
-                        } else {
-                            LOGGER.error("could not create the directories " + filePath);
-                        }
-                    } catch (IOException e) {
-                        LOGGER.error("could not create the file " + filePath);
-                    }
-                }
-                List<String> fileEntries = FileHelper.readFileToArray(filePath);
-
-                // get all posts in the feed as timestamp;headline;link
-                List<FeedItem> feedEntries = feed.getItems();
-
-                if (feedEntries == null) {
-                    LOGGER.warn("no feed entries for " + feed.getFeedUrl());
-                    return;
-                }
-
-                // Calculating size of feed header and footer, which should always stay the same.
-                long summedFeedEntrySize = 0;
-                for (FeedItem entry : feedEntries) {
-                    String entryPlainXML = entry.getRawMarkup();
-                    Integer entrySize = entryPlainXML.getBytes().length;
-                    summedFeedEntrySize += entrySize;
-                }
-
-                // LOGGER.info("feed: "+feed);
-                // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
-                String feedPlainXML = feed.getRawMarkup();
-                Integer feedSize = feedPlainXML.getBytes().length;
-                long feedContainerSize = feedSize - summedFeedEntrySize;
-
-                StringBuilder newEntries = new StringBuilder();
-                int newPosts = 0;
-
-                LOGGER.debug("Feed entries: "+feedEntries.size());
-                for (FeedItem entry : feedEntries) {
-
-                    if (entry == null || entry.getPublished() == null) {
-                        LOGGER.warn("entry has no published date, ignore it: " + entry);
-                        continue;
-                    }
-
-                    String fileEntry = "";
-                    String fileEntryID = "";
-
-                    if (entry.getTitle() == null || entry.getTitle().length() == 0) {
-                        fileEntryID += "\"###NO_TITLE###\";";
-                    } else {
-                        fileEntryID += "\""
-                            + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
-                    }
-                    fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
-                    fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
-                    fileEntry += entry.getRawMarkup().getBytes().length + ";";
-                    fileEntry += feedContainerSize + ";";
-                    fileEntry += feedEntries.size();
-
-                    // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
-                    boolean contains = false;
-                    for (String savedFileEntry : fileEntries) {
-                        if (savedFileEntry.substring(14).startsWith(fileEntryID)) {
-                            contains = true;
-                            break;
-                        }
-                    }
-
-                    if (!contains) {
-                        newEntries.append(fileEntry).append("\n");
-                        newPosts++;
-                    }
-
-                }
-
-                // if all entries are new, we might have checked to late and missed some entries, we mark that by a
-                // special line
-                if (newPosts == feedEntries.size() && feed.getChecks() > 1 && newPosts > 0) {
-                    newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
-                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
-                            + feed.getChecks());
-                }
-
-                try {
-                    LOGGER.debug("Saving new file content: "+newEntries.toString());
-                    FileHelper.prependFile(filePath, newEntries.toString());
-                } catch (IOException e) {
-                    LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
-                }
-
-                feed.freeMemory();
-                feed.setLastHeadlines("");
-
-                LOGGER.debug("added " + newPosts + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
-
-            }
-        };
-
-        feedChecker.setFeedProcessingAction(fpa);
-
-        LOGGER.debug("start reading feeds");
-        feedChecker.startContinuousReading();
-
-    }
-
-    /**
-     * <p>We combine all feed histories into one file which we can then import into a database to generate statistics.</p>
-     */
-    public static void combineFeedHistories() {
-
-        StopWatch sw = new StopWatch();
-
-        String cleanPath = DATASET_PATH + "clean\\";
-
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(cleanPath+"all.csv");
-        } catch (IOException e1) {
-            LOGGER.error(e1.getMessage());
-        }
-
-        int c = 0;
-        File[] files = FileHelper.getFiles(cleanPath);
-        for (File file : files) {
-
-            String feedID = file.getName().substring(0,file.getName().indexOf("_"));
-
-            List<String> contents = FileHelper.readFileToArray(file);
-
-            for (String line : contents) {
-
-                try {
-                    fileWriter.write(feedID+";");
-                    fileWriter.write(line);
-                    fileWriter.flush();
-                } catch (IOException e) {
-                    LOGGER.error(file + ", " + e.getMessage());
-                }
-
-            }
-
-            c++;
-            LOGGER.info("percent done: " + MathHelper.round(100*c/(double)files.length, 2));
-        }
-
-        try {
-            fileWriter.close();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
-    }
+    protected static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
+            + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
 
     /**
      * Cleaning up performs the following steps:
@@ -299,8 +92,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
-                .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "").replaceAll(
+                                "(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -358,8 +151,7 @@ public class DatasetCreator {
 
                 // System.out.println("cleansed " + file.getName());
                 if (c % 500 == 0) {
-                    LOGGER.info(MathHelper.round((double) 100 * c / fileCount, 2)
-                            + "% of the files cleansed");
+                    LOGGER.info(MathHelper.round((double) 100 * c / fileCount, 2) + "% of the files cleansed");
                 }
 
             }
@@ -378,6 +170,73 @@ public class DatasetCreator {
         }
 
         LOGGER.info("finished in " + sw.getElapsedTimeString() + ", deleted " + deleteCount + " files");
+    }
+
+    /**
+     * <p>
+     * We combine all feed histories into one file which we can then import into a database to generate statistics.
+     * </p>
+     */
+    public static void combineFeedHistories() {
+
+        StopWatch sw = new StopWatch();
+
+        String cleanPath = DATASET_PATH + "clean\\";
+
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(cleanPath + "all.csv");
+        } catch (IOException e1) {
+            LOGGER.error(e1.getMessage());
+        }
+
+        int c = 0;
+        File[] files = FileHelper.getFiles(cleanPath);
+        for (File file : files) {
+
+            String feedID = file.getName().substring(0, file.getName().indexOf("_"));
+
+            List<String> contents = FileHelper.readFileToArray(file);
+
+            for (String line : contents) {
+
+                try {
+                    fileWriter.write(feedID + ";");
+                    fileWriter.write(line);
+                    fileWriter.flush();
+                } catch (IOException e) {
+                    LOGGER.error(file + ", " + e.getMessage());
+                }
+
+            }
+
+            c++;
+            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) files.length, 2));
+        }
+
+        try {
+            fileWriter.close();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
+    }
+
+    /**
+     * Run creation of the feed dataset from all feeds in the database if possible.
+     * 
+     * @param args Command line arguments are ignored.
+     */
+    public static void main(String[] args) {
+
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
+        // DatasetCreator.renewFileIDs();
+        // DatasetCreator.cleanUp(true);
+        // DatasetCreator.combineFeedHistories();
+        // dc.addFeedMetaInformation();
+
     }
 
     public static void renewFileIDs() {
@@ -405,18 +264,159 @@ public class DatasetCreator {
     }
 
     /**
-     * Run creation of the feed dataset from all feeds in the database if possible.
-     * 
-     * @param args Command line arguments are ignored.
+     * Start creating the dataset.
      */
-    public static void main(String[] args) {
+    public void createDataset() {
 
-        DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        // DatasetCreator.renewFileIDs();
-        //        DatasetCreator.cleanUp(true);
-        // DatasetCreator.combineFeedHistories();
-        // dc.addFeedMetaInformation();
+        FeedStore feedStore = new FeedDatabase();
+
+        // all feeds need to be classified in advance to filter them accordingly
+        // FeedClassifier.classifyFeedInStore(feedStore);
+
+        FeedReader feedChecker = new FeedReader(feedStore);
+        feedChecker.setThreadPoolSize(100);
+
+        FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
+
+        FixUpdateStrategy updateStrategy = new FixUpdateStrategy();
+        updateStrategy.setCheckInterval(10);
+        feedChecker.setUpdateStrategy(updateStrategy, true);
+
+        // create the dataset only with feeds that are parsable, have at least one entry, and are alive
+        Collection<Integer> updateClasses = new HashSet<Integer>();
+        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
+        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
+        updateClasses.add(FeedClassifier.CLASS_SLICED);
+        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
+        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
+        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
+        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
+        // feedChecker.filterFeeds(updateClasses);
+
+        FeedProcessingAction fpa = new FeedProcessingAction() {
+
+            @Override
+            public void performAction(Feed feed) {
+                // System.out.println("do stuff with " + feed.getFeedUrl());
+                // System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+                // + feed.getChecks());
+
+                // get the filename of the feed
+                String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
+                        .replaceFirst("www.", ""), 30);
+
+                int slice = (int) Math.floor(feed.getId() / 1000.0);
+
+                String filePath = DATASET_PATH + slice + "/" + feed.getId() + "_" + safeFeedName + ".csv";
+                LOGGER.debug("Saving feed to: " + filePath);
+
+                // get entries from the file
+                File postEntryFile = new File(filePath);
+                if (!postEntryFile.exists()) {
+                    boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
+                    try {
+                        if (directoriesCreated) {
+                            postEntryFile.createNewFile();
+                        } else {
+                            LOGGER.error("could not create the directories " + filePath);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error("could not create the file " + filePath);
+                    }
+                }
+                List<String> fileEntries = FileHelper.readFileToArray(filePath);
+
+                // get all posts in the feed as timestamp;headline;link
+                List<FeedItem> feedEntries = feed.getItems();
+
+                if (feedEntries == null) {
+                    LOGGER.warn("no feed entries for " + feed.getFeedUrl());
+                    return;
+                }
+
+                // Calculating size of feed header and footer, which should always stay the same.
+                long summedFeedEntrySize = 0;
+                for (FeedItem entry : feedEntries) {
+                    String entryPlainXML = entry.getRawMarkup();
+                    Integer entrySize = entryPlainXML.getBytes().length;
+                    summedFeedEntrySize += entrySize;
+                }
+
+                // LOGGER.info("feed: "+feed);
+                // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
+                String feedPlainXML = feed.getRawMarkup();
+                Integer feedSize = feedPlainXML.getBytes().length;
+                long feedContainerSize = feedSize - summedFeedEntrySize;
+
+                StringBuilder newEntries = new StringBuilder();
+                int newPosts = 0;
+
+                LOGGER.debug("Feed entries: " + feedEntries.size());
+                for (FeedItem entry : feedEntries) {
+
+                    if (entry == null || entry.getPublished() == null) {
+                        LOGGER.warn("entry has no published date, ignore it: " + entry);
+                        continue;
+                    }
+
+                    String fileEntry = "";
+                    String fileEntryID = "";
+
+                    if (entry.getTitle() == null || entry.getTitle().length() == 0) {
+                        fileEntryID += "\"###NO_TITLE###\";";
+                    } else {
+                        fileEntryID += "\""
+                                + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                    }
+                    fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
+                    fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
+                    fileEntry += entry.getRawMarkup().getBytes().length + ";";
+                    fileEntry += feedContainerSize + ";";
+                    fileEntry += feedEntries.size();
+
+                    // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
+                    boolean contains = false;
+                    for (String savedFileEntry : fileEntries) {
+                        if (savedFileEntry.substring(14).startsWith(fileEntryID)) {
+                            contains = true;
+                            break;
+                        }
+                    }
+
+                    if (!contains) {
+                        newEntries.append(fileEntry).append("\n");
+                        newPosts++;
+                    }
+
+                }
+
+                // if all entries are new, we might have checked to late and missed some entries, we mark that by a
+                // special line
+                if (newPosts == feedEntries.size() && feed.getChecks() > 1 && newPosts > 0) {
+                    newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
+                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
+                            + feed.getChecks());
+                }
+
+                try {
+                    LOGGER.debug("Saving new file content: " + newEntries.toString());
+                    FileHelper.prependFile(filePath, newEntries.toString());
+                } catch (IOException e) {
+                    LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
+                }
+
+                feed.freeMemory();
+                feed.setLastHeadlines("");
+
+                LOGGER.debug("added " + newPosts + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
+
+            }
+        };
+
+        feedChecker.setFeedProcessingAction(fpa);
+
+        LOGGER.debug("start reading feeds");
+        feedChecker.startContinuousReading();
 
     }
 
