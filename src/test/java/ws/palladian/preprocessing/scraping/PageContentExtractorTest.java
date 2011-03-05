@@ -1,4 +1,4 @@
-package ws.palladian.extraction.content;
+package ws.palladian.preprocessing.scraping;
 
 import junit.framework.Assert;
 
@@ -7,9 +7,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.page.ClassifierTest;
-import ws.palladian.extraction.content.PageContentExtractor;
-import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.preprocessing.scraping.PageContentExtractor;
+import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 
 public class PageContentExtractorTest {
 

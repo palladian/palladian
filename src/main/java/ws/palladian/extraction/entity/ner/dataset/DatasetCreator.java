@@ -17,8 +17,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.content.PageContentExtractorException;
-import ws.palladian.extraction.content.PageSentenceExtractor;
 import ws.palladian.helper.CountMap;
 import ws.palladian.helper.DatasetCreatorInterface;
 import ws.palladian.helper.DateHelper;
@@ -27,6 +25,8 @@ import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.StringHelper;
 import ws.palladian.helper.WordTransformer;
+import ws.palladian.preprocessing.scraping.PageContentExtractorException;
+import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.DownloadFilter;
 import ws.palladian.web.SourceRetriever;

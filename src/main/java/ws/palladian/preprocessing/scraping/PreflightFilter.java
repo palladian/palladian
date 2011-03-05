@@ -1,4 +1,4 @@
-package ws.palladian.extraction.content;
+package ws.palladian.preprocessing.scraping;
 
 import org.apache.log4j.Logger;
 import org.apache.xerces.util.XMLChar;

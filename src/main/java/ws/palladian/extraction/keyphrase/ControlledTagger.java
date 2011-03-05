@@ -19,7 +19,6 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.WordCorrelation;
-import ws.palladian.extraction.content.PageContentExtractor;
 import ws.palladian.extraction.keyphrase.ControlledTaggerSettings.TaggingCorrelationType;
 import ws.palladian.extraction.keyphrase.ControlledTaggerSettings.TaggingType;
 import ws.palladian.helper.CollectionHelper;
@@ -27,6 +26,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.Tokenizer;
+import ws.palladian.preprocessing.scraping.PageContentExtractor;
 import ws.palladian.web.Crawler;
 
 /**

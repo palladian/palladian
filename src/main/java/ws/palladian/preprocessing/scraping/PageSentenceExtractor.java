@@ -1,4 +1,4 @@
-package ws.palladian.extraction.content;
+package ws.palladian.preprocessing.scraping;
 
 import java.util.ArrayList;
 import java.util.HashSet;
