@@ -2,7 +2,7 @@ package ws.palladian.web;
 
 import junit.framework.TestCase;
 import ws.palladian.control.AllTests;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.XPathHelper;
 
 /**
  * Test cases for the crawler.

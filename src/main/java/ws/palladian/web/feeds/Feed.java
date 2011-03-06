@@ -12,8 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.HTMLHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.web.feeds.evaluation.PollDataSeries;

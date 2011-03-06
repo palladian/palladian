@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.Tensor;
+import ws.palladian.helper.math.Tensor;
 
 public class BayesClassifier extends Classifier<UniversalInstance> {
 

@@ -15,12 +15,12 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
-import ws.palladian.helper.CountMap;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 
 /**
  * <p>

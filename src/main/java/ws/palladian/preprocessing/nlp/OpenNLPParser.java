@@ -20,10 +20,10 @@ import opennlp.tools.parser.ParserModel;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.DataHolder;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * OpenNLP Parser

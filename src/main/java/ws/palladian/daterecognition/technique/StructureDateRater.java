@@ -6,8 +6,8 @@ import java.util.HashMap;
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.StructureDate;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 /**
  * This class rates structure dates by keywords.

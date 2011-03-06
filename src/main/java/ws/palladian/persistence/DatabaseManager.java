@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * The {@link DatabaseManager} provides general database specific functionality. This implementation aims on wrapping

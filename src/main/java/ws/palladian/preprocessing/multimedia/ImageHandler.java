@@ -33,10 +33,10 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * A handler for images.

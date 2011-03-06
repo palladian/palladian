@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * Test cases for the StringHelper class.

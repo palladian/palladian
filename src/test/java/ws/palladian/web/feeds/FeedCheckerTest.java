@@ -9,7 +9,7 @@ import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.feeds.persistence.CollectionFeedSource;
 
 /**

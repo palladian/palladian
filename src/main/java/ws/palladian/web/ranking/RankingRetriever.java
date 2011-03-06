@@ -29,8 +29,8 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.Crawler;
 
 import com.temesoft.google.pr.JenkinsHash;

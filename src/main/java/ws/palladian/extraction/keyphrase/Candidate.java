@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.nlp.Tokenizer;
 
 /**
  * Represents a Candidate, used for keyphrase extraction.

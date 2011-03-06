@@ -11,6 +11,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import ws.palladian.helper.math.MathHelper;
+
 public class MathHelperTest {
 
     @Test

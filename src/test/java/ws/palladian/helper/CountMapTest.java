@@ -4,6 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CountMap;
+
 public class CountMapTest {
 
     @Test

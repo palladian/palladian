@@ -19,9 +19,9 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
-import ws.palladian.helper.DateHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.web.feeds.evaluation.FeedBenchmarkFileReader;

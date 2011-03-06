@@ -3,7 +3,7 @@ package ws.palladian.web.feeds;
 import java.util.Collection;
 import java.util.List;
 
-import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.web.SourceRetrieverManager;
 import ws.palladian.web.feeds.persistence.FeedDatabase;
 import ws.palladian.web.feeds.persistence.FeedStore;

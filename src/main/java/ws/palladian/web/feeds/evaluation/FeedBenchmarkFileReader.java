@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedItem;
 import ws.palladian.web.feeds.FeedReader;

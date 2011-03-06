@@ -6,10 +6,10 @@ import java.util.Map.Entry;
 
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
+import ws.palladian.helper.html.HTMLHelper;
 
 /**
  * This class contains methods to help DateRate to rate dates. Like the name said.

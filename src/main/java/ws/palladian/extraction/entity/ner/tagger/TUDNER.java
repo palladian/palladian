@@ -42,13 +42,14 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.CountMap;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.Matrix;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 import ws.palladian.tagging.EntityList;
@@ -77,6 +78,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     /** the connector to the knowledge base */
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator;
+
+    private Matrix patternProbabilityMatrix = new Matrix();
 
     private Annotations removeAnnotations = new Annotations();
 
@@ -227,6 +230,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         System.out.println("dictionary contains " + dictionaryEntities.size() + " entities");
 
         finishTraining(modelFilePath);
+
+        analyzeContexts(trainingFilePath);
 
         return true;
     }
@@ -459,6 +464,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                     allowedPosTags.add(",");
                     allowedPosTags.add("(");
                     allowedPosTags.add("-");
+                    allowedPosTags.add("--");
                     allowedPosTags.add(".");
                     allowedPosTags.add("CC");
                     allowedPosTags.add("'");
@@ -499,15 +505,15 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // remove all annotations with "DOCSTART- " in them because that is for format purposes
             Annotations toAdd = new Annotations();
             for (Annotation annotation : annotations) {
-                if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
+                // if (annotation.getEntity().toLowerCase().indexOf("docstart") > -1) {
                     // toRemove.add(annotation);
                     // if (true) {
                     // continue;
                     // }
 
                     // if all uppercase, try to find known annotations
-                    if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
-                            Math.min(12, annotation.getEntity().length())))) {
+                    // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
+                    // Math.min(12, annotation.getEntity().length())))) {
 
                         Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
 
@@ -515,34 +521,153 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                             for (Annotation annotation2 : wrappedAnnotations) {
                                 if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
                                     toAdd.add(annotation2);
+                            System.out.println("add " + annotation2.getEntity());
                                 }
                             }
-                            System.out.print("tried to unwrap " + annotation.getEntity());
+                        System.out.print("tried to unwrap again " + annotation.getEntity());
                             for (Annotation wrappedAnnotation : wrappedAnnotations) {
                                 System.out.print(" | " + wrappedAnnotation.getEntity());
                             }
                             System.out.print("\n");
                         }
 
-                    } else {
-                        // else, try to handle normally without the docstart
-                        annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
-                        annotation.setOffset(annotation.getOffset() + 10);
-                        annotation.setLength(annotation.getEntity().length());
-                        toRemove.add(annotation);
-                    }
+                    // } else {
+                    // // else, try to handle normally without the docstart
+                    // annotation.setEntity(annotation.getEntity().replace("DOCSTART", ""));
+                    // annotation.setOffset(annotation.getOffset() + 8);
+                    // annotation.setLength(annotation.getEntity().length());
                     // toRemove.add(annotation);
-                }
+                    // }
+                    // toRemove.add(annotation);
+                // }
             }
+            System.out.println("add " + toAdd.size());
             annotations.addAll(toAdd);
 
             annotations.removeAll(toRemove);
+            
+            
+            // switch using pattern information
+            int changed = 0;
+            for (Annotation annotation : annotations) {
+
+                Category category = getMostLikelyTag(annotation);
+                
+                if (category == null) {
+                    System.out.println("did not change tag of " + annotation.getEntity());
+                    continue;
+                }
+
+                if (!category.getName().equalsIgnoreCase(annotation.getMostLikelyTagName())) {
+                    System.out.println("changed " + annotation.getEntity() + " from "
+                            + annotation.getMostLikelyTagName() + " to " + category.getName() + ", left context: "
+                            + annotation.getLeftContext());
+                    changed++;
+                }
+
+                CategoryEntries ce = new CategoryEntries();
+                ce.add(new CategoryEntry(ce, category, 1));
+                // annotation.assignCategoryEntries(ce);
+
+            }
+            System.out.println("chagend " + MathHelper.round(100 * changed / annotations.size(), 2)
+                    + "% of the entities");
 
         }
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
 
         return annotations;
+    }
+
+    private Category getMostLikelyTag(Annotation annotation) {
+
+        String[] leftContexts = annotation.getLeftContexts();
+
+        double locProb = 1.0;
+        double perProb = 1.0;
+        double orgProb = 1.0;
+        double miscProb = 1.0;
+
+        int found = 0;
+        for (String leftContextPattern : leftContexts) {
+
+            leftContextPattern = leftContextPattern.toLowerCase();
+
+            if (leftContextPattern.length() == 0 || StringHelper.countWhitespaces(leftContextPattern) < 1) {
+                continue;
+            }
+
+            Integer lp = (Integer) patternProbabilityMatrix.get("LOC", leftContextPattern);
+            if (lp == null) {
+                lp = 0;
+            }
+
+            Integer pp = (Integer) patternProbabilityMatrix.get("PER", leftContextPattern);
+            if (pp == null) {
+                pp = 0;
+            }
+
+            Integer op = (Integer) patternProbabilityMatrix.get("ORG", leftContextPattern);
+            if (op == null) {
+                op = 0;
+            }
+
+            Integer mp = (Integer) patternProbabilityMatrix.get("MISC", leftContextPattern);
+            if (mp == null) {
+                mp = 0;
+            }
+
+            // locProb += lp / 7119.0;
+            // perProb += pp / 6560.0;
+            // orgProb += op / 6276.0;
+            // miscProb += mp / 3371.0;
+
+            int sum = lp + pp + op + mp;
+
+            if (sum > 0) {
+                found++;
+            } else {
+                continue;
+            }
+
+            locProb *= (0.0000000001 + lp) / sum;
+            perProb *= (0.0000000001 + pp) / sum;
+            orgProb *= (0.0000000001 + op) / sum;
+            miscProb *= (0.0000000001 + mp) / sum;
+
+
+            if (leftContextPattern.equalsIgnoreCase("visited") || leftContextPattern.equalsIgnoreCase("village of")
+                    || leftContextPattern.equalsIgnoreCase("in")) {
+                System.out.println(locProb);
+                System.out.println(perProb);
+                System.out.println(orgProb);
+                System.out.println(miscProb);
+            }
+        }
+
+        if (found == 0) {
+            return null;
+        }
+        CategoryEntries ce = new CategoryEntries();
+        ce.add(new CategoryEntry(ce, new Category("LOC"), locProb));
+        ce.add(new CategoryEntry(ce, new Category("PER"), perProb));
+        ce.add(new CategoryEntry(ce, new Category("ORG"), orgProb));
+        ce.add(new CategoryEntry(ce, new Category("MISC"), miscProb));
+
+// annotation.getAssignedCategoryEntries().getCategoryEntry("LOC").addAbsoluteRelevance(locProb);
+        // annotation.getAssignedCategoryEntries().getCategoryEntry("PER").addAbsoluteRelevance(perProb);
+        // annotation.getAssignedCategoryEntries().getCategoryEntry("ORG").addAbsoluteRelevance(orgProb);
+        // annotation.getAssignedCategoryEntries().getCategoryEntry("MISC").addAbsoluteRelevance(miscProb);
+
+        CategoryEntries ceMerge = new CategoryEntries();
+        ceMerge.addAllRelative(ce);
+        ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
+        annotation.assignCategoryEntries(ceMerge);
+        // annotation.getAssignedCategoryEntries().addAllRelative(ce);
+
+        return null;
+        // ce.getMostLikelyCategoryEntry().getCategory();
     }
 
     @Override
@@ -995,6 +1120,66 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     }
 
+    public void analyzeContexts(String trainingFilePath) {
+
+        Map<String, CountMap> tagMap = new TreeMap<String, CountMap>();
+        CountMap tagCounts = new CountMap();
+
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        // iterate over all annotations and analyze their left and right contexts for patterns
+        for (Annotation annotation : annotations) {
+
+            String tag = annotation.getInstanceCategoryName();
+
+            // the left patterns containing 1-3 words
+            String[] leftContexts = annotation.getLeftContexts();
+
+            // initialize tagMap
+            if (tagMap.get(tag) == null) {
+                tagMap.put(tag, new CountMap());
+            }
+
+            tagMap.get(tag).increment(leftContexts[0]);
+            tagMap.get(tag).increment(leftContexts[1]);
+            tagMap.get(tag).increment(leftContexts[2]);
+            tagCounts.increment(tag);
+
+        }
+
+        StringBuilder csv = new StringBuilder();
+        for (Entry<String, CountMap> entry : tagMap.entrySet()) {
+
+            int tagCount = tagCounts.get(entry.getKey());
+            CountMap patterns = tagMap.get(entry.getKey());
+            LinkedHashMap<Object, Integer> sortedMap = patterns.getSortedMap();
+
+            csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
+
+            // print the patterns and their count for the current tag
+            for (Entry<Object, Integer> patternEntry : sortedMap.entrySet()) {
+                if (patternEntry.getValue() > 4) {
+                    csv.append(patternEntry.getKey()).append("###").append(patternEntry.getValue()).append("\n");
+                }
+            }
+
+            csv.append("++++++++++++++++++++++++++++++++++\n\n");
+        }
+
+        // tagMap to matrix
+        for (Entry<String, CountMap> patternEntry : tagMap.entrySet()) {
+
+            for (Entry<Object, Integer> tagEntry : patternEntry.getValue().entrySet()) {
+                patternProbabilityMatrix.set(patternEntry.getKey(), tagEntry.getKey().toString().toLowerCase(),
+                        tagEntry.getValue());
+            }
+
+        }
+
+        FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
+    }
+
     public void analyzeSentenceStarts(String trainingFilePath) {
 
         // get all training annotations including their features
@@ -1051,7 +1236,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     public static void main(String[] args) {
 
         // TUDNER tdner = new TUDNER();
-        // tdner.analyzeSentenceStarts("data/datasets/ner/conll/training.txt");
+        // // tdner.analyzeSentenceStarts("data/datasets/ner/conll/training.txt");
+        // tdner.analyzeContexts("data/datasets/ner/conll/training.txt");
         // System.exit(0);
 
         // System.out.println(containsDateFragment("January"));

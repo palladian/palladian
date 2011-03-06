@@ -1,5 +1,7 @@
 package ws.palladian.helper;
 
+import ws.palladian.helper.date.DateHelper;
+
 /**
  * A simple stop watch for performance testing.
  * 

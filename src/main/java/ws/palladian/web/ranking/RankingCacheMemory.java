@@ -6,7 +6,7 @@ package ws.palladian.web.ranking;
 import java.util.Collections;
 import java.util.Map;
 
-import ws.palladian.helper.TTLMap;
+import ws.palladian.helper.collection.TTLMap;
 import ws.palladian.web.ranking.RankingRetriever.Service;
 
 /**

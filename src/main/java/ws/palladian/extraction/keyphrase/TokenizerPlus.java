@@ -19,12 +19,12 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.w3c.dom.Document;
 
 import ws.palladian.classification.page.Stopwords;
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.CountMap;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.AbstractPOSTagger;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;

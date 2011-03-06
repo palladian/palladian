@@ -18,10 +18,10 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.CountMap;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;

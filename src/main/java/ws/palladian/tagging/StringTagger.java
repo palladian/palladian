@@ -4,8 +4,8 @@ import java.io.File;
 
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.web.Crawler;
 
 public class StringTagger {
@@ -97,6 +97,10 @@ public class StringTagger {
         // regexp += "|";
         // regexp +=
         // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9']+))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // ending with dash (Real- Rumble => should be two words, TOTALLY FREE- Abc => also two matches)
+        regexp += "|";
+        regexp += "([A-Z][A-Za-z]+ )*[A-Z][A-Za-z]+(?=- )";
 
         // small with dash (ex-President)
         regexp += "|";

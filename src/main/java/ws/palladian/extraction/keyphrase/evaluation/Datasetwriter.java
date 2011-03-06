@@ -26,7 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTMLHelper;
+import ws.palladian.helper.html.HTMLHelper;
 
 /**
  * This class converts various datasets to our Palladian internal format.

@@ -34,9 +34,9 @@ import twitter4j.QueryResult;
 import twitter4j.Tweet;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.web.resources.Source;
 

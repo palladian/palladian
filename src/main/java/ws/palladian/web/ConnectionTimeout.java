@@ -5,7 +5,7 @@ import java.net.URLConnection;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * The ConnectionTimeout is necessary because Java does not set timeouts when a server starts sending data and stops without sending an end signal.

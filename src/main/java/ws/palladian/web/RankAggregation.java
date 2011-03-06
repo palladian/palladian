@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * RankAggregation combines multiple ranked lists of WebResults into one.

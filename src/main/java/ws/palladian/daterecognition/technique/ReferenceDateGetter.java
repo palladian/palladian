@@ -11,8 +11,8 @@ import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 import ws.palladian.web.Crawler;
 
 /**

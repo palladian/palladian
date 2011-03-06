@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * The UnitNormalizer normalizes units.

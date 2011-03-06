@@ -13,7 +13,7 @@ import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.ReferenceDateGetter;
 import ws.palladian.daterecognition.technique.StructureDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.helper.ArrayHelper;
+import ws.palladian.helper.collection.ArrayHelper;
 import ws.palladian.web.Crawler;
 
 /**

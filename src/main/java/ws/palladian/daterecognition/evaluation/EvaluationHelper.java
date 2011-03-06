@@ -15,8 +15,8 @@ import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.helper.ArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.collection.ArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 public class EvaluationHelper {
 

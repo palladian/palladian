@@ -1,6 +1,6 @@
 package ws.palladian.daterecognition;
 
-import ws.palladian.helper.ArrayHelper;
+import ws.palladian.helper.collection.ArrayHelper;
 
 /**
  * 

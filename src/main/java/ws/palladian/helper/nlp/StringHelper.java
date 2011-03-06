@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.nlp;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.RegExp;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
 import ws.palladian.web.Xml10FilterReader;
@@ -1176,13 +1177,10 @@ public class StringHelper {
     public static int countWhitespaces(String text) {
         int count = 0;
         String t = text;
-        /*while (t.indexOf(" ") != -1) {
-            t = t.replaceFirst(" ", "");
-            count++;
-        }*/
+
         String[] temp = t.split(" ");
         count= temp.length - 1;
-        //System.out.println(count);
+
         return count;
     }
 

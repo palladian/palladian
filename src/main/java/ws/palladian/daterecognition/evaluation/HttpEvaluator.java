@@ -27,8 +27,8 @@ import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 
 public class HttpEvaluator {

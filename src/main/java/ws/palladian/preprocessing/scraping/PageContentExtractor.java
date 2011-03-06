@@ -29,9 +29,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.Crawler;
 
 // TODO move to preprocessing package

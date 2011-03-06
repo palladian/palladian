@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public class NGramIndex extends HashMap<String, NGram> implements Serializable {
 

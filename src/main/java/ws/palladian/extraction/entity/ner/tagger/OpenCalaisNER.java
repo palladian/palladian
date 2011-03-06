@@ -27,9 +27,9 @@ import ws.palladian.extraction.entity.ner.Entity;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.web.HTTPPoster;
 
 /**

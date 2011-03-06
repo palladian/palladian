@@ -14,7 +14,7 @@ import ws.palladian.classification.page.TextInstance;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.DataHolder;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.InformativenessAssigner;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
@@ -243,6 +243,52 @@ public class Annotation extends UniversalInstance {
 
     public String getLeftContext() {
         return leftContext;
+    }
+
+    public String[] getLeftContexts() {
+
+        String[] contexts = new String[3];
+        contexts[0] = "";
+        contexts[1] = "";
+        contexts[2] = "";
+
+        String leftContext = getLeftContext();
+        String[] words = leftContext.split(" ");
+        int wordNumber = 1;
+        for (int i = words.length - 1; i >= 0; i--) {
+
+            String token = words[i];
+            if (StringHelper.isNumber(token)) {
+                token = "NUM";
+            }
+
+            if (wordNumber == 1) {
+                contexts[0] = token;
+                contexts[1] = token;
+                contexts[2] = token;
+            }
+
+            if (wordNumber == 2) {
+                contexts[1] = token + " " + contexts[1];
+                contexts[2] = token + " " + contexts[2];
+            }
+
+            if (wordNumber == 3) {
+                contexts[2] = token + " " + contexts[2];
+                break;
+            }
+
+            wordNumber++;
+        }
+
+        if (words.length < 3) {
+            contexts[2] = "";
+        }
+        if (words.length < 2) {
+            contexts[1] = "";
+        }
+
+        return contexts;
     }
 
     public int getLength() {

@@ -2,7 +2,7 @@ package ws.palladian.tagging;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 public class RecognizedEntity {
 

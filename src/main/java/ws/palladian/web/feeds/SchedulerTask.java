@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * A scheduler task handles the distribution of feeds to worker threads that read these feeds.

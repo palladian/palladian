@@ -7,7 +7,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ws.palladian.helper.TTLMap;
+import ws.palladian.helper.collection.TTLMap;
 
 public class TTLMapTest {
 

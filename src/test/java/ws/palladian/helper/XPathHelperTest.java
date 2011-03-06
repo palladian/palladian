@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.web.Crawler;
 
 public class XPathHelperTest {

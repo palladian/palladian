@@ -10,8 +10,8 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedReader;
 import ws.palladian.web.feeds.persistence.FeedDatabase;

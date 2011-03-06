@@ -9,7 +9,7 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.WordNet;
+import ws.palladian.helper.nlp.WordNet;
 
 /**
  * Test for WordNet helper class. Test cases are not executed automatically, as WordNet files need to be installed.

@@ -9,11 +9,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
-import ws.palladian.helper.TreeNode;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.TreeNode;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DictionaryDBIndexH2;
 import ws.palladian.persistence.DictionaryDBIndexMySQL;
 import ws.palladian.persistence.DictionaryFileIndex;

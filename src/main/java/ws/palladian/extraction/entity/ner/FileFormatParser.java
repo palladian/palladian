@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.LineAction;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 
 /**
  * Transform file formats for NER learning.
@@ -522,10 +522,10 @@ public class FileFormatParser {
              */
 
             // get the left and right context of the annotation
-            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 20),
+            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 40),
                     matcher.start()));
             String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
-                    Math.min(taggedText.length(), matcher.end() + 20)));
+                    Math.min(taggedText.length(), matcher.end() + 40)));
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);

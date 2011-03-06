@@ -23,9 +23,9 @@ import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.daterecognition.technique.UrlDateRater;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
+import ws.palladian.helper.date.DateHelper;
 
 public class UrlEvaluator {
 

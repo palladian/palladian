@@ -15,9 +15,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.Crawler;
 
 public class WSW {

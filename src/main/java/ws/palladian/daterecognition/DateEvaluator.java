@@ -22,9 +22,9 @@ import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.ReferenceDateRater;
 import ws.palladian.daterecognition.technique.StructureDateRater;
 import ws.palladian.daterecognition.technique.UrlDateRater;
-import ws.palladian.helper.ContentDateComparator;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.date.ContentDateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 /**
  * This class is responsible for rating dates. <br>

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManager;
 
 /**

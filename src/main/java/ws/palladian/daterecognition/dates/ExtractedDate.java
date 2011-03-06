@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.daterecognition.ExtractedDateHelper;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * Represents a date, found in a webpage. <br>

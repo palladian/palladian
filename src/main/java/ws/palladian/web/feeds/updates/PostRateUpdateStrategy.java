@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedItem;
 import ws.palladian.web.feeds.FeedPostStatistics;

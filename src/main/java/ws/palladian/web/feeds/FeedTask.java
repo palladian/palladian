@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time

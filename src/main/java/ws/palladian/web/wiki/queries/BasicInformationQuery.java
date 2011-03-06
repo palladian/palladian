@@ -42,9 +42,9 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.StringHelper;
 import ws.palladian.helper.StringInputStream;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.wiki.data.WikiPage;
 
 /**

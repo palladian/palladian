@@ -28,9 +28,9 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
+import ws.palladian.helper.collection.CollectionHelper;
 import LBJ2.classify.Classifier;
 
 /**

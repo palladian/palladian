@@ -8,8 +8,8 @@ import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.WebPageDateEvaluator;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateArrayHelper;
 
 public class DateEvaluatorTest {
 

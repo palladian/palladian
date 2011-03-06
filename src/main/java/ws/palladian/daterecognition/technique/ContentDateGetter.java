@@ -11,8 +11,8 @@ import org.w3c.dom.Text;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * This class extracts all dates out of the content of webpages.

@@ -6,8 +6,8 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
-import ws.palladian.helper.CountMap;
-import ws.palladian.helper.MathHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>

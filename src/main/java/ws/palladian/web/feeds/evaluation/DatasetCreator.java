@@ -12,9 +12,9 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedClassifier;
 import ws.palladian.web.feeds.FeedItem;

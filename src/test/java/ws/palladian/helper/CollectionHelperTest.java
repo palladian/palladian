@@ -10,6 +10,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * 
  * @author Philipp Katz

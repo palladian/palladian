@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.nlp.Tokenizer;
 
 /**
  * Test cases for the Tokenizer class.

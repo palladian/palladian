@@ -12,9 +12,9 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * A concrete KNN classifier.
