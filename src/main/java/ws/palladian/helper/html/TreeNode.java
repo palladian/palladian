@@ -4,14 +4,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
- * A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of another tree node.
+ * A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of
+ * another tree node.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  * 
  */
 public class TreeNode implements Serializable {
@@ -41,13 +46,15 @@ public class TreeNode implements Serializable {
      * @return True, if the node was not present, false otherwise.
      */
     public boolean addNode(TreeNode tn) {
-        if (children == null)
+        if (children == null) {
             children = new HashMap<String, TreeNode>();
+        }
 
         tn.setParent(this);
         TreeNode previousValue = children.put(tn.getLabel(), tn);
-        if (previousValue != null)
+        if (previousValue != null) {
             return false;
+        }
         return true;
     }
 
@@ -67,7 +74,7 @@ public class TreeNode implements Serializable {
      */
     public TreeNode getNode(String label) {
 
-        HashSet<TreeNode> nodeList = getDescendants();
+        Set<TreeNode> nodeList = getDescendants();
         for (TreeNode node : nodeList) {
             if (node.getLabel().equalsIgnoreCase(label)) {
                 return node;
@@ -77,7 +84,7 @@ public class TreeNode implements Serializable {
         return null;
     }
 
-    public HashMap<String, TreeNode> getChildren() {
+    public Map<String, TreeNode> getChildren() {
         return children;
     }
 
@@ -85,11 +92,12 @@ public class TreeNode implements Serializable {
         this.children = children;
     }
 
-    public HashSet<TreeNode> getDescendants() {
+    public Set<TreeNode> getDescendants() {
         HashSet<TreeNode> nodeList = new HashSet<TreeNode>();
         nodeList.add(this);
-        if (children == null)
+        if (children == null) {
             return nodeList;
+        }
 
         for (Entry<String, TreeNode> entry : children.entrySet()) {
             nodeList.addAll(entry.getValue().getDescendants());
@@ -102,7 +110,7 @@ public class TreeNode implements Serializable {
      * Set all weights of the descendant nodes to 0.0.
      */
     public void resetWeights() {
-        HashSet<TreeNode> list = getDescendants();
+        Set<TreeNode> list = getDescendants();
         for (TreeNode tn : list) {
             tn.setWeight(0.0);
         }
@@ -121,8 +129,8 @@ public class TreeNode implements Serializable {
      * 
      * @return An ordered list of parent nodes, ending with the root node.
      */
-    public ArrayList<TreeNode> getRootPath() {
-        ArrayList<TreeNode> list = new ArrayList<TreeNode>();
+    public List<TreeNode> getRootPath() {
+        List<TreeNode> list = new ArrayList<TreeNode>();
 
         TreeNode node = this;
         while (node != null) {
@@ -138,12 +146,13 @@ public class TreeNode implements Serializable {
      * 
      * @return An ordered list of child nodes, ending with the leaf node.
      */
-    public ArrayList<TreeNode> getLeafPath() {
+    public List<TreeNode> getLeafPath() {
         ArrayList<TreeNode> list = new ArrayList<TreeNode>();
 
         list.add(this);
-        if (children == null)
+        if (children == null) {
             return list;
+        }
 
         TreeNode highestWeightedChild = null;
         for (Entry<String, TreeNode> entry : children.entrySet()) {
@@ -170,8 +179,8 @@ public class TreeNode implements Serializable {
      * 
      * @return An ordered list of nodes from the leaf to the root.
      */
-    public ArrayList<TreeNode> getFullPath() {
-        ArrayList<TreeNode> list = getLeafPath();
+    public List<TreeNode> getFullPath() {
+        List<TreeNode> list = getLeafPath();
         list.remove(0);
         list = CollectionHelper.reverse(list);
         list.addAll(getRootPath());
@@ -197,11 +206,13 @@ public class TreeNode implements Serializable {
     @Override
     public String toString() {
         int children = 0;
-        if (getChildren() != null)
+        if (getChildren() != null) {
             children = getChildren().size();
+        }
         String parentLabel = "unknown";
-        if (getParent() != null)
+        if (getParent() != null) {
             parentLabel = getParent().getLabel();
+        }
         return getLabel() + " (" + children + " children, parent: " + parentLabel + ")";
     }
 
@@ -209,7 +220,7 @@ public class TreeNode implements Serializable {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
+
         TreeNode arts = new TreeNode("arts");
         arts.setWeight(0.3);
         TreeNode movie = new TreeNode("movie");
