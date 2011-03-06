@@ -1,6 +1,5 @@
 package ws.palladian.classification.page;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -476,7 +475,7 @@ public class DictionaryClassifier extends TextClassifier {
             String mc = document.getMainCategoryEntry().getCategory().getName();
             try {
                 mc = document.getMainCategoryEntry().getCategory().getName();
-                ArrayList<TreeNode> nodes = getDictionary().hierarchyRootNode.getNode(mc).getFullPath();
+                List<TreeNode> nodes = getDictionary().hierarchyRootNode.getNode(mc).getFullPath();
                 for (TreeNode node : nodes) {
                     if (node == null) {
                         continue;
