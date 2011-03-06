@@ -617,18 +617,18 @@ The src folder contains all source files of the toolkit. You may need to put the
 To keep the code readable and easy to understand for other developers, we use the following coding guidelines.
 %http://geosoft.no/development/javastyle.html
 \begin{enumerate}
-\item All text is written in (American) English (color instead of colour).
-\item Variables and method names should be camel cased and not abbreviated ($computeAverage$ instead of $comp\_avg$).
+\item All text is written in (American) English (\texttt{color} instead of \texttt{colour}).
+\item Variables and method names should be camel cased and not abbreviated (\texttt{computeAverage} instead of \texttt{comp\_avg}). To improve legibility, also use camel case for uppercased terms, like \texttt{getHtmlContent} instead of \texttt{getHTMLContent}.
 \item There must be a space after a comma.
-\item There must be a line break after opening $\{$ braces.
-\item Static fields must be all uppercase. There should be an $\_$ for longer names ($STATIC\_FIELD$).
-\item Each class must have a comment including the author name.
-\item Methods with very simple, short code do not need to have comments (getters and setters) all other methods should have an explaining comment with @param explanation and @return.
-\item Avoid assignments ($=$) inside if and while conditions.
-\item Statements after conditions should always be in braces ($\{\}$)
+\item There must be a line break after opening \texttt{\{} braces.
+\item Static fields must be all uppercase. There should be an \texttt{\_} for longer names like \texttt{STATIC\_FIELD}.
+\item Each class must have a comment including the author name. Use one \texttt{@author} annotation for each author.
+\item Methods with very simple, short code do not need to have comments (getters and setters) all other methods should have an explaining comment with \texttt{@param} explanation and \texttt{@return}.
+\item Avoid assignments (\texttt{=}) inside if and while conditions.
+\item Statements after conditions should always be in braces (\texttt{\{\}})
 \end{enumerate}
 
-Listing~\ref{lst:CodingStandards} shows an example class with applied coding standards. Please also have a look at \cite{codingStandards} for a quick overview of best practices.
+Listing~\ref{lst:CodingStandards} shows an example class with applied coding standards. Please also have a look at \cite{JavaCodeConventions, JavaAntiPatterns} for a quick overview of best practices and common mistakes.
 
 \begin{codelisting}
 \begin{lstlisting}[caption=Example class for coding guidelines,label=lst:CodingStandards,frame=tb]
@@ -665,7 +665,7 @@ public class ExampleClass implements Example {
 It is a very good practice to install the following eclipse plugins to check ones own code before committing:
 \begin{enumerate}
 \item CodeFormatter is a simple file that can be loaded into Eclipse to format the source code correctly. Go to Eclipse $\blacktriangleright$ Window $\blacktriangleright$ Preferences $\blacktriangleright$ Java $\blacktriangleright$ Code Style $\blacktriangleright$ Formatter and import the ``tudiir\_eclipse\_formatter.xml'' from the dev folder. Pressing Control+F formats the source code of a selected class.
-\item Checkstyle \footnote{\url{http://eclipse-cs.sourceforge.net/downloads.html}} checks styles of the code, whether JavaDoc comments are set etc. After installing you should go to the preferences section of Checkstyle in Enclipse and load the ``checkstyle\_config.xml'' from the dev folder.
+\item Checkstyle\footnote{\url{http://eclipse-cs.sourceforge.net/downloads.html}} checks styles of the code, whether JavaDoc comments are set etc. After installing you should go to the preferences section of Checkstyle in Enclipse and load the ``checkstyle\_config.xml'' from the dev folder.
 \item PMD\footnote{\url{http://pmd.sourceforge.net/eclipse/}} tells you what is wrong with your code in terms of common violations, forgotten initializations and much more. After installing you should go into the preferences of PMD and load the ruleset file ``pmd\_ruleset'' from the dev folder.
 \item FindBugs\footnote{\url{http://findbugs.cs.umd.edu/eclipse/}} is similar to PMD but focuses on severe errors only. After installing you don't need to configure anything.
 \end{enumerate}
