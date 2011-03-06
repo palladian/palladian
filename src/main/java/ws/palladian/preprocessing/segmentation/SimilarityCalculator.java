@@ -14,8 +14,8 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 
 /**
  * The SimilarityCalculator provides functions to calculate the similarity between texts, DOM-nodes

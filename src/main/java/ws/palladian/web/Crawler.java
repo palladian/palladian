@@ -65,15 +65,15 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.Callback;
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.MathHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.multimedia.ImageHandler;
 import ws.palladian.web.feeds.FeedDiscoveryCallback;
 

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
-import ws.palladian.helper.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractor;
 
 /**

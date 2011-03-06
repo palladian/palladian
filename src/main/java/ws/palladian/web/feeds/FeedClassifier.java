@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.persistence.FeedStore;
 

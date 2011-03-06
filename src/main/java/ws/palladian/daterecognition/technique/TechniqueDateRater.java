@@ -3,7 +3,7 @@ package ws.palladian.daterecognition.technique;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ws.palladian.helper.DateArrayHelper;
+import ws.palladian.helper.date.DateArrayHelper;
 
 /**
  * Template for rater classes.

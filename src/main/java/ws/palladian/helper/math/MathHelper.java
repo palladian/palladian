@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.math;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,10 @@ import java.util.TreeSet;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.apache.log4j.Logger;
+
+import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.LineAction;
+import ws.palladian.helper.ListSimilarity;
 
 /**
  * The MathHelper adds mathematical functionality.

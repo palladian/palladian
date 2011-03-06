@@ -1,7 +1,10 @@
-package ws.palladian.helper;
+package ws.palladian.helper.nlp;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * The WordTransformer transforms an input word.

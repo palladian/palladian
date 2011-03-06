@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import ws.palladian.helper.WordTransformer;
+import ws.palladian.helper.nlp.WordTransformer;
 
 /**
  * Test cases for the WordTransformer class.

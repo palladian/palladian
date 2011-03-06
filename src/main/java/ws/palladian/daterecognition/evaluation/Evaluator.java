@@ -16,7 +16,7 @@ import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.helper.DateArrayHelper;
+import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.web.Crawler;
 
 public abstract class Evaluator {

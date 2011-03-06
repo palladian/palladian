@@ -16,7 +16,7 @@ import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * The NEREvaluator can be used to train and evaluate several NERs on the same data.

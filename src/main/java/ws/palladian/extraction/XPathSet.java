@@ -8,8 +8,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * A set of xPaths.

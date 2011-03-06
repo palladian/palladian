@@ -8,7 +8,7 @@ import org.w3c.dom.NodeList;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.GoogleDate;
-import ws.palladian.helper.HTMLHelper;
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.web.Crawler;
 
 /**

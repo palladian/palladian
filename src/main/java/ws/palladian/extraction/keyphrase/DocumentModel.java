@@ -17,7 +17,7 @@ import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 
 import ws.palladian.classification.WordCorrelation;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * The DocumentModel represents a document with its tokens/phrases. From all tokens we determine a list of Candidates

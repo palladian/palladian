@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 
 /**
  * Represents a news item within a feed ({@link Feed}).

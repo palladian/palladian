@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.collection;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -145,7 +145,7 @@ public class TTLMap<K, V> extends AbstractMap<K, V> {
      * 
      * @return
      */
-    int getCleanCounter() {
+    public int getCleanCounter() {
         return cleanCounter;
     }
 

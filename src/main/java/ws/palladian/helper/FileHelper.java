@@ -37,6 +37,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
+
 // TODO Remove all functionalities that are provided by apache commons.
 /**
  * The FileHelper helps with file concerning tasks.

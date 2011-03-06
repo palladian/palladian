@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.MathHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.web.feeds.Feed;
 

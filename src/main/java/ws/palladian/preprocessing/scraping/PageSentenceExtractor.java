@@ -14,9 +14,9 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.Tokenizer;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.resources.WebImage;
 

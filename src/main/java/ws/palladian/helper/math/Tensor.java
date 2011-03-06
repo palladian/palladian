@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.math;
 
 import java.io.Serializable;
 import java.util.HashMap;

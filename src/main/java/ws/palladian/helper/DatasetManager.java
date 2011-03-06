@@ -13,6 +13,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
+
 public class DatasetManager {
 
     /** The logger for this class. */

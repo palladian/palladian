@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.html;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +17,8 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.Crawler;
 
 /**

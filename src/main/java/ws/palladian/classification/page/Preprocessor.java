@@ -10,9 +10,9 @@ import org.w3c.dom.Document;
 
 import ws.palladian.classification.Term;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.web.Crawler;
 
 /**

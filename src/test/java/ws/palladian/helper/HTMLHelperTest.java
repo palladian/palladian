@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.web.Crawler;
 
 /**

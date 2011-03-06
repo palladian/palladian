@@ -249,7 +249,7 @@ public class ExtractedDateHelper {
      */
     public static String[] removeTimezone(String dateString) {
         String timezoneRegRex = RegExp.getTimezones();
-        return ws.palladian.helper.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
+        return ws.palladian.helper.nlp.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
     }
 
     /**

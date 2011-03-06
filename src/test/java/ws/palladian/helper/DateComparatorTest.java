@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 public class DateComparatorTest {
 

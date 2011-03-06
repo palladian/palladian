@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import ws.palladian.helper.ArrayHelper;
+import ws.palladian.helper.collection.ArrayHelper;
 
 public class ArrayHelperTest {
     @Test

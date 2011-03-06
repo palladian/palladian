@@ -17,8 +17,8 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.LocalizeHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;

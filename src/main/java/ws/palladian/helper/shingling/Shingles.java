@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.Tokenizer;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 
 import com.planetj.math.rabinhash.RabinHashFunction64;
 

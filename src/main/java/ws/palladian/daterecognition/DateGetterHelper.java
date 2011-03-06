@@ -11,9 +11,9 @@ import org.w3c.dom.Node;
 
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * DateGetterHelper provides the techniques to find dates out of webpages. Also provides different helper methods.

@@ -2,7 +2,7 @@ package ws.palladian.web.feeds.updates;
 
 import java.util.List;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedClassifier;
 import ws.palladian.web.feeds.FeedItem;

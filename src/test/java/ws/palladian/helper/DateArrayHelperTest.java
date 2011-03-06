@@ -11,8 +11,8 @@ import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.DateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 public class DateArrayHelperTest {
 

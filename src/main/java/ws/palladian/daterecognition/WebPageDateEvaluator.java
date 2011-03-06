@@ -8,8 +8,8 @@ import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.technique.PageDateType;
-import ws.palladian.helper.DateArrayHelper;
-import ws.palladian.helper.RatedDateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.RatedDateComparator;
 
 /**
  * Use this class to rate a webpage. <br>

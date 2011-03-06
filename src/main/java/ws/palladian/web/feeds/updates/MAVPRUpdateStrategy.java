@@ -1,6 +1,6 @@
 package ws.palladian.web.feeds.updates;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedPostStatistics;
 import ws.palladian.web.feeds.FeedReader;

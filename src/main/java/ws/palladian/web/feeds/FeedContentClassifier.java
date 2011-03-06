@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 // TODO introduce MIXED type?
 // TODO create a trained classifier.

@@ -19,10 +19,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.StringHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.Crawler;
 
 /**

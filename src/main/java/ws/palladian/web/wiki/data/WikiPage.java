@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.HTMLHelper;
+import ws.palladian.helper.html.HTMLHelper;
 
 /**
  * Representation of a Wiki page with title, pageID, namespaceID, content, revisions, etc.

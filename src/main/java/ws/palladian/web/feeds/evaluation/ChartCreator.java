@@ -9,8 +9,8 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * @author Sandro Reichert

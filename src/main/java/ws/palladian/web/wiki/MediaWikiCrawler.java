@@ -22,9 +22,9 @@ import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.LocalizeHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.web.wiki.data.Revision;
 import ws.palladian.web.wiki.data.WikiDescriptor;
 import ws.palladian.web.wiki.data.WikiPage;

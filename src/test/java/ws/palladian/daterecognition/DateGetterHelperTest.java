@@ -19,8 +19,8 @@ import ws.palladian.daterecognition.dates.HeadDate;
 import ws.palladian.daterecognition.technique.HTTPDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.web.Crawler;
 
 public class DateGetterHelperTest {

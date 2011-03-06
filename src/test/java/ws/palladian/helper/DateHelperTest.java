@@ -1,6 +1,6 @@
 package ws.palladian.helper;
 
-import ws.palladian.helper.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import junit.framework.TestCase;
 
 public class DateHelperTest extends TestCase {

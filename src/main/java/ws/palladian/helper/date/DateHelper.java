@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.date;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -12,6 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ws.palladian.helper.LocalizeHelper;
+import ws.palladian.helper.RegExp;
 import ws.palladian.preprocessing.normalization.DateNormalizer;
 
 // TODO Move to Extraction package

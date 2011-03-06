@@ -6,7 +6,7 @@ import java.util.HashMap;
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.helper.DateArrayHelper;
+import ws.palladian.helper.date.DateArrayHelper;
 
 /**
  *This class evaluates content-dates. <br>

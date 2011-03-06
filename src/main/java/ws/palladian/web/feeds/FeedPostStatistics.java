@@ -7,9 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.helper.CollectionHelper;
-import ws.palladian.helper.DateHelper;
-import ws.palladian.helper.MathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.web.feeds.evaluation.FeedReaderEvaluator;
 
 /**

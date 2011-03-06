@@ -23,14 +23,14 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.CollectionHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
-import ws.palladian.helper.DateHelper;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTMLHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;

@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.html;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,6 +53,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.StringInputStream;
+import ws.palladian.helper.StringOutputStream;
 
 /**
  * Some HTML and XML/DOM specific helper methods.

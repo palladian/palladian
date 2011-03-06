@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.web.HTTPPoster;
 
 /**

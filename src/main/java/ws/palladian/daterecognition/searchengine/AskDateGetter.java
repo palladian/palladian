@@ -9,8 +9,8 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.HTMLHelper;
-import ws.palladian.helper.XPathHelper;
+import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.web.Crawler;
 import ws.palladian.web.SourceRetriever;
 
