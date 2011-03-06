@@ -126,13 +126,13 @@ public final class CollectionHelper {
     }
 
     /**
-     * Reverse the order in an {@link ArrayList}.
+     * Reverse the order in a {@link List}.
      * 
      * @param <T>
      * @param list
      * @return
      */
-    public static <T> ArrayList<T> reverse(ArrayList<T> list) {
+    public static <T> List<T> reverse(List<T> list) {
         ArrayList<T> reversedList = new ArrayList<T>();
 
         for (int i = list.size() - 1; i >= 0; --i) {
@@ -329,6 +329,27 @@ public final class CollectionHelper {
             }
         }
         return map;
+    }
+    
+    
+    /**
+     * Get items with specified type or subtype. For example, to get all {@link Float}s from a List of {@link Number}s,
+     * use <tt>getElementsByType(Float.type, list)</tt>.
+     * 
+     * @param <T>
+     * @param <S>
+     * @param type the type of items to be returned.
+     * @param list
+     * @return
+     */
+    public static <T, S extends T> List<S> getElementsByType(Class<S> type, List<T> list) {
+        List<S> result = new ArrayList<S>();
+        for (T item : list) {
+            if (type.isInstance(item)) {
+                result.add(type.cast(item));
+            }
+        }
+        return result;
     }
 
 }

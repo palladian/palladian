@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of another tree node.
@@ -65,7 +68,7 @@ public class TreeNode implements Serializable {
      */
     public TreeNode getNode(String label) {
 
-        HashSet<TreeNode> nodeList = getDescendants();
+        Set<TreeNode> nodeList = getDescendants();
         for (TreeNode node : nodeList) {
             if (node.getLabel().equalsIgnoreCase(label)) {
                 return node;
@@ -75,7 +78,7 @@ public class TreeNode implements Serializable {
         return null;
     }
 
-    public HashMap<String, TreeNode> getChildren() {
+    public Map<String, TreeNode> getChildren() {
         return children;
     }
 
@@ -83,7 +86,7 @@ public class TreeNode implements Serializable {
         this.children = children;
     }
 
-    public HashSet<TreeNode> getDescendants() {
+    public Set<TreeNode> getDescendants() {
         HashSet<TreeNode> nodeList = new HashSet<TreeNode>();
         nodeList.add(this);
         if (children == null)
@@ -100,7 +103,7 @@ public class TreeNode implements Serializable {
      * Set all weights of the descendant nodes to 0.0.
      */
     public void resetWeights() {
-        HashSet<TreeNode> list = getDescendants();
+        Set<TreeNode> list = getDescendants();
         for (TreeNode tn : list) {
             tn.setWeight(0.0);
         }
@@ -168,8 +171,8 @@ public class TreeNode implements Serializable {
      * 
      * @return An ordered list of nodes from the leaf to the root.
      */
-    public ArrayList<TreeNode> getFullPath() {
-        ArrayList<TreeNode> list = getLeafPath();
+    public List<TreeNode> getFullPath() {
+        List<TreeNode> list = getLeafPath();
         list.remove(0);
         list = CollectionHelper.reverse(list);
         list.addAll(getRootPath());
@@ -207,7 +210,6 @@ public class TreeNode implements Serializable {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
         TreeNode arts = new TreeNode("arts");
         arts.setWeight(0.3);
         TreeNode movie = new TreeNode("movie");

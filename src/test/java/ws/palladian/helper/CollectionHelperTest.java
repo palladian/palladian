@@ -1,5 +1,8 @@
 package ws.palladian.helper;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,19 @@ public class CollectionHelperTest {
         Assert.assertEquals(2, (int) map.get(3.));
         Assert.assertEquals(1, (int) map.get(4.));
         Assert.assertEquals(4, map.size());
+    }
+    
+    @Test
+    public void testGetElementsByType() {
+        List<Object> list = new ArrayList<Object>();
+        list.add("string");
+        list.add(Double.valueOf(1));
+        list.add(Float.valueOf(1));
+        list.add(Boolean.TRUE);
+        list.add(Integer.valueOf(1));
+        assertEquals(3, CollectionHelper.getElementsByType(Number.class, list).size());
+        assertEquals(1, CollectionHelper.getElementsByType(String.class, list).size());
+        assertEquals(0, CollectionHelper.getElementsByType(List.class, list).size());
     }
 
 }
