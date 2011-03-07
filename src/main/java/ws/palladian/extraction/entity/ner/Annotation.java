@@ -258,7 +258,7 @@ public class Annotation extends UniversalInstance {
         for (int i = words.length - 1; i >= 0; i--) {
 
             String token = words[i];
-            if (StringHelper.isNumber(token)) {
+            if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
                 token = "NUM";
             }
 
@@ -275,6 +275,52 @@ public class Annotation extends UniversalInstance {
 
             if (wordNumber == 3) {
                 contexts[2] = token + " " + contexts[2];
+                break;
+            }
+
+            wordNumber++;
+        }
+
+        if (words.length < 3) {
+            contexts[2] = "";
+        }
+        if (words.length < 2) {
+            contexts[1] = "";
+        }
+
+        return contexts;
+    }
+
+    public String[] getRightContexts() {
+
+        String[] contexts = new String[3];
+        contexts[0] = "";
+        contexts[1] = "";
+        contexts[2] = "";
+
+        String rightContext = getRightContext();
+        String[] words = rightContext.split(" ");
+        int wordNumber = 1;
+        for (int i = 0; i < words.length; i++) {
+
+            String token = words[i];
+            if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
+                token = "NUM";
+            }
+
+            if (wordNumber == 1) {
+                contexts[0] = token;
+                contexts[1] = token;
+                contexts[2] = token;
+            }
+
+            if (wordNumber == 2) {
+                contexts[1] = contexts[1] + " " + token;
+                contexts[2] = contexts[2] + " " + token;
+            }
+
+            if (wordNumber == 3) {
+                contexts[2] = contexts[2] + " " + token;
                 break;
             }
 

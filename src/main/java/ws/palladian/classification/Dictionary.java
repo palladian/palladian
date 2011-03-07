@@ -157,7 +157,8 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     }
 
     /**
-     * In hierarchical classification mode, the root category is the main category. For evaluation purposes we need to telll the dictionary which categories are
+     * In hierarchical classification mode, the root category is the main category. For evaluation purposes we need to
+     * tell the dictionary which categories are
      * main categories.
      * 
      * @param categories Categories of which some are main categories.
@@ -454,7 +455,8 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
 
         Logger.getRootLogger().info("save dictionary...");
-        FileHelper.writeToFile("data/models/" + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + "webPageClassificationDictionary_" + getName() + ".csv",
+        FileHelper.writeToFile(
+                "data/temp/" + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + getName() + ".csv",
                 dictionaryString);
         // System.out.println("saved");
     }
