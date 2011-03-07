@@ -19,6 +19,7 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -233,18 +234,19 @@ public class FileHelper {
     public static String tail(String path, int numberOfLines) {
 
         StringBuilder contents = new StringBuilder();
+        BufferedReader reader = null;
 
         int totalNumberOfLines = getNumberOfLines(path);
 
         try {
-            FileReader in = new FileReader(path);
-            BufferedReader br = new BufferedReader(in);
+            
+            reader = new BufferedReader(new FileReader(path));
 
             String line = "";
             int lineCount = 0;
             do {
                 lineCount++;
-                line = br.readLine();
+                line = reader.readLine();
                 if (line == null) {
                     break;
                 }
@@ -255,15 +257,14 @@ public class FileHelper {
 
             } while (line != null);
 
-            in.close();
-            br.close();
-
         } catch (FileNotFoundException e) {
             LOGGER.error(path + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(path + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
             LOGGER.error(path + ", " + e.getMessage());
+        } finally {
+            close(reader);
         }
 
         return contents.toString();
@@ -273,22 +274,19 @@ public class FileHelper {
     public static String readFileToString(File file) {
 
         StringBuilder contents = new StringBuilder();
+        BufferedReader reader = null;
 
         try {
-            FileReader in = new FileReader(file);
-            BufferedReader br = new BufferedReader(in);
+            reader = new BufferedReader(new FileReader(file));
 
             String line = "";
             do {
-                line = br.readLine();
+                line = reader.readLine();
                 if (line == null) {
                     break;
                 }
                 contents.append(line).append("\n");
             } while (line != null);
-
-            in.close();
-            br.close();
 
         } catch (FileNotFoundException e) {
             LOGGER.error(file + ", " + e.getMessage());
@@ -296,6 +294,8 @@ public class FileHelper {
             LOGGER.error(file + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
             LOGGER.error(file + ", " + e.getMessage());
+        } finally {
+            close(reader);
         }
 
         return contents.toString();
@@ -339,22 +339,19 @@ public class FileHelper {
      */
     public static List<String> readFileToArray(File contentFile) {
         List<String> list = new ArrayList<String>();
+        BufferedReader reader = null;
 
         try {
-            FileReader in = new FileReader(contentFile);
-            BufferedReader br = new BufferedReader(in);
+            reader = new BufferedReader(new FileReader(contentFile));
 
             String line = "";
             do {
-                line = br.readLine();
+                line = reader.readLine();
                 if (line == null) {
                     break;
                 }
                 list.add(line);
             } while (line != null);
-
-            in.close();
-            br.close();
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
@@ -362,6 +359,8 @@ public class FileHelper {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
+        } finally {
+            close(reader);
         }
 
         return list;
@@ -436,9 +435,10 @@ public class FileHelper {
     public static int performActionOnEveryLine(Reader reader, LineAction la) {
 
         int lineNumber = 1;
+        BufferedReader br = null;
 
         try {
-            BufferedReader br = new BufferedReader(reader);
+            br = new BufferedReader(reader);
 
             String line = "";
             do {
@@ -451,14 +451,14 @@ public class FileHelper {
 
             } while (line != null && la.looping);
 
-            br.close();
-
         } catch (FileNotFoundException e) {
             LOGGER.error(reader + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(reader + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
             LOGGER.error(reader + ", " + e.getMessage());
+        } finally {
+            close(br);
         }
 
         return lineNumber - 1;
@@ -523,18 +523,21 @@ public class FileHelper {
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
+        
+        FileWriter writer = null;
 
         try {
-            FileWriter fileWriter = new FileWriter(file);
+            writer = new FileWriter(file);
             for (Object line : lines) {
-                fileWriter.write(line.toString());
-                fileWriter.write(System.getProperty("line.separator"));
+                writer.write(line.toString());
+                writer.write(System.getProperty("line.separator"));
             }
-            fileWriter.flush();
-            fileWriter.close();
+            writer.flush();
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
             noErrorOccurred = false;
+        } finally {
+            close(writer);
         }
         return noErrorOccurred;
     }
@@ -1380,6 +1383,25 @@ public class FileHelper {
         }
 
         return concatenated;
+    }
+    
+    private static void close(Reader reader) {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                LOGGER.error(e);
+            }
+        }
+    }
+    private static void close(Writer writer) {
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                LOGGER.error(e);
+            }
+        }
     }
 
     /**
