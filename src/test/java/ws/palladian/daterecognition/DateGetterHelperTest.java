@@ -556,7 +556,7 @@ public class DateGetterHelperTest {
         }
     }
 
-    
+    @Ignore
     @Test
     public void testGetDate() {
         String url = "src/test/resources/webPages/dateExtraction/alltop.htm";
