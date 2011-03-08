@@ -558,8 +558,8 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetDate() {
-        String url = DateGetterHelperTest.class.getResource("/webPages/dateExtraction/alltop.htm").getFile();
-        url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
+        //String url = DateGetterHelperTest.class.getResource("/webPages/dateExtraction/alltop.htm").getFile();
+        String url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
         //url = "http://www.abanet.org/antitrust/committees/intell_property/standardsettingresources.html";
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
