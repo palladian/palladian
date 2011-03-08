@@ -16,7 +16,7 @@ import ws.palladian.helper.date.DateArrayHelper;
 public abstract class TechniqueDateRater<T> {
 
 	
-	
+	protected double minRate = 0.20;
 	protected PageDateType dateType;
 	
 	public TechniqueDateRater(PageDateType dateType) {
@@ -52,4 +52,13 @@ public abstract class TechniqueDateRater<T> {
     	
     	return date;
     }
+    
+    public void setMinRate(double minRate){
+    	this.minRate = minRate;
+    }
+    
+    public double getMinRate(){
+    	return this.minRate;
+    }
+    
 }

@@ -10,9 +10,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.DateGetter;
-import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.daterecognition.dates.HeadDate;
@@ -44,6 +41,7 @@ public class DateGetterHelperTest {
             final String url14 = "http://www.example.com/text/othertext/20100630example.html";
             final String url15 = "http://www.guardian.co.uk/world/2002/sep/06/iraq.johnhooper";
             final String url16 = "http://www.gazettextra.com/news/2010/sep/23/abortion-issue-senate-races/";
+            final String url17 = "http://www.tmcnet.com/news/2010/06/30/1517705.htm";
 
             // Cases with given day
             String time = "2010-06-30";
@@ -72,6 +70,8 @@ public class DateGetterHelperTest {
             assertEquals(url15, "2002-09-06", udg.getFirstDate().getNormalizedDateString());
             udg.setUrl(url16);
             assertEquals(url16, "2010-09-23", udg.getFirstDate().getNormalizedDateString());
+            udg.setUrl(url17);
+            assertEquals(url17, time, udg.getFirstDate().getNormalizedDateString());
 
             // Cases without given day, so day will be set to 1st
             time = "2010-06";
@@ -536,9 +536,8 @@ public class DateGetterHelperTest {
     }
 
     @Test
-    @Ignore
     public void testGetContentDates2() {
-        final String url = DateGetterHelperTest.class.getResource("/dateExtraction/Bangkok.htm").getFile();
+        final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
 
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
@@ -557,12 +556,11 @@ public class DateGetterHelperTest {
     }
 
     @Test
-    @Ignore
     public void testGetDate() {
         String url = DateGetterHelperTest.class.getResource("/webPages/dateExtraction/alltop.htm").getFile();
         url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
         url = "http://www.abanet.org/antitrust/committees/intell_property/standardsettingresources.html";
-        if (!AllTests.ALL_TESTS) {
+        if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllTrue();
@@ -636,7 +634,7 @@ public class DateGetterHelperTest {
     @Test
     public void testGetHeadDates() {
         if (AllTests.ALL_TESTS) {
-            String url = "data/test/webPages/dateExtraction/zeit2.htm";
+            String url = "src/test/resources/webpages/dateExtraction/zeit2.htm";
             ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
             compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
             compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
@@ -671,8 +669,8 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Test
     @Ignore
+    @Test
     public void testFindRelativeDate() {
         String text = "5 days ago";
         ExtractedDate relDate = DateGetterHelper.findRelativeDate(text);

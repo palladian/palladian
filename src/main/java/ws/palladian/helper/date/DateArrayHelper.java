@@ -956,4 +956,21 @@ public class DateArrayHelper {
     	}
     	return returnList;
     }
+    
+    /**
+     * If some rates are greater then one, use this method to normalize them.
+     * 
+     * @param <T>
+     * @param dates
+     */
+    public static <T> HashMap<T, Double> normalizeRate(HashMap<T, Double> dates) {
+    	HashMap<T, Double> returnDates = dates;
+        double highestRate = DateArrayHelper.getHighestRate(returnDates);
+        if (highestRate > 1.0) {
+            for (Entry<T, Double> e : returnDates.entrySet()) {
+            	returnDates.put(e.getKey(), Math.round((e.getValue() / highestRate) * 10000) / 10000.0);
+            }
+        }
+        return returnDates;
+    }
 }

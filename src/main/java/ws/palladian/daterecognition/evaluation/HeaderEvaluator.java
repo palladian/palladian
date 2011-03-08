@@ -5,29 +5,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.daterecognition.dates.HeadDate;
-import ws.palladian.daterecognition.dates.StructureDate;
-import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.daterecognition.technique.HTTPDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
-import ws.palladian.daterecognition.technique.StructureDateGetter;
-import ws.palladian.daterecognition.technique.StructureDateRater;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
-import ws.palladian.daterecognition.technique.testtechniques.TestHeadDateRater;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
 import ws.palladian.web.Crawler;
 
 public class HeaderEvaluator {
@@ -42,7 +34,7 @@ public class HeaderEvaluator {
 		TechniqueDateGetter<HeadDate> dg = new HeadDateGetter();
 		TechniqueDateRater<HeadDate> dr = new HeadDateRater(PageDateType.publish);
 		
-		TestHeadDateRater testDR = new TestHeadDateRater(PageDateType.publish);
+		//TestHeadDateRater testDR = new TestHeadDateRater(PageDateType.publish);
 		
 		String file = "data/evaluation/daterecognition/datasets/headdataset.txt";
 		evaluate("pub1", DBExport.PUB_DATE, dg, dr, file);
@@ -55,7 +47,7 @@ public class HeaderEvaluator {
 		mergeUrlsets(in1, in2, file);
 		*/
 		
-		HashMap<Byte, Integer[]> parameter = new HashMap<Byte, Integer[]>();
+		//HashMap<Byte, Integer[]> parameter = new HashMap<Byte, Integer[]>();
 		//parameter.put(testDR.MOD_DATE_PARAMETER, null);
 		//Integer[] measure = {DateComparator.MEASURE_MIN};
 		//parameter.put(testDR.MEASURE_PARAMETER, measure);
@@ -94,76 +86,6 @@ public class HeaderEvaluator {
 
 	private static <T> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
 		Evaluator.evaluate(EvaluationHelper.HEADEVAL, round, pub_mod, dg, dr, file);
-		
-		/*int truePositiv = 0;
-		int trueNegative = 0;
-		int falsePositv = 0;
-		int falseNegativ = 0;
-		int counter=0;
-		int compare;
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(maxURLs);
-		Crawler crawler = new Crawler();
-		
-			
-		for(Entry<String, DBExport> e : set.entrySet()){
-			//URL is local path!
-			String url = e.getValue().getFilePath();
-			String structDateString = "";
-			HeadDate bestDate = null;
-			
-			System.out.println(url);
-				System.out.print("get dates... ");
-			hdg.setDocument(crawler.getWebDocument(url));
-			ArrayList<HeadDate> headDates = hdg.getDates();
-			headDates = DateArrayHelper.filter(headDates, DateArrayHelper.FILTER_FULL_DATE);
-			headDates = DateArrayHelper.filter(headDates, DateArrayHelper.FILTER_IS_IN_RANGE);
-			if(headDates.size() > 0){
-				System.out.print("rate...");
-				HashMap<HeadDate, Double> headDateMap = hdr.rate(headDates);
-				double rate = DateArrayHelper.getHighestRate(headDateMap);
-				headDates = DateArrayHelper.getRatedDates(headDateMap, rate);
-				if(headDates.size() > 1){
-					DateComparator dc = new DateComparator();
-					if(pub_mod == DBExport.PUB_DATE){
-						bestDate = dc.getOldestDate(headDates);
-					}else{
-						bestDate = dc.getYoungestDate(headDates);
-					}
-				}else{
-					bestDate = headDates.get(0);
-				}
-			
-			}
-				
-			if(bestDate != null){
-				structDateString = bestDate.getNormalizedDate(true);
-			}
-				System.out.println("compare...");
-			compare = EvaluationHelper.compareDate(bestDate, e.getValue(), pub_mod);
-				System.out.print(compare + " headDate: " + structDateString + " - " + pub_mod + ": " + e.getValue().get(pub_mod));
-			switch(compare){
-				case DataSetHandler.FN:
-					falseNegativ++;
-					break;
-				case DataSetHandler.FP:
-					falsePositv++;
-					break;
-				case DataSetHandler.TN:
-					trueNegative++;
-					break;
-				case DataSetHandler.TP:
-					truePositiv++;
-					break;
-					
-			}
-			DataSetHandler.writeInDB(EvaluationHelper.HEADEVAL,e.getValue().get(DBExport.URL), compare, round);
-			counter++;
-			System.out.println();
-			System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
-			System.out.println("---------------------------------------------------------------------");
-		}
-		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
-		*/
 	}	
 
 	
@@ -176,7 +98,7 @@ public class HeaderEvaluator {
 			System.out.println(index + ": " + e.getKey());
 			dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
 			ArrayList<HeadDate> dates = dg.getDates();
-			if(dates.size() > 0){
+			if(dates.size() != 0){
 				headSet.add(e.getValue());
 			}
 			index++;
@@ -216,7 +138,7 @@ public class HeaderEvaluator {
 					System.out.println(lineindex + ": " + url);
 					dg.setDocument(c.getWebDocument(url));
 					ArrayList<HTTPDate> dates = dg.getDates();
-					if(dates.size() > 0){
+					if(!dates.isEmpty()){
 						System.out.println("+");
 						headSet.add(line);
 					}
@@ -226,7 +148,7 @@ public class HeaderEvaluator {
 			}
 			br.close();
 			fr.close();
-		}catch(Exception e){
+		}catch(IOException e){
 			
 		}
 		
@@ -255,7 +177,7 @@ public class HeaderEvaluator {
 			HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
 			merged.putAll(set1);
 			merged.putAll(set2);
-			String separator = DataSetHandler.separator;
+			String separator = DataSetHandler.SEPARATOR;
 			File file = new File(out);
 			try{
 				FileWriter outw = new FileWriter(file, false);

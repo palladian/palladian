@@ -25,18 +25,18 @@ public class WebPageDatEvaluatorTest {
     @Test
     public void testGetBestRatedDate() {
     	if(AllTests.ALL_TESTS){
-	        String url = "data/test/webPages/dateExtraction/zeit2.htm";
+	        String url =  WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
 	        WebPageDateEvaluator wpde = new WebPageDateEvaluator();
 	        wpde.setUrl(url);
 	        wpde.evaluate();
 	        assertEquals("2010-09-02 06:00:00", wpde.getBestRatedDate().getNormalizedDateString());
 	
-	        url = "data/test/webPages/dateExtraction/zeit1.htm";
+	        url =WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
 	        wpde.setUrl(url);
 	        wpde.evaluate();
 	        assertEquals("2010-08-22", wpde.getBestRatedDate().getNormalizedDateString());
 	
-	        url = "data/test/webPages/dateExtraction/kullin.htm";
+	        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
 	        wpde.setUrl(url);
 	        wpde.evaluate();
 	        assertEquals("2010-05-28 22:41", wpde.getBestRatedDate().getNormalizedDateString());

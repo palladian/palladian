@@ -17,23 +17,22 @@ import ws.palladian.helper.date.DateComparator;
  */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 
+	//protected double minRate = 0.3;
+	
 	protected byte hightPriority;
 	protected byte middlePriority;
 	protected byte lowPriority;
 	
     public StructureDateRater(PageDateType dateType) {
 		super(dateType);
-		switch(this.dateType){
-			case publish: 
-				hightPriority = KeyWords.PUBLISH_KEYWORD;
-				middlePriority = KeyWords.MODIFIED_KEYWORD;
-				lowPriority = KeyWords.OTHER_KEYWORD;
-				break;
-			case last_modified:
-				hightPriority = KeyWords.MODIFIED_KEYWORD;
-				middlePriority = KeyWords.PUBLISH_KEYWORD;
-				lowPriority = KeyWords.OTHER_KEYWORD;
-				break;
+		if(this.dateType.equals(PageDateType.publish)){
+			hightPriority = KeyWords.PUBLISH_KEYWORD;
+			middlePriority = KeyWords.MODIFIED_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
+		}else{
+			hightPriority = KeyWords.MODIFIED_KEYWORD;
+			middlePriority = KeyWords.PUBLISH_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
 		}
 	}
 

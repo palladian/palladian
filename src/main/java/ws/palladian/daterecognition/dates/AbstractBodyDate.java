@@ -1,12 +1,14 @@
 package ws.palladian.daterecognition.dates;
 
+import org.w3c.dom.Node;
+
 /**
  * Template for dates found in HTML-body.
  * 
  * @author Martin Gregor
  * 
  */
-public abstract class BodyDate extends KeywordDate {
+public abstract class AbstractBodyDate extends KeywordDate {
 
     public static final int STRUCTURE_DEPTH = 101;
 
@@ -26,16 +28,21 @@ public abstract class BodyDate extends KeywordDate {
     private String tagNode = null;
 
     /**
+     * Node.
+     */
+    private Node node = null;
+    
+    /**
      * 
      */
-    public BodyDate() {
+    public AbstractBodyDate() {
         // TODO Auto-generated constructor stub
     }
 
     /**
      * @param dateString
      */
-    public BodyDate(String dateString) {
+    public AbstractBodyDate(String dateString) {
         super(dateString);
         // TODO Auto-generated constructor stub
     }
@@ -44,7 +51,7 @@ public abstract class BodyDate extends KeywordDate {
      * @param dateString
      * @param format
      */
-    public BodyDate(String dateString, String format) {
+    public AbstractBodyDate(String dateString, String format) {
         super(dateString, format);
         // TODO Auto-generated constructor stub
     }
@@ -114,4 +121,13 @@ public abstract class BodyDate extends KeywordDate {
     public String getTagNode() {
         return tagNode;
     }
+    
+    public Node getNode(){
+    	return node;
+    }
+    
+    public void setNode(Node node){
+    	this.node= node;
+    }
+    
 }

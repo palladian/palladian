@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 
 public class HakiaDataSet {
@@ -26,8 +25,6 @@ public class HakiaDataSet {
 			}else{
 				returnMap.put(url, "");
 			}
-				
-			System.out.println(returnMap.get(url) + " " + url);
 		}
 		
 		return returnMap;
@@ -41,7 +38,6 @@ public class HakiaDataSet {
 		DataSetHandler.openConnection();
 		
 		try {
-			System.out.println(urlMap.size());
 			for(Entry<String, String> e : urlMap.entrySet()){
 				sqlQuery ="INSERT INTO hakiadates (url, date) VALUES ('"+ e.getKey().replaceAll("'", "''") + "', '" + e.getValue().replaceAll("'", "''") + "') ON DUPLICATE KEY UPDATE date='" + e.getValue().replaceAll("'", "''") + "'";
 				DataSetHandler.st.executeUpdate(sqlQuery);

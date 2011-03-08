@@ -36,25 +36,27 @@ public final class KeyWords {
             "added", "geschrieben" };
 
     /** Kewords found in content of documents */
-    public static final String[] BODY_CONTENT_KEYWORDS_ALL = { "published", "publish", "posted", "create", "created",
-            "released", "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate",
-            "display_date", "last-modified", "last modified", "date-last-modified", "update", "updated", "date",
-            "datetime", "datestamp", "date-header", "revised", "revise", "added" };
+    public static final String[] BODY_CONTENT_KEYWORDS_ALL = { "published", "publish", "posted", "created", "create",
+            "released", "release", "pubdate", "veröffentlicht", "geschrieben", "added",
+            "updated", "update", "pdate", "revised", "revise", "aktualisiert", 
+            "date_first_released", "date_last_published", "displaydate", "display_date",
+            "date-last-modified", "last-modified", "last modified",
+            "datetime", "datestamp", "date-header", "date"};
 
     /** Keywords belonging to first priority class. */
-    public static final String[] firstPriorityKeywords = { "published", "publish", "posted", "released", "release",
+    public static final String[] FIRST_PRIORITY_KEYWORDS = { "published", "publish", "posted", "released", "release",
             "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "display_date",
             "Veröffentlicht", "create", "created", "added", "geschrieben" };
     /** Keywords belonging to second priority class. */
-    public static final String[] secondPriorityKeywords = { "last-modified", "last modified", "date-last-modified",
+    public static final String[] SECOND_PRIORITY_KEYWORDS = { "last-modified", "last modified", "date-last-modified",
             "updated", "update", "change", "modified", "revised", "revise", "aktualisiert" };
     /** Keywords belonging to second priority class. */
-    public static final String[] thirdPriorityKexwords = { "date", "time", "datetime", "datestamp", "dc:date",
+    public static final String[] THIRD_PRIORITY_KEYWORDS = { "date", "time", "datetime", "datestamp", "dc:date",
             "xsd:date", "xsd:dateTime", "date-header" };
 
     /** All keywords. */
-    public static final String[] allKeywords = ArrayHelper.concat(firstPriorityKeywords, ArrayHelper.concat(
-            secondPriorityKeywords, thirdPriorityKexwords));
+    public static final String[] ALL_KEYWORDS = ArrayHelper.concat(FIRST_PRIORITY_KEYWORDS, ArrayHelper.concat(
+            SECOND_PRIORITY_KEYWORDS, THIRD_PRIORITY_KEYWORDS));
 
     /**
      * Returns the classpriority of a keyword. If a date has no keyword -1 will be returned.<br>
@@ -66,11 +68,11 @@ public final class KeyWords {
     public static byte getKeywordPriority(String keyword) {
         byte keywordPriority = -1;
         if (keyword != null) {
-            if (hasKeyword(keyword, KeyWords.firstPriorityKeywords)) {
+            if (hasKeyword(keyword, KeyWords.FIRST_PRIORITY_KEYWORDS)) {
                 keywordPriority = KeyWords.PUBLISH_KEYWORD;
-            } else if (hasKeyword(keyword, KeyWords.secondPriorityKeywords)) {
+            } else if (hasKeyword(keyword, KeyWords.SECOND_PRIORITY_KEYWORDS)) {
                 keywordPriority = KeyWords.MODIFIED_KEYWORD;
-            } else if (hasKeyword(keyword, KeyWords.thirdPriorityKexwords)) {
+            } else if (hasKeyword(keyword, KeyWords.THIRD_PRIORITY_KEYWORDS)) {
                 keywordPriority = KeyWords.OTHER_KEYWORD;
             }
         }

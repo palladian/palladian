@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,19 +15,13 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.ExtractedDateHelper;
-import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.daterecognition.technique.ContentDateGetter;
-import ws.palladian.daterecognition.technique.ContentDateRater;
 import ws.palladian.daterecognition.technique.HTTPDateGetter;
 import ws.palladian.daterecognition.technique.HttpDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
-import ws.palladian.daterecognition.technique.TechniqueDateGetter;
-import ws.palladian.daterecognition.technique.TechniqueDateRater;
-import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 
@@ -233,7 +228,7 @@ private static void mergeUrlsets(String in1, String in2, String out){
 		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
 		merged.putAll(set1);
 		merged.putAll(set2);
-		String separator = DataSetHandler.separator;
+		String separator = DataSetHandler.SEPARATOR;
 		File file = new File(out);
 		try{
 			FileWriter outw = new FileWriter(file, false);
@@ -313,10 +308,10 @@ private static void mergeUrlsets(String in1, String in2, String out){
 			}
 			br.close();
 			fr.close();
-		}catch(Exception e){
-			
+		}catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		try{
 			File file = new File(out);
 			FileWriter fw = new FileWriter(file);

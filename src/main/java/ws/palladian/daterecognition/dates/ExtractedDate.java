@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateHelper;
 
 /**
  * Represents a date, found in a webpage. <br>
@@ -240,7 +239,6 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_NO[1])) {
             setDatebyWeekOfYear(dateString, true, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW_NO[1])) {
-            System.out.println(dateString);
             setDatebyWeekOfYear(dateString, false, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO[1])) {
             setDateByDayOfYear(false);
@@ -401,10 +399,29 @@ public class ExtractedDate {
         return getNormalizedDate(true);
     }
 
-    public Date getNormalizedDate() throws Exception {
-        return new Date(DateHelper.getTimestamp(getNormalizedDateString()));
+    /**
+     * Converts this extracted-date in a {@link Date}. <br>
+     * Be careful, if a datepart is not given, it will be set to 0. (Except day will be set to 1). <br>
+     * 
+     * @return
+     */
+    public Date getNormalizedDate(){
+        return new Date(getLongDate());
     }
 
+    public long getLongDate(){
+    	int year = (this.year == -1) ? 0 : this.year;
+    	int month = (this.month == -1) ? 0 : this.month;
+    	int day = (this.day == -1) ? 1 : this.day;
+    	int hour = (this.hour == -1) ? 0 : this.hour;
+    	int minute = (this.minute == -1) ? 0 : this.minute;
+    	int second = (this.second == -1) ? 0 : this.minute;
+    	
+    	Calendar cal = new GregorianCalendar();
+    	cal.set(year, month, day, hour, minute, second);
+    	return cal.getTimeInMillis();
+    }
+    
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
      * 

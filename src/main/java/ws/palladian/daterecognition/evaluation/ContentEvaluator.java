@@ -16,7 +16,6 @@ import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
 
 public class ContentEvaluator {
 
@@ -27,28 +26,32 @@ public class ContentEvaluator {
 		
 		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
 		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(PageDateType.publish);
-		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
+		//TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
 		
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		evaluate("pub0",DBExport.PUB_DATE, dg, pub_dr, file);
-		evaluate("mod0",DBExport.MOD_DATE, dg, mod_dr, file);
+		String pub = "pub5";
+		String mod = "mod5";
+		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
+		//evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
 		
 		
 		
 		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
-		System.out.println("pub");
-		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
+		
+		System.out.println(pub);
+		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
 				
-		System.out.println("mod");
-		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
+		
+		System.out.println(mod);
+		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
 		
 	}
 	
@@ -131,7 +134,7 @@ public class ContentEvaluator {
 	
 	private static HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
         HashMap<ContentDate, Double> result = dates;
-        if (result.size() > 0 && result != null) {
+        if (result.size() > 0) {
             ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
             ArrayList<ContentDate> orderPosInDoc = orderAge;
 

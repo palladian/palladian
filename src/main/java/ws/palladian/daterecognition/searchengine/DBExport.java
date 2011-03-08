@@ -189,7 +189,7 @@ public class DBExport {
 		
 	}
 	public String toString(){
-		String separator = DataSetHandler.separator;
+		String separator = DataSetHandler.SEPARATOR;
 		String write =getUrl() + separator
 		+ getFilePath() + separator
 		+ getPubDate() + separator

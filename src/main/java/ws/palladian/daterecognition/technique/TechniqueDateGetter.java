@@ -32,5 +32,6 @@ public abstract class TechniqueDateGetter<T> {
         this.document = document;
     }
     
+    public void reset(){}
 
 }

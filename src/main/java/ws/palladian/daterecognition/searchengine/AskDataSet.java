@@ -23,8 +23,6 @@ public class AskDataSet {
 			}else{
 				returnMap.put(url, "");
 			}
-				
-			System.out.println(returnMap.get(url) + " " + url);
 		}
 		
 		return returnMap;
@@ -38,11 +36,10 @@ public class AskDataSet {
 		
 		DataSetHandler.openConnection();
 		try {
-			System.out.println(urlMap.size());
 			for(Entry<String, String> e : urlMap.entrySet()){
-				
-				sqlQuery ="INSERT INTO askdates (url, date) VALUES ('"+ e.getKey().replaceAll("'", "''") + "', '" + e.getValue().replaceAll("'", "''") + "') ON DUPLICATE KEY UPDATE date='" + e.getValue().replaceAll("'", "''") + "'";
-				System.out.println(sqlQuery);
+				sqlQuery ="INSERT INTO askdates (url, date) " +
+						"VALUES ('"+ e.getKey().replaceAll("'", "''") + "', '" + e.getValue().replaceAll("'", "''") + "') " +
+						"ON DUPLICATE KEY UPDATE date='" + e.getValue().replaceAll("'", "''") + "'";
 				DataSetHandler.st.executeUpdate(sqlQuery);
 			}
 		} catch (SQLException e) {

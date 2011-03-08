@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.hamcrest.core.IsInstanceOf;
-
 import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HeadDate;
-import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.web.Crawler;
 
@@ -37,11 +33,12 @@ public abstract class Evaluator {
 		Crawler crawler = new Crawler();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
-			
+			dg.reset();
 			T bestDate = null;
 			String bestDateString ="";
 			String url =e.getValue().get(DBExport.URL);
-			System.out.println(url);
+			dg.setUrl(url);
+			//System.out.println(url);
 			if(table.equalsIgnoreCase(EvaluationHelper.CONTENTEVAL) || table.equalsIgnoreCase(EvaluationHelper.STRUCTEVAL) || table.equalsIgnoreCase(EvaluationHelper.HEADEVAL)){
 				String path = e.getValue().get(DBExport.PATH);
 				//System.out.println(path);
@@ -52,9 +49,12 @@ public abstract class Evaluator {
 			}
 			
 			System.out.print("get dates... ");
-				
+			StopWatch timer = new StopWatch();
 			ArrayList<T> list = dg.getDates();
+			timer.stop();
+			timer.getElapsedTimeString(true);
 			list = DateArrayHelper.removeNull(list);
+			
 			if(list.size() > 0){
 				
 				ArrayList<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
@@ -67,15 +67,16 @@ public abstract class Evaluator {
 				
 				if(filteredDates.size()>0){
 						
-					System.out.print("rate dates... ");
+					//System.out.print("rate dates... ");
 					dr.rate(filteredDates);
-					System.out.print("best date... ");
+					//System.out.print("best date... ");
 					bestDate = dr.getBestDate();
-					
-					bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+					if(bestDate != null){
+						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+					}
 				}
 			}
-			System.out.println("compare...");
+			//System.out.println("compare...");
 			
 			compare = EvaluationHelper.compareDate(bestDate, e.getValue(),pub_mod);
 			ExtractedDate date;
@@ -92,16 +93,25 @@ public abstract class Evaluator {
 				dbExportDateString +=  date.getNormalizedDateString();
 			}
 			
-			System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
+			//System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
 			
 			switch(compare){
 				case DataSetHandler.WF:
 					wf++;
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
 					break;
 				case DataSetHandler.WNF:
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
 					wnf++;
 					break;
 				case DataSetHandler.FF:
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
 					ff++;
 					break;
 				case DataSetHandler.RNF:
@@ -116,11 +126,12 @@ public abstract class Evaluator {
 			DataSetHandler.writeInDB(table, e.getValue().getUrl(), compare, round);
 			counter++;
 			
-			System.out.println();
+			//System.out.println();
 			System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
 			System.out.println("---------------------------------------------------------------------");
+			
 		}
-		System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+		//System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
 	}
 	
 }
