@@ -10,12 +10,13 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 
+/**
+ * XXX: unicode problems "\uFFFF" strings are too long (longer than the allowed 50 character.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class DictionaryDBIndexH2 extends DictionaryIndex {
-
-    /**
-     * The configuration must be located in config/db_h2.conf
-     */
-    // private static PropertiesConfiguration config;
 
     // //////////////////database paramenters ////////////////////
     private Connection connection = null;
@@ -120,23 +121,23 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             PreparedStatement psCreateTable4;
 
             psCreateTable1 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
+            .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS categories (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,name varchar(50) NOT NULL);CREATE INDEX IF NOT EXISTS i3 ON categories(name);");
+            .prepareStatement("CREATE TABLE IF NOT EXISTS categories (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,name varchar(50) NOT NULL);CREATE INDEX IF NOT EXISTS i3 ON categories(name);");
             runUpdate(psCreateTable2);
 
             psCreateTable3 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary (id bigint(20) unsigned NOT NULL auto_increment PRIMARY KEY,word varchar(50) NOT NULL);CREATE INDEX IF NOT EXISTS i4 ON dictionary(word);");
+            .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary (id bigint(20) unsigned NOT NULL auto_increment PRIMARY KEY,word varchar(50) NOT NULL);CREATE INDEX IF NOT EXISTS i4 ON dictionary(word);");
             runUpdate(psCreateTable3);
 
             psCreateTable4 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS tuples (wordID bigint(20) unsigned NOT NULL,categoryID int(10) unsigned NOT NULL,relevance double NOT NULL, PRIMARY KEY (wordID,categoryID))");
+            .prepareStatement("CREATE TABLE IF NOT EXISTS tuples (wordID bigint(20) unsigned NOT NULL,categoryID int(10) unsigned NOT NULL,relevance double NOT NULL, PRIMARY KEY (wordID,categoryID))");
             runUpdate(psCreateTable4);
 
             psRead = connection
-                    .prepareStatement("SELECT categories.name,tuples.relevance FROM dictionary,tuples,categories WHERE dictionary.word = ? AND dictionary.id = tuples.wordID AND categories.id = tuples.categoryID");
+            .prepareStatement("SELECT categories.name,tuples.relevance FROM dictionary,tuples,categories WHERE dictionary.word = ? AND dictionary.id = tuples.wordID AND categories.id = tuples.categoryID");
             psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
             psGetWordID = connection.prepareStatement("SELECT id FROM dictionary WHERE word = ?");
             psGetCategoryID = connection.prepareStatement("SELECT id FROM categories WHERE name = ?");

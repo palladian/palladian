@@ -189,10 +189,14 @@ public class PageSentenceExtractor {
                     webImage.setTitle(nnm.getNamedItem("title").getTextContent());
                 }
                 if (nnm.getNamedItem("width") != null) {
-                    webImage.setWidth(Integer.parseInt(nnm.getNamedItem("width").getTextContent()));
+                    String w = nnm.getNamedItem("width").getTextContent();
+                    w.replace("px", "");
+                    webImage.setWidth(Integer.parseInt(w));
                 }
                 if (nnm.getNamedItem("height") != null) {
-                    webImage.setHeight(Integer.parseInt(nnm.getNamedItem("height").getTextContent()));
+                    String h = nnm.getNamedItem("height").getTextContent();
+                    h.replace("px", "");
+                    webImage.setHeight(Integer.parseInt(h));
                 }
 
                 imageURLs.add(webImage);

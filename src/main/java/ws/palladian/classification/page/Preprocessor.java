@@ -108,9 +108,9 @@ public final class Preprocessor implements Serializable {
 
         if (getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS
                 && getFeatureSetting().getMaxNGramLength() == 1 && (termString.length() < getFeatureSetting()
-                .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength())
-                || map.size() >= getFeatureSetting().getMaxTerms()
-                || isStopWord(termString)) {
+                        .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength())
+                        || map.size() >= getFeatureSetting().getMaxTerms()
+                        || isStopWord(termString)) {
             return;
         }
 

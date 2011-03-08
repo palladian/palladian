@@ -136,9 +136,10 @@ public class PalladianLangDetect extends LanguageClassifier {
      * Train the language detector on a dataset.
      * 
      * @param dataset The dataset to train on.
-     * @param classifierName The name for the learned classifier.
+     * @param classifierName The name of the classifier. The name is added to the classifierPath.
+     * @param classifierPath The path where the classifier should be saved to. For example, <tt>data/models/</tt>
      */
-    public static void train(Dataset dataset, String classifierName) {
+    public static void train(Dataset dataset, String classifierName, String classifierPath) {
 
         // take the time for the learning
         StopWatch stopWatch = new StopWatch();
@@ -150,9 +151,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         dataset.setFirstFieldLink(true);
 
         // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier(classifierName,
-                "data/models/" + classifierName
-                + "/");
+        TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
@@ -193,15 +192,15 @@ public class PalladianLangDetect extends LanguageClassifier {
     public static void main(String[] args) {
 
         // ///////////////// use the language classifier ///////////////////
-        String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
-        PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
-        String language = pld0.classify("This is a sample text in English");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Se trata de un texto de muestra en español");
-        System.out.println("The text was classified as: " + language);
-        System.exit(0);
+        // String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
+        // PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
+        // String language = pld0.classify("This is a sample text in English");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Se trata de un texto de muestra en español");
+        // System.out.println("The text was classified as: " + language);
+        // System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
@@ -216,11 +215,12 @@ public class PalladianLangDetect extends LanguageClassifier {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset, the first field is a link, and columns are separated with a space
-        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100_split1.txt");
+        dataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split2.txt");
+
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        PalladianLangDetect.train(dataset, "palladianLanguageJRC");
+        PalladianLangDetect.train(dataset, "palladianLanguageJRC", "data/models/");
         // ////////////////////////////////////////////////////////////////
 
     }

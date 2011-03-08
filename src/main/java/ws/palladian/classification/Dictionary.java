@@ -123,7 +123,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             } else {
                 Logger.getRootLogger().error(
                         "no dictionary index could be found for the dictionary " + getName() + " with the index type "
-                                + indexType);
+                        + indexType);
             }
 
         }
@@ -491,7 +491,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             emptyIndex();
         }
 
-//        HashSet<String> usedString = new HashSet<String>();
+        //        HashSet<String> usedString = new HashSet<String>();
 
         int c = 0;
         for (Map.Entry<Term, CategoryEntries> dictionaryEntry : entrySet()) {
@@ -500,6 +500,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             // if (!usedString.add(dictionaryEntry.getKey().getText())) {
             // System.out.println("wait " + dictionaryEntry.getKey());
             // }
+
             dictionaryIndex.write(dictionaryEntry.getKey().getText(), dictionaryEntry.getValue());
             if (c % 4000 == 0) {
                 double percent = MathHelper.round(100.0 * c / entrySet().size(), 2);
@@ -605,7 +606,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     public void setClassType(int classType) {
         this.classType = classType;
     }
-	
+
 
     public int getClassType() {
         return classType;
