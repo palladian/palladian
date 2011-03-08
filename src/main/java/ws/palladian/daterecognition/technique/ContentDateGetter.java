@@ -1,7 +1,10 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -11,7 +14,9 @@ import org.w3c.dom.Text;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.helper.RegExp;
 import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -22,15 +27,33 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
+	
+	
+	/**
+	 * Stores all keywords with index, that are within document's text . 
+	 */
+	private HashMap<Integer, String> keyContentMap = new HashMap<Integer, String>();
+	/**
+	 * Stores a node and its keyword.
+	 */
+	private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
+	/**
+	 * Stores the position after in a document found text. <br>
+	 * Used to restart search after an already found text. 
+	 */
+	private HashMap<String, Integer> nodeIndexMap = new HashMap<String, Integer>();
+	private String doc; 
+	
     @Override
     public ArrayList<ContentDate> getDates() {
         ArrayList<ContentDate> result = new ArrayList<ContentDate>();
         if (document != null) {
             result = getContentDates(this.document);
+            //DataSetHandler.writeDateFactors(result, url, doc);
         }
         return result;
     }
-
+   
     /**
      * Get dates of text-nodes of body part of document.
      * 
@@ -38,47 +61,46 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return List of dates.
      */
     private ArrayList<ContentDate> getContentDates(Document document) {
-        ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-        NodeList body = document.getElementsByTagName("body");
-        String doc = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(HTMLHelper.documentToReadableText(body
-                .item(0))));
-        if (body.getLength() > 0) {
-            dates.addAll(enterTextnodes(body.item(0), doc, 0));
-        }
+    	ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
+    	List<Node> nodeList = XPathHelper.getNodes(document, "//text()");
+    	if(!nodeList.isEmpty()){
+    		NodeList body = document.getElementsByTagName("body");
+    		//Get webpage as text (for finding position).
+    		this.doc = StringHelper.removeDoubleWhitespaces(
+    				HTMLHelper.replaceHTMLSymbols(
+    						HTMLHelper.documentToReadableText(body.item(0))));
+    		/**
+    		 * Prepare Pattern for faster matching.
+    		 * Only regExps.length. Not (regExps.length)*(nodeList.size) [n < n*m] 
+    		 */
+    		Object[] regExps = RegExp.getAllRegExp();
+        	Pattern[] pattern = new Pattern[regExps.length];
+        	Matcher[] matcher = new Matcher[regExps.length];
+        	for(int i = 0; i < regExps.length; i++){
+        		pattern[i] = Pattern.compile(((String[])regExps[i])[0]);
+        		matcher[i] = pattern[i].matcher("");
+        	}
+        	
+        	setDocKeywords();
+        	
+    		for(int i = 0; i< nodeList.size(); i++){
+    			if (nodeList.get(i).getNodeType() == Node.TEXT_NODE) {
+    				Node node = nodeList.get(i);
+    				Node parent = node.getParentNode();
+    				if(parent.getNodeType() != Node.COMMENT_NODE 
+    						&& !parent.getNodeName().equalsIgnoreCase("script") 
+    						&& !parent.getNodeName().equalsIgnoreCase("style")){
+    					dates.addAll(checkTextnode((Text) node ,matcher, regExps));
+    				}
+    	        }
+    		}
+    	}
+    	
+        
         return dates;
     }
-
-    /**
-     * Tries to find dates in node, if node is a text-node.<br>
-     * Otherwise node will be checked for children, which will be searched.<br>
-     * Is only the recursive part of finding dates in document structure.
-     * 
-     * @param node No to be searched.
-     * @param doc Whole human readable document (displayed content) as string to get position of found dates.
-     * @param depth Depth of node in document structure.
-     * @return
-     */
-    private ArrayList<ContentDate> enterTextnodes(Node node, String doc, int depth) {
-        ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-        if (node.getNodeType() == Node.TEXT_NODE) {
-        	
-            dates.addAll(checkTextnode((Text) node, doc, depth));
-            
-        } else {
-        	
-            NodeList children = node.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                if (!children.item(i).getNodeName().equalsIgnoreCase("script")
-                        && !children.item(i).getNodeName().equalsIgnoreCase("style"))
-                    dates.addAll(enterTextnodes(children.item(i), doc, depth + 1));
-            }
-            
-        }
-
-        return dates;
-    }
-
-    /**
+   
+   /**
      * Find a date in text of node.<br>
      * Node as to be a {@link Text}.
      * 
@@ -87,66 +109,179 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param depth Depth of node in document structure.
      * @return
      */
-    private ArrayList<ContentDate> checkTextnode(Text node, String doc, int depth) {
-
-        String text = node.getNodeValue();
+    private ArrayList<ContentDate> checkTextnode(Text node, Matcher[] matcher, Object[] regExps) {
+    	
+    	
+    	
+        String text = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(node.getNodeValue()));
         int index = -1;
         Node parent = node.getParentNode();
         Node tag = parent;
-
         
         while (HTMLHelper.isSimpleElement(parent)) {
             parent = parent.getParentNode();
         }
         
-        ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-        Iterator<ContentDate> iterator = DateGetterHelper.findALLDates(text).iterator();
-        if (iterator.hasNext()) {
-            index = doc.indexOf(StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(text)));
-            // System.out.println(HTMLHelper.replaceHTMLSymbols(text));
+        ArrayList<ContentDate> returnDates = new ArrayList<ContentDate>();
+        ArrayList<ContentDate> dateList = DateGetterHelper.findALLDates(text, matcher, regExps);
+        
+       if (dateList.size() > 0) {
+        	Integer beginIndex = nodeIndexMap.get(text);
+        	if(beginIndex == null){
+        		beginIndex = -1;
+        	}
+            index = this.doc.indexOf(text, beginIndex);
+            if(index != -1){
+            	nodeIndexMap.put(text, index + text.length());
+            }
+            //System.out.println(index);
         }
         
-        while (iterator.hasNext()) {
+       for(ContentDate date : dateList){
+        	boolean keyword3Class = true;
         	
-            ContentDate date = iterator.next();
-            date.set(ContentDate.STRUCTURE_DEPTH, depth);
-            date.setTagNode(parent.toString());
+        	date.setTagNode(parent.toString());
+            date.setTag(tag.getNodeName());
+            date.setNode(tag);
+            
             if (index != -1) {
                 date.set(ContentDate.DATEPOS_IN_DOC, index + date.get(ContentDate.DATEPOS_IN_TAGTEXT));
             }
-            date.setTag(parent.getNodeName());
-            String keyword = DateGetterHelper.findNodeKeywordPart(tag, KeyWords.BODY_CONTENT_KEYWORDS_FIRST);
-            if (keyword == null) {
-                keyword = DateGetterHelper.findNodeKeywordPart(parent, KeyWords.BODY_CONTENT_KEYWORDS_FIRST);
-            }
-            if (keyword != null) {
-                date.setKeyword(keyword);
-                date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
-            } else {
-                DateGetterHelper.setNearestTextkeyword(text, date, KeyWords.BODY_CONTENT_KEYWORDS_FIRST);
-            }
-
-            if (date.getKeyword() == null) {
-                keyword = DateGetterHelper.findNodeKeywordPart(tag, KeyWords.DATE_BODY_STRUC);
-                if (keyword == null) {
-                    keyword = DateGetterHelper.findNodeKeywordPart(parent, KeyWords.DATE_BODY_STRUC);
-                }
-                if (keyword != null) {
-                    date.setKeyword(keyword);
-                    date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
-                }
+            
+            //String keyword = DateGetterHelper.findNodeKeywordPart(tag, KeyWords.BODY_CONTENT_KEYWORDS_FIRST);
+            String keyword = getNodeKeyword(tag);
+            
+            if(keyword.equals("") && tag != parent){
+            	keyword = getNodeKeyword(parent);
             }
             
-            if (date.getKeyword() == null) {
-                text = HTMLHelper.documentToReadableText(parent.getParentNode());
-                
-                DateGetterHelper.setNearestTextkeyword(text, date, KeyWords.BODY_CONTENT_KEYWORDS_ALL);
+            if(!keyword.equals("")){
+            	
+            	keyword3Class  = KeyWords.getKeywordPriority(keyword) == KeyWords.OTHER_KEYWORD ;
+            	date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
             }
             
-            dates.add(date);
+            if(keyword.equals("") ||  keyword3Class ){
+            	setClosestKeyword(date);
+            	if(date.getKeyword() != null){
+            		date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
+            		keyword = date.getKeyword();
+            	}
+            }
+            
+            if(!keyword.equals("")){
+            	date.setKeyword(keyword);
+            }
+            returnDates.add(date);
+            
             
         }
-        
-        return dates;
+        return returnDates;
     }
+    
+    
+    /**
+     * Finds all content-keywords in a text. <br>
+     * Returns a hashmap with keyword-index as key an keyword as value.
+     * 
+     * @param doc Text to be searched.
+     * @return Hashmap with indexes and keywords.
+     */
+    private void setDocKeywords(){
+    	if(this.doc != null){
+    		this.keyContentMap = new HashMap<Integer, String>();
+    		String text = this.doc.toLowerCase();
+	    	String[] keywords = KeyWords.BODY_CONTENT_KEYWORDS_ALL;
+	    	int index;
+	    	for (int i=0; i< keywords.length; i++){
+	    		String key = keywords[i];
+	    		index = text.indexOf(key);
+	    		if(index != -1){
+	    			this.keyContentMap.put(index, key);
+	    			text = text.replaceFirst(key, DateGetterHelper.getXs(key));
+	    			i--;
+	    		}	
+	    	}
+    	}
+    }
+    
+    private void setClosestKeyword(ContentDate date){
+    	String keyword = null;
+    	String keywordBefore;
+    	String keywordAfter;
+    	int indexBefore; 
+    	int indexAfter;
+    	int subStart = 0;
+    	int subEnd = 0;
+    	int datePos = date.get(ContentDate.DATEPOS_IN_DOC);
+    	
+    	if(datePos >= 0){
+    		
+    		for(int i=1; i < 151; i++){
+    			indexBefore = datePos - i;
+    			indexAfter = datePos + i;
+    			
+				keywordBefore = this.keyContentMap.get(indexBefore);
+				if(keywordBefore != null){
+					keyword = keywordBefore;
+					subStart = indexBefore + keywordBefore.length();
+					subEnd = datePos;
+					break;
+    			}
+    			
+    			keywordAfter = this.keyContentMap.get(indexAfter);
+    			if(keywordAfter != null){
+    				keyword = keywordAfter;
+    				subStart = datePos + date.getDateString().length();
+					subEnd = indexAfter;
+    				break;
+    			}
+    			
+    		}
+    		if(keyword != null){
+    			date.setKeyword(keyword);
+    			int diff = StringHelper.countWhitespaces(this.doc.substring(subStart, subEnd));
+    			date.set(ContentDate.DISTANCE_DATE_KEYWORD, diff);
+    		}
+    	}
+    }
+    
+    private String getNodeKeyword(Node node){
+    	String keyword = this.keyAttrMap.get(node);
+    	if(keyword == null){
+    		keyword = findNodeKeyword(node);
+    		if(keyword ==  null){
+    			keyword = "";
+    		}
+    		this.keyAttrMap.put(node, keyword);
+    	}
+    	return keyword;
+    }
+    
+    private String findNodeKeyword(Node node){
+    	String returnValue = null;
+    	Node tempNode = node.cloneNode(false);
+    	String nodeText = HTMLHelper.getXmlDump(tempNode);
+    	String[] keywords = KeyWords.BODY_CONTENT_KEYWORDS_ALL;
+    	for(int i=0; i< keywords.length; i++){
+    		String keyword = keywords[i];
+    		if(nodeText.indexOf(keyword) != -1){
+    			returnValue = keyword;
+    			break;
+    		}
+    		
+    	}
+    	return returnValue;    
+    }
+    @Override
+    public void reset(){
+    	this.doc = null;
+    	this.document = null;
+    	this.keyAttrMap = new HashMap<Node, String>();
+    	this.keyContentMap = new HashMap<Integer, String>();
+    	this.nodeIndexMap = new HashMap<String, Integer>();
+    }
+    
 }
+
+

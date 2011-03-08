@@ -31,7 +31,6 @@ public class TestHeadDateRater extends HeadDateRater {
 	
 	private byte hightPriority = KeyWords.PUBLISH_KEYWORD;
 	private byte middlePriority = KeyWords.MODIFIED_KEYWORD;
-	private byte lowPriority;
 	private int diffMeasure = DateComparator.MEASURE_HOUR;
 	private boolean old = true;
 	
@@ -58,17 +57,14 @@ public class TestHeadDateRater extends HeadDateRater {
 	}
 	
 	private void setPubParameter(){
-		System.out.println("set Pub Parameter");
 		hightPriority = KeyWords.PUBLISH_KEYWORD;
 		middlePriority = KeyWords.MODIFIED_KEYWORD;
 	}
 	private void setModParameter(){
-		System.out.println("set Mod Parameter");
 		hightPriority = KeyWords.MODIFIED_KEYWORD;
 		middlePriority = KeyWords.PUBLISH_KEYWORD;
 	}
 	private void setDiffMeasure(int measure){
-		System.out.println("set Time Parameter");
 		diffMeasure = measure;
 	}
 	

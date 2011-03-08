@@ -3,29 +3,18 @@ package ws.palladian.daterecognition.evaluation;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import edu.umass.cs.mallet.projects.seg_plus_coref.coreference.PublisherPipe;
-
 import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.daterecognition.technique.HTTPDateGetter;
-import ws.palladian.daterecognition.technique.HttpDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.daterecognition.technique.UrlDateRater;
-import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.helper.date.DateHelper;
 
 public class UrlEvaluator {
 
@@ -36,8 +25,8 @@ public class UrlEvaluator {
 	 */
 	public static void main(String[] args) {
 		
-		TechniqueDateGetter<URLDate> dg = new URLDateGetter();
-		TechniqueDateRater<URLDate> dr = new UrlDateRater(PageDateType.publish);
+		//TechniqueDateGetter<URLDate> dg = new URLDateGetter();
+		//TechniqueDateRater<URLDate> dr = new UrlDateRater(PageDateType.publish);
 		
 		String file = "data/evaluation/daterecognition/datasets/urldataset.txt";
 
@@ -149,7 +138,7 @@ public class UrlEvaluator {
 		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
 		merged.putAll(set1);
 		merged.putAll(set2);
-		String separator = DataSetHandler.separator;
+		String separator = DataSetHandler.SEPARATOR;
 		File file = new File(out);
 		try{
 			FileWriter outw = new FileWriter(file, false);

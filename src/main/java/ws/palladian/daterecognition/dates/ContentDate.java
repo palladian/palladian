@@ -7,7 +7,7 @@ package ws.palladian.daterecognition.dates;
  * @author Martin Gregor
  * 
  */
-public class ContentDate extends BodyDate {
+public class ContentDate extends AbstractBodyDate {
 
     /** Keyword found in attribute of surrounding tag. */
     public static final int KEY_LOC_ATTR = 201;
@@ -23,7 +23,7 @@ public class ContentDate extends BodyDate {
     /** Position of datestring in text of whole document. */
     public static final int DATEPOS_IN_DOC = 204;
 
-    /** Position of datesting in the text of the surrunding tag. */
+    /** Position of datesting in the text of the surrounding tag. */
     private int positionInTagtext = -1;
     /** If a keyword was found in near content, this is the distance between keyword and datestring. */
     private int distanceToContext = -1;

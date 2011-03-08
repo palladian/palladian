@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.h2.result.ResultExternal;
-
-import opennlp.tools.util.HashList;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 
 public class GoogleDataSet {
@@ -28,8 +25,6 @@ public class GoogleDataSet {
 			}else{
 				returnMap.put(url, "");
 			}
-				
-			System.out.println(returnMap.get(url) + " " + url);
 		}
 		
 		return returnMap;
@@ -43,7 +38,6 @@ public class GoogleDataSet {
 		
 		DataSetHandler.openConnection();
 		try {
-			System.out.println(urlMap.size());
 			for(Entry<String, String> e : urlMap.entrySet()){
 				sqlQuery ="INSERT INTO googledates (url, date) VALUES ('"+ e.getKey().replaceAll("'", "''") + "', '" + e.getValue().replaceAll("'", "''") + "') ON DUPLICATE KEY UPDATE date='" + e.getValue().replaceAll("'", "''") + "'";
 				DataSetHandler.st.executeUpdate(sqlQuery);

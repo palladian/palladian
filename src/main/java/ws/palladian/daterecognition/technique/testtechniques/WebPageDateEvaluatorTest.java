@@ -6,7 +6,8 @@ import java.util.HashMap;
 
 import org.w3c.dom.Document;
 
-import ws.palladian.daterecognition.*;
+import ws.palladian.daterecognition.DateEvaluator;
+import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.daterecognition.technique.PageDateType;
@@ -90,10 +91,6 @@ public class WebPageDateEvaluatorTest {
     public  void evaluate() {
     	
         if (this.url != null) {
-            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
-            ExtractedDate date = new ExtractedDate();
-            
             if(document != null){
             	dg.setDocument(document);
             }
@@ -102,12 +99,12 @@ public class WebPageDateEvaluatorTest {
             dg.setTechArchive(archive);
             
             dg.setHttpDates(httpDates);
-            dates = dg.getDate();
+            ArrayList<ExtractedDate> dates = dg.getDate();
 
             if(actualDate != null){
         		dr.setActualDate(actualDate);
         	}
-            ratedDates = dr.rate(dates);
+            HashMap<ExtractedDate, Double>  ratedDates = dr.rate(dates);
             this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
         }
     }
@@ -157,7 +154,7 @@ public class WebPageDateEvaluatorTest {
      	DateEvaluator dr = new DateEvaluator(pub_mod);
      	if (url != null) {
              ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             HashMap<ExtractedDate, Double> ratedDates;
              
              dg.setURL(url);
              dg.setTechReference(externalSearch);
@@ -188,7 +185,7 @@ public class WebPageDateEvaluatorTest {
      	DateEvaluator dr = new DateEvaluator(pub_mod);
      	if (document != null) {
              ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             HashMap<ExtractedDate, Double> ratedDates;
              
              dg.setDocument(document);
              dg.setURL(document.getDocumentURI());

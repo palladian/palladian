@@ -7,7 +7,7 @@ package ws.palladian.daterecognition.dates;
  * @author salco
  * 
  */
-public class StructureDate extends BodyDate {
+public class StructureDate extends AbstractBodyDate {
 
     /**
      * 

@@ -27,17 +27,14 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
 	
     public HeadDateRater(PageDateType dateType) {
 		super(dateType);
-		switch(this.dateType){
-			case publish: 
-				hightPriority = KeyWords.PUBLISH_KEYWORD;
-				middlePriority = KeyWords.MODIFIED_KEYWORD;
-				lowPriority = KeyWords.OTHER_KEYWORD;
-				break;
-			case last_modified:
-				hightPriority = KeyWords.MODIFIED_KEYWORD;
-				middlePriority = KeyWords.PUBLISH_KEYWORD;
-				lowPriority = KeyWords.OTHER_KEYWORD;
-				break;
+		if(this.dateType.equals(PageDateType.publish)){
+			hightPriority = KeyWords.PUBLISH_KEYWORD;
+			middlePriority = KeyWords.MODIFIED_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
+		}else{
+			hightPriority = KeyWords.MODIFIED_KEYWORD;
+			middlePriority = KeyWords.PUBLISH_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
 		}
 	}
 

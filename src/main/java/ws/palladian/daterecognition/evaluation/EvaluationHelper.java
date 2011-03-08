@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.Map.Entry;
 
 import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
@@ -21,7 +20,7 @@ import ws.palladian.helper.date.DateComparator;
 public class EvaluationHelper {
 
 	private static File file = new File("data/evaluation/daterecognition/datasets/dataset.txt");
-	private static String separator = DataSetHandler.separator;
+	private static String separator = DataSetHandler.SEPARATOR;
 	
 	public static final String CONTENTEVAL = "contenteval";
 	public static final String HTTPEVAL = "httpeval";
@@ -107,26 +106,29 @@ public class EvaluationHelper {
 				lineIndex++;
 			}
 			
-		if(random){
-			HashMap<String, DBExport> temp = new HashMap<String, DBExport>();
-			Random ran = new Random();
-			while(temp.size() < entries && temp.size() < set.size()){
-				int ranInt = ran.nextInt(set.size());
-				int index = 0;
-				Entry<String, DBExport> tempEntry = null;
-				for(Entry<String, DBExport>e : set.entrySet()){
-					tempEntry = e;
-					if(ranInt == index){
-						break;
+			if(random){
+				HashMap<String, DBExport> temp = new HashMap<String, DBExport>();
+				Random ran = new Random();
+				while(temp.size() < entries && temp.size() < set.size()){
+					int ranInt = ran.nextInt(set.size());
+					int index = 0;
+					Entry<String, DBExport> tempEntry = null;
+					for(Entry<String, DBExport>e : set.entrySet()){
+						tempEntry = e;
+						if(ranInt == index){
+							break;
+						}
+						index++;
 					}
-					index++;
+					if(tempEntry != null){
+						temp.put(tempEntry.getKey(), tempEntry.getValue());
+					}
 				}
-				if(tempEntry != null){
-					temp.put(tempEntry.getKey(), tempEntry.getValue());
-				}
+				set = temp;
 			}
-			set = temp;
-		}
+			
+			br.close();
+			fr.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

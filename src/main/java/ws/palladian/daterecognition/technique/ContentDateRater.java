@@ -1,12 +1,15 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 
 /**
  *This class evaluates content-dates. <br>
@@ -28,17 +31,14 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 	
     public ContentDateRater(PageDateType dateType) {
 		super(dateType);
-		switch(this.dateType){
-		case publish: 
+		if(this.dateType.equals(PageDateType.publish)){
 			hightPriority = KeyWords.PUBLISH_KEYWORD;
 			middlePriority = KeyWords.MODIFIED_KEYWORD;
 			lowPriority = KeyWords.OTHER_KEYWORD;
-			break;
-		case last_modified:
+		}else{
 			hightPriority = KeyWords.MODIFIED_KEYWORD;
 			middlePriority = KeyWords.PUBLISH_KEYWORD;
 			lowPriority = KeyWords.OTHER_KEYWORD;
-			break;
 		}
 	}
 
@@ -59,6 +59,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * @return
      */
     private HashMap<ContentDate, Double> evaluateContentDate(ArrayList<ContentDate> dates) {
+    	
         HashMap<ContentDate, Double> result = new HashMap<ContentDate, Double>();
 
         ArrayList<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
@@ -74,7 +75,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         for (int i = 0; i < nokeywordDates.size(); i++) {
             ContentDate date = nokeywordDates.get(i);
             String tag = date.getTag();
-            String[] keys = KeyWords.allKeywords;
+            String[] keys = KeyWords.ALL_KEYWORDS;
 
             newRate = 0;
             for (int j = 0; j < keys.length; j++) {
@@ -96,7 +97,9 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         result.putAll(nokeywordResult);
 
         // evaluatePosInDoc(result);
-
+        
+        result = guessContentDates(result);
+       
         return result;
     }
 
@@ -214,5 +217,78 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         double factor = ((-1.0 / 17.0) * distance) + (20.0 / 17.0);
         factor = Math.max(0, Math.min(1.0, factor));
         return Math.round(factor * 10000) / 10000.0;
+    }
+    
+    @Override
+    public ContentDate getBestDate(){
+    	ContentDate returnDate = null;
+    	double rate = DateArrayHelper.getHighestRate(this.ratedDates);
+    	if(rate >= this.minRate){
+	    	HashMap<ContentDate, Double> bestDates = DateArrayHelper.getRatedDatesMap(this.ratedDates, rate);
+	    	if(bestDates.size() == 1){
+	    		returnDate = DateArrayHelper.getFirstElement(bestDates);
+	    	}else if(bestDates.size() > 1){
+	    		DateComparator dc = new DateComparator();
+	    		if(this.dateType == PageDateType.publish){
+	    			returnDate = dc.getOldestDate(bestDates);
+	    		}else{
+	    			returnDate = dc.getYoungestDate(bestDates);
+	    		}
+	    	}
+    	}
+    	return returnDate;
+    }
+    
+    private HashMap<ContentDate, Double> guessContentDates(HashMap<ContentDate, Double> dates){
+    	 HashMap<ContentDate, Double> resultDates = dates;
+         if (resultDates.size() > 0) {
+             ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
+             ArrayList<ContentDate> orderPosInDoc = orderAge;
+
+             DateComparator dc = new DateComparator();
+             if(this.dateType == PageDateType.publish){
+            	 Collections.sort(orderAge, dc);
+             }else{
+            	 Collections.sort(orderAge, Collections.reverseOrder(dc));
+             }
+             
+             Collections.sort(orderPosInDoc, new ContentDateComparator());
+
+             double factorAge;
+             double factorPos;
+             double factorRate;
+             double newRate;
+             double oldRate;
+
+             int ageSize = orderAge.size();
+             int maxPos = orderPosInDoc.get(orderPosInDoc.size() - 1).get(ContentDate.DATEPOS_IN_DOC);
+             int counter = 0;
+
+             ContentDate temp = orderAge.get(0);
+             
+            	
+             ContentDate actDate;
+
+             for (int i = 0; i < ageSize; i++) {
+                 actDate = orderAge.get(i);
+                 if (dc.compare(temp, actDate) != 0) {
+                     temp = orderAge.get(i);
+                     counter++;
+                 }
+                 factorAge = ((ageSize - counter) * 1.0) / (ageSize * 1.0);
+                 if(this.dateType == PageDateType.publish){
+                	 factorPos = 1 - ((actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0) / (maxPos * 1.0));
+                 }else{
+                	 factorPos = ((actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0) / (maxPos * 1.0));
+                 }
+                 factorPos += 0.01;
+                 factorRate = factorAge * factorPos;
+                 oldRate = dates.get(actDate);
+                 newRate = oldRate + (1 - oldRate) * factorRate;
+                 resultDates.put(actDate, Math.round(newRate * 10000) / 10000.0);
+             }
+         }
+         resultDates = DateArrayHelper.normalizeRate(resultDates);
+         return resultDates;
     }
 }

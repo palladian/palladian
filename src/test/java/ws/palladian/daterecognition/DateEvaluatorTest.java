@@ -5,8 +5,6 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.DateEvaluator;
-import ws.palladian.daterecognition.WebPageDateEvaluator;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -23,14 +21,22 @@ public class DateEvaluatorTest {
             String url;
             // url =
             url = "http://www.dailymail.co.uk/tvshowbiz/article-533432/Patrick-Swayze-smoking-despite-diagnosed-pancreatic-cancer.html";
+            url = "http://www.nytimes.com/1990/04/10/science/in-alchemists-notes-clues-to-modern-chemistry.html?pagewanted=2";
             // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
-
+            url = "http://classactiondefense.jmbm.com/2009/06/bofa_class_action_defense_case.html";
+            url = "http://www.smh.com.au/articles/2006/11/21/1163871393154.html";
+            url = "http://www.tmcnet.com/news/2006/03/29/1517705.htm";
             WebPageDateEvaluator ae = new WebPageDateEvaluator();
             ae.setUrl(url);
             ae.evaluate();
             // DateArrayHelper.printDateArray(dates);
             DateArrayHelper.printDateArray(ae.getAllDates());
-
+           try {
+			ae.getBestRatedDate().getNormalizedDate();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
             // assertEquals(dates.size(), dateMap.size());
         }
     }

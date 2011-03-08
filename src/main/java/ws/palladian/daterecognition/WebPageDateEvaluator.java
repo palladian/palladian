@@ -79,19 +79,15 @@ public class WebPageDateEvaluator {
     public  void evaluate() {
     	
         if (this.url != null) {
-            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
-            ExtractedDate date = new ExtractedDate();
-            
             if(document != null){
             	dg.setDocument(document);
             }
             dg.setURL(url);
             dg.setTechReference(reference);
             dg.setTechArchive(archive);
-            dates = dg.getDate();
+            ArrayList<ExtractedDate> dates = dg.getDate();
 
-            ratedDates = dr.rate(dates);
+            HashMap<ExtractedDate, Double> ratedDates = dr.rate(dates);
             this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
         }
     }
@@ -137,7 +133,7 @@ public class WebPageDateEvaluator {
      	DateEvaluator dr = new DateEvaluator(pub_mod);
      	if (url != null) {
              ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             HashMap<ExtractedDate, Double> ratedDates;
              
              dg.setURL(url);
              dg.setTechReference(externalSearch);
@@ -168,7 +164,7 @@ public class WebPageDateEvaluator {
      	DateEvaluator dr = new DateEvaluator(pub_mod);
      	if (document != null) {
              ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             HashMap<ExtractedDate, Double> ratedDates;
              
              dg.setDocument(document);
              dg.setURL(document.getDocumentURI());

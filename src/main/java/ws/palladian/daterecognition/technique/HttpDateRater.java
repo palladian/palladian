@@ -3,8 +3,6 @@ package ws.palladian.daterecognition.technique;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import bsh.util.Httpd;
-
 import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;

@@ -11,18 +11,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.hp.hpl.jena.ontology.OntDocumentManager.ReadFailureHandler;
-
+import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.ExtractedDateHelper;
+import ws.palladian.daterecognition.KeyWords;
+import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.daterecognition.evaluation.EvaluationHelper;
+import ws.palladian.helper.date.ContentDateComparator;
+import ws.palladian.helper.date.DateComparator;
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.web.Crawler;
 
 
@@ -35,8 +40,8 @@ public class DataSetHandler{
 	public static Statement st = null;
 	public static ResultSet rs = null;
 	
-	private static String HREF="<a href=\"";
-	private static String ENDHREF = ">";
+	private static final String HREF="<a href=\"";
+	private static final String ENDHREF = ">";
 	
 	private static final int SEARCH_GOOGLE = 1;
 	private static final int SEARCH_HAKIA = 2;
@@ -78,7 +83,7 @@ public class DataSetHandler{
 	 */
 	public static final int RF = 2;
 	
-	public static final String separator = " *;_;* "; 
+	public static final String SEPARATOR = " *;_;* "; 
 	
 	public static void main(String[] args){
 		//String path = "D:/_Uni/_semester16/dataset/";	
@@ -95,11 +100,11 @@ public class DataSetHandler{
 		
 		//downloadUrls("data/webpages/daterecognition/");
 		
-		
-		//String path = "data/evaluation/dateextraction/dataset.txt";
-		//createSearchDatesAndDownload("urlset", path);
-		//setDownloadTo(path, "urlset", 1);
-		
+		/*
+		String path = "data/evaluation/daterecognition/datasets/dataset.txt";
+		createSearchDatesAndDownload("urlset", path);
+		setDownloadTo(path, "urlset", 1);
+		*/
 		/*
 		String path = "D:/_Uni/_semester16/dataset/";	
 		String in = "urlSet03.htm";
@@ -107,10 +112,62 @@ public class DataSetHandler{
 		createUrlSetWithoutDate(path + in, path + out);
 		*/
 		
-		//addCloumn(EvaluationHelper.HEADEVAL, "pub1", "int", "-10");
-		//addCloumn(EvaluationHelper.HEADEVAL, "mod1", "int", "-10");
+		//addCloumn(EvaluationHelper.CONTENTEVAL, "pub5", "int", "-10");
+		//addCloumn(EvaluationHelper.CONTENTEVAL, "mod5", "int", "-10");
+		
+		//checkWebpagesFile("data/evaluation/daterecognition/datasets/dataset_old.txt","data/evaluation/daterecognition/datasets/dataset.txt","urlset");
+		exportContentFactor();
+	}
+	
+	
+	private static void checkWebpagesFile(String dataSet,String newDataSet, String table){
+		HashMap<String, DBExport> map = EvaluationHelper.readFile(dataSet);
+		HashMap<String, DBExport> newMap = new HashMap<String, DBExport>();
+		
+		for(Entry<String, DBExport> e : map.entrySet()){
+			try{
+			File file = new File(e.getValue().getFilePath());
+			FileReader fr = new FileReader(file);
+			newMap.put(e.getKey(), e.getValue());
+			fr.close();
+			}
+			catch (Exception ex) {
+				resetDownloadTo(e.getValue().getUrl(), table);
+			}
+		}
+		File file = new File(newDataSet);
+		try{
+			FileWriter out = new FileWriter(file, true);
+			BufferedWriter bw = new BufferedWriter(out);
+			
+			for(Entry<String, DBExport>e : newMap.entrySet()){
+				String write =e.getValue().getUrl() + SEPARATOR
+					+ e.getValue().getFilePath() + SEPARATOR
+					+ e.getValue().getPubDate() + SEPARATOR
+					+ String.valueOf(e.getValue().isPubSureness()) + SEPARATOR
+					+ e.getValue().getModDate() + SEPARATOR
+					+ String.valueOf(e.getValue().isModSureness()) + SEPARATOR
+					+ e.getValue().getGoogleDate() + SEPARATOR
+					+ e.getValue().getHakiaDate() + SEPARATOR
+					+ e.getValue().getAskDate() + SEPARATOR
+					+ e.getValue().getLastModDate() + SEPARATOR
+					+ e.getValue().getDateDate() + SEPARATOR
+					+ e.getValue().getActDate();
+					bw.write(write + "\n");
+				}
+			
+			bw.close();
+			out.close();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		
 	}
+	
+	
+		
+		
+	
 	
 	/**
 	 * Takes URL out of "urlset", tries to download it and, if downloaded search for google, hakia and ask date. <br>
@@ -188,17 +245,17 @@ public class DataSetHandler{
 			
 			for(int i=0; i<set.size(); i++){
 				if(set.get(i).isDownloaded()){
-					String write = set.get(i).getUrl() + separator
-					+ set.get(i).getFilePath() + separator
-					+ set.get(i).getPubDate() + separator
-					+ String.valueOf(set.get(i).isPubSureness()) + separator
-					+ set.get(i).getModDate() + separator
-					+ String.valueOf(set.get(i).isModSureness()) + separator
-					+ set.get(i).getGoogleDate() + separator
-					+ set.get(i).getHakiaDate() + separator
-					+ set.get(i).getAskDate() + separator
-					+ set.get(i).getLastModDate() + separator
-					+ set.get(i).getDateDate() + separator
+					String write = set.get(i).getUrl() + SEPARATOR
+					+ set.get(i).getFilePath() + SEPARATOR
+					+ set.get(i).getPubDate() + SEPARATOR
+					+ String.valueOf(set.get(i).isPubSureness()) + SEPARATOR
+					+ set.get(i).getModDate() + SEPARATOR
+					+ String.valueOf(set.get(i).isModSureness()) + SEPARATOR
+					+ set.get(i).getGoogleDate() + SEPARATOR
+					+ set.get(i).getHakiaDate() + SEPARATOR
+					+ set.get(i).getAskDate() + SEPARATOR
+					+ set.get(i).getLastModDate() + SEPARATOR
+					+ set.get(i).getDateDate() + SEPARATOR
 					+ set.get(i).getActDate();
 					bw.write(write + "\n");
 				}
@@ -261,6 +318,8 @@ public class DataSetHandler{
 				urls.add(line.substring(begin, end-1).replaceAll("'", "''"));
 				System.out.println(line.substring(begin, end-1).replaceAll("'", "''"));
 			}
+			br.close();
+			fr.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -549,6 +608,9 @@ public class DataSetHandler{
 				}
 				lineindex++;
 			}
+			
+			br.close();
+			fr.close();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -572,4 +634,220 @@ public class DataSetHandler{
 		closeConnection();
 		
 	}
+	private static void resetDownloadTo(String entry, String table){
+		
+		
+		openConnection();
+		
+			String sqlQuery ="UPDATE " + table + " SET downloaded=" + 0 + " WHERE url='" + entry.toLowerCase() + "'";
+			try{
+				System.out.println(sqlQuery);
+				st.execute(sqlQuery);
+				
+			}catch (Exception ex) {
+				ex.printStackTrace();
+			
+			}
+		
+		closeConnection();
+		
+	}
+	
+	public static void writeDateFactors(ArrayList<ContentDate> dates, String url, String doc){
+		
+		HashMap<String, DBExport> map = EvaluationHelper.readFile();
+		ExtractedDate pubDate =DateGetterHelper.findDate(map.get(url).getPubDate());
+		ExtractedDate modDate =DateGetterHelper.findDate(map.get(url).getModDate());
+		DateComparator dc = new DateComparator();
+		
+		LinkedList<ContentDate> posOrder = new LinkedList<ContentDate>();
+		LinkedList<ContentDate> ageOrder = new LinkedList<ContentDate>();
+		for(int i=0; i< dates.size(); i++){
+			if(dates.get(i).get(ContentDate.DATEPOS_IN_DOC) != -1){
+				posOrder.add(dates.get(i));
+			}
+			ageOrder.add(dates.get(i));
+		}
+		
+		Collections.sort(posOrder, new ContentDateComparator());
+		Collections.sort(ageOrder, new DateComparator());
+		
+		openConnection();
+		for(int i=0; i< dates.size(); i++){
+			ContentDate date = dates.get(i);
+			String pubString = " ";
+			String modString = " ";
+			int pub = -1;
+			if (pubDate != null){
+				pub = (dc.compare(date, pubDate, dc.getCompareDepth(date, pubDate)) == 0) ?  1 : 0;
+				pubString = pubDate.getNormalizedDateString();
+			}
+			int mod = -1;
+			if(modDate != null){
+				mod = (dc.compare(date, modDate, dc.getCompareDepth(date, modDate)) == 0) ?  1 : 0;
+				modString = modDate.getNormalizedDateString();
+			}
+			
+			int year = (date.get(ExtractedDate.YEAR) == -1) ? -1 : 0;
+			int month = (date.get(ExtractedDate.MONTH) == -1) ? -1 : 0;
+			int day = (date.get(ExtractedDate.DAY) == -1) ? -1 : 0;
+			int hour = (date.get(ExtractedDate.HOUR) == -1) ? -1 : 0;
+			int minute = (date.get(ExtractedDate.MINUTE )== -1) ? -1 : 0;
+			int second = (date.get(ExtractedDate.SECOND) == -1) ? -1 : 0;
+			
+			int docPos = date.get(ContentDate.DATEPOS_IN_DOC);
+			int relDocPos = (int)Math.round(((double)docPos/(double)doc.length())*1000);
+			
+			int datePosOrder = (int) Math.round(((double)posOrder.indexOf(date)/(double)dates.size())*1000);
+			int dateAgeOrder = (int) Math.round(((double)ageOrder.indexOf(date)/(double)dates.size())*1000);
+			
+			int keyClass = -1;
+			int keyLoc = -1;
+			int keyDiff = -1;
+			
+			String keyword = date.getKeyword();
+			if(keyword != null){
+				keyClass = KeyWords.getKeywordPriority(keyword);
+				keyLoc = date.get(ContentDate.KEYWORDLOCATION);
+				keyDiff = date.get(ContentDate.DISTANCE_DATE_KEYWORD);
+			}
+			
+			int simpleTag = HTMLHelper.isSimpleElement(date.getNode()) ? 1 : 0;
+			int hTag = HTMLHelper.isHeadlineTag(date.getNode()) ? 1 : 0; 
+			String tagName = date.getTag();
+			
+			String sqlQuery = 
+					"INSERT INTO contentFactor " +
+						"(url, date, pubDate, modDate, " +
+						"pub, `mod`, year, month, day, hour, minute, second, " +
+						"docPos, relDocPos, ordDocPos, ordAgePos, keyClass, keyLoc, " +
+						"keyDiff, simpleTag, hTag, tagName) " +
+					"VALUES ('"+ 
+						url + "','" + date.getNormalizedDateString() + "','" + pubString  + "','" + modString + "'," + 
+						pub + "," + mod + ", " + year + "," + month + "," + day + "," + hour + "," + minute + "," +  second+ "," + 
+						docPos + "," + relDocPos + "," + datePosOrder + "," + dateAgeOrder + "," + keyClass + "," + keyLoc + "," +
+						keyDiff + "," + simpleTag + "," +hTag + ",'" + tagName + "')";
+			try {
+				st.executeUpdate(sqlQuery);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				System.out.println(sqlQuery);
+				e.printStackTrace();
+			}
+		}
+		closeConnection();
+	}
+	
+	public static void exportContentFactor(){
+		openConnection();
+		
+		int cnt = 0;
+
+		int cntYear = 0;
+		int cntMonth = 0;
+		int cntDay = 0;
+		int cntHour = 0;
+		int cntMinute = 0;
+		int cntSecond = 0;
+		
+		int cntNoKey = 0;
+		int cntKeyClass1 = 0;
+		int cntKeyClass2 = 0;
+		int cntKeyClass3 = 0;
+		
+		int posDoc = 0;
+		int relPosdoc = 0;
+		int ordPos = 0;
+		int ordAge = 0;
+		
+		int cntKeyText = 0;
+		int cntkeyAttr = 0;
+		
+		int cntSmplTag = 0;
+		int cnthTag = 0; 
+		
+		String sqlString ="Select * From contentfactor Where `mod` = 1";
+		
+		try {
+			rs = st.executeQuery(sqlString);
+
+			while(rs.next() ) {
+				cnt++;
+				if(rs.getInt("year") == 0){
+					cntYear++;
+				}
+				if(rs.getInt("month") == 0){
+					cntMonth++;
+				}
+				if(rs.getInt("day") == 0){
+					cntDay++;
+				}
+				if(rs.getInt("hour") == 0){
+					cntHour++;
+				}
+				if(rs.getInt("minute") == 0){
+					cntMinute++;
+				}
+				if(rs.getInt("second") == 0){
+					cntSecond++;
+				}
+				if(rs.getInt("keyClass") == -1){
+					cntNoKey++;
+				}else if(rs.getInt("keyClass") == 1){
+					cntKeyClass1++;
+				}else if(rs.getInt("keyClass") == 2){
+					cntKeyClass2++;
+				}else if(rs.getInt("keyClass") == 3){
+					cntKeyClass3++;
+				}
+				posDoc += rs.getInt("docPos");
+				relPosdoc += rs.getInt("relDocPos");
+				ordPos += rs.getInt("ordDocPos");
+				ordAge += rs.getInt("ordAgePos");
+				
+				if(rs.getInt("keyLoc") == 202){
+					cntKeyText++;
+				}else if(rs.getInt("keyLoc") == 201){
+					cntkeyAttr++;
+				}
+				if(rs.getInt("simpleTag") == 1){
+					cntSmplTag++;
+				}
+				if(rs.getInt("hTag") == 1){
+					cnthTag++;
+				}
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Count: " + cnt);
+		System.out.println("Year: " + cntYear);
+		System.out.println("Month: " + cntMonth);
+		System.out.println("Day: " + cntDay);
+		System.out.println("Hour: " + cntHour);
+		System.out.println("Minute: " + cntMinute);
+		System.out.println("Second: " + cntSecond);
+		
+		System.out.println("No Key: " + cntNoKey);
+		System.out.println("KeyClass1: " + cntKeyClass1);
+		System.out.println("KeyClass2: " + cntKeyClass2);
+		System.out.println("KeyClass3: " + cntKeyClass3);
+		
+		System.out.println("Avg DocPos: " + (double)posDoc/(double)cnt);
+		System.out.println("Avg relDocPos: " + (double)relPosdoc/(double)cnt);
+		System.out.println("Avg ordDocPos: " + (double)ordPos/(double)cnt);
+		System.out.println("Avg ordAgePos: " + (double)ordAge/(double)cnt);
+		
+		System.out.println("keyLoc Text: " + cntKeyText);
+		System.out.println("keyLoc Attr: " + cntkeyAttr);
+		System.out.println("simple Tag: " + cntSmplTag);
+		System.out.println("h-Tag: " + cnthTag);
+		
+		
+		closeConnection();
+	}
+	
 }
+

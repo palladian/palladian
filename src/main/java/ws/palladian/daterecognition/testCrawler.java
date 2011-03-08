@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -19,7 +20,6 @@ import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.daterecognition.technique.UrlDateRater;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.date.RatedDateComparator;
@@ -32,21 +32,6 @@ public class testCrawler {
      * @param args
      */
     public static void main(String[] args) {
-
-        DateGetter dg = new DateGetter();
-        dg.setTechArchive(false);
-        dg.setTechReference(false);
-        dg.setURL("http://www.nytimes.com/1990/04/10/science/in-alchemists-notes-clues-to-modern-chemistry.html?pagewanted=2");
-        CollectionHelper.print(dg.getDate());
-
-        ExtractedDate date = WebPageDateEvaluator
-                .getBestRatedDate(
-                        "http://www.nytimes.com/1990/04/10/science/in-alchemists-notes-clues-to-modern-chemistry.html?pagewanted=2",
-                        false);
-        System.out.println(date);
-
-        System.exit(0);
-
         // crawlURLwithDate();
 
         // checkLinkSet();
@@ -93,7 +78,7 @@ public class testCrawler {
                 System.out.println(e.getKey() + " " + e.getValue());
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             // TODO: handle exception
         }
 
@@ -208,7 +193,7 @@ public class testCrawler {
             bw.close();
             fw.close();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             // TODO: handle exception
         }
@@ -261,27 +246,20 @@ public class testCrawler {
                     }
                 } else {
                     String[] parts = line.split(" ");
-                    if (pageDateIndex != -1) {
+                    if (pageDateIndex != -1)
                         webDate.add(parts[pageDateIndex]);
-                    }
-                    if (googleDateIndex != -1) {
+                    if (googleDateIndex != -1)
                         googleDate.add(parts[googleDateIndex]);
-                    }
-                    if (myDateIndex != -1) {
+                    if (myDateIndex != -1)
                         myDate.add(parts[myDateIndex]);
-                    }
-                    if (googleErrorIndex != -1) {
+                    if (googleErrorIndex != -1)
                         googleAnno.add(parts[googleErrorIndex]);
-                    }
-                    if (myErrorIndex != -1) {
+                    if (myErrorIndex != -1)
                         myAnno.add(parts[myErrorIndex]);
-                    }
-                    if (urlIndex != -1) {
+                    if (urlIndex != -1)
                         url.add(parts[urlIndex]);
-                    }
-                    if (techIndex != -1) {
+                    if (techIndex != -1)
                         technique.add(parts[techIndex]);
-                    }
                     System.out.println(parts[urlIndex]);
                 }
                 i++;
@@ -310,10 +288,13 @@ public class testCrawler {
                 fw.close();
 
             }
-
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+            br.close();
+            fr.close();
+            
+        }  catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     }
 
@@ -376,6 +357,9 @@ public class testCrawler {
                 System.out.println(index);
                 System.out.println(preLastLine + lastLine);
                 stats.add(preLastLine + lastLine);
+                
+                br.close();
+                fr.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -413,32 +397,32 @@ public class testCrawler {
             int countOtherBegin = line.indexOf("other: ");
             int sameOtherBegin = line.indexOf("sameOther: ");
 
-            temp = Integer.valueOf(line.substring(countAllBegin + "CountAll: ".length(), sameAllBegin - 1));
+            temp = Integer.valueOf(line.substring(countAllBegin + ("CountAll: ").length(), sameAllBegin - 1));
             countAll += temp;
-            temp = Integer.valueOf(line.substring(sameAllBegin + "SameAll: ".length(), countURL_DBegin - 1));
+            temp = Integer.valueOf(line.substring(sameAllBegin + ("SameAll: ").length(), countURL_DBegin - 1));
             sameAll += temp;
-            temp = Integer.valueOf(line.substring(countURL_DBegin + "URL_D: ".length(), sameURL_DBegin - 1));
+            temp = Integer.valueOf(line.substring(countURL_DBegin + ("URL_D: ").length(), sameURL_DBegin - 1));
             countURL_D += temp;
-            temp = Integer.valueOf(line.substring(sameURL_DBegin + "sameURL_D: ".length(), countURLBegin - 1));
+            temp = Integer.valueOf(line.substring(sameURL_DBegin + ("sameURL_D: ").length(), countURLBegin - 1));
             sameURL_D += temp;
-            temp = Integer.valueOf(line.substring(countURLBegin + "URL: ".length(), sameURLBegin - 1));
+            temp = Integer.valueOf(line.substring(countURLBegin + ("URL: ").length(), sameURLBegin - 1));
             countURL += temp;
-            temp = Integer.valueOf(line.substring(sameURLBegin + "sameURL: ".length(), countURL_MMMMBegin - 1));
+            temp = Integer.valueOf(line.substring(sameURLBegin + ("sameURL: ").length(), countURL_MMMMBegin - 1));
             sameURL += temp;
-            temp = Integer.valueOf(line.substring(countURL_MMMMBegin + "URL_MMMM: ".length(), sameURL_MMMMBegin - 1));
+            temp = Integer.valueOf(line.substring(countURL_MMMMBegin + ("URL_MMMM: ").length(), sameURL_MMMMBegin - 1));
             countURL_MMMM += temp;
-            temp = Integer.valueOf(line.substring(sameURL_MMMMBegin + "sameURL_MMMM: ".length(),
+            temp = Integer.valueOf(line.substring(sameURL_MMMMBegin + ("sameURL_MMMM: ").length(),
                     countURL_splitBegin - 1));
             sameURL_MMMM += temp;
-            temp = Integer.valueOf(line.substring(countURL_splitBegin + "URL_split: ".length(),
+            temp = Integer.valueOf(line.substring(countURL_splitBegin + ("URL_split: ").length(),
                     sameURL_splitBegin - 1));
             countURL_split += temp;
-            temp = Integer.valueOf(line.substring(sameURL_splitBegin + "sameURL_split: ".length(),
+            temp = Integer.valueOf(line.substring(sameURL_splitBegin + ("sameURL_split: ").length(),
                     countOtherBegin - 1));
             sameURL_split += temp;
-            temp = Integer.valueOf(line.substring(countOtherBegin + "other: ".length(), sameOtherBegin - 1));
+            temp = Integer.valueOf(line.substring(countOtherBegin + ("other: ").length(), sameOtherBegin - 1));
             countOther += temp;
-            temp = Integer.valueOf(line.substring(sameOtherBegin + "sameOther: ".length()));
+            temp = Integer.valueOf(line.substring(sameOtherBegin + ("sameOther: ").length()));
             sameOther += temp;
         }
         String outputString = "";
@@ -584,7 +568,10 @@ public class testCrawler {
                 urls.add(line);
             }
             System.out.println(urls.size());
-
+            
+            br.close();
+            fr.close();
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -739,15 +726,13 @@ public class testCrawler {
 
         DateComparator dc = new DateComparator();
 
-        ArrayList<ExtractedDate> datesList = new ArrayList<ExtractedDate>();
-        HashMap<ExtractedDate, Double> datesMap = new HashMap<ExtractedDate, Double>();
 
         ArrayList<String> outputList = new ArrayList<String>();
         String outputString;
 
         for (Entry<String, ExtractedDate[]> e : inputMap.entrySet()) {
             System.out.println("begin");
-            long begin = new GregorianCalendar().getTimeInMillis();
+            long begin = (new GregorianCalendar()).getTimeInMillis();
             ae.setUrl(e.getKey());
             ae.evaluate();
             ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
@@ -782,7 +767,7 @@ public class testCrawler {
             outputString += " | " + googleAnnotation + " | " + myAnnotation;
             outputList.add(outputString + " | " + sameDate.getType() + " | " + e.getKey());
             System.out.println(outputString);
-            long end = new GregorianCalendar().getTimeInMillis();
+            long end = (new GregorianCalendar()).getTimeInMillis();
             System.out.println("end: " + (end - begin));
         }
 
@@ -837,15 +822,12 @@ public class testCrawler {
 
         DateComparator dc = new DateComparator();
 
-        ArrayList<ExtractedDate> datesList = new ArrayList<ExtractedDate>();
-        HashMap<ExtractedDate, Double> datesMap = new HashMap<ExtractedDate, Double>();
-
         ArrayList<String> outputList = new ArrayList<String>();
         String outputString;
 
         for (Entry<String, ExtractedDate> e : inputMap.entrySet()) {
             System.out.println("begin");
-            long begin = new GregorianCalendar().getTimeInMillis();
+            long begin = (new GregorianCalendar()).getTimeInMillis();
             ae.setUrl(e.getKey());
             ae.evaluate();
             ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
@@ -873,7 +855,7 @@ public class testCrawler {
             outputString += " | " + myAnnotation;
             outputList.add(outputString + " | " + sameDate.getType() + " | " + e.getKey());
             System.out.println(outputString);
-            long end = new GregorianCalendar().getTimeInMillis();
+            long end = (new GregorianCalendar()).getTimeInMillis();
             System.out.println("end: " + (end - begin));
         }
 
@@ -906,7 +888,9 @@ public class testCrawler {
             while ((line = br.readLine()) != null) {
                 urls.add(line);
             }
-        } catch (Exception ex) {
+            br.close();
+            fr.close();
+        } catch (IOException ex) {
 
         }
 
@@ -920,7 +904,9 @@ public class testCrawler {
             while ((line = br.readLine()) != null) {
                 dates.add(line);
             }
-        } catch (Exception ex) {
+            br.close();
+            fr.close();
+        } catch (IOException ex) {
 
         }
 
@@ -957,6 +943,9 @@ public class testCrawler {
             while ((line = br.readLine()) != null) {
                 urls.put(line, 0);
             }
+            
+            br.close();
+            fr.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -968,8 +957,8 @@ public class testCrawler {
 
         DateEvaluator de = new DateEvaluator(PageDateType.publish);
 
-        ArrayList<ExtractedDate> dgDates = new ArrayList<ExtractedDate>();
-        HashMap<ExtractedDate, Double> deDates = new HashMap<ExtractedDate, Double>();
+        ArrayList<ExtractedDate> dgDates;
+        HashMap<ExtractedDate, Double> deDates;
 
         int countAll = 0;
         int countHTTP = 0;

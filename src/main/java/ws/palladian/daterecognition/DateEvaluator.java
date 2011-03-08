@@ -238,7 +238,7 @@ public class DateEvaluator {
 
         HashMap<T, Double> result = dates;
         HashMap<T, Double> temp = dates; // Where worked dates can be removed.
-        HashMap<T, Double> tempContentDates = new HashMap<T, Double>(); // only dates that are equal to metaDate.
+        HashMap<T, Double> tempContentDates; // only dates that are equal to metaDate.
         HashMap<T, Double> tempResult = new HashMap<T, Double>(); // worked dates can be put in.
 
         Entry<T, Double>[] orderedMetaDates = DateArrayHelper.orderHashMap(metaDates, true);
@@ -277,8 +277,8 @@ public class DateEvaluator {
      */
     private <T> HashMap<T, Double> influenceHttpAndHead(HashMap<T, Double> httpMap, HashMap<T, Double> headMap) {
         HashMap<T, Double> result = new HashMap<T, Double>();
-        HashMap<T, Double> resultHTTP = new HashMap<T, Double>();
-        HashMap<T, Double> resultHead = new HashMap<T, Double>();
+        HashMap<T, Double> resultHTTP;
+        HashMap<T, Double> resultHead;
 
         resultHead = recalc(httpMap, headMap);
         resultHTTP = recalc(headMap, httpMap);
@@ -381,7 +381,7 @@ public class DateEvaluator {
      */
     private HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
         HashMap<ContentDate, Double> result = dates;
-        if (result.size() > 0 && result != null) {
+        if (result.size() > 0) {
             ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
             ArrayList<ContentDate> orderPosInDoc = orderAge;
 

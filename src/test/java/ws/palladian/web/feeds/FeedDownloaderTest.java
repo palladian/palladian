@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
@@ -177,6 +178,7 @@ public class FeedDownloaderTest {
      * Test date parsing mechanism. For the following feeds, the publish dates of the entries cannot be parsed by ROME
      * itself, but some dates can be retrieved using {@link DateGetterHelper}. Commented lines still cannot be parsed.
      */
+    @Ignore
     @Test
     public void testDateParsing() throws ParseException {
 

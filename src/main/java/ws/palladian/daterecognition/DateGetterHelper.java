@@ -2,7 +2,6 @@ package ws.palladian.daterecognition;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,11 +44,12 @@ public final class DateGetterHelper {
      *         If no match is found return <b>null</b>.
      */
     public static ExtractedDate findDate(final String dateString, Object[] regExpArray) {
-        Object[] regExps = regExpArray;
-        if (regExps == null) {
+    	ExtractedDate date = null;
+    	Object[] regExps = regExpArray;
+
+    	if (regExps == null) {
             regExps = RegExp.getAllRegExp();
         }
-        ExtractedDate date = null;
 
         for (int i = 0; i < regExps.length; i++) {
             date = getDateFromString(dateString, (String[]) regExps[i]);
@@ -59,6 +59,16 @@ public final class DateGetterHelper {
         }
         return date;
     }
+    public static ArrayList<ContentDate> findALLDates(String text) {
+    	Object[] regExps = RegExp.getAllRegExp();
+    	Pattern[] pattern = new Pattern[regExps.length];
+    	Matcher[] matcher = new Matcher[regExps.length];
+    	for(int i = 0; i < regExps.length; i++){
+    		pattern[i] = Pattern.compile(((String[])regExps[i])[0]);
+    		matcher[i] = pattern[i].matcher("");
+    	}
+    	return findALLDates(text, matcher, regExps);
+    }
 
     /**
      * 
@@ -66,30 +76,55 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ArrayList<ContentDate> findALLDates(String text) {
-    	//String dateString = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text);
-    	//dateString = StringHelper.removeDoubleWhitespaces(dateString);
-    	String dateString = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(text));
+    public static ArrayList<ContentDate> findALLDates(String text, Matcher[] matcher, Object[] regExps) {
+    	String tempText = text;
+    	ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
     	
-        ArrayList<ContentDate> contentDates = new ArrayList<ContentDate>();
-        ExtractedDate date = null;
-        Object[] regExps = RegExp.getAllRegExp();
-        for (int i = 0; i < regExps.length; i++) {
-            date = getDateFromString(dateString, (String[]) regExps[i]);
-            if (date != null) {
-                ContentDate cDate = DateConverter.convert(date, DateConverter.TECH_HTML_CONT);
-                int index = dateString.indexOf(date.getDateString());
-                cDate.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
-                contentDates.add(cDate);
-                //Bei ReplaceFirst wird der Matcher verwendet, der aber manchaml zu problemen führt: "http://kerneltrap.org/node/1776"
-                dateString = dateString.replace(date.getDateString(), getXs(date.getDateString()));
-                i--;
-            }
-        }
+    	
+    	int start;
+    	int end;
+    	for(int i = 0; i < matcher.length; i++){
+    		matcher[i].reset(tempText);
+    		while(matcher[i].find()){
+				boolean hasPrePostNum = false;
+				start = matcher[i].start();
+				end = matcher[i].end();
+				if (start > 0) {
+	                String temp = tempText.substring(start - 1, start);
+	                try {
+	                    Integer.parseInt(temp);
+	                    hasPrePostNum = true;
 
-        return contentDates;
+	                } catch (NumberFormatException e) {
+	                }
+	            }
+	            if (end < tempText.length()) {
+	                String temp = tempText.substring(end, end + 1);
+	                try {
+	                    Integer.parseInt(temp);
+	                    hasPrePostNum = true;
+
+	                } catch (NumberFormatException e) {
+
+	                }
+	            }
+	            if (!hasPrePostNum) {
+	            	String dateString = tempText.substring(start, end);
+	            	ContentDate date = (ContentDate) DateConverter.convert(
+	            			new ExtractedDate(dateString,((String[])regExps[i])[1]),
+	            			DateConverter.TECH_HTML_CONT);
+	            	int index = tempText.indexOf(date.getDateString());
+	            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
+	                
+	                String xString = getXs(dateString);
+	                tempText = tempText.replaceFirst(dateString, xString);
+	                dates.add(date);
+	            }
+    		}
+    	}
+    	return dates;
     }
-
+  
     /**
      * Returns a string of whitespace as long as the parameter string.
      * 
@@ -162,47 +197,52 @@ public final class DateGetterHelper {
      * @return found substring or null
      */
     public static ExtractedDate getDateFromString(final String dateString, final String[] regExp) {
+    	
         String text = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
         Pattern pattern;
         Matcher matcher;
+        
         pattern = Pattern.compile(regExp[0]);
         matcher = pattern.matcher(text);
+
         if (matcher.find()) {
-            final int start = matcher.start();
-            final int end = matcher.end();
+            int start = matcher.start();
+            int end = matcher.end();
             if (start > 0) {
                 String temp = text.substring(start - 1, start);
                 try {
                     Integer.parseInt(temp);
                     hasPrePostNum = true;
-
                 } catch (NumberFormatException e) {
                 }
             }
             if (end < text.length()) {
-                String temp = text.substring(end, end + 1);
-                try {
-                    Integer.parseInt(temp);
-                    hasPrePostNum = true;
-
-                } catch (NumberFormatException e) {
-
-                }
+            	String temp = text.substring(end, end + 1);
+            	//If last character is "/" no check for number is needed. 
+            	if(!text.substring(end-1, end).equals("/")){
+            		try {
+	                    Integer.parseInt(temp);
+	                    hasPrePostNum = true;
+	                } catch (NumberFormatException e) {
+	                }
+            	}
             }
             if (!hasPrePostNum) {
                 date = new ExtractedDate(text.substring(start, end), regExp[1]);
             }
 
         }
+        //System.out.println("getDateFromString: " + (double)(endTime - startTime)/1000.0);
         return date;
     }
 
     /**
      * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
      * But with condition that keyword is no part of a word. <br>
-     * E.g.: date in timedate will not be found, but there for time-date matches.
+     * E.g.: date in timedate will not be found, but there for time-date matches. <br>
+     * (Underscores won't match, e.g. time_date is wrong.)
      * 
      * @param node HTML-node to be searched.
      * @param keyWords Array of keywords to look for.
@@ -210,10 +250,19 @@ public final class DateGetterHelper {
      */
     public static String findNodeKeywordPart(Node node, String[] keyWords) {
         String keyword = null;
+        //Node tempNode = XPathHelper.removeAllCildren(node);
+        Node tempNode = node.cloneNode(false);
+        String nodeDump =  HTMLHelper.getXmlDump(tempNode);
+        boolean hasKeyword = false;
+        for (int j = 0; j < keyWords.length; j++) {
+        	int index = nodeDump.indexOf(keyWords[j]);
+        	if(index != -1){
+        		hasKeyword = true;
+        	}
+        }
         NamedNodeMap attrMap = node.getAttributes();
-        Pattern p = Pattern.compile("\\w");
-        Matcher m;
-        if (attrMap != null) {
+       
+        if (attrMap != null && hasKeyword) {
             for (int j = 0; j < keyWords.length; j++) {
                 String lookUp = keyWords[j].toLowerCase();
                 for (int i = 0; i < attrMap.getLength(); i++) {
@@ -226,20 +275,19 @@ public final class DateGetterHelper {
                         int end = index + lookUp.length();
 
                         if (start > 0) {
-
-                            String bevor = attrText.substring(start - 1, start);
-                            m = p.matcher(bevor);
-                            if (m.find()) {
-                                letter = true;
-                            }
+                        	String sub = attrText.substring(start - 1, start);
+                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
+                        	if(sub.split("\\w").length == 0){
+                        		letter = true;;
+                        	}
                         }
 
                         if (attrText.length() > end) {
-                            String after = attrText.substring(end, end + 1);
-                            m = p.matcher(after);
-                            if (m.find()) {
-                                letter = true;
-                            }
+                        	String sub = attrText.substring(end, end + 1);
+                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
+                        	if(sub.split("\\w").length == 0){
+                        		letter = true;;
+                        	}
                         }
                         if (!letter) {
                             keyword = lookUp;
@@ -285,72 +333,6 @@ public final class DateGetterHelper {
         return keyword;
     }
 
-    /**
-     * For date in a string the nearest keyword will be found, independently from kind of keyword or position in keyword
-     * array.<br>
-     * If a keyword is found, it will be set to the date that will be returned.
-     * 
-     * @param textString String within the date.
-     * @param date Date found in the textString.
-     * @param keys
-     */
-    public static void setNearestTextkeyword(String textString, ContentDate date, String[] keys) {
-        String text = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(textString));
-        String keyword = null;
-        String dateString = date.getDateString();
-        int dateBegin = text.indexOf(dateString);
-        int dateEnd = dateBegin + dateString.length();
-        int distance = 9999;
-        int keyBegin;
-        int keyEnd;
-        int temp;
-
-        Pattern p = Pattern.compile("\\w");
-        Matcher m;
-
-        for (int i = 0; i < keys.length; i++) {
-        	
-            keyBegin = text.toLowerCase(Locale.ENGLISH).indexOf(keys[i].toLowerCase(Locale.ENGLISH));
-            if (keyBegin != -1) {
-            	
-                keyEnd = keyBegin + keys[i].length();
-                
-                if (keyBegin > 0) {
-                    m = p.matcher(text.substring(keyBegin - 1, keyBegin));
-                    if (m.find()) {
-                        continue;
-                    }
-                }
-                
-                if (keyEnd < text.length()) {
-
-                    m = p.matcher(text.substring(keyEnd, keyEnd + 1));
-                    if (m.find()) {
-                        continue;
-                    }
-                }
-                
-                int subBegin = Math.min(dateBegin, keyBegin);
-                int subende = Math.max(dateEnd, keyEnd);
-                String subText = text.substring(subBegin, subende);
-                
-                temp = StringHelper.countWhitespaces(subText);
-                if (temp < distance) {
-                    distance = temp;
-                    keyword = keys[i];
-                }
-                
-            }
-            
-        }
-
-        if (keyword != null && distance < 20) {
-            date.setKeyword(keyword);
-            date.set(ContentDate.DISTANCE_DATE_KEYWORD, distance);
-            date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
-        }
-    }
-    
     //Monat und Jahr sind nur gerundet.
     public static ExtractedDate findRelativeDate(String text){
     	
