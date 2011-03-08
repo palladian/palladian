@@ -216,9 +216,9 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         }
 
         // train the nominal classifier
-        if (isUseNominalClassifier()) {
+        // if (isUseNominalClassifier()) {
             getNominalClassifier().train();
-        }
+        // }
 
     }
 

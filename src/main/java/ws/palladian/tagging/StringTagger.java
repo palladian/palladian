@@ -100,7 +100,7 @@ public class StringTagger {
 
         // ending with dash (Real- Rumble => should be two words, TOTALLY FREE- Abc => also two matches)
         regexp += "|";
-        regexp += "([A-Z][A-Za-z]+ )*[A-Z][A-Za-z]+(?=- )";
+        regexp += "([A-Z][A-Za-z]+ )*[A-Z][A-Za-z]+(?=-+? )";
 
         // small with dash (ex-President)
         regexp += "|";
