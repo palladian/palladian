@@ -2,7 +2,6 @@ package ws.palladian.extraction.keyphrase;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
@@ -21,10 +20,12 @@ class Candidate {
     private String value;
     private String stemmedValue;
     private int count;
-    private int capitalCount;
+    private int uppercaseCount;
+    private int totalUppercaseCount;
     private int firstPos = Integer.MAX_VALUE;
     private int lastPos = Integer.MIN_VALUE;
     private SummaryStatistics correlationStats = new SummaryStatistics();
+    private String posTag;
 
     private Boolean positive;
     private double regressionValue;
@@ -81,16 +82,28 @@ class Candidate {
         return count;
     }
 
-    public void incrementCapitalCount() {
-        capitalCount++;
+    public void incrementUppercaseCount() {
+        uppercaseCount++;
     }
 
-    public int getCapitalCount() {
-        return capitalCount;
+    public int getUppercaseCount() {
+        return uppercaseCount;
     }
 
-    public float getCapitalPercentage() {
-        return (float) capitalCount / count;
+    public float getUppercasePercentage() {
+        return (float) uppercaseCount / count;
+    }
+    
+    public void incrementTotalUppercaseCount() {
+        totalUppercaseCount++;
+    }
+    
+    public int getTotalUppercaseCount() {
+        return totalUppercaseCount;
+    }
+    
+    public float getTotalUppercasePercentage() {
+        return (float) totalUppercaseCount / count;
     }
 
     public int getWordCount() {
@@ -159,6 +172,14 @@ class Candidate {
     public int getCorrelationCount() {
         return (int) correlationStats.getN() - 1;
     }
+    
+    public String getPosTag() {
+        return posTag;
+    }
+    
+    public void setPosTag(String posTag) {
+        this.posTag = posTag;
+    }
 
     public void setPositive(Boolean positive) {
         this.positive = positive;
@@ -177,13 +198,15 @@ class Candidate {
         regressionValue += by;
     }
 
-    public Map<String, Double> getFeatures() {
+    public Map<String, Object> getFeatures() {
 
-        Map<String, Double> features = new LinkedHashMap<String, Double>();
+        Map<String, Object> features = new LinkedHashMap<String, Object>();
 
         features.put("count", (double) getCount());
-        features.put("capitalCount", (double) getCapitalCount());
-        features.put("capitalPercentage", (double) getCapitalPercentage());
+        features.put("uppercaseCount", (double) getUppercaseCount());
+        features.put("uppercasePercentage", (double) getUppercasePercentage());
+        features.put("totalUppercaseCount", (double) getTotalUppercaseCount());
+        features.put("totalUppercasePercentage", (double) getTotalUppercasePercentage());
         features.put("wordCount", (double) getWordCount());
         features.put("firstPosition", (double) getFirstPos());
         features.put("lastPosition", (double) getLastPos());
@@ -198,20 +221,22 @@ class Candidate {
         features.put("prior", (double) getPrior());
         features.put("correlationSum", getCorrelationSum());
         features.put("correlationMax", getCorrelationMax());
-//        features.put("correlationMin", getCorrelationMin());
+        features.put("correlationMin", getCorrelationMin());
         features.put("correlationMean", getCorrelationMean());
-//        features.put("correlationCount", (double) getCorrelationCount());
+        // features.put("correlationCount", (double) getCorrelationCount());
+        features.put("posTag", getPosTag());
 
         // debugging
-        for (Entry<String, Double> entry : features.entrySet()) {
-            Double value = entry.getValue();
-            assert !Double.isInfinite(value);
-            assert !Double.isNaN(value);
-        }
+//        for (Entry<String, Double> entry : features.entrySet()) {
+//            Double value = entry.getValue();
+//            assert !Double.isInfinite(value);
+//            assert !Double.isNaN(value);
+//        }
 
         // value for the Classifier, if we are in training mode.
         if (positive != null) {
-            features.put("positive", positive ? 1.0 : 0.0);
+            // features.put("positive", positive ? 1.0 : 0.0);
+            features.put("positive", String.valueOf(positive));
         }
 
         return features;
@@ -227,7 +252,7 @@ class Candidate {
         builder.append("Candidate [");
         // builder.append("capitalCount=").append(capitalCount);
         builder.append("count=").append(count);
-        builder.append(" capitalPercentage=").append(getCapitalPercentage());
+        builder.append(" capitalPercentage=").append(getUppercasePercentage());
         // builder.append(" firstPos=").append(firstPos);
         // builder.append(" lastPos=").append(lastPos);
         builder.append(" stemmedValue=").append(stemmedValue);

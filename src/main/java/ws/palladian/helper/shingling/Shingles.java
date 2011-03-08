@@ -1,14 +1,13 @@
 package ws.palladian.helper.shingling;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -19,8 +18,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-// import org.apache.commons.collections15.Bag;
-// import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
@@ -426,7 +423,7 @@ public class Shingles {
             String inputFile = cmd.getOptionValue("input");
             final String outputFile = cmd.getOptionValue("output");
             if (FileHelper.fileExists(outputFile)) {
-                System.out.println("file " + outputFile + " exists. deleting.");
+                LOGGER.info("file " + outputFile + " exists. deleting.");
             }
 
             final Shingles shingles = new Shingles();
@@ -438,21 +435,16 @@ public class Shingles {
                 public void performAction(String line, int lineNumber) {
                     boolean dup = shingles.addDocument(lineNumber, line);
                     if (!dup) {
-                        try {
-                            FileHelper.appendFile(outputFile, line + "\n");
-                        } catch (IOException e) {
-                            System.out.println("exception " + e);
-                            breakLineLoop();
-                        }
+                        FileHelper.appendFile(outputFile, line + "\n");
                     } else {
                         dupCount[0]++;
                     }
                 }
             });
 
-            System.out.println("wrote result to: " + outputFile);
-            System.out.println("number of (near)duplicates: " + dupCount[0]);
-            System.out.println("elapsed time for de-duplication: " + stopWatch.getElapsedTimeString());
+            LOGGER.info("wrote result to: " + outputFile);
+            LOGGER.info("number of (near)duplicates: " + dupCount[0]);
+            LOGGER.info("elapsed time for de-duplication: " + stopWatch.getElapsedTimeString());
 
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
