@@ -95,6 +95,9 @@ public class DocumentModel extends ArrayList<Candidate> {
 
             // store all unstemmed representations
             Bag<String> unStemBag = new HashBag<String>();
+            
+            // keep all POS tags for current candidate
+            Bag<String> posTagsBag = new HashBag<String>();
 
             Candidate candidate = new Candidate(this);
             add(candidate);
@@ -106,13 +109,18 @@ public class DocumentModel extends ArrayList<Candidate> {
                 candidate.setStemmedValue(token.getStemmedValue());
                 candidate.addPosition(token.getTextPosition());
                 candidate.incrementCount();
+                posTagsBag.add(token.getPosTag());
 
-                boolean notAtSentenceStart = token.getSentencePosition() > 0;
+                boolean atSentenceStart = token.getSentencePosition() == 0;
                 boolean startsUppercase = StringHelper.startsUppercase(token.getUnstemmedValue());
-                boolean notCompletelyUppercase = !StringHelper.isCompletelyUppercase(token.getUnstemmedValue());
+                boolean completelyUppercase = StringHelper.isCompletelyUppercase(token.getUnstemmedValue());
 
-                if (notAtSentenceStart && startsUppercase && notCompletelyUppercase) {
-                    candidate.incrementCapitalCount();
+                if (!atSentenceStart && startsUppercase && !completelyUppercase) {
+                    candidate.incrementUppercaseCount();
+                }
+                
+                if (completelyUppercase) {
+                    candidate.incrementTotalUppercaseCount();
                 }
 
                 tokenCount++;
@@ -130,8 +138,21 @@ public class DocumentModel extends ArrayList<Candidate> {
                     bestUnStemCand = unstemmed;
                 }
             }
+            
+            // determine most frequent POS tag
+            String bestPosTag = null;
+            int bestPosTagCount = 0;
+            
+            for (String posTag : posTagsBag.uniqueSet()) {
+                int currentCount = posTagsBag.getCount(posTag);
+                if (currentCount > bestPosTagCount) {
+                    bestPosTagCount = currentCount;
+                    bestPosTag = posTag;
+                }
+            }
 
             candidate.setValue(bestUnStemCand);
+            candidate.setPosTag(bestPosTag);
         }
 
         // save memory; we don't need the Tokens any longer.
@@ -229,8 +250,8 @@ public class DocumentModel extends ArrayList<Candidate> {
 
         // write all values
         for (Candidate candidate : this) {
-            Collection<Double> feautureValues = candidate.getFeatures().values();
-            sb.append(StringUtils.join(feautureValues, ";")).append("\n");
+            Collection<Object> featureValues = candidate.getFeatures().values();
+            sb.append(StringUtils.join(featureValues, ";")).append("\n");
         }
 
         return sb.toString();
@@ -264,18 +285,4 @@ public class DocumentModel extends ArrayList<Candidate> {
         builder.append("]");
         return builder.toString();
     }
-    
-//    public int getNumCand() {
-//        Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
-//        int numCand = 0;
-//        Set<Entry<String, List<Token>>> entrySet = tokens.entrySet();
-//        for (Entry<String, List<Token>> entry : entrySet) {
-//            if (!stopwords.contains(entry.getValue().iterator().next().getUnstemmedValue().toLowerCase())) {
-//                numCand++;
-//            }
-//        }
-//        return numCand;
-//        // return tokens.size();
-//    }
-
 }

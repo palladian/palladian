@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,7 +20,6 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +43,8 @@ import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by apache commons.
 /**
- * The FileHelper helps with file concerning tasks.
+ * The FileHelper helps with file concerning tasks. If you add methods to this class, make sure under all circumstances
+ * that all streams are closed correctly. Every time you cause a memory leak, god kills a kitten!
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -54,6 +55,12 @@ public class FileHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
+    
+    /** Constant for video file extensions. */
+    private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid");
+    
+    /** Constant for audio file extensions. */
+    private static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
 
     /**
      * Checks if is file name.
@@ -66,13 +73,8 @@ public class FileHelper {
 
         Pattern pattern = Pattern.compile("\\.[A-Za-z0-9]{2,5}$", Pattern.CASE_INSENSITIVE);
         Matcher m = pattern.matcher(name);
-
-        if (m.find()) {
-            // System.out.println("is file!" + m.group());
-            return true;
-        }
-
-        return false;
+        
+        return m.find();
     }
 
     /**
@@ -82,12 +84,7 @@ public class FileHelper {
      * @return true, if is video file
      */
     public static boolean isVideoFile(String fileType) {
-        fileType = fileType.toLowerCase();
-        if (fileType.equals("mp4") || fileType.equals("flv") || fileType.equals("avi") || fileType.equals("mpeg2")
-                || fileType.equals("divx") || fileType.equals("mov") || fileType.equals("xvid")) {
-            return true;
-        }
-        return false;
+        return VIDEO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
     }
 
     /**
@@ -97,12 +94,7 @@ public class FileHelper {
      * @return true, if is audio file
      */
     public static boolean isAudioFile(String fileType) {
-        fileType = fileType.toLowerCase();
-        if (fileType.equals("mp3") || fileType.equals("ogg") || fileType.equals("aac") || fileType.equals("wav")
-                || fileType.equals("flac")) {
-            return true;
-        }
-        return false;
+        return AUDIO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
     }
 
     /**
@@ -421,12 +413,15 @@ public class FileHelper {
      */
     public static int performActionOnEveryLine(String filePath, LineAction la) {
         int lineNumber = 1;
+        FileReader reader = null;
 
         try {
-            FileReader in = new FileReader(filePath);
-            lineNumber = performActionOnEveryLine(in, la);
+            reader = new FileReader(filePath);
+            lineNumber = performActionOnEveryLine(reader, la);
         } catch (FileNotFoundException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
+        } finally {
+            close(reader);
         }
 
         return lineNumber;
@@ -435,14 +430,14 @@ public class FileHelper {
     public static int performActionOnEveryLine(Reader reader, LineAction la) {
 
         int lineNumber = 1;
-        BufferedReader br = null;
+        BufferedReader bufferedReader = null;
 
         try {
-            br = new BufferedReader(reader);
+            bufferedReader = new BufferedReader(reader);
 
             String line = "";
             do {
-                line = br.readLine();
+                line = bufferedReader.readLine();
                 if (line == null) {
                     break;
                 }
@@ -458,7 +453,7 @@ public class FileHelper {
         } catch (OutOfMemoryError e) {
             LOGGER.error(reader + ", " + e.getMessage());
         } finally {
-            close(br);
+            close(bufferedReader);
         }
 
         return lineNumber - 1;
@@ -478,31 +473,32 @@ public class FileHelper {
     //    }
 
     public static int performActionOnEveryLineText(String text, LineAction la) {
+        return performActionOnEveryLine(new StringReader(text), la);
 
-        int lineNumber = 1;
-
-        StringReader in = new StringReader(text);
-        BufferedReader br = new BufferedReader(in);
-        try {
-            String line = "";
-            do {
-                line = br.readLine();
-                if (line == null) {
-                    break;
-                }
-
-                la.performAction(line, lineNumber++);
-
-            } while (line != null && la.looping);
-
-            in.close();
-            br.close();
-
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return lineNumber - 1;
+//        int lineNumber = 1;
+//
+//        StringReader in = new StringReader(text);
+//        BufferedReader br = new BufferedReader(in);
+//        try {
+//            String line = "";
+//            do {
+//                line = br.readLine();
+//                if (line == null) {
+//                    break;
+//                }
+//
+//                la.performAction(line, lineNumber++);
+//
+//            } while (line != null && la.looping);
+//
+//            in.close();
+//            br.close();
+//
+//        } catch (IOException e) {
+//            LOGGER.error(e.getMessage());
+//        }
+//
+//        return lineNumber - 1;
     }
 
     /**
@@ -513,12 +509,11 @@ public class FileHelper {
      * @author Philipp Katz
      * @author Sandro Reichert
      * @return false if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}.
-     *         See error log for details (Exceptions)
+     *         {@link filePath}. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, Collection<?> lines) {
 
-        boolean noErrorOccurred = true;
+        boolean success = false;
         File file = new File(filePath);
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
@@ -532,14 +527,13 @@ public class FileHelper {
                 writer.write(line.toString());
                 writer.write(System.getProperty("line.separator"));
             }
-            writer.flush();
+            success = true;
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
-            noErrorOccurred = false;
         } finally {
             close(writer);
         }
-        return noErrorOccurred;
+        return success;
     }
 
     /**
@@ -548,27 +542,28 @@ public class FileHelper {
      * @param filePath the file path
      * @param string the string
      * @return false if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}.
-     *         See error log for details (Exceptions)
+     *         {@link filePath}. See error log for details (Exceptions)
      */
     public static boolean writeToFile(String filePath, CharSequence string) {
 
-        boolean noErrorOccurred = true;
+        boolean success = false;
         File file = new File(filePath);
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
+        
+        FileWriter writer = null;
 
         try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(string.toString());
-            fileWriter.flush();
-            fileWriter.close();
+            writer = new FileWriter(file);
+            writer.write(string.toString());
+            success = true;
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
-            noErrorOccurred = false;
+        } finally {
+            close(writer);
         }
-        return noErrorOccurred;
+        return success;
     }
 
     /**
@@ -584,10 +579,10 @@ public class FileHelper {
      * @param before If true, the text will be appended before all other content, if false it will be appended to the
      *            end of the file.
      */
-    @Deprecated
-    public static void appendToFile(String filePath, StringBuilder string, boolean before) {
-        appendToFile(filePath, string.toString(), before);
-    }
+//    @Deprecated
+//    public static void appendToFile(String filePath, StringBuilder string, boolean before) {
+//        appendToFile(filePath, string.toString(), before);
+//    }
 
     /**
      * Append to file.
@@ -596,24 +591,24 @@ public class FileHelper {
      * @param string the string
      * @param before the before
      */
-    @Deprecated
-    public static void appendToFile(String filePath, String string, boolean before) {
-        try {
-            String currentContent = readFileToString(filePath);
-            FileWriter fileWriter = new FileWriter(filePath);
-            if (before) {
-                fileWriter.write(string);
-            }
-            fileWriter.write(currentContent);
-            if (!before) {
-                fileWriter.write(string);
-            }
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        }
-    }
+//    @Deprecated
+//    public static void appendToFile(String filePath, String string, boolean before) {
+//        try {
+//            String currentContent = readFileToString(filePath);
+//            FileWriter fileWriter = new FileWriter(filePath);
+//            if (before) {
+//                fileWriter.write(string);
+//            }
+//            fileWriter.write(currentContent);
+//            if (!before) {
+//                fileWriter.write(string);
+//            }
+//            fileWriter.flush();
+//            fileWriter.close();
+//        } catch (IOException e) {
+//            LOGGER.error(filePath + ", " + e.getMessage());
+//        }
+//    }
 
     /**
      * Appends (i. e. inserts a the end) a string to the specified File.
@@ -622,13 +617,22 @@ public class FileHelper {
      * @param stringToAppend the string to append
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
+     * @return 
      */
-    public static void appendFile(String filePath, CharSequence stringToAppend) throws IOException {
+    public static boolean appendFile(String filePath, CharSequence stringToAppend) {
 
-        FileWriter fileWriter = new FileWriter(filePath, true);
-        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.append(stringToAppend);
-        bufferedWriter.close();
+        boolean success = false;
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(filePath, true));
+            writer.append(stringToAppend);
+            success = true;
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            close(writer);
+        }
+        return success;
 
     }
 
@@ -637,8 +641,10 @@ public class FileHelper {
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
+     * @return 
      */
-    public static void appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
+    public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
+        boolean added = false;
         final boolean[] add = new boolean[] { true };
         // if file exists already, check if it contains specified line
         if (fileExists(filePath)) {
@@ -653,12 +659,9 @@ public class FileHelper {
             });
         }
         if (add[0]) {
-            try {
-                appendFile(filePath, stringToAppend + "\n");
-            } catch (IOException e) {
-                LOGGER.error("could not write to file " + filePath);
-            }
+            added = appendFile(filePath, stringToAppend + "\n");
         }
+        return added;
     }
 
     /**
@@ -670,51 +673,64 @@ public class FileHelper {
      * @param stringToPrepend the string to prepend
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
+     * @return
      */
-    public static void prependFile(String filePath, String stringToPrepend) throws IOException {
+    public static boolean prependFile(String filePath, String stringToPrepend)  {
+        
+        boolean success = false;
+        RandomAccessFile randomAccessFile = null;
 
-        RandomAccessFile randomAccessFile = new RandomAccessFile(filePath, "rw");
+        try {
 
-        byte[] writeBuffer = stringToPrepend.getBytes();
+            randomAccessFile = new RandomAccessFile(filePath, "rw");
 
-        // buffer size must be at least the size of String which we prepend
-        int bufferSize = Math.max(4096, writeBuffer.length);
+            byte[] writeBuffer = stringToPrepend.getBytes();
 
-        // positions for read/write within the file at each iteration
-        long readPosition = 0;
-        long writePosition = 0;
+            // buffer size must be at least the size of String which we prepend
+            int bufferSize = Math.max(4096, writeBuffer.length);
 
-        // # of bytes to write during next iteration, or -1, if done
-        int writeBytes = writeBuffer.length;
+            // positions for read/write within the file at each iteration
+            long readPosition = 0;
+            long writePosition = 0;
 
-        do {
+            // # of bytes to write during next iteration, or -1, if done
+            int writeBytes = writeBuffer.length;
 
-            byte[] readBuffer = new byte[bufferSize];
+            do {
 
-            // read chunk, starting at current position to the readBuffer
-            randomAccessFile.seek(readPosition);
-            int readBytes = randomAccessFile.read(readBuffer);
+                byte[] readBuffer = new byte[bufferSize];
 
-            // write chunk from the writeBuffer, starting at current position
-            randomAccessFile.seek(writePosition);
-            randomAccessFile.write(writeBuffer, 0, writeBytes);
+                // read chunk, starting at current position to the readBuffer
+                randomAccessFile.seek(readPosition);
+                int readBytes = randomAccessFile.read(readBuffer);
 
-            // set read data to the writeBuffer for next iteration
-            writeBuffer = readBuffer;
+                // write chunk from the writeBuffer, starting at current position
+                randomAccessFile.seek(writePosition);
+                randomAccessFile.write(writeBuffer, 0, writeBytes);
 
-            readPosition += bufferSize;
-            writePosition += writeBytes;
-            writeBytes = readBytes;
+                // set read data to the writeBuffer for next iteration
+                writeBuffer = readBuffer;
 
-        } while (writeBytes != -1);
+                readPosition += bufferSize;
+                writePosition += writeBytes;
+                writeBytes = readBytes;
 
-        randomAccessFile.close();
-
+            } while (writeBytes != -1);
+            
+            success = true;
+            
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            close(randomAccessFile);
+        }
+        return success;
     }
 
     /**
      * Deserialize a serialized object. If the filepath ends with "gz" it is automatically decompressed. This generic
-     * method does the cast for you.
+     * method does the cast for you, just deserialize to the appropriate type, like
+     * <tt>Foo foo = FileHelper.deserialize("foo.ser");</tt>.
      * 
      * @param <T> type of the objects.
      * @param filePath the file path
@@ -727,22 +743,20 @@ public class FileHelper {
             return (T) deserializeCompressed(filePath);
         }
 
-        // made generic, avoids the cast
-        FileInputStream fis = null;
         ObjectInputStream in = null;
         T obj = null;
 
         try {
-            fis = new FileInputStream(filePath);
-            in = new ObjectInputStream(fis);
+            in = new ObjectInputStream(new FileInputStream(filePath));
             obj = (T) in.readObject();
-
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(in);
         }
 
         return obj;
@@ -751,27 +765,20 @@ public class FileHelper {
     @SuppressWarnings("unchecked")
     public static <T extends Serializable> T deserializeCompressed(String filePath) {
 
-        FileInputStream fis = null;
-        GZIPInputStream gis = null;
         ObjectInputStream ois = null;
         T obj = null;
 
         try {
-
-            fis = new FileInputStream(filePath);
-            gis = new GZIPInputStream(fis);
-            ois = new ObjectInputStream(gis);
+            ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
             obj = (T) ois.readObject();
-            ois.close();
-            gis.close();
-            fis.close();
-
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(ois);
         }
 
         return obj;
@@ -791,7 +798,6 @@ public class FileHelper {
             return;
         }
 
-        FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
 
@@ -800,13 +806,8 @@ public class FileHelper {
                 outputFile.mkdirs();
             }
 
-            fos = new FileOutputStream(filePath);
-            out = new ObjectOutputStream(fos);
+            out = new ObjectOutputStream(new FileOutputStream(filePath));
             out.writeObject(obj);
-            out.close();
-            fos.close();
-            out = null;
-            fos = null;
         } catch (IOException e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
         } catch (OutOfMemoryError e) {
@@ -814,12 +815,12 @@ public class FileHelper {
             System.exit(1);
         } catch (Exception e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
+        } finally {
+            close(out);
         }
     }
 
     public static void serializeCompress(Serializable obj, String filePath) {
-        FileOutputStream fos = null;
-        GZIPOutputStream zipout = null;
         ObjectOutputStream out = null;
         try {
 
@@ -828,17 +829,8 @@ public class FileHelper {
                 outputFile.mkdirs();
             }
 
-            fos = new FileOutputStream(filePath);
-            zipout = new GZIPOutputStream(fos);
-            out = new ObjectOutputStream(zipout);
+            out = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filePath)));
             out.writeObject(obj);
-            out.flush();
-            out.close();
-            zipout.close();
-            fos.close();
-            out = null;
-            zipout = null;
-            fos = null;
         } catch (IOException e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
         } catch (OutOfMemoryError e) {
@@ -846,6 +838,8 @@ public class FileHelper {
             System.exit(1);
         } catch (Exception e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
+        } finally {
+            close(out);
         }
     }
 
@@ -873,26 +867,25 @@ public class FileHelper {
      * @param destinationFile The destination of the file.
      */
     public static void copyFile(String sourceFile, String destinationFile) {
+        InputStream in = null;
+        OutputStream out = null;
         try {
-            File f1 = new File(sourceFile);
-            File f2 = new File(destinationFile);
-            InputStream in = new FileInputStream(f1);
-            OutputStream out = new FileOutputStream(f2);
+            in = new FileInputStream(new File(sourceFile));
+            out = new FileOutputStream(new File(destinationFile));
 
             byte[] buf = new byte[1024];
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
-            in.close();
-            out.close();
-            // System.out.println("File copied.");
         } catch (FileNotFoundException ex) {
-            // System.out.println(ex.getMessage() + " in the specified directory.");
             LOGGER.error(ex.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(in, out);
         }
+        
     }
 
     /**
@@ -1047,7 +1040,8 @@ public class FileHelper {
     public static void addFileHeader(String folderPath, StringBuilder header) {
         File[] files = getFiles(folderPath);
         for (File file : files) {
-            FileHelper.appendToFile(file.getAbsolutePath(), header, true);
+            // FileHelper.appendToFile(file.getAbsolutePath(), header, true);
+            appendFile(file.getAbsolutePath(), header + "\n");
         }
     }
 
@@ -1267,22 +1261,22 @@ public class FileHelper {
      */
     public static String ungzipInputStreamToString(InputStream in) {
         StringOutputStream out = new StringOutputStream();
+        GZIPInputStream zipIn = null;
         try {
-            GZIPInputStream zipin = new GZIPInputStream(in);
+            zipIn = new GZIPInputStream(in);
             int chunkSize = 8192;
             byte[] buffer = new byte[chunkSize];
 
             int length;
-            while ((length = zipin.read(buffer, 0, chunkSize)) != -1) {
+            while ((length = zipIn.read(buffer, 0, chunkSize)) != -1) {
                 out.write(buffer, 0, length);
             }
-            out.flush();
-            out.close();
-            zipin.close();
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(zipIn);
         }
         return out.toString();
     }
@@ -1310,7 +1304,6 @@ public class FileHelper {
                 while ((count = zis.read(data, 0, bufferSize)) != -1) {
                     dest.write(data, 0, count);
                 }
-                dest.flush();
                 dest.close();
             }
             zis.close();
@@ -1361,46 +1354,39 @@ public class FileHelper {
      */
     public static boolean concatenateFiles(File file1, File file2) {
         boolean concatenated = false;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
 
         try {
 
-            FileInputStream fis = new FileInputStream(file2);
-
-            FileOutputStream fos = new FileOutputStream(file1, true);
+            fis = new FileInputStream(file2);
+            fos = new FileOutputStream(file1, true);
 
             int c;
-
             while ((c = fis.read()) != -1) {
                 fos.write(c);
             }
-
-            fos.close();
 
             concatenated = true;
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(fis, fos);
         }
 
         return concatenated;
     }
     
-    private static void close(Reader reader) {
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                LOGGER.error(e);
-            }
-        }
-    }
-    private static void close(Writer writer) {
-        if (writer != null) {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                LOGGER.error(e);
-            }
+    private static void close(Closeable... closeables) {
+        for (Closeable closeable : closeables) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    LOGGER.error(e);
+                }
+            }            
         }
     }
 

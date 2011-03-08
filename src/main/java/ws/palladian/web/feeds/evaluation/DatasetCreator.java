@@ -398,12 +398,8 @@ public class DatasetCreator {
                             + feed.getChecks());
                 }
 
-                try {
-                    LOGGER.debug("Saving new file content: " + newEntries.toString());
-                    FileHelper.prependFile(filePath, newEntries.toString());
-                } catch (IOException e) {
-                    LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
-                }
+                LOGGER.debug("Saving new file content: " + newEntries.toString());
+                FileHelper.prependFile(filePath, newEntries.toString());
 
                 feed.freeMemory();
                 feed.setLastHeadlines("");

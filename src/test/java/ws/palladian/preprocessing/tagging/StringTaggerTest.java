@@ -1,7 +1,6 @@
 package ws.palladian.preprocessing.tagging;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,11 +10,7 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.tagging.StringTagger;
 
-public class StringTaggerTest extends TestCase {
-
-    public StringTaggerTest(String name) {
-        super(name);
-    }
+public class StringTaggerTest {
 
     @Test
     @Ignore

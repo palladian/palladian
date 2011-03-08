@@ -19,7 +19,6 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.w3c.dom.Document;
 
 import ws.palladian.classification.page.Stopwords;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -355,22 +354,24 @@ public class TokenizerPlus {
 
     public static void main(String[] args) {
 
-        String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
+        String str = "the quick brown fox jumps over the lazy dog.";
+        // String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
         str = HTMLHelper.stripHTMLTags(str);
         
         // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
         // String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
 
         TokenizerPlus tokenizer = new TokenizerPlus();
-        // tokenizer.setUsePosTagging(true); // 33s:888ms
-        tokenizer.setUsePosTagging(false); // 4s:813ms
+        tokenizer.setUsePosTagging(true); // 33s:888ms
+        // tokenizer.setUsePosTagging(false); // 4s:813ms
 
         StopWatch sw = new StopWatch();
-        for (int i = 0; i < 100; i++) {
+        // for (int i = 0; i < 100; i++) {
             List<Token> t = tokenizer.tokenize(str);
-            tokenizer.makeCollocations(t, 1, 4);
-        }
-        System.out.println(sw);
+            System.out.println(t);
+            // tokenizer.makeCollocations(t, 1, 4);
+        // }
+        // System.out.println(sw);
 
         System.exit(0);
 

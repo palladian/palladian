@@ -3,10 +3,13 @@ package ws.palladian.extraction.keyphrase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -101,6 +104,8 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         trainDocuments.clear();
         trainInstances = 0;
     }
+    
+    boolean switched = false;
 
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
@@ -112,6 +117,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         // if (trainData.size() > TRAIN_DATA_LIMIT) {
         if (trainInstances > TRAIN_DATA_LIMIT) {
+            if (switched == false) {
+                switched = true;
+                System.out.println("switched to fast mode...");
+                tokenizer.setUsePosTagging(false);
+            }
             return;
         }
 
@@ -140,22 +150,33 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public void endTraining() {
+        
+        // XXX
+        corpus.makeRelativeScores();
 
         // keep the CSV training data in memory for now
         StringBuilder csvBuilder = new StringBuilder();
 
         // Set<String> featureNames = trainData.iterator().next().getFeatures().keySet();
-        Set<String> featureNames = trainDocuments.iterator().next().iterator().next().getFeatures().keySet();
+        Map<String, Object> features = trainDocuments.iterator().next().iterator().next().getFeatures();
+        Map<String, Double> numericFeatures = getNumericFeatures(features);
+        //Set<String> featureNames = features.keySet();
+        Set<String> featureNames = numericFeatures.keySet();
         // trainData.append("#");
         csvBuilder.append(StringUtils.join(featureNames, ";")).append("\n");
 
         // write all values
         for (DocumentModel trainData : trainDocuments) {
+            
             trainData.calculateCorrelations();
-        for (Candidate candidate : trainData) {
-            Collection<Double> feautureValues = candidate.getFeatures().values();
-            csvBuilder.append(StringUtils.join(feautureValues, ";")).append("\n");
-        }
+            
+            for (Candidate candidate : trainData) {
+                // Collection<Object> featureValues = candidate.getFeatures().values();
+                Collection<Double> featureValues = getNumericFeatures(candidate.getFeatures()).values();
+                csvBuilder.append(StringUtils.join(featureValues, ";")); //.append("\n");
+                // csvBuilder.append(";").append(candidate.getFeatures().get("positive")).append(";").append("\n");
+                csvBuilder.append("\n");
+            }
         }
 
         final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
@@ -185,7 +206,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         LOGGER.info("saving corpus to " + filePath + " ...");
         StopWatch sw = new StopWatch();
-        corpus.makeRelativeScores();
+        // corpus.makeRelativeScores(); // XXX
         FileHelper.serialize(corpus, filePath);
         LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
     }
@@ -285,12 +306,40 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
      * @param candidates
      */
     private void classify(DocumentModel candidates) {
+        
+        // FIXME need to update for nominal attributes.
+        
         for (Candidate candidate : candidates) {
-            FeatureObject featureObject = new FeatureObject(candidate.getFeatures());
+            
+            Map<String, Double> tmp = getNumericFeatures(candidate.getFeatures());
+            
+            FeatureObject featureObject = new FeatureObject(tmp);
             double result = classifier.classifySoft(featureObject)[0];
             candidate.setRegressionValue(result);
         }
 
+    }
+
+    private Map<String, Double> getNumericFeatures(Map<String,Object>features) {
+        Map<String, Double> tmp = new HashMap<String, Double>();
+        
+
+        // tmp. fix.
+        // Map<String, Object> features = candidate.getFeatures();
+        Set<Entry<String, Object>> entrySet = features.entrySet();
+        for (Entry<String, Object> entry : entrySet) {
+            if (entry.getValue() instanceof Double) {
+                tmp.put(entry.getKey(), (Double) entry.getValue());
+            }
+            if (entry.getKey().equals("positive")) {
+                double value = 0.0;
+                if ("positive".equals((String) entry.getValue())) {
+                    value = 1.0;
+                }
+                tmp.put("positive", value);
+            }
+        }
+        return tmp;
     }
 
     /**
@@ -480,13 +529,15 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         List<Token> tokens = new ArrayList<Token>();
         List<Token> uniGrams = tokenizer.tokenize(text);
-        List<Token> collocations = tokenizer.makeCollocations(uniGrams, settings.getMinPhraseLength(), settings.getMaxPhraseLength());
 
         if (settings.getMinPhraseLength() == 1) {
             tokens.addAll(uniGrams);
         }
-        
-        tokens.addAll(collocations);
+
+        if (!tokenizer.isUsePosTagging()) { // XXX
+            List<Token> collocations = tokenizer.makeCollocations(uniGrams, settings.getMinPhraseLength(), settings.getMaxPhraseLength());
+            tokens.addAll(collocations);
+        }
         
         //        Set<String> stopwords = settings.getStopwords();
         //        ListIterator<Token> lit = tokens.listIterator();

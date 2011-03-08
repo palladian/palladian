@@ -87,11 +87,7 @@ public class KeyphraseExtractorEvaluator {
         ControlledTaggerEvaluationResult result = test(extractor, testingDataset, testLimit);
 
         // write result file
-        try {
-            FileHelper.appendFile(EVALUATION_RESULT, result.toString() + "\n");
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
+        FileHelper.appendFile(EVALUATION_RESULT, result.toString() + "\n");
 
         LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
 
@@ -256,7 +252,7 @@ public class KeyphraseExtractorEvaluator {
         // keyphraseExtractor = new ControlledTagger();
         // keyphraseExtractor = new FiveFiltersTermExtraction();
         // keyphraseExtractor = new YahooTermExtraction();
-        palladianKeyphraseExtractor.getSettings().setModelPath("data/temp/PalladianWithPOS");
+        // palladianKeyphraseExtractor.getSettings().setModelPath("data/temp/PalladianWithPOS");
         
         keyphraseExtractor = palladianKeyphraseExtractor;
 
@@ -273,11 +269,11 @@ public class KeyphraseExtractorEvaluator {
 
         // dataset.setSeparationString("#");
 
-        dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
-        dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
+        // dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
+        // dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
         
-        // dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
-        // dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
+        dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
+        dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
         dataset.setSeparationString(" ");
         dataset.setFirstFieldLink(true);
         dataset.setUsePercentTraining(50);

@@ -1,6 +1,5 @@
 package ws.palladian.web.feeds;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -480,9 +479,6 @@ public class FeedDiscovery {
                                     }
                                 }
                             }
-                        } catch (IOException e) {
-                            LOGGER.error("could not append to " + getResultFilePath());
-                            errors.increment();
                         } finally {
                             counter.decrement();
                         }

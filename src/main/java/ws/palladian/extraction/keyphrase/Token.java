@@ -61,8 +61,8 @@ public class Token {
         // builder.append(sentencePosition);
         // builder.append(", sentenceNumber=");
         // builder.append(sentenceNumber);
-        // builder.append(", posTag=");
-        // builder.append(posTag);
+        builder.append(", posTag=");
+        builder.append(posTag);
         builder.append("]");
         return builder.toString();
     }

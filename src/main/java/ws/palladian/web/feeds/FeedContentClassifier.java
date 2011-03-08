@@ -1,6 +1,5 @@
 package ws.palladian.web.feeds;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -114,14 +113,14 @@ public class FeedContentClassifier {
             }
 
             if (DEBUG) {
-                try {
+//                try {
                     FileHelper.appendFile("data/temp/fccDebug.txt", "=========================\n");
                     FileHelper.appendFile("data/temp/fccDebug.txt", entryText + "\n");
                     FileHelper.appendFile("data/temp/fccDebug.txt", "-------------------------\n");
                     FileHelper.appendFile("data/temp/fccDebug.txt", pageText + "\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
 
             // first, calculate a similarity based solely on text lengths

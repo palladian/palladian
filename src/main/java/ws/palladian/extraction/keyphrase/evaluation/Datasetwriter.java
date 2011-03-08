@@ -230,11 +230,7 @@ public class Datasetwriter {
                     lineToWrite.append(StringUtils.join(tags, SEPARATOR_CHARACTER));
                     lineToWrite.append("\n");
 
-                    try {
-                        FileHelper.appendFile(pathToIndexFile, lineToWrite);
-                    } catch (IOException e) {
-                        throw new SAXException("Error writing result file. Stopping.");
-                    }
+                    FileHelper.appendFile(pathToIndexFile, lineToWrite);
 
                     // //////////// create .txt files from HTML pages ///////////////
                     FileHelper.writeToFile(pathToDocsSubdirectory + pathToSubdirectory.replace(".html", ".txt"), cleanContent);
