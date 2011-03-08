@@ -53,7 +53,7 @@ public class ClassifierManager {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClassifierManager.class);
 
-    /** The configuration must be located in config/palladian.properties. */
+    /** The configuration must be located in <tt>config/palladian.properties</tt>. */
     private static PropertiesConfiguration config;
 
     /** The classifier used to categorize the web sites. */

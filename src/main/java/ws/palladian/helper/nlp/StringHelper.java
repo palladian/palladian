@@ -61,6 +61,10 @@ public class StringHelper {
         return makeSafeName(name, -1);
     }
 
+    public static String shorten(String string, int maxLength) {
+        return string.substring(0, Math.min(string.length(), maxLength));
+    }
+
     /**
      * This function wraps the string to integer conversion in order to prevent the exception catching in other
      * functions.
@@ -219,7 +223,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
- + RegExp.STRING, e);
+                    + RegExp.STRING, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -243,7 +247,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
- + RegExp.NUMBER, e);
+                    + RegExp.NUMBER, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -1342,10 +1346,12 @@ public class StringHelper {
      * 
      * @param args the arguments
      */
-    public static void main_(String[] args) {
+    public static void main(String[] args) {
 
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 
+        System.out.println(removeNonAsciiCharacters("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
+        System.out.println(StringEscapeUtils.unescapeHtml("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
         // System.out.println(StringHelper.numberCount("123abcdefg"));
 
         // System.out.println(WordTransformer.wordToSingular("yves"));
