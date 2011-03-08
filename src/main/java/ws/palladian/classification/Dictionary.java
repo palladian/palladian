@@ -43,6 +43,8 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     /** a dictionary index saved on disk, that is more scalable than holding the dictionary in memory */
     private transient DictionaryIndex dictionaryIndex = null;
 
+    private boolean caseSensitive = false;
+
     // ////////////////// index types ////////////////////
 
     /** save dictionary in a database all in one table */
@@ -181,7 +183,9 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     public CategoryEntries updateWord(Term word, String categoryName, double value) {
 
-        word.lowerCaseText();
+        if (!isCaseSensitive()) {
+            word.lowerCaseText();
+        }
 
         Category category = categories.getCategoryByName(categoryName);
         if (category == null) {
@@ -299,7 +303,11 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
      */
     public CategoryEntry getMostLikelyCategoryEntry(String word, double minimumScore) {
 
-        CategoryEntries categoryEntries = this.get(word.toLowerCase());
+        if (!isCaseSensitive()) {
+            word = word.toLowerCase();
+        }
+
+        CategoryEntries categoryEntries = this.get(word);
         if (categoryEntries == null) {
             return null;
         }
@@ -351,7 +359,11 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     public CategoryEntries getCategoryEntries(String word, double minimumScore) {
 
-        CategoryEntries categoryEntries = this.get(word.toLowerCase());
+        if (!isCaseSensitive()) {
+            word = word.toLowerCase();
+        }
+
+        CategoryEntries categoryEntries = this.get(word);
         if (categoryEntries == null) {
             return null;
         }
@@ -629,6 +641,14 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     public WordCorrelationMatrix getWcm() {
         return wcm;
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
+    public boolean isCaseSensitive() {
+        return caseSensitive;
     }
 
 }

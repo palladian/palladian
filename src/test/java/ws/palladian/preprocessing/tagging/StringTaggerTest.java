@@ -103,13 +103,13 @@ public class StringTaggerTest extends TestCase {
         Assert.assertEquals("Reagan Communications", annotations.get(5).getEntity());
 
         // dashes
-        taggedText = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice";
+        taggedText = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice, Australia-- Germany";
 
         taggedText = StringTagger.tagString(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
         CollectionHelper.print(annotations);
 
-        Assert.assertEquals(15, annotations.size());
+        Assert.assertEquals(17, annotations.size());
         Assert.assertEquals("Maria-Hillary Johnson", annotations.get(0).getEntity());
         Assert.assertEquals("Chester-le-Street", annotations.get(1).getEntity());
         Assert.assertEquals("Ontario-based", annotations.get(2).getEntity());
@@ -125,6 +125,8 @@ public class StringTaggerTest extends TestCase {
         Assert.assertEquals("Rumble", annotations.get(12).getEntity());
         Assert.assertEquals("TOTALLY FREE", annotations.get(13).getEntity());
         Assert.assertEquals("Choice", annotations.get(14).getEntity());
+        Assert.assertEquals("Australia", annotations.get(15).getEntity());
+        Assert.assertEquals("Germany", annotations.get(16).getEntity());
 
         // starting small and camel case
         taggedText = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone.";

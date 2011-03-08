@@ -114,6 +114,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         dictionaryEntities = new HashMap<String, Category>();
         entityDictionary = new Dictionary("EntityDictionary", ClassificationTypeSetting.SINGLE);
+        entityDictionary.setCaseSensitive(true);
 
         contextClassifier = new DictionaryClassifier();
         contextClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
@@ -546,30 +547,34 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                 // annotation.assignCategoryEntries(ce);
 
             }
-            System.out.println("chagend " + MathHelper.round(100 * changed / annotations.size(), 2)
+            System.out.println("changed " + MathHelper.round(100 * changed / annotations.size(), 2)
                     + "% of the entities");
+
+            System.out.println("Context precision:");
+            CollectionHelper.print(contextInfluences);
 
             // switch annotations that are in the dictionary
             changed = 0;
             for (Annotation annotation : annotations) {
 
-                Category category = dictionaryEntities.get(annotation.getEntity());
-                if (category != null) {
-                    CategoryEntries ce = new CategoryEntries();
-                    ce.add(new CategoryEntry(ce, category, 1));
-                    annotation.assignCategoryEntries(ce);
-                    changed++;
-                }
-
-                // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
-                // if (ces != null) {
-                // annotation.assignCategoryEntries(ces);
+                // Category category = dictionaryEntities.get(annotation.getEntity());
+                // if (category != null) {
+                // CategoryEntries ce = new CategoryEntries();
+                // ce.add(new CategoryEntry(ce, category, 1));
+                // annotation.assignCategoryEntries(ce);
                 // changed++;
                 // }
 
+                 CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                if (ces != null && ces.size() > 0) {
+                    annotation.assignCategoryEntries(ces);
+                    changed++;
+                }
+
             }
-            System.out.println("chagend with entity dictionary "
-                    + MathHelper.round(100 * changed / annotations.size(), 2) + "% of the entities");
+            System.out.println("changed with entity dictionary "
+                    + MathHelper.round(100 * changed / annotations.size(), 2) + "% of the entities (total entities: "
+                    + annotations.size() + ")");
 
             // remove all annotations with "DOCSTART- " in them because that is for format purposes
             Annotations toAdd = new Annotations();
@@ -771,6 +776,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // annotation.getAssignedCategoryEntries().getCategoryEntry("MISC").addAbsoluteRelevance(miscProb);
         else {
 
+            String realTag = getCandidateAnnotationRealCategory(annotation);
+
             ce.add(new CategoryEntry(ce, new Category("LOC"), locProb));
             ce.add(new CategoryEntry(ce, new Category("PER"), perProb));
             ce.add(new CategoryEntry(ce, new Category("ORG"), orgProb));
@@ -789,17 +796,57 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             TextInstance ti = contextClassifier.classify(annotation.getLeftContext() + "__"
                     + annotation.getRightContext());
 
+            UniversalInstance bayesClassifiedInstance = new UniversalInstance(null);
+            bayesClassifiedInstance.setNominalFeatures(annotation.getNominalFeatures());
+            universalClassifier.getNominalClassifier().classify(bayesClassifiedInstance);
+
             CategoryEntries ceMerge = new CategoryEntries();
-            ceMerge.addAllRelative(1, ce);
-            ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(ti.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(tiPos.getAssignedCategoryEntries());
+            // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(3305, ce);
+            ceMerge.addAllRelative(4442, annotation.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(3481, ti.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(2862, tiPos.getAssignedCategoryEntries());
             annotation.assignCategoryEntries(ceMerge);
+
+            // check how reliable the different factors were
+            if (annotation.getMostLikelyTagName().equalsIgnoreCase(realTag)) {
+                contextInfluences.increment("entity text");
+            }
+            if (ce.getMostLikelyCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
+                contextInfluences.increment("context patterns");
+            }
+            if (ti.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
+                contextInfluences.increment("context classifier");
+            }
+            if (tiPos.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
+                contextInfluences.increment("context POS classifier");
+            }
+            if (bayesClassifiedInstance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
+                contextInfluences.increment("entity bayes");
+            }
         }
         // annotation.getAssignedCategoryEntries().addAllRelative(ce);
 
         return null;
         // ce.getMostLikelyCategoryEntry().getCategory();
+    }
+
+    private CountMap contextInfluences = new CountMap();
+    private Annotations realAnnotations = null;
+
+    private String getCandidateAnnotationRealCategory(Annotation annotation) {
+        if (realAnnotations == null) {
+            realAnnotations = FileFormatParser.getAnnotationsFromColumn("data/datasets/ner/conll/test_validation.txt");
+        }
+
+        // search for the matching annotation
+        for (Annotation realAnnotation : realAnnotations) {
+            if (realAnnotation.matches(annotation)) {
+                return realAnnotation.getInstanceCategoryName();
+            }
+        }
+
+        return "";
     }
 
     @Override
