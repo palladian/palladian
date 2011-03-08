@@ -535,6 +535,7 @@ public class DateGetterHelperTest {
         }
     }
 
+    @Ignore
     @Test
     public void testGetContentDates2() {
         final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
@@ -559,7 +560,7 @@ public class DateGetterHelperTest {
     public void testGetDate() {
         String url = DateGetterHelperTest.class.getResource("/webPages/dateExtraction/alltop.htm").getFile();
         url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
-        url = "http://www.abanet.org/antitrust/committees/intell_property/standardsettingresources.html";
+        //url = "http://www.abanet.org/antitrust/committees/intell_property/standardsettingresources.html";
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
