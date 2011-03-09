@@ -108,7 +108,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
+        // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
         universalClassifier.getTextClassifier().getFeatureSetting().setMinNGramLength(2);
+        universalClassifier.getTextClassifier().getFeatureSetting().setMaxNGramLength(8);
 
         universalClassifier.switchClassifiers(true, false, false);
 
@@ -117,6 +119,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         entityDictionary.setCaseSensitive(true);
 
         contextClassifier = new DictionaryClassifier();
+        // contextClassifier.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        // contextClassifier.getFeatureSetting().setMinNGramLength(1);
+        // contextClassifier.getFeatureSetting().setMaxNGramLength(4);
         contextClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
         contextClassifier.getDictionary().setName("contextDictionary");
 
@@ -802,10 +807,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             CategoryEntries ceMerge = new CategoryEntries();
             // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(3305, ce);
-            ceMerge.addAllRelative(4442, annotation.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(3481, ti.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(2862, tiPos.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(ce);
+            ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(ti.getAssignedCategoryEntries());
+            ceMerge.addAllRelative(tiPos.getAssignedCategoryEntries());
             annotation.assignCategoryEntries(ceMerge);
 
             // check how reliable the different factors were
@@ -1319,10 +1324,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             String tag = annotation.getInstanceCategoryName();
 
             // the left patterns containing 1-3 words
-            String[] leftContexts = annotation.getLeftContexts();
+            String[] leftContexts = annotation.getLeftContextsPOS();
 
             // the right patterns containing 1-3 words
-            String[] rightContexts = annotation.getRightContexts();
+            String[] rightContexts = annotation.getRightContextsPOS();
 
             // initialize tagMap
             if (tagMap.get(tag) == null) {
@@ -1446,6 +1451,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         CollectionHelper.print(posTagCounts.getSortedMap());
 
+    }
+
+    public static void split() {
+        String s = FileHelper.readFileToString("data/datasets/ner/conll/test_validation_t.txt");
+        s = s.replace("=-DOCSTART-", "\n\n");
+        FileHelper.writeToFile("data/datasets/ner/conll/test_validation_t_readable.txt", s);
     }
 
     /**
