@@ -521,11 +521,15 @@ public class FileFormatParser {
              * }
              */
 
+            int windowSize = 40;
+
             // get the left and right context of the annotation
-            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 40),
+            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(
+                    Math.max(0, matcher.start() - windowSize),
                     matcher.start()));
             String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
-                    Math.min(taggedText.length(), matcher.end() + 40)));
+                    Math.min(taggedText.length(), matcher.end() + windowSize)));
+
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);

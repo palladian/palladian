@@ -18,6 +18,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.InformativenessAssigner;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
+import ws.palladian.preprocessing.nlp.TagAnnotations;
 
 /**
  * An annotation made by a {@link NamedEntityRecognizer} when tagging a text.
@@ -258,9 +259,75 @@ public class Annotation extends UniversalInstance {
         for (int i = words.length - 1; i >= 0; i--) {
 
             String token = words[i];
-            if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
+            /*
+             * if (DateHelper.containsDate(token)) {
+             * token = "DATE";
+             * } else
+             */if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
                 token = "NUM";
             }
+
+            if (wordNumber == 1) {
+                contexts[0] = token;
+                contexts[1] = token;
+                contexts[2] = token;
+            }
+
+            if (wordNumber == 2) {
+                contexts[1] = token + " " + contexts[1];
+                contexts[2] = token + " " + contexts[2];
+            }
+
+            if (wordNumber == 3) {
+                contexts[2] = token + " " + contexts[2];
+                break;
+            }
+
+            wordNumber++;
+        }
+
+        if (words.length < 3) {
+            contexts[2] = "";
+        }
+        if (words.length < 2) {
+            contexts[1] = "";
+        }
+
+        return contexts;
+    }
+
+    public String[] getLeftContextsPOS() {
+
+        Object o = DataHolder.getInstance().getDataObject("lpt");
+        LingPipePOSTagger lpt;
+
+        if (o != null) {
+            lpt = (LingPipePOSTagger) o;
+        } else {
+            lpt = new LingPipePOSTagger();
+            lpt.loadModel();
+            DataHolder.getInstance().putDataObject("lpt", lpt);
+        }
+
+        String[] contexts = new String[3];
+        contexts[0] = "";
+        contexts[1] = "";
+        contexts[2] = "";
+
+        String leftContext = getLeftContext();
+
+        String posLeftContext = "";
+        TagAnnotations tas = lpt.tag(leftContext).getTagAnnotations();
+        for (TagAnnotation ta : tas) {
+            posLeftContext += ta.getTag() + " ";
+        }
+        posLeftContext = posLeftContext.trim();
+
+        String[] words = posLeftContext.split(" ");
+        int wordNumber = 1;
+        for (int i = words.length - 1; i >= 0; i--) {
+
+            String token = words[i];
 
             if (wordNumber == 1) {
                 contexts[0] = token;
@@ -304,9 +371,75 @@ public class Annotation extends UniversalInstance {
         for (int i = 0; i < words.length; i++) {
 
             String token = words[i];
-            if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
+            /*
+             * if (DateHelper.containsDate(token)) {
+             * token = "DATE";
+             * } else
+             */if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
                 token = "NUM";
             }
+
+            if (wordNumber == 1) {
+                contexts[0] = token;
+                contexts[1] = token;
+                contexts[2] = token;
+            }
+
+            if (wordNumber == 2) {
+                contexts[1] = contexts[1] + " " + token;
+                contexts[2] = contexts[2] + " " + token;
+            }
+
+            if (wordNumber == 3) {
+                contexts[2] = contexts[2] + " " + token;
+                break;
+            }
+
+            wordNumber++;
+        }
+
+        if (words.length < 3) {
+            contexts[2] = "";
+        }
+        if (words.length < 2) {
+            contexts[1] = "";
+        }
+
+        return contexts;
+    }
+
+    public String[] getRightContextsPOS() {
+
+        Object o = DataHolder.getInstance().getDataObject("lpt");
+        LingPipePOSTagger lpt;
+
+        if (o != null) {
+            lpt = (LingPipePOSTagger) o;
+        } else {
+            lpt = new LingPipePOSTagger();
+            lpt.loadModel();
+            DataHolder.getInstance().putDataObject("lpt", lpt);
+        }
+
+        String[] contexts = new String[3];
+        contexts[0] = "";
+        contexts[1] = "";
+        contexts[2] = "";
+
+        String rightContext = getRightContext();
+
+        String posRightContext = "";
+        TagAnnotations tas = lpt.tag(rightContext).getTagAnnotations();
+        for (TagAnnotation ta : tas) {
+            posRightContext += ta.getTag() + " ";
+        }
+        posRightContext = posRightContext.trim();
+
+        String[] words = posRightContext.split(" ");
+        int wordNumber = 1;
+        for (int i = 0; i < words.length; i++) {
+
+            String token = words[i];
 
             if (wordNumber == 1) {
                 contexts[0] = token;
