@@ -6,6 +6,7 @@ import java.util.List;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
@@ -578,7 +579,7 @@ public class Annotation extends UniversalInstance {
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    public Annotations unwrapAnnotations(Annotations annotations) {
+    public Annotations unwrapAnnotations(Annotations annotations, Dictionary entityDictionary) {
         Annotations unwrappedAnnotations = new Annotations();
 
         String entityName = getEntity().toLowerCase();
@@ -595,6 +596,20 @@ public class Annotation extends UniversalInstance {
                 }
             }
         }
+
+        // go through the entity dictionary
+        // for (Entry<Term, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+        // String word = termEntry.getKey().getText();
+        // if (word.length() < length) {
+        // int index = entityName.indexOf(" " + word.toLowerCase() + " ");
+        // if (index > -1 && word.length() > 2) {
+        // Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
+        // .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+        // wrappedAnnotation.createFeatures();
+        // unwrappedAnnotations.add(wrappedAnnotation);
+        // }
+        // }
+        // }
 
         return unwrappedAnnotations;
     }
