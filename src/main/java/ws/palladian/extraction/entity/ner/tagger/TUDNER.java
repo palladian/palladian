@@ -340,7 +340,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // System.out.println("wait here, " + annotation.getEntity());
             // }
 
-            Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
+            Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
 
             if (!wrappedAnnotations.isEmpty()) {
                 for (Annotation annotation2 : wrappedAnnotations) {
@@ -594,7 +594,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                     // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
                     // Math.min(12, annotation.getEntity().length())))) {
 
-                        Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations);
+                Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
 
                         if (!wrappedAnnotations.isEmpty()) {
                             for (Annotation annotation2 : wrappedAnnotations) {
@@ -735,10 +735,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             orgProb += op / (double) sum;
             miscProb += mp / (double) sum;
 
-// locProb += lp / 7119.0 * lp / (double) sum;
-            // perProb += pp / 6560.0 * pp / (double) sum;
-            // orgProb += op / 6276.0 * op / (double) sum;
-            // miscProb += mp / 3371.0 * mp / (double) sum;
+// locProb += lp / 7119.0 * lp / sum;
+            // perProb += pp / 6560.0 * pp / sum;
+            // orgProb += op / 6276.0 * op / sum;
+            // miscProb += mp / 3371.0 * mp / sum;
 
             // if (contextPattern.equalsIgnoreCase("visited") || contextPattern.equalsIgnoreCase("village of")
             // || contextPattern.equalsIgnoreCase("said") || contextPattern.equalsIgnoreCase("died in")) {
@@ -1212,7 +1212,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             // look for entities that have been annotated in the current text already to find them in the given
             // candidate
-            Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(annotations);
+            Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(annotations, entityDictionary);
             // Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(dictionaryClassifier, preprocessor);
 
             if (!wrappedAnnotations.isEmpty() && false) {
@@ -1324,10 +1324,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             String tag = annotation.getInstanceCategoryName();
 
             // the left patterns containing 1-3 words
-            String[] leftContexts = annotation.getLeftContextsPOS();
+            String[] leftContexts = annotation.getLeftContexts();
 
             // the right patterns containing 1-3 words
-            String[] rightContexts = annotation.getRightContextsPOS();
+            String[] rightContexts = annotation.getRightContexts();
 
             // initialize tagMap
             if (tagMap.get(tag) == null) {
