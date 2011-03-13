@@ -240,14 +240,19 @@ public class Crawler {
 
         ConfigHolder configHolder = ConfigHolder.getInstance();
         PropertiesConfiguration config = configHolder.getConfig();
-        setMaxThreads(config.getInt("crawler.maxThreads"));
-        setStopCount(config.getInt("crawler.stopCount"));
-        inDomain = config.getBoolean("crawler.inDomain");
-        outDomain = config.getBoolean("crawler.outDomain");
-        setSwitchProxyRequests(config.getInt("crawler.switchProxyRequests"));
-        setProxyList(config.getList("crawler.proxyList"));
-        setFeedAutodiscovery(config.getBoolean("crawler.feedAutoDiscovery"));
-        setNumRetries(config.getInt("crawler.numRetries", DEFAULT_NUM_RETRIES));
+
+        if (config != null) {
+            setMaxThreads(config.getInt("crawler.maxThreads"));
+            setStopCount(config.getInt("crawler.stopCount"));
+            inDomain = config.getBoolean("crawler.inDomain");
+            outDomain = config.getBoolean("crawler.outDomain");
+            setSwitchProxyRequests(config.getInt("crawler.switchProxyRequests"));
+            setProxyList(config.getList("crawler.proxyList"));
+            setFeedAutodiscovery(config.getBoolean("crawler.feedAutoDiscovery"));
+            setNumRetries(config.getInt("crawler.numRetries", DEFAULT_NUM_RETRIES));
+        } else {
+            LOGGER.warn("could not load configuration, use defaults");
+        }
 
     }
 

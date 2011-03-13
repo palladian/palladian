@@ -29,7 +29,8 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config == null) {
-            MODEL = "";
+            MODEL = "data/models/opennlp/chunker/en-chunker.bin";
+            LOGGER.warn("could not load configuration, use default location: " + MODEL);
         } else {
             MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
         }

@@ -209,14 +209,19 @@ public class RankingRetriever {
         StopWatch sw = new StopWatch();
 
         PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-        bitlyLogin = configuration.getString("api.bitly.login");
-        bitlyApikey = configuration.getString("api.bitly.key");
-        mixxApikey = configuration.getString("api.mixx.key");
-        redditUsername = configuration.getString("api.reddit.username");
-        redditPassword = configuration.getString("api.reddit.password");
-        yahooApikey = configuration.getString("api.yahoo.key");
-        majesticApikey = configuration.getString("api.majestic.key");
-        competeApikey = configuration.getString("api.compete.key");
+
+        if (configuration != null) {
+            bitlyLogin = configuration.getString("api.bitly.login");
+            bitlyApikey = configuration.getString("api.bitly.key");
+            mixxApikey = configuration.getString("api.mixx.key");
+            redditUsername = configuration.getString("api.reddit.username");
+            redditPassword = configuration.getString("api.reddit.password");
+            yahooApikey = configuration.getString("api.yahoo.key");
+            majesticApikey = configuration.getString("api.majestic.key");
+            competeApikey = configuration.getString("api.compete.key");
+        } else {
+            LOGGER.warn("could not load configuration, use default location");
+        }
 
         // we use a rather short timeout here, as responses are short.
         crawler.setOverallTimeout(5000);

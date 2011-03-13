@@ -127,11 +127,15 @@ public class PageSegmenter {
 
         PropertiesConfiguration config = configHolder.getConfig();
 
-        PageSegmenter.lengthOfQGrams = config.getInt("pageSegmentation.lengthOfQGrams");
-        PageSegmenter.amountOfQGrams = config.getInt("pageSegmentation.amountOfQGrams");
-        PageSegmenter.similarityNeed = config.getDouble("pageSegmentation.similarityNeed");
-        PageSegmenter.maxDepth = config.getInt("pageSegmentation.maxDepth");
-        PageSegmenter.numberOfSimilarDocuments = config.getInt("pageSegmentation.numberOfSimilarDocuments");
+        if (config != null) {
+            PageSegmenter.lengthOfQGrams = config.getInt("pageSegmentation.lengthOfQGrams");
+            PageSegmenter.amountOfQGrams = config.getInt("pageSegmentation.amountOfQGrams");
+            PageSegmenter.similarityNeed = config.getDouble("pageSegmentation.similarityNeed");
+            PageSegmenter.maxDepth = config.getInt("pageSegmentation.maxDepth");
+            PageSegmenter.numberOfSimilarDocuments = config.getInt("pageSegmentation.numberOfSimilarDocuments");
+        } else {
+            LOGGER.warn("could not load configuration, use default location");
+        }
 
     }
 
@@ -818,7 +822,7 @@ public class PageSegmenter {
             if (xp.substring(xp.lastIndexOf("/") + 1, xp.length()).equals("TR")) {
                 xp = xp + "/TD";
             }
-            List<Node> list = (ArrayList<Node>) XPathHelper.getXhtmlNodes(document, xp);
+            List<Node> list = XPathHelper.getXhtmlNodes(document, xp);
             LOGGER.info("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
             for (int i = 0; i < list.size(); i++) {
                 Node n = list.get(i);

@@ -78,6 +78,18 @@ public class Annotations extends Instances<Annotation> {
         Collections.sort(this, c);
     }
 
+    public void sortByLength() {
+        Comparator<Annotation> c = new Comparator<Annotation>() {
+
+            @Override
+            public int compare(Annotation a1, Annotation a2) {
+                return a2.getLength() - a1.getLength();
+            }
+        };
+
+        Collections.sort(this, c);
+    }
+
     public void transformToEvaluationAnnotations() {
 
         Annotations evaluationAnnotations = new Annotations();

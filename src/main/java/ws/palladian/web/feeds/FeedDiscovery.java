@@ -122,10 +122,15 @@ public class FeedDiscovery {
         LOGGER.trace(">FeedDiscovery");
 
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        setMaxThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
-        setIgnores(config.getList("feedDiscovery.discoveryIgnoreList"));
-        setOnlyPreferred(config.getBoolean("feedDiscovery.onlyPreferred", true));
-        setSearchEngine(config.getInt("feedDiscovery.searchEngine", SourceRetrieverManager.YAHOO_BOSS));
+
+        if (config != null) {
+            setMaxThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
+            setIgnores(config.getList("feedDiscovery.discoveryIgnoreList"));
+            setOnlyPreferred(config.getBoolean("feedDiscovery.onlyPreferred", true));
+            setSearchEngine(config.getInt("feedDiscovery.searchEngine", SourceRetrieverManager.YAHOO_BOSS));
+        } else {
+            LOGGER.warn("could not load configuration, use defaults");
+        }
 
         LOGGER.trace("<FeedDiscovery");
     }

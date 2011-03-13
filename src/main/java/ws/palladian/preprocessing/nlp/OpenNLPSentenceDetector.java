@@ -44,7 +44,8 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config == null) {
-            MODEL = "";
+            MODEL = "data/models/opennlp/sentdetect/en-sent.bin";
+            LOGGER.warn("could not load configuration, use default location: " + MODEL);
         } else {
             MODEL = config.getString("models.root") + config.getString("models.opennlp.en.sentdetect");
         }
