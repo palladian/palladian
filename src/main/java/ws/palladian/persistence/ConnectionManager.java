@@ -16,13 +16,14 @@ import com.jolbox.bonecp.hooks.AbstractConnectionHook;
 import com.jolbox.bonecp.hooks.ConnectionHook;
 
 /**
- * This class is responsible for maintaining connections to the database. The BoneCP library is used as a connection pool.
+ * This class is responsible for maintaining connections to the database. The BoneCP library is used as a connection
+ * pool.
  * 
  * @author Philipp Katz
  * @see http://jolbox.com/
  * 
  */
-/* package */ class ConnectionManager {
+/* package */class ConnectionManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ConnectionManager.class);
@@ -58,16 +59,34 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
 
         // The configuration file can be found under config/palladian.properties.
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        config.setThrowExceptionOnMissing(true);
+
+        String driver = "";
+        String jdbcUrl = "";
+        String username = "";
+        String password = "";
+
+        if (config == null) {
+            LOGGER.warn("could not load configuration, use defaults: jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false");
+
+            driver = "com.mysql.jdbc.Driver";
+            jdbcUrl = "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false";
+            username = "root";
+            password = "";
+        } else {
+            driver = config.getString("db.driver");
+            jdbcUrl = config.getString("db.jdbcUrl");
+            username = config.getString("db.username");
+            password = config.getString("db.password");
+        }
 
         try {
 
             // load the database driver (make sure this is in your classpath!)
-            Class.forName(config.getString("db.driver"));
+            Class.forName(driver);
 
         } catch (ClassNotFoundException e) {
-            LOGGER.error("error loading database driver : " + config.getString("db.driver"));
-            throw new RuntimeException("error loading database driver : " + config.getString("db.driver"), e);
+            LOGGER.error("error loading database driver : " + driver);
+            throw new RuntimeException("error loading database driver : " + driver, e);
         }
 
         try {
@@ -75,9 +94,9 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             // setup the connection pool
             BoneCPConfig boneConfig = new BoneCPConfig();
             
-            boneConfig.setJdbcUrl(config.getString("db.jdbcUrl"));
-            boneConfig.setUsername(config.getString("db.username"));
-            boneConfig.setPassword(config.getString("db.password"));
+            boneConfig.setJdbcUrl(jdbcUrl);
+            boneConfig.setUsername(username);
+            boneConfig.setPassword(password);
             boneConfig.setMinConnectionsPerPartition(5);
             boneConfig.setMaxConnectionsPerPartition(10);
             boneConfig.setPartitionCount(1);
@@ -110,6 +129,7 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             throw new RuntimeException("error setting up connection pool", e);
         }
 
+        config.setThrowExceptionOnMissing(true);
     }
 
     /**
@@ -133,25 +153,26 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
     public static void main(String[] args) throws Exception {
 
         ConnectionManager.getInstance();
-        
-        /*final Random random = new Random();
 
-        for (int i = 0; i < 1000; i++) {
-            new Thread() {
-                public void run() {
-                    try {
-                        Connection connection = ConnectionManager.getInstance().getConnection();
-                        // pretend to do something with the connection
-                        sleep(random.nextInt(10000));
-                        connection.close();
-                    } catch (SQLException e) {
-                        LOGGER.error(e);
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e);
-                    }
-                };
-            }.start();
-        }*/
+        /*
+         * final Random random = new Random();
+         * for (int i = 0; i < 1000; i++) {
+         * new Thread() {
+         * public void run() {
+         * try {
+         * Connection connection = ConnectionManager.getInstance().getConnection();
+         * // pretend to do something with the connection
+         * sleep(random.nextInt(10000));
+         * connection.close();
+         * } catch (SQLException e) {
+         * LOGGER.error(e);
+         * } catch (InterruptedException e) {
+         * LOGGER.error(e);
+         * }
+         * };
+         * }.start();
+         * }
+         */
     }
 
 }

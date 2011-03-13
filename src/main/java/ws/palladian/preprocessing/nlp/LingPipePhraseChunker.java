@@ -200,7 +200,8 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config == null) {
-            MODEL = "";
+            MODEL = "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel";
+            LOGGER.warn("could not load configuration, use defaults: " + MODEL);
         } else {
             MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
         }

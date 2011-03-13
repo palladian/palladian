@@ -94,7 +94,11 @@ public final class FeedReader {
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        threadPoolSize = config.getInteger("feedReader.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
+        if (config != null) {
+            threadPoolSize = config.getInteger("feedReader.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
+        } else {
+            LOGGER.warn("could not load configuration, use defaults");
+        }
     }
 
     /**

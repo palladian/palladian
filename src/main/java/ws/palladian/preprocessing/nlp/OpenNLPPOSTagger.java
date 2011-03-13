@@ -45,8 +45,9 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config == null) {
-            MODEL = "";
-            MODEL_TOK = "";
+            MODEL = "data/models/opennlp/postag/en-pos-maxent.bin";
+            MODEL_TOK = "data/models/opennlp/tokenize/en-token.bin";
+            LOGGER.warn("could not load configuration, use default location: " + MODEL + " and " + MODEL_TOK);
         } else {
             MODEL = config.getString("models.root") + config.getString("models.opennlp.en.postag");
             MODEL_TOK = config.getString("models.root") + config.getString("models.opennlp.en.tokenize");
