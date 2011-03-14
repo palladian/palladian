@@ -59,6 +59,7 @@ class SchedulerTask extends TimerTask {
 
             // check whether feed is in the queue already
             if (isScheduled(feed.getId())) {
+            	LOGGER.debug("It seems processor cannot keep up with update intervall since feed "+feed.getId()+" is already scheduled.");
                 continue;
             }
 
