@@ -29,8 +29,11 @@ import ws.palladian.web.feeds.updates.FixUpdateStrategy;
  * <p>
  * For each feed, a csv file is created in the data/datasets/feedPosts/ folder. Each file contains all distinct posts
  * collected over a period of time. Each file follows the follwowing layout:<br>
- * 
+ * <pre>
  * TIMESTAMP;"TITLE";LINK
+ * </pre>
+ * <p>
+ * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing <tt>MISS;MISS;MISS</tt>.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -173,9 +176,7 @@ public class DatasetCreator {
     }
 
     /**
-     * <p>
      * We combine all feed histories into one file which we can then import into a database to generate statistics.
-     * </p>
      */
     public static void combineFeedHistories() {
 
