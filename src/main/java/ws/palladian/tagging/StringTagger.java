@@ -27,7 +27,7 @@ public class StringTagger {
         String entityTag = "<CANDIDATE>$0</CANDIDATE>";
 
         String of = "(of |of the )?"; // "";
-        String t = "( )?"; // " ";
+        // String t = "( )?"; // " ";
 
         String regexp = "";
         // names

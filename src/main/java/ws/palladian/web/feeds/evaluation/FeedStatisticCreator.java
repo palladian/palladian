@@ -483,7 +483,6 @@ public class FeedStatisticCreator {
      * 
      * @param tempTableName Table to drop.
      */
-    @SuppressWarnings("unused")
     private static void dropTempTable(final String tempTableName) {
         final String sql = "DROP TABLE " + tempTableName;
         Logger.getRootLogger().info(sql);

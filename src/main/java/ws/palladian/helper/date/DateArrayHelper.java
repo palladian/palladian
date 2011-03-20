@@ -557,7 +557,7 @@ public class DateArrayHelper {
     public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate, boolean include) {
         ArrayList<T> result = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
-            if ((e.getValue() == rate) == include) {
+            if (e.getValue() == rate == include) {
                 result.add(e.getKey());
             }
         }
@@ -589,7 +589,7 @@ public class DateArrayHelper {
         ArrayList<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
             T date = dates.get(i);
-            if ((((ExtractedDate) date).getRate() == rate) == include) {
+            if (((ExtractedDate) date).getRate() == rate == include) {
                 result.add(date);
             }
         }
@@ -622,7 +622,7 @@ public class DateArrayHelper {
     public static <T> HashMap<T, Double> getRatedDatesMap(HashMap<T, Double> dates, double rate, boolean include) {
         HashMap<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
-            if ((e.getValue() == rate) == include) {
+            if (e.getValue() == rate == include) {
                 result.put(e.getKey(), e.getValue());
             }
         }
@@ -707,6 +707,7 @@ public class DateArrayHelper {
         Entry<T, Double>[] dateArray = hashMapToArray(dates);
         quicksort(0, dateArray.length - 1, dateArray);
         if (reverse) {
+            @SuppressWarnings("unchecked")
             Entry<T, Double>[] temp = new Entry[dateArray.length];
             for (int i = 0; i < dateArray.length; i++) {
                 temp[i] = dateArray[dateArray.length - 1 - i];
@@ -779,11 +780,10 @@ public class DateArrayHelper {
      * @param map
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static <T, V> ArrayList<T> hashMapToArrayList(HashMap<T, V> map) {
         ArrayList<T> array = new ArrayList<T>();
         for (Entry<T, V> e : map.entrySet()) {
-            array.add((T) e.getKey());
+            array.add(e.getKey());
         }
         return array;
     }
@@ -968,7 +968,7 @@ public class DateArrayHelper {
         double highestRate = DateArrayHelper.getHighestRate(returnDates);
         if (highestRate > 1.0) {
             for (Entry<T, Double> e : returnDates.entrySet()) {
-            	returnDates.put(e.getKey(), Math.round((e.getValue() / highestRate) * 10000) / 10000.0);
+            	returnDates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
             }
         }
         return returnDates;

@@ -270,7 +270,7 @@ public class ListDiscoverer {
             PageAnalyzer pa = new PageAnalyzer();
 
             // HTML elemens from which the index should be removed (basically these are the pagination candidate tags)
-            String[] removeCountElements = { "A", "TR", "TD", "P", "SPAN", "LI" };
+            // String[] removeCountElements = { "A", "TR", "TD", "P", "SPAN", "LI" };
 
             // all links are candidates for pagination, so get the nodes
             List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//A");
