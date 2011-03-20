@@ -1,0 +1,229 @@
+\chapter{Toolkit Structure}
+\label{sec:toolkitstructure}
+TUD Palladian is managed using subversion. The top level folder structure follows the usual subversion layout using trunk for the main development, branches for parallel development and tags to mark specific versions. The trunk is located in our SVN\footnote{\url{https://141.76.40.86/svn-students/iircommon/toolkit/trunk}}. The folder structure looks as follows.
+\begin{verbatim}
+palladian
+ |- config
+ |- data
+    |- evaluation
+ |- documentation
+    |- book
+    |- javadoc
+    |- slides
+ |- exe
+ |- src
+    |- main
+       |- java
+       |- resources
+    |- test
+       |- java
+       |- resources
+ |- dev
+\end{verbatim}
+
+\section{Config Folder}
+\label{sec:config.conf}
+The config folder contains a template for the default Palladian configuration file and the database schema needed to run some of the components. The files are explained in the following sections.
+
+\subsection{palladian.properties.default}
+\label{sec:palladian.properties.default}
+The file \texttt{palladian.properties.default} is a template for the main Palladian configuration file. You need to copy this file and rename it to \texttt{palladian.properties}. The file might be located at one of three positions. The toolkit checks them in the following order:
+\begin{enumerate}
+\item The folder config inside folder on the local file system specified by the environment variable \texttt{\$PALLADIAN\_HOME}.
+\item In the root of the classpath the application is run from. This usually is the root of the JAR you are running or the root folder where all \texttt{*.class} files are located.
+\item Inside the \texttt{config} folder at the folder you are running your Palladian powered application from.
+\end{enumerate}
+
+The configuration file is structured into several sections explained in the following paragraphs. Inside your own copy of \texttt{palladian.properties} you need to adapt these settings to your local requirements.
+
+\paragraph{Model Paths}
+\label{par:modelpaths}
+
+\paragraph{Dataset Paths}
+\label{par:datasetpaths}
+
+\paragraph{Database}
+\label{par:database}
+
+\paragraph{Crawler}
+\label{sec:crawler.conf}
+Crawler settings for the ws.palladian.web.Crawler. All settings can be set in Java code as well.
+
+\begin{verbatim}
+# maximum number of threads during crawling
+crawler.maxThreads = 10
+
+# stop after x pages have been crawled, default is -1 and means unlimited
+crawler.stopCount = -1
+
+# whether to crawl within a certain domain, default is true
+crawler.inDomain = true
+	
+# whether to crawl outside of current domain, default is true
+crawler.outDomain = true
+
+#  number of request before switching to another proxy, default is -1 and means never switch
+crawler.switchProxyRequests = -1
+	
+# list of proxies to choose from
+crawler.proxyList = 83.244.106.73:8080
+crawler.proxyList = 83.244.106.73:80
+crawler.proxyList = 67.159.31.22:8080
+\end{verbatim}
+
+\paragraph{Classification}
+\label{sec:classification.conf}
+Classification settings for the ws.palladian.classification.page.ClassifierManager.
+
+\begin{verbatim}
+# page classification configurations
+
+# percentage of the training/testing file to use as training data
+classification.page.trainingPercentage = 80
+
+# create dictionary on the fly (lowers memory consumption but is slower)
+classification.page.createDictionaryIteratively = false
+
+# alternative algorithm for n-gram finding (lowers memory consumption but is slower)
+classification.page.createDictionaryNGramSearchMode = false
+
+# index type of the classifier:
+# 1: use database with single table (fast but not normalized and more disk space needed)
+# 2: use database with 3 tables (normalized and less disk space needed but slightly slower)
+# 3: use lucene index on disk (slow)
+classification.page.dictionaryClassifierIndexType = 2
+
+# if page.dictionaryClassifierIndexType = 1 or 2, specify type of database
+# 1: mysql (client server)
+# 2: h2 (embedded)
+classification.page.databaseType = 2
+\end{verbatim}
+
+\paragraph{API keys}
+\label{sec:apikeys.conf}
+The api keys that are used by the toolkit components are specified here. You may need to apply for API keys at the provider's page.
+
+\begin{verbatim}
+api.alchemy.key = 
+api.bing.key = 
+api.google.key = 
+api.google.tranlsate.key = 
+api.hakia.key =
+api.opencalais.key =
+api.yahoo.key = 
+api.yahoo_boss.key = 
+api.bitly.login = 
+api.bitly.key = 
+api.mixx.key = 
+api.reddit.username = 
+api.reddit.password = 
+
+# access to Collecta XMPP and REST API
+# see: http://developer.collecta.com/APIindex/
+api.collecta.key = 
+
+api.majestic.key = 
+api.compete.key = 
+\end{verbatim}
+
+\paragraph{Database Configuration}
+Database settings for the ws.palladian.persistence.DatabaseManager.
+
+\begin{verbatim}
+db.driver = com.mysql.jdbc.Driver
+db.jdbcUrl = jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false
+db.username = root
+db.password = 
+
+# false = persistent, true = RAM only (10x faster) (only for H2 databse)
+db.inMemoryMode = true 
+\end{verbatim}
+
+\paragraph{Feed Discovery}
+\label{par:feeddiscovery}
+The feed discovery is used to detect RSS and Atom feeds on crawled web pages. You can specify related settings in this section of the property file.
+
+\begin{verbatim}
+# search engine for discovery, see SourceRetrieverManager for avail. constants
+# for example ...: Yahoo Boss = 5, Yahoo Boss News = 10
+feedDiscovery.searchEngine = 6
+
+# maximum number of threads for discovery
+feedDiscovery.maxDiscoveryThreads = 10
+
+# feed urls containing these fragments will be ignored
+feedDiscovery.discoveryIgnoreList = gdata.youtube.com
+feedDiscovery.discoveryIgnoreList = wikipedia.org
+feedDiscovery.discoveryIgnoreList = podcast
+feedDiscovery.discoveryIgnoreList = comments
+feedDiscovery.discoveryIgnoreList = forum
+feedDiscovery.discoveryIgnoreList = gallery
+feedDiscovery.discoveryIgnoreList = special:recentchanges
+feedDiscovery.discoveryIgnoreList = popularthreads
+feedDiscovery.discoveryIgnoreList = answers.yahoo.com
+feedDiscovery.discoveryIgnoreList = feeds.digg.com
+
+# location of the list for feeds discovered by the Crawler
+feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
+
+# if enabled, only the first feed of each page is returned
+# if disabled, all Atom- or RSS feeds are returned
+feedDiscovery.onlyPreferred = true
+
+# maximum number of threads when aggregating/adding feeds
+feedDiscovery.maxAggregationThreads = 5
+
+feedDiscovery.downloadAssociatedPages = true
+\end{verbatim}
+
+\paragraph{Page Segmentation}
+\label{par:pagesegmentation}
+The page segmentation settings.
+
+\begin{verbatim}
+# length of q-grams
+pageSegmentation.lengthOfQGrams = 9
+
+# amount of q-grams
+pageSegmentation.amountOfQGrams = 5000
+
+# threshold needed to be similar
+pageSegmentation.similarityNeed = 0.689
+
+# maximal depth in DOM tree
+pageSegmentation.maxDepth = 100
+
+# number of similar documents needed
+pageSegmentation.numberOfSimilarDocuments = 5
+
+# threshold of variability
+# from green to red; from low variability to high variability
+pageSegmentation.step1 = 0.0
+pageSegmentation.step2 = 0.14
+pageSegmentation.step3 = 0.28
+pageSegmentation.step4 = 0.42
+pageSegmentation.step5 = 0.58
+pageSegmentation.step6 = 0.72
+pageSegmentation.step7 = 0.86
+\end{verbatim}
+
+\section{Data Folder}
+The data folder contains files that are used during runtime of several components.
+
+\subsection{models}
+The models folder contains learned models that can be reused. See section \ref{sec:AccessModelsDataSets} for an explanation on how to access our extensive collection of data sets and models.
+
+\subsection{Temp Folder}
+The temp folder is not part of the repository. Some functions may however create this folder and write temporary data. It is not part of the SVN and should not be committed when automatically created.
+
+\subsection{test}  
+The test folder contains data that is used for running jUnit tests. It is not part of the SVN and should not be committed when automatically created.
+
+\section{Documentation Folder}
+The documentation folder contains help files to understand the toolkit. This very document is located in the book folder and a Javadoc can be found here too.
+
+\section{Exe Folder}
+The exe folder contains all runnable jar files in separate folders including a sample script to run the program and a readme.txt that explains the run options.
+
+\section{Src Folder}
+The src folder contains all source files of the toolkit. You may need to put the log4j.properties file here in order to use custom logging settings. Alternatively you include the config folder in the class path.
