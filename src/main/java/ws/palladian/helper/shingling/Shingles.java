@@ -193,7 +193,7 @@ public class Shingles {
         // //////////////////////// old implementation, slow ////////////////////
         // get all documents we need to check, i.e. all documents which contain one of the hashes
 
-        Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
+        // Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
         // determine all similar/identical documents by calculating the Jaccard distance
 //        Set<Integer> similarDocuments = new HashSet<Integer>();
 //        Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();

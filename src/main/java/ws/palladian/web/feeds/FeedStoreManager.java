@@ -3,11 +3,9 @@ package ws.palladian.web.feeds;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.meta.MetaInformationCreator;
 import ws.palladian.web.feeds.persistence.FeedDatabase;
 
@@ -79,8 +77,8 @@ public class FeedStoreManager {
      * @throws FeedDownloaderException
      */
     public static void main(String[] args) throws FeedDownloaderException {
-        Crawler c = new Crawler();
-        Document document = c.getWebDocument("http://www.newser.com/");
+        // Crawler c = new Crawler();
+        // Document document = c.getWebDocument("http://www.newser.com/");
 
         // NewsAggregator na = new NewsAggregator();
         // Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");

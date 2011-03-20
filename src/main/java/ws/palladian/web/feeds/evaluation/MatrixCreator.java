@@ -66,7 +66,7 @@ import prefuse.data.io.DataIOException;
  * 
  */
 public final class MatrixCreator {
-    @SuppressWarnings("unused")
+
     private static final Logger LOGGER = Logger.getLogger(MatrixCreator.class);
 
     /**
