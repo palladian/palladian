@@ -155,8 +155,6 @@ api.collecta.key = aef13a5bc659dc610cf6ad300da7994e
 api.majestic.key = 2F85C7EF65
 api.compete.key = aby5srp7nmkb78q44m5ftbm3
 
-
-               
 ######################## Feed Discovery ########################
 # search engine for discovery, see SourceRetrieverManager for avail. constants
 # for example ...: Yahoo Boss = 5, Yahoo Boss News = 10
@@ -185,11 +183,9 @@ feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 feedDiscovery.onlyPreferred = true
 
 # maximum number of threads when aggregating/adding feeds
-# reduced this to 5 because my fan gets too noisy for the SLUB :)
 feedDiscovery.maxAggregationThreads = 5
 
 feedDiscovery.downloadAssociatedPages = true
-
 
 ######################## Page Segmentation ########################
 
