@@ -6,6 +6,8 @@ palladian
  |- config
  |- data
     |- evaluation
+    |- temp
+    |- test
  |- documentation
     |- book
     |- javadoc
@@ -210,13 +212,13 @@ pageSegmentation.step7 = 0.86
 \section{Data Folder}
 The data folder contains files that are used during runtime of several components.
 
-\subsection{models}
+\subsection{Model Folder}
 The models folder contains learned models that can be reused. See section \ref{sec:AccessModelsDataSets} for an explanation on how to access our extensive collection of data sets and models.
 
 \subsection{Temp Folder}
 The temp folder is not part of the repository. Some functions may however create this folder and write temporary data. It is not part of the SVN and should not be committed when automatically created.
 
-\subsection{test}  
+\subsection{Test Folder}  
 The test folder contains data that is used for running jUnit tests. It is not part of the SVN and should not be committed when automatically created.
 
 \section{Documentation Folder}
