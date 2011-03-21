@@ -55,8 +55,6 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
      */
     private void setup() {
         
-        StopWatch sw = new StopWatch();
-
         // The configuration file can be found under config/palladian.properties.
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
@@ -79,11 +77,29 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             password = config.getString("db.password");
         }
 
-        try {
+        if (config != null) {
+            config.setThrowExceptionOnMissing(true);
+        }
 
+        connect(driver, jdbcUrl, username, password);
+    }
+
+    /**
+     * Connect to a database with the given settings.
+     * 
+     * @param driver The database driver, for example "com.mysql.jdbc.Driver"
+     * @param jdbcUrl The URL to create the JDBC connection, for example
+     *            "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false"
+     * @param username The username to the given database.
+     * @param password The password belonging to the username.
+     */
+    public void connect(String driver, String jdbcUrl, String username, String password) {
+
+        StopWatch sw = new StopWatch();
+
+        try {
             // load the database driver (make sure this is in your classpath!)
             Class.forName(driver);
-
         } catch (ClassNotFoundException e) {
             LOGGER.error("error loading database driver : " + driver);
             throw new RuntimeException("error loading database driver : " + driver, e);
@@ -129,7 +145,6 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             throw new RuntimeException("error setting up connection pool", e);
         }
 
-        config.setThrowExceptionOnMissing(true);
     }
 
     /**

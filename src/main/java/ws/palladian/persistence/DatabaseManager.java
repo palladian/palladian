@@ -38,6 +38,19 @@ public class DatabaseManager {
     }
 
     /**
+     * Connect to a database with the given settings.
+     * 
+     * @param driver The database driver, for example "com.mysql.jdbc.Driver"
+     * @param jdbcUrl The URL to create the JDBC connection, for example
+     *            "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false"
+     * @param username The username to the given database.
+     * @param password The password belonging to the username.
+     */
+    public void connect(String driver, String jdbcUrl, String username, String password) {
+        ConnectionManager.getInstance().connect(driver, jdbcUrl, username, password);
+    }
+
+    /**
      * Run a query operation on the database, process the result using a callback.
      * 
      * @param <T> Type of the processed objects.
