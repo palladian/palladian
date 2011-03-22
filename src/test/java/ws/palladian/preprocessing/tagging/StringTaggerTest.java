@@ -124,18 +124,22 @@ public class StringTaggerTest {
         Assert.assertEquals("Germany", annotations.get(16).getEntity());
 
         // starting small and camel case
-        taggedText = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone.";
+        taggedText = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
 
         taggedText = StringTagger.tagString(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
         CollectionHelper.print(annotations);
 
-        Assert.assertEquals(5, annotations.size());
+        Assert.assertEquals(9, annotations.size());
         Assert.assertEquals("ex-England", annotations.get(0).getEntity());
         Assert.assertEquals("mid-SCORER", annotations.get(1).getEntity());
         Assert.assertEquals("al-Rama", annotations.get(2).getEntity());
         Assert.assertEquals("Rami al-Sadani", annotations.get(3).getEntity());
         Assert.assertEquals("iPhone 4", annotations.get(4).getEntity());
+        Assert.assertEquals("Veronica Swenston", annotations.get(5).getEntity());
+        Assert.assertEquals("VENICE", annotations.get(6).getEntity());
+        Assert.assertEquals("Frank", annotations.get(7).getEntity());
+        Assert.assertEquals("HERALD", annotations.get(8).getEntity());
 
     }
 

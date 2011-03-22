@@ -111,7 +111,11 @@ public class StringTagger {
         regexp += "|";
         regexp += "(([A-Z]{1}[A-Za-z]+ ){2,}of (([A-Z]{1}[A-Za-z-]+)(?!([a-z-]{0,20}\\s[A-Z]))))|([A-Z]{1}[A-Za-z-]+ of( [A-Z]{1}[A-Za-z]+){1,})";
 
-        // names (such as "O'Sullivan")
+        // prevent mixtures of mix camel cases => "Veronica Swenston VENICE" should be two matches
+        regexp += "|";
+        regexp += "([A-Z]{1}([a-z-0-9]+)(([ &])*([A-Z]')?[A-Z]{1}([a-z-0-9]+))*)";
+
+        // names (such as "O'Sullivan"), compounds such as "D&G"
         regexp += "|";
         regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|'[A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
 
