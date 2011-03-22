@@ -136,6 +136,14 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             };
             boneConfig.setConnectionHook(connectionHook);
 
+            if (connectionPool != null) {
+                LOGGER.info("closing connection pool, total created connections: "
+                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
+                connectionPool.close();
+                LOGGER.info("connection pool closed, total created connections: "
+                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
+            }
+
             connectionPool = new BoneCP(boneConfig);
             
             LOGGER.debug("initialized the connection pool in " + sw.getElapsedTimeString());
