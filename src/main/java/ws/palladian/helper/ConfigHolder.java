@@ -83,16 +83,25 @@ public final class ConfigHolder {
             PropertiesConfiguration propertiesConfiguration = null;
             if (environmentConfig.exists()) {
                 LOGGER
-                        .info("Try to load palladian.properties from Environment: "
+.info("Try to load palladian.properties from environment PALLADIAN_HOME: "
                                 + environmentConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration();
+                if (!propertiesConfiguration.getKeys().hasNext()) {
+                    propertiesConfiguration = null;
+                }
             } else if (resource != null) {
                 File classpathConfig = new File(resource.getFile());
-                LOGGER.info("Try to load palladian.properties from Classpath: " + classpathConfig.getAbsolutePath());
+                LOGGER.info("Try to load palladian.properties from classpath: " + classpathConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
+                if (!propertiesConfiguration.getKeys().hasNext()) {
+                    propertiesConfiguration = null;
+                }
             } else if (configFile.exists()) {
                 LOGGER.info("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(configFile);
+                if (!propertiesConfiguration.getKeys().hasNext()) {
+                    propertiesConfiguration = null;
+                }
             }
             if (propertiesConfiguration != null) {
                 setConfig(propertiesConfiguration);
