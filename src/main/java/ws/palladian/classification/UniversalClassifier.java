@@ -126,7 +126,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
             if (isUseTextClassifier()
                     && textInstance.getMainCategoryEntry().getCategory().getName()
-                            .equals(instance.getInstanceCategoryName())) {
+                    .equals(instance.getInstanceCategoryName())) {
                 correctlyClassified[0]++;
                 mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
             }
@@ -216,9 +216,9 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         }
 
         // train the nominal classifier
-        // if (isUseNominalClassifier()) {
+        if (isUseNominalClassifier()) {
             getNominalClassifier().train();
-        // }
+        }
 
     }
 
