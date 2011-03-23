@@ -89,6 +89,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     /** the connector to the knowledge base */
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator;
 
+    private Map<String, CountMap> leftContextMap = new HashMap<String, CountMap>();
+    private Map<String, CountMap> rightContextMap = new HashMap<String, CountMap>();
+
     private Matrix patternProbabilityMatrix = new Matrix();
 
     private Annotations removeAnnotations = new Annotations();
@@ -101,11 +104,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         patterns = new HashMap<String, CategoryEntries>();
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-        .setClassificationType(ClassificationTypeSetting.TAG);
+                .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-        .setClassificationType(ClassificationTypeSetting.TAG);
+                .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-        .setClassificationType(ClassificationTypeSetting.TAG);
+                .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -340,7 +343,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // System.out.println("wait here, " + annotation.getEntity());
             // }
 
-            Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
+            Annotations wrappedAnnotations = annotation
+                    .unwrapAnnotations(annotations, entityDictionary, leftContextMap);
 
             if (!wrappedAnnotations.isEmpty()) {
                 for (Annotation annotation2 : wrappedAnnotations) {
@@ -570,7 +574,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                 // changed++;
                 // }
 
-                 CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
                 if (ces != null && ces.size() > 0) {
                     annotation.assignCategoryEntries(ces);
                     changed++;
@@ -585,39 +589,89 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             Annotations toAdd = new Annotations();
             for (Annotation annotation : annotations) {
                 // if (annotation.getEntity().toLowerCase().indexOf("docstart") > -1) {
-                    // toRemove.add(annotation);
-                    // if (true) {
-                    // continue;
-                    // }
+                // toRemove.add(annotation);
+                // if (true) {
+                // continue;
+                // }
 
-                    // if all uppercase, try to find known annotations
-                    // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
-                    // Math.min(12, annotation.getEntity().length())))) {
+                // if all uppercase, try to find known annotations
+                // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
+                // Math.min(12, annotation.getEntity().length())))) {
 
-                Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
+                Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary,
+                        leftContextMap);
 
-                        if (!wrappedAnnotations.isEmpty()) {
-                            for (Annotation annotation2 : wrappedAnnotations) {
-                                if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
-                                    toAdd.add(annotation2);
+                if (!wrappedAnnotations.isEmpty()) {
+                    for (Annotation annotation2 : wrappedAnnotations) {
+                        if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                            toAdd.add(annotation2);
                             // System.out.println("add " + annotation2.getEntity());
-                                }
-                            }
-                    // System.out.print("tried to unwrap again " + annotation.getEntity());
-                    // for (Annotation wrappedAnnotation : wrappedAnnotations) {
-                    // System.out.print(" | " + wrappedAnnotation.getEntity());
-                    // }
-                    // System.out.print("\n");
+                        }
+                    }
+                    System.out.print("tried to unwrap again " + annotation.getEntity());
+                    for (Annotation wrappedAnnotation : wrappedAnnotations) {
+                        System.out.print(" | " + wrappedAnnotation.getEntity());
+                    }
+                    System.out.print("\n");
+                }
+
+                // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
+                // context for people
+                for (CountMap leftContextCM : leftContextMap.values()) {
+
+                    boolean breakLoop = false;
+
+                    for (Object leftContextO : leftContextCM.keySet()) {
+                        String leftContext = leftContextO.toString().toLowerCase();
+                        if (!(leftContext.equals("president") || leftContext.equals("minister")
+                                || leftContext.equals("ambassador") || leftContext.equals("emperor")
+                                || leftContext.equals("king") || leftContext.equals("prince")
+                                || leftContext.equals("republican") || leftContext.equals("democrat") || leftContext
+                                .equals("economist"))) {
+                            continue;
+                        }
+                        String entity = annotation.getEntity().toLowerCase();
+
+                        int index1 = entity.indexOf(leftContext + " ");
+                        int index2 = entity.indexOf(" " + leftContext + " ");
+                        int length = -1;
+                        int index = -1;
+                        if (index1 == 0) {
+                            length = leftContext.length() + 1;
+                            index = index1;
+                        } else if (index2 > -1) {
+                            length = leftContext.length() + 2;
+                            index = index2;
+                        }
+                        if (index1 == 0 || index2 > -1) {
+                            Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
+                                    annotation
+                                    .getEntity().substring(index + length), annotation.getMostLikelyTagName(),
+                                    annotations);
+                            wrappedAnnotation.createFeatures();
+                            toAdd.add(wrappedAnnotation);
+                            toRemove.add(annotation);
+                            System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
+                                    + annotation.getEntity());
+                            breakLoop = true;
+                            break;
                         }
 
-                    // } else {
-                    // // else, try to handle normally without the docstart
-                    // annotation.setEntity(annotation.getEntity().replace("DOCSTART", ""));
-                    // annotation.setOffset(annotation.getOffset() + 8);
-                    // annotation.setLength(annotation.getEntity().length());
-                    // toRemove.add(annotation);
-                    // }
-                    // toRemove.add(annotation);
+                    }
+
+                    if (breakLoop) {
+                        break;
+                    }
+                }
+
+                // } else {
+                // // else, try to handle normally without the docstart
+                // annotation.setEntity(annotation.getEntity().replace("DOCSTART", ""));
+                // annotation.setOffset(annotation.getOffset() + 8);
+                // annotation.setLength(annotation.getEntity().length());
+                // toRemove.add(annotation);
+                // }
+                // toRemove.add(annotation);
                 // }
             }
             System.out.println("add " + toAdd.size());
@@ -735,7 +789,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             orgProb += op / (double) sum;
             miscProb += mp / (double) sum;
 
-// locProb += lp / 7119.0 * lp / sum;
+            // locProb += lp / 7119.0 * lp / sum;
             // perProb += pp / 6560.0 * pp / sum;
             // orgProb += op / 6276.0 * op / sum;
             // miscProb += mp / 3371.0 * mp / sum;
@@ -801,9 +855,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             TextInstance ti = contextClassifier.classify(annotation.getLeftContext() + "__"
                     + annotation.getRightContext());
 
-            UniversalInstance bayesClassifiedInstance = new UniversalInstance(null);
-            bayesClassifiedInstance.setNominalFeatures(annotation.getNominalFeatures());
-            universalClassifier.getNominalClassifier().classify(bayesClassifiedInstance);
+            // UniversalInstance bayesClassifiedInstance = new UniversalInstance(null);
+            // bayesClassifiedInstance.setNominalFeatures(annotation.getNominalFeatures());
+            // universalClassifier.getNominalClassifier().classify(bayesClassifiedInstance);
 
             CategoryEntries ceMerge = new CategoryEntries();
             // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
@@ -826,9 +880,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             if (tiPos.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
                 contextInfluences.increment("context POS classifier");
             }
-            if (bayesClassifiedInstance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
-                contextInfluences.increment("entity bayes");
-            }
+            // if (bayesClassifiedInstance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
+            // contextInfluences.increment("entity bayes");
+            // }
         }
         // annotation.getAssignedCategoryEntries().addAllRelative(ce);
 
@@ -899,7 +953,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
 
         String xmlTraingFilePath = trainingFilePath.substring(0, trainingFilePath.length() - 4) + "_transformed."
-        + FileHelper.getFileType(trainingFilePath);
+                + FileHelper.getFileType(trainingFilePath);
         FileFormatParser.columnToXML(trainingFilePath, xmlTraingFilePath, "\t");
         String inputText = FileFormatParser.getText(xmlTraingFilePath, TaggingFormat.XML);
 
@@ -1070,7 +1124,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             Categories documentCategories = new Categories();
 
             Category knownCategory = categories
-            .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
+                    .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
             if (knownCategory == null) {
                 knownCategory = new Category(annotation.getMostLikelyTag().getCategory().getName());
                 categories.add(knownCategory);
@@ -1212,7 +1266,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             // look for entities that have been annotated in the current text already to find them in the given
             // candidate
-            Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(annotations, entityDictionary);
+            Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(annotations, entityDictionary,
+                    leftContextMap);
             // Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(dictionaryClassifier, preprocessor);
 
             if (!wrappedAnnotations.isEmpty() && false) {
@@ -1300,13 +1355,15 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void demo(String optionValue) {
         System.out.println(tag(
                 "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
-        "data/models/tudnerdemo.model"));
+                "data/models/tudnerdemo.model"));
 
     }
 
     public void analyzeContexts(String trainingFilePath) {
 
-        Map<String, CountMap> tagMap = new TreeMap<String, CountMap>();
+        Map<String, CountMap> contextMap = new TreeMap<String, CountMap>();
+        leftContextMap = new TreeMap<String, CountMap>();
+        rightContextMap = new TreeMap<String, CountMap>();
         CountMap tagCounts = new CountMap();
 
         // get all training annotations including their features
@@ -1330,19 +1387,33 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             String[] rightContexts = annotation.getRightContexts();
 
             // initialize tagMap
-            if (tagMap.get(tag) == null) {
-                tagMap.put(tag, new CountMap());
+            if (leftContextMap.get(tag) == null) {
+                leftContextMap.put(tag, new CountMap());
+            }
+            if (rightContextMap.get(tag) == null) {
+                rightContextMap.put(tag, new CountMap());
+            }
+            if (contextMap.get(tag) == null) {
+                contextMap.put(tag, new CountMap());
             }
 
             // add the left contexts to the map
-            tagMap.get(tag).increment(leftContexts[0]);
-            tagMap.get(tag).increment(leftContexts[1]);
-            tagMap.get(tag).increment(leftContexts[2]);
+            contextMap.get(tag).increment(leftContexts[0]);
+            contextMap.get(tag).increment(leftContexts[1]);
+            contextMap.get(tag).increment(leftContexts[2]);
+
+            leftContextMap.get(tag).increment(leftContexts[0]);
+            leftContextMap.get(tag).increment(leftContexts[1]);
+            leftContextMap.get(tag).increment(leftContexts[2]);
 
             // add the right contexts to the map
-            tagMap.get(tag).increment(rightContexts[0]);
-            tagMap.get(tag).increment(rightContexts[1]);
-            tagMap.get(tag).increment(rightContexts[2]);
+            contextMap.get(tag).increment(rightContexts[0]);
+            contextMap.get(tag).increment(rightContexts[1]);
+            contextMap.get(tag).increment(rightContexts[2]);
+
+            rightContextMap.get(tag).increment(rightContexts[0]);
+            rightContextMap.get(tag).increment(rightContexts[1]);
+            rightContextMap.get(tag).increment(rightContexts[2]);
 
             tagCounts.increment(tag);
 
@@ -1373,10 +1444,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         contextPosClassifier.train();
 
         StringBuilder csv = new StringBuilder();
-        for (Entry<String, CountMap> entry : tagMap.entrySet()) {
+        for (Entry<String, CountMap> entry : contextMap.entrySet()) {
 
             int tagCount = tagCounts.get(entry.getKey());
-            CountMap patterns = tagMap.get(entry.getKey());
+            CountMap patterns = contextMap.get(entry.getKey());
             LinkedHashMap<Object, Integer> sortedMap = patterns.getSortedMap();
 
             csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
@@ -1392,7 +1463,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         }
 
         // tagMap to matrix
-        for (Entry<String, CountMap> patternEntry : tagMap.entrySet()) {
+        for (Entry<String, CountMap> patternEntry : leftContextMap.entrySet()) {
 
             for (Entry<Object, Integer> tagEntry : patternEntry.getValue().entrySet()) {
                 patternProbabilityMatrix.set(patternEntry.getKey(), tagEntry.getKey().toString().toLowerCase(),
@@ -1504,7 +1575,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
