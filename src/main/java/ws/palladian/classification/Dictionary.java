@@ -37,10 +37,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     private WordCorrelationMatrix wcm = new WordCorrelationMatrix();
 
-    /** the hierarchy of categories (for hierarchical classification) */
+    /** The hierarchy of categories (for hierarchical classification). */
     public TreeNode hierarchyRootNode = new TreeNode("root");
 
-    /** a dictionary index saved on disk, that is more scalable than holding the dictionary in memory */
+    /** A dictionary index saved on disk, that is more scalable than holding the dictionary in memory. */
     private transient DictionaryIndex dictionaryIndex = null;
 
     private boolean caseSensitive = false;
@@ -60,22 +60,25 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     private int indexType = DB_INDEX_FAST;
 
     // ////////////////// database options ////////////////////
-    /** use client server mysql */
+    /** Use client server mysql database. */
     public static final int DB_MYSQL = 1;
 
-    /** use embedded h2 */
+    /** Use embedded h2 database. */
     public static final int DB_H2 = 2;
 
-    /** if database is used for index, specify which one */
-    private int databaseType = DB_MYSQL;
+    /** If database is used for index, specify which one. */
+    private int databaseType = DB_H2;
 
-    /** decide whether to use memory or index saved on disk, if a dictionary is loaded from disk it must use the index */
+    /** Decide whether to use memory or index saved on disk, if a dictionary is loaded from disk it must use the index. */
     private boolean useIndex = false;
 
-    /** there is an algorithm that makes it unnecessary to read from index before updating and n-gram, which speeds up the process */
+    /**
+     * There is an algorithm that makes it unnecessary to read from index before updating and n-gram, which speeds up
+     * the process.
+     */
     private boolean readFromIndexForUpdate = true;
 
-    /** which class type (one category, hierarchical, or tags) */
+    /** Which class type (one category, hierarchical, or tags). */
     private int classType = ClassificationTypeSetting.SINGLE;
 
     public Dictionary(String name, int classType) {

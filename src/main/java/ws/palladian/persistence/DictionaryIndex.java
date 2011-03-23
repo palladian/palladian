@@ -8,9 +8,10 @@ import ws.palladian.classification.Dictionary;
 
 public abstract class DictionaryIndex {
 
+    /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(DictionaryIndex.class);
 
-    /** keep track of categories */
+    /** Keep track of categories. */
     protected Dictionary dictionary = null;
 
     public abstract void write(String word, CategoryEntries categoryEntries);

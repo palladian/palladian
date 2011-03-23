@@ -76,6 +76,11 @@ public abstract class Classifier<T> implements Serializable {
         getPossibleCategories(trainingInstances);
     }
 
+    public void addTrainingInstance(T instance) {
+        this.trainingInstances.add(instance);
+        getPossibleCategories(trainingInstances);
+    }
+
     public Instances<T> getTestInstances() {
         return testInstances;
     }

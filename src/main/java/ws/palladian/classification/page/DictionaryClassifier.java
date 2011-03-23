@@ -27,6 +27,7 @@ import ws.palladian.helper.html.TreeNode;
  */
 public class DictionaryClassifier extends TextClassifier {
 
+    /** The serial version id. */
     private static final long serialVersionUID = 5705851277677296181L;
 
     /** The context map: matrix of terms x categories with weights in cells. */
@@ -38,6 +39,9 @@ public class DictionaryClassifier extends TextClassifier {
     /** Hold all possible dictionaries in a map. */
     protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
 
+    /** Whether to train incremental, that is much slower but scales well. */
+    private boolean incrementalTraining = false;
+
     public DictionaryClassifier() {
         ClassifierManager.log("DictionaryClassifier created");
         setName("DictionaryClassifier");
@@ -47,10 +51,11 @@ public class DictionaryClassifier extends TextClassifier {
     public DictionaryClassifier(String name, String dictionaryPath) {
         ClassifierManager.log("DictionaryClassifier created");
         setName(name);
-        setDictionaryPath(dictionaryPath);
 
         dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
         dictionary.setIndexPath(dictionaryPath);
+
+        setDictionaryPath(dictionaryPath);
     }
 
     public void init() {
@@ -135,11 +140,20 @@ public class DictionaryClassifier extends TextClassifier {
 
     @Override
     public void save(String path) {
-        saveDictionary(path, true, true);
+        setDictionaryPath(path);
+
+        if (!isIncrementalTraining()) {
+            saveDictionary(path, true, true);
+        } else {
+            saveDictionary(path, false, false);
+            getDictionary().calculateCategoryPriors();
+        }
+
         FileHelper.serialize(this, path + getName() + ".gz");
     }
 
     public void save(String path, boolean indexFirst, boolean deleteIndexFirst) {
+        setDictionaryPath(path);
         saveDictionary(path, indexFirst, deleteIndexFirst);
         FileHelper.serialize(this, path + getName() + ".gz");
     }
@@ -175,6 +189,10 @@ public class DictionaryClassifier extends TextClassifier {
 
         classifier = (DictionaryClassifier) FileHelper.deserialize(classifierPath);
         classifier.reset();
+
+        if ((classifier).getDictionary().isUseIndex()) {
+            (classifier).useIndex();
+        }
 
         LOGGER.info("loading dictionary");
         classifier.loadDictionary();
@@ -222,9 +240,36 @@ public class DictionaryClassifier extends TextClassifier {
         loadDictionary(ClassificationTypeSetting.TAG);
     }
 
+    public void train(UniversalInstance instance) {
+        addTrainingInstance(instance);
+        trainWithInstance(instance);
+    }
+
+    private void trainWithInstance(UniversalInstance instance) {
+
+        Categories documentCategories = new Categories();
+
+        Category knownCategory = categories.getCategoryByName(instance.getInstanceCategory().getName());
+        if (knownCategory == null) {
+            knownCategory = new Category(instance.getInstanceCategory().getName());
+            categories.add(knownCategory);
+        }
+
+        documentCategories.add(knownCategory);
+
+        TextInstance trainingDocument = preprocessor.preProcessDocument(instance.getTextFeature());
+        // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
+        // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
+        trainingDocument.setDocumentType(TextInstance.TRAINING);
+        trainingDocument.setRealCategories(documentCategories);
+        // getTrainingDocuments().add(trainingDocument);
+
+        addToDictionary(trainingDocument, getClassificationType());
+    }
+
     public void train() {
 
-        Categories categories = new Categories();
+        categories = new Categories();
 
         // set the feature settings
         // FeatureSetting fs = new FeatureSetting();
@@ -234,28 +279,10 @@ public class DictionaryClassifier extends TextClassifier {
 
         getDictionary().setDatabaseType(Dictionary.DB_H2);
 
-        Preprocessor preprocessor = getPreprocessor();
-
         for (UniversalInstance instance : getTrainingInstances()) {
 
-            Categories documentCategories = new Categories();
+            trainWithInstance(instance);
 
-            Category knownCategory = categories.getCategoryByName(instance.getInstanceCategory().getName());
-            if (knownCategory == null) {
-                knownCategory = new Category(instance.getInstanceCategory().getName());
-                categories.add(knownCategory);
-            }
-
-            documentCategories.add(knownCategory);
-
-            TextInstance trainingDocument = preprocessor.preProcessDocument(instance.getTextFeature());
-            // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
-            // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
-            trainingDocument.setDocumentType(TextInstance.TRAINING);
-            trainingDocument.setRealCategories(documentCategories);
-            // getTrainingDocuments().add(trainingDocument);
-
-            addToDictionary(trainingDocument, getClassificationType());
         }
 
     }
@@ -569,6 +596,7 @@ public class DictionaryClassifier extends TextClassifier {
             dictionaryPath += "/";
         }
         this.dictionaryPath = dictionaryPath;
+        dictionary.setIndexPath(dictionaryPath);
     }
 
     public String getDictionaryPath() {
@@ -577,6 +605,15 @@ public class DictionaryClassifier extends TextClassifier {
 
     public String getDictionaryName() {
         return getName() + "Dictionary";
+    }
+
+    public void setIncrementalTraining(boolean incrementalTraining) {
+        this.incrementalTraining = incrementalTraining;
+        getDictionary().useIndex();
+    }
+
+    public boolean isIncrementalTraining() {
+        return incrementalTraining;
     }
 
 }

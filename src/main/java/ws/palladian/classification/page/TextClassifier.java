@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Instances;
 import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
@@ -59,6 +60,8 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         categories = new Categories();
         trainingDocuments = new ClassificationDocuments();
         testDocuments = new ClassificationDocuments();
+        setTrainingInstances(new Instances<UniversalInstance>());
+        setTestInstances(new Instances<UniversalInstance>());
         preprocessor = new Preprocessor(this);
         initTime = System.currentTimeMillis();
     }
@@ -349,11 +352,11 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             document.sortCategoriesByRelevance();
 
             show.append(document.getUrl() + "\n\treal (" + document.getClassifiedAsReadable() + "): ")
-                    .append(document.getRealCategoriesString()).append("\n\tclassified:");
+            .append(document.getRealCategoriesString()).append("\n\tclassified:");
             while (j.hasNext()) {
                 CategoryEntry categoryEntry = j.next();
                 show.append(categoryEntry.getCategory().getName()).append("(")
-                        .append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
+                .append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
             }
 
             if (getClassificationType() == ClassificationTypeSetting.TAG) {
@@ -387,7 +390,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
                     result = "CORRECT";
                 }
                 show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ")
-                        .append(result).append("\n");
+                .append(result).append("\n");
                 // structuredOutput.append(" #").append(document.getMainCategoryEntry().getCategory().getName()).append("\n");
             }
         }
@@ -402,7 +405,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             for (int i = 1; i <= precisionAtRank; i++) {
                 double averagePrecisionAtX = totalPrecisionAts[i - 1] / testDocuments.size();
                 show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX))
-                        .append("% ");
+                .append("% ");
             }
             show.append("\n");
             show.append("Average Precision: ").append((int) Math.floor(100 * averagePrecision)).append("%\n");

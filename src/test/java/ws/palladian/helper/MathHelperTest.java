@@ -93,12 +93,16 @@ public class MathHelperTest {
     @Test
     public void testCalculateListSimilarity() {
 
-        // System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
+        // System.out.println(MathHelper.round(
+        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
         // .getShiftSimilartiy(), 2));
-        // System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
+        // System.out.println(MathHelper.round(
+        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
         // .getSquaredShiftSimilartiy(), 2));
         // System.out
-        // .println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#").getRmse(), 2));
+        // .println(MathHelper.round(
+        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // .getRmse(), 2));
 
         List<String> list1 = new ArrayList<String>();
         List<String> list2 = new ArrayList<String>();
@@ -122,15 +126,15 @@ public class MathHelperTest {
 
         Assert.assertEquals(0.37, MathHelper.round(
                 MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                        .getShiftSimilartiy(), 2));
+                .getShiftSimilartiy(), 2));
 
         Assert.assertEquals(0.57, MathHelper.round(
                 MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                        .getSquaredShiftSimilartiy(), 2));
+                .getSquaredShiftSimilartiy(), 2));
 
         Assert.assertEquals(4.16, MathHelper.round(
                 MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                        .getRmse(), 2));
+                .getRmse(), 2));
 
     }
 
@@ -152,20 +156,20 @@ public class MathHelperTest {
                 MathHelper.round(
                         MathHelper.calculateRMSE(MathHelperTest.class.getResource("/rmseInput.csv").getFile(), ";"), 3));
     }
-    
+
     @Test
     public void testCalculateAP() {
-        
+
         List<Boolean> rankedList = Arrays.asList(true, false, true, true, true, true, false);
-        
+
         double[][] ap = MathHelper.calculateAP(rankedList);
         int k = rankedList.size() - 1;
         double prAtK = ap[k][0];
         double apAtK = ap[k][1];
-        
+
         Assert.assertEquals(5./7, prAtK);
         Assert.assertEquals((1 + 2./3 + 3./4 + 4./5 + 5./6) / 5, apAtK);
-        
+
     }
 
 }
