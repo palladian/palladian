@@ -621,16 +621,21 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
                     boolean breakLoop = false;
 
-                    for (Object leftContextO : leftContextCM.keySet()) {
-                        String leftContext = leftContextO.toString().toLowerCase();
-                        if (!(leftContext.equals("president") || leftContext.equals("minister")
-                                || leftContext.equals("ambassador") || leftContext.equals("emperor")
-                                || leftContext.equals("king") || leftContext.equals("prince")
-                                || leftContext.equals("republican") || leftContext.equals("democrat") || leftContext
-                                .equals("economist"))) {
+                    for (Entry<Object, Integer> leftContextEntry : leftContextCM.entrySet()) {
+                        
+                        String leftContext = leftContextEntry.getKey().toString();// .toLowerCase();
+                        // if (!(leftContext.equals("president") || leftContext.equals("minister")
+                        // || leftContext.equals("ambassador") || leftContext.equals("emperor")
+                        // || leftContext.equals("king") || leftContext.equals("prince")
+                        // || leftContext.equals("republican") || leftContext.equals("democrat") || leftContext
+                        // .equals("economist"))) {
+                        // continue;
+                        // }
+                        if (!StringHelper.startsUppercase(leftContextEntry.getKey().toString())
+                                || leftContextEntry.getValue() < 3/* || leftContext.length() < 3 */) {
                             continue;
                         }
-                        String entity = annotation.getEntity().toLowerCase();
+                        String entity = annotation.getEntity();// .toLowerCase();
 
                         int index1 = entity.indexOf(leftContext + " ");
                         int index2 = entity.indexOf(" " + leftContext + " ");
@@ -652,7 +657,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                             toAdd.add(wrappedAnnotation);
                             toRemove.add(annotation);
                             System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
-                                    + annotation.getEntity());
+                                    + annotation.getEntity() + " (left context:" + leftContext + ", "
+                                    + leftContextEntry.getValue() + ")");
                             breakLoop = true;
                             break;
                         }
