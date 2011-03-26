@@ -72,8 +72,10 @@ public class FileFormatParser {
     /**
      * Transform column format to XML.<br>
      * word [tab] type<br>
+     * word2 [tab] type<br>
+     * word3 [tab] type2<br>
      * =><br>
-     * &lt;type&gt;word&lt;/type&gt;<br>
+     * &lt;type&gt;word word2&lt;/type&gt;<br>
      * 
      * @param inputFilePath The location of the input file.
      * @param outputFilePath The location where the transformed file should be written to.
@@ -137,8 +139,7 @@ public class FileFormatParser {
                 if (parts.length > 0
                         && parts[0].length() > 0
                         && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && !openTag && lineNumber > 1
-                        && (Boolean) obj[3] == false) {
+                        && !openTag && lineNumber > 1 && (Boolean) obj[3] == false) {
                     ((StringBuilder) obj[0]).append(" ");
                 }
                 ((StringBuilder) obj[0]).append(parts[0]);
@@ -150,6 +151,66 @@ public class FileFormatParser {
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
         FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+    }
+
+    /**
+     * Transform column format to XML.<br>
+     * word [tab] type<br>
+     * word2 [tab] type<br>
+     * word3 [tab] type2<br>
+     * =><br>
+     * &lt;type&gt;word&lt;/type&gt;<br>
+     * &lt;type&gt;word2&lt;/type&gt;<br>
+     * 
+     * @param inputFilePath The location of the input file.
+     * @param outputFilePath The location where the transformed file should be written to.
+     * @param columnSeparator The separator for the columns.
+     */
+    public static void columnToXMLTokenBased(String inputFilePath, String outputFilePath, final String columnSeparator) {
+
+        final StringBuilder transformedText = new StringBuilder();
+
+        // whether the last line was a break
+        final Object[] obj = new Object[1];
+        obj[0] = true;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split(columnSeparator);
+
+                if (parts.length < 2) {
+
+                    // add breaks for empty lines
+                    if (line.length() == 0) {
+                        transformedText.append("\n");
+                        obj[0] = true;
+                    }
+
+                    return;
+                }
+
+
+                if (parts.length > 0
+                        && parts[0].length() > 0
+                        && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
+                        && lineNumber > 1 && (Boolean) obj[0] == false) {
+                    transformedText.append(" ");
+                }
+
+                transformedText.append("<").append(parts[1]).append(">");
+                transformedText.append(parts[0]);
+                transformedText.append("</").append(parts[1]).append(">");
+
+                obj[0] = false;
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+        FileHelper.writeToFile(outputFilePath, transformedText);
     }
 
     public static void columnToBracket(String inputFilePath, String outputFilePath, String columnSeparator) {
@@ -484,6 +545,11 @@ public class FileFormatParser {
         return getAnnotationsFromXMLFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
+    public static Annotations getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
+        columnToXMLTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
+        return getAnnotationsFromXMLFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
+    }
+
     /**
      * Get XML annotations from a text. Nested annotations are discarded.
      * 
@@ -581,8 +647,9 @@ public class FileFormatParser {
         // "data/datasets/ner/taggedTextTrainingColumn.tsv", "\t");
         // FileFormatParser.columnToXML("data/datasets/ner/taggedTextTesting.xml",
         // "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
-        FileFormatParser.xmlToColumn("data/datasets/ner/all.xml", "data/datasets/ner/all.tsv", "\t");
-        FileFormatParser.columnToXML("data/datasets/ner/all.tsv", "data/datasets/ner/allBack.xml", "\t");
+        // FileFormatParser.xmlToColumn("data/datasets/ner/all.xml", "data/datasets/ner/all.tsv", "\t");
+        // FileFormatParser.columnToXML("data/datasets/ner/all.tsv", "data/datasets/ner/allBack.xml", "\t");
+        FileFormatParser.columnToXMLTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
         System.exit(0);
 
         FileFormatParser ffp = new FileFormatParser();
