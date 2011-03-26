@@ -649,16 +649,40 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                             index = index2;
                         }
                         if (index1 == 0 || index2 > -1) {
+
+                            // get the annotation after the index
                             Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
                                     annotation
                                     .getEntity().substring(index + length), annotation.getMostLikelyTagName(),
                                     annotations);
                             wrappedAnnotation.createFeatures();
                             toAdd.add(wrappedAnnotation);
+
+                            // search for a known instance in the prefix
+                            // go through the entity dictionary
+                            for (Map.Entry<Term, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+                                String word = termEntry.getKey().getText();
+
+                                int indexPrefix = annotation.getEntity().substring(0, index + length)
+                                        .indexOf(word + " ");
+                                if (indexPrefix > -1 && word.length() > 2) {
+                                    Annotation wrappedAnnotation2 = new Annotation(
+                                            annotation.getOffset() + indexPrefix,
+                                            word, termEntry.getValue().getMostLikelyCategoryEntry().getCategory()
+                                                    .getName(), annotations);
+                                    wrappedAnnotation2.createFeatures();
+                                    toAdd.add(wrappedAnnotation2);
+                                    System.out.println("add from prefix " + wrappedAnnotation2.getEntity());
+                                    break;
+                                }
+
+                            }
+
                             toRemove.add(annotation);
                             System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
                                     + annotation.getEntity() + " (left context:" + leftContext + ", "
                                     + leftContextEntry.getValue() + ")");
+
                             breakLoop = true;
                             break;
                         }
