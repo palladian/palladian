@@ -226,10 +226,10 @@ public class SourceRetriever {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                    + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&format=xml&count="
+                            + SourceRetrieverManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
                     + Math.max(50, getResultCount()));
             LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
-                    + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY
+                    + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().getYahooBossApiKey()
                     + "&format=xml&count=" + Math.max(50, getResultCount()));
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
@@ -345,7 +345,8 @@ public class SourceRetriever {
 
         } else if (getSource() == SourceRetrieverManager.BING) {
 
-            String query = "http://api.bing.net/json.aspx?AppId=" + SourceRetrieverManager.getInstance().BING_API_KEY
+            String query = "http://api.bing.net/json.aspx?AppId="
+                    + SourceRetrieverManager.getInstance().getBingApiKey()
             + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
             String json = crawler.download(query);
 
@@ -477,11 +478,11 @@ public class SourceRetriever {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query=" + searchQuery
+                            + SourceRetrieverManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
                     + "&results=" + getResultCount());
             LOGGER.debug("Search Results for " + searchQuery + "\n"
                     + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query=" + searchQuery + "&results="
+                    + SourceRetrieverManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
                     + getResultCount());
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
@@ -588,7 +589,7 @@ public class SourceRetriever {
             // for avail parameters see ->
             // http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
             String fixUrl = endpoint + searchQuery + "?appid="
-            + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&lang=" + langStr + "&region="
+                    + SourceRetrieverManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
             + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
 
             // iterate through result responses
@@ -848,7 +849,7 @@ public class SourceRetriever {
 
             // rsz=large will respond 8 results
             String json = c.download("http://api.bing.net/json.aspx?AppId="
-                    + SourceRetrieverManager.getInstance().BING_API_KEY + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
+                    + SourceRetrieverManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
                     + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery);
 
             try {
@@ -914,7 +915,8 @@ public class SourceRetriever {
         // query hakia for search engine results
         try {
 
-            String url = endpoint + SourceRetrieverManager.getInstance().HAKIA_API_KEY + "&search.query=" + searchQuery
+            String url = endpoint + SourceRetrieverManager.getInstance().getHakiaApiKey() + "&search.query="
+                    + searchQuery
             + "&search.language=en&search.numberofresult=" + getResultCount();
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
             LOGGER.debug("Search Results for " + searchQuery + ":" + url);
