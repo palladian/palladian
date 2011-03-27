@@ -17,7 +17,6 @@ import ws.palladian.classification.page.TextInstance;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.DataHolder;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.InformativenessAssigner;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
@@ -582,8 +581,7 @@ public class Annotation extends UniversalInstance {
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    public Annotations unwrapAnnotations(Annotations annotations, Dictionary entityDictionary,
-            Map<String, CountMap> tagMap) {
+    public Annotations unwrapAnnotations(Annotations annotations, Dictionary entityDictionary) {
         Annotations unwrappedAnnotations = new Annotations();
 
         boolean isAllUppercase = StringHelper.isCompletelyUppercase(getEntity());

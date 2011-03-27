@@ -13,6 +13,10 @@ public class CountMap extends HashMap<Object, Integer> {
         return CollectionHelper.sortByValue(this);
     }
 
+    public LinkedHashMap<Object, Integer> getSortedMapDescending() {
+        return CollectionHelper.sortByValue(this, false);
+    }
+
     public void increment(Object key) {
         Integer count = get(key);
         int counter = count.intValue();

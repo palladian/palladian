@@ -380,9 +380,10 @@ public abstract class NamedEntityRecognizer {
         // otherwise we get problems with calculating MUC precision and recall scores
         for (Annotation nerAnnotation : nerAnnotations) {
 
-            // if (nerAnnotation.getEntity().toLowerCase().equals("lomason")) {
-            // System.out.println("wait here");
-            // }
+            // skip "O" tags
+            if (nerAnnotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
+                continue;
+            }
 
             boolean taggedOverlap = false;
 
