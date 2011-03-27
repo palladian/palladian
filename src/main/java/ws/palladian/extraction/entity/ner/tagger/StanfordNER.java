@@ -241,10 +241,12 @@ public class StanfordNER extends NamedEntityRecognizer {
             StringBuilder taggedText = new StringBuilder();
             taggedText.append(classifier.classifyWithInlineXML(inputText));
 
-            String taggedTextFilePath = "data/temp/taggedText.txt";
+            String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
             FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
             annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+
+            annotations.instanceCategoryToClassified();
 
             FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
@@ -528,9 +530,9 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
         // /////////////////////////// train and test /////////////////////////////
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/stanfordNER.model",
-                TaggingFormat.COLUMN);
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
+                "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

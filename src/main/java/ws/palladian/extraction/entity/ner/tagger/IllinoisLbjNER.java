@@ -425,8 +425,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // System.exit(0);
 
         // using a column trainig and testing file
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lbj.model",
+        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/lbj.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

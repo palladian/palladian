@@ -606,7 +606,7 @@ public class Annotation extends UniversalInstance {
                 }
 
                 index = entityName.indexOf(annotation.getEntity().toLowerCase() + " ");
-                if (index > -1 && annotation.getEntity().length() > 2) {
+                if (index == 0 && annotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index, annotation.getEntity(),
                             annotation.getMostLikelyTagName(), annotations);
                     wrappedAnnotation.createFeatures();
@@ -614,7 +614,8 @@ public class Annotation extends UniversalInstance {
                 }
 
                 index = entityName.indexOf(" " + annotation.getEntity().toLowerCase());
-                if (index > -1 && annotation.getEntity().length() > 2) {
+                if (index == entityName.length() - annotation.getEntity().length() - 1
+                        && annotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
                             annotation.getMostLikelyTagName(), annotations);
                     wrappedAnnotation.createFeatures();
@@ -636,7 +637,7 @@ public class Annotation extends UniversalInstance {
                 }
 
                 index = entityName.indexOf(word.toLowerCase() + " ");
-                if (index > -1 && word.length() > 2) {
+                if (index == 0 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index, word, termEntry.getValue()
                             .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
                     wrappedAnnotation.createFeatures();
@@ -644,7 +645,7 @@ public class Annotation extends UniversalInstance {
                 }
 
                 index = entityName.indexOf(" " + word.toLowerCase());
-                if (index > -1 && word.length() > 2) {
+                if (index == entityName.length() - word.length() - 1 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
                             .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
                     wrappedAnnotation.createFeatures();
