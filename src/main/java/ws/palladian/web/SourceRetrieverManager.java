@@ -37,11 +37,11 @@ public class SourceRetrieverManager {
     // TODO automatically shift between extraction sources once too many queries
     // have been sent
 
-    protected final String YAHOO_API_KEY;
-    protected final String YAHOO_BOSS_API_KEY;
-    protected final String HAKIA_API_KEY;
-    protected final String GOOGLE_API_KEY;
-    protected final String BING_API_KEY;
+    protected String yahooApiKey;
+    protected String yahooBossApiKey;
+    protected String hakiaApiKey;
+    protected String googleApiKey;
+    protected String bingApiKey;
 
     // determines how many sources (urls) should be retrieved
     private int resultCount = 8;
@@ -62,17 +62,17 @@ public class SourceRetrieverManager {
         PropertiesConfiguration config = configHolder.getConfig();
 
         if (config != null) {
-            YAHOO_API_KEY = config.getString("api.yahoo.key");
-            YAHOO_BOSS_API_KEY = config.getString("api.yahoo_boss.key");
-            HAKIA_API_KEY = config.getString("api.hakia.key");
-            GOOGLE_API_KEY = config.getString("api.google.key");
-            BING_API_KEY = config.getString("api.bing.key");
+            yahooApiKey = config.getString("api.yahoo.key");
+            yahooBossApiKey = config.getString("api.yahoo_boss.key");
+            hakiaApiKey = config.getString("api.hakia.key");
+            googleApiKey = config.getString("api.google.key");
+            bingApiKey = config.getString("api.bing.key");
         } else {
-            YAHOO_API_KEY = "";
-            YAHOO_BOSS_API_KEY = "";
-            HAKIA_API_KEY = "";
-            GOOGLE_API_KEY = "";
-            BING_API_KEY = "";
+            yahooApiKey = "";
+            yahooBossApiKey = "";
+            hakiaApiKey = "";
+            googleApiKey = "";
+            bingApiKey = "";
         }
     }
 
@@ -235,6 +235,46 @@ public class SourceRetrieverManager {
             default:
                 return "<unknown>";
         }
+    }
+
+    public String getYahooApiKey() {
+        return yahooApiKey;
+    }
+
+    public void setYahooApiKey(String yahooApiKey) {
+        this.yahooApiKey = yahooApiKey;
+    }
+
+    public String getYahooBossApiKey() {
+        return yahooBossApiKey;
+    }
+
+    public void setYahooBossApiKey(String yahooBossApiKey) {
+        this.yahooBossApiKey = yahooBossApiKey;
+    }
+
+    public String getHakiaApiKey() {
+        return hakiaApiKey;
+    }
+
+    public void setHakiaApiKey(String hakiaApiKey) {
+        this.hakiaApiKey = hakiaApiKey;
+    }
+
+    public String getGoogleApiKey() {
+        return googleApiKey;
+    }
+
+    public void setGoogleApiKey(String googleApiKey) {
+        this.googleApiKey = googleApiKey;
+    }
+
+    public String getBingApiKey() {
+        return bingApiKey;
+    }
+
+    public void setBingApiKey(String bingApiKey) {
+        this.bingApiKey = bingApiKey;
     }
 
     public static void main(String[] args) {
