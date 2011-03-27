@@ -452,7 +452,7 @@ public class StringHelper {
 
             }
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().error(m.group() + ", " + e.getMessage());
+            Logger.getRootLogger().warn(m.group() + ", " + e.getMessage());
             return false;
         }
 

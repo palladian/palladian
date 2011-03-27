@@ -176,11 +176,9 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
         for (Chunk chunk : chunkSet) {
             int offset = chunk.start();
-            Entity namedEntity = new Entity(inputText.substring(chunk.start(),
- chunk.end()), chunk.type());
+            Entity namedEntity = new Entity(inputText.substring(chunk.start(), chunk.end()), chunk.type());
 
-            Annotation annotation = new Annotation(offset, namedEntity
-.getName(), namedEntity.getTagName());
+            Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
             annotations.add(annotation);
         }
 
@@ -437,11 +435,13 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingPipeNER_.model");
-        // EvaluationResult er =
-        // tagger.evaluate("data/datasets/ner/conll/test_validation.txt","data/temp/lingPipeNER_.model",TaggingFormat.COLUMN);
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lingPipeNER_.model",
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingPipeNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+                "data/temp/lingPipeNER_.model",
                 TaggingFormat.COLUMN);
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
+        // "data/temp/lingPipeNER_.model",
+        // TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

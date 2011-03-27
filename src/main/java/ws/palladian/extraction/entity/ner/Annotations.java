@@ -3,6 +3,8 @@ package ws.palladian.extraction.entity.ner;
 import java.util.Collections;
 import java.util.Comparator;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.FileHelper;
@@ -110,6 +112,14 @@ public class Annotations extends Instances<Annotation> {
             }
         }
         return super.add(e);
+    }
+
+    public void instanceCategoryToClassified() {
+        for (Annotation annotation : this) {
+            CategoryEntries ces = new CategoryEntries();
+            ces.add(new CategoryEntry(ces, annotation.getInstanceCategory(), 1));
+            annotation.assignCategoryEntries(ces);
+        }
     }
 
 }

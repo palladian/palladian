@@ -33,7 +33,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
@@ -248,6 +247,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         String taggedTextFilePath = "data/test/ner/openNLPOutput.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+
+        annotations.instanceCategoryToClassified();
 
         FileHelper.writeToFile("data/test/ner/openNLPOutput2.txt", tagText(inputText, annotations));
 
@@ -494,18 +495,28 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz",
         // TaggingFormat.XML));
 
-        // TODO one model per concept
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("data/datasets/ner/www_test_0/index_split1.txt");
-        tagger.train(trainingDataset, "data/temp/openNLP.bin");
-
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath("data/datasets/ner/www_test_0/index_split2.txt");
-        EvaluationResult er = tagger.evaluate(testingDataset,
-                "data/temp/openNLP_MOVIE.bin,data/temp/openNLP_POLITICIAN.bin");
-        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/opennlp/openNLP_person.bin");
+        // /////////////////////////// train and test /////////////////////////////
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
+        EvaluationResult er = tagger
+                .evaluate(
+                        "data/datasets/ner/conll/test_final.txt",
+                        "data/temp/openNLP_ORG.bin,data/temp/openNLP_LOC.bin,data/temp/openNLP_PER.bin,data/temp/openNLP_MISC.bin",
+                        TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+        // TODO one model per concept
+        // Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test_0/index_split1.txt");
+        // tagger.train(trainingDataset, "data/temp/openNLP.bin");
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test_0/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset,
+        // "data/temp/openNLP_MOVIE.bin,data/temp/openNLP_POLITICIAN.bin");
+        // // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/opennlp/openNLP_person.bin");
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 
