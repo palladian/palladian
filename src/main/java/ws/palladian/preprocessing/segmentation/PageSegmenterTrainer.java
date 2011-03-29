@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * The PageSegmenterTrainer is needed for the evaluation of the class PageSegmenter.

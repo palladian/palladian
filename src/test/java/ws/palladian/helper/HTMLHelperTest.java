@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Test cases for the HTMLHelper class.

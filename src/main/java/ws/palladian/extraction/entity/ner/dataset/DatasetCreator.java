@@ -28,10 +28,10 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.DownloadFilter;
-import ws.palladian.web.SourceRetriever;
-import ws.palladian.web.SourceRetrieverManager;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.DownloadFilter;
+import ws.palladian.retrieval.SourceRetriever;
+import ws.palladian.retrieval.SourceRetrieverManager;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.

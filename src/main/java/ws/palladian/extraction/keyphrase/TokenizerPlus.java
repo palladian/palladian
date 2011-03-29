@@ -28,7 +28,7 @@ import ws.palladian.preprocessing.nlp.AbstractPOSTagger;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Special tokenizer implementation which keeps positional and POS features of extracted Tokens. Also supports

@@ -14,7 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.web.HTTPPoster;
+import ws.palladian.retrieval.HTTPPoster;
 
 /**
  * 

@@ -28,11 +28,11 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.tagging.StringTagger;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.feeds.Feed;
-import ws.palladian.web.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.web.feeds.persistence.FeedDatabase;
 
 /**
  * Dump class to test various algorithms.

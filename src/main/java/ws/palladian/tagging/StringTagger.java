@@ -6,7 +6,7 @@ import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 public class StringTagger {
 

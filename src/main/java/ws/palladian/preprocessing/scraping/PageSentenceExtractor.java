@@ -18,8 +18,8 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.resources.WebImage;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.WebImage;
 
 /**
  * <p>

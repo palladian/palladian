@@ -6,7 +6,7 @@ import java.net.URL;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 public class UrlHelper {
 

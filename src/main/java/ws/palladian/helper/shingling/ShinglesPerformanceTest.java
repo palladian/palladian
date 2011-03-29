@@ -3,8 +3,8 @@ package ws.palladian.helper.shingling;
 import java.util.List;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.feeds.FeedItem;
-import ws.palladian.web.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class ShinglesPerformanceTest {
 

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import ws.palladian.web.HTTPPoster;
+import ws.palladian.retrieval.HTTPPoster;
 
 public class FiveFiltersTermExtraction extends KeyphraseExtractor {
 

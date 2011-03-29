@@ -14,7 +14,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * The classifier is an abstract class that provides basic methods used by concrete classifiers.

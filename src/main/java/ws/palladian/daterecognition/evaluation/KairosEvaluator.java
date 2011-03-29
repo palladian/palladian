@@ -23,7 +23,7 @@ import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.testtechniques.WebPageDateEvaluatorTest;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 public class KairosEvaluator {
 

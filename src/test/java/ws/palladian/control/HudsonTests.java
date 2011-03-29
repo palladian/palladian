@@ -4,7 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
-import ws.palladian.web.CrawlerTest;
+import ws.palladian.retrieval.CrawlerTest;
 
 /**
  * All tests performed by Hudson.
