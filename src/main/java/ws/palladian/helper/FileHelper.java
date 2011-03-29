@@ -34,6 +34,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -55,10 +56,10 @@ public class FileHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
-    
+
     /** Constant for video file extensions. */
     private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid");
-    
+
     /** Constant for audio file extensions. */
     private static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
 
@@ -73,7 +74,7 @@ public class FileHelper {
 
         Pattern pattern = Pattern.compile("\\.[A-Za-z0-9]{2,5}$", Pattern.CASE_INSENSITIVE);
         Matcher m = pattern.matcher(name);
-        
+
         return m.find();
     }
 
@@ -231,7 +232,7 @@ public class FileHelper {
         int totalNumberOfLines = getNumberOfLines(path);
 
         try {
-            
+
             reader = new BufferedReader(new FileReader(path));
 
             String line = "";
@@ -475,30 +476,30 @@ public class FileHelper {
     public static int performActionOnEveryLineText(String text, LineAction la) {
         return performActionOnEveryLine(new StringReader(text), la);
 
-//        int lineNumber = 1;
-//
-//        StringReader in = new StringReader(text);
-//        BufferedReader br = new BufferedReader(in);
-//        try {
-//            String line = "";
-//            do {
-//                line = br.readLine();
-//                if (line == null) {
-//                    break;
-//                }
-//
-//                la.performAction(line, lineNumber++);
-//
-//            } while (line != null && la.looping);
-//
-//            in.close();
-//            br.close();
-//
-//        } catch (IOException e) {
-//            LOGGER.error(e.getMessage());
-//        }
-//
-//        return lineNumber - 1;
+        //        int lineNumber = 1;
+        //
+        //        StringReader in = new StringReader(text);
+        //        BufferedReader br = new BufferedReader(in);
+        //        try {
+        //            String line = "";
+        //            do {
+        //                line = br.readLine();
+        //                if (line == null) {
+        //                    break;
+        //                }
+        //
+        //                la.performAction(line, lineNumber++);
+        //
+        //            } while (line != null && la.looping);
+        //
+        //            in.close();
+        //            br.close();
+        //
+        //        } catch (IOException e) {
+        //            LOGGER.error(e.getMessage());
+        //        }
+        //
+        //        return lineNumber - 1;
     }
 
     /**
@@ -518,7 +519,7 @@ public class FileHelper {
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
-        
+
         FileWriter writer = null;
 
         try {
@@ -551,7 +552,7 @@ public class FileHelper {
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
-        
+
         FileWriter writer = null;
 
         try {
@@ -579,10 +580,10 @@ public class FileHelper {
      * @param before If true, the text will be appended before all other content, if false it will be appended to the
      *            end of the file.
      */
-//    @Deprecated
-//    public static void appendToFile(String filePath, StringBuilder string, boolean before) {
-//        appendToFile(filePath, string.toString(), before);
-//    }
+    //    @Deprecated
+    //    public static void appendToFile(String filePath, StringBuilder string, boolean before) {
+    //        appendToFile(filePath, string.toString(), before);
+    //    }
 
     /**
      * Append to file.
@@ -591,24 +592,24 @@ public class FileHelper {
      * @param string the string
      * @param before the before
      */
-//    @Deprecated
-//    public static void appendToFile(String filePath, String string, boolean before) {
-//        try {
-//            String currentContent = readFileToString(filePath);
-//            FileWriter fileWriter = new FileWriter(filePath);
-//            if (before) {
-//                fileWriter.write(string);
-//            }
-//            fileWriter.write(currentContent);
-//            if (!before) {
-//                fileWriter.write(string);
-//            }
-//            fileWriter.flush();
-//            fileWriter.close();
-//        } catch (IOException e) {
-//            LOGGER.error(filePath + ", " + e.getMessage());
-//        }
-//    }
+    //    @Deprecated
+    //    public static void appendToFile(String filePath, String string, boolean before) {
+    //        try {
+    //            String currentContent = readFileToString(filePath);
+    //            FileWriter fileWriter = new FileWriter(filePath);
+    //            if (before) {
+    //                fileWriter.write(string);
+    //            }
+    //            fileWriter.write(currentContent);
+    //            if (!before) {
+    //                fileWriter.write(string);
+    //            }
+    //            fileWriter.flush();
+    //            fileWriter.close();
+    //        } catch (IOException e) {
+    //            LOGGER.error(filePath + ", " + e.getMessage());
+    //        }
+    //    }
 
     /**
      * Appends (i. e. inserts a the end) a string to the specified File.
@@ -617,7 +618,7 @@ public class FileHelper {
      * @param stringToAppend the string to append
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
-     * @return 
+     * @return
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
 
@@ -641,7 +642,7 @@ public class FileHelper {
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
-     * @return 
+     * @return
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
         boolean added = false;
@@ -676,7 +677,7 @@ public class FileHelper {
      * @return
      */
     public static boolean prependFile(String filePath, String stringToPrepend)  {
-        
+
         boolean success = false;
         RandomAccessFile randomAccessFile = null;
 
@@ -716,9 +717,9 @@ public class FileHelper {
                 writeBytes = readBytes;
 
             } while (writeBytes != -1);
-            
+
             success = true;
-            
+
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
@@ -885,7 +886,7 @@ public class FileHelper {
         } finally {
             close(in, out);
         }
-        
+
     }
 
     /**
@@ -1101,6 +1102,40 @@ public class FileHelper {
             }
         };
         return FileHelper.performActionOnEveryLine(fileName, la);
+    }
+
+    public static void zipFiles(File[] files, String targetFilename) {
+
+        try {
+            byte[] buffer = new byte[1024];
+
+            FileOutputStream fout = new FileOutputStream(targetFilename);
+            ZipOutputStream zout = new ZipOutputStream(fout);
+
+            for (File sourceFile : files) {
+
+                LOGGER.debug("adding " + sourceFile + " to zip");
+
+                FileInputStream fin = new FileInputStream(sourceFile);
+
+                // add the zip entry
+                zout.putNextEntry(new ZipEntry(sourceFile.getPath()));
+
+                // now we write the file
+                int length;
+                while ((length = fin.read(buffer)) > 0) {
+                    zout.write(buffer, 0, length);
+                }
+
+                zout.closeEntry();
+                fin.close();
+            }
+
+            zout.close();
+
+        } catch (IOException ioe) {
+            LOGGER.error("error creating the zip, " + ioe);
+        }
     }
 
     /**
@@ -1377,7 +1412,7 @@ public class FileHelper {
 
         return concatenated;
     }
-    
+
     private static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
@@ -1386,7 +1421,7 @@ public class FileHelper {
                 } catch (IOException e) {
                     LOGGER.error(e);
                 }
-            }            
+            }
         }
     }
 
@@ -1397,7 +1432,7 @@ public class FileHelper {
      */
     public static void main(String[] a) {
 
-        FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
+        // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
         // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
         System.exit(0);
 
@@ -1486,17 +1521,5 @@ public class FileHelper {
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param i
-     */
-    public static void removeLine(File file, int i) throws IOException {
-
-    }
-
 
 }

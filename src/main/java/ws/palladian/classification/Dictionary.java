@@ -145,6 +145,12 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
     }
 
+    public void closeIndex() {
+        if (dictionaryIndex != null) {
+            dictionaryIndex.close();
+        }
+    }
+
     public void emptyIndex() {
         if (dictionaryIndex != null) {
             dictionaryIndex.empty();
