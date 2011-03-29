@@ -1,21 +1,32 @@
 package ws.palladian.daterecognition.evaluation;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Document;
+
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.daterecognition.dates.MetaDate;
+import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
 import ws.palladian.daterecognition.technique.ContentDateRater;
+import ws.palladian.daterecognition.technique.MetaDateGetter;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
+import ws.palladian.daterecognition.technique.URLDateGetter;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
+import ws.palladian.web.Crawler;
 
 public class ContentEvaluator {
 
@@ -31,7 +42,7 @@ public class ContentEvaluator {
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
 		String pub = "pub5";
 		String mod = "mod5";
-		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
+		//evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
 		//evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
 		
 		
@@ -39,97 +50,98 @@ public class ContentEvaluator {
 		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
 		
 		System.out.println(pub);
-		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
 				
 		
 		System.out.println(mod);
-		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
+		
+		String contentTable = "contentfactor3";
+		boolean useWeight = false;
+		evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
 		
 	}
 	
 	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<ContentDate> dg, TechniqueDateRater<ContentDate> dr, String file){
 		Evaluator.evaluate(EvaluationHelper.CONTENTEVAL, round, pub_mod, dg, dr,file);
+	}
+	
+	private static void evluateFacotors(ContentDateGetter cdg,MetaDateGetter mdg, URLDateGetter udg, String file, String contentTable, boolean useWeight){
+		HashMap<String, DBExport> map = EvaluationHelper.readFile(file);
+		StopWatch allTimer = new StopWatch();
+		int i=0;
 		
-		/*int truePositiv = 0;
-		int trueNegative = 0;
-		int falsePositv = 0;
-		int falseNegativ = 0;
-		int counter=0;
-		int compare;
+		DataSetHandler.openConnection();
+		String sqlString ="Select * From " + contentTable;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile();
-		Crawler crawler = new Crawler();
+		HashMap<String, Boolean> alreadyAnalysed = new HashMap<String, Boolean>();
 		
-		for(Entry<String, DBExport> e : set.entrySet()){
-			ContentDate bestDate = null;
-			String bestDateString ="";
-			cdg.setDocument(crawler.getWebDocument(e.getValue().getFilePath()));
-			
-			System.out.println(e.getValue().getFilePath());
-			System.out.print("get dates... ");
-				
-			ArrayList<ContentDate> list = cdg.getDates();
-			ArrayList<ContentDate> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
-			filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
-			
-			if(filteredDates.size()>0){
-					
-				System.out.print("rate dates... ");
-				
-				HashMap<ContentDate, Double> map = cdr.rate(filteredDates);
-				double highestRate = DateArrayHelper.getHighestRate(map);
-				System.out.print(highestRate + " ");
-				HashMap<ContentDate, Double> allBestDates = DateArrayHelper.getRatedDatesMap(map, highestRate);
-					
-				System.out.print("best date... ");
-				
-				if(allBestDates.size()>1){
-					allBestDates = guessRate(allBestDates);
-				}
-				
-				highestRate = DateArrayHelper.getHighestRate(allBestDates);
-				allBestDates = DateArrayHelper.getRatedDatesMap(allBestDates, highestRate);
-				bestDate = DateArrayHelper.getFirstElement(allBestDates);	
-				bestDateString = bestDate.getNormalizedDate(true);
+		try{
+			ResultSet rs = DataSetHandler.st.executeQuery(sqlString);
+			while(rs.next()){
+				alreadyAnalysed.put(rs.getString("url"),true);
 			}
+		}catch (SQLException e){
 			
-			System.out.println("compare...");
-			
-			compare = EvaluationHelper.compareDate(bestDate, e.getValue(),pub_mod);
-			System.out.print(compare + " bestDate:" + bestDateString + " - pubDate:" + e.getValue().getPubDate());
-			switch(compare){
-				case -2:
-					falseNegativ++;
-					break;
-				case -1:
-					falsePositv++;
-					break;
-				case 0:
-					trueNegative++;
-					break;
-				case 1:
-					truePositiv++;
-					break;
-					
-			}
-			
-			DataSetHandler.writeInDB(EvaluationHelper.CONTENTEVAL, e.getValue().getUrl(), compare, round);
-			counter++;
-			
-			System.out.println();
-			System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
-			System.out.println("---------------------------------------------------------------------");
 		}
-		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
-		*/
+
+		DataSetHandler.closeConnection();
+		
+		
+		for(Entry<String, DBExport>e : map.entrySet()){
+			
+			
+			StopWatch timer = new StopWatch();
+			Crawler crawler = new Crawler();
+			Document document = crawler.getWebDocument(e.getValue().get(DBExport.PATH));
+			String url = e.getValue().get(DBExport.URL);
+			if(alreadyAnalysed.get(url) != null){
+				continue;
+			}
+			
+			System.out.println(url);
+			
+			cdg.reset();
+			
+			cdg.setDocument(document);
+			mdg.setDocument(document);
+			mdg.setUrl(url);
+			udg.setUrl(url);
+			
+			ArrayList<ContentDate> contDates = cdg.getDates();
+			
+			contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+			contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_FULL_DATE);
+			
+			ArrayList<MetaDate> metaDates = DateArrayHelper.removeNull(mdg.getDates());
+			ArrayList<URLDate> urlDates = DateArrayHelper.removeNull(udg.getDates());
+			
+			for(ContentDate date : contDates){
+				if(metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateComparator.STOP_DAY) > 0){
+					date.setInMetaDates(true);
+				}
+				if(urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateComparator.STOP_DAY) > 0){
+					date.setInUrl(true);
+				}
+			}
+			DataSetHandler.writeDateFactors(contDates, url, cdg.getDoc(), contentTable, useWeight);
+			timer.stop();
+			System.out.print(i++ + ": ");
+			timer.getElapsedTimeString(true);
+			allTimer.getElapsedTimeString(true);
+			
+		}
+		allTimer.stop();
+		allTimer.getElapsedTimeString(true);
+		
 	}
 	
 	private static HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {

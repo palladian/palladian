@@ -176,7 +176,7 @@ public class DateEvaluator {
 
         evaluatedDates.putAll(influenceHttpAndHead(httpResult, headResult));
 
-        evaluatedDates.putAll(deployStructureDates(contResult, (HashMap<StructureDate, Double>) structResult));
+        //evaluatedDates.putAll(deployStructureDates(contResult, (HashMap<StructureDate, Double>) structResult));
 
         evaluatedDates.putAll(deployMetaDates(headResult, contResult));
         evaluatedDates.putAll(deployMetaDates(httpResult, contResult));

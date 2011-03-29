@@ -10,7 +10,7 @@ package ws.palladian.daterecognition.dates;
  * @author Martin Gregor
  * 
  */
-public class HTTPDate extends KeywordDate {
+public class HTTPDate extends MetaDate {
 
     /**
      * 

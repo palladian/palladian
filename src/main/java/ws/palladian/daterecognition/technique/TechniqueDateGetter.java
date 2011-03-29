@@ -32,6 +32,14 @@ public abstract class TechniqueDateGetter<T> {
         this.document = document;
     }
     
+    public String getUrl(){
+    	return this.url;
+    }
+    
+    public Document getDocument(){
+    	return this.document;
+    }
+    
     public void reset(){}
 
 }

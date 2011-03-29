@@ -9,7 +9,7 @@ package ws.palladian.daterecognition.dates;
  * @author Martin Gregor
  * 
  */
-public class HeadDate extends KeywordDate {
+public class HeadDate extends MetaDate {
 
     private String tag = null;
 

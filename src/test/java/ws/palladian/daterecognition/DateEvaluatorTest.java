@@ -25,18 +25,15 @@ public class DateEvaluatorTest {
             // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
             url = "http://classactiondefense.jmbm.com/2009/06/bofa_class_action_defense_case.html";
             url = "http://www.smh.com.au/articles/2006/11/21/1163871393154.html";
-            url = "http://www.tmcnet.com/news/2006/03/29/1517705.htm";
+            //url = "http://www.tmcnet.com/news/2006/03/29/1517705.htm";
             WebPageDateEvaluator ae = new WebPageDateEvaluator();
             ae.setUrl(url);
             ae.evaluate();
             // DateArrayHelper.printDateArray(dates);
             DateArrayHelper.printDateArray(ae.getAllDates());
-           try {
+          
 			ae.getBestRatedDate().getNormalizedDate();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
             // assertEquals(dates.size(), dateMap.size());
         }
     }

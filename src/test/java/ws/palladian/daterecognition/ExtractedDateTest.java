@@ -2,10 +2,16 @@ package ws.palladian.daterecognition;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.GregorianCalendar;
+
 import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.helper.date.DateHelper;
 
 public class ExtractedDateTest {
 
@@ -51,7 +57,7 @@ public class ExtractedDateTest {
     }
 
     @Test
-    public void testGetNormalizedDate() throws Exception {
+    public void testGetNormalizedDateString() throws Exception {
         assertEquals(date1.getDateString(), "2010-06-12", date1.getNormalizedDateString());
         assertEquals(date2.getDateString(), "2010-06-07", date2.getNormalizedDateString());
         assertEquals(date3.getDateString(), "2010-06-07", date3.getNormalizedDateString());
@@ -72,6 +78,37 @@ public class ExtractedDateTest {
         assertEquals(date18.getDateString(), "2010-06-07 07:06:05", date18.getNormalizedDateString());
     }
 
+    @Test
+    public void testGetNormalizedDate() throws Exception {
+    	Calendar c = new GregorianCalendar();
+    	c.set(2010, 5 ,12, 0, 0, 0);
+        assertEquals(date1.getDateString(), c.getTime().toString(), date1.getNormalizedDate().toString());
+        
+        c.set(2010, 5 ,7, 0, 0, 0);
+        assertEquals(date2.getDateString(), c.getTime().toString(), date2.getNormalizedDate().toString());
+        assertEquals(date3.getDateString(), c.getTime().toString(), date3.getNormalizedDate().toString());
+        assertEquals(date4.getDateString(), c.getTime().toString(), date4.getNormalizedDate().toString());
+        assertEquals(date5.getDateString(), c.getTime().toString(), date5.getNormalizedDate().toString());
+        assertEquals(date6.getDateString(), c.getTime().toString(), date6.getNormalizedDate().toString());
+        assertEquals(date7.getDateString(), c.getTime().toString(), date7.getNormalizedDate().toString());
+        assertEquals(date8.getDateString(), c.getTime().toString(), date8.getNormalizedDate().toString());
+        assertEquals(date9.getDateString(), c.getTime().toString(), date9.getNormalizedDate().toString());
+        assertEquals(date10.getDateString(), c.getTime().toString(), date10.getNormalizedDate().toString());
+        assertEquals(date11.getDateString(), c.getTime().toString(), date11.getNormalizedDate().toString());
+        assertEquals(date12.getDateString(), c.getTime().toString(), date12.getNormalizedDate().toString());
+        
+        c.set(2010, 5 ,1, 0, 0, 0);
+        assertEquals(date13.getDateString(), c.getTime().toString(), date13.getNormalizedDate().toString());
+        assertEquals(date14.getDateString(), c.getTime().toString(), date14.getNormalizedDate().toString());
+        assertEquals(date15.getDateString(), c.getTime().toString(), date15.getNormalizedDate().toString());
+        
+        c.set(2010, 5 ,7, 7, 6, 5);
+        assertEquals(date16.getDateString(), c.getTime().toString(), date16.getNormalizedDate().toString());
+        assertEquals(date17.getDateString(), c.getTime().toString(), date17.getNormalizedDate().toString());
+        assertEquals(date18.getDateString(), c.getTime().toString(), date18.getNormalizedDate().toString());
+    }
+
+    
     @Test
     public void testSetDateParts() {
         assertEquals(2010, date1.get(ExtractedDate.YEAR));

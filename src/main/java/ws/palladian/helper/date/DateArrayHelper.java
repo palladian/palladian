@@ -276,8 +276,10 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> int countDates(T date, ArrayList<T> dates) {
-        int count = 0;
+    public static <T,V> int countDates(T date, ArrayList<V> dates) {
+        
+    	return countDates(date, dates, -1);
+    	/*int count = 0;
         DateComparator dc = new DateComparator();
         for (int i = 0; i < dates.size(); i++) {
             if (!date.equals(dates.get(i))) {
@@ -288,9 +290,41 @@ public class DateArrayHelper {
                 }
             }
         }
-        return count;
+        return count;*/
     }
 
+    /**
+     * Count how often a date is in a list.<br>
+     * Dates will compared up to depth of stopFlag. <br>
+     * Not the object, but the exact date.<br>
+     * If the date-object is also in the list, it will not count.<br>
+     * <br>
+     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+     * Look up for date1, the returning value will be 1 and not 2!
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
+    public static <T,V> int countDates(T date, ArrayList<V> dates, int stopFlag) {
+        int count = 0;
+        DateComparator dc = new DateComparator();
+        for (int i = 0; i < dates.size(); i++) {
+            if (!date.equals(dates.get(i))) {
+                int tempStopFlag = stopFlag;
+                if (tempStopFlag == -1) {
+                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
+                            .getExactness());
+                }
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), tempStopFlag) == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
     /**
      * Count how often a date is in a list. <br>
      * Not the object, but the exact date.<br>
@@ -326,37 +360,7 @@ public class DateArrayHelper {
         return count;
     }
 
-    /**
-     * Count how often a date is in a list.<br>
-     * Dates will compared up to depth of stopFlag. <br>
-     * Not the object, but the exact date.<br>
-     * If the date-object is also in the list, it will not count.<br>
-     * <br>
-     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
-     * Look up for date1, the returning value will be 1 and not 2!
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
-     */
-    public static <T> int countDates(T date, ArrayList<T> dates, int stopFlag) {
-        int count = 0;
-        DateComparator dc = new DateComparator();
-        for (int i = 0; i < dates.size(); i++) {
-            if (!date.equals(dates.get(i))) {
-                int tempStopFlag = stopFlag;
-                if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
-                            .getExactness());
-                }
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), tempStopFlag) == 0) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
+    
 
     /**
      * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties. <br>

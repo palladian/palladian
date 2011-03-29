@@ -154,19 +154,19 @@ public class EvaluationHelper {
 		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
 		if(ed == null){
 			if(foundDate == null){
-				returnValue = DataSetHandler.RNF;
+				returnValue = DataSetHandler.ARD;
 			}else{
-				returnValue = DataSetHandler.FF;
+				returnValue = DataSetHandler.AWD;
 			}
 		}else{
 			if(foundDate == null){
-				returnValue = DataSetHandler.WNF;
+				returnValue = DataSetHandler.ANF;
 			}else{
 				DateComparator dc = new DateComparator();
 				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),dc.STOP_DAY)) == 0){
-					returnValue = DataSetHandler.RF;
+					returnValue = DataSetHandler.AFR;
 				}else{
-					returnValue = DataSetHandler.WF;
+					returnValue = DataSetHandler.AFW;
 				}
 			}
 		}
@@ -222,7 +222,7 @@ public class EvaluationHelper {
 	 */
 	public static double calculateExactness(String round, String table, ArrayList<String> urls){
 		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
-    	double tp = count(valuedUrls, DataSetHandler.RNF) + count(valuedUrls, DataSetHandler.RF);
+    	double tp = count(valuedUrls, DataSetHandler.ARD) + count(valuedUrls, DataSetHandler.AFR);
     	double all = (double)urls.size();
     	return (tp / all);
     	
@@ -238,8 +238,8 @@ public class EvaluationHelper {
 	 */
 	public static double calculateMissingExactness(String round, String table, ArrayList<String> urls){
 		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls);
-		double rnf = count(valuedUrls, DataSetHandler.RNF);
-    	double ff = count(valuedUrls, DataSetHandler.FF);
+		double rnf = count(valuedUrls, DataSetHandler.ARD);
+    	double ff = count(valuedUrls, DataSetHandler.AWD);
     	
     	return (rnf / (rnf+ff));
     }
