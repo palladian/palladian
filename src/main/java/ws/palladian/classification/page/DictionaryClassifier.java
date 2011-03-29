@@ -1,6 +1,5 @@
 package ws.palladian.classification.page;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,9 +34,6 @@ public class DictionaryClassifier extends TextClassifier {
 
     /** The path to the dictionary, whether where it should be or has been serialized. */
     private String dictionaryPath = null;
-
-    /** Hold all possible dictionaries in a map. */
-    protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
 
     /** Whether to train incremental, that is much slower but scales well. */
     private boolean incrementalTraining = false;
@@ -138,6 +134,13 @@ public class DictionaryClassifier extends TextClassifier {
                 + DateHelper.getRuntime(initTime) + "), " + dictionary.getNumberOfDocuments() + " documents processed");
     }
 
+    /**
+     * Use this save method only if you created the DictionaryClassifier with a path.
+     */
+    public void save() {
+        save(getDictionaryPath());
+    }
+
     @Override
     public void save(String path) {
         setDictionaryPath(path);
@@ -213,16 +216,12 @@ public class DictionaryClassifier extends TextClassifier {
             return;
         }
 
-        if (dictionaries.get(classType) == null) {
+        if (dictionary == null) {
             String modelFilePath = getDictionaryPath() + getDictionaryName() + ".gz";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
             dictionary.useIndex();
-
-            dictionaries.put(classType, dictionary);
-        } else {
-            dictionary = dictionaries.get(classType);
         }
 
         if (dictionary == null) {
@@ -614,6 +613,12 @@ public class DictionaryClassifier extends TextClassifier {
 
     public boolean isIncrementalTraining() {
         return incrementalTraining;
+    }
+
+    public void close() {
+        if (getDictionary().isUseIndex()) {
+            getDictionary().closeIndex();
+        }
     }
 
 }

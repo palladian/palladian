@@ -594,18 +594,36 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
+        try {
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            LOGGER.error("could not close connection, " + e.getMessage());
+        }
     }
 
     @Override
     public boolean openReader() {
-        // TODO Auto-generated method stub
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = getConnection();
+            }
+        } catch (SQLException e) {
+            LOGGER.error("could not open index reader, " + e.getMessage());
+        }
         return true;
     }
 
     @Override
     public void openWriter() {
-        // TODO Auto-generated method stub
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = getConnection();
+            }
+        } catch (SQLException e) {
+            LOGGER.error("could not open index writer, " + e.getMessage());
+        }
     }
 
     /**
