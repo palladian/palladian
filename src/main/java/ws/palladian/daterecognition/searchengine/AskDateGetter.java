@@ -11,12 +11,12 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.SourceRetriever;
 
 public class AskDateGetter {
 	private String googleAPI ="http://de.ask.com/web?q=";
-	private Crawler crawler = new  Crawler();
+	private DocumentRetriever crawler = new  DocumentRetriever();
 	private String url;
 	
 	private Document getAskPage(){

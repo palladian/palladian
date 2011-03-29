@@ -17,7 +17,7 @@ import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class StructureEvaluator {
 

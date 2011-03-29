@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * Test cases for the xPath handling.
@@ -107,7 +107,7 @@ public class PageAnalyzerTest extends TestCase {
     }
 
     public void testGetNumberOfTableColumns() {
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         PageAnalyzer pa = new PageAnalyzer();
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website3.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));

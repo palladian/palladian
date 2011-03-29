@@ -23,7 +23,7 @@ import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.testtechniques.WebPageDateEvaluatorTest;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class KairosEvaluator {
 
@@ -160,7 +160,7 @@ public class KairosEvaluator {
 	
 	private void evaluationToDB (String file, String table, PageDateType pageDateType){
 		HashMap<String, DBExport> fileMap = importUrl(file);
-		Crawler c = new Crawler();
+		DocumentRetriever c = new DocumentRetriever();
 		int index = 0;
 		for(Entry<String, DBExport> entry : fileMap.entrySet()){
 			WebPageDateEvaluatorTest wpde = new WebPageDateEvaluatorTest();
@@ -257,7 +257,7 @@ public class KairosEvaluator {
 		int compare;
 		
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
 			String url =e.getValue().get(DBExport.URL);

@@ -9,7 +9,7 @@ import ws.palladian.daterecognition.dates.ArchiveDate;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * This class uses www.archive.org to get a date of a page.
@@ -40,7 +40,7 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
      */
     private ArchiveDate getArchiveDates(String url) {
         ArchiveDate oldest = null;
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         String archiveUrl = "http://web.archive.org/web/*/" + url;
         Document document = c.getWebDocument(archiveUrl);
         if (document != null) {

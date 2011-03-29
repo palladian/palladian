@@ -3,7 +3,7 @@ package ws.palladian.daterecognition.technique;
 import java.util.ArrayList;
 
 import ws.palladian.daterecognition.dates.MetaDate;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 
@@ -49,7 +49,7 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 			if(this.url == null){
 				this.url = document.getBaseURI();
 			}else if(this.document == null){
-				Crawler crawler = new Crawler();
+				DocumentRetriever crawler = new DocumentRetriever();
 				this.document = crawler.getWebDocument(this.url);
 			}
 		}

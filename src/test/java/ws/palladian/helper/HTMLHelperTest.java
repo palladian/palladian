@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * Test cases for the HTMLHelper class.
@@ -57,7 +57,7 @@ public class HTMLHelperTest extends TestCase {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HTMLHelper.stripHTMLTags(htmlContent, true, true, true, false));
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         String content = crawler.download(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
         String result = HTMLHelper.stripHTMLTags(content, true, true, true, false);
@@ -68,7 +68,7 @@ public class HTMLHelperTest extends TestCase {
 
     @Test
     public void testHtmlToString() {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         Document doc = c.getWebDocument(HTMLHelperTest.class.getResource("/pageContentExtractor/test001.html")
                 .getFile());
         String result = HTMLHelper.documentToReadableText(doc);

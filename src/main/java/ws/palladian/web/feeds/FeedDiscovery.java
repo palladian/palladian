@@ -26,11 +26,12 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
 
@@ -54,7 +55,7 @@ public class FeedDiscovery {
     private static final int MAX_NUMBER_OF_THREADS = 10;
 
     /** crawler for downloading pages. */
-    private Crawler crawler = new Crawler();
+    private DocumentRetriever crawler = new DocumentRetriever();
 
     private boolean debugDump = false;
 
@@ -205,7 +206,7 @@ public class FeedDiscovery {
         Set<String> sites = new HashSet<String>();
         for (String resultUrl : resultURLs) {
             // sites.add(Helper.getRootUrl(resultUrl));
-            sites.add(Crawler.getDomain(resultUrl));
+            sites.add(UrlHelper.getDomain(resultUrl));
         }
 
         stopWatch.stop();
@@ -352,7 +353,7 @@ public class FeedDiscovery {
                 feedHref = feedHref.replace("feed:", "");
 
                 // make full URL
-                String feedUrl = Crawler.makeFullURL(pageUrl, baseHref, feedHref);
+                String feedUrl = UrlHelper.makeFullURL(pageUrl, baseHref, feedHref);
 
                 // validate URL
                 UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
@@ -635,7 +636,7 @@ public class FeedDiscovery {
          * }
          */
         if (crawler.getTotalDownloadSize() > 0) {
-            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB").append(
+            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB").append(
                     newLine);
         }
         sb.append("----------------------------------------------");

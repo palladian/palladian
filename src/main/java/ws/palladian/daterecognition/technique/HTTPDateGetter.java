@@ -11,7 +11,7 @@ import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HTTPDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
      */
     private static ArrayList<HTTPDate> getHTTPHeaderDate(String url) {
         ArrayList<HTTPDate> result = new ArrayList<HTTPDate>();
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         Map<String, List<String>> headers = crawler.getHeaders(url);
         String[] keywords = KeyWords.HTPP_KEYWORDS;
         for (int i = 0; i < keywords.length; i++) {

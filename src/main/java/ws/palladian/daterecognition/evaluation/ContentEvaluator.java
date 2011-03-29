@@ -26,7 +26,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class ContentEvaluator {
 
@@ -100,7 +100,7 @@ public class ContentEvaluator {
 			
 			
 			StopWatch timer = new StopWatch();
-			Crawler crawler = new Crawler();
+			DocumentRetriever crawler = new DocumentRetriever();
 			Document document = crawler.getWebDocument(e.getValue().get(DBExport.PATH));
 			String url = e.getValue().get(DBExport.URL);
 			if(alreadyAnalysed.get(url) != null){

@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.web.feeds.persistence.FeedDatabase;
 import ws.palladian.web.feeds.persistence.FeedStore;
@@ -188,7 +188,7 @@ public class FeedImporter {
         LOGGER.info("-------------------------------");
         LOGGER.info(" added " + addCounter.getCount() + " new feeds");
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        LOGGER.info(" traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
+        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB");
         LOGGER.info("-------------------------------");
 
         return addCounter.getCount();

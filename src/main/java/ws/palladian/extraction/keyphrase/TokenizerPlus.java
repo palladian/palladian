@@ -28,7 +28,7 @@ import ws.palladian.preprocessing.nlp.AbstractPOSTagger;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * Special tokenizer implementation which keeps positional and POS features of extracted Tokens. Also supports
@@ -378,7 +378,7 @@ public class TokenizerPlus {
         System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
         System.exit(0);
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         // Document doc =
         // crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
         // Document doc =

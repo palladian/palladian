@@ -27,7 +27,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageContentExtractor;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * A TF-IDF and tag correlation based tagger using a controlled and weighted vocabulary.
@@ -967,7 +967,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         tagger.load("data/controlledTagger.ser");
         // tagger.evaluateFromFile("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         String result = c.download("http://www.i-funbox.com/");
         result = HTMLHelper.documentToReadableText(result, true);
         tagger.getSettings().setTagCount(20);

@@ -29,9 +29,10 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 import com.temesoft.google.pr.JenkinsHash;
 
@@ -194,7 +195,7 @@ public class RankingRetriever {
     private String redditCookie;
 
     /** Crawler for downloading purposes. */
-    private Crawler crawler = new Crawler();
+    private DocumentRetriever crawler = new DocumentRetriever();
 
     /**
      * Cache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
@@ -669,7 +670,7 @@ public class RankingRetriever {
 
         int result = -1;
 
-        String domain = Crawler.getDomain(getUrl(), false);
+        String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler
                 .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
                         + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
@@ -703,7 +704,7 @@ public class RankingRetriever {
 
         int result = -1;
 
-        String domain = Crawler.getDomain(getUrl(), false);
+        String domain = UrlHelper.getDomain(getUrl(), false);
 
         Document doc = crawler
                 .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
@@ -735,7 +736,7 @@ public class RankingRetriever {
 
         int result = -1;
 
-        String domain = Crawler.getDomain(getUrl(), false);
+        String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler.getXMLDocument("http://search.twitter.com/search.atom?q=" + domain + "&rpp=100");
 
         if (doc != null) {
@@ -791,7 +792,7 @@ public class RankingRetriever {
      * @return PageRank for URL's domain, -1 on error.
      */
     private int getGoogleDomainPageRank() {
-        return getGooglePageRank(Crawler.getDomain(getUrl(), true));
+        return getGooglePageRank(UrlHelper.getDomain(getUrl(), true));
     }
 
     /**
@@ -859,7 +860,7 @@ public class RankingRetriever {
 
         int result = -1;
 
-        String domain = Crawler.getDomain(getUrl(), false);
+        String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler.getXMLDocument("http://api.compete.com/fast-cgi/MI?d=" + domain + "&ver=3&apikey="
                 + competeApikey);
 
@@ -894,7 +895,7 @@ public class RankingRetriever {
 
         int result = -1;
 
-        String domain = Crawler.getDomain(getUrl(), false);
+        String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler.getXMLDocument("http://api.mywot.com/0.4/public_query2?target=" + domain);
 
         if (doc != null) {

@@ -19,11 +19,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.
@@ -49,7 +50,7 @@ public class PageAnalyzer {
     }
 
     public void setDocument(String url) {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         this.document = c.getWebDocument(url);
     }
 
@@ -1073,6 +1074,179 @@ public class PageAnalyzer {
         return texts;
     }
 
+    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
+    
+        Set<String> pageLinks = new HashSet<String>();
+    
+        if (document == null) {
+            return pageLinks;
+        }
+    
+        // remove anchors from url
+        String url = document.getDocumentURI();
+        url = UrlHelper.removeAnchors(url);
+        String domain = UrlHelper.getDomain(url, false);
+    
+        // get value of base element, if present
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
+        String baseHref = null;
+        if (baseNode != null) {
+            baseHref = baseNode.getTextContent();
+        }
+    
+        // get all internal domain links
+        // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
+        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//A/@href");
+        for (int i = 0; i < linkNodes.size(); i++) {
+            String currentLink = linkNodes.get(i).getTextContent();
+            currentLink = currentLink.trim();
+    
+            // remove anchors from link
+            currentLink = UrlHelper.removeAnchors(currentLink);
+    
+            // normalize relative and absolute links
+            // currentLink = makeFullURL(url, currentLink);
+            currentLink = UrlHelper.makeFullURL(url, baseHref, currentLink);
+    
+            if (currentLink.length() == 0) {
+                continue;
+            }
+    
+            String currentDomain = UrlHelper.getDomain(currentLink, false);
+    
+            boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
+    
+            if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
+                pageLinks.add(currentLink);
+            }
+        }
+    
+        return pageLinks;
+    }
+
+    /**
+     * Get a set of links from the source page.
+     * 
+     * @param inDomain If true all links that point to other pages within the same domain of the source page are added.
+     * @param outDomain If true all links that point to other pages outside the domain of the source page are added.
+     * @return A set of urls.
+     */
+    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
+        return PageAnalyzer.getLinks(document, inDomain, outDomain, "");
+    }
+
+    public static String extractTitle(Document webPage) {
+        String title = "";
+    
+        List<Node> titleNodes = XPathHelper.getXhtmlNodes(webPage, "//TITLE");
+        for (Node node : titleNodes) {
+            title = node.getTextContent();
+            break;
+        }
+    
+        return title;
+    }
+
+    public static String extractBodyContent(Document webPage) {
+        String bodyContent = "";
+    
+        // a possible alternative way for extracting the textual body content
+        // System.out.println(extractBodyContent(downloadNotBlacklisted(webPage.getBaseURI()), true));
+    
+        try {
+            List<Node> titleNodes = XPathHelper.getNodes(webPage, "//BODY");
+            for (Node node : titleNodes) {
+                bodyContent = node.getTextContent();
+                break;
+            }
+        } catch (OutOfMemoryError e) {
+            DocumentRetriever.LOGGER.error(e.getMessage());
+        } catch (Exception e) {
+            DocumentRetriever.LOGGER.error(e.getMessage());
+        }
+    
+        return bodyContent;
+    }
+
+    public static List<String> extractDescription(Document webPage) {
+    
+        List<String> descriptionWords = new ArrayList<String>();
+    
+        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
+        for (Node metaNode : metaNodes) {
+            if (metaNode.getAttributes().getNamedItem("name") != null
+                    && metaNode.getAttributes().getNamedItem("content") != null
+                    && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("description")) {
+                String description = metaNode.getAttributes().getNamedItem("content").getTextContent();
+                String[] keywordArray = description.split("\\s");
+                for (String string : keywordArray) {
+                    descriptionWords.add(string.trim());
+                }
+                break;
+            }
+        }
+    
+        return descriptionWords;
+    }
+
+    public static List<String> extractKeywords(Document webPage) {
+    
+        List<String> keywords = new ArrayList<String>();
+    
+        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
+        for (Node metaNode : metaNodes) {
+            if (metaNode.getAttributes().getNamedItem("name") != null
+                    && metaNode.getAttributes().getNamedItem("content") != null
+                    && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
+                String keywordString = metaNode.getAttributes().getNamedItem("content").getTextContent();
+                String[] keywordArray = keywordString.split(",");
+                for (String string : keywordArray) {
+                    keywords.add(string.trim());
+                }
+                break;
+            }
+        }
+    
+        return keywords;
+    }
+
+    /**
+     * 
+     * Extracts the content of the body out of a given pageContent; textOnly-Parameter allows to get the textual content
+     * FIXME: other versions of this exist
+     * 
+     */
+    public static String extractBodyContent(String pageContent, boolean textOnly) {
+    
+        String bodyContent = "";
+        List<String> tempList = HTMLHelper.getConcreteTags(pageContent, "body");
+    
+        if (tempList.size() > 0) {
+            bodyContent = tempList.get(0);
+        } else {
+            DocumentRetriever.LOGGER.error("========Fehler bei extractBodyContent===== ");
+            DocumentRetriever.LOGGER.error("body could not extracted");
+            // return "error" to divide between empty string and error
+            return "error";
+        }
+    
+        if (textOnly) {
+            boolean stripTags = true;
+            boolean stripComments = true;
+            boolean stripJSAndCSS = true;
+            boolean joinTagsAndRemoveNewlines = false;
+    
+            // Remove all tags, comments, JS and CSS from body
+            bodyContent = HTMLHelper.stripHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
+                    joinTagsAndRemoveNewlines);
+            bodyContent = bodyContent.replaceAll("&nbsp;", " ");
+            bodyContent = bodyContent.replaceAll("&amp;", "&");
+            return bodyContent;
+        }
+    
+        return bodyContent;
+    }
+
     public static String removeXPathIndices(String xPath) {
         return xPath.replaceAll("\\[(\\d)+\\]", "");
     }
@@ -1123,7 +1297,7 @@ public class PageAnalyzer {
 
         String url = "http://www.cinefreaks.com/downloads";
         url = "data/test/webPages/faqExtraction2.html";
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url);
 
         System.out.println(HTMLHelper.getXmlDump(document));

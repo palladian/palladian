@@ -35,8 +35,7 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.web.Crawler;
-import ws.palladian.web.URLDownloader;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The PageSegmenter segments a given URL into independent parts and rates the importance for each part.
@@ -88,7 +87,7 @@ public class PageSegmenter {
     }
 
     public void setDocument(String url) {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         this.document = c.getWebDocument(url);
     }
 
@@ -221,9 +220,9 @@ public class PageSegmenter {
      * @return A map of q-grams and their quantity.
      */
     Map<String, Integer> createFingerprintForURL(Document doc, int number, int length) throws MalformedURLException,
-            IOException {
+    IOException {
 
-        String dText = Crawler.documentToString(doc);
+        String dText = DocumentRetriever.documentToString(doc);
 
         StringBuilder tagList = new StringBuilder();
         for (String tag : HTMLHelper.listTags(dText)) {
@@ -258,15 +257,15 @@ public class PageSegmenter {
             double similarityNeed, int limit) throws MalformedURLException, IOException {
         Map<Document, Double> result = new LinkedHashMap<Document, Double>();
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         Document d = document;
 
         // Start of collect URLs (step 1) ////////////////////////////////////////////////////////
 
-        URLDownloader urlDownloader = new URLDownloader();
+        DocumentRetriever urlDownloader = new DocumentRetriever();
 
         Set<String> links = new HashSet<String>();
-        links.addAll(c.getLinks(d, true, false, ""));
+        links.addAll(PageAnalyzer.getLinks(d, true, false, ""));
         LOGGER.info("Anzahl Links: " + links.size());
 
         int zaehler = 0;
@@ -296,7 +295,7 @@ public class PageSegmenter {
         Set<Document> documents = urlDownloader.start();
 
         for (Document doc : documents) {
-            te3.addAll(c.getLinks(doc, true, false, ""));            
+            te3.addAll(PageAnalyzer.getLinks(doc, true, false, ""));
         }
 
         // //delete all duplicates of the URL like ...www.URL.de?something... = duplicate content
@@ -339,7 +338,7 @@ public class PageSegmenter {
 
         Map<String, Integer> page1 = createFingerprintForURL(d, qgramNumber, qgramLength);
 
-        URLDownloader urlDownloader2 = new URLDownloader();
+        DocumentRetriever urlDownloader2 = new DocumentRetriever();
 
         Iterator<String> it = te2.iterator();
         while (it.hasNext()) {
@@ -375,7 +374,7 @@ public class PageSegmenter {
 
                 } else {
                     LOGGER.info("Unterschied zu groß. Seiten verwenden wahrscheinlich nicht dasselbe Template. ("
-                                    + variString + "%, Jaccard=" + jacc + ")");
+                            + variString + "%, Jaccard=" + jacc + ")");
                 }
 
                 LOGGER.info("----------------------------------------------------------------------------------------");
@@ -518,10 +517,10 @@ public class PageSegmenter {
         for (int i = 0; i < colorScale.length; i++) {
             if (kindOfColoring) {
                 colorString = colorString + ".myPageSegmenterBorder" + i + " { border: 2px solid " + colorScale[i]
-                        + "; }\n";
+                                                                                                                + "; }\n";
             } else {
                 colorString = colorString + ".myPageSegmenterBorder" + i + " { background-color: " + colorScale[i]
-                        + "; }\n";
+                                                                                                                + "; }\n";
             }
         }
 
@@ -606,7 +605,7 @@ public class PageSegmenter {
 
         // ////////////////////////////////////////////////////////////////////////
         // fix some problems with closing tags and saves it to storeLocation+"_test.html"
-        Crawler c2 = new Crawler();
+        DocumentRetriever c2 = new DocumentRetriever();
         String webpage = c2.download(storeLocation);
         String newStoreLocation = storeLocation.substring(0, storeLocation.length() - 5) + "_test.html";
 
@@ -631,7 +630,7 @@ public class PageSegmenter {
 
                 if (index2 < index3 && index1 != -1) {
                     webpage = webpage.substring(0, index2) + "></" + tag + "><!--fixedForPageSegmenter-->"
-                            + webpage.substring(index2 + 2, webpage.length());
+                    + webpage.substring(index2 + 2, webpage.length());
                 }
 
                 if (index2 <= index3) {
@@ -777,7 +776,7 @@ public class PageSegmenter {
             Segment seg = new Segment(document, xPath, node, depth, 0.0);
             allSegments.add(seg);
         }
-        
+
         for (Map.Entry<String, Double> pairs : conflictNodes.entrySet()) {
             String xPath = pairs.getKey();
             Double significance = pairs.getValue();
@@ -890,7 +889,7 @@ public class PageSegmenter {
      * Main function to test PageSegmenter
      */
     public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException,
-            TransformerFactoryConfigurationError, TransformerException, PageContentExtractorException {
+    TransformerFactoryConfigurationError, TransformerException, PageContentExtractorException {
 
         // Crawler c = new Crawler();
         // String URL="http://blogalm.de/";

@@ -17,9 +17,10 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The ListDiscoverer tries to find a list (with entities) on a web page. If a "good" list is found the xPath for one or
@@ -49,11 +50,11 @@ public class ListDiscoverer {
 
     private String url = "";
     private Document document = null;
-    private Crawler crawler = null;
+    private DocumentRetriever crawler = null;
 
     public ListDiscoverer() {
         paginationURLs = new HashSet<String>();
-        crawler = new Crawler();
+        crawler = new DocumentRetriever();
     }
 
     public Set<String> findPaginationURLs(Document document) {
@@ -253,7 +254,7 @@ public class ListDiscoverer {
         List<Node> linkNodes = XPathHelper.getNodes(document, paginationXPath);
         for (int i = 0; i < linkNodes.size(); i++) {
             String linkURL = linkNodes.get(i).getTextContent();
-            linkURL = Crawler.makeFullURL(url, linkURL);
+            linkURL = UrlHelper.makeFullURL(url, linkURL);
             if (linkURL.length() > 0) {
                 paginationURLs.add(linkURL);
             }
@@ -462,7 +463,7 @@ public class ListDiscoverer {
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, paginationXPath);
         for (int i = 0; i < linkNodes.size(); i++) {
             String linkURL = linkNodes.get(i).getTextContent();
-            linkURL = Crawler.makeFullURL(url, linkURL);
+            linkURL = UrlHelper.makeFullURL(url, linkURL);
             if (linkURL.length() > 0) {
                 paginationURLs.add(linkURL);
             }
@@ -520,7 +521,7 @@ public class ListDiscoverer {
     // TODO website55 not enough /html/body/div/div/table/tr/td/table/tbody/tr/td
     // TODO get text content with whitespace if <br /> (website33.html)
     public String discoverEntityXPath(String url) {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         this.url = url;
         document = c.getWebDocument(url);
         return discoverEntityXPath(document);
@@ -868,7 +869,7 @@ public class ListDiscoverer {
         }
 
         PageAnalyzer pa = new PageAnalyzer();
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         Document document = crawler.getWebDocument(url);
         System.out.println(pa.getTextByXPath(document, path));
 

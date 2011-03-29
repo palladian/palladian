@@ -19,13 +19,13 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
-import ws.palladian.web.Crawler;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.FeedClassifier;
 import ws.palladian.web.feeds.FeedPostStatistics;
@@ -909,7 +909,7 @@ public class FeedStatisticCreator {
 
             updateClassCounts.increment(feed.getActivityPattern());
 
-            uniqueDomains.add(Crawler.getDomain(feed.getFeedUrl()));
+            uniqueDomains.add(UrlHelper.getDomain(feed.getFeedUrl()));
         }
 
         StringBuilder stats = new StringBuilder();

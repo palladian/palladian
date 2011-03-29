@@ -8,12 +8,13 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.web.Crawler;
 import ws.palladian.web.CrawlerCallback;
+import ws.palladian.web.DocumentRetriever;
+import ws.palladian.web.Crawler;
 
 /**
  * This class is used as a callback to automatically detect news feeds on pages which are downloaded with the
- * {@link Crawler}. Discovered feed URLs are written into a text file. This is singleton as we have potentially multiple
+ * {@link DocumentRetriever}. Discovered feed URLs are written into a text file. This is singleton as we have potentially multiple
  * Crawler instances, but writing to the list must be coordinated. See feeds.conf for options concerning the discovery.
  * 
  * @author Philipp Katz
@@ -27,7 +28,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     /** The class logger. */
     // private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
-    /** The default file where the discovered feeds are written to. */ 
+    /** The default file where the discovered feeds are written to. */
     public static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
     /** Instance of FeedDiscovery to which we delegate for discovery. */
@@ -48,7 +49,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
 
     /**
      * 
-     * @return Singleton of {@link FeedDiscoveryCallback} which is shared among all {@link Crawler} instances.
+     * @return Singleton of {@link FeedDiscoveryCallback} which is shared among all {@link DocumentRetriever} instances.
      */
     public static FeedDiscoveryCallback getInstance() {
         return INSTANCE;
@@ -71,7 +72,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     public static void main(String[] args) {
         // FeedDiscoveryCallback.getInstance();
         Crawler c = new Crawler();
-        c.setFeedAutodiscovery(true);
+        c.getDocumentRetriever().setFeedAutodiscovery(true);
         c.setStopCount(1000000);
         c.startCrawl("http://www.dmoz.org/", false, true);
     }

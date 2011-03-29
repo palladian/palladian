@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.feeds.persistence.FeedStore;
 
 /**
@@ -72,7 +72,7 @@ public class FeedClassifier {
         }
 
         while (!threadPool.isTerminated()) {
-            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)
+            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES)
                     + "MB");
 
             try {
@@ -85,7 +85,7 @@ public class FeedClassifier {
         }
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
+                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + "MB");
     }
 
     /**
@@ -163,7 +163,7 @@ public class FeedClassifier {
         List<FeedItem> items = new ArrayList<FeedItem>();
 
         // check if feed is not accessible, try 5 times
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
 
         try {
 

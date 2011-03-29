@@ -21,7 +21,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * <p>
@@ -95,7 +95,7 @@ public class JRCCorpusConverter {
 
         new File(targetPath).mkdirs();
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         Document document = crawler.getXMLDocument(xmlFile.getPath());
 
         List<Node> textNodes = XPathHelper.getNodes(document, "//text/body//div[@type='body']/p");

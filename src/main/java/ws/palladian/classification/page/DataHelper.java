@@ -15,9 +15,10 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 final class DataHelper {
 
@@ -115,7 +116,7 @@ final class DataHelper {
         long t1 = System.currentTimeMillis();
 
         StringBuilder transformedString = new StringBuilder();
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         boolean useTopWorldCategories = false;
         if (!language.equalsIgnoreCase("english")) {
@@ -178,7 +179,7 @@ final class DataHelper {
 
                             if (linkNode.getAttributes().getNamedItem("r:resource") != null) {
                                 String link = linkNode.getAttributes().getNamedItem("r:resource").getTextContent();
-                                link = Crawler.getCleanURL(link);
+                                link = UrlHelper.getCleanURL(link);
                                 transformedString.append(link).append(" ").append(categoryString).append("\n");
                                 fileLines++;
                                 // System.out.println(fileLines);

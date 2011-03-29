@@ -32,7 +32,7 @@ import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 
 public class DataSetHandler{
@@ -511,7 +511,7 @@ public class DataSetHandler{
 	}
 	
 	private static void downloadUrls(String path){
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		
 		ArrayList<String> urls = loadURLsFromDB("urlset");
 		openConnection();
@@ -534,7 +534,7 @@ public class DataSetHandler{
 	}
 	private static String downloadUrl(String url){
 		
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		String path = "data/evaluation/daterecognition/webpages/";
 		String file = "webpage_" + String.valueOf(GregorianCalendar.getInstance().getTimeInMillis()) + ".html";
 		String storage = path + file;
@@ -546,7 +546,7 @@ public class DataSetHandler{
 	}
 	
 	private static Map<String, List<String>> getHeader(String url){
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		return crawler.getHeaders(url);
 	}
 	

@@ -13,7 +13,7 @@ import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public abstract class Evaluator {
 
@@ -30,7 +30,7 @@ public abstract class Evaluator {
 		int compare;
 		
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
 			dg.reset();

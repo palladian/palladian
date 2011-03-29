@@ -29,10 +29,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 // TODO move to preprocessing package
 //
@@ -104,7 +105,7 @@ public class PageContentExtractor {
     private DOMParser parser;
 
     /** We use the Crawler to take care of retrieving the input stream from remote locations. */
-    private Crawler crawler;
+    private DocumentRetriever crawler;
 
     /** The original document. */
     private Document document;
@@ -139,7 +140,7 @@ public class PageContentExtractor {
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
             parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
 
-            crawler = new Crawler();
+            crawler = new DocumentRetriever();
 
         } catch (SAXNotSupportedException e) {
             LOGGER.error("initialization of DOMParser failed", e);
@@ -232,7 +233,7 @@ public class PageContentExtractor {
      */
     public PageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
         try {
-            if (Crawler.isValidURL(documentLocation, false)) {
+            if (UrlHelper.isValidURL(documentLocation, false)) {
                 return setDocument(new URL(documentLocation));
             } else {
                 return setDocument(new File(documentLocation));

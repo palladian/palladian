@@ -11,9 +11,10 @@ import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
+import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * This class tries get dates in lined pages.<br>
@@ -56,8 +57,8 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
     private static ArrayList<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
         ArrayList<ReferenceDate> dates = new ArrayList<ReferenceDate>();
         if (document != null) {
-            Crawler c = new Crawler();
-            Iterator<String> linksTo = c.getLinks(document, true, true).iterator();
+            DocumentRetriever c = new DocumentRetriever();
+            Iterator<String> linksTo = PageAnalyzer.getLinks(document, true, true).iterator();
             DateGetter dateGetter = new DateGetter();
             dateGetter.setTechReference(false);
             dateGetter.setTechArchive(false);

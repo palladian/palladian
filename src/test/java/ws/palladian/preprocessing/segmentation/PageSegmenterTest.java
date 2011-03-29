@@ -9,9 +9,10 @@ import junit.framework.TestCase;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.preprocessing.segmentation.PageSegmenter;
 import ws.palladian.preprocessing.segmentation.Segment;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 
 /**
@@ -30,7 +31,7 @@ public class PageSegmenterTest extends TestCase {
         PageSegmenter seg = new PageSegmenter();
         seg.setDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1.html").getFile());
         
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         
         ArrayList<Document> simList = new ArrayList<Document>();
         simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich1.html").getFile()));
@@ -42,7 +43,7 @@ public class PageSegmenterTest extends TestCase {
     	
         seg.startPageSegmentation();
 
-        assertEquals("", Crawler.getDomain(""));
+        assertEquals("", UrlHelper.getDomain(""));
 
         assertEquals(407, seg.getAllSegments().size());
         assertEquals(276, seg.getSpecificSegments(Segment.Color.RED).size());

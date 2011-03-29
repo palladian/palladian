@@ -11,11 +11,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class XPathHelperTest {
 
-    Crawler crawler = new Crawler();
+    DocumentRetriever crawler = new DocumentRetriever();
 
     @Test
     public void testAddNamespaceToXPath() {

@@ -9,7 +9,7 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.GoogleDate;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * 
@@ -19,7 +19,7 @@ import ws.palladian.web.Crawler;
 public class GoogleDateGetter {
 
 	private String googleAPI ="http://www.google.de/search?q=";
-	private Crawler crawler = new  Crawler();
+	private DocumentRetriever crawler = new  DocumentRetriever();
 	private String url;
 	
 	private Document getGooglePage(){
