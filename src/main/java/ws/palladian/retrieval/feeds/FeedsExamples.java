@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.SourceRetrieverManager;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
 
 /**
  * Example class illustrating usage of most important feed classes.

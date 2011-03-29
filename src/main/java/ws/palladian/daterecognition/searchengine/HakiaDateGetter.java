@@ -9,9 +9,9 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SourceRetriever;
-import ws.palladian.retrieval.SourceRetrieverManager;
-import ws.palladian.retrieval.WebResult;
+import ws.palladian.retrieval.search.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
+import ws.palladian.retrieval.search.WebResult;
 
 public class HakiaDateGetter {
 	//private String hakiaAPI = "http://hakia.com/search?q=";

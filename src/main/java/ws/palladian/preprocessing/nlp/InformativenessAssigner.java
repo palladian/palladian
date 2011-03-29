@@ -19,8 +19,8 @@ import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DocumentRetrieverCallback;
-import ws.palladian.retrieval.SourceRetriever;
-import ws.palladian.retrieval.SourceRetrieverManager;
+import ws.palladian.retrieval.search.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
 
 public class InformativenessAssigner {
 

@@ -32,8 +32,8 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SourceRetriever;
-import ws.palladian.retrieval.SourceRetrieverManager;
+import ws.palladian.retrieval.search.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
 
 /**
  * FeedDiscovery works like the following:

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval;
+package ws.palladian.retrieval.search;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -38,6 +38,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.Source;
 
 /**
