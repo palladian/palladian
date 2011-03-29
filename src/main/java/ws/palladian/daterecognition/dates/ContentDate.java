@@ -33,6 +33,16 @@ public class ContentDate extends AbstractBodyDate {
     private int positionInDocument = -1;
 
     /**
+     * Related Structure-Date for this Content-Date.
+     */
+    private StructureDate structureDate = null;
+    
+    private boolean hasStrucutreDate = false;
+    private boolean inMetaDates = false;
+    private boolean inUrl = false;
+
+    
+    /**
      * 
      */
     public ContentDate() {
@@ -137,5 +147,50 @@ public class ContentDate extends AbstractBodyDate {
         }
 
     }
+
+	public void setStructureDate(StructureDate structureDate) {
+		this.structureDate = structureDate;
+		if(structureDate != null){
+			this.hasStrucutreDate = true;
+		}
+	}
+
+	public StructureDate getStructureDate() {
+		return structureDate;
+	}
+	
+	public String getStructureDateString(){
+		String string = "no structure date";
+		if(this.structureDate != null){
+			string = this.structureDate.getNormalizedDateString();
+		}
+		return string;
+	}
+
+	public void setHasStrucutreDate(boolean hasStrucutreDate) {
+		this.hasStrucutreDate = hasStrucutreDate;
+	}
+
+	public boolean hasStrucutreDate() {
+		return hasStrucutreDate;
+	}
+
+	public void setInMetaDates(boolean inMetaDates) {
+		this.inMetaDates = inMetaDates;
+	}
+
+	public boolean isInMetaDates() {
+		return inMetaDates;
+	}
+
+	public void setInUrl(boolean inUrl) {
+		this.inUrl = inUrl;
+	}
+
+	public boolean isInUrl() {
+		return inUrl;
+	}
+
+
 
 }

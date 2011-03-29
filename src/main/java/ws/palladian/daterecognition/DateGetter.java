@@ -95,7 +95,8 @@ public class DateGetter {
      * 
      * @return A array of ExtractedDates.
      */
-    public <T> ArrayList<T> getDate() {
+    @SuppressWarnings("unchecked")
+	public <T> ArrayList<T> getDate() {
 
         ArrayList<T> dates = new ArrayList<T>();
         Crawler crawler = new Crawler();

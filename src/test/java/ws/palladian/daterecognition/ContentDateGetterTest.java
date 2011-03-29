@@ -34,8 +34,9 @@ public class ContentDateGetterTest {
 		Crawler crawler = new Crawler();
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1292927290417.html";
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1294148721768.html";
-		String url = "data/evaluation/daterecognition/webpages/webpage_1294150309844.html"; //java out of memory: Java heap space
+		//String url = "data/evaluation/daterecognition/webpages/webpage_1294150309844.html"; //java out of memory: Java heap space
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1292928664726.html";
+		String url = "http://chicknet.blogspot.com/2007/05/outerxml-for-java.html"; //Dates in Strucutre
 		dg.setDocument(crawler.getWebDocument(url));
 		
 
@@ -72,7 +73,8 @@ public class ContentDateGetterTest {
 				System.out.println(" dist: " + date.get(ContentDate.DISTANCE_DATE_KEYWORD) + 
 						" datePos: " + date.get(ContentDate.DATEPOS_IN_DOC) + 
 						" date: " + date.getDateString() + 
-						" keyword: " + date.getKeyword());
+						" keyword: " + date.getKeyword() + 
+						" structDate: " + date.getStructureDateString());
 				cntKeywV2++;
 			}
 		}

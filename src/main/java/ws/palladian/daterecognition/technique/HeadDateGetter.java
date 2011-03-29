@@ -23,7 +23,8 @@ import ws.palladian.web.Crawler;
  */
 public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public ArrayList getDates() {
         ArrayList<HeadDate> result = new ArrayList<HeadDate>();
        if (document != null) {

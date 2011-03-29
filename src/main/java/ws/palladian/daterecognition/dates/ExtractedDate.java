@@ -411,11 +411,11 @@ public class ExtractedDate {
 
     public long getLongDate(){
     	int year = (this.year == -1) ? 0 : this.year;
-    	int month = (this.month == -1) ? 0 : this.month;
+    	int month = (this.month == -1) ? 0 : this.month - 1;
     	int day = (this.day == -1) ? 1 : this.day;
     	int hour = (this.hour == -1) ? 0 : this.hour;
     	int minute = (this.minute == -1) ? 0 : this.minute;
-    	int second = (this.second == -1) ? 0 : this.minute;
+    	int second = (this.second == -1) ? 0 : this.second;
     	
     	Calendar cal = new GregorianCalendar();
     	cal.set(year, month, day, hour, minute, second);

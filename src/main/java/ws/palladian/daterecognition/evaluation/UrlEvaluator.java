@@ -60,18 +60,18 @@ public class UrlEvaluator {
 		mergeUrlsets(in1, in2, out);
 		*/
 		System.out.println("pub");
-		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.URLEVAL, DataSetHandler.AWD));
 				
 		System.out.println("mod");
-		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.URLEVAL, DataSetHandler.AWD));
 		
 		
 	}

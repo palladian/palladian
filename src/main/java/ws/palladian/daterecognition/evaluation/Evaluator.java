@@ -96,28 +96,28 @@ public abstract class Evaluator {
 			//System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
 			
 			switch(compare){
-				case DataSetHandler.WF:
+				case DataSetHandler.AFW:
 					wf++;
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					break;
-				case DataSetHandler.WNF:
+				case DataSetHandler.ANF:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					wnf++;
 					break;
-				case DataSetHandler.FF:
+				case DataSetHandler.AWD:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					ff++;
 					break;
-				case DataSetHandler.RNF:
+				case DataSetHandler.ARD:
 					rnf++;
 					break;
-				case DataSetHandler.RF:
+				case DataSetHandler.AFR:
 					rf++;
 					break;
 					

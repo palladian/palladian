@@ -1,6 +1,7 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -21,8 +22,12 @@ import ws.palladian.daterecognition.dates.StructureDate;
  */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
+	private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
+	private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>(); 
+	private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
+	
     @Override
-    public ArrayList getDates() {
+    public ArrayList<StructureDate> getDates() {
         ArrayList<StructureDate> result = new ArrayList<StructureDate>();
         if (document != null) {
             result = getStructureDate(document);
@@ -36,7 +41,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param document Document to be searched.
      * @return List of dates.
      */
-    private static ArrayList<StructureDate> getStructureDate(Document document) {
+    private ArrayList<StructureDate> getStructureDate(Document document) {
 
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
 
@@ -56,7 +61,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param document Document to be searched.
      * @return List of dates.
      */
-    private static ArrayList<StructureDate> getBodyStructureDates(Document document) {
+    private ArrayList<StructureDate> getBodyStructureDates(Document document) {
         final ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
         final NodeList bodyNodeList = document.getElementsByTagName("body");
         if (bodyNodeList != null) {
@@ -79,7 +84,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param depth Depth of hierarchy the node is in.
      * @return
      */
-    private static ArrayList<StructureDate> getChildrenDates(final Node node, int depth) {
+    private ArrayList<StructureDate> getChildrenDates(final Node node, int depth) {
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
         StructureDate date = null;
 
@@ -121,9 +126,16 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param node to check
      * @return A ExtractedDate with Context.
      */
-    private static StructureDate checkForDate(final Node node) {
+    private StructureDate checkForDate(final Node node) {
 
-        StructureDate date = null;
+    	StructureDate date = null;
+    	/*
+    	if(this.lookedUpNodeMap.get(node) == null){
+    		
+    	}else{
+    		date = this.structDateMap.get(node);
+    	}
+    	*/
         NamedNodeMap tag = node.getAttributes();
         if (tag != null) {
             String keyword = null;

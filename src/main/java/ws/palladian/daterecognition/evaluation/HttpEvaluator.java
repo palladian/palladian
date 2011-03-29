@@ -55,19 +55,19 @@ public class HttpEvaluator {
 		
 		String pub = "pub0";
 		System.out.println(pub);
-		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.AWD));
 				
 		String mod = "mod0";
 		System.out.println(mod);
-		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.RF));
-		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.RNF));
-		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.WF));
-		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.WNF));
-		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.FF));
+		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.AWD));
 		
 	}
 
@@ -122,19 +122,19 @@ public class HttpEvaluator {
 			
 			System.out.print(compare + " httpDate:" + tempDateString + " - " + pub_mod + ":" + e.getValue().get(pub_mod));
 			switch(compare){
-				case DataSetHandler.WF:
+				case DataSetHandler.AFW:
 					wf++;
 					break;
-				case DataSetHandler.WNF:
+				case DataSetHandler.ANF:
 					wnf++;
 					break;
-				case DataSetHandler.FF:
+				case DataSetHandler.AWD:
 					ff++;
 					break;
-				case DataSetHandler.RNF:
+				case DataSetHandler.ARD:
 					rnf++;
 					break;
-				case DataSetHandler.RF:
+				case DataSetHandler.AFR:
 					rf++;
 					break;
 					

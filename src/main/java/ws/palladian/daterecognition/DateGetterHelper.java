@@ -26,7 +26,7 @@ public final class DateGetterHelper {
      * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
      * 
      * @param dateString a date to match.
-     * @return The found format, defined in RegExp constants. <br>
+     * @return The found date, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
     public static ExtractedDate findDate(String dateString) {
@@ -40,7 +40,7 @@ public final class DateGetterHelper {
      * @param dateString a date to match.
      * @param regExpArray regular expressions of dates to match. If this is null {@link RegExp}.getAllRegExp will be
      *            called.
-     * @return The found format, defined in RegExp constants. <br>
+     * @return The found date, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
     public static ExtractedDate findDate(final String dateString, Object[] regExpArray) {
@@ -125,6 +125,51 @@ public final class DateGetterHelper {
     	return dates;
     }
   
+    /**
+     * Find the first date in text. <br>
+     * @param text
+     * @param matcher
+     * @param regExps
+     * @return
+     */
+    public static ExtractedDate findDate(String text, Matcher[] matcher, Object[] regExps) {
+    	String tempText = text;
+    	ExtractedDate date = null;    	
+    	int start;
+    	int end;
+    	for(int i = 0; i < matcher.length; i++){
+    		matcher[i].reset(tempText);
+    		if(matcher[i].find()){
+				boolean hasPrePostNum = false;
+				start = matcher[i].start();
+				end = matcher[i].end();
+				if (start > 0) {
+	                String temp = tempText.substring(start - 1, start);
+	                try {
+	                    Integer.parseInt(temp);
+	                    hasPrePostNum = true;
+	                } catch (NumberFormatException e) {
+	                }
+	            }
+	            if (end < tempText.length()) {
+	                String temp = tempText.substring(end, end + 1);
+	                try {
+	                    Integer.parseInt(temp);
+	                    hasPrePostNum = true;
+	                } catch (NumberFormatException e) {
+	                }
+	            }
+	            if (!hasPrePostNum) {
+	            	String dateString = tempText.substring(start, end);
+	            	date = new ExtractedDate(dateString,((String[])regExps[i])[1]);
+	                break;
+	            }
+	            
+    		}
+    	}
+    	return date;
+    }
+    
     /**
      * Returns a string of whitespace as long as the parameter string.
      * 
@@ -238,6 +283,8 @@ public final class DateGetterHelper {
         return date;
     }
 
+    
+    
     /**
      * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
      * But with condition that keyword is no part of a word. <br>
