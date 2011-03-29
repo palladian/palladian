@@ -20,6 +20,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.DatasetCreatorInterface;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -27,11 +28,10 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.DownloadFilter;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
-import ws.palladian.web.URLDownloader;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.
@@ -107,7 +107,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
 
         LOGGER.info("created " + seedFiles.length + " datasets in " + stopWatch.getElapsedTimeString()
-                + ", total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
+                + ", total traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + "MB");
     }
 
     /**
@@ -142,10 +142,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StringBuilder meta = new StringBuilder();
 
         meta.append("Start Date of Creation: ")
-                .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
+        .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
-        meta.append("Total Generated Traffic: ").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES))
-                .append("MB\n");
+        meta.append("Total Generated Traffic: ").append(DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES))
+        .append("MB\n");
         meta.append("Search Engine used: ").append(SourceRetrieverManager.getName(getSourceAPI())).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
@@ -158,8 +158,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
             }
             Double averageMentionsPerEntity = (Double) object[2];
             meta.append("  Concept: ").append(conceptName).append("\n  Entities with few mentions: ")
-                    .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
-                    .append(averageMentionsPerEntity).append("\n\n");
+            .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
+            .append(averageMentionsPerEntity).append("\n\n");
         }
 
         meta.append("Concepts Searched (").append(conceptsSearched.size()).append("):\n");
@@ -269,9 +269,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         StopWatch stopWatch = new StopWatch();
 
-        URLDownloader urlDownloader = new URLDownloader();
-        urlDownloader.getCrawler().setUseCompression(false);
-        urlDownloader.getCrawler().setDownloadFilter(downloadFilter);
+        DocumentRetriever urlDownloader = new DocumentRetriever();
+        urlDownloader.setUseCompression(false);
+        urlDownloader.setDownloadFilter(downloadFilter);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
         // remove first line which is not a seed
@@ -298,7 +298,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             LOGGER.info("start processing seed entity " + seedEntity + " (" + seedFileName + ")");
 
             seedFileCopy.append(seedEntity).append("###")
-                    .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
+            .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity);
             urlDownloader.add(urls);
@@ -374,7 +374,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         String webPageText = "";
         try {
-            webPageContent = Crawler.documentToString(webPage);
+            webPageContent = DocumentRetriever.documentToString(webPage);
             // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
             webPageText = new PageSentenceExtractor().setDocument(webPage).getMainContentText();
         } catch (Exception e) {
@@ -392,12 +392,12 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
                 String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
                 String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                        + "(?=\\s)";
+                + "(?=\\s)";
 
                 // mark up html
                 webPageContent = webPageContent.replaceAll(searchRegexp,
                         "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">" + seedEntity
-                                + "</" + conceptName.toUpperCase() + ">");
+                        + "</" + conceptName.toUpperCase() + ">");
 
                 // mark up text
                 webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity
@@ -417,7 +417,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageContent.length() > 10) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                            + StringHelper.makeSafeName(Crawler.getCleanURL(webPage.getDocumentURI()), 30) + ".html",
+                    + StringHelper.makeSafeName(UrlHelper.getCleanURL(webPage.getDocumentURI()), 30) + ".html",
                     webPageContent);
 
             LOGGER.debug("saved html file");
@@ -431,7 +431,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             if (webPageText.length() > 10) {
 
                 String filePath = getDataSetLocation() + seedFileName + "/"
-                        + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+                + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
                 FileHelper.writeToFile(filePath, webPageText);
 
                 FileHelper.removeDuplicateLines(filePath, filePath);
@@ -474,7 +474,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
                     if (cleansedText.length() > 10) {
 
                         String filePath = targetLocation + seedFileName + "/"
-                                + FileHelper.getFileName(taggedFile.getPath()) + ".xml";
+                        + FileHelper.getFileName(taggedFile.getPath()) + ".xml";
                         FileHelper.writeToFile(filePath, cleansedText);
 
                         FileHelper.removeDuplicateLines(filePath, filePath);
@@ -598,7 +598,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
                 counter++;
                 content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / "
-                        + conceptName + ") -----------------------------------------------\n\n" + content;
+                + conceptName + ") -----------------------------------------------\n\n" + content;
 
                 try {
                     combinedFile.write(content);
@@ -625,7 +625,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (String combinedFilePath : combinedFilePaths) {
             String content = FileHelper.readFileToString(combinedFilePath);
             content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------"
-                    + content;
+                + content;
             try {
                 combinedFile.write(content);
                 combinedFile.flush();
@@ -707,9 +707,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
         DatasetCreator.cleanDataset("H:\\PalladianData\\Datasets\\wwwner\\ner\\", "www",
-                "data/knowledgeBase/seedEntities/");
+        "data/knowledgeBase/seedEntities/");
         DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/",
-                "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
+        "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
         System.exit(0);
         DatasetCreator datasetCreator = new DatasetCreator("www");
         // datasetCreator.setDataSetLocation("C:\\Safe\\");

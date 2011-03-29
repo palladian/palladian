@@ -23,8 +23,8 @@ import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.date.RatedDateComparator;
-import ws.palladian.web.Crawler;
 import ws.palladian.web.CrawlerCallback;
+import ws.palladian.web.Crawler;
 
 public class testCrawler {
 
@@ -246,20 +246,27 @@ public class testCrawler {
                     }
                 } else {
                     String[] parts = line.split(" ");
-                    if (pageDateIndex != -1)
+                    if (pageDateIndex != -1) {
                         webDate.add(parts[pageDateIndex]);
-                    if (googleDateIndex != -1)
+                    }
+                    if (googleDateIndex != -1) {
                         googleDate.add(parts[googleDateIndex]);
-                    if (myDateIndex != -1)
+                    }
+                    if (myDateIndex != -1) {
                         myDate.add(parts[myDateIndex]);
-                    if (googleErrorIndex != -1)
+                    }
+                    if (googleErrorIndex != -1) {
                         googleAnno.add(parts[googleErrorIndex]);
-                    if (myErrorIndex != -1)
+                    }
+                    if (myErrorIndex != -1) {
                         myAnno.add(parts[myErrorIndex]);
-                    if (urlIndex != -1)
+                    }
+                    if (urlIndex != -1) {
                         url.add(parts[urlIndex]);
-                    if (techIndex != -1)
+                    }
+                    if (techIndex != -1) {
                         technique.add(parts[techIndex]);
+                    }
                     System.out.println(parts[urlIndex]);
                 }
                 i++;
@@ -290,11 +297,11 @@ public class testCrawler {
             }
             br.close();
             fr.close();
-            
+
         }  catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
 
@@ -337,7 +344,7 @@ public class testCrawler {
         for (int i = begin; i <= end; i++) {
             File file = new File(
                     "data/test/webPages/dateExtraction/tests/linkSet/"
-                            + input.replaceAll(".txt", i + ".txt"));
+                    + input.replaceAll(".txt", i + ".txt"));
             try {
                 FileReader fr = new FileReader(file);
                 BufferedReader br = new BufferedReader(fr);
@@ -357,7 +364,7 @@ public class testCrawler {
                 System.out.println(index);
                 System.out.println(preLastLine + lastLine);
                 stats.add(preLastLine + lastLine);
-                
+
                 br.close();
                 fr.close();
             } catch (Exception ex) {
@@ -439,7 +446,7 @@ public class testCrawler {
 
     public static void checkLinkSet() {
         File file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
+        "data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
         HashMap<String, Integer> urlMap = new HashMap<String, Integer>();
         try {
             FileReader fr = new FileReader(file);
@@ -460,7 +467,7 @@ public class testCrawler {
             try {
                 file = new File(
                         "data/test/webPages/dateExtraction/tests/linkSet/url_einzeln"
-                                + count + ".txt");
+                        + count + ".txt");
 
                 FileWriter fw = new FileWriter(file, true);
                 BufferedWriter bw = new BufferedWriter(fw);
@@ -508,7 +515,7 @@ public class testCrawler {
                     if (e.getValue() == 1) {
 
                         File file = new File(
-                                "data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
+                        "data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
                         synchronized (file) {
                             try {
                                 FileWriter fw = new FileWriter(file, true);
@@ -528,7 +535,7 @@ public class testCrawler {
 
         Crawler c = new Crawler();
         c.setMaxThreads(500);
-        c.addCrawlerCallback(cb);
+        c.getDocumentRetriever().addCrawlerCallback(cb);
 
         String url = "http://www.basicthinking.de/blog/";
 
@@ -556,7 +563,7 @@ public class testCrawler {
 
         File file = new File(
                 "data/test/webPages/dateExtraction/tests/linkSet/"
-                        + input);
+                + input);
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -568,10 +575,10 @@ public class testCrawler {
                 urls.add(line);
             }
             System.out.println(urls.size());
-            
+
             br.close();
             fr.close();
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -592,7 +599,7 @@ public class testCrawler {
         String outputString;
         File outfile = new File(
                 "data/test/webPages/dateExtraction/tests/linkSet/"
-                        + output);
+                + output);
         try {
             outfile.delete();
         } catch (Exception ex) {
@@ -879,7 +886,7 @@ public class testCrawler {
 
     public static void merge() {
         File file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
+        "data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -895,7 +902,7 @@ public class testCrawler {
         }
 
         file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
+        "data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
         ArrayList<String> dates = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -911,7 +918,7 @@ public class testCrawler {
         }
 
         file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
+        "data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
 
         try {
             FileWriter fr = new FileWriter(file);
@@ -932,7 +939,7 @@ public class testCrawler {
     public static void evaluateHTTP(String input, String output) {
         File file = new File(
                 "data/test/webPages/dateExtraction/tests/linkSet/"
-                        + input);
+                + input);
 
         HashMap<String, Integer> urls = new HashMap<String, Integer>();
         try {
@@ -943,7 +950,7 @@ public class testCrawler {
             while ((line = br.readLine()) != null) {
                 urls.put(line, 0);
             }
-            
+
             br.close();
             fr.close();
         } catch (Exception ex) {
@@ -982,7 +989,7 @@ public class testCrawler {
 
         File outputfile = new File(
                 "data/test/webPages/dateExtraction/tests/linkSet/"
-                        + output);
+                + output);
 
         try {
             FileWriter fw = new FileWriter(outputfile);

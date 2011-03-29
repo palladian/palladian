@@ -35,11 +35,12 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
 
@@ -180,7 +181,7 @@ public class ClassifierManager {
         sr.setResultCount(50);
         sr.setLanguage(SourceRetriever.LANGUAGE_GERMAN);
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
 
         StringBuilder fileIndex = new StringBuilder();
         StringBuilder urlIndex = new StringBuilder();
@@ -193,14 +194,14 @@ public class ClassifierManager {
                 List<String> urls = sr.getURLs(keyword);
 
                 for (String url : urls) {
-                    String shortURLName = StringHelper.makeSafeName(Crawler.getCleanURL(url));
+                    String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanURL(url));
                     String cleanURLName = "webpage" + fileCounter++ + "_"
                     + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
                     if (crawler.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
                         fileIndex.append(cleanURLName).append(" ").append(category.getKey()).append("\n");
-                        urlIndex.append(Crawler.getCleanURL(url)).append(" ").append(category.getKey()).append("\n");
+                        urlIndex.append(UrlHelper.getCleanURL(url)).append(" ").append(category.getKey()).append("\n");
                         System.out.println("Saved and indexed " + url + " to " + cleanURLName);
                     } else {
                         System.out.println("Failed to save from page from " + url);

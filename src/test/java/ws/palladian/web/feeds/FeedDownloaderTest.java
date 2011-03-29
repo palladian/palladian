@@ -18,7 +18,7 @@ import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class FeedDownloaderTest {
 
@@ -370,7 +370,7 @@ public class FeedDownloaderTest {
 
         List<String> file = FileHelper.readFileToArray("data/_feeds_errors.txt");
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         NumberFormat format = new DecimalFormat("000");
         int count = 0;
 

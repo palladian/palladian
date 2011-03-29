@@ -130,7 +130,7 @@ public class SourceRetriever {
         }
 
         ArrayList<ExtractedImage> images = new ArrayList<ExtractedImage>();
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         int urlsCollected = 0;
         int grabSize = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
@@ -321,7 +321,7 @@ public class SourceRetriever {
     public final int getHitCount(String searchQuery) {
         int hitCount = 0;
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
 
         if (getSource() == SourceRetrieverManager.GOOGLE) {
 
@@ -656,7 +656,7 @@ public class SourceRetriever {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         // set the preferred language
         // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
@@ -742,7 +742,7 @@ public class SourceRetriever {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         // set the preferred language
         // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
@@ -833,7 +833,7 @@ public class SourceRetriever {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         // set the preferred language (Common request fields)
         String languageString = "en-us";
@@ -1052,7 +1052,7 @@ public class SourceRetriever {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         // set the preferred language
         // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
@@ -1137,7 +1137,7 @@ public class SourceRetriever {
         // TODO: implement TextRunner
         String xPath = "//div[@class='lin']/a";
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         Document document = null;
 
         String sourceURL = "http://turingc.cs.washington.edu:7125/TextRunner/cgi-bin/ds-g1b.pl?query=" + searchQuery;

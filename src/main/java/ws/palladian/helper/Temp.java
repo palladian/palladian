@@ -29,7 +29,7 @@ import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 import ws.palladian.tagging.StringTagger;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.feeds.Feed;
 import ws.palladian.web.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.web.feeds.persistence.FeedDatabase;
@@ -205,13 +205,13 @@ public class Temp {
         String fax = ""; // 10/10 (regex)
         String email = ""; //
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         PageAnalyzer pa = new PageAnalyzer();
 
         Document webPage = crawler.getWebDocument(imprintURL);
         String rawMarkup = HTMLHelper.documentToHTMLString(webPage);
         // String plainContent = Crawler.extractBodyContent(rawMarkup, true);
-        String plainContent = Crawler.extractBodyContent(webPage);
+        String plainContent = PageAnalyzer.extractBodyContent(webPage);
         // plainContent = PageAnalyzer.getReadableTextDump(webPage);
 
         // search for company name

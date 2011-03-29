@@ -14,7 +14,7 @@ import ws.palladian.daterecognition.technique.ReferenceDateGetter;
 import ws.palladian.daterecognition.technique.StructureDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.collection.ArrayHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * This class is responsible for rating dates. <br>
@@ -99,7 +99,7 @@ public class DateGetter {
 	public <T> ArrayList<T> getDate() {
 
         ArrayList<T> dates = new ArrayList<T>();
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
 
         if (url != null) {
             if (tech_HTTP) {

@@ -14,7 +14,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The classifier is an abstract class that provides basic methods used by concrete classifiers.
@@ -122,7 +122,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
      * @return True if it is considered a forum, false otherwise.
      */
     public static boolean isForum(String url) {
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         return isForum(crawler.getWebDocument(url));
     }
 
@@ -178,7 +178,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
      * @return True if the page has FAQ, false otherwise.
      */
     public static boolean isFAQ(String url) {
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         return isFAQ(crawler.getWebDocument(url));
     }
 

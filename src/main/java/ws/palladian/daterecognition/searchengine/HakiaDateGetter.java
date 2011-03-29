@@ -8,7 +8,7 @@ import org.w3c.dom.NodeList;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
 import ws.palladian.web.WebResult;
@@ -17,7 +17,7 @@ public class HakiaDateGetter {
 	//private String hakiaAPI = "http://hakia.com/search?q=";
 	private String url;
 	private String title = null;
-	private Crawler crawler = new Crawler();
+	private DocumentRetriever crawler = new DocumentRetriever();
 	
 	private void setTitle(){
 		Document doc = crawler.getWebDocument(url);

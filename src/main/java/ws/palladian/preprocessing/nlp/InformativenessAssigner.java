@@ -17,11 +17,10 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
+import ws.palladian.web.DocumentRetrieverCallback;
 import ws.palladian.web.SourceRetriever;
 import ws.palladian.web.SourceRetrieverManager;
-import ws.palladian.web.URLDownloader;
-import ws.palladian.web.URLDownloader.URLDownloaderCallback;
 
 public class InformativenessAssigner {
 
@@ -129,9 +128,9 @@ public class InformativenessAssigner {
         }
 
         final PageSentenceExtractor pse = new PageSentenceExtractor();
-        final Crawler crawler = new Crawler();
+        final DocumentRetriever crawler = new DocumentRetriever();
 
-        URLDownloaderCallback callback = new URLDownloaderCallback() {
+        DocumentRetrieverCallback callback = new DocumentRetrieverCallback() {
 
             @Override
             public void finished(String url, InputStream inputStream) {
@@ -141,7 +140,7 @@ public class InformativenessAssigner {
             }
         };
 
-        URLDownloader ud = new URLDownloader();
+        DocumentRetriever ud = new DocumentRetriever();
         ud.setMaxFails(20000);
         ud.add(urls);
         ud.start(callback);

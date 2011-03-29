@@ -13,7 +13,7 @@ import org.junit.Test;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class ContentDateGetterTest {
 
@@ -31,7 +31,7 @@ public class ContentDateGetterTest {
 	@Test
 	public void testGetDateTime(){
 		ContentDateGetter dg = new ContentDateGetter();
-		Crawler crawler = new Crawler();
+		DocumentRetriever crawler = new DocumentRetriever();
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1292927290417.html";
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1294148721768.html";
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1294150309844.html"; //java out of memory: Java heap space

@@ -18,7 +18,7 @@ import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class DateGetterHelperTest {
 
@@ -620,7 +620,7 @@ public class DateGetterHelperTest {
         if (AllTests.ALL_TESTS) {
             String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
 
-            Crawler c = new Crawler();
+            DocumentRetriever c = new DocumentRetriever();
             c.setDocument(url);
             Document document = c.getDocument();
 
@@ -645,7 +645,7 @@ public class DateGetterHelperTest {
             compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
             compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
 
-            Crawler c = new Crawler();
+            DocumentRetriever c = new DocumentRetriever();
             c.setDocument(url);
             Document document = c.getDocument();
             HeadDateGetter hdg = new HeadDateGetter();

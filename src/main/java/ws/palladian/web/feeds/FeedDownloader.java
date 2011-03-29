@@ -18,14 +18,14 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractor;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
+import ws.palladian.web.DocumentRetrieverCallback;
 import ws.palladian.web.HeaderInformation;
-import ws.palladian.web.URLDownloader;
-import ws.palladian.web.URLDownloader.URLDownloaderCallback;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -36,7 +36,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * The FeedDownloader is responsible for fetching RSS and Atom feeds. We use Palladians {@link Crawler} for downloading
+ * The FeedDownloader is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for downloading
  * the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for parsing
  * problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items, to fetch
  * additional content.
@@ -53,7 +53,7 @@ public class FeedDownloader {
     private static final Logger LOGGER = Logger.getLogger(FeedDownloader.class);
 
     /** Used for all downloading purposes. */
-    private Crawler crawler = new Crawler();
+    private DocumentRetriever crawler = new DocumentRetriever();
 
     /**
      * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
@@ -132,7 +132,7 @@ public class FeedDownloader {
      * @throws FeedDownloaderException
      */
     public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
-            throws FeedDownloaderException {
+    throws FeedDownloaderException {
 
         StopWatch sw = new StopWatch();
 
@@ -181,7 +181,7 @@ public class FeedDownloader {
     public void scrapePages(List<FeedItem> feedItems) {
         LOGGER.debug("downloading " + feedItems.size() + " pages");
 
-        URLDownloader downloader = new URLDownloader();
+        DocumentRetriever downloader = new DocumentRetriever();
         downloader.setMaxThreads(5);
 
         final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
@@ -196,7 +196,7 @@ public class FeedDownloader {
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
             boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-                    || fileType.equals("pdf");
+            || fileType.equals("pdf");
             if (ignore) {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
@@ -205,7 +205,7 @@ public class FeedDownloader {
             }
         }
 
-        downloader.start(new URLDownloaderCallback() {
+        downloader.start(new DocumentRetrieverCallback() {
             @Override
             public void finished(String url, InputStream inputStream) {
                 try {
@@ -362,7 +362,7 @@ public class FeedDownloader {
         String entryLink = syndEntry.getLink();
         if (entryLink != null && entryLink.length() > 0) {
             entryLink = entryLink.trim();
-            entryLink = Crawler.makeFullURL(syndFeed.getLink(), entryLink);
+            entryLink = UrlHelper.makeFullURL(syndFeed.getLink(), entryLink);
         }
         return entryLink;
     }
@@ -566,7 +566,7 @@ public class FeedDownloader {
      * @throws FeedDownloaderException
      */
     private Document downloadFeedDocument(String feedUrl, HeaderInformation headerInformation)
-            throws FeedDownloaderException {
+    throws FeedDownloaderException {
 
         Document feedDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
         if (feedDocument == null) {

@@ -14,10 +14,11 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import ws.palladian.web.resources.WebImage;
 
 /**
@@ -42,7 +43,7 @@ public class PageSentenceExtractor {
     private Document document;
     private Node mainContentNode;
 
-    private Crawler crawler;
+    private DocumentRetriever crawler;
 
     private List<String> sentences = new ArrayList<String>();
     private String mainContentHTML = "";
@@ -51,7 +52,7 @@ public class PageSentenceExtractor {
     private List<WebImage> imageURLs;
 
     public PageSentenceExtractor() {
-        crawler = new Crawler();
+        crawler = new DocumentRetriever();
     }
 
     public PageSentenceExtractor setDocument(String url) {
@@ -66,11 +67,11 @@ public class PageSentenceExtractor {
         return this;
     }
 
-    public Crawler getCrawler() {
+    public DocumentRetriever getCrawler() {
         return crawler;
     }
 
-    public void setCrawler(Crawler crawler) {
+    public void setCrawler(DocumentRetriever crawler) {
         this.crawler = crawler;
     }
 
@@ -174,7 +175,7 @@ public class PageSentenceExtractor {
 
                 if (!imageURL.startsWith("http")) {
                     if (imageURL.startsWith("/")) {
-                        imageURL = Crawler.getDomain(getDocument().getDocumentURI()) + imageURL;
+                        imageURL = UrlHelper.getDomain(getDocument().getDocumentURI()) + imageURL;
                     } else {
                         imageURL = getDocument().getDocumentURI() + imageURL;
                     }

@@ -17,7 +17,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ExtractorBase;
 
@@ -48,7 +48,7 @@ public class ContentExtractionEvaluation {
     private final String BASE_PATH;
 
     /** Use the Crawler to retrieve documents. */
-    private Crawler crawler = new Crawler();
+    private DocumentRetriever crawler = new DocumentRetriever();
 
     /**
      * Whether only a comparison of the main content block should be done. If false, also user generated content is

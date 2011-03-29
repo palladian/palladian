@@ -2,6 +2,8 @@ package ws.palladian.web;
 
 import junit.framework.TestCase;
 import ws.palladian.control.AllTests;
+import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 
 /**
@@ -18,38 +20,38 @@ public class CrawlerTest extends TestCase {
     }
 
     public void testGetCleanURL() {
-        assertEquals("amazon.com/", Crawler.getCleanURL("http://www.amazon.com/"));
-        assertEquals("amazon.com/", Crawler.getCleanURL("http://amazon.com/"));
-        assertEquals("amazon.com/", Crawler.getCleanURL("https://www.amazon.com/"));
-        assertEquals("amazon.com", Crawler.getCleanURL("https://amazon.com"));
-        assertEquals("amazon.com/", Crawler.getCleanURL("www.amazon.com/"));
-        assertEquals("amazon.com/", Crawler.getCleanURL("amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanURL("http://www.amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanURL("http://amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanURL("https://www.amazon.com/"));
+        assertEquals("amazon.com", UrlHelper.getCleanURL("https://amazon.com"));
+        assertEquals("amazon.com/", UrlHelper.getCleanURL("www.amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanURL("amazon.com/"));
     }
 
     public void testGetDomain() {
         // System.out.println(crawler.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html",
         // false));
         assertEquals("http://www.flashdevices.net",
-                Crawler.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", true));
+                UrlHelper.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", true));
         assertEquals("www.flashdevices.net",
-                Crawler.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", false));
+                UrlHelper.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", false));
 
         assertEquals("http://blog.wired.com",
-                Crawler.getDomain("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html", true));
+                UrlHelper.getDomain("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html", true));
         assertEquals("blog.wired.com",
-                Crawler.getDomain("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html", false));
+                UrlHelper.getDomain("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html", false));
 
         // added by Philipp
-        assertEquals("https://example.com", Crawler.getDomain("https://example.com/index.html"));
-        assertEquals("", Crawler.getDomain(""));
-        assertEquals("", Crawler.getDomain(null));
-        assertEquals("", Crawler.getDomain("file:///test.html")); // TODO return localhost here?
-        assertEquals("localhost", Crawler.getDomain("file://localhost/test.html", false));
+        assertEquals("https://example.com", UrlHelper.getDomain("https://example.com/index.html"));
+        assertEquals("", UrlHelper.getDomain(""));
+        assertEquals("", UrlHelper.getDomain(null));
+        assertEquals("", UrlHelper.getDomain("file:///test.html")); // TODO return localhost here?
+        assertEquals("localhost", UrlHelper.getDomain("file://localhost/test.html", false));
     }
 
     public void testGetSiblingPage() {
         if (AllTests.ALL_TESTS) {
-            Crawler crawler = new Crawler();
+            DocumentRetriever crawler = new DocumentRetriever();
             assertEquals("http://www.cineplex.com/Movies/AllMovies.aspx?sort=2",
                     crawler.getSiblingPage("http://www.cineplex.com/Movies/AllMovies.aspx"));
             assertEquals("http://www.flashdevices.net/2008/02/",
@@ -68,43 +70,45 @@ public class CrawlerTest extends TestCase {
     }
 
     public void testLinkHandling() {
-        Crawler crawler = new Crawler();
-        crawler.setDocument(CrawlerTest.class.getResource("/pageContentExtractor/test9.html").getFile());
-        assertEquals("http://www.example.com/test.html", crawler.getLinks(true, true).iterator().next());
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.setDocument(CrawlerTest.class.getResource("/pageContentExtractor/test9.html").getFile());
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(documentRetriever.getDocument(), true, true)
+                .iterator().next());
 
-        crawler.setDocument(CrawlerTest.class.getResource("/pageContentExtractor/test10.html").getFile());
-        assertEquals("http://www.example.com/test.html", crawler.getLinks(true, true).iterator().next());
+        documentRetriever.setDocument(CrawlerTest.class.getResource("/pageContentExtractor/test10.html").getFile());
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(documentRetriever.getDocument(), true, true)
+                .iterator().next());
     }
 
     public void testMakeFullURL() {
 
-        assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "", "page.html"));
-        assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", null, "page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullURL("http://www.xyz.de", "", "page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullURL("http://www.xyz.de", null, "page.html"));
         assertEquals("http://www.xyz.de/page.html",
-                Crawler.makeFullURL("http://www.xyz.de/index.html", "", "page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "", "page.html"));
         assertEquals("http://www.xyz.de/page.html",
-                Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "/page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory", "/page.html"));
         assertEquals("http://www.xyz.de/directory/page.html",
-                Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "./page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory", "./page.html"));
         assertEquals("http://www.xyz.de/directory/page.html",
-                Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
 
         assertEquals("http://www.abc.de/page.html",
-                Crawler.makeFullURL("http://www.xyz.de", "", "http://www.abc.de/page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de", "", "http://www.abc.de/page.html"));
         assertEquals("http://www.abc.de/page.html",
-                Crawler.makeFullURL("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
+                UrlHelper.makeFullURL("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
 
         assertEquals("http://www.example.com/page.html",
-                Crawler.makeFullURL("/some/file/path.html", "http://www.example.com/page.html"));
-        assertEquals("", Crawler.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
+                UrlHelper.makeFullURL("/some/file/path.html", "http://www.example.com/page.html"));
+        assertEquals("", UrlHelper.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
 
         assertEquals("http://www.example.com/page.html",
-                Crawler.makeFullURL(null, null, "http://www.example.com/page.html"));
+                UrlHelper.makeFullURL(null, null, "http://www.example.com/page.html"));
 
         // when no linkUrl is supplied, we cannot determine the full URL, so just return an empty String.
-        assertEquals("", Crawler.makeFullURL(null, "http://www.example.com", null));
-        assertEquals("", Crawler.makeFullURL("http://www.example.com", null, null));
-        assertEquals("", Crawler.makeFullURL(null, null, "/page.html"));
+        assertEquals("", UrlHelper.makeFullURL(null, "http://www.example.com", null));
+        assertEquals("", UrlHelper.makeFullURL("http://www.example.com", null, null));
+        assertEquals("", UrlHelper.makeFullURL(null, null, "/page.html"));
 
     }
 
@@ -125,7 +129,7 @@ public class CrawlerTest extends TestCase {
      */
     public void testNekoWorkarounds() {
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
@@ -151,7 +155,7 @@ public class CrawlerTest extends TestCase {
 
     public void testParseXml() {
 
-        Crawler crawler = new Crawler();
+        DocumentRetriever crawler = new DocumentRetriever();
 
         // parse errors will yield in a null return
         assertNotNull(crawler

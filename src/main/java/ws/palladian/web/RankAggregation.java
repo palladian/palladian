@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -72,7 +73,7 @@ public class RankAggregation {
         for (List<WebResult> list : lists) {
             for (WebResult wr : list) {
                 // normalize url
-                String url = Crawler.getCleanURL(wr.getUrl());
+                String url = UrlHelper.getCleanURL(wr.getUrl());
 
                 // initialize
                 if (!webresults.containsKey(url)) {

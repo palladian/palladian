@@ -10,10 +10,12 @@ import org.w3c.dom.Document;
 
 import ws.palladian.classification.Term;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The preprocessor reads the terms for a given resource and weights them according to their relevance.
@@ -36,7 +38,7 @@ public final class Preprocessor implements Serializable {
     public static final double WEIGHT_BODY_TERM = 1.0;
 
     /** The crawler. */
-    private transient Crawler crawler = null;
+    private transient DocumentRetriever crawler = null;
 
     /**
      * the classifier that this preprocessor belongs to, the classifier holds the feature settings which are needed here
@@ -55,7 +57,7 @@ public final class Preprocessor implements Serializable {
 
     public Preprocessor(TextClassifier classifier) {
         this.classifier = classifier;
-        crawler = new Crawler();
+        crawler = new DocumentRetriever();
     }
 
     /**
@@ -64,7 +66,7 @@ public final class Preprocessor implements Serializable {
      * @param pageString The website contents.
      */
     private void extractKeywords(org.w3c.dom.Document webPage) {
-        List<String> keywords = Crawler.extractKeywords(webPage);
+        List<String> keywords = PageAnalyzer.extractKeywords(webPage);
         for (String term : keywords) {
             String[] keywordTerms = term.split("\\s");
             for (String keywordTerm : keywordTerms) {
@@ -79,7 +81,7 @@ public final class Preprocessor implements Serializable {
      * @param pageString The website contents.
      */
     private void extractMetaDescription(org.w3c.dom.Document webPage) {
-        List<String> keywords = Crawler.extractDescription(webPage);
+        List<String> keywords = PageAnalyzer.extractDescription(webPage);
         for (String term : keywords) {
             addToTermMap(term, WEIGHT_META_TERM);
         }
@@ -91,7 +93,7 @@ public final class Preprocessor implements Serializable {
      * @param pageString The website contents.
      */
     private void extractTitle(org.w3c.dom.Document webPage) {
-        String title = Crawler.extractTitle(webPage);
+        String title = PageAnalyzer.extractTitle(webPage);
         String[] titleWords = title.split("\\s");
         for (String term : titleWords) {
             addToTermMap(term, WEIGHT_TITLE_TERM);
@@ -154,7 +156,7 @@ public final class Preprocessor implements Serializable {
         map = new HashMap<Term, Double>();
 
         // remove http(s): and www from URL XXX
-        inputString = Crawler.getCleanURL(inputString);
+        inputString = UrlHelper.getCleanURL(inputString);
 
         Set<String> ngrams = null;
 
@@ -209,7 +211,7 @@ public final class Preprocessor implements Serializable {
         map = new HashMap<Term, Double>();
 
         // remove http(s): and www from URL
-        inputString = Crawler.getCleanURL(inputString);
+        inputString = UrlHelper.getCleanURL(inputString);
 
         Set<String> ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
                 getFeatureSetting().getMaxNGramLength());
@@ -262,7 +264,7 @@ public final class Preprocessor implements Serializable {
         extractMetaDescription(webPage);
 
         // get body text
-        String bodyContent = Crawler.extractBodyContent(webPage).toLowerCase();
+        String bodyContent = PageAnalyzer.extractBodyContent(webPage).toLowerCase();
 
         bodyContent = HTMLHelper.stripHTMLTags(bodyContent, true, true, true, false);
 

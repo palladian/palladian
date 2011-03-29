@@ -6,7 +6,7 @@ import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class StringTagger {
 
@@ -253,7 +253,7 @@ public class StringTagger {
         //
         System.out
         .println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         testText = c.download("http://localhost:8081/ManKB/testpageGerman.html", false, true, true, true);
         Annotations taggedEntities = StringTagger.getTaggedEntities(testText);
         CollectionHelper.print(taggedEntities);

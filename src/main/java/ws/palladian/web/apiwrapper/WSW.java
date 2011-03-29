@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class WSW {
 
@@ -98,7 +98,7 @@ public class WSW {
 
         String url = createQueryURL(webServiceID, parameterBindings);
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
         String json = c.download(url);
 
         JSONObject jsonOBJ = new JSONObject(json);

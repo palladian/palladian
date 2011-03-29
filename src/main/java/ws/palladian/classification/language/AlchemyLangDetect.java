@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class AlchemyLangDetect extends LanguageClassifier {
 
@@ -16,10 +16,10 @@ public class AlchemyLangDetect extends LanguageClassifier {
     /** The API key for the Alchemy API service. */
     private final String API_KEY;
 
-    private Crawler crawler;
+    private DocumentRetriever crawler;
 
     public AlchemyLangDetect() {
-        crawler = new Crawler();
+        crawler = new DocumentRetriever();
 
         PropertiesConfiguration config = null;
 

@@ -23,8 +23,10 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.web.Crawler;
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.web.DocumentRetriever;
 
 /**
  * The PageSegmenterTrainer is needed for the evaluation of the class PageSegmenter.
@@ -52,7 +54,7 @@ public class PageSegmenterTrainer {
      */
     public static void performDetailedParameterCheckForGivenValues(String orgURL, String place, int numberOfQgrams,
             int lengthOfQgrams) throws MalformedURLException, IOException {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         PageSegmenter seg = new PageSegmenter();
 
@@ -104,7 +106,7 @@ public class PageSegmenterTrainer {
      */
     public static Double performAverageParameterCheckForGivenValues(String orgURL, String place, int numberOfQgrams,
             int lengthOfQgrams) throws MalformedURLException, IOException {
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         PageSegmenter seg = new PageSegmenter();
 
@@ -233,12 +235,12 @@ public class PageSegmenterTrainer {
      */
     public static void saveAllURLsToDisc(String URL, int limit) throws TransformerFactoryConfigurationError,
             TransformerException, IOException {
-        Crawler c = new Crawler();
-        String domain = Crawler.getDomain(URL);
+        DocumentRetriever c = new DocumentRetriever();
+        String domain = UrlHelper.getDomain(URL);
         Document d = c.getWebDocument(domain);
 
         Set<String> te = new HashSet<String>();
-        te = c.getLinks(d, true, false, "");
+        te = PageAnalyzer.getLinks(d, true, false, "");
         LOGGER.info(te.size() + " intern verlinkte URLs gefunden!");
         LOGGER.info(te);
 
@@ -256,7 +258,7 @@ public class PageSegmenterTrainer {
             LOGGER.info(currentElement);
 
             label = PageSegmenterHelper.getLabelOfURL(currentElement);
-            title = Crawler.getCleanURL(currentElement);
+            title = UrlHelper.getCleanURL(currentElement);
 
             title = title.replace("/", "_");
             title = title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
@@ -330,12 +332,12 @@ public class PageSegmenterTrainer {
 
         LOGGER.info("Ausgangs-URL: " + siteWithLinks);
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         Document d = c.getWebDocument(siteWithLinks);
 
         Set<String> te = new HashSet<String>();
-        te = c.getLinks(d, true, false, "");
+        te = PageAnalyzer.getLinks(d, true, false, "");
 
         int i = 0;
         Iterator<String> it = te.iterator();
@@ -471,7 +473,7 @@ public class PageSegmenterTrainer {
         PageSegmenter seg2 = new PageSegmenter();
         seg2.setDocument(savedFiles.get(0));
 
-        Crawler c = new Crawler();
+        DocumentRetriever c = new DocumentRetriever();
 
         List<Document> simMap = new ArrayList<Document>();
         for (int j = 1; j < savedFiles.size(); j++) {

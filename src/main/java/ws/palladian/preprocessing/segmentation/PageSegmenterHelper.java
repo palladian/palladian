@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import ws.palladian.web.Crawler;
+import ws.palladian.helper.UrlHelper;
 
 /**
  * The PageSegmenterHelper provides some helper functions to handle the class PageSegmenter.
@@ -153,9 +153,9 @@ public class PageSegmenterHelper {
      */
     public static String getLabelOfURL(String title) {
         String label = "";
-        String domain = Crawler.getDomain(title);
-        title = Crawler.getCleanURL(title);
-        label = title.replace(Crawler.getCleanURL(domain), "");
+        String domain = UrlHelper.getDomain(title);
+        title = UrlHelper.getCleanURL(title);
+        label = title.replace(UrlHelper.getCleanURL(domain), "");
         title = title.replace("/", "_");
 
         title = title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");

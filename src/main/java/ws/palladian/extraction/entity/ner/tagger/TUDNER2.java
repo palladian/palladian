@@ -29,17 +29,17 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         setName("TUD NER 2");
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         universalClassifier.getTextClassifier().getFeatureSetting().setMinNGramLength(2);
         universalClassifier.getTextClassifier().getFeatureSetting().setMaxNGramLength(8);
 
-        universalClassifier.switchClassifiers(true, false, false);
+        universalClassifier.switchClassifiers(false, true, false);
     }
 
     @Override
@@ -63,9 +63,9 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
         return true;
     }
-    
+
     private void saveModel(String modelFilePath) {
-       
+
         LOGGER.info("serializing NERCer");
         FileHelper.serialize(this, modelFilePath);
 
@@ -77,7 +77,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
         FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
                 + "_meta.txt", supportedConcepts);
-        
+
         LOGGER.info("model meta information written");
     }
 
@@ -181,6 +181,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         Instances<UniversalInstance> nominalInstances = new Instances<UniversalInstance>();
         Instances<NumericInstance> numericInstances = new Instances<NumericInstance>();
 
+        LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
             UniversalInstance textInstance = new UniversalInstance(textInstances);
             textInstance.setTextFeature(annotation.getEntity());
@@ -208,6 +209,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         // train the nominal classifier with nominal features from the annotations
         universalClassifier.getNominalClassifier().setTrainingInstances(nominalInstances);
 
+        LOGGER.info("start training classifiers now...");
         universalClassifier.trainAll();
         // universalClassifier.learnClassifierWeights(annotations);
 
@@ -225,7 +227,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
         // using a column training and testing file
         StopWatch stopWatch = new StopWatch();
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner2.model");
+        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/tudner2.model");
         // System.exit(0);
         tagger.loadModel("data/temp/tudner2.model");
         // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));

@@ -20,7 +20,7 @@ import ws.palladian.daterecognition.technique.HeadDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
-import ws.palladian.web.Crawler;
+import ws.palladian.web.DocumentRetriever;
 
 public class HeaderEvaluator {
 
@@ -92,7 +92,7 @@ public class HeaderEvaluator {
 	private static void countHeadURls(String in, String out, HeadDateGetter dg){
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(in);
 		ArrayList<DBExport> headSet = new ArrayList<DBExport>();
-		Crawler c = new Crawler();
+		DocumentRetriever c = new DocumentRetriever();
 		int index=0;
 		for(Entry<String, DBExport> e : set.entrySet()){
 			System.out.println(index + ": " + e.getKey());
@@ -127,7 +127,7 @@ public class HeaderEvaluator {
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
-			Crawler c = new Crawler();
+			DocumentRetriever c = new DocumentRetriever();
 			int lineindex=0;
 			while((line=br.readLine())!=null){
 				if(lineindex>1){
@@ -183,7 +183,7 @@ public class HeaderEvaluator {
 				FileWriter outw = new FileWriter(file, false);
 				BufferedWriter bw = new BufferedWriter(outw);
 				bw.write("url *;_;* path *;_;* pub_date *;_;* pub_sureness *;_;* mod_date *;_;* mod_sureness *;_;* google_date *;_;* hakia_date *;_;* ask_date *;_;* header_last_mod *;_;* header_date *;_;* down_date \n");
-				Crawler c = new Crawler();
+				DocumentRetriever c = new DocumentRetriever();
 				for(Entry<String, DBExport>e : merged.entrySet()){
 					HeadDateGetter dg = new HeadDateGetter();
 					
