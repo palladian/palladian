@@ -6,8 +6,6 @@ import org.apache.xerces.xni.XMLAttributes;
 import org.apache.xerces.xni.XNIException;
 import org.cyberneko.html.filters.DefaultFilter;
 
-import ws.palladian.retrieval.CrawlerTest;
-
 /**
  * Fix for newer NekoHTML versions which insert TBODY tags into tables, which we do not want. The main problem are not
  * the TBODY tags per se, but the fact that those tags are not in the xhtml namespace. So XPath expressions on documents
