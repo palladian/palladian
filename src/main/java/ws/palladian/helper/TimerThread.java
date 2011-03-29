@@ -6,8 +6,8 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.web.feeds.FeedProcessingAction;
-import ws.palladian.web.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedProcessingAction;
+import ws.palladian.retrieval.feeds.FeedReader;
 
 /**
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time

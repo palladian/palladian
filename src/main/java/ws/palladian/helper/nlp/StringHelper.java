@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.RegExp;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
-import ws.palladian.web.Xml10FilterReader;
+import ws.palladian.retrieval.Xml10FilterReader;
 
 /**
  * The StringHelper adds string functionality.

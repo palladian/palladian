@@ -13,7 +13,7 @@ import org.junit.Test;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentDateGetterTest {
 

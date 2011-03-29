@@ -31,7 +31,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.web.HTTPPoster;
+import ws.palladian.retrieval.HTTPPoster;
 
 /**
  * <p>

@@ -27,7 +27,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageContentExtractor;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * A TF-IDF and tag correlation based tagger using a controlled and weighted vocabulary.

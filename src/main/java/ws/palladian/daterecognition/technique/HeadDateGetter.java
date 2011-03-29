@@ -12,7 +12,7 @@ import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.HeadDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * This class finds all dates in a HTML-head.<br>

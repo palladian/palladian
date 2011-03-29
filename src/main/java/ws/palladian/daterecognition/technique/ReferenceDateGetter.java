@@ -14,7 +14,7 @@ import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * This class tries get dates in lined pages.<br>

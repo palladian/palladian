@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.preprocessing.segmentation.PageSegmenter;
 import ws.palladian.preprocessing.segmentation.Segment;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 
 /**

@@ -11,7 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.HTTPPoster;
+import ws.palladian.retrieval.HTTPPoster;
 
 /**
  * <p>

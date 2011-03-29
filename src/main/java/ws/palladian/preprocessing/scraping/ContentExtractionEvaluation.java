@@ -17,7 +17,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ExtractorBase;
 

@@ -17,10 +17,10 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.DocumentRetrieverCallback;
-import ws.palladian.web.SourceRetriever;
-import ws.palladian.web.SourceRetrieverManager;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetrieverCallback;
+import ws.palladian.retrieval.SourceRetriever;
+import ws.palladian.retrieval.SourceRetrieverManager;
 
 public class InformativenessAssigner {
 

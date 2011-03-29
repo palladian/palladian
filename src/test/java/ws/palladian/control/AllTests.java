@@ -8,7 +8,7 @@ import ws.palladian.helper.DBStoreTest;
 import ws.palladian.persistence.DictionaryFileIndexTest;
 import ws.palladian.preprocessing.multimedia.ImageHandlerTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
-import ws.palladian.web.CrawlerTest;
+import ws.palladian.retrieval.CrawlerTest;
 
 /**
  * All tests.

@@ -40,9 +40,9 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.SourceRetriever;
-import ws.palladian.web.SourceRetrieverManager;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.SourceRetriever;
+import ws.palladian.retrieval.SourceRetrieverManager;
 
 /**
  * This class loads the training and test data, classifies and stores the results.

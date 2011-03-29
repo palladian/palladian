@@ -11,8 +11,8 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.web.DocumentRetriever;
-import ws.palladian.web.SourceRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.SourceRetriever;
 
 public class AskDateGetter {
 	private String googleAPI ="http://de.ask.com/web?q=";

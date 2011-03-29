@@ -3,7 +3,7 @@ package ws.palladian.daterecognition.technique;
 import java.util.ArrayList;
 
 import ws.palladian.daterecognition.dates.MetaDate;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 

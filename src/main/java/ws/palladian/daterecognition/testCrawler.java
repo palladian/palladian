@@ -23,8 +23,8 @@ import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.date.RatedDateComparator;
-import ws.palladian.web.CrawlerCallback;
-import ws.palladian.web.Crawler;
+import ws.palladian.retrieval.Crawler;
+import ws.palladian.retrieval.CrawlerCallback;
 
 public class testCrawler {
 

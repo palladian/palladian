@@ -20,7 +20,7 @@ import ws.palladian.extraction.XPathSet;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * The ListDiscoverer tries to find a list (with entities) on a web page. If a "good" list is found the xPath for one or

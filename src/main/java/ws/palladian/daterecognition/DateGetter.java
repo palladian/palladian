@@ -14,7 +14,7 @@ import ws.palladian.daterecognition.technique.ReferenceDateGetter;
 import ws.palladian.daterecognition.technique.StructureDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.collection.ArrayHelper;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * This class is responsible for rating dates. <br>

@@ -9,7 +9,7 @@ import ws.palladian.daterecognition.dates.ArchiveDate;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * This class uses www.archive.org to get a date of a page.

@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import junit.framework.TestCase;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.web.DocumentRetriever;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Test cases for the xPath handling.
