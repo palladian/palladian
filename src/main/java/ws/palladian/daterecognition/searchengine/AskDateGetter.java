@@ -12,7 +12,7 @@ import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetriever;
 
 public class AskDateGetter {
 	private String googleAPI ="http://de.ask.com/web?q=";

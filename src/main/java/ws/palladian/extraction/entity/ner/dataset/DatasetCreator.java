@@ -30,8 +30,8 @@ import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
-import ws.palladian.retrieval.SourceRetriever;
-import ws.palladian.retrieval.SourceRetrieverManager;
+import ws.palladian.retrieval.search.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.

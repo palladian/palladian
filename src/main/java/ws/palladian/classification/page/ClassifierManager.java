@@ -41,8 +41,8 @@ import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SourceRetriever;
-import ws.palladian.retrieval.SourceRetrieverManager;
+import ws.palladian.retrieval.search.SourceRetriever;
+import ws.palladian.retrieval.search.SourceRetrieverManager;
 
 /**
  * This class loads the training and test data, classifies and stores the results.

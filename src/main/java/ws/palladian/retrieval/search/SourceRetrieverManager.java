@@ -1,4 +1,4 @@
-package ws.palladian.retrieval;
+package ws.palladian.retrieval.search;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
