@@ -7,6 +7,8 @@ import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalClassifier;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.numeric.NumericInstance;
+import ws.palladian.classification.page.DictionaryClassifier;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.extraction.entity.ner.Annotation;
 import ws.palladian.extraction.entity.ner.Annotations;
@@ -24,6 +26,10 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
     /** The classifier to use for classifying the annotations. */
     private UniversalClassifier universalClassifier;
+    private DictionaryClassifier tc1n;
+    private DictionaryClassifier tc2n;
+    private DictionaryClassifier tc3n;
+    private DictionaryClassifier tc4n;
 
     public TUDNER2() {
         setName("TUD NER 2");
@@ -38,6 +44,30 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         universalClassifier.getTextClassifier().getFeatureSetting().setMinNGramLength(2);
         universalClassifier.getTextClassifier().getFeatureSetting().setMaxNGramLength(8);
+
+        tc1n = new DictionaryClassifier();
+        tc1n.getDictionary().setName("dict1n");
+        tc1n.getFeatureSetting().setMinNGramLength(2);
+        tc1n.getFeatureSetting().setMaxNGramLength(8);
+        tc1n.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+
+        tc2n = new DictionaryClassifier();
+        tc2n.getDictionary().setName("dict2n");
+        tc2n.getFeatureSetting().setMinNGramLength(2);
+        tc2n.getFeatureSetting().setMaxNGramLength(8);
+        tc2n.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+
+        tc3n = new DictionaryClassifier();
+        tc3n.getDictionary().setName("dict3n");
+        tc3n.getFeatureSetting().setMinNGramLength(2);
+        tc3n.getFeatureSetting().setMaxNGramLength(8);
+        tc3n.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+
+        tc4n = new DictionaryClassifier();
+        tc4n.getDictionary().setName("dict4n");
+        tc4n.getFeatureSetting().setMinNGramLength(2);
+        tc4n.getFeatureSetting().setMaxNGramLength(8);
+        tc4n.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.switchClassifiers(false, true, false);
     }
@@ -105,7 +135,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         return annotations;
     }
 
-    private Annotations verifyAnnotationsWithUniversalClassifier(Annotations entityCandidates, String inputText) {
+    private Annotations verifyAnnotationsWithUniversalClassifier(Annotations entityCandidates) {
         Annotations annotations = new Annotations();
 
         int i = 0;
@@ -125,6 +155,63 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         return annotations;
     }
 
+    private Annotations verifyAnnotationsNDict(Annotations entityCandidates) {
+        Annotations annotations = new Annotations();
+
+        int i = 0;
+        
+        // n = 1
+//        for (Annotation annotation : entityCandidates) {
+//
+//            TextInstance ti = tc1n.classify(annotation.getEntity());
+//            annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+//            
+//            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+//                annotations.add(annotation);
+//            }
+//
+//            if (i % 100 == 0) {
+//                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+//            }
+//            i++;
+//        }
+        
+        i = 0;
+        
+        // n = 2
+        Annotation lastAnnotation = null;
+        for (Annotation annotation : entityCandidates) {
+
+
+            if (i == 0) {
+                lastAnnotation = annotation;
+                i++;
+                continue;
+            }
+            String combinedEntity = lastAnnotation.getEntity() + " " + annotation.getEntity();
+
+            TextInstance ti = tc2n.classify(combinedEntity);
+            if (ti.getMainCategoryEntry().getCategory().getName().length() > 1 || i == 1) {
+                lastAnnotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+            }
+            annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+            
+            if (!ti.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase("###NO_ENTITY###")) {
+                annotations.add(lastAnnotation);
+                annotations.add(annotation);
+            }
+
+            if (i % 100 == 0) {
+                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+            }
+
+            lastAnnotation = annotation;
+            i++;
+        }
+
+        return annotations;
+    }
+
     @Override
     public Annotations getAnnotations(String inputText) {
 
@@ -134,7 +221,8 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         Annotations entityCandidates = getEntityCandidates(inputText);
 
         // classify annotations with the UniversalClassifier
-        annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates, inputText));
+        // annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates));
+        annotations.addAll(verifyAnnotationsNDict(entityCandidates));
 
         // combine annotations that are right next to each other having the same tag
         Annotations combinedAnnotations = new Annotations();
@@ -172,6 +260,69 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
+
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
+
+        // create instances with nominal and numeric features
+        Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
+
+        LOGGER.info("start creating " + annotations.size() + " annotations for training");
+
+        int i = 0;
+
+        // n = 2
+        Annotation lastAnnotation = null;
+        String combinedEntity = "";
+        for (Annotation annotation : annotations) {
+
+            if (i == 0) {
+                lastAnnotation = annotation;
+                i++;
+                continue;
+            }
+            combinedEntity = lastAnnotation.getEntity() + " " + annotation.getEntity();
+
+            UniversalInstance textInstance = new UniversalInstance(textInstances);
+            textInstance.setTextFeature(combinedEntity);
+
+            // get the instance category, only not "O" if all pooled annotations have the same other tag
+            // String instanceCategory = "O";
+            // String lastCategory = "";
+            // // for (Annotation annotation2 : annotationPool) {
+            // if (!lastAnnotation.getInstanceCategoryName().equalsIgnoreCase(lastCategory) && lastCategory.length() >
+            // 0) {
+            // lastCategory = "O";
+            // break;
+            // } else {
+            // lastCategory = lastAnnotation.getInstanceCategoryName();
+            // }
+            // // }
+            // instanceCategory = lastCategory;
+
+            if (lastAnnotation.getInstanceCategoryName().equalsIgnoreCase(annotation.getInstanceCategoryName())) {
+                textInstance.setInstanceCategory(lastAnnotation.getInstanceCategory());
+            } else {
+                textInstance.setInstanceCategory("O");
+            }
+
+            textInstances.add(textInstance);
+
+            lastAnnotation = annotation;
+            // annotationPool.clear();
+            i++;
+        }
+
+        // train the text classifier
+        tc2n.setTrainingInstances(textInstances);
+        tc2n.train();
+
+        saveModel(modelFilePath);
+
+        return true;
+    }
+
+    public boolean train_(String trainingFilePath, String modelFilePath) {
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
@@ -227,7 +378,7 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
         // using a column training and testing file
         StopWatch stopWatch = new StopWatch();
-        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/tudner2.model");
+        tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/tudner2.model");
         // System.exit(0);
         tagger.loadModel("data/temp/tudner2.model");
         // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));

@@ -2,7 +2,6 @@ package ws.palladian.extraction.entity.ner.tagger;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 import lbj.NETaggerLevel1;
 import lbj.NETaggerLevel2;
@@ -15,6 +14,8 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.Logger;
+import org.h2.java.lang.System;
 
 import tud.iir.external.lbj.IO.Keyboard;
 import tud.iir.external.lbj.Tagger.BracketFileManager;
@@ -32,6 +33,8 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.collection.CollectionHelper;
 import LBJ2.classify.Classifier;
+
+import com.ibm.icu.util.StringTokenizer;
 
 /**
  * <p>
@@ -81,13 +84,13 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         configFileContent += "Affixes\t1" + "\n";
         configFileContent += "PreviousTag1\t1" + "\n";
         configFileContent += "PreviousTag2\t1" + "\n";
-        configFileContent += "BrownClusterPaths\t0" + "\n";
+        configFileContent += "BrownClusterPaths\t1" + "\n";
         configFileContent += "NEShapeTaggerFeatures\t0" + "\n";
-        configFileContent += "aggregateContext\t0" + "\n";
-        configFileContent += "aggregateGazetteerMatches\t0" + "\n";
-        configFileContent += "prevTagsForContext\t0" + "\n";
-        configFileContent += "PatternFeatures\t0" + "\n";
-        configFileContent += "PredictionsLevel1\t0" + "\n";
+        configFileContent += "aggregateContext\t1" + "\n";
+        configFileContent += "aggregateGazetteerMatches\t1" + "\n";
+        configFileContent += "prevTagsForContext\t1" + "\n";
+        configFileContent += "PatternFeatures\t1" + "\n";
+        configFileContent += "PredictionsLevel1\t1" + "\n";
     }
 
     public void demo(boolean forceSentenceSplitsOnNewLines, String configFilePath) throws IOException {
@@ -227,6 +230,10 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
         FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
         Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
+
+        annotations.instanceCategoryToClassified();
+
+        FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
 
         // FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
@@ -425,11 +432,14 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // System.exit(0);
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/lbj.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/lbj.model",
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+                "data/temp/lbj.model",
                 TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        Logger.getRootLogger().info(er.getMUCResultsReadable());
+        Logger.getRootLogger().info(er.getExactMatchResultsReadable());
 
         // Dataset trainingDataset = new Dataset();
         // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
