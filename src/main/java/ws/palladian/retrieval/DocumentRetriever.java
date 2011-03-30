@@ -1,21 +1,16 @@
 package ws.palladian.retrieval;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -25,13 +20,11 @@ import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,11 +36,6 @@ import java.util.zip.GZIPInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
@@ -57,7 +45,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -66,13 +53,9 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.multimedia.ImageHandler;
 import ws.palladian.retrieval.feeds.FeedDiscoveryCallback;
 
@@ -92,7 +75,7 @@ import com.sun.syndication.io.XmlReader;
 public class DocumentRetriever {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(DocumentRetriever.class);
+    private static final Logger LOGGER = Logger.getLogger(DocumentRetriever.class);
 
     // ///////////// constants with default configuration ////////
     /** The user agent string that is used by the crawler. */
@@ -371,105 +354,6 @@ public class DocumentRetriever {
 
     }
 
-    public String getSiblingPage(String url) {
-        return getSiblingPage(getWebDocument(url));
-    }
-
-    // TODO sibling must be different page (sort page leads to same page
-    // http://www.cineplex.com/Movies/AllMovies.aspx?sort=2,
-    // http://www.expansys.com/n.aspx?c=169)
-    public String getSiblingPage(Document document) {
-
-        String siblingURL = "";
-        String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
-
-        String url = StringHelper.urlDecode(document.getDocumentURI());
-
-        // remove anchors from url
-        url = UrlHelper.removeAnchors(url);
-
-        LinkedHashMap<String, Double> similarityMap = new LinkedHashMap<String, Double>();
-
-        // PageAnalyzer.printDOM(document.getLastChild(), " ");
-        // Crawler c = new Crawler();
-        // System.out.println(c.download(url));
-
-        // get all links
-        List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        if (linkNodes == null) {
-            return siblingURL;
-        }
-        for (int i = 0; i < linkNodes.size(); i++) {
-            String currentLink = linkNodes.get(i).getTextContent();
-            currentLink = currentLink.trim();
-
-            // remove anchors from link
-            currentLink = UrlHelper.removeAnchors(currentLink);
-
-            // normalize relative and absolute links
-            currentLink = UrlHelper.makeFullURL(url, currentLink);
-
-            if (currentLink.length() == 0) {
-                continue;
-            }
-
-            currentLink = StringHelper.urlDecode(currentLink);
-
-            // calculate similarity to given url
-            double similarity = StringHelper.calculateSimilarity(currentLink, url, false);
-
-            // file ending must be the same
-            int lastPointIndex = url.lastIndexOf(".");
-            int fileEndingEndIndex = url.length();
-            if (lastPointIndex > domain.length()) {
-                if (url.substring(lastPointIndex + 1).indexOf("?") > -1) {
-                    fileEndingEndIndex = lastPointIndex + 1 + url.substring(lastPointIndex + 1).indexOf("?");
-                }
-                // String fileEndingURL = url.substring(lastPointIndex + 1, fileEndingEndIndex);
-                // if (!fileEndingURL.equalsIgnoreCase(fileEndingLink) &&
-                // fileEndingURL.length() < 6) continue;
-            }
-
-            lastPointIndex = currentLink.lastIndexOf(".");
-            if (lastPointIndex > domain.length()) {
-                fileEndingEndIndex = currentLink.length();
-                if (currentLink.substring(lastPointIndex + 1).indexOf("?") > -1) {
-                    fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
-                }
-                String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
-                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js")
-                        || fileEndingLink.equalsIgnoreCase("xml") || fileEndingLink.equalsIgnoreCase("ico")
-                        || fileEndingLink.equalsIgnoreCase("rss")) {
-                    continue;
-                }
-            }
-
-            // do not return same url
-            if (url.equalsIgnoreCase(currentLink)) {
-                continue;
-            }
-
-            similarityMap.put(currentLink, similarity);
-        }
-
-        // return url with highest similarity or an empty string if nothing has
-        // been found
-        similarityMap = CollectionHelper.sortByValue(similarityMap.entrySet(), CollectionHelper.DESCENDING);
-
-        if (similarityMap.entrySet().size() > 0) {
-            try {
-                siblingURL = URLEncoder.encode(similarityMap.entrySet().iterator().next().getKey(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error(e);
-            }
-            siblingURL = similarityMap.entrySet().iterator().next().getKey().replace(" ", "%20");
-        }
-
-        LOGGER.info("sibling url: " + siblingURL);
-
-        return siblingURL;
-    }
-
     public String getUserAgent() {
         return USER_AGENT;
     }
@@ -520,14 +404,7 @@ public class DocumentRetriever {
         url = url.trim();
 
         try {
-
-            // read from file with file input stream
-            // FileInputStream in = new FileInputStream(pageString);
-            // DOMParser domParser = new DOMParser();
-            // InputSource is = new InputSource(in);
-            // domParser.parse(is);
-            // document = domParser.getDocument();
-
+            
             boolean isFile = false;
             if (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) {
                 isFile = true;
@@ -843,18 +720,19 @@ public class DocumentRetriever {
         return download(urlString, stripTags, false, false, false);
     }
 
-    /**
-     * Only download if the urlString is in a valid form and the file-ending is not blacklisted (see Extractor.java for
-     * file-ending-blackList)
-     * 
-     */
-    public String downloadNotBlacklisted(String urlString) {
-
-        if (UrlHelper.isValidURL(urlString, false)) {
-            return download(urlString);
-        }
-        return "";
-    }
+    // TODO unused //////////
+//    /**
+//     * Only download if the urlString is in a valid form and the file-ending is not blacklisted (see Extractor.java for
+//     * file-ending-blackList)
+//     * 
+//     */
+//    public String downloadNotBlacklisted(String urlString) {
+//
+//        if (UrlHelper.isValidURL(urlString, false)) {
+//            return download(urlString);
+//        }
+//        return "";
+//    }
 
     public void downloadAndSave(HashSet<String> urlSet) {
         Iterator<String> urlSetIterator = urlSet.iterator();
@@ -1133,23 +1011,24 @@ public class DocumentRetriever {
     }
 
 
-    public Map<String, List<String>> getRequests(String pageURL) {
-        URL url;
-        URLConnection conn;
-        Map<String, List<String>> request = new HashMap<String, List<String>>();
-        try {
-            url = new URL(pageURL);
-            conn = url.openConnection();
-            request = conn.getRequestProperties();
-
-        } catch (MalformedURLException e) {
-            LOGGER.error(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return request;
-    }
+    // TODO unused and undocumented /////
+//    public Map<String, List<String>> getRequests(String pageURL) {
+//        URL url;
+//        URLConnection conn;
+//        Map<String, List<String>> request = new HashMap<String, List<String>>();
+//        try {
+//            url = new URL(pageURL);
+//            conn = url.openConnection();
+//            request = conn.getRequestProperties();
+//
+//        } catch (MalformedURLException e) {
+//            LOGGER.error(e.getMessage());
+//        } catch (IOException e) {
+//            LOGGER.error(e.getMessage());
+//        }
+//
+//        return request;
+//    }
 
     /**
      * Gets the redirect URL, if such exists.
@@ -1175,52 +1054,53 @@ public class DocumentRetriever {
 
         return location;
     }
-
-    /**
-     * Download a binary file from specified URL to a given path.
-     * 
-     * @param urlString the urlString
-     * @param pathWithFileName the path where the file should be saved
-     * @return the file
-     * @author Martin Werner
-     */
-    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
-        File binFile = null;
-
-        URL u;
-        binFile = new File(pathWithFileName);
-        try {
-            u = new URL(urlString);
-            BufferedInputStream in = new BufferedInputStream(u.openStream());
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
-
-            byte[] buffer = new byte[4096];
-
-            int n = 0;
-            while ((n = in.read(buffer)) != -1) {
-                out.write(buffer, 0, n);
-            }
-
-            in.close();
-            out.close();
-
-            int size = (int) binFile.length();
-            sessionDownloadedBytes += size;
-
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-            binFile = null;
-
-        } catch (Error e) {
-
-            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-            binFile = null;
-        }
-
-        return binFile;
-    }
+    
+    // TODO unused /////
+//    /**
+//     * Download a binary file from specified URL to a given path.
+//     * 
+//     * @param urlString the urlString
+//     * @param pathWithFileName the path where the file should be saved
+//     * @return the file
+//     * @author Martin Werner
+//     */
+//    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
+//        File binFile = null;
+//
+//        URL u;
+//        binFile = new File(pathWithFileName);
+//        try {
+//            u = new URL(urlString);
+//            BufferedInputStream in = new BufferedInputStream(u.openStream());
+//            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
+//
+//            byte[] buffer = new byte[4096];
+//
+//            int n = 0;
+//            while ((n = in.read(buffer)) != -1) {
+//                out.write(buffer, 0, n);
+//            }
+//
+//            in.close();
+//            out.close();
+//
+//            int size = (int) binFile.length();
+//            sessionDownloadedBytes += size;
+//
+//
+//        } catch (Exception e) {
+//
+//            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+//            binFile = null;
+//
+//        } catch (Error e) {
+//
+//            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+//            binFile = null;
+//        }
+//
+//        return binFile;
+//    }
 
     /**
      * Gets an input stream, with specified number of retries, if downloading fails (see {@link #setNumRetries(int)}.
@@ -1532,32 +1412,6 @@ public class DocumentRetriever {
 
     public int getNumRetries() {
         return numRetries;
-    }
-
-    /**
-     * Get the string representation of a document.
-     * 
-     * @param document The document.
-     * @return The string representation of the document.
-     */
-    public static String documentToString(Document document) {
-        String documentString = "";
-
-        try {
-            DOMSource domSource = new DOMSource(document);
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.transform(domSource, result);
-            documentString = writer.toString();
-        } catch (TransformerException e) {
-            LOGGER.error("could not get string representation of document " + e.getMessage());
-        } catch (NullPointerException e) {
-            LOGGER.error("could not get string representation of document " + e.getMessage());
-        }
-
-        return documentString;
     }
 
     public static Document getWebDocumentFromInputStream(InputStream iStream, String url){

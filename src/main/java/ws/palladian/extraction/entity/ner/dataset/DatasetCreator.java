@@ -23,6 +23,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
@@ -374,7 +375,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         String webPageText = "";
         try {
-            webPageContent = DocumentRetriever.documentToString(webPage);
+            webPageContent = HTMLHelper.documentToString(webPage);
             // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
             webPageText = new PageSentenceExtractor().setDocument(webPage).getMainContentText();
         } catch (Exception e) {

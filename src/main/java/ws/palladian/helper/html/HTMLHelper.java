@@ -56,6 +56,7 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.StringOutputStream;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -1031,6 +1032,33 @@ public class HTMLHelper {
         }
 
         return false;
+    }
+
+    /**
+     * Get the string representation of a document.
+     * TODO duplicate of {@link #documentToHTMLString(Document)}?
+     * 
+     * @param document The document.
+     * @return The string representation of the document.
+     */
+    public static String documentToString(Document document) {
+        String documentString = "";
+    
+        try {
+            DOMSource domSource = new DOMSource(document);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            documentString = writer.toString();
+        } catch (TransformerException e) {
+            LOGGER.error("could not get string representation of document " + e.getMessage());
+        } catch (NullPointerException e) {
+            LOGGER.error("could not get string representation of document " + e.getMessage());
+        }
+    
+        return documentString;
     }
 
 }

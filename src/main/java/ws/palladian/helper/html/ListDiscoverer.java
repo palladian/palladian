@@ -596,7 +596,7 @@ public class ListDiscoverer {
         XPathSet reducedXPathSet = new XPathSet();
 
         PageAnalyzer pa = new PageAnalyzer();
-        String siblingURL = crawler.getSiblingPage(document);
+        String siblingURL = pa.getSiblingPage(document);
         if (siblingURL.length() == 0) {
             return xPathSet;
         }

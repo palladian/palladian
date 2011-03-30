@@ -51,25 +51,6 @@ public class CrawlerTest extends TestCase {
         assertEquals("localhost", UrlHelper.getDomain("file://localhost/test.html", false));
     }
 
-    public void testGetSiblingPage() {
-        if (AllTests.ALL_TESTS) {
-            DocumentRetriever crawler = new DocumentRetriever();
-            assertEquals("http://www.cineplex.com/Movies/AllMovies.aspx?sort=2",
-                    crawler.getSiblingPage("http://www.cineplex.com/Movies/AllMovies.aspx"));
-            assertEquals("http://www.flashdevices.net/2008/02/",
-                    crawler.getSiblingPage("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html"));
-            assertEquals("http://blog.wired.com/underwire/2008/10/star-trek-trail.html",
-                    crawler.getSiblingPage("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html"));
-            assertEquals("http://asia.cnet.com/reviews/notebooks/0,39050495,39315110-2,00.htm",
-                    crawler.getSiblingPage("http://asia.cnet.com/reviews/notebooks/0,39050495,39315110,00.htm"));
-            assertEquals("http://cars.about.com/od/helpforcarbuyers/tp/ag_top_fuelsave.htm",
-                    crawler.getSiblingPage("http://cars.about.com/od/helpforcarbuyers/tp/top10_fuel.htm"));
-            assertEquals("http://www.blu-ray.com/movies/movies.php?genre=action&page=1",
-                    crawler.getSiblingPage("http://www.blu-ray.com/movies/movies.php?genre=action"));
-            assertEquals("http://forums.whirlpool.net.au/forum-replies.cfm?t=1037458",
-                    crawler.getSiblingPage("http://forums.whirlpool.net.au/forum-replies-archive.cfm/1037458.html"));
-        }
-    }
 
     public void testLinkHandling() {
         DocumentRetriever documentRetriever = new DocumentRetriever();

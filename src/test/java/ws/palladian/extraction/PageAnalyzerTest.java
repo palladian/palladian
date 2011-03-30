@@ -3,6 +3,7 @@ package ws.palladian.extraction;
 import java.util.HashSet;
 
 import junit.framework.TestCase;
+import ws.palladian.control.AllTests;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -175,4 +176,25 @@ public class PageAnalyzerTest extends TestCase {
         assertEquals("/div/p/table/tr/td", pa.getTableCellPath("/div/p/table/tr/td"));
         assertEquals("/div/p/table/tr/td[2]", pa.getTableCellPath("/div/p/table/tr/td[2]"));
     }
+    
+    public void testGetSiblingPage() {
+        if (AllTests.ALL_TESTS) {
+            PageAnalyzer pa = new PageAnalyzer();
+            assertEquals("http://www.cineplex.com/Movies/AllMovies.aspx?sort=2",
+                    pa.getSiblingPage("http://www.cineplex.com/Movies/AllMovies.aspx"));
+            assertEquals("http://www.flashdevices.net/2008/02/",
+                    pa.getSiblingPage("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html"));
+            assertEquals("http://blog.wired.com/underwire/2008/10/star-trek-trail.html",
+                    pa.getSiblingPage("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html"));
+            assertEquals("http://asia.cnet.com/reviews/notebooks/0,39050495,39315110-2,00.htm",
+                    pa.getSiblingPage("http://asia.cnet.com/reviews/notebooks/0,39050495,39315110,00.htm"));
+            assertEquals("http://cars.about.com/od/helpforcarbuyers/tp/ag_top_fuelsave.htm",
+                    pa.getSiblingPage("http://cars.about.com/od/helpforcarbuyers/tp/top10_fuel.htm"));
+            assertEquals("http://www.blu-ray.com/movies/movies.php?genre=action&page=1",
+                    pa.getSiblingPage("http://www.blu-ray.com/movies/movies.php?genre=action"));
+            assertEquals("http://forums.whirlpool.net.au/forum-replies.cfm?t=1037458",
+                    pa.getSiblingPage("http://forums.whirlpool.net.au/forum-replies-archive.cfm/1037458.html"));
+        }
+    }
+
 }
