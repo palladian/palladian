@@ -254,7 +254,7 @@ public final class FeedReader {
 
             if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB");
+                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
 
                 try {
                     Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -271,7 +271,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB");
+                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
         // System.out.println("abc");
     }
 

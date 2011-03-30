@@ -636,7 +636,7 @@ public class FeedDiscovery {
          * }
          */
         if (crawler.getTotalDownloadSize() > 0) {
-            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB").append(
+            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB").append(
                     newLine);
         }
         sb.append("----------------------------------------------");
