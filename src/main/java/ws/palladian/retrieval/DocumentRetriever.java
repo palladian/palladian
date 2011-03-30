@@ -1,12 +1,14 @@
 package ws.palladian.retrieval;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +58,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.preprocessing.multimedia.ImageHandler;
 import ws.palladian.retrieval.feeds.FeedDiscoveryCallback;
 
 import com.sun.syndication.io.XmlReader;
@@ -95,11 +96,14 @@ public class DocumentRetriever {
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
-
-    public static final int BYTES = 1;
-    public static final int KILO_BYTES = 2;
-    public static final int MEGA_BYTES = 3;
-    public static final int GIGA_BYTES = 4;
+    
+    public enum SizeUnit {
+        BYTES(1), KILOBYTES(1024), MEGABYTES(1048576), GIGABYTES(1073741824);
+        private int bytes;
+        SizeUnit(int bytes) {
+            this.bytes = bytes;
+        }
+    }
 
     // //////////////////general settings ////////////////////
 
@@ -131,9 +135,9 @@ public class DocumentRetriever {
     private long lastDownloadSize = 0;
 
     /** Keep track of the total number of bytes downloaded by all crawler instances used. */
-    public static long sessionDownloadedBytes = 0;
+    private static long sessionDownloadedBytes = 0;
 
-    public static int numberOfDownloadedPages = 0;
+    private static int numberOfDownloadedPages = 0;
 
     /** Whether to use HTTP compression or not. */
     private boolean useCompression = true;
@@ -329,9 +333,9 @@ public class DocumentRetriever {
         setOverallTimeout(overallTimeOut);
     }
 
-    public DocumentRetriever(String configPath) {
-        loadConfig();
-    }
+//    public DocumentRetriever(String configPath) {
+//        loadConfig();
+//    }
 
     /**
      * Load the configuration file from the specified location and set the variables accordingly.
@@ -770,27 +774,16 @@ public class DocumentRetriever {
 
     }
 
-    public void downloadImage(String url, String path) {
-        ImageHandler.downloadAndSave(url, path);
+//    public void downloadImage(String url, String path) {
+//        ImageHandler.downloadAndSave(url, path);
+//    }
+
+    public long getTotalDownloadSize() {
+        return getTotalDownloadSize(SizeUnit.BYTES);
     }
 
-    public double getTotalDownloadSize() {
-        return getTotalDownloadSize(BYTES);
-    }
-
-    public double getTotalDownloadSize(int unit) {
-        switch (unit) {
-            case BYTES:
-                return totalDownloadSize;
-            case KILO_BYTES:
-                return totalDownloadSize / 1024.0;
-            case MEGA_BYTES:
-                return totalDownloadSize / 1048576.0;
-            case GIGA_BYTES:
-                return totalDownloadSize / 1073741824.0;
-        }
-
-        return totalDownloadSize;
+    public long getTotalDownloadSize(SizeUnit unit) {
+        return totalDownloadSize / unit.bytes; 
     }
 
     public void setTotalDownloadSize(long totalDownloadSize) {
@@ -815,23 +808,19 @@ public class DocumentRetriever {
         this.lastDownloadSize = size;
         sessionDownloadedBytes += size;
     }
-
-    public static double getSessionDownloadSize(int unit) {
-        switch (unit) {
-            case BYTES:
-                return sessionDownloadedBytes;
-            case KILO_BYTES:
-                return sessionDownloadedBytes / 1024.0;
-            case MEGA_BYTES:
-                return sessionDownloadedBytes / 1048576.0;
-            case GIGA_BYTES:
-                return sessionDownloadedBytes / 1073741824.0;
-        }
-
-        return sessionDownloadedBytes;
+    
+    public static long getSessionDownloadSize() {
+        return getSessionDownloadSize(SizeUnit.BYTES);
     }
 
-
+    public static long getSessionDownloadSize(SizeUnit unit) {
+        return sessionDownloadedBytes / unit.bytes;
+    }
+    
+    // XXX
+    public static void setSessionDownloadedBytes(long sessionDownloadedBytes) {
+        DocumentRetriever.sessionDownloadedBytes = sessionDownloadedBytes;
+    }
 
     public int getThreadCount() {
         return threadCount;
@@ -1055,52 +1044,51 @@ public class DocumentRetriever {
         return location;
     }
     
-    // TODO unused /////
-//    /**
-//     * Download a binary file from specified URL to a given path.
-//     * 
-//     * @param urlString the urlString
-//     * @param pathWithFileName the path where the file should be saved
-//     * @return the file
-//     * @author Martin Werner
-//     */
-//    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
-//        File binFile = null;
-//
-//        URL u;
-//        binFile = new File(pathWithFileName);
-//        try {
-//            u = new URL(urlString);
-//            BufferedInputStream in = new BufferedInputStream(u.openStream());
-//            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
-//
-//            byte[] buffer = new byte[4096];
-//
-//            int n = 0;
-//            while ((n = in.read(buffer)) != -1) {
-//                out.write(buffer, 0, n);
-//            }
-//
-//            in.close();
-//            out.close();
-//
-//            int size = (int) binFile.length();
-//            sessionDownloadedBytes += size;
-//
-//
-//        } catch (Exception e) {
-//
-//            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-//            binFile = null;
-//
-//        } catch (Error e) {
-//
-//            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-//            binFile = null;
-//        }
-//
-//        return binFile;
-//    }
+    /**
+     * Download a binary file from specified URL to a given path.
+     * 
+     * @param urlString the urlString
+     * @param pathWithFileName the path where the file should be saved
+     * @return the file
+     * @author Martin Werner
+     */
+    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
+        File binFile = null;
+
+        URL u;
+        binFile = new File(pathWithFileName);
+        try {
+            u = new URL(urlString);
+            BufferedInputStream in = new BufferedInputStream(u.openStream());
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
+
+            byte[] buffer = new byte[4096];
+
+            int n = 0;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+
+            in.close();
+            out.close();
+
+            int size = (int) binFile.length();
+            sessionDownloadedBytes += size;
+
+
+        } catch (Exception e) {
+
+            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+            binFile = null;
+
+        } catch (Error e) {
+
+            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+            binFile = null;
+        }
+
+        return binFile;
+    }
 
     /**
      * Gets an input stream, with specified number of retries, if downloading fails (see {@link #setNumRetries(int)}.

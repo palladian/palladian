@@ -188,7 +188,7 @@ public class FeedImporter {
         LOGGER.info("-------------------------------");
         LOGGER.info(" added " + addCounter.getCount() + " new feeds");
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + " MB");
+        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
         LOGGER.info("-------------------------------");
 
         return addCounter.getCount();

@@ -72,7 +72,7 @@ public class FeedClassifier {
         }
 
         while (!threadPool.isTerminated()) {
-            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES)
+            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES)
                     + "MB");
 
             try {
@@ -85,7 +85,7 @@ public class FeedClassifier {
         }
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.MEGA_BYTES) + "MB");
+                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
