@@ -148,12 +148,13 @@ public class JulieNER extends NamedEntityRecognizer {
 
         ArrayList<String> ppdTestData = Utils.readFile(testDataFile);
         ArrayList<Sentence> sentences = new ArrayList<Sentence>();
-
         NETagger tagger = (NETagger) getModel();
+
 
         for (String ppdSentence : ppdTestData) {
             try {
                 sentences.add(tagger.PPDtoUnits(ppdSentence));
+                // tagger.predict(tagger.PPDtoUnits(ppdSentence), showSegmentConfidence);
             } catch (JNETException e) {
                 LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
             }
@@ -169,6 +170,8 @@ public class JulieNER extends NamedEntityRecognizer {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
         annotations = FileFormatParser.getAnnotationsFromXMLFile(outFile.getPath());
+
+        annotations.instanceCategoryToClassified();
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
@@ -200,14 +203,16 @@ public class JulieNER extends NamedEntityRecognizer {
         // O'Brien
         content = content.replaceAll("(?<= [A-Z])' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
 
-
         content = content.replaceAll("(?<=[A-Z]\\</.{1,100}\\>)' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
-        
+
         // Tom's
         content = content.replaceAll("' [s|S](?=\\W)", "'s");
 
         // I'm
         content = content.replaceAll("' [m|M](?=\\W)", "'m");
+
+        // we'd
+        content = content.replace("' d ", "'d ");
 
         // won't
         content = content.replaceAll("' [t|T](?=\\W)", "'t");
@@ -240,6 +245,9 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replace("' o ", "'o ");
         content = content.replace("</PER>' o", "</PER>'o");
 
+        // A.de Silva
+        content = content.replaceAll("(?<=[A-Z]\\.\\<\\/.{1,20}?\\>) de ", "de ");
+
         // d'a
         content = content.replace("d' a", "d'a");
 
@@ -250,13 +258,22 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replaceAll("(?<=\\d)/ ", "/");
 
         // - 4
-        content = content.replaceAll("(?<=(\\d|\\(|\\)))- (?=\\d+(\\s))", "-");
+        content = content.replaceAll("(?<=(\\d|\\(|\\)))- (?=[0-9]+(\\s)[A-Za-z1-9.!?])", "-");
+        content = content.replace("6-2 6-0", "6- 2 6-0");
+        content = content.replace(",- ", ",-");
+        content = content.replace("(- 17", "(-17");
 
         // $ 6= 4
         content = content.replaceAll("(?<=\\d)= (?=\\d+(\\s))", "=");
 
         // 4:
         content = content.replaceAll("(?<=\\d): ", ":");
+
+        // T.O' => T. O
+        content = content.replace("T. O", "T.O");
+
+        // a. 333
+        content = content.replace("a. 333", "a.333");
 
         // )-1
         // content = content.replaceAll("(?<=\\))- (?=\\d)", "-");
@@ -493,8 +510,8 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
-        tagger.train("data/test/ner/training.txt", "data/temp/juliener.mod");
-        EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/juliener.mod",
+        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener.mod");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
