@@ -12,8 +12,8 @@ import org.cyberneko.html.filters.DefaultFilter;
  * with xhtml namespaces will fail, as all tags except TBODY are in xhtml namespace. This fix will remove all TBODY tags
  * which have no xhtml namespace.
  * 
- * I suspect this is a bug which might get fixed in later versions of NekoHTML. There is test case
- * {@link CrawlerTest#testNekoWorkarounds()} to track this issue.
+ * I suspect this is a bug which might get fixed in later versions of NekoHTML. There is test case in
+ * DocumentRetrieverTest to track this issue.
  * 
  * See:
  * http://nekohtml.sourceforge.net/changes.html (Version 1.9.13 (2 Sept 2009))

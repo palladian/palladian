@@ -222,7 +222,7 @@ public class PageSegmenter {
     Map<String, Integer> createFingerprintForURL(Document doc, int number, int length) throws MalformedURLException,
     IOException {
 
-        String dText = DocumentRetriever.documentToString(doc);
+        String dText = HTMLHelper.documentToString(doc);
 
         StringBuilder tagList = new StringBuilder();
         for (String tag : HTMLHelper.listTags(dText)) {

@@ -1,5 +1,7 @@
 package ws.palladian.extraction;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1074,6 +1076,107 @@ public class PageAnalyzer {
         return texts;
     }
 
+    // TODO sibling must be different page (sort page leads to same page
+    // http://www.cineplex.com/Movies/AllMovies.aspx?sort=2,
+    // http://www.expansys.com/n.aspx?c=169)
+    public String getSiblingPage(Document document) {
+    
+        String siblingURL = "";
+        String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
+    
+        String url = StringHelper.urlDecode(document.getDocumentURI());
+    
+        // remove anchors from url
+        url = UrlHelper.removeAnchors(url);
+    
+        LinkedHashMap<String, Double> similarityMap = new LinkedHashMap<String, Double>();
+    
+        // PageAnalyzer.printDOM(document.getLastChild(), " ");
+        // Crawler c = new Crawler();
+        // System.out.println(c.download(url));
+    
+        // get all links
+        List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
+        if (linkNodes == null) {
+            return siblingURL;
+        }
+        for (int i = 0; i < linkNodes.size(); i++) {
+            String currentLink = linkNodes.get(i).getTextContent();
+            currentLink = currentLink.trim();
+    
+            // remove anchors from link
+            currentLink = UrlHelper.removeAnchors(currentLink);
+    
+            // normalize relative and absolute links
+            currentLink = UrlHelper.makeFullURL(url, currentLink);
+    
+            if (currentLink.length() == 0) {
+                continue;
+            }
+    
+            currentLink = StringHelper.urlDecode(currentLink);
+    
+            // calculate similarity to given url
+            double similarity = StringHelper.calculateSimilarity(currentLink, url, false);
+    
+            // file ending must be the same
+            int lastPointIndex = url.lastIndexOf(".");
+            int fileEndingEndIndex = url.length();
+            if (lastPointIndex > domain.length()) {
+                if (url.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                    fileEndingEndIndex = lastPointIndex + 1 + url.substring(lastPointIndex + 1).indexOf("?");
+                }
+                // String fileEndingURL = url.substring(lastPointIndex + 1, fileEndingEndIndex);
+                // if (!fileEndingURL.equalsIgnoreCase(fileEndingLink) &&
+                // fileEndingURL.length() < 6) continue;
+            }
+    
+            lastPointIndex = currentLink.lastIndexOf(".");
+            if (lastPointIndex > domain.length()) {
+                fileEndingEndIndex = currentLink.length();
+                if (currentLink.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                    fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
+                }
+                String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
+                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js")
+                        || fileEndingLink.equalsIgnoreCase("xml") || fileEndingLink.equalsIgnoreCase("ico")
+                        || fileEndingLink.equalsIgnoreCase("rss")) {
+                    continue;
+                }
+            }
+    
+            // do not return same url
+            if (url.equalsIgnoreCase(currentLink)) {
+                continue;
+            }
+    
+            similarityMap.put(currentLink, similarity);
+        }
+    
+        // return url with highest similarity or an empty string if nothing has
+        // been found
+        similarityMap = CollectionHelper.sortByValue(similarityMap.entrySet(), CollectionHelper.DESCENDING);
+    
+        if (similarityMap.entrySet().size() > 0) {
+            try {
+                siblingURL = URLEncoder.encode(similarityMap.entrySet().iterator().next().getKey(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error(e);
+            }
+            siblingURL = similarityMap.entrySet().iterator().next().getKey().replace(" ", "%20");
+        }
+    
+        LOGGER.info("sibling url: " + siblingURL);
+    
+        return siblingURL;
+    }
+    
+    public String getSiblingPage(String url) {
+        setDocument(url);
+        return getSiblingPage(getDocument());
+    }
+
+
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
     
         Set<String> pageLinks = new HashSet<String>();
@@ -1160,9 +1263,9 @@ public class PageAnalyzer {
                 break;
             }
         } catch (OutOfMemoryError e) {
-            DocumentRetriever.LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (Exception e) {
-            DocumentRetriever.LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     
         return bodyContent;
@@ -1224,8 +1327,8 @@ public class PageAnalyzer {
         if (tempList.size() > 0) {
             bodyContent = tempList.get(0);
         } else {
-            DocumentRetriever.LOGGER.error("========Fehler bei extractBodyContent===== ");
-            DocumentRetriever.LOGGER.error("body could not extracted");
+            LOGGER.error("========Fehler bei extractBodyContent===== ");
+            LOGGER.error("body could not extracted");
             // return "error" to divide between empty string and error
             return "error";
         }

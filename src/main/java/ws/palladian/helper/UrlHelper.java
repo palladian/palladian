@@ -144,12 +144,12 @@ public class UrlHelper {
                     result = urlObj.getProtocol() + "://";
                 }
                 result += urlObj.getHost();
-                DocumentRetriever.LOGGER.trace("root url for " + url + " -> " + result);
+                LOGGER.trace("root url for " + url + " -> " + result);
             } else {
-                DocumentRetriever.LOGGER.trace("no domain specified " + url);
+                LOGGER.trace("no domain specified " + url);
             }
         } catch (MalformedURLException e) {
-            DocumentRetriever.LOGGER.trace("could not determine domain " + url);
+            LOGGER.trace("could not determine domain " + url);
         }
         return result;
     }
