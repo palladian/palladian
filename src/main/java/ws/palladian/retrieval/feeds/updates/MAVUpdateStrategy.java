@@ -97,6 +97,10 @@ public class MAVUpdateStrategy extends UpdateStrategy {
             }
         }
 
+        // TODO get the current delay to the latest post? Because if we just take the average interval we might look too
+        // late. I think I have tested this though and the results were worse than just taking the average interval
+        // minCheckInterval -= (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
+
         // ######################### simple moving median for min policy ##############################
         // if (newEntries > 0) {
         // minCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
