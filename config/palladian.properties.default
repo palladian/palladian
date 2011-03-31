@@ -38,7 +38,7 @@ datasets.boilerplate = /home/pk/PalladianData/datasets/ContentExtraction/L3S-GN1
 ######################## Database ########################
 
 db.driver = com.mysql.jdbc.Driver
-db.jdbcUrl = jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false
+db.jdbcUrl = jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false&useUnicode=true&characterEncoding=UTF-8
 db.username = root
 db.password = 
 
