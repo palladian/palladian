@@ -31,7 +31,8 @@ public class PageTitleCache {
     private final Map<Integer, LRUMap<PageTitle, Integer>> cache;
 
     /** Maximum capacity of the {@link LRUMap}, use to prevent map from relocating */
-    private static final int MAX_CAPACITY = 2000;
+	// TODO: configure me in mwCrawlerConfiguration.yml
+    private static final int MAX_CAPACITY = 100000;
 
     /**
      * Default constructor.
