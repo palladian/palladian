@@ -24,21 +24,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import maui.filters.MauiFilter;
-import maui.main.MauiModelBuilder;
-import maui.main.MauiTopicExtractor;
-import maui.stemmers.PorterStemmer;
-import maui.stemmers.Stemmer;
-import maui.stopwords.Stopwords;
-import maui.vocab.Vocabulary;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-//import org.wikipedia.miner.model.Wikipedia;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -46,6 +36,13 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.external.maui.filters.MauiFilter;
+import ws.palladian.external.maui.main.MauiModelBuilder;
+import ws.palladian.external.maui.main.MauiTopicExtractor;
+import ws.palladian.external.maui.stemmers.PorterStemmer;
+import ws.palladian.external.maui.stemmers.Stemmer;
+import ws.palladian.external.maui.stopwords.Stopwords;
+import ws.palladian.external.maui.vocab.Vocabulary;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -88,7 +85,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** Build global dictionaries from the test set. */
     private boolean buildGlobalDictionary = false;
-    
+
     /** Debugging mode? */
     private boolean debugMode = false;
 
@@ -110,10 +107,10 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         atts.addElement(new Attribute("document", (FastVector) null));
         atts.addElement(new Attribute("keyphrases", (FastVector) null));
         data = new Instances("keyphrase_training_data", atts, 0);
-        
+
         // XXX
         mauiFilter = new MauiFilter();
-        
+
         setBasicWikipediaFeatures(false);
         setAllWikipediaFeatures(false);
 
@@ -124,7 +121,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
         LOGGER.trace(">startTraining");
 
-//        mauiFilter = new MauiFilter();
+        //        mauiFilter = new MauiFilter();
 
         mauiFilter.setDebug(debugMode);
         mauiFilter.setVocabularyName(vocabularyName);
@@ -142,7 +139,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
-        
+
         // XXX
         if (index > 1500){
             return;
@@ -152,9 +149,9 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
         double[] newInst = new double[3];
 
-        newInst[0] = (double) data.attribute(0).addStringValue("inputFile"); // just a dummy
-        newInst[1] = (double) data.attribute(1).addStringValue(inputText);
-        newInst[2] = (double) data.attribute(2).addStringValue(StringUtils.join(keyphrases, "\n"));
+        newInst[0] = data.attribute(0).addStringValue("inputFile"); // just a dummy
+        newInst[1] = data.attribute(1).addStringValue(inputText);
+        newInst[2] = data.attribute(2).addStringValue(StringUtils.join(keyphrases, "\n"));
 
         data.add(new Instance(1.0, newInst));
 
@@ -195,7 +192,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     public boolean needsTraining() {
         return true;
     }
-    
+
     @Override
     public String getExtractorName() {
         return "Maui";
@@ -263,8 +260,8 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         List<Keyphrase> result = new ArrayList<Keyphrase>();
 
         double[] newInst = new double[3];
-        newInst[0] = (double) data.attribute(0).addStringValue("inputFile"); // just a dummy
-        newInst[1] = (double) data.attribute(1).addStringValue(inputText);
+        newInst[0] = data.attribute(0).addStringValue("inputFile"); // just a dummy
+        newInst[1] = data.attribute(1).addStringValue(inputText);
         newInst[2] = Instance.missingValue();
         data.add(new Instance(1.0, newInst));
 
@@ -309,8 +306,8 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        
+
+
         LOGGER.trace("<extract");
         return result;
     }
@@ -534,25 +531,25 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         mauiFilter.setVocabularyFormat(vocabularyFormat);
     }
 
-//    /**
-//     * @param wikipedia
-//     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
-//     */
-//    public void setWikipedia(Wikipedia wikipedia) {
-//        mauiFilter.setWikipedia(wikipedia);
-//    }
+    //    /**
+    //     * @param wikipedia
+    //     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
+    //     */
+    //    public void setWikipedia(Wikipedia wikipedia) {
+    //        mauiFilter.setWikipedia(wikipedia);
+    //    }
 
-//    /**
-//     * @param wikipediaServer
-//     * @param wikipediaDatabase
-//     * @param cacheData
-//     * @param wikipediaDataDirectory
-//     * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
-//     */
-//    public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
-//            String wikipediaDataDirectory) {
-//        mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
-//    }
+    //    /**
+    //     * @param wikipediaServer
+    //     * @param wikipediaDatabase
+    //     * @param cacheData
+    //     * @param wikipediaDataDirectory
+    //     * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
+    //     */
+    //    public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
+    //            String wikipediaDataDirectory) {
+    //        mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
+    //    }
 
     /**
      * Build global dictionaries from the test set.
@@ -596,10 +593,10 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     public static void main(String[] args) {
-        
+
         MauiKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
         // System.exit(0);
-        
+
 
         Dataset trainingDataset = new Dataset();
         trainingDataset.setPath("/home/pk/Desktop/Maui_Small/dataset.txt");
@@ -607,15 +604,15 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         trainingDataset.setFirstFieldLink(true);
 
         extractor.train(trainingDataset);
-        
+
         System.exit(0);
-        
-        
+
+
         extractor.setKeyphraseCount(20);
 
         extractor.startExtraction();
         List<Keyphrase> extract = extractor
-                .extract("Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.");
+        .extract("Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.");
         System.out.println(extract);
 
     }

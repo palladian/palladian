@@ -17,13 +17,13 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.h2.java.lang.System;
 
-import tud.iir.external.lbj.IO.Keyboard;
-import tud.iir.external.lbj.Tagger.BracketFileManager;
-import tud.iir.external.lbj.Tagger.DemoEngine;
-import tud.iir.external.lbj.Tagger.LearningCurve;
-import tud.iir.external.lbj.Tagger.NETagPlain;
-import tud.iir.external.lbj.Tagger.NETester;
-import tud.iir.external.lbj.Tagger.Parameters;
+import ws.palladian.external.lbj.IO.Keyboard;
+import ws.palladian.external.lbj.Tagger.BracketFileManager;
+import ws.palladian.external.lbj.Tagger.DemoEngine;
+import ws.palladian.external.lbj.Tagger.LearningCurve;
+import ws.palladian.external.lbj.Tagger.NETagPlain;
+import ws.palladian.external.lbj.Tagger.NETester;
+import ws.palladian.external.lbj.Tagger.Parameters;
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
@@ -286,8 +286,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
         NETester.test(testingFilePath, "-c");
     }
-    
-    
+
+
     @Deprecated
     public void useLearnedNER(String inputText, boolean forceSentenceSplitsOnNewLines, String configFilePath) {
 
@@ -349,7 +349,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")

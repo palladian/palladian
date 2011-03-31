@@ -1334,7 +1334,7 @@ public class StringHelper {
         Pattern p = Pattern.compile(regexp);
 
         Matcher m = p.matcher(text);
-        if (m.find()) {
+        while (m.find()) {
             matches.add(m.group());
         }
 

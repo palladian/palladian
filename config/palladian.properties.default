@@ -155,16 +155,7 @@ feedDiscovery.searchEngine = 6
 feedDiscovery.maxDiscoveryThreads = 10
 
 # feed urls containing these fragments will be ignored
-feedDiscovery.discoveryIgnoreList = gdata.youtube.com
-feedDiscovery.discoveryIgnoreList = wikipedia.org
-feedDiscovery.discoveryIgnoreList = podcast
-feedDiscovery.discoveryIgnoreList = comments
-feedDiscovery.discoveryIgnoreList = forum
-feedDiscovery.discoveryIgnoreList = gallery
-feedDiscovery.discoveryIgnoreList = special:recentchanges
-feedDiscovery.discoveryIgnoreList = popularthreads
-feedDiscovery.discoveryIgnoreList = answers.yahoo.com
-feedDiscovery.discoveryIgnoreList = feeds.digg.com
+#feedDiscovery.discoveryIgnoreList = gdata.youtube.com
 
 # location of the list for feeds discovered by the Crawler
 feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
