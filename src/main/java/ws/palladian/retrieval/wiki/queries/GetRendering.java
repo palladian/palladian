@@ -107,15 +107,17 @@ public class GetRendering extends MWAction {
         html = findElement("text", wikiResponse).getTextTrim();
         } catch (NoSuchElementException e) {
             LOGGER.warn("MediaWiki API response for page \"" + title
-                    + "\" did nor contain a text element, page content could not be found.");
+                    + "\" did not contain a text element, page content could not be found.");
         }
         html = html.replace("\n", "");
         switch (bot.getVersion()) {
             case MW1_12:
                 break;
             default:
-                final int last = html.lastIndexOf("<!--");
-                html = html.substring(0, last);
+                int last = html.lastIndexOf("<!--");
+                if (last != -1) {
+                    html = html.substring(0, last);
+                }
         }
         return "";
     }
