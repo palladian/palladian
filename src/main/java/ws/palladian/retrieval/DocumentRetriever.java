@@ -50,7 +50,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
@@ -65,9 +64,6 @@ import com.sun.syndication.io.XmlReader;
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
  * TODO handle namespace in xpath
- * TODO some methods here are duplicates from {@link PageAnalyzer} or could be moved there:
- * {@link PageAnalyzer#extractBodyContent(Document)}, {@link PageAnalyzer#extractBodyContent(String, boolean)},
- * {@link PageAnalyzer#extractDescription(Document)}, {@link PageAnalyzer#extractKeywords(Document)}, {@link PageAnalyzer#extractTitle(Document)}
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -385,16 +381,15 @@ public class DocumentRetriever {
                 callCrawlerCallback(document);
             }
         } catch (URISyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (FileNotFoundException e) {
-
+            LOGGER.error(e);
         } catch (IOException e) {
-
+            LOGGER.error(e);
         } catch (SAXException e) {
-
+            LOGGER.error(e);
         } catch (ParserConfigurationException e) {
-
+            LOGGER.error(e);
         }
     }
 
@@ -724,20 +719,6 @@ public class DocumentRetriever {
         return download(urlString, stripTags, false, false, false);
     }
 
-    // TODO unused //////////
-//    /**
-//     * Only download if the urlString is in a valid form and the file-ending is not blacklisted (see Extractor.java for
-//     * file-ending-blackList)
-//     * 
-//     */
-//    public String downloadNotBlacklisted(String urlString) {
-//
-//        if (UrlHelper.isValidURL(urlString, false)) {
-//            return download(urlString);
-//        }
-//        return "";
-//    }
-
     public void downloadAndSave(HashSet<String> urlSet) {
         Iterator<String> urlSetIterator = urlSet.iterator();
         int number = 1;
@@ -873,9 +854,7 @@ public class DocumentRetriever {
 
                     // proxy is not working; remove it from the list
                     LOGGER.warn("proxy " + getProxy().address() + " is not working, removing from the list.");
-                    System.out.println("proxylistsize: " + proxyList.size());
                     proxyList.remove(getProxy());
-                    System.out.println("proxylistsize after: " + proxyList.size());
                     LOGGER.debug("# proxies in list: " + proxyList.size() + " : " + proxyList);
 
                     // if there are no more proxies left, go to normal mode without proxies.
@@ -999,26 +978,6 @@ public class DocumentRetriever {
         return headerMap;
     }
 
-
-    // TODO unused and undocumented /////
-//    public Map<String, List<String>> getRequests(String pageURL) {
-//        URL url;
-//        URLConnection conn;
-//        Map<String, List<String>> request = new HashMap<String, List<String>>();
-//        try {
-//            url = new URL(pageURL);
-//            conn = url.openConnection();
-//            request = conn.getRequestProperties();
-//
-//        } catch (MalformedURLException e) {
-//            LOGGER.error(e.getMessage());
-//        } catch (IOException e) {
-//            LOGGER.error(e.getMessage());
-//        }
-//
-//        return request;
-//    }
-
     /**
      * Gets the redirect URL, if such exists.
      * @param urlString original URL.
@@ -1036,9 +995,8 @@ public class DocumentRetriever {
             httpUrlCon.setInstanceFollowRedirects(false);
             location = httpUrlCon.getHeaderField("Location");
 
-        } catch (IOException ioe) {
-            System.err.println(ioe.getStackTrace());
-
+        } catch (IOException e) {
+            LOGGER.error(e);
         }
 
         return location;
