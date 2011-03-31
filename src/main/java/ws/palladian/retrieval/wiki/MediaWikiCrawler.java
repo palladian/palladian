@@ -114,6 +114,13 @@ public class MediaWikiCrawler implements Runnable {
     /** If pageQueue has less than that many open slots, write out warn messages. */
     private static final int QUEUE_WARN_CAPACITY = 50;
 
+    /**
+     * Set to true to speed-up crawling wikis that contain many (red) links to not existing pages (typically in
+     * wikipedia). Caution! FASTMODE may skip some links to existing pages, if you need to be sure to get all links
+     * to existing pages, set to false.
+     */
+    private static final boolean FASTMODE = true;
+
     /*
      * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals preventing
      * parallelization.
@@ -437,7 +444,7 @@ public class MediaWikiCrawler implements Runnable {
             stopWatch1 = new StopWatch();
             stopWatch2 = new StopWatch();
         }
-        final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle);
+        final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle, false);
         if (TRACE) {
             LOGGER.trace("[DB ] crawlRevisionsByTitle, get pageID from Database for page \"" + pageTitle + "\" took "
                     + stopWatch1.getElapsedTimeString());
@@ -628,6 +635,11 @@ public class MediaWikiCrawler implements Runnable {
         }
     }
 
+    /**
+     * Retrieves for the given page title all links to other wiki pages and stores them in the database.
+     * 
+     * @param pageTitleSource The page to get all outbound wiki links for.
+     */
     private void crawlAndStoreAllPageLinks(final String pageTitleSource) {
         if (DEBUG) {
             LOGGER.debug("Try getting all links from page " + pageTitleSource);
@@ -644,13 +656,13 @@ public class MediaWikiCrawler implements Runnable {
 
         final WikiPage page = new WikiPage();
         page.setWikiID(mwDescriptor.getWikiID());
-        page.setPageID(mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitleSource));
+        page.setPageID(mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitleSource, FASTMODE));
 
         // run query and process results
         for (WikiPage pageDest : links) {
 
             // get pageIDs from db since we got only titles from API.
-            final Integer pageIDDest = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageDest.getTitle());
+            final Integer pageIDDest = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageDest.getTitle(), true);
             // check whether page exists
             if (pageIDDest == null) { // identified a link to not existing page (link has red font in Wiki)
                 if (DEBUG) {
@@ -773,6 +785,16 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.debug("Found " + page.getRevisions().size() + " new revision(s) for page \"" + page.getTitle()
                         + "\", pageid: " + page.getPageID());
             }
+            /**
+             * Workaround: this may happen if one limits crawlAndStoreAllPageTitles to a prefix like page titles
+             * starting with "Dresden". When entering continuous crawling, we get new revisions for all pages ->
+             * which includes pages that haven't been crawled before.
+             */
+            if (mwDatabase.getPageID(mwDescriptor.getWikiID(), page.getTitle(), false) == null) {
+                LOGGER.error("Found new revision for page \"" + page.getTitle()
+                        + "\" but page does not exist in database! Discarding revision.");
+                continue;
+            }
             mwDatabase.addRevisions(mwDescriptor.getWikiID(), page.getPageID(), page.getRevisions().values());
             boolean success = crawlAndStorePage(page.getTitle());
             // if (counter == BULK_WRITE_SIZE) break; //debug code, use to limit number of pages to crawl wikipedia
@@ -839,7 +861,7 @@ public class MediaWikiCrawler implements Runnable {
      */
     private void processNewPage(final String pageTitle) {
         WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
-                mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle));
+                mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle, false));
 
         // String baseURL = mwDescriptor.getAbsoltuePathToContent();
         // URL pageURL = null;
@@ -897,6 +919,9 @@ public class MediaWikiCrawler implements Runnable {
     public void run() {
         if (INFO) {
             LOGGER.info("Start crawling Wiki \"" + mwDescriptor.getWikiName() + "\".");
+        }
+        if (FASTMODE) {
+            LOGGER.warn("Crawler uses the fastmode, detection of links to other wiki pages may be erroneous (links are dropped even if page is existing).");
         }
 
         login();

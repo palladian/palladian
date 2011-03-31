@@ -127,7 +127,6 @@ public final class MediaWikiDatabase extends DatabaseManager {
     /** see sql */
     private static final String sqlRemoveHyperlinks = "DELETE FROM links WHERE wikiID = ? AND pageIDSource = ?";
 
-
     /**
      * Constructor, prepares the {@link PageTitleCache}.
      */
@@ -487,14 +486,21 @@ public final class MediaWikiDatabase extends DatabaseManager {
     // }
 
     /**
-     * Returns the pageID that belongs to the given pageTitle in Wiki wikiID
+     * Returns the pageID that belongs to the given pageTitle in Wiki wikiID. To speedup the lookup, a
+     * {@link PageTitleCache} is used and the database is accessed only in case of a cache miss. Under some
+     * circumstances, it is useful to only check the cache without querying the database in case of a cache miss.
+     * This is much faster, but may result in a false negative, if the cache size is too small and the page is in the
+     * database but not in the cache.
      * 
      * @param wikiID The ID of the Wiki the namespace is in.
      * @param pageTitle The name of the page (title) to be found in the Wiki.
+     * @param cacheOnly Set to <code>true</code> to only check the cache without querying the database in case of a
+     *            cache miss. This is much faster, but may result in a false negative, if the cache size is too small
+     *            and the page is in the database but not in the cache. Use with caution!
      * @return The pageID that belongs to the given PAGE_TITLE in Wiki WIKI_ID or null if PAGE_TITLE is unknown in
      *         database.
      */
-    public Integer getPageID(final int wikiID, final String pageTitle) {
+    public Integer getPageID(final int wikiID, final String pageTitle, final boolean cacheOnly) {
         Integer pageID = null;
         if (pageTitle == null) {
             throw new IllegalArgumentException("PAGE_TITLE must not be null");
@@ -504,16 +510,22 @@ public final class MediaWikiDatabase extends DatabaseManager {
 
         // if cache-miss, load pageID from database.
         if (pageID == null) {
-            RowConverter<Integer> converter = new RowConverter<Integer>() {
-                @Override
-                public Integer convert(ResultSet resultSet) throws SQLException {
-                    return resultSet.getInt("pageID");
-                }
-            };
-            pageID = runSingleQuery(converter, sqlGetPageIDByPageTitle, wikiID, pageTitle);
+            if (DEBUG) {
+                LOGGER.debug("Cache miss on wikiID=" + wikiID + ", pageTitle=" + pageTitle);
+            }
 
-            if (pageID != null) {
-                cache.addPage(wikiID, pageTitle, pageID);
+            if (cacheOnly == false) {
+                RowConverter<Integer> converter = new RowConverter<Integer>() {
+                    @Override
+                    public Integer convert(ResultSet resultSet) throws SQLException {
+                        return resultSet.getInt("pageID");
+                    }
+                };
+                pageID = runSingleQuery(converter, sqlGetPageIDByPageTitle, wikiID, pageTitle);
+
+                if (pageID != null) {
+                    cache.addPage(wikiID, pageTitle, pageID);
+                }
             }
         }
         return pageID;
@@ -1086,7 +1098,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      *         details.
      */
     public boolean removeAllHyperlinks(final int wikiID, final String title) {
-        final Integer pageID = getPageID(wikiID, title);
+        final Integer pageID = getPageID(wikiID, title, false);
         if (pageID == null) {
             LOGGER.error("Could not remove links for page \"" + title + "\", page it is unknown to database!");
             return false;
@@ -1199,9 +1211,11 @@ public final class MediaWikiDatabase extends DatabaseManager {
      */
     public void clearTables() {
         LOGGER.fatal("TRUNCATE all tables!!");
-        runUpdate("TRUNCATE TABLE namespaces");
-        runUpdate("TRUNCATE TABLE pages");
+        // FIXME: disable keys before truncating and enable it afterwards! This saves a lot of processing time
         runUpdate("TRUNCATE TABLE revisions");
+        runUpdate("TRUNCATE TABLE links");
+        runUpdate("TRUNCATE TABLE pages");
+        runUpdate("TRUNCATE TABLE namespaces");
         runUpdate("TRUNCATE TABLE wikis");
     }
 
