@@ -14,8 +14,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import tud.iir.external.lingpipe.Conll2002ChunkTagParser;
-import tud.iir.external.lingpipe.FileScorer;
+import ws.palladian.external.lingpipe.Conll2002ChunkTagParser;
+import ws.palladian.external.lingpipe.FileScorer;
 import ws.palladian.extraction.entity.ner.Annotation;
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.Entity;
@@ -82,7 +82,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
         try {
             String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
-                    "_tranformed.");
+            "_tranformed.");
 
             FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
             FileFormatParser.tsvToSsv(trainingFilePath2, trainingFilePath2);
@@ -152,9 +152,9 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
         setModel(chunker);
         LOGGER
-                .info("model " + modelFile.toString()
-                        + " successfully loaded in "
-                        + stopWatch.getElapsedTimeString());
+        .info("model " + modelFile.toString()
+                + " successfully loaded in "
+                + stopWatch.getElapsedTimeString());
 
         return true;
     }
@@ -203,7 +203,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
         FileFormatParser ffp = new FileFormatParser();
         String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
-                "_tranformed.");
+        "_tranformed.");
         ffp.tsvToSsv(trainingFilePath, trainingFilePath2);
 
         File corpusFile = new File(trainingFilePath2);
@@ -236,14 +236,14 @@ public class LingPipeNER extends NamedEntityRecognizer {
     }
 
     public void evaluateNER(String modelFilePath, String testFilePath)
-            throws Exception {
+    throws Exception {
 
         File chunkerFile = new File(modelFilePath);
         File testFile = new File(testFilePath);
 
         @SuppressWarnings("rawtypes")
         AbstractCharLmRescoringChunker<NBestChunker, Process, Sequence> chunker = (AbstractCharLmRescoringChunker) AbstractExternalizable
-                .readObject(chunkerFile);
+        .readObject(chunkerFile);
 
         ChunkerEvaluator evaluator = new ChunkerEvaluator(chunker);
         evaluator.setVerbose(true);
@@ -269,13 +269,13 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
     @Deprecated
     public void useLearnedNER(String modelFilePath, String inputText)
-            throws IOException, ClassNotFoundException {
+    throws IOException, ClassNotFoundException {
 
         File modelFile = new File(modelFilePath);
 
         System.out.println("Reading chunker from file=" + modelFile);
         Chunker chunker = (Chunker) AbstractExternalizable
-                .readObject(modelFile);
+        .readObject(modelFile);
 
         Annotations annotations = new Annotations();
 
@@ -293,7 +293,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
             Entity namedEntity = new Entity("???", chunk.type());
 
             Annotation annotation = new Annotation(offset, namedEntity
-.getName(), namedEntity.getTagName());
+                    .getName(), namedEntity.getTagName());
             annotations.add(annotation);
         }
 
@@ -341,44 +341,44 @@ public class LingPipeNER extends NamedEntityRecognizer {
             options.addOptionGroup(modeOptionGroup);
 
             options
-                    .addOption(OptionBuilder
-                            .withLongOpt("trainingFile")
-                            .withDescription(
-                                    "the path and name of the training file for the tagger (only if mode = train)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            .addOption(OptionBuilder
+                    .withLongOpt("trainingFile")
+                    .withDescription(
+                    "the path and name of the training file for the tagger (only if mode = train)")
+                    .hasArg().withArgName("text")
+                    .withType(String.class).create());
 
             options
-                    .addOption(OptionBuilder
-                            .withLongOpt("testFile")
-                            .withDescription(
-                                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            .addOption(OptionBuilder
+                    .withLongOpt("testFile")
+                    .withDescription(
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    .hasArg().withArgName("text")
+                    .withType(String.class).create());
 
             options
-                    .addOption(OptionBuilder
-                            .withLongOpt("configFile")
-                            .withDescription(
-                                    "the path and name of the config file for the tagger")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            .addOption(OptionBuilder
+                    .withLongOpt("configFile")
+                    .withDescription(
+                    "the path and name of the config file for the tagger")
+                    .hasArg().withArgName("text")
+                    .withType(String.class).create());
 
             options
-                    .addOption(OptionBuilder
-                            .withLongOpt("inputText")
-                            .withDescription(
-                                    "the text that should be tagged (only if mode = tag)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            .addOption(OptionBuilder
+                    .withLongOpt("inputText")
+                    .withDescription(
+                    "the text that should be tagged (only if mode = tag)")
+                    .hasArg().withArgName("text")
+                    .withType(String.class).create());
 
             options
-                    .addOption(OptionBuilder
-                            .withLongOpt("outputFile")
-                            .withDescription(
-                                    "the path and name of the file where the tagged text should be saved to")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            .addOption(OptionBuilder
+                    .withLongOpt("outputFile")
+                    .withDescription(
+                    "the path and name of the file where the tagged text should be saved to")
+                    .hasArg().withArgName("text")
+                    .withType(String.class).create());
 
             HelpFormatter formatter = new HelpFormatter();
 
@@ -398,7 +398,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
                                 cmd.getOptionValue("outputFile"), taggedText);
                     } else {
                         System.out
-                                .println("No output file given so tagged text will be printed to the console:");
+                        .println("No output file given so tagged text will be printed to the console:");
                         System.out.println(taggedText);
                     }
 
