@@ -5,9 +5,9 @@ package lbj;
 
 import java.util.StringTokenizer;
 
-import tud.iir.external.lbj.StringStatisticsUtils.OccurrenceCounter;
-import tud.iir.external.lbj.Tagger.NEWord;
-import tud.iir.external.lbj.Tagger.Parameters;
+import ws.palladian.external.lbj.StringStatisticsUtils.OccurrenceCounter;
+import ws.palladian.external.lbj.Tagger.NEWord;
+import ws.palladian.external.lbj.Tagger.Parameters;
 import LBJ2.classify.Classifier;
 import LBJ2.classify.DiscreteFeature;
 import LBJ2.classify.FeatureVector;

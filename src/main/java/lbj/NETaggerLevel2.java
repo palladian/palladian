@@ -3,7 +3,7 @@
 
 package lbj;
 
-import tud.iir.external.lbj.Tagger.NEWord;
+import ws.palladian.external.lbj.Tagger.NEWord;
 import LBJ2.classify.Classifier;
 import LBJ2.classify.DiscreteFeature;
 import LBJ2.classify.FeatureVector;
@@ -68,7 +68,7 @@ public void save()
 
   public NETaggerLevel2()
   {
-        super("tud.iir.external.lbj.NETaggerLevel2");
+        super("ws.palladian.external.lbj.NETaggerLevel2");
     isClone = true;
     if (instance == null) {
         instance = (NETaggerLevel2) Classifier.binaryRead(lcFilePath, "NETaggerLevel2");
@@ -78,7 +78,7 @@ public void save()
   private NETaggerLevel2(boolean b)
   {
     super(new SparseAveragedPerceptron(.1, 0, 20));
-        containingPackage = "tud.iir.external.lbj";
+        containingPackage = "ws.palladian.external.lbj";
     name = "NETaggerLevel2";
     setLabeler(new NELabel());
     setExtractor(new FeaturesLevel2());

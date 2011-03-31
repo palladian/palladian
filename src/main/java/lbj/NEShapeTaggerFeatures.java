@@ -3,8 +3,8 @@
 
 package lbj;
 
-import tud.iir.external.lbj.Tagger.NEWord;
-import tud.iir.external.lbj.Tagger.Parameters;
+import ws.palladian.external.lbj.Tagger.NEWord;
+import ws.palladian.external.lbj.Tagger.Parameters;
 import LBJ2.classify.Classifier;
 import LBJ2.classify.FeatureVector;
 import LBJ2.classify.RealFeature;
