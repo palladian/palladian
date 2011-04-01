@@ -3,11 +3,12 @@ package ws.palladian.retrieval.feeds.discovery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,6 +37,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.search.SourceRetriever;
 import ws.palladian.retrieval.search.SourceRetrieverManager;
+import edu.umass.cs.mallet.base.util.Random;
 
 /**
  * FeedDiscovery works like the following:
@@ -84,10 +86,9 @@ public class FeedDiscovery {
     private String resultFilePath = null;
 
     /** Store a collection of all queries that are used to retrieve sites from a search engine. */
-    private Queue<String> queries = new LinkedList<String>();
+    private List<String> queries = new ArrayList<String>();
 
     /** Store all discovered feed's URLs. */
-    // private List<DiscoveredFeed> feeds = Collections.synchronizedList(new ArrayList<DiscoveredFeed>());
     private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
 
     /** Number of search engine results to retrieve for each query. */
@@ -166,9 +167,8 @@ public class FeedDiscovery {
     }
 
     /**
-     * Uses autodiscovery feature with MIME types "application/atom+xml" and
-     * "application/rss+xml" to find linked feeds in the specified Document. If
-     * Atom and RSS feeds are present, we prefer Atom :)
+     * Uses autodiscovery feature with MIME types "application/atom+xml" and "application/rss+xml" to find linked feeds
+     * in the specified Document.
      * 
      * @param document
      * @return list of discovered feed URLs or empty list.
@@ -266,15 +266,19 @@ public class FeedDiscovery {
         
         int totalQueries = queries.size();
         int currentQuery = 0;
+        
+        Iterator<String> iterator = queries.iterator();
 
-        while (queries.size() > 0) {
+        while (iterator.hasNext()) {
+
+            String query = iterator.next();
+            iterator.remove();
+            
+            StopWatch sw2 = new StopWatch();
+            currentQuery++;
 
             // do the search
-            StopWatch sw2 = new StopWatch();
-            String query = queries.poll();
-            currentQuery++;
             LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
-
             Set<String> foundSites = searchSites(query, numResults);
             sites.addAll(foundSites);
             LOGGER.info("finished queries in " + sw2.getElapsedTimeString());
@@ -319,9 +323,9 @@ public class FeedDiscovery {
 
     private synchronized void addDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
-            feeds.addAll(discoveredFeeds);
-            if (getResultFilePath() != null) {
-                for (DiscoveredFeed feed : discoveredFeeds) {
+            for (DiscoveredFeed feed : discoveredFeeds) {
+                boolean added = feeds.add(feed);
+                if (added && getResultFilePath() != null) {
                     FileHelper.appendFile(getResultFilePath(), feed.toCSV() + "\n");
                 }
             }
@@ -410,6 +414,62 @@ public class FeedDiscovery {
     public int getSearchEngine() {
         return searchEngine;
     }
+    
+    /**
+     * Use the given queries and combine them, to get the specified targetCount of queries.
+     * 
+     * <ul>
+     * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
+     * <li>If targetCount is bigger than possible tuples or -1, all posible combinations are calculated.</li>
+     * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queries.</li>
+     * </ul>
+     * 
+     * For example:
+     * queries: A, B, C
+     * after combining: A, B, C, A B, A C, B C
+     */
+    public void combineQueries(int targetCount) {
+        
+        LOGGER.info("combine queries to " + targetCount);
+
+        int availableQueries = queries.size();
+
+        List<String> combinedQueries = new ArrayList<String>(queries);
+        Collections.shuffle(queries);
+
+        int possibleCombinations = availableQueries * (availableQueries - 1) / 2;
+
+        if (targetCount != -1 && availableQueries > targetCount) {
+
+            // we have more queries than we want, create a random subset of specified size
+            combinedQueries.addAll(queries.subList(0, targetCount));
+
+        } else if (targetCount == -1 || targetCount > possibleCombinations + availableQueries) {
+
+            // target count is higher than possible tuple combinations; so just calculate all
+            for (int i = 0; i < availableQueries; i++) {
+                for (int j = i + 1; j < availableQueries; j++) {
+                    combinedQueries.add(queries.get(i) + " " + queries.get(j));
+                }
+            }
+
+        } else {
+
+            // create combined queries
+            Random random = new Random();
+            while (combinedQueries.size() < targetCount) {
+                // get a query term randomly by combining two single queries
+                String term1 = queries.get(random.nextInt(availableQueries));
+                String term2 = queries.get(random.nextInt(availableQueries));
+                combinedQueries.add(term1 + " " + term2);
+            }
+        }
+
+        Collections.shuffle(combinedQueries);
+        queries = combinedQueries;
+        LOGGER.info("queries are " + queries);
+
+    }
 
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
@@ -433,6 +493,9 @@ public class FeedDiscovery {
                 .withArgName("filename").create());
         options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
                 .withArgName("url").create());
+        options.addOption(OptionBuilder.withLongOpt("combineQueries")
+                .withDescription("combine single queries to create more mixed queries").hasArg()
+                .withArgName("nn").withType(Number.class).create());
 
         try {
 
@@ -460,6 +523,10 @@ public class FeedDiscovery {
             }
             if (cmd.hasOption("queryFile")) {
                 discovery.addQueries(cmd.getOptionValue("queryFile"));
+            }
+            if (cmd.hasOption("combineQueries")) {
+                int targetCount = ((Number) cmd.getParsedOptionValue("combineQueries")).intValue();
+                discovery.combineQueries(targetCount);
             }
 
             discovery.findFeeds();
