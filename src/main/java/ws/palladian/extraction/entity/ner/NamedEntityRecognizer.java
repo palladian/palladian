@@ -247,6 +247,7 @@ public abstract class NamedEntityRecognizer {
         // we need to sort in ascending order first
         annotations.sort();
 
+        Annotation lastAnnotation = null;
         for (Annotation annotation : annotations) {
 
             // ignore nested annotations
@@ -263,6 +264,7 @@ public abstract class NamedEntityRecognizer {
                 LOGGER.fatal("alignment error, the annotation candidates don't match the text:");
                 LOGGER.fatal("found: " + inputText.substring(annotation.getOffset(), annotation.getEndIndex()));
                 LOGGER.fatal("instead of: " + annotation.getEntity() + "(" + annotation + ")");
+                LOGGER.fatal("last annotation: " + lastAnnotation);
                 System.exit(1);
             }
 
@@ -288,6 +290,7 @@ public abstract class NamedEntityRecognizer {
             }
 
             lastEndIndex = annotation.getEndIndex();
+            lastAnnotation = annotation;
         }
 
         taggedText.append(inputText.substring(lastEndIndex));
