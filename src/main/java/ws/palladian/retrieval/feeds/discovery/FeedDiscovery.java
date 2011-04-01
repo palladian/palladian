@@ -429,8 +429,6 @@ public class FeedDiscovery {
      * after combining: A, B, C, A B, A C, B C
      */
     public void combineQueries(int targetCount) {
-        
-        LOGGER.info("combine queries to " + targetCount);
 
         int availableQueries = queries.size();
 
@@ -467,7 +465,6 @@ public class FeedDiscovery {
 
         Collections.shuffle(combinedQueries);
         queries = combinedQueries;
-        LOGGER.info("queries are " + queries);
 
     }
 
