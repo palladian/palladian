@@ -323,7 +323,7 @@ public final class FeedReader {
      */
     public void aggregate(long duration, final boolean downloadPages) {
 
-        final FeedDownloader feedDownloader = new FeedDownloader();
+        final FeedRetriever feedRetriever = new FeedRetriever();
         final Counter newItems = new Counter();
 
         FeedProcessingAction processingAction = new FeedProcessingAction() {
@@ -344,7 +344,7 @@ public final class FeedReader {
                 }
                 boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
                 if (fetchPages && !toAdd.isEmpty()) {
-                    feedDownloader.scrapePages(toAdd);
+                    feedRetriever.scrapePages(toAdd);
                     // downloadedPages.increment(toAdd.size());
                 }
                 for (FeedItem feedEntry : toAdd) {
@@ -421,10 +421,10 @@ public final class FeedReader {
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
      * 
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
     @SuppressWarnings("static-access")
-    public static void main(String[] args) throws FeedDownloaderException {
+    public static void main(String[] args) throws FeedRetrieverException {
 
         FeedReader r = new FeedReader(new FeedDatabase());
         r.setThreadPoolSize(1);
@@ -441,8 +441,8 @@ public final class FeedReader {
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
 
-        FeedDownloader feedDownloader = new FeedDownloader();
-        feedDownloader.updateFeed(feed);
+        FeedRetriever feedRetriever = new FeedRetriever();
+        feedRetriever.updateFeed(feed);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);
         System.exit(0);

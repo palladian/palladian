@@ -57,7 +57,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.retrieval.feeds.FeedDiscoveryCallback;
+import ws.palladian.retrieval.feeds.discovery.FeedDiscoveryCallback;
 
 import com.sun.syndication.io.XmlReader;
 

@@ -53,10 +53,10 @@ class FeedTask extends Thread {
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
-        FeedDownloader feedDownloader = new FeedDownloader();
+        FeedRetriever feedRetriever = new FeedRetriever();
         try {
-            feedDownloader.updateFeed(feed);
-        } catch (FeedDownloaderException e) {
+            feedRetriever.updateFeed(feed);
+        } catch (FeedRetrieverException e) {
             LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
             feed.incrementUnreachableCount();
             feedReader.updateFeed(feed);

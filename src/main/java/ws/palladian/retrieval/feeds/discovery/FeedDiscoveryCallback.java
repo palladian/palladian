@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.feeds;
+package ws.palladian.retrieval.feeds.discovery;
 
 import java.util.List;
 
@@ -58,12 +58,12 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     @Override
     public void crawlerCallback(Document document) {
         if (document != null) {
-            List<String> feeds = feedDiscovery.discoverFeeds(document);
-            for (String feed : feeds) {
+            List<DiscoveredFeed> feeds = feedDiscovery.discoverFeeds(document);
+            for (DiscoveredFeed feed : feeds) {
                 // output to the file must be synced, or we will lose data when
                 // writing from multiple crawl threads
                 synchronized (this) {
-                    FileHelper.appendLineIfNotPresent(filePath, feed);
+                    FileHelper.appendLineIfNotPresent(filePath, feed.toCSV());
                 }
             }
         }
