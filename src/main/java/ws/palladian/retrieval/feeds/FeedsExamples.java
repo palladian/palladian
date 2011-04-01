@@ -1,9 +1,10 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.Collection;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
+import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.search.SourceRetrieverManager;
@@ -16,20 +17,20 @@ import ws.palladian.retrieval.search.SourceRetrieverManager;
  */
 public class FeedsExamples {
     
-    public static void main(String[] args) throws FeedDownloaderException {
+    public static void main(String[] args) throws FeedRetrieverException {
 
         // search feeds for "Porsche 911"
         FeedDiscovery feedDiscovery = new FeedDiscovery();
         feedDiscovery.setSearchEngine(SourceRetrieverManager.YAHOO_BOSS);
         feedDiscovery.addQuery("Porsche 911");
-        feedDiscovery.setResultLimit(100);
+        feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();
-        Collection<String> feedUrls = feedDiscovery.getFeeds();
-        CollectionHelper.print(feedUrls);
+        List<DiscoveredFeed> discoveredFeeds = feedDiscovery.getFeeds();
+        CollectionHelper.print(discoveredFeeds);
         
         // download a feed
-        FeedDownloader feedDownloader = new FeedDownloader();
-        Feed feed = feedDownloader.getFeed("http://rss.cnn.com/rss/edition.rss");
+        FeedRetriever feedRetriever = new FeedRetriever();
+        Feed feed = feedRetriever.getFeed("http://rss.cnn.com/rss/edition.rss");
         List<FeedItem> feedItems = feed.getItems();
         CollectionHelper.print(feedItems);
         
@@ -38,7 +39,7 @@ public class FeedsExamples {
         
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);
-        feedImporter.addFeeds(feedUrls);
+        feedImporter.addDiscoveredFeeds(discoveredFeeds);
         
         // start aggregating news for the feeds in the database
         FeedReader feedReader = new FeedReader(feedStore);

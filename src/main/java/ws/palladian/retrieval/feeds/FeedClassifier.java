@@ -158,7 +158,7 @@ public class FeedClassifier {
      */
     public static int classify(String feedURL) {
 
-        FeedDownloader feedDownloader = new FeedDownloader();
+        FeedRetriever feedRetriever = new FeedRetriever();
 
         List<FeedItem> items = new ArrayList<FeedItem>();
 
@@ -167,10 +167,10 @@ public class FeedClassifier {
 
         try {
 
-            Feed feed = feedDownloader.getFeed(feedURL);
+            Feed feed = feedRetriever.getFeed(feedURL);
             items = feed.getItems();
 
-        } catch (FeedDownloaderException e) {
+        } catch (FeedRetrieverException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
             if (crawler.getResponseCode(feedURL) == 200) {

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.retrieval.feeds.discovery.FeedDiscoveryCallback;
 import ws.palladian.retrieval.feeds.meta.MetaInformationCreator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -74,9 +75,9 @@ public class FeedStoreManager {
 
     /**
      * @param args
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public static void main(String[] args) throws FeedDownloaderException {
+    public static void main(String[] args) throws FeedRetrieverException {
         // Crawler c = new Crawler();
         // Document document = c.getWebDocument("http://www.newser.com/");
 

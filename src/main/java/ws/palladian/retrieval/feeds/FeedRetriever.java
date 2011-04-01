@@ -36,7 +36,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * The FeedDownloader is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for downloading
+ * The FeedRetriever is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for downloading
  * the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for parsing
  * problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items, to fetch
  * additional content.
@@ -47,10 +47,10 @@ import com.sun.syndication.io.SyndFeedInput;
  * 
  * @see https://rome.dev.java.net/
  */
-public class FeedDownloader {
+public class FeedRetriever {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedDownloader.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedRetriever.class);
 
     /** Used for all downloading purposes. */
     private DocumentRetriever crawler = new DocumentRetriever();
@@ -73,7 +73,7 @@ public class FeedDownloader {
      */
     private boolean cleanStrings = true;
 
-    public FeedDownloader() {
+    public FeedRetriever() {
         // suXXX that I have to set this explicitly;
         // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
@@ -82,7 +82,7 @@ public class FeedDownloader {
     }
 
     // ///////////////////////////////////////////////////
-    // FeedDownloader API
+    // FeedRetriever API
     // ///////////////////////////////////////////////////
 
     /**
@@ -90,9 +90,9 @@ public class FeedDownloader {
      * 
      * @param feedUrl the URL to the RSS or Atom feed.
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl) throws FeedDownloaderException {
+    public Feed getFeed(String feedUrl) throws FeedRetrieverException {
         return getFeed(feedUrl, false, null);
     }
 
@@ -103,9 +103,9 @@ public class FeedDownloader {
      * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
      *            {@link FeedItem}.
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedDownloaderException {
+    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedRetrieverException {
         return getFeed(feedUrl, scrapePages, null);
     }
 
@@ -115,9 +115,9 @@ public class FeedDownloader {
      * @param feedUrl the URL to the RSS or Atom feed.
      * @param headerInformation header information containing ETag/lastModifiedSince data
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
+    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedRetrieverException {
         return getFeed(feedUrl, false, headerInformation);
     }
 
@@ -129,10 +129,10 @@ public class FeedDownloader {
      *            {@link FeedItem}.
      * @param headerInformation header information containing ETag/lastModifiedSince data.
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
     public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
-    throws FeedDownloaderException {
+    throws FeedRetrieverException {
 
         StopWatch sw = new StopWatch();
 
@@ -153,9 +153,9 @@ public class FeedDownloader {
      * 
      * @param document the Document containing the RSS or Atom feed.
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public Feed getFeed(Document document) throws FeedDownloaderException {
+    public Feed getFeed(Document document) throws FeedRetrieverException {
         return getFeedWithRome(document);
     }
 
@@ -164,9 +164,9 @@ public class FeedDownloader {
      * items downloaded from web.
      * 
      * @param feed
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    public void updateFeed(Feed feed) throws FeedDownloaderException {
+    public void updateFeed(Feed feed) throws FeedRetrieverException {
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
         feed.setDocument(downloadedFeed.getDocument());
@@ -270,9 +270,9 @@ public class FeedDownloader {
      * 
      * @param feedUrl
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    private Feed getFeedWithRome(Document feedDocument) throws FeedDownloaderException {
+    private Feed getFeedWithRome(Document feedDocument) throws FeedRetrieverException {
 
         Feed result = new Feed();
 
@@ -563,14 +563,14 @@ public class FeedDownloader {
      * @param feedUrl
      * @param headerInformation
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
     private Document downloadFeedDocument(String feedUrl, HeaderInformation headerInformation)
-    throws FeedDownloaderException {
+    throws FeedRetrieverException {
 
         Document feedDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
         if (feedDocument == null) {
-            throw new FeedDownloaderException("could not get document from " + feedUrl);
+            throw new FeedRetrieverException("could not get document from " + feedUrl);
             // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
             // // TODO
             // } else {
@@ -588,9 +588,9 @@ public class FeedDownloader {
      * 
      * @param feedDocument
      * @return
-     * @throws FeedDownloaderException
+     * @throws FeedRetrieverException
      */
-    private SyndFeed buildSyndFeed(Document feedDocument) throws FeedDownloaderException {
+    private SyndFeed buildSyndFeed(Document feedDocument) throws FeedRetrieverException {
 
         try {
 
@@ -606,10 +606,10 @@ public class FeedDownloader {
 
         } catch (IllegalArgumentException e) {
             LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-            throw new FeedDownloaderException(e);
+            throw new FeedRetrieverException(e);
         } catch (FeedException e) {
             LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-            throw new FeedDownloaderException(e);
+            throw new FeedRetrieverException(e);
         }
 
     }
@@ -679,7 +679,7 @@ public class FeedDownloader {
         // System.out.println(clean);
         // System.exit(0);
 
-        FeedDownloader downloader = new FeedDownloader();
+        FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
@@ -687,9 +687,9 @@ public class FeedDownloader {
         // .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
         // printFeed(feed);
 
-        // Feed feed = downloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
+        // Feed feed = downloader.getFeed(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile());
         Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
-        FeedDownloader.printFeed(feed, true);
+        FeedRetriever.printFeed(feed, true);
 
     }
 

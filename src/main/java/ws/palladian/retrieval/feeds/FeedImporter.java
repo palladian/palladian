@@ -1,7 +1,10 @@
 package ws.palladian.retrieval.feeds;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.cli.BasicParser;
@@ -18,6 +21,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
+import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
@@ -40,7 +44,7 @@ public class FeedImporter {
     private final FeedStore store;
 
     /** The downloader for getting the feeds. */
-    private FeedDownloader feedDownloader;
+    private FeedRetriever feedRetriever;
 
     /** Whether to store the items of the added feed, or only the feed data. */
     private boolean storeItems = false;
@@ -50,7 +54,7 @@ public class FeedImporter {
 
     public FeedImporter(FeedStore store) {
         this.store = store;
-        feedDownloader = new FeedDownloader();
+        feedRetriever = new FeedRetriever();
     }
 
     /**
@@ -70,11 +74,11 @@ public class FeedImporter {
                 StringBuilder infoMsg = new StringBuilder();
                 infoMsg.append("added feed ").append(feedUrl);
 
-                feed = feedDownloader.getFeed(feedUrl);
+                feed = feedRetriever.getFeed(feedUrl);
 
                 // classify feed's text extent
                 if (classifyTextExtent) {
-                    FeedContentClassifier classifier = new FeedContentClassifier(feedDownloader);
+                    FeedContentClassifier classifier = new FeedContentClassifier(feedRetriever);
                     FeedContentType contentType = classifier.determineContentType(feed);
                     feed.setContentType(contentType);
                     infoMsg.append(" (contentType:").append(contentType).append(")");
@@ -102,7 +106,7 @@ public class FeedImporter {
                 LOGGER.info(infoMsg);
                 added = true;
 
-            } catch (FeedDownloaderException e) {
+            } catch (FeedRetrieverException e) {
                 LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
             }
         } else {
@@ -111,6 +115,14 @@ public class FeedImporter {
 
         LOGGER.trace("<addFeed " + added);
         return added;
+    }
+    
+    public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
+        Set<String> feedUrls = new HashSet<String>();
+        for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
+            feedUrls.add(discoveredFeed.getFeedLink());
+        }
+        return addFeeds(feedUrls);
     }
 
     /**
@@ -202,9 +214,13 @@ public class FeedImporter {
      * @return The number of feeds added.
      */
     public int addFeedsFromFile(String filePath) {
-        List<String> feedUrls = FileHelper.readFileToArray(filePath);
+        List<String> lines = FileHelper.readFileToArray(filePath);
+        List<String> feedUrls = new ArrayList<String>();
+        for (String line : lines) {
+            feedUrls.add(line.split(";")[0]);
+        }
         int added = addFeeds(feedUrls);
-        LOGGER.info("file contained " + feedUrls.size() + " entries;");
+        LOGGER.info("file contained " + lines.size() + " entries;");
         LOGGER.info("added " + added + " feeds.");
         return added;
     }

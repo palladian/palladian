@@ -1,14 +1,14 @@
 package ws.palladian.retrieval.feeds;
 
-public class FeedDownloaderException extends Exception {
+public class FeedRetrieverException extends Exception {
 
     private static final long serialVersionUID = -8787100315945118852L;
 
-    public FeedDownloaderException(Throwable t) {
+    public FeedRetrieverException(Throwable t) {
         super(t);
     }
 
-    public FeedDownloaderException(String string) {
+    public FeedRetrieverException(String string) {
         super(string);
     }
 

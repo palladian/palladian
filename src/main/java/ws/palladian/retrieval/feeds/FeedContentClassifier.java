@@ -45,23 +45,23 @@ public class FeedContentClassifier {
 
     private static final int ENTRIES_TO_CHECK = 20;
 
-    private FeedDownloader feedDownloader;
+    private FeedRetriever feedRetriever;
     
-    public FeedContentClassifier(FeedDownloader feedDownloader) {
-        this.feedDownloader = feedDownloader;
+    public FeedContentClassifier(FeedRetriever feedRetriever) {
+        this.feedRetriever = feedRetriever;
     }
 
     /** Testing constructor. */
     FeedContentClassifier() {
-        feedDownloader = new FeedDownloader();
+        feedRetriever = new FeedRetriever();
     }
 
     public FeedContentType determineContentType(String feedUrl) {
         try {
-            Feed feed = feedDownloader.getFeed(feedUrl);
-            feedDownloader.scrapePages(feed.getItems());
+            Feed feed = feedRetriever.getFeed(feedUrl);
+            feedRetriever.scrapePages(feed.getItems());
             return determineContentType(feed);
-        } catch (FeedDownloaderException e) {
+        } catch (FeedRetrieverException e) {
             return FeedContentType.UNDETERMINED;
         }
     }
