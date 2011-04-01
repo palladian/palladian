@@ -1,6 +1,8 @@
 package ws.palladian.extraction.entity.ner.tagger;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.Instances;
@@ -30,6 +32,11 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
     private DictionaryClassifier tc2n;
     private DictionaryClassifier tc3n;
     private DictionaryClassifier tc4n;
+
+    ArrayList<List<Double>> regPer;
+    ArrayList<List<Double>> regOrg;
+    ArrayList<List<Double>> regLoc;
+    ArrayList<List<Double>> regMisc;
 
     public TUDNER2() {
         setName("TUD NER 2");
@@ -69,7 +76,24 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         tc4n.getFeatureSetting().setMaxNGramLength(8);
         tc4n.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
-        universalClassifier.switchClassifiers(false, true, false);
+        universalClassifier.switchClassifiers(false, false, true);
+
+        regPer = new ArrayList<List<Double>>();
+        regPer.add(new ArrayList<Double>());
+        regPer.add(new ArrayList<Double>());
+
+        regOrg = new ArrayList<List<Double>>();
+        regOrg.add(new ArrayList<Double>());
+        regOrg.add(new ArrayList<Double>());
+
+        regLoc = new ArrayList<List<Double>>();
+        regLoc.add(new ArrayList<Double>());
+        regLoc.add(new ArrayList<Double>());
+
+        regMisc = new ArrayList<List<Double>>();
+        regMisc.add(new ArrayList<Double>());
+        regMisc.add(new ArrayList<Double>());
+
     }
 
     @Override
@@ -159,29 +183,28 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         Annotations annotations = new Annotations();
 
         int i = 0;
-        
+
         // n = 1
-//        for (Annotation annotation : entityCandidates) {
-//
-//            TextInstance ti = tc1n.classify(annotation.getEntity());
-//            annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
-//            
-//            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
-//                annotations.add(annotation);
-//            }
-//
-//            if (i % 100 == 0) {
-//                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
-//            }
-//            i++;
-//        }
-        
+        //        for (Annotation annotation : entityCandidates) {
+        //
+        //            TextInstance ti = tc1n.classify(annotation.getEntity());
+        //            annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+        //
+        //            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+        //                annotations.add(annotation);
+        //            }
+        //
+        //            if (i % 100 == 0) {
+        //                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+        //            }
+        //            i++;
+        //        }
+
         i = 0;
-        
+
         // n = 2
         Annotation lastAnnotation = null;
         for (Annotation annotation : entityCandidates) {
-
 
             if (i == 0) {
                 lastAnnotation = annotation;
@@ -191,11 +214,26 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
             String combinedEntity = lastAnnotation.getEntity() + " " + annotation.getEntity();
 
             TextInstance ti = tc2n.classify(combinedEntity);
+
+            // weight them
+            if (ti.getCategoryEntry("per") != null) {
+                ti.getCategoryEntry("per").addAbsoluteRelevance(51.188877);
+            }
+            if (ti.getCategoryEntry("org") != null) {
+                ti.getCategoryEntry("org").addAbsoluteRelevance(30.995);
+            }
+            if (ti.getCategoryEntry("loc") != null) {
+                ti.getCategoryEntry("loc").addAbsoluteRelevance(47.7989);
+            }
+            if (ti.getCategoryEntry("misc") != null) {
+                ti.getCategoryEntry("misc").addAbsoluteRelevance(49.07199);
+            }
+
             if (ti.getMainCategoryEntry().getCategory().getName().length() > 1 || i == 1) {
                 lastAnnotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
             }
             annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
-            
+
             if (!ti.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase("###NO_ENTITY###")) {
                 annotations.add(lastAnnotation);
                 annotations.add(annotation);
@@ -212,6 +250,98 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         return annotations;
     }
 
+    private void weight(String trainingFilePath) {
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
+
+        LOGGER.info("start creating " + annotations.size() + " annotations for training");
+
+        int i = 0;
+
+        // n = 2
+        Annotation lastAnnotation = null;
+        for (Annotation annotation : annotations) {
+
+            if (i == 0) {
+                lastAnnotation = annotation;
+                i++;
+                continue;
+            }
+            String combinedEntity = lastAnnotation.getEntity() + " " + annotation.getEntity();
+
+            TextInstance ti = tc2n.classify(combinedEntity);
+            if (ti.getMainCategoryEntry().getCategory().getName().length() > 1 || i == 1) {
+                lastAnnotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+            }
+            annotation.assignCategoryEntries(ti.getAssignedCategoryEntries());
+
+            double highestCategoryRelevance = annotation.getMainCategoryEntry().getAbsoluteRelevance();
+
+            if (annotation.getInstanceCategoryName().equalsIgnoreCase("per")) {
+                regPer.get(0).add(annotation.getCategoryEntry("per").getAbsoluteRelevance());
+                regPer.get(1).add(highestCategoryRelevance + 1);
+            } else if (annotation.getInstanceCategoryName().equalsIgnoreCase("org")) {
+                regOrg.get(0).add(annotation.getCategoryEntry("org").getAbsoluteRelevance());
+                regOrg.get(1).add(highestCategoryRelevance + 1);
+            } else if (annotation.getInstanceCategoryName().equalsIgnoreCase("loc")) {
+                regLoc.get(0).add(annotation.getCategoryEntry("loc").getAbsoluteRelevance());
+                regLoc.get(1).add(highestCategoryRelevance + 1);
+            } else if (annotation.getInstanceCategoryName().equalsIgnoreCase("misc")) {
+                regMisc.get(0).add(annotation.getCategoryEntry("misc").getAbsoluteRelevance());
+                regMisc.get(1).add(highestCategoryRelevance + 1);
+            }
+
+            if (!ti.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase("###NO_ENTITY###")) {
+                annotations.add(lastAnnotation);
+                annotations.add(annotation);
+            }
+
+            if (i % 100 == 0) {
+                LOGGER.info("classified " + MathHelper.round(100 * i / annotations.size(), 0) + "%");
+            }
+
+            lastAnnotation = annotation;
+            i++;
+        }
+
+        // show regression values
+        double[] x = new double[regPer.get(0).size()];
+        double[] y = new double[regPer.get(1).size()];
+        for (int j = 0; j < y.length; j++) {
+            x[j] = regPer.get(0).get(j);
+            y[j] = regPer.get(1).get(j);
+        }
+        double[] v = MathHelper.performLinearRegression(x, y);
+        System.out.println("lin reg per: " + v[0] + ", " + v[1]);
+
+        x = new double[regOrg.get(0).size()];
+        y = new double[regOrg.get(1).size()];
+        for (int j = 0; j < y.length; j++) {
+            x[j] = regOrg.get(0).get(j);
+            y[j] = regOrg.get(1).get(j);
+        }
+        v = MathHelper.performLinearRegression(x, y);
+        System.out.println("lin reg org: " + v[0] + ", " + v[1]);
+
+        x = new double[regLoc.get(0).size()];
+        y = new double[regLoc.get(1).size()];
+        for (int j = 0; j < y.length; j++) {
+            x[j] = regLoc.get(0).get(j);
+            y[j] = regLoc.get(1).get(j);
+        }
+        v = MathHelper.performLinearRegression(x, y);
+        System.out.println("lin reg loc: " + v[0] + ", " + v[1]);
+
+        x = new double[regMisc.get(0).size()];
+        y = new double[regMisc.get(1).size()];
+        for (int j = 0; j < y.length; j++) {
+            x[j] = regMisc.get(0).get(j);
+            y[j] = regMisc.get(1).get(j);
+        }
+        v = MathHelper.performLinearRegression(x, y);
+        System.out.println("lin reg misc: " + v[0] + ", " + v[1]);
+    }
+
     @Override
     public Annotations getAnnotations(String inputText) {
 
@@ -221,8 +351,8 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         Annotations entityCandidates = getEntityCandidates(inputText);
 
         // classify annotations with the UniversalClassifier
-        // annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates));
-        annotations.addAll(verifyAnnotationsNDict(entityCandidates));
+        annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates));
+        // annotations.addAll(verifyAnnotationsNDict(entityCandidates));
 
         // combine annotations that are right next to each other having the same tag
         Annotations combinedAnnotations = new Annotations();
@@ -251,15 +381,24 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
             }
 
             lastAnnotation = annotation;
-            // lastTag = annotation.getMostLikelyTagName();
-            // lastIndex = annotation.getEndIndex();
         }
 
-        return combinedAnnotations;
+        // remove all "O"
+        Annotations cleanAnnotations = new Annotations();
+        for (Annotation annotation : combinedAnnotations) {
+            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
+                cleanAnnotations.add(annotation);
+            }
+        }
+
+        FileHelper.writeToFile("data/temp/tudNER2Output.txt", tagText(inputText, cleanAnnotations));
+
+        // weight("data/datasets/ner/conll/training_verysmall.txt");
+
+        return cleanAnnotations;
     }
 
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
+    public boolean train_(String trainingFilePath, String modelFilePath) {
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
@@ -322,7 +461,18 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
         return true;
     }
 
-    public boolean train_(String trainingFilePath, String modelFilePath) {
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+
+        String caseSignature = "All THE lilacs";
+        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
+        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
+        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+
+        // caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
+        System.out.println(caseSignature);
+        System.exit(0);
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
@@ -378,11 +528,12 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
 
         // using a column training and testing file
         StopWatch stopWatch = new StopWatch();
-        tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/tudner2.model");
+        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/tudner2.model");
         // System.exit(0);
         tagger.loadModel("data/temp/tudner2.model");
         // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner2.model",
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+                "data/temp/tudner2.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

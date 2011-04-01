@@ -329,7 +329,7 @@ public class MathHelper {
     }
 
 
-    
+
     /**
      * Create a random sample from a given collection.
      * 
@@ -387,7 +387,7 @@ public class MathHelper {
      * 
      * @param x A series of x values.
      * @param y A series of y values.
-     * @return The parameter alpha and beta for the regression line.
+     * @return The parameter alpha [0] and beta [1] for the regression line.
      */
     public static double[] performLinearRegression(double[] x, double[] y) {
         double[] alphaBeta = new double[2];
@@ -418,7 +418,7 @@ public class MathHelper {
 
         return alphaBeta;
     }
-    
+
     /**
      * Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
      * dimensional array, where the first dimension indicates the Rank k, the second dimension distinguishes between Pr
