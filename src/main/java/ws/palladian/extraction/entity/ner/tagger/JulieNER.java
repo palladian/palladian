@@ -262,6 +262,7 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replace("6-2 6-0", "6- 2 6-0");
         content = content.replace(",- ", ",-");
         content = content.replace("(- 17", "(-17");
+        content = content.replace(".... I", "....I");
 
         // $ 6= 4
         content = content.replaceAll("(?<=\\d)= (?=\\d+(\\s))", "=");
@@ -274,6 +275,12 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // a. 333
         content = content.replace("a. 333", "a.333");
+
+        content = content.replace("- led", "-led");
+
+        content = content.replace("' ala", "'ala");
+
+        content = content.replace("d' ", "d'");
 
         // )-1
         // content = content.replaceAll("(?<=\\))- (?=\\d)", "-");
@@ -510,7 +517,7 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener.mod");
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/juliener.mod");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());

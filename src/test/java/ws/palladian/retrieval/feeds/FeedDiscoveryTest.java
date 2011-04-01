@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ws.palladian.retrieval.feeds.FeedDiscovery;
+import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 
 public class FeedDiscoveryTest {
 
