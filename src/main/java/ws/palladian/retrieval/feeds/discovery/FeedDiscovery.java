@@ -72,7 +72,8 @@ public class FeedDiscovery {
     private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Define which search engine to use, see {@link SourceRetrieverManager} for available constants. */
-    private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
+    // private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
+    private int searchEngine = SourceRetrieverManager.BING;
 
     private int maxThreads = DEFAULT_MAX_THREADS;
 
@@ -326,7 +327,8 @@ public class FeedDiscovery {
             for (DiscoveredFeed feed : discoveredFeeds) {
                 boolean added = feeds.add(feed);
                 if (added && getResultFilePath() != null) {
-                    FileHelper.appendFile(getResultFilePath(), feed.toCSV() + "\n");
+                    // FileHelper.appendFile(getResultFilePath(), feed.toCSV() + "\n");
+                    FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
                 }
             }
         }
@@ -493,6 +495,9 @@ public class FeedDiscovery {
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
                 .withDescription("combine single queries to create more mixed queries").hasArg()
                 .withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("searchEngine")
+                .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
+                .withType(Number.class).create());
 
         try {
 
@@ -524,6 +529,10 @@ public class FeedDiscovery {
             if (cmd.hasOption("combineQueries")) {
                 int targetCount = ((Number) cmd.getParsedOptionValue("combineQueries")).intValue();
                 discovery.combineQueries(targetCount);
+            }
+            if (cmd.hasOption("searchEngine")) {
+                int searchEngine = ((Number) cmd.getParsedOptionValue("searchEngine")).intValue();
+                discovery.setSearchEngine(searchEngine);
             }
 
             discovery.findFeeds();
