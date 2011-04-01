@@ -852,10 +852,15 @@ public class SourceRetriever {
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
-
-                JSONArray results = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web")
-                .getJSONArray("Results");
+                JSONObject jsonWeb = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web");
+                if (!jsonWeb.has("Results")) {
+                    // query gave no results
+                    break;
+                }
+                
+                JSONArray results = jsonWeb.getJSONArray("Results");
                 int resultSize = results.length();
+                
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
                         
