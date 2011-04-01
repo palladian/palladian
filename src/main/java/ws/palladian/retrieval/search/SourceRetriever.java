@@ -39,7 +39,6 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.resources.Source;
 
 /**
  * The SourceRetriever queries the indices of Yahoo!, Google, Microsoft, and
@@ -516,8 +515,7 @@ public class SourceRetriever {
                 String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
                 String summary = XPathHelper.getChildNode(resultNode, "Summary").getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO, rank, new Source(currentURL), title,
-                        summary);
+                WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO, rank, currentURL, title, summary);
                 rank++;
 
                 LOGGER.debug("yahoo retrieved url " + currentURL);
@@ -619,8 +617,8 @@ public class SourceRetriever {
                     String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
-                    WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, new Source(
-                            resultUrl), HTMLHelper.stripHTMLTags(title, true, true, true, true),
+                    WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, 
+                            resultUrl, HTMLHelper.stripHTMLTags(title, true, true, true, true),
                             HTMLHelper.stripHTMLTags(summary, true, true, true, true));
 
                     LOGGER.debug("yahoo boss retrieved url " + resultUrl);
@@ -715,8 +713,8 @@ public class SourceRetriever {
                         String summary = jsonObject.getString("content");
                         String currentURL = jsonObject.getString("unescapedUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
-                                new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, currentURL, title,
+                                summary);
                         rank++;
 
                         LOGGER.debug("google retrieved url " + currentURL);
@@ -800,8 +798,7 @@ public class SourceRetriever {
 
                         String currentURL = results.getJSONObject(j).getString("unescapedUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
-                                new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("google news retrieved url " + currentURL);
@@ -861,19 +858,24 @@ public class SourceRetriever {
                 int resultSize = results.length();
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
-
+                        
+                        WebResult webResult = new WebResult();
                         JSONObject currentResult = results.getJSONObject(j);
-                        String title = currentResult.getString("Title");
-                        String summary = currentResult.getString("Description");
+                        
                         String currentURL = currentResult.getString("Url");
-
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
-                                new Source(currentURL), title, summary);
+                        webResult.setUrl(currentURL);
+                        
+                        if (currentResult.has("Title")) {
+                            webResult.setTitle(currentResult.getString("Title"));
+                        }
+                        if (currentResult.has("Description")) {
+                            webResult.setSummary(currentResult.getString("Description"));
+                        }
 
                         rank++;
 
                         LOGGER.debug("bing retrieved url " + currentURL);
-                        webresults.add(webresult);
+                        webresults.add(webResult);
 
                         ++urlsCollected;
                     } else {
@@ -959,8 +961,7 @@ public class SourceRetriever {
                 }
                 String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.HAKIA, rank, new Source(currentURL), title,
-                        summary, date);
+                WebResult webresult = new WebResult(SourceRetrieverManager.HAKIA, rank, currentURL, title, summary, date);
                 rank++;
 
                 LOGGER.debug("hakia retrieved url " + currentURL);
@@ -1027,8 +1028,7 @@ public class SourceRetriever {
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(SourceRetrieverManager.TWITTER, rank, new Source(
-                                    currentURL), title, summary);
+                            WebResult webresult = new WebResult(SourceRetrieverManager.TWITTER, rank, currentURL, title, summary);
                             rank++;
 
                             LOGGER.info("twitter retrieved url " + tweet.getSource());
@@ -1106,8 +1106,7 @@ public class SourceRetriever {
                         String summary = currentResult.getString("content");
                         String currentURL = currentResult.getString("postUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE_BLOGS, rank, new Source(
-                                currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE_BLOGS, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("google blogs retrieved url " + currentURL);
@@ -1184,8 +1183,7 @@ public class SourceRetriever {
                         // TODO: setSummary(summary);
                         String summary = null;
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.TEXTRUNNER, rank, new Source(
-                                currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.TEXTRUNNER, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("textrunner retrieved url " + currentURL);
