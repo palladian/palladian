@@ -183,7 +183,7 @@ public class Annotation extends UniversalInstance {
 
         // is the entity at the start of a sentence? check if there is a period in the immediate left context
         boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!")
-                || leftContext.endsWith("-DOCSTART-");
+        || leftContext.endsWith("-DOCSTART-");
         nominalFeatures.add(String.valueOf(startOfSentence));
 
         // is the entity in quotes? ",',´
@@ -232,6 +232,17 @@ public class Annotation extends UniversalInstance {
         }
         nominalFeatures.add(posSignature);
 
+        // starts uppercase
+        boolean startsUppercase = StringHelper.startsUppercase(entity);
+        nominalFeatures.add(String.valueOf(startsUppercase));
+
+        // case signature
+        String caseSignature = entity;
+        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
+        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
+        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+
         setTextFeature(entity);
         setNumericFeatures(numericFeatures);
         setNominalFeatures(nominalFeatures);
@@ -267,26 +278,26 @@ public class Annotation extends UniversalInstance {
              * token = "DATE";
              * } else
              */if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
-                token = "NUM";
-            }
+                 token = "NUM";
+             }
 
-            if (wordNumber == 1) {
-                contexts[0] = token;
-                contexts[1] = token;
-                contexts[2] = token;
-            }
+             if (wordNumber == 1) {
+                 contexts[0] = token;
+                 contexts[1] = token;
+                 contexts[2] = token;
+             }
 
-            if (wordNumber == 2) {
-                contexts[1] = token + " " + contexts[1];
-                contexts[2] = token + " " + contexts[2];
-            }
+             if (wordNumber == 2) {
+                 contexts[1] = token + " " + contexts[1];
+                 contexts[2] = token + " " + contexts[2];
+             }
 
-            if (wordNumber == 3) {
-                contexts[2] = token + " " + contexts[2];
-                break;
-            }
+             if (wordNumber == 3) {
+                 contexts[2] = token + " " + contexts[2];
+                 break;
+             }
 
-            wordNumber++;
+             wordNumber++;
         }
 
         if (words.length < 3) {
@@ -371,34 +382,34 @@ public class Annotation extends UniversalInstance {
         String rightContext = getRightContext();
         String[] words = rightContext.split(" ");
         int wordNumber = 1;
-        for (int i = 0; i < words.length; i++) {
+        for (String word : words) {
 
-            String token = words[i];
+            String token = word;
             /*
              * if (DateHelper.containsDate(token)) {
              * token = "DATE";
              * } else
              */if (StringHelper.isNumber(token) || StringHelper.isNumericExpression(token)) {
-                token = "NUM";
-            }
+                 token = "NUM";
+             }
 
-            if (wordNumber == 1) {
-                contexts[0] = token;
-                contexts[1] = token;
-                contexts[2] = token;
-            }
+             if (wordNumber == 1) {
+                 contexts[0] = token;
+                 contexts[1] = token;
+                 contexts[2] = token;
+             }
 
-            if (wordNumber == 2) {
-                contexts[1] = contexts[1] + " " + token;
-                contexts[2] = contexts[2] + " " + token;
-            }
+             if (wordNumber == 2) {
+                 contexts[1] = contexts[1] + " " + token;
+                 contexts[2] = contexts[2] + " " + token;
+             }
 
-            if (wordNumber == 3) {
-                contexts[2] = contexts[2] + " " + token;
-                break;
-            }
+             if (wordNumber == 3) {
+                 contexts[2] = contexts[2] + " " + token;
+                 break;
+             }
 
-            wordNumber++;
+             wordNumber++;
         }
 
         if (words.length < 3) {
@@ -440,9 +451,7 @@ public class Annotation extends UniversalInstance {
 
         String[] words = posRightContext.split(" ");
         int wordNumber = 1;
-        for (int i = 0; i < words.length; i++) {
-
-            String token = words[i];
+        for (String token : words) {
 
             if (wordNumber == 1) {
                 contexts[0] = token;

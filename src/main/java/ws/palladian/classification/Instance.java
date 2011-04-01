@@ -38,6 +38,24 @@ public abstract class Instance<T> implements Serializable {
         return getMainCategoryEntry();
     }
 
+    public CategoryEntry getCategoryEntry(String categoryName) {
+        CategoryEntry ceMatch = null;
+
+        for (CategoryEntry ce : this.assignedCategoryEntries) {
+
+            if (ce == null) {
+                continue;
+            }
+
+            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
+                ceMatch = ce;
+                break;
+            }
+        }
+
+        return ceMatch;
+    }
+
     public CategoryEntry getMainCategoryEntry() {
         CategoryEntry highestMatch = null;
 
