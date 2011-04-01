@@ -21,9 +21,10 @@ public class FeedDiscoveryTest {
     @Test
     public void testFeedDiscovery() {
 
+        Assert.assertEquals(2, feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test006.html").getFile()).size());
         Assert.assertEquals(8, feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test201.html").getFile()).size());
         Assert.assertEquals(1, feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test202.html").getFile()).size());
-        // cannot test these because URLValidaor fails when run offline ...
+        // cannot test these because URLValidator fails when run offline ...
         // Assert.assertEquals(3, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test203.html").size());
         Assert.assertEquals(1, feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test204.html").getFile()).size());
         // Assert.assertEquals(1, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test205.html").size());
@@ -38,16 +39,13 @@ public class FeedDiscoveryTest {
         List<DiscoveredFeed> feeds = feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test001.html").getFile());
         Assert.assertEquals("http://www.tagesschau.de/xml/rss2", feeds.get(0).getFeedLink());
 
-        // page with one RSS and one Atom feed -- we want just the Atom feed
-//        List<DiscoveredFeed> temp = feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test004.html").getFile());
-//        Assert.assertEquals(1, temp.size());
-//        Assert.assertEquals("http://www.neustadt-ticker.de/feed/atom/", temp.get(0));
+        
+        feeds = feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test004.html").getFile());
+        Assert.assertEquals(3, feeds.size());
+        Assert.assertEquals("http://www.neustadt-ticker.de/feed/", feeds.get(0).getFeedLink());
+        Assert.assertEquals("http://www.neustadt-ticker.de/feed/atom/", feeds.get(1).getFeedLink());
+        Assert.assertEquals("http://www.neustadt-ticker.de/nachrichten/burgerversammlung-in-der-leipziger-vorstadt/feed/", feeds.get(2).getFeedLink());
 
-        // get the first, preferred feed
-//        feedDiscovery.setOnlyPreferred(true);
-//        temp = feedDiscovery.discoverFeeds(FeedDiscoveryTest.class.getResource("/pageContentExtractor/test006.html").getFile());
-//        Assert.assertEquals(1, temp.size());
-//        Assert.assertEquals("http://www.wired.com/gadgetlab/feed/", temp.get(0));
 
     }
 
