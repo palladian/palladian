@@ -110,7 +110,10 @@ public class QueryCompiler {
             
         }
 
-        return new ArrayList<String>(combinedQueries);
+        // return random shuffled result
+        ArrayList<String> result = new ArrayList<String>(combinedQueries);
+        Collections.shuffle(result);
+        return result;
 
     }
 
