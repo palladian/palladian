@@ -464,16 +464,6 @@ public class TUDNER2 extends NamedEntityRecognizer implements Serializable {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        String caseSignature = "All THE lilacs";
-        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
-        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
-        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
-
-        // caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
-        System.out.println(caseSignature);
-        System.exit(0);
-
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
 

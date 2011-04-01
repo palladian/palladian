@@ -7,10 +7,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedDownloader;
-import ws.palladian.retrieval.feeds.FeedDownloaderException;
-import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class FeedDatabaseTest {
@@ -25,27 +21,27 @@ public class FeedDatabaseTest {
 
     @Test
     //@Ignore
-    public void testAddFeed() throws FeedDownloaderException {
+    public void testAddFeed() throws FeedRetrieverException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedDownloader newsAggregator = new FeedDownloader();
+        FeedRetriever newsAggregator = new FeedRetriever();
         Feed feed = newsAggregator.getFeed(feedUrl);
         db.addFeed(feed);
     }
 
     @Test
     @Ignore
-    public void testAddDuplicateFeed() throws FeedDownloaderException {
+    public void testAddDuplicateFeed() throws FeedRetrieverException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedDownloader feedDownloader = new FeedDownloader();
+        FeedRetriever feedDownloader = new FeedRetriever();
         Feed feed = feedDownloader.getFeed(feedUrl);
         System.out.println(db.addFeed(feed));
     }
 
     @Test
     @Ignore
-    public void testAddEntries() throws FeedDownloaderException {
+    public void testAddEntries() throws FeedRetrieverException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedDownloader newsAggregator = new FeedDownloader();
+        FeedRetriever newsAggregator = new FeedRetriever();
         Feed feed = db.getFeedByUrl(feedUrl);
         List<FeedItem> entries = newsAggregator.getFeed(feedUrl).getItems();
         for (FeedItem entry : entries) {
@@ -67,10 +63,10 @@ public class FeedDatabaseTest {
     }
 
     @Test
-    public void testAddDuplicateEntry() throws FeedDownloaderException {
+    public void testAddDuplicateEntry() throws FeedRetrieverException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
 
-        FeedDownloader aggregator = new FeedDownloader();
+        FeedRetriever aggregator = new FeedRetriever();
         Feed feed = aggregator.getFeed(feedUrl);
 
         System.out.println(feed);

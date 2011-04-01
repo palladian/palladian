@@ -234,7 +234,7 @@ public class Annotation extends UniversalInstance {
 
         // starts uppercase
         boolean startsUppercase = StringHelper.startsUppercase(entity);
-        nominalFeatures.add(String.valueOf(startsUppercase));
+        // nominalFeatures.add(String.valueOf(startsUppercase));
 
         // case signature
         String caseSignature = entity;
@@ -242,6 +242,7 @@ public class Annotation extends UniversalInstance {
         caseSignature = caseSignature.replaceAll("[a-z]+", "a");
         caseSignature = caseSignature.replaceAll("[0-9]+", "0");
         caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+        nominalFeatures.add(caseSignature);
 
         setTextFeature(entity);
         setNumericFeatures(numericFeatures);
