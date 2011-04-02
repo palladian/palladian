@@ -257,7 +257,7 @@ public class FeedDiscovery {
     public void findFeeds() {
 
         // StopWatch sw = new StopWatch();
-        LOGGER.info("start finding feeds with " + queryQueue.size() + " queryQueue and " + numResults
+        LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
                 + " results per query = " + numResults * queryQueue.size() + " urlQueue to check for feeds");
         
         
@@ -275,7 +275,7 @@ public class FeedDiscovery {
                      Set<String> foundSites = searchSites(query, numResults);
                      urlQueue.addAll(foundSites);
                  }
-                 LOGGER.info("finished queryQueue in " + sw.getElapsedTimeString());                 
+                 LOGGER.info("finished queries in " + sw.getElapsedTimeString());                 
             }
         };
         searchThread.start();
@@ -365,14 +365,14 @@ public class FeedDiscovery {
     /**
      * Add queryQueue for the search engine.
      * 
-     * @param queryQueue A collection of queryQueue.
+     * @param queries A collection of queries.
      */
     public void addQueries(Collection<String> queries) {
         this.queryQueue.addAll(queries);
     }
 
     /**
-     * Add multiple queryQueue from a query file.
+     * Add multiple queries from a query file.
      * 
      * @param filePath
      */
@@ -422,16 +422,16 @@ public class FeedDiscovery {
     }
     
     /**
-     * Use the given queryQueue and combine them, to get the specified targetCount of queryQueue.
+     * Use the given queries and combine them, to get the specified targetCount of queries.
      * 
      * <ul>
-     * <li>If targetCount is smaller than existing queryQueue, existing queryQueue are reduced to a random subset.</li>
+     * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
      * <li>If targetCount is bigger than possible tuples or -1, all posible combinations are calculated.</li>
-     * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queryQueue.</li>
+     * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queries.</li>
      * </ul>
      * 
      * For example:
-     * queryQueue: A, B, C
+     * queries: A, B, C
      * after combining: A, B, C, A B, A C, B C
      */
     public void combineQueries(int targetCount) {
@@ -446,7 +446,7 @@ public class FeedDiscovery {
 
         if (targetCount != -1 && availableQueries > targetCount) {
 
-            // we have more queryQueue than we want, create a random subset of specified size
+            // we have more queries than we want, create a random subset of specified size
             combinedQueries.addAll(singleQueries.subList(0, targetCount));
 
         } else if (targetCount == -1 || targetCount > possibleCombinations + availableQueries) {
@@ -460,10 +460,10 @@ public class FeedDiscovery {
 
         } else {
 
-            // create combined queryQueue
+            // create combined queries
             Random random = new Random();
             while (combinedQueries.size() < targetCount) {
-                // get a query term randomly by combining two single queryQueue
+                // get a query term randomly by combining two single queries
                 String term1 = singleQueries.get(random.nextInt(availableQueries));
                 String term2 = singleQueries.get(random.nextInt(availableQueries));
                 combinedQueries.add(term1 + " " + term2);
@@ -491,15 +491,15 @@ public class FeedDiscovery {
                 .withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
                 .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queryQueue").hasArg()
+        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
                 .withArgName("query1[,query2,...]").create());
         options.addOption(OptionBuilder.withLongOpt("queryFile")
-                .withDescription("runs the specified queryQueue from the file (one query per line)").hasArg()
+                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
                 .withArgName("filename").create());
         options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
                 .withArgName("url").create());
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
-                .withDescription("combine single queryQueue to create more mixed queryQueue").hasArg()
+                .withDescription("combine single queries to create more mixed queries").hasArg()
                 .withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("searchEngine")
                 .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
