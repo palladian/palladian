@@ -605,6 +605,7 @@ public class FileFormatParser {
 
             // remove nested tags
             entityName = HTMLHelper.stripHTMLTags(entityName);
+            entityName = entityName.replaceAll("\n", "");
 
             // add tag < + name + > to cumulated tag offset
             int tagOffset = conceptName.length() + 2;
@@ -613,11 +614,15 @@ public class FileFormatParser {
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
             Annotation annotation = new Annotation(offset, entityName, "", annotations);
-            annotation.setLeftContext(leftContext);
-            annotation.setRightContext(rightContext);
+            annotation.setLeftContext(leftContext.trim());
+            annotation.setRightContext(rightContext.trim());
             annotation.setInstanceCategory(conceptName);
             annotation.createFeatures();
             annotations.add(annotation);
+
+            if (leftContext.endsWith(" ")) {
+                annotation.leftWhitespace = true;
+            }
 
             // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
             // System.out.println("annotation text: " + annotationText);
