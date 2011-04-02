@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -25,8 +24,8 @@ public class FeedsExamples {
         feedDiscovery.addQuery("Porsche 911");
         feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();
-        List<DiscoveredFeed> discoveredFeeds = feedDiscovery.getFeeds();
-        CollectionHelper.print(discoveredFeeds);
+//        List<DiscoveredFeed> discoveredFeeds = feedDiscovery.getFeeds();
+//        CollectionHelper.print(discoveredFeeds);
         
         // download a feed
         FeedRetriever feedRetriever = new FeedRetriever();
@@ -39,7 +38,7 @@ public class FeedsExamples {
         
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);
-        feedImporter.addDiscoveredFeeds(discoveredFeeds);
+//        feedImporter.addDiscoveredFeeds(discoveredFeeds);
         
         // start aggregating news for the feeds in the database
         FeedReader feedReader = new FeedReader(feedStore);
