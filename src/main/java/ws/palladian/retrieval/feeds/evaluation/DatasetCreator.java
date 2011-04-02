@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.evaluation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,27 +12,33 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedClassifier;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
 
 /**
+ * <p>
  * Creates a dataset of feed posts.
+ * </p>
  * <p>
  * For each feed, a csv file is created in the data/datasets/feedPosts/ folder. Each file contains all distinct posts
  * collected over a period of time. Each file follows the follwowing layout:<br>
+ * 
  * <pre>
  * TIMESTAMP;"TITLE";LINK
  * </pre>
  * <p>
- * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing <tt>MISS;MISS;MISS</tt>.
+ * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
+ * <tt>MISS;MISS;MISS</tt>.
+ * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -279,28 +284,26 @@ public class DatasetCreator {
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        FixUpdateStrategy updateStrategy = new FixUpdateStrategy();
-        updateStrategy.setCheckInterval(10);
+        MAVUpdateStrategy updateStrategy = new MAVUpdateStrategy();
+        updateStrategy.setHighestUpdateInterval(60);
+        updateStrategy.setLowestUpdateInterval(2);
         feedChecker.setUpdateStrategy(updateStrategy, true);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
-        Collection<Integer> updateClasses = new HashSet<Integer>();
-        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
-        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
-        updateClasses.add(FeedClassifier.CLASS_SLICED);
-        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
-        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
-        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
-        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
+//        Collection<Integer> updateClasses = new HashSet<Integer>();
+//        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
+//        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
+//        updateClasses.add(FeedClassifier.CLASS_SLICED);
+//        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
+//        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
+//        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
+//        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
         // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
             public void performAction(Feed feed) {
-                // System.out.println("do stuff with " + feed.getFeedUrl());
-                // System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
-                // + feed.getChecks());
 
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
@@ -308,8 +311,9 @@ public class DatasetCreator {
 
                 int slice = (int) Math.floor(feed.getId() / 1000.0);
 
-                String filePath = DATASET_PATH + slice + "/" + feed.getId() + "_" + safeFeedName + ".csv";
-                LOGGER.debug("Saving feed to: " + filePath);
+                String folderPath = DATASET_PATH + slice + "/" + feed.getId() + "/";
+                String filePath = folderPath + feed.getId() + "_" + safeFeedName + ".csv";
+                LOGGER.debug("saving feed to: " + filePath);
 
                 // get entries from the file
                 File postEntryFile = new File(filePath);
@@ -335,7 +339,7 @@ public class DatasetCreator {
                     return;
                 }
 
-                // Calculating size of feed header and footer, which should always stay the same.
+                // calculate size of feed header and footer, which should always stay the same.
                 long summedFeedEntrySize = 0;
                 for (FeedItem entry : feedEntries) {
                     String entryPlainXML = entry.getRawMarkup();
@@ -350,7 +354,7 @@ public class DatasetCreator {
                 long feedContainerSize = feedSize - summedFeedEntrySize;
 
                 StringBuilder newEntries = new StringBuilder();
-                int newPosts = 0;
+                int newItems = 0;
 
                 LOGGER.debug("Feed entries: " + feedEntries.size());
                 for (FeedItem entry : feedEntries) {
@@ -386,17 +390,24 @@ public class DatasetCreator {
 
                     if (!contains) {
                         newEntries.append(fileEntry).append("\n");
-                        newPosts++;
+                        newItems++;
                     }
 
                 }
 
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
-                if (newPosts == feedEntries.size() && feed.getChecks() > 1 && newPosts > 0) {
+                if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
+                }
+                
+                // save the complete feed gzipped in the folder if we found at least one new item
+                if (newItems > 0) {
+                    DocumentRetriever documentRetriever = new DocumentRetriever();
+                    documentRetriever.downloadAndSave(feed.getFeedUrl(),
+                            folderPath + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + ".gz", true);
                 }
 
                 LOGGER.debug("Saving new file content: " + newEntries.toString());
@@ -405,7 +416,7 @@ public class DatasetCreator {
                 feed.freeMemory();
                 feed.setLastHeadlines("");
 
-                LOGGER.debug("added " + newPosts + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
+                LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
             }
         };
@@ -414,7 +425,6 @@ public class DatasetCreator {
 
         LOGGER.debug("start reading feeds");
         feedChecker.startContinuousReading();
-
     }
 
 }

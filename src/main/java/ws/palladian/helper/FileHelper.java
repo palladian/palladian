@@ -538,14 +538,19 @@ public class FileHelper {
     }
 
     /**
-     * Write to file.
+     * Write text to a file. If the file path ends with "gz" or "gzip" the contents will be gzipped automatically.
      * 
-     * @param filePath the file path
-     * @param string the string
-     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     * @param filePath The file path where the contents should be saved to.
+     * @param string The string to save.
+     * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
      *         {@link filePath}. See error log for details (Exceptions)
      */
     public static boolean writeToFile(String filePath, CharSequence string) {
+
+        String fileType = getFileType(filePath);
+        if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
+            return gzip(string, filePath);
+        }
 
         boolean success = false;
         File file = new File(filePath);
@@ -564,6 +569,7 @@ public class FileHelper {
         } finally {
             close(writer);
         }
+
         return success;
     }
 
@@ -1145,13 +1151,13 @@ public class FileHelper {
      * @param filenameOutput The name of the zipped file.
      * @return True if zipping and saving was successfully, false otherwise.
      */
-    public static boolean gzip(String text, String filenameOutput) {
+    public static boolean gzip(CharSequence text, String filenameOutput) {
 
         try {
             FileOutputStream out = new FileOutputStream(filenameOutput);
             GZIPOutputStream zipout = new GZIPOutputStream(out);
 
-            StringReader in = new StringReader(text);
+            StringReader in = new StringReader(text.toString());
             int c = 0;
             while ((c = in.read()) != -1) {
                 zipout.write((byte) c);

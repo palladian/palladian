@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.zip.DeflaterInputStream;
@@ -101,27 +101,29 @@ public class DocumentRetriever {
         }
     }
 
-    // //////////////////general settings ////////////////////
+    // /////////////////////////////////////////////////////////
+    // ////////////////// general settings ////////////////////
+    // /////////////////////////////////////////////////////////
 
-    /** the document that is created after retrieving a web page */
+    /** The document that is created after retrieving a web page. */
     private Document document = null;
 
-    /** the connection timeout which should be used */
+    /** The connection timeout which should be used. */
     private int connectionTimout = DEFAULT_CONNECTION_TIMEOUT;
 
-    /** the read timeout which should be used */
+    /** The read timeout which should be used. */
     private int readTimeout = DEFAULT_READ_TIMEOUT;
 
-    /** the overall timeout which should be used */
+    /** The overall timeout which should be used. */
     private int overallTimeout = DEFAULT_OVERALL_TIMEOUT;
 
-    /** the number of retries when downloading fails. */
+    /** The number of retries when downloading fails. */
     private int numRetries = DEFAULT_NUM_RETRIES;
 
     /** The stack to store URLs to be downloaded. */
     private Stack<String> urlStack = new Stack<String>();
 
-    /** number of active threads */
+    /** Number of active threads. */
     private int threadCount = 0;
 
     /** Accumulates the download size in bytes for this crawler. */
@@ -133,6 +135,7 @@ public class DocumentRetriever {
     /** Keep track of the total number of bytes downloaded by all crawler instances used. */
     private static long sessionDownloadedBytes = 0;
 
+    /** The total number of downloaded pages. */
     private static int numberOfDownloadedPages = 0;
 
     /** Whether to use HTTP compression or not. */
@@ -144,7 +147,7 @@ public class DocumentRetriever {
     /** The response code of the last HTTP request. */
     // private int lastResponseCode = -1;
 
-    /** The filter for the crawler. */
+    /** The filter for the retriever. */
     private DownloadFilter downloadFilter = new DownloadFilter();
 
     /**
@@ -156,24 +159,29 @@ public class DocumentRetriever {
 
     protected boolean sanitizeXml = true;
 
-    // ////////////////// proxy settings ////////////////////
-    /** the proxy to use */
+    // /////////////////////////////////////////////////////////
+    // /////////////////// proxy settings /////////////////////
+    // /////////////////////////////////////////////////////////
+
+    /** The proxy to use. */
     private Proxy proxy = null;
 
-    /** number of request before switching to another proxy, -1 means never switch */
+    /** Number of request before switching to another proxy, -1 means never switch. */
     private int switchProxyRequests = 20;
 
-    /** list of proxies to choose from */
+    /** List of proxies to choose from. */
     private LinkedList<Proxy> proxyList = new LinkedList<Proxy>();
 
-    /** number of requests sent with currently used proxy. */
+    /** Number of requests sent with currently used proxy. */
     private int proxyRequests = 0;
 
-
+    /** The set of retrieved documents. */
     private Set<Document> downloadedDocuments = new HashSet<Document>();
 
+    /** The maximum number of threads to use. */
     private int maxThreads = 10;
 
+    /** The maximum number of fails and retries. */
     private int maxFails = 10;
 
     /** The callback that is called after each crawled page. */
@@ -647,12 +655,6 @@ public class DocumentRetriever {
     public String download(String urlString, boolean stripTags, boolean stripComments, boolean stripJSAndCSS,
             boolean joinTagsAndRemoveNewlines) {
 
-        // do not download pdf, ppt or ps files TODO try to download them as
-        // well
-        if (urlString.indexOf(".pdf") > -1 || urlString.indexOf(".ps") > -1 || urlString.indexOf(".ppt") > -1) {
-            return "";
-        }
-
         boolean isFile = false;
         if (urlString.indexOf("http://") == -1 && urlString.indexOf("https://") == -1) {
             isFile = true;
@@ -729,35 +731,58 @@ public class DocumentRetriever {
     }
 
     public boolean downloadAndSave(String urlString, String path) {
+        return downloadAndSave(urlString, path, false);
+    }
+
+    /**
+     * Download the content from a given URL and save it to a specified path.
+     * 
+     * @param urlString The URL to download from.
+     * @param path The path where the downloaded contents should be saved to.
+     * @param includeHttpHeaders Whether to prepend the HTTP headers for the request to the saved content.
+     * @return <tt>True</tt> if everything worked properly, <tt>false</tt> otherwise.
+     */
+    public boolean downloadAndSave(String urlString, String path, boolean includeHttpHeaders) {
 
         String content = download(urlString);
+
+        // add the http headers to the content
+        if (includeHttpHeaders) {
+
+            StringBuilder headerContent = new StringBuilder();
+
+            Map<String, List<String>> headers = getHeaders(urlString);
+
+            for (Entry<String, List<String>> headerField : headers.entrySet()) {
+
+                String key = headerField.getKey();
+                if (key == null) {
+                    key = "Status Code";
+                }
+                headerContent.append(key).append(":");
+
+                boolean first = true;
+                for (String headerValue : headerField.getValue()) {
+                    if (!first) {
+                        headerContent.append(",");
+                    }
+                    headerContent.append(headerValue);
+                    first = false;
+                }
+
+                headerContent.append("\n");
+            }
+
+            content = headerContent.toString() + "\n----------------- End Headers -----------------\n\n" + content;
+        }
 
         if (content.length() == 0) {
             LOGGER.warn(urlString + " was not found, or contained no content, it is not saved in a file");
             return false;
         }
 
-        try {
-            FileWriter fileWriter = new FileWriter(path);
-            fileWriter.write(content.toString());
-            fileWriter.flush();
-            fileWriter.close();
-
-            return true;
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(urlString + " " + path + ", " + e.getMessage());
-            return false;
-        } catch (IOException e) {
-            LOGGER.error(urlString + " " + path + ", " + e.getMessage());
-            return false;
-        }
-
+        return FileHelper.writeToFile(path, content.toString());
     }
-
-//    public void downloadImage(String url, String path) {
-//        ImageHandler.downloadAndSave(url, path);
-//    }
 
     public long getTotalDownloadSize() {
         return getTotalDownloadSize(SizeUnit.BYTES);
@@ -959,13 +984,15 @@ public class DocumentRetriever {
 
     /**
      * Get HTTP Headers of an URLConnection to pageURL.
+     * 
+     * @param pageUrl The URL of the page to get the headers from.
      */
-    public Map<String, List<String>> getHeaders(String pageURL) {
+    public Map<String, List<String>> getHeaders(String pageUrl) {
         URL url;
         URLConnection conn;
         Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
         try {
-            url = new URL(pageURL);
+            url = new URL(pageUrl);
             conn = url.openConnection();
             headerMap = conn.getHeaderFields();
 
@@ -1032,7 +1059,6 @@ public class DocumentRetriever {
 
             int size = (int) binFile.length();
             sessionDownloadedBytes += size;
-
 
         } catch (Exception e) {
 
@@ -1440,6 +1466,17 @@ public class DocumentRetriever {
                 + " * downloadSize [KB] + " + parameters[1]);
         LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
         LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
+    }
+
+    /**
+     * The main method for testing and usage purposes.
+     * 
+     * @param args The arguments.
+     */
+    public static void main(String[] args) {
+        DocumentRetriever retriever = new DocumentRetriever();
+        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz");
+        retriever.downloadAndSave("http://www.cinefreaks.com", "data/temp/cf_with_headers.txt", true);
     }
 
 }

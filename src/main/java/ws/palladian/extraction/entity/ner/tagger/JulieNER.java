@@ -223,6 +223,8 @@ public class JulieNER extends NamedEntityRecognizer {
         // I've
         content = content.replaceAll("' ve(?=\\W)", "'ve");
 
+        content = content.replaceAll(">'B", ">' B");
+
         // we'll
         content = content.replaceAll("' ll(?=\\W)", "'ll");
 
@@ -255,6 +257,9 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replaceAll("(?<=[A-Z]\\.\\<\\/.{1,20}?\\>) de ", "de ");
         content = content.replaceAll("(?<=[A-Z][.]) de ", "de ");
 
+        // S. AFR
+        content = content.replace("S. AFR", "S.AFR");
+
         // d'a
         content = content.replace("d' a", "d'a");
 
@@ -270,6 +275,7 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replace(",- ", ",-");
         content = content.replace("(- 17", "(-17");
         content = content.replace(".... I", "....I");
+        content = content.replace("... I do not know", "...I do not know");
 
         // $ 6= 4
         content = content.replaceAll("(?<=\\d)= (?=\\d+(\\s))", "=");
