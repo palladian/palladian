@@ -29,15 +29,19 @@ import ws.palladian.retrieval.DocumentRetriever;
  */
 public class DeliciousCrawler {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DeliciousCrawler.class);
-    private DocumentRetriever crawler = null;
+
+    /** The document retriever. */
+    private DocumentRetriever documentRetriever = null;
+
+    /** The stack holding the URLs. */
     private HashSet<String> urlStack =  null;
 
     public DeliciousCrawler() {
-        crawler = new DocumentRetriever();
+        documentRetriever = new DocumentRetriever();
 
-        crawler.setSwitchProxyRequests(15);
+        documentRetriever.setSwitchProxyRequests(15);
 
         // http://www.proxy-list.org/en/index.php
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("87.106.143.132", 3128));
@@ -80,7 +84,7 @@ public class DeliciousCrawler {
     private ArrayList<String> getTagList(String detailURL) {
         ArrayList<String> tagList = new ArrayList<String>();
 
-        Document detailPage = crawler.getWebDocument(detailURL);
+        Document detailPage = documentRetriever.getWebDocument(detailURL);
 
         List<Node> tagNodes = XPathHelper.getNodes(detailPage, "/html/body/div/div/div/div/ul/li/a/span".toUpperCase());
 
@@ -112,7 +116,7 @@ public class DeliciousCrawler {
             String url = "http://delicious.com/recent?page=" + p + "&setcount=100";
             LOGGER.info("check: " + url);
 
-            Document document = crawler.getWebDocument(url);
+            Document document = documentRetriever.getWebDocument(url);
 
             List<Node> nodeList = XPathHelper.getNodes(document, "//ul/li/div".toUpperCase());
 

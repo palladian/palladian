@@ -77,8 +77,8 @@ public class Feed {
      */
     private int updateInterval = 60;
 
-    public static int MIN_DELAY = 0;
-    public static int MAX_COVERAGE = 1;
+    public static final int MIN_DELAY = 0;
+    public static final int MAX_COVERAGE = 1;
 
     /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
     private int updateMode = Feed.MIN_DELAY;

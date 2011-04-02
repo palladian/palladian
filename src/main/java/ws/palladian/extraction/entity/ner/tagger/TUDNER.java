@@ -98,6 +98,13 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     public static boolean remove = true;
 
+    public enum TUDNER_Mode {
+        LanguageIndependent, English
+    }
+
+    // mode
+    private TUDNER_Mode mode = TUDNER_Mode.English;
+
     public TUDNER() {
         setName("TUD NER");
 
@@ -142,6 +149,17 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
+
+        if (mode.equals(TUDNER_Mode.English)) {
+            return trainEnglish(trainingFilePath, modelFilePath);
+        } else {
+            // return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        }
+
+        return false;
+    }
+
+    public boolean trainEnglish(String trainingFilePath, String modelFilePath) {
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
@@ -199,7 +217,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // //////////////////////////////////////////// wrong entities //////////////////////////////////////
         // universalClassifier.trainAll();
-        finishTraining(modelFilePath);
+        saveModel(modelFilePath);
         // String inputText = FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN);
         // Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
         // Annotations classifiedAnnotations = verifyAnnotationsWithNumericClassifier(entityCandidates, inputText);
@@ -255,7 +273,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         System.out.println("entity dictionary contains " + entityDictionary.size() + " entities");
         entityDictionary.saveAsCSV();
 
-        finishTraining(modelFilePath);
+        saveModel(modelFilePath);
 
         analyzeContexts(trainingFilePath);
 
@@ -869,7 +887,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return kbCommunicator.getTrainingEntities(percentage);
     }
 
-    private void finishTraining(String modelFilePath) {
+    protected void saveModel(String modelFilePath) {
 
         LOGGER.info("serializing NERCer");
         FileHelper.serialize(this, modelFilePath);

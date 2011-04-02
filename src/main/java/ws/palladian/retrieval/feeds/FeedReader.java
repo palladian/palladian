@@ -499,9 +499,8 @@ public final class FeedReader {
 
             @Override
             public void performAction(Feed feed) {
-                System.out.println("do stuff with " + feed.getFeedUrl());
-                System.out
-                .println("::: update interval: " + feed.getUpdateInterval() + ", checks: "
+                LOGGER.info("do stuff with " + feed.getFeedUrl());
+                LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: "
                         + feed.getChecks());
             }
         };

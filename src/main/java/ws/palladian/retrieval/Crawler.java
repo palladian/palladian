@@ -20,42 +20,38 @@ public class Crawler {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Crawler.class);
 
+    /** The document retriever. */
     private DocumentRetriever documentRetriever;
 
-    public DocumentRetriever getDocumentRetriever() {
-        return documentRetriever;
-    }
-
-    public void setDocumentRetriever(DocumentRetriever documentRetriever) {
-        this.documentRetriever = documentRetriever;
-    }
-
-    /** maximum number of threads used during crawling */
+    /** Maximum number of threads used during crawling. */
     private int maxThreads = 10;
 
-    /** number of active threads */
+    /** Number of active threads. */
     private int threadCount = 0;
 
+    // ///////////////////////////////////////////////////////
     // ////////////////// crawl settings ////////////////////
-    /** whether to crawl within a certain domain */
+    // ///////////////////////////////////////////////////////
+
+    /** Whether to crawl within a certain domain. */
     private boolean inDomain = true;
 
-    /** whether to crawl outside of current domain */
+    /** Whether to crawl outside of current domain. */
     private boolean outDomain = true;
 
-    /** only follow domains that have one or more of these strings in their url */
-    private Set<String> onlyFollow = new HashSet<String>();
+    /** Only follow domains that have one or more of these strings in their URL. */
+    private final Set<String> onlyFollow = new HashSet<String>();
 
-    /** do not look for more URLs if visited stopCount pages already, -1 for infinity */
+    /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = null;
-    private Set<String> visitedURLs = new HashSet<String>();
+    private final Set<String> visitedURLs = new HashSet<String>();
 
-    /** all urls that have been visited or extracted */
-    private Set<String> seenURLs = new HashSet<String>();
+    /** All urls that have been visited or extracted. */
+    private final Set<String> seenURLs = new HashSet<String>();
 
-    private Set<String> urlRules = new HashSet<String>();
-    private Set<String> urlDump = new HashSet<String>();
+    private final Set<String> urlRules = new HashSet<String>();
+    private final Set<String> urlDump = new HashSet<String>();
 
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
@@ -270,8 +266,6 @@ public class Crawler {
         return valid;
     }
 
-
-
     public int getMaxThreads() {
         return maxThreads;
     }
@@ -304,12 +298,20 @@ public class Crawler {
         documentRetriever.addCrawlerCallback(crawlerCallback);
     }
 
+    public DocumentRetriever getDocumentRetriever() {
+        return documentRetriever;
+    }
+
+    public void setDocumentRetriever(DocumentRetriever documentRetriever) {
+        this.documentRetriever = documentRetriever;
+    }
+
     public static void main(String[] args) {
 
         // ////////////////////////// how to use a crawler
         // ////////////////////////////
         // create the crawler object
-        Crawler c = new Crawler();
+        Crawler crawler = new Crawler();
 
         // create a callback that is triggered for every crawled page
         CrawlerCallback crawlerCallback = new CrawlerCallback() {
@@ -319,28 +321,28 @@ public class Crawler {
                 // TODO write page to database
             }
         };
-        c.addCrawlerCallback(crawlerCallback);
+        crawler.addCrawlerCallback(crawlerCallback);
 
         // stop after 1000 pages have been crawled (default is unlimited)
-        c.setStopCount(1000);
+        crawler.setStopCount(1000);
 
         // set the maximum number of threads to 1
-        c.setMaxThreads(1);
+        crawler.setMaxThreads(1);
 
         // the crawler should automatically use different proxies after every
         // 3rd request (default is no proxy switching)
-        c.getDocumentRetriever().setSwitchProxyRequests(3);
+        crawler.getDocumentRetriever().setSwitchProxyRequests(3);
 
         // set a list of proxies to choose from
         List<String> proxyList = new ArrayList<String>();
         proxyList.add("83.244.106.73:8080");
         proxyList.add("83.244.106.73:80");
         proxyList.add("67.159.31.22:8080");
-        c.getDocumentRetriever().setProxyList(proxyList);
+        crawler.getDocumentRetriever().setProxyList(proxyList);
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
-        c.startCrawl("http://www.dmoz.org/", true, true);
+        crawler.startCrawl("http://www.dmoz.org/", true, true);
         // //////////////////////////how to use a crawler
         // ////////////////////////////
     }
