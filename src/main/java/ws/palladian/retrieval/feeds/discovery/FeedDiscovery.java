@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -42,8 +40,8 @@ import edu.umass.cs.mallet.base.util.Random;
 /**
  * FeedDiscovery works like the following:
  * <ol>
- * <li>Query search engine with some terms (I use Yahoo, as I can get large amounts of results)</li>
- * <li>Get root URLs for hits</li>
+ * <li>Query search engine with some terms (see {@link SourceRetrieverManager} for available search engines)</li>
+ * <li>Get root URLs for each hit</li>
  * <li>Check page for feeds using RSS/Atom autodiscovery feature</li>
  * </ol>
  * 
@@ -66,7 +64,7 @@ public class FeedDiscovery {
             + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
             + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]";
 
-    private static final int DEFAULT_MAX_THREADS = 10;
+    private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
     private DocumentRetriever documentRetriever = new DocumentRetriever();
@@ -75,22 +73,19 @@ public class FeedDiscovery {
     // private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
     private int searchEngine = SourceRetrieverManager.BING;
 
-    private int maxThreads = DEFAULT_MAX_THREADS;
+    private int numThreads = DEFAULT_NUM_THREADS;
 
-    /** Store all sites for which we will do the autodiscovery. */
-    private BlockingQueue<String> sites = new LinkedBlockingQueue<String>();
+    /** Store all urls for which we will do the autodiscovery. */
+    private BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
 
-    /**
-     * The path of the file where the discovered feeds should be written to, if this is null, no result file will be
-     * written.
-     */
+    /** The path of the file where the discovered feeds should be written to. */
     private String resultFilePath = null;
 
-    /** Store a collection of all queries that are used to retrieve sites from a search engine. */
-    private List<String> queries = new ArrayList<String>();
+    /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
+    private BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
 
     /** Store all discovered feed's URLs. */
-    private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
+//    private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
 
     /** Number of search engine results to retrieve for each query. */
     private int numResults = 10;
@@ -100,7 +95,7 @@ public class FeedDiscovery {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            setMaxThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", DEFAULT_MAX_THREADS));
+            setNumThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", DEFAULT_NUM_THREADS));
             setSearchEngine(config.getInt("feedDiscovery.searchEngine", SourceRetrieverManager.YAHOO_BOSS));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
@@ -213,7 +208,7 @@ public class FeedDiscovery {
                 continue;
             }
 
-            // few sites use a "Feed URI Scheme" which can look like
+            // few urlQueue use a "Feed URI Scheme" which can look like
             // feed://example.com/entries.atom
             // feed:https://example.com/entries.atom
             // See ---> http://en.wikipedia.org/wiki/Feed_URI_scheme
@@ -251,85 +246,94 @@ public class FeedDiscovery {
 
         }
 
-        LOGGER.debug(result.size() + " feeds for " + pageUrl);
+         LOGGER.debug(result.size() + " feeds for " + pageUrl);
         return result;
 
     }
 
     /**
-     * Find feeds in all pages on the sites tack. We use threading here to check multiple pages simultaneously.
+     * Find feeds in all pages on the urlQueue tack. We use threading here to check multiple pages simultaneously.
      */
     public void findFeeds() {
 
-        StopWatch sw = new StopWatch();
-        LOGGER.info("start finding feeds with " + queries.size() + " queries and " + numResults
-                + " results per query = " + numResults * queries.size() + " sites to check for feeds");
+        // StopWatch sw = new StopWatch();
+        LOGGER.info("start finding feeds with " + queryQueue.size() + " queryQueue and " + numResults
+                + " results per query = " + numResults * queryQueue.size() + " urlQueue to check for feeds");
         
-        int totalQueries = queries.size();
-        int currentQuery = 0;
         
-        Iterator<String> iterator = queries.iterator();
+        // do the search
+        Thread searchThread = new Thread() {
+             @Override
+            public void run() {
+                 String query;
+                 StopWatch sw = new StopWatch();
+                 int totalQueries = queryQueue.size();
+                 int currentQuery = 0;
+                 while ((query = queryQueue.poll()) != null) {
+                     currentQuery++;
+                     LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
+                     Set<String> foundSites = searchSites(query, numResults);
+                     urlQueue.addAll(foundSites);
+                 }
+                 LOGGER.info("finished queryQueue in " + sw.getElapsedTimeString());                 
+            }
+        };
+        searchThread.start();
 
-        while (iterator.hasNext()) {
+        // do the autodiscovery in parallel
+        Thread[] threads = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
 
-            String query = iterator.next();
-            iterator.remove();
-            
-            StopWatch sw2 = new StopWatch();
-            currentQuery++;
-
-            // do the search
-            LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
-            Set<String> foundSites = searchSites(query, numResults);
-            sites.addAll(foundSites);
-            LOGGER.info("finished queries in " + sw2.getElapsedTimeString());
-
-            // do the autodiscovery in parallel
-            sw2 = new StopWatch();
-            LOGGER.info("discovery for " + sites.size() + " urls");
-            Thread[] threads = new Thread[maxThreads];
-            for (int i = 0; i < maxThreads; i++) {
-
-                threads[i] = new Thread() {
-                    @Override
-                    public void run() {
-                        String site;
-                        while ((site = sites.poll()) != null) {
+            threads[i] = new Thread() {
+                @Override
+                public void run() {
+                    while (queryQueue.size() > 0 || urlQueue.size() > 0) {
+                        
+                        String url = urlQueue.poll();
+                        
+                        // we got no new URL from the queue, search engine might still be busy, so wait a moment before
+                        // we continue looping.
+                        if (url == null) {
                             try {
-                                List<DiscoveredFeed> discoveredFeeds = discoverFeeds(site);
-                                addDiscoveredFeeds(discoveredFeeds);
-                            } catch (Throwable t) {
-                                LOGGER.error(t);
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOGGER.error(e);
                             }
+                            continue;
+                        }
+                        
+                        try {
+                            List<DiscoveredFeed> discoveredFeeds = discoverFeeds(url);
+                            addDiscoveredFeeds(discoveredFeeds);
+                        } catch (Throwable t) {
+                            LOGGER.error(t);
                         }
                     }
-                };
-                threads[i].start();
-            }
-
-            // wait, until all Threads are finished
-            for (Thread thread : threads) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    LOGGER.error(e);
                 }
-            }
-
-            LOGGER.info("finished discovery in " + sw2.getElapsedTimeString());
+            };
+            threads[i].start();
         }
 
-        LOGGER.info("found " + feeds.size() + " feeds in " + sw.getElapsedTimeString());
+        // wait, until all Threads are finished
+        try {
+            searchThread.join();
+            for (Thread thread : threads) {
+                thread.join();
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error(e);
+        }
+
     }
 
     private synchronized void addDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
             for (DiscoveredFeed feed : discoveredFeeds) {
-                boolean added = feeds.add(feed);
-                if (added && getResultFilePath() != null) {
+//                boolean added = feeds.add(feed);
+//                if (added && getResultFilePath() != null) {
                     // FileHelper.appendFile(getResultFilePath(), feed.toCSV() + "\n");
                     FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
-                }
+//                }
             }
         }
     }
@@ -355,20 +359,20 @@ public class FeedDiscovery {
      * @param query The query to add.
      */
     public void addQuery(String query) {
-        this.queries.add(query);
+        this.queryQueue.add(query);
     }
 
     /**
-     * Add queries for the search engine.
+     * Add queryQueue for the search engine.
      * 
-     * @param queries A collection of queries.
+     * @param queryQueue A collection of queryQueue.
      */
     public void addQueries(Collection<String> queries) {
-        this.queries.addAll(queries);
+        this.queryQueue.addAll(queries);
     }
 
     /**
-     * Add multiple queries from a query file.
+     * Add multiple queryQueue from a query file.
      * 
      * @param filePath
      */
@@ -377,8 +381,8 @@ public class FeedDiscovery {
         addQueries(queries);
     }
 
-    public Collection<String> getQueries() {
-        return queries;
+    public Collection<String> getQueryQueue() {
+        return queryQueue;
     }
 
     /**
@@ -386,17 +390,17 @@ public class FeedDiscovery {
      * 
      * @return
      */
-    public List<DiscoveredFeed> getFeeds() {
-        return new ArrayList<DiscoveredFeed>(feeds);
-    }
+//    public List<DiscoveredFeed> getFeeds() {
+//        return new ArrayList<DiscoveredFeed>(feeds);
+//    }
 
     /**
      * Set max number of concurrent autodiscovery requests.
      * 
      * @param maxThreads
      */
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
+    public void setNumThreads(int numThreads) {
+        this.numThreads = numThreads;
     }
 
     /**
@@ -418,55 +422,57 @@ public class FeedDiscovery {
     }
     
     /**
-     * Use the given queries and combine them, to get the specified targetCount of queries.
+     * Use the given queryQueue and combine them, to get the specified targetCount of queryQueue.
      * 
      * <ul>
-     * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
+     * <li>If targetCount is smaller than existing queryQueue, existing queryQueue are reduced to a random subset.</li>
      * <li>If targetCount is bigger than possible tuples or -1, all posible combinations are calculated.</li>
-     * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queries.</li>
+     * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queryQueue.</li>
      * </ul>
      * 
      * For example:
-     * queries: A, B, C
+     * queryQueue: A, B, C
      * after combining: A, B, C, A B, A C, B C
      */
     public void combineQueries(int targetCount) {
 
-        int availableQueries = queries.size();
+        int availableQueries = queryQueue.size();
 
-        List<String> combinedQueries = new ArrayList<String>(queries);
-        Collections.shuffle(queries);
+        List<String> singleQueries = new ArrayList<String>(queryQueue);
+        List<String> combinedQueries = new ArrayList<String>(queryQueue);
+        Collections.shuffle(singleQueries);
 
         int possibleCombinations = availableQueries * (availableQueries - 1) / 2;
 
         if (targetCount != -1 && availableQueries > targetCount) {
 
-            // we have more queries than we want, create a random subset of specified size
-            combinedQueries.addAll(queries.subList(0, targetCount));
+            // we have more queryQueue than we want, create a random subset of specified size
+            combinedQueries.addAll(singleQueries.subList(0, targetCount));
 
         } else if (targetCount == -1 || targetCount > possibleCombinations + availableQueries) {
 
             // target count is higher than possible tuple combinations; so just calculate all
             for (int i = 0; i < availableQueries; i++) {
                 for (int j = i + 1; j < availableQueries; j++) {
-                    combinedQueries.add(queries.get(i) + " " + queries.get(j));
+                    combinedQueries.add(singleQueries.get(i) + " " + singleQueries.get(j));
                 }
             }
 
         } else {
 
-            // create combined queries
+            // create combined queryQueue
             Random random = new Random();
             while (combinedQueries.size() < targetCount) {
-                // get a query term randomly by combining two single queries
-                String term1 = queries.get(random.nextInt(availableQueries));
-                String term2 = queries.get(random.nextInt(availableQueries));
+                // get a query term randomly by combining two single queryQueue
+                String term1 = singleQueries.get(random.nextInt(availableQueries));
+                String term2 = singleQueries.get(random.nextInt(availableQueries));
                 combinedQueries.add(term1 + " " + term2);
             }
         }
 
         Collections.shuffle(combinedQueries);
-        queries = combinedQueries;
+        queryQueue.clear();
+        queryQueue.addAll(combinedQueries);
 
     }
 
@@ -485,15 +491,15 @@ public class FeedDiscovery {
                 .withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
                 .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
+        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queryQueue").hasArg()
                 .withArgName("query1[,query2,...]").create());
         options.addOption(OptionBuilder.withLongOpt("queryFile")
-                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
+                .withDescription("runs the specified queryQueue from the file (one query per line)").hasArg()
                 .withArgName("filename").create());
         options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
                 .withArgName("url").create());
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
-                .withDescription("combine single queries to create more mixed queries").hasArg()
+                .withDescription("combine single queryQueue to create more mixed queryQueue").hasArg()
                 .withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("searchEngine")
                 .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
@@ -512,7 +518,7 @@ public class FeedDiscovery {
                 discovery.setNumResults(((Number) cmd.getParsedOptionValue("numResults")).intValue());
             }
             if (cmd.hasOption("threads")) {
-                discovery.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+                discovery.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
             if (cmd.hasOption("outputFile")) {
                 discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
