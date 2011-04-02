@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,7 +36,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.search.SourceRetriever;
 import ws.palladian.retrieval.search.SourceRetrieverManager;
-import edu.umass.cs.mallet.base.util.Random;
 
 /**
  * FeedDiscovery works like the following:
@@ -208,7 +208,7 @@ public class FeedDiscovery {
                 continue;
             }
 
-            // few urlQueue use a "Feed URI Scheme" which can look like
+            // few feeds use a "Feed URI Scheme" which can look like
             // feed://example.com/entries.atom
             // feed:https://example.com/entries.atom
             // See ---> http://en.wikipedia.org/wiki/Feed_URI_scheme
