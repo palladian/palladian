@@ -56,7 +56,6 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.StringOutputStream;
-import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -291,7 +290,8 @@ public class HTMLHelper {
         // close gaps
         htmlText = htmlText.replaceAll("(\\s){2,}", " ");
 
-        return htmlText.trim();
+        // return htmlText.trim();
+        return htmlText;
     }
 
     /**
@@ -307,7 +307,7 @@ public class HTMLHelper {
      * @param htmlContent the html content
      */
     public static String stripHTMLTags(String htmlContent) {
-        return stripHTMLTags(htmlContent, true, true, true, true);
+        return stripHTMLTags(htmlContent, true, true, true, false);
     }
 
     /**

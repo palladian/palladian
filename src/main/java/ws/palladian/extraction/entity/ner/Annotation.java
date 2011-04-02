@@ -45,6 +45,9 @@ public class Annotation extends UniversalInstance {
     /** The left context of the annotation */
     private String leftContext = "";
 
+    // FIXME
+    public boolean leftWhitespace = false;
+
     /** The right context of the annotation */
     private String rightContext = "";
 
@@ -234,7 +237,7 @@ public class Annotation extends UniversalInstance {
 
         // starts uppercase
         boolean startsUppercase = StringHelper.startsUppercase(entity);
-        // nominalFeatures.add(String.valueOf(startsUppercase));
+        nominalFeatures.add(String.valueOf(startsUppercase));
 
         // case signature
         String caseSignature = entity;
@@ -242,7 +245,20 @@ public class Annotation extends UniversalInstance {
         caseSignature = caseSignature.replaceAll("[a-z]+", "a");
         caseSignature = caseSignature.replaceAll("[0-9]+", "0");
         caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
-        nominalFeatures.add(caseSignature);
+        // nominalFeatures.add(caseSignature);
+
+        // left token starts uppercase
+        String[] leftContextTokens = leftContext.split(" ");
+        boolean leftStartsUppercase = false;
+
+        if (leftContextTokens.length > 0) {
+            leftStartsUppercase = StringHelper.startsUppercase(leftContextTokens[leftContextTokens.length - 1]);
+        }
+        nominalFeatures.add(String.valueOf(leftStartsUppercase));
+
+        // right token starts uppercase
+        boolean rightStartsUppercase = StringHelper.startsUppercase(rightContext);
+        nominalFeatures.add(String.valueOf(rightStartsUppercase));
 
         setTextFeature(entity);
         setNumericFeatures(numericFeatures);

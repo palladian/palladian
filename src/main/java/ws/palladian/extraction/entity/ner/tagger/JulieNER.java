@@ -241,12 +241,19 @@ public class JulieNER extends NamedEntityRecognizer {
         // Gama'a
         content = content.replace("Gama' a", "Gama'a");
         content = content.replace("Gama</PER>' a", "Gama</PER>'a");
+        content = content.replace("Gama</ORG>' a", "Gama</ORG>'a");
+        content = content.replace("Gama</MISC>' a", "Gama</MISC>'a");
+        content = content.replace("Gama</LOC>' a", "Gama</LOC>'a");
         content = content.replace("' o.", "'o.");
         content = content.replace("' o ", "'o ");
         content = content.replace("</PER>' o", "</PER>'o");
+        content = content.replace("</ORG>' o", "</ORG>'o");
+        content = content.replace("</MISC>' o", "</MISC>'o");
+        content = content.replace("</LOC>' o", "</LOC>'o");
 
         // A.de Silva
         content = content.replaceAll("(?<=[A-Z]\\.\\<\\/.{1,20}?\\>) de ", "de ");
+        content = content.replaceAll("(?<=[A-Z][.]) de ", "de ");
 
         // d'a
         content = content.replace("d' a", "d'a");
@@ -281,6 +288,11 @@ public class JulieNER extends NamedEntityRecognizer {
         content = content.replace("' ala", "'ala");
 
         content = content.replace("d' ", "d'");
+
+        content = content.replace("'</LOC> s", "'</LOC>s");
+        content = content.replace("'</PER> s", "'</PER>s");
+        content = content.replace("'</MISC> s", "'</MISC>s");
+        content = content.replace("'</ORG> s", "'</ORG>s");
 
         // )-1
         // content = content.replaceAll("(?<=\\))- (?=\\d)", "-");
@@ -517,9 +529,12 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/juliener.mod");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/juliener.mod",
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/juliener.mod");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
+        // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+        // "data/temp/juliener_small.mod", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
