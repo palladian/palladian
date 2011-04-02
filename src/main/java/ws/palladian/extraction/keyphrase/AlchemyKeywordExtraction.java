@@ -1,11 +1,8 @@
 package ws.palladian.extraction.keyphrase;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -14,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HTTPPoster;
 
 /**
@@ -31,31 +30,22 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
     /** Alchemy API key. */
     private String apiKey = "";
 
-    /** Number of keywords to retrieve. */
-//    private int maxRetrieve = 10;
-
     /** See {@link #setStrictExtractMode(boolean)}. */
     private boolean strictExtractMode = false;
 
     public AlchemyKeywordExtraction() {
-
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration("config/apikeys.conf");
-            apiKey = config.getString("alchemy.api.key");
-        } catch (ConfigurationException e) {
-            LOGGER.error("could not get api key from config/apikeys.conf, " + e.getMessage());
-        }
-
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        apiKey = config.getString("api.alchemy.key");
     }
 
     /**
      * 
      * @param inputText
-     * @return 
+     * @return
      */
     @Override
     public List<Keyphrase> extract(String inputText) {
-        
+
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
@@ -67,10 +57,8 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
         postMethod.setRequestHeader("Accept", "application/json");
 
         // create the content of the request
-        NameValuePair[] data = { 
-                new NameValuePair("text", inputText), 
-                new NameValuePair("apikey", apiKey),
-                new NameValuePair("outputMode", "json"), 
+        NameValuePair[] data = { new NameValuePair("text", inputText), new NameValuePair("apikey", apiKey),
+                new NameValuePair("outputMode", "json"),
                 new NameValuePair("maxRetrieve", String.valueOf(getKeyphraseCount())),
                 new NameValuePair("keywordExtractMode", strictExtractMode ? "strict" : "normal") };
         postMethod.setRequestBody(data);
@@ -98,19 +86,10 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
         } catch (JSONException e) {
             LOGGER.error(e);
         }
-        
+
         return keyphrases;
 
     }
-    
-//    /**
-//     * TODO extract interface.
-//     * 
-//     * @param maxRetrieve
-//     */
-//    public void setMaxRetrieve(int maxRetrieve) {
-//        this.maxRetrieve = maxRetrieve;
-//    }
 
     /**
      * keyword extraction mode (normal or strict)
@@ -128,19 +107,19 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
     public boolean needsTraining() {
         return false;
     }
-    
+
     @Override
     public String getExtractorName() {
         return "Alchemy API; Keyword/Term Extraction";
     }
-    
+
     public static void main(String[] args) {
 
         AlchemyKeywordExtraction extractor = new AlchemyKeywordExtraction();
-        extractor
+        List<Keyphrase> keywords = extractor
                 .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
+        CollectionHelper.print(keywords);
 
     }
-
 
 }
