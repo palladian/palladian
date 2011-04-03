@@ -62,11 +62,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     private static final long serialVersionUID = -8793232373094322955L;
 
-    /** patterns in the form of: prefix (TODO ENTITY suffix) */
-    private HashMap<String, CategoryEntries> patterns;
-
-    private Map<String, Category> dictionaryEntities = null;
-
     private Dictionary entityDictionary = null;
     private Map<String, Term> entityTermMap = new HashMap<String, Term>();
 
@@ -74,7 +69,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private UniversalClassifier universalClassifier;
 
     private DictionaryClassifier contextClassifier;
-    private DictionaryClassifier contextPosClassifier;
 
     /** the connector to the knowledge base */
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator;
@@ -110,7 +104,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     public TUDNER() {
         setName("TUD NER");
 
-        patterns = new HashMap<String, CategoryEntries>();
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
                 .setClassificationType(ClassificationTypeSetting.TAG);
@@ -126,7 +119,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         universalClassifier.switchClassifiers(true, false, false);
 
-        dictionaryEntities = new HashMap<String, Category>();
         entityDictionary = new Dictionary("EntityDictionary", ClassificationTypeSetting.SINGLE);
         entityDictionary.setCaseSensitive(true);
 
@@ -134,11 +126,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         contextClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
         contextClassifier.getDictionary().setName("contextDictionary");
         contextClassifier.getFeatureSetting().setMinNGramLength(5);
-        contextClassifier.getFeatureSetting().setMaxNGramLength(7);
-
-        contextPosClassifier = new DictionaryClassifier();
-        contextPosClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
-        contextPosClassifier.getDictionary().setName("contextPosDictionary");
+        contextClassifier.getFeatureSetting().setMaxNGramLength(8);
     }
 
     @Override
@@ -156,23 +144,57 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         StopWatch stopWatch = new StopWatch();
 
         TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
-        // this.dictionary = n.dictionary;
-        // if (this.dictionary.isUseIndex()) {
-        // dictionary.useIndex();
-        // }
-        this.kbCommunicator = n.kbCommunicator;
-        this.patterns = n.patterns;
+
+        this.entityDictionary = n.entityDictionary;
+        this.entityTermMap = n.entityTermMap;
+
         this.universalClassifier = n.universalClassifier;
 
-        setModel(n);
+        this.contextClassifier = n.contextClassifier;
+
+        this.kbCommunicator = n.kbCommunicator;
+
+        this.leftContextMap = n.leftContextMap;
+
+        this.patternProbabilityMatrix = n.patternProbabilityMatrix;
+
+        this.removeAnnotations = n.removeAnnotations;
+
+        // learning features
+        this.removeDates = n.removeDates;
+        this.removeDateEntries = n.removeDateEntries;
+        this.removeIncorrectlyTaggedInTraining = n.removeIncorrectlyTaggedInTraining;
+        this.removeWrongEntityBeginnings = n.removeWrongEntityBeginnings;
+        this.removeSentenceStartErrors = n.removeSentenceStartErrors;
+        this.removeSingleNonNounEntities = n.removeSingleNonNounEntities;
+        this.switchTagAnnotationsUsingPatterns = n.switchTagAnnotationsUsingPatterns;
+        this.switchTagAnnotationsUsingDictionary = n.switchTagAnnotationsUsingDictionary;
+        this.unwrapEntities = n.unwrapEntities;
+        this.unwrapEntitiesWithContext = n.unwrapEntitiesWithContext;
+
+        TUDNER.remove = n.remove;
+
+        setModel(this);
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
     }
 
+    public static TUDNER load(String modelPath) {
+
+        LOGGER.info("deserialzing model from " + modelPath);
+
+        TUDNER tagger;
+
+        tagger = (TUDNER) FileHelper.deserialize(modelPath);
+
+        LOGGER.info("loaded tagger");
+
+        return tagger;
+    }
+
     protected void saveModel(String modelFilePath) {
 
-        LOGGER.info("dictionary map contains " + dictionaryEntities.size() + " entities");
         LOGGER.info("entity dictionary contains " + entityDictionary.size() + " entities");
         entityDictionary.saveAsCSV();
 
@@ -198,11 +220,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
      * @param annotation The complete annotation from the training data.
      */
     private void addToEntityDictionary(Annotation annotation) {
-        Category c = dictionaryEntities.get(annotation.getEntity());
-        if (c == null || c.getPrior() < annotation.getInstanceCategory().getPrior()) {
-            dictionaryEntities.put(annotation.getEntity(), annotation.getInstanceCategory());
-        }
-
         String en = annotation.getEntity();
         Term term = entityTermMap.get(en);
         if (term == null) {
@@ -356,9 +373,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         universalClassifier.trainAll();
 
-        saveModel(modelFilePath);
-
         analyzeContexts(trainingFilePath);
+
+        saveModel(modelFilePath);
 
         return true;
     }
@@ -381,11 +398,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                         annotations.add(annotation2);
                     }
                 }
-                System.out.print("tried to unwrap " + annotation.getEntity());
-                for (Annotation wrappedAnnotation : wrappedAnnotations) {
-                    System.out.print(" | " + wrappedAnnotation.getEntity());
-                }
-                System.out.print("\n");
+                // System.out.print("tried to unwrap " + annotation.getEntity());
+                // for (Annotation wrappedAnnotation : wrappedAnnotations) {
+                // System.out.print(" | " + wrappedAnnotation.getEntity());
+                // }
+                // System.out.print("\n");
                 // toRemove.add(annotation);
             } else {
                 universalClassifier.classify(annotation);
@@ -513,7 +530,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                         annotation.setEntity(shortEntity.toString().trim());
                         annotation.setOffset(annotation.getOffset() + entityParts[0].length() + 1);
                         annotation.setLength(annotation.getEntity().length());
-                        System.out.println("removing beginning: " + entityParts[0] + " => " + annotation.getEntity());
+                        LOGGER.debug("removing beginning: " + entityParts[0] + " => " + annotation.getEntity());
                     }
                 }
 
@@ -579,7 +596,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                     if (ta.size() > 0 && !allowedPosTags.contains(ta.get(0).getTag())) {
                         c++;
                         toRemove.add(annotation);
-                        System.out.println("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
+                        LOGGER.debug("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
                                 + rightContextParts[0] + "|" + ta.get(0).getTag());
                     }
 
@@ -601,7 +618,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                         && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
                     toRemove.add(annotation);
                     c++;
-                    // System.out.println("removing: " + annotation.getEntity() + " has POS tag: " +
+                    // LOGGER.debug("removing: " + annotation.getEntity() + " has POS tag: " +
                     // ta.get(0).getTag());
                 }
 
@@ -625,7 +642,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                 getMostLikelyTag(annotation, lpt);
 
                 if (!annotation.getMostLikelyTagName().equalsIgnoreCase(tagNameBefore)) {
-                    System.out.println("changed " + annotation.getEntity() + " from " + tagNameBefore + " to "
+                    LOGGER.debug("changed " + annotation.getEntity() + " from " + tagNameBefore + " to "
                             + annotation.getMostLikelyTagName() + ", left context: " + annotation.getLeftContext()
                             + "____" + annotation.getRightContext());
                     changed++;
@@ -635,8 +652,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             LOGGER.info("changed " + MathHelper.round(100 * changed / annotations.size(), 2) + "% of the entities in "
                     + stopWatch.getElapsedTimeString());
 
-            System.out.println("Context precision:");
-            CollectionHelper.print(contextInfluences);
         }
 
         // switch annotations that are in the dictionary
@@ -647,6 +662,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             for (Annotation annotation : annotations) {
 
                 CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                // CategoryEntries ces = entityDictionary.get(annotation.getEntity());
                 if (ces != null && ces.size() > 0) {
                     annotation.assignCategoryEntries(ces);
                     changed++;
@@ -682,14 +698,15 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                     for (Annotation annotation2 : wrappedAnnotations) {
                         if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
                             toAdd.add(annotation2);
-                            // System.out.println("add " + annotation2.getEntity());
+                            // LOGGER.debug("add " + annotation2.getEntity());
                         }
                     }
-                    System.out.print("tried to unwrap again " + annotation.getEntity());
+                    String debugString = "tried to unwrap again " + annotation.getEntity();
                     for (Annotation wrappedAnnotation : wrappedAnnotations) {
-                        System.out.print(" | " + wrappedAnnotation.getEntity());
+                        debugString += " | " + wrappedAnnotation.getEntity();
                     }
-                    System.out.print("\n");
+                    debugString += "\n";
+                    LOGGER.debug(debugString);
                 }
             }
 
@@ -742,14 +759,14 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                                         termEntry.getValue().getMostLikelyCategoryEntry().getCategory().getName(),
                                         annotations);
                                 toAdd.add(wrappedAnnotation2);
-                                System.out.println("add from prefix " + wrappedAnnotation2.getEntity());
+                                LOGGER.debug("add from prefix " + wrappedAnnotation2.getEntity());
                                 break;
                             }
 
                         }
 
                         toRemove.add(annotation);
-                        System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
+                        LOGGER.debug("add " + wrappedAnnotation.getEntity() + ", delete "
                                 + annotation.getEntity() + " (left context:" + leftContext + ", "
                                 + leftContextEntry.getValue() + ")");
 
@@ -786,7 +803,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // classify annotations with the UniversalClassifier
         annotations.addAll(classifyCandidatesEnglish(entityCandidates, inputText));
 
-        
         if (remove) {
             filterAnnotations(annotations);
         }
@@ -972,72 +988,32 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         }
         CategoryEntries ce = new CategoryEntries();
 
-            String realTag = getCandidateAnnotationRealCategory(annotation);
+        ce.add(new CategoryEntry(ce, new Category("LOC"), locProb));
+        ce.add(new CategoryEntry(ce, new Category("PER"), perProb));
+        ce.add(new CategoryEntry(ce, new Category("ORG"), orgProb));
+        ce.add(new CategoryEntry(ce, new Category("MISC"), miscProb));
 
-            ce.add(new CategoryEntry(ce, new Category("LOC"), locProb));
-            ce.add(new CategoryEntry(ce, new Category("PER"), perProb));
-            ce.add(new CategoryEntry(ce, new Category("ORG"), orgProb));
-            ce.add(new CategoryEntry(ce, new Category("MISC"), miscProb));
+        String contextString = "";
 
-            String contextString = "";
+        TagAnnotations tas = lpt.tag(annotation.getLeftContext() + "__" + annotation.getRightContext())
+                .getTagAnnotations();
+        for (TagAnnotation ta : tas) {
+            contextString += ta.getTag() + " ";
+        }
+        contextString = contextString.trim();
 
-            TagAnnotations tas = lpt.tag(annotation.getLeftContext() + "__" + annotation.getRightContext())
-                    .getTagAnnotations();
-            for (TagAnnotation ta : tas) {
-                contextString += ta.getTag() + " ";
-            }
-            contextString = contextString.trim();
-            TextInstance tiPos = contextPosClassifier.classify(contextString);
+        TextInstance ti = contextClassifier.classify(annotation.getLeftContext() + "__" + annotation.getRightContext());
 
-            TextInstance ti = contextClassifier.classify(annotation.getLeftContext() + "__"
-                    + annotation.getRightContext());
+        // UniversalInstance bayesClassifiedInstance = new UniversalInstance(null);
+        // bayesClassifiedInstance.setNominalFeatures(annotation.getNominalFeatures());
+        // universalClassifier.getNominalClassifier().classify(bayesClassifiedInstance);
 
-            // UniversalInstance bayesClassifiedInstance = new UniversalInstance(null);
-            // bayesClassifiedInstance.setNominalFeatures(annotation.getNominalFeatures());
-            // universalClassifier.getNominalClassifier().classify(bayesClassifiedInstance);
-
-            CategoryEntries ceMerge = new CategoryEntries();
-            // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(ce);
-            ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
+        CategoryEntries ceMerge = new CategoryEntries();
+        // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
+        ceMerge.addAllRelative(ce);
+        ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
         ceMerge.addAllRelative(ti.getAssignedCategoryEntries());
-        // ceMerge.addAllRelative(tiPos.getAssignedCategoryEntries());
-            annotation.assignCategoryEntries(ceMerge);
-
-            // check how reliable the different factors were
-            if (annotation.getMostLikelyTagName().equalsIgnoreCase(realTag)) {
-                contextInfluences.increment("entity text");
-            }
-            if (ce.getMostLikelyCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
-                contextInfluences.increment("context patterns");
-            }
-            if (ti.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
-                contextInfluences.increment("context classifier");
-            }
-            if (tiPos.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
-                contextInfluences.increment("context POS classifier");
-            }
-            // if (bayesClassifiedInstance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(realTag)) {
-            // contextInfluences.increment("entity bayes");
-            // }
-    }
-
-    private CountMap contextInfluences = new CountMap();
-    private Annotations realAnnotations = null;
-
-    private String getCandidateAnnotationRealCategory(Annotation annotation) {
-        if (realAnnotations == null) {
-            realAnnotations = FileFormatParser.getAnnotationsFromColumn("data/datasets/ner/conll/test_validation.txt");
-        }
-
-        // search for the matching annotation
-        for (Annotation realAnnotation : realAnnotations) {
-            if (realAnnotation.matches(annotation)) {
-                return realAnnotation.getInstanceCategoryName();
-            }
-        }
-
-        return "";
+        annotation.assignCategoryEntries(ceMerge);
     }
 
     @Override
@@ -1053,8 +1029,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         }
         return kbCommunicator.getTrainingEntities(percentage);
     }
-
-
 
     private boolean containsDateFragment(String text) {
         text = text.toLowerCase();
@@ -1113,10 +1087,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     }
 
     private void demo(String optionValue) {
-        System.out.println(tag(
+        LOGGER.info(tag(
                 "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
                 "data/models/tudnerdemo.model"));
-
     }
 
     public void analyzeContexts(String trainingFilePath) {
@@ -1129,11 +1102,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        LingPipePOSTagger lpt = new LingPipePOSTagger();
-        lpt.loadModel();
-
         Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
-        Instances<UniversalInstance> trainingInstancesPos = new Instances<UniversalInstance>();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         for (Annotation annotation : annotations) {
@@ -1174,20 +1143,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             tagCounts.increment(tag);
 
-            String contextString = "";
-
-            TagAnnotations tas = lpt.tag(annotation.getLeftContext() + "__" + annotation.getRightContext())
-                    .getTagAnnotations();
-            for (TagAnnotation ta : tas) {
-                contextString += ta.getTag() + " ";
-            }
-            contextString = contextString.trim();
-
-            UniversalInstance trainingInstancePos = new UniversalInstance(trainingInstancesPos);
-            trainingInstancePos.setTextFeature(contextString);
-            trainingInstancePos.setInstanceCategory(tag);
-            trainingInstancesPos.add(trainingInstancePos);
-
             UniversalInstance trainingInstance = new UniversalInstance(trainingInstances);
             trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());
             trainingInstance.setInstanceCategory(tag);
@@ -1196,9 +1151,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         contextClassifier.setTrainingInstances(trainingInstances);
         contextClassifier.train();
-
-        contextPosClassifier.setTrainingInstances(trainingInstancesPos);
-        contextPosClassifier.train();
 
         StringBuilder csv = new StringBuilder();
         for (Entry<String, CountMap> entry : contextMap.entrySet()) {
@@ -1426,12 +1378,18 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // using a column trainig and testing file
         StopWatch stopWatch = new StopWatch();
         tagger.setMode(Mode.English);
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
         // System.exit(0);
         // TUDNER.remove = true;
         tagger.loadModel("data/temp/tudner.model");
+        // System.exit(0);
+        
+        // tagger = TUDNER.load("data/temp/tudner.model");
 
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner.model",
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+        // "data/temp/tudner.model",
+        // TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

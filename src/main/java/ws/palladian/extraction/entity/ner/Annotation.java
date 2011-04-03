@@ -18,7 +18,6 @@ import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.DataHolder;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.preprocessing.nlp.InformativenessAssigner;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
@@ -178,8 +177,8 @@ public class Annotation extends UniversalInstance {
         numericFeatures.add(numberOfDateFragments);
 
         // get the informativeness score
-        double informativeness = InformativenessAssigner.getInstance().getInformativeness(entity);
-        numericFeatures.add(informativeness);
+        // double informativeness = InformativenessAssigner.getInstance().getInformativeness(entity);
+        // numericFeatures.add(informativeness);
 
         // // get the nominal features
         List<String> nominalFeatures = new ArrayList<String>();
@@ -222,29 +221,29 @@ public class Annotation extends UniversalInstance {
         // nominalFeatures.add(String.valueOf(containsDateFragment(entity)));
 
         // POS signature
-        String posSignature = "";
-        LingPipePOSTagger lpt = new LingPipePOSTagger();
-        Object model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
-        if (model == null) {
-            DataHolder.getInstance().putDataObject("models.lingpipe.en.postag", lpt.loadModel().getModel());
-            model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
-        }
-        lpt.setModel(model);
-        for (TagAnnotation annotation : lpt.loadModel().tag(entity).getTagAnnotations()) {
-            posSignature += annotation.getTag();
-        }
-        nominalFeatures.add(posSignature);
+        // String posSignature = "";
+        // LingPipePOSTagger lpt = new LingPipePOSTagger();
+        // Object model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
+        // if (model == null) {
+        // DataHolder.getInstance().putDataObject("models.lingpipe.en.postag", lpt.loadModel().getModel());
+        // model = DataHolder.getInstance().getDataObject("models.lingpipe.en.postag");
+        // }
+        // lpt.setModel(model);
+        // for (TagAnnotation annotation : lpt.loadModel().tag(entity).getTagAnnotations()) {
+        // posSignature += annotation.getTag();
+        // }
+        // nominalFeatures.add(posSignature);
 
         // starts uppercase
         boolean startsUppercase = StringHelper.startsUppercase(entity);
         nominalFeatures.add(String.valueOf(startsUppercase));
 
         // case signature
-        String caseSignature = entity;
-        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
-        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
-        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+        // String caseSignature = entity;
+        // caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
+        // caseSignature = caseSignature.replaceAll("[a-z]+", "a");
+        // caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        // caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
         // nominalFeatures.add(caseSignature);
 
         // left token starts uppercase

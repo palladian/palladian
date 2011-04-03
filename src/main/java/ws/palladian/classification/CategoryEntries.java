@@ -25,11 +25,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     private boolean relevancesUpToDate = false;
 
     /** Comparator to sort categories by relevance. */
-    private transient Comparator<CategoryEntry> comparator = new Comparator<CategoryEntry>() {
-        public int compare(CategoryEntry o1, CategoryEntry o2) {
-            return ((Comparable<Double>) o2.getRelevance()).compareTo(o1.getRelevance());
-        }
-    };
+    private Comparator<CategoryEntry> comparator = new CategoryEntryComparator();
 
     public boolean isRelevancesUpToDate() {
         return relevancesUpToDate;
