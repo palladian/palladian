@@ -535,12 +535,11 @@ public class DateGetterHelperTest {
         }
     }
 
-    // @Ignore
+    @Ignore
     @Test
     public void testGetContentDates2() {
         final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
 
-        // if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
@@ -552,7 +551,6 @@ public class DateGetterHelperTest {
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             DateArrayHelper.printDateArray(date);
-        // }
     }
 
     // @Ignore
