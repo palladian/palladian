@@ -252,8 +252,8 @@ public class TUDNER2 extends TUDNER implements Serializable {
         // System.exit(0);
         tagger.loadModel("data/temp/tudner2.model");
         //
-        tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",
-                TaggingFormat.COLUMN));
+        // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",
+        // TaggingFormat.COLUMN));
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner2.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
