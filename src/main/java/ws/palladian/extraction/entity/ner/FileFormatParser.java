@@ -657,33 +657,29 @@ public class FileFormatParser {
         FileFormatParser.columnToXMLTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
         System.exit(0);
 
-        FileFormatParser ffp = new FileFormatParser();
+        FileFormatParser.columnToXML("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
+        FileFormatParser.xmlToColumn("data/temp/xmlFormat.xml", "data/temp/columnFormat2.tsv", "\\t");
+        FileFormatParser.xmlToColumn("data/temp/allTagged.xml", "data/temp/allTaggedColumn.tsv", "\\t");
 
-        ffp.columnToXML("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
-        ffp.xmlToColumn("data/temp/xmlFormat.xml", "data/temp/columnFormat2.tsv", "\\t");
-        ffp.xmlToColumn("data/temp/allTagged.xml", "data/temp/allTaggedColumn.tsv", "\\t");
-
-        ffp.xmlToColumn("data/datasets/ner/mobilephone/text/all.xml",
+        FileFormatParser.xmlToColumn("data/datasets/ner/mobilephone/text/all.xml",
                 "data/datasets/ner/mobilephone/text/allColumn.tsv", "\t");
 
-        ffp.columnTrainingToTest("data/temp/allColumn.tsv", "data/temp/allColumnTest.tsv", "\t");
+        FileFormatParser.columnTrainingToTest("data/temp/allColumn.tsv", "data/temp/allColumnTest.tsv", "\t");
 
-        ffp.columnToColumnBIO("data/temp/allColumn.tsv", "data/temp/allColumnBIO.tsv", "\t");
+        FileFormatParser.columnToColumnBIO("data/temp/allColumn.tsv", "data/temp/allColumnBIO.tsv", "\t");
 
-        ffp.columnToBracket("data/temp/allColumn.tsv", "data/temp/allBracket.tsv", "\t");
-        ffp.bracketToXML("data/temp/allBracket.tsv", "data/temp/allXMLFromBracket.tsv");
-        ffp.bracketToColumn("data/temp/allBracket.tsv", "data/temp/allColumnFromBracket.tsv", "\t");
+        FileFormatParser.columnToBracket("data/temp/allColumn.tsv", "data/temp/allBracket.tsv", "\t");
+        FileFormatParser.bracketToXML("data/temp/allBracket.tsv", "data/temp/allXMLFromBracket.tsv");
+        FileFormatParser.bracketToColumn("data/temp/allBracket.tsv", "data/temp/allColumnFromBracket.tsv", "\t");
 
-        ffp.columnToXML("data/temp/allColumn.tsv", "data/temp/allXML.xml", "\t");
-        ffp.xmlToColumn("data/temp/allXML.xml", "data/temp/allColumnFromXML.tsv", "\t");
+        FileFormatParser.columnToXML("data/temp/allColumn.tsv", "data/temp/allXML.xml", "\t");
+        FileFormatParser.xmlToColumn("data/temp/allXML.xml", "data/temp/allColumnFromXML.tsv", "\t");
 
-        ffp.slashToXML("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
-        ffp.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
+        FileFormatParser.slashToXML("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
+        FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        Annotations annotations = ffp.getAnnotationsFromXMLFile("data/temp/xmlFromSlashed.xml");
+        Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
-
     }
-
 
 }

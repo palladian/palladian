@@ -1,12 +1,9 @@
 package ws.palladian.retrieval;
 
 import junit.framework.TestCase;
-import ws.palladian.control.AllTests;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.TBODYFix;
 
 /**
  * Test cases for the crawler.

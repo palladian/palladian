@@ -19,20 +19,13 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
-import ws.palladian.preprocessing.nlp.TagAnnotation;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
-import ws.palladian.tagging.StringTagger;
 
 /**
  * Dump class to test various algorithms.
@@ -206,10 +199,9 @@ public class Temp {
         String email = ""; //
 
         DocumentRetriever crawler = new DocumentRetriever();
-        PageAnalyzer pa = new PageAnalyzer();
 
         Document webPage = crawler.getWebDocument(imprintURL);
-        String rawMarkup = HTMLHelper.documentToHTMLString(webPage);
+        // String rawMarkup = HTMLHelper.documentToHTMLString(webPage);
         // String plainContent = Crawler.extractBodyContent(rawMarkup, true);
         String plainContent = PageAnalyzer.extractBodyContent(webPage);
         // plainContent = PageAnalyzer.getReadableTextDump(webPage);
@@ -285,80 +277,78 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
 
-        
-        
         // pos tagging
 
         // Object[] o = TUDNER.removeDateFragment("January James Hatfield Feb");
         // CollectionHelper.print(o);
         // System.exit(0);
 
-        CountMap posCounts = new CountMap();
-        LingPipePOSTagger lpt = new LingPipePOSTagger();
-        lpt.loadModel();
-
-        List<String> gs = FileHelper.readFileToArray("data/datasets/ner/conll/goldStandard.txt");
-        for (String line : gs) {
-            String[] parts = line.split(";");
-            TagAnnotations tagAnnotations = lpt.tag(parts[3]).getTagAnnotations();
-            for (TagAnnotation ta : tagAnnotations) {
-                posCounts.increment(ta.getTag());
-            }
-        }
-        CollectionHelper.print(posCounts);
-        System.exit(0);
-
-        TagAnnotations tagAnnotations = lpt.loadModel().tag("Jim Carrey is an actor living in Los Angeles.")
-                .getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("Each").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("An").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("The").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("Our").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("Peter").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-        tagAnnotations = lpt.loadModel().tag("U.S.").getTagAnnotations();
-        CollectionHelper.print(tagAnnotations);
-
-        String taggedString = lpt
-                .loadModel()
-                .tag(
-                        "Jim Carrey is an actor living in Los Angeles. He is not the only actor there. However, Jim is an awesome comedian. Two men in December on a Thursday. LONDON IS A CITY IN ENGLAND. In his book The Groove, Mr. Harrison explains a lot.")
-                .getTaggedString();
-
-        System.out.println(taggedString);
-
-        taggedString = StringTagger.tagPosString(taggedString);
-
-        System.out.println(taggedString);
-
-        System.exit(0);
-
-        Temp.classify();
-        System.exit(0);
-
-        FileHelper
-                .removeDuplicateLines(
-                        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix.txt",
-                        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix_deduplicated.txt");
-        System.exit(0);
-
-        Temp.imprintExtractor("http://www.autozubehoer.de/Impressum:_:4.html?XTCsid=6i9fm908jrt6j62pefmqi4p200");
-        Temp.imprintExtractor("http://www.granzow.de/web/index.php/impressum.html");
-        Temp.imprintExtractor("http://domcam.de/impressum.html");
-        Temp.imprintExtractor("http://www.sos-kinderdorf.de/sos_kinderdorf/de/impressum,np=76590.html");
-        Temp
-                .imprintExtractor("http://www.clickandprint.de/ServiceImpressum.php?UID=1290466142037850A85D51A5F2E12F836FDDB6688E4CEAF35EA4606");
-        Temp.imprintExtractor("http://www.ti-sa.com/shop/shop_content.php?coID=4&XTCsid=ae0fehu5vlrsit0c04rq38onq1");
-        Temp.imprintExtractor("http://www.schloesser-gbr.de/impressum.php");
-        Temp
-                .imprintExtractor("http://www.goldhahnundsampson.de/shop/About-us-Imprint-Customer-Service:_:4.html?XTCsid=41d7e6492b00e13e54f5a205ba0070dc");
-        Temp.imprintExtractor("http://www.reifen-server.de/cgi-bin/kfzshop/reifenversand.pl?t=impressum&userid=78376");
-        Temp.imprintExtractor("http://www.ledick.de/oxid/Impressum/");
+        // CountMap posCounts = new CountMap();
+        // LingPipePOSTagger lpt = new LingPipePOSTagger();
+        // lpt.loadModel();
+        //
+        // List<String> gs = FileHelper.readFileToArray("data/datasets/ner/conll/goldStandard.txt");
+        // for (String line : gs) {
+        // String[] parts = line.split(";");
+        // TagAnnotations tagAnnotations = lpt.tag(parts[3]).getTagAnnotations();
+        // for (TagAnnotation ta : tagAnnotations) {
+        // posCounts.increment(ta.getTag());
+        // }
+        // }
+        // CollectionHelper.print(posCounts);
+        // System.exit(0);
+        //
+        // TagAnnotations tagAnnotations = lpt.loadModel().tag("Jim Carrey is an actor living in Los Angeles.")
+        // .getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("Each").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("An").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("The").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("Our").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("Peter").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        // tagAnnotations = lpt.loadModel().tag("U.S.").getTagAnnotations();
+        // CollectionHelper.print(tagAnnotations);
+        //
+        // String taggedString = lpt
+        // .loadModel()
+        // .tag(
+        // "Jim Carrey is an actor living in Los Angeles. He is not the only actor there. However, Jim is an awesome comedian. Two men in December on a Thursday. LONDON IS A CITY IN ENGLAND. In his book The Groove, Mr. Harrison explains a lot.")
+        // .getTaggedString();
+        //
+        // System.out.println(taggedString);
+        //
+        // // taggedString = StringTagger.tagPosString(taggedString);
+        //
+        // System.out.println(taggedString);
+        //
+        // System.exit(0);
+        //
+        // Temp.classify();
+        // System.exit(0);
+        //
+        // FileHelper
+        // .removeDuplicateLines(
+        // "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix.txt",
+        // "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix_deduplicated.txt");
+        // System.exit(0);
+        //
+        // Temp.imprintExtractor("http://www.autozubehoer.de/Impressum:_:4.html?XTCsid=6i9fm908jrt6j62pefmqi4p200");
+        // Temp.imprintExtractor("http://www.granzow.de/web/index.php/impressum.html");
+        // Temp.imprintExtractor("http://domcam.de/impressum.html");
+        // Temp.imprintExtractor("http://www.sos-kinderdorf.de/sos_kinderdorf/de/impressum,np=76590.html");
+        // Temp
+        // .imprintExtractor("http://www.clickandprint.de/ServiceImpressum.php?UID=1290466142037850A85D51A5F2E12F836FDDB6688E4CEAF35EA4606");
+        // Temp.imprintExtractor("http://www.ti-sa.com/shop/shop_content.php?coID=4&XTCsid=ae0fehu5vlrsit0c04rq38onq1");
+        // Temp.imprintExtractor("http://www.schloesser-gbr.de/impressum.php");
+        // Temp
+        // .imprintExtractor("http://www.goldhahnundsampson.de/shop/About-us-Imprint-Customer-Service:_:4.html?XTCsid=41d7e6492b00e13e54f5a205ba0070dc");
+        // Temp.imprintExtractor("http://www.reifen-server.de/cgi-bin/kfzshop/reifenversand.pl?t=impressum&userid=78376");
+        // Temp.imprintExtractor("http://www.ledick.de/oxid/Impressum/");
 
         // Temp.createTrainingData();
 

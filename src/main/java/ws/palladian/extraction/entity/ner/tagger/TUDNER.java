@@ -47,6 +47,7 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
@@ -56,6 +57,7 @@ import ws.palladian.tagging.StringTagger;
 
 public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TUDNER.class);
 
     private static final long serialVersionUID = -8793232373094322955L;
@@ -78,7 +80,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator;
 
     private CountMap leftContextMap = new CountMap();
-    private Map<String, CountMap> rightContextMap = new HashMap<String, CountMap>();
+    // private Map<String, CountMap> rightContextMap = new HashMap<String, CountMap>();
 
     private Matrix patternProbabilityMatrix = new Matrix();
 
@@ -98,12 +100,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     public static boolean remove = true;
 
-    public enum TUDNER_Mode {
+    public enum Mode {
         LanguageIndependent, English
     }
 
     // mode
-    private TUDNER_Mode mode = TUDNER_Mode.English;
+    private Mode mode = Mode.English;
 
     public TUDNER() {
         setName("TUD NER");
@@ -131,6 +133,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         contextClassifier = new DictionaryClassifier();
         contextClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
         contextClassifier.getDictionary().setName("contextDictionary");
+        contextClassifier.getFeatureSetting().setMinNGramLength(5);
+        contextClassifier.getFeatureSetting().setMaxNGramLength(8);
 
         contextPosClassifier = new DictionaryClassifier();
         contextPosClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
@@ -148,15 +152,112 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     }
 
     @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
 
-        if (mode.equals(TUDNER_Mode.English)) {
-            return trainEnglish(trainingFilePath, modelFilePath);
-        } else {
-            // return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
+        // this.dictionary = n.dictionary;
+        // if (this.dictionary.isUseIndex()) {
+        // dictionary.useIndex();
+        // }
+        this.kbCommunicator = n.kbCommunicator;
+        this.patterns = n.patterns;
+        this.universalClassifier = n.universalClassifier;
+
+        setModel(n);
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    protected void saveModel(String modelFilePath) {
+
+        LOGGER.info("dictionary map contains " + dictionaryEntities.size() + " entities");
+        LOGGER.info("entity dictionary contains " + entityDictionary.size() + " entities");
+        entityDictionary.saveAsCSV();
+
+        LOGGER.info("serializing NERCer");
+        FileHelper.serialize(this, modelFilePath);
+
+        LOGGER.info("dictionary size: " + universalClassifier.getTextClassifier().getDictionary().size());
+
+        // write model meta information
+        StringBuilder supportedConcepts = new StringBuilder();
+        for (Category c : universalClassifier.getTextClassifier().getDictionary().getCategories()) {
+            supportedConcepts.append(c.getName()).append("\n");
         }
 
-        return false;
+        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
+                + "_meta.txt", supportedConcepts);
+        LOGGER.info("model meta information written");
+    }
+
+    /**
+     * Save training entities in a dedicated dictionary.
+     * 
+     * @param annotation The complete annotation from the training data.
+     */
+    private void addToEntityDictionary(Annotation annotation) {
+        Category c = dictionaryEntities.get(annotation.getEntity());
+        if (c == null || c.getPrior() < annotation.getInstanceCategory().getPrior()) {
+            dictionaryEntities.put(annotation.getEntity(), annotation.getInstanceCategory());
+        }
+
+        String en = annotation.getEntity();
+        Term term = entityTermMap.get(en);
+        if (term == null) {
+            term = new Term(en);
+            entityTermMap.put(en, term);
+        }
+        entityDictionary.updateWord(term, annotation.getInstanceCategoryName(), 1);
+    }
+
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+
+        if (mode.equals(Mode.English)) {
+            return trainEnglish(trainingFilePath, modelFilePath);
+        } else {
+            return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        }
+
+    }
+
+    public boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
+
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
+
+        // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
+        Annotations combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        // create instances with nominal and numeric features
+        Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
+
+        LOGGER.info("start creating " + annotations.size() + " annotations for training");
+        for (Annotation annotation : annotations) {
+            UniversalInstance textInstance = new UniversalInstance(textInstances);
+            textInstance.setTextFeature(annotation.getEntity());
+            textInstance.setInstanceCategory(annotation.getInstanceCategory());
+            textInstances.add(textInstance);
+        }
+
+        // save training entities in a dedicated dictionary
+        for (Annotation annotation : combinedAnnotations) {
+            addToEntityDictionary(annotation);
+        }
+
+        // train the text classifier
+        universalClassifier.getTextClassifier().setTrainingInstances(textInstances);
+
+        LOGGER.info("start training classifiers now...");
+        universalClassifier.trainAll();
+
+        // analyzeContexts(trainingFilePath);
+
+        saveModel(modelFilePath);
+
+        return true;
     }
 
     public boolean trainEnglish(String trainingFilePath, String modelFilePath) {
@@ -185,21 +286,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             numericInstance.setInstanceCategory(annotation.getInstanceCategory());
             numericInstances.add(numericInstance);
 
-            // save training entities in a dedicated dictionary
-            Category c = dictionaryEntities.get(annotation.getEntity());
-            if (c == null || c.getPrior() < annotation.getInstanceCategory().getPrior()) {
-                dictionaryEntities.put(annotation.getEntity(), annotation.getInstanceCategory());
-            }
-
-            String en = annotation.getEntity();
-            Term term = entityTermMap.get(en);
-            if (term == null) {
-                term = new Term(en);
-                entityTermMap.put(en, term);
-            }
-            entityDictionary.updateWord(term, annotation.getInstanceCategoryName(), 1);
-            // System.out.println(entityDictionary.get(entityTermMap.get("German")));
-
+            addToEntityDictionary(annotation);
         }
 
         // train the text classifier
@@ -269,10 +356,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         universalClassifier.trainAll();
 
-        System.out.println("dictionary map contains " + dictionaryEntities.size() + " entities");
-        System.out.println("entity dictionary contains " + entityDictionary.size() + " entities");
-        entityDictionary.saveAsCSV();
-
         saveModel(modelFilePath);
 
         analyzeContexts(trainingFilePath);
@@ -280,29 +363,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return true;
     }
 
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        StopWatch stopWatch = new StopWatch();
-
-        TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
-        // this.dictionary = n.dictionary;
-        // if (this.dictionary.isUseIndex()) {
-        // dictionary.useIndex();
-        // }
-        this.kbCommunicator = n.kbCommunicator;
-        this.patterns = n.patterns;
-        this.universalClassifier = n.universalClassifier;
-
-        setModel(n);
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
-
-        return true;
-    }
-
-    private Annotations verifyAnnotationsWithUniversalClassifier(Annotations entityCandidates, String inputText) {
+    private Annotations classifyCandidatesEnglish(Annotations entityCandidates, String inputText) {
         Annotations annotations = new Annotations();
 
-        // Annotations toRemove = new Annotations();
         int i = 0;
         for (Annotation annotation : entityCandidates) {
 
@@ -337,16 +400,375 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             i++;
         }
 
-        // LOGGER.info("remove " + toRemove.size() + " annotations");
-        // annotations.removeAll(toRemove);
+        return annotations;
+    }
+
+    private Annotations classifyCandidatesLanguageIndependent(Annotations entityCandidates) {
+        Annotations annotations = new Annotations();
+
+        int i = 0;
+        for (Annotation annotation : entityCandidates) {
+
+            universalClassifier.classify(annotation);
+            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                annotations.add(annotation);
+            }
+
+            if (i % 100 == 0) {
+                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+            }
+            i++;
+        }
 
         return annotations;
     }
 
     @Override
     public Annotations getAnnotations(String inputText) {
+        StopWatch stopWatch = new StopWatch();
+
+        Annotations annotations = new Annotations();
+
+        if (mode.equals(Mode.English)) {
+            annotations = getAnnotationsEnglish(inputText);
+        } else {
+            annotations = getAnnotationsLanguageIndependent(inputText);
+        }
+
+        LOGGER.info("got annotations in " + stopWatch.getElapsedTimeString());
+
+        return annotations;
+    }
+
+    private void filterAnnotations(Annotations annotations) {
+
+        LOGGER.info("start filtering annotations");
 
         StopWatch stopWatch = new StopWatch();
+
+        Annotations toRemove = new Annotations();
+
+        // remove dates
+        if (removeDates) {
+            stopWatch.start();
+            for (Annotation annotation : annotations) {
+                if (containsDateFragment(annotation.getEntity())) {
+                    toRemove.add(annotation);
+                }
+            }
+            LOGGER.info("removed purely date annotations in " + stopWatch.getElapsedTimeString());
+        }
+
+        // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
+        if (removeDateEntries) {
+            stopWatch.start();
+            for (Annotation annotation : annotations) {
+
+                Object[] result = removeDateFragment(annotation.getEntity());
+                String entity = (String) result[0];
+
+                annotation.setEntity(entity);
+                annotation.setOffset(annotation.getOffset() + (Integer) result[1]);
+                annotation.setLength(annotation.getEntity().length());
+            }
+            LOGGER.info("removed partial date annotations in " + stopWatch.getElapsedTimeString());
+        }
+
+        // remove annotations that were found to be incorrectly tagged in the training data
+        if (removeIncorrectlyTaggedInTraining) {
+            stopWatch.start();
+            for (Annotation removeAnnotation : removeAnnotations) {
+                String removeName = removeAnnotation.getEntity().toLowerCase();
+                for (Annotation annotation : annotations) {
+                    if (removeName.equals(annotation.getEntity().toLowerCase())) {
+                        toRemove.add(annotation);
+                    }
+                }
+            }
+            LOGGER.info("removed incorrectly tagged entities in training data in " + stopWatch.getElapsedTimeString());
+        }
+
+        // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"
+        LingPipePOSTagger lpt = new LingPipePOSTagger();
+        lpt.loadModel();
+
+        if (removeWrongEntityBeginnings) {
+            stopWatch.start();
+            for (Annotation annotation : annotations) {
+
+                // if annotation starts at sentence AND if first token of entity has POS tag != NP, NN, JJ, and UH,
+                // remove it
+                String[] entityParts = annotation.getEntity().split(" ");
+                if (entityParts.length > 1 && Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
+                    TagAnnotations ta = lpt.tag(entityParts[0]).getTagAnnotations();
+                    if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1
+                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
+                            && ta.get(0).getTag().indexOf("UH") == -1) {
+
+                        StringBuilder shortEntity = new StringBuilder();
+                        for (int i = 1; i < entityParts.length; i++) {
+                            shortEntity.append(entityParts[i]).append(" ");
+                        }
+
+                        annotation.setEntity(shortEntity.toString().trim());
+                        annotation.setOffset(annotation.getOffset() + entityParts[0].length() + 1);
+                        annotation.setLength(annotation.getEntity().length());
+                        System.out.println("removing beginning: " + entityParts[0] + " => " + annotation.getEntity());
+                    }
+                }
+
+            }
+
+            LOGGER.info("removed wrong entity beginnings in " + stopWatch.getElapsedTimeString());
+        }
+
+        // remove annotations which are at the beginning of a sentence, are some kind of noun but because of the
+        // following POS tag probably not an entity
+        int c = 0;
+        if (removeSentenceStartErrors) {
+            stopWatch.start();
+
+            for (Annotation annotation : annotations) {
+
+                // if the annotation is at the start of a sentence
+                if (Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                        && annotation.getEntity().indexOf(" ") == -1) {
+
+                    TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                    if (ta.size() >= 1 && ta.get(0).getTag().indexOf("NP") == -1
+                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
+                            && ta.get(0).getTag().indexOf("UH") == -1) {
+                        continue;
+                    }
+
+                    String[] rightContextParts = annotation.getRightContext().split(" ");
+
+                    if (rightContextParts.length == 0) {
+                        continue;
+                    }
+
+                    ta = lpt.tag(rightContextParts[0]).getTagAnnotations();
+
+                    Set<String> allowedPosTags = new HashSet<String>();
+                    allowedPosTags.add("CD");
+                    allowedPosTags.add("VB");
+                    allowedPosTags.add("VBZ");
+                    allowedPosTags.add("VBD");
+                    allowedPosTags.add("VBN");
+                    allowedPosTags.add("MD");
+                    allowedPosTags.add("RB");
+                    allowedPosTags.add("NN");
+                    allowedPosTags.add("NNS");
+                    allowedPosTags.add("NP");
+                    allowedPosTags.add("HV");
+                    allowedPosTags.add("HVD");
+                    allowedPosTags.add("HVZ");
+                    allowedPosTags.add("BED");
+                    allowedPosTags.add("BER");
+                    allowedPosTags.add("BEZ");
+                    allowedPosTags.add("BEDZ");
+                    allowedPosTags.add(",");
+                    allowedPosTags.add("(");
+                    allowedPosTags.add("-");
+                    allowedPosTags.add("--");
+                    allowedPosTags.add(".");
+                    allowedPosTags.add("CC");
+                    allowedPosTags.add("'");
+                    allowedPosTags.add("AP");
+
+                    if (ta.size() > 0 && !allowedPosTags.contains(ta.get(0).getTag())) {
+                        c++;
+                        toRemove.add(annotation);
+                        System.out.println("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
+                                + rightContextParts[0] + "|" + ta.get(0).getTag());
+                    }
+
+                }
+            }
+
+            LOGGER.info("removed " + c + " nouns at beginning of sentence in " + stopWatch.getElapsedTimeString());
+        }
+
+        // remove entities which contain only one word which is not a noun
+        if (removeSingleNonNounEntities) {
+            stopWatch.start();
+
+            c = 0;
+            for (Annotation annotation : annotations) {
+
+                TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") == -1
+                        && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
+                    toRemove.add(annotation);
+                    c++;
+                    // System.out.println("removing: " + annotation.getEntity() + " has POS tag: " +
+                    // ta.get(0).getTag());
+                }
+
+            }
+
+            LOGGER.info("removed " + c + " non-noun entities in " + stopWatch.getElapsedTimeString());
+        }
+
+        LOGGER.info("remove " + toRemove.size() + " entities");
+        annotations.removeAll(toRemove);
+
+        // switch using pattern information
+        int changed = 0;
+        if (switchTagAnnotationsUsingPatterns) {
+            stopWatch.start();
+
+            for (Annotation annotation : annotations) {
+
+                String tagNameBefore = annotation.getMostLikelyTagName();
+
+                getMostLikelyTag(annotation, lpt);
+
+                if (!annotation.getMostLikelyTagName().equalsIgnoreCase(tagNameBefore)) {
+                    System.out.println("changed " + annotation.getEntity() + " from " + tagNameBefore + " to "
+                            + annotation.getMostLikelyTagName() + ", left context: " + annotation.getLeftContext()
+                            + "____" + annotation.getRightContext());
+                    changed++;
+                }
+
+            }
+            LOGGER.info("changed " + MathHelper.round(100 * changed / annotations.size(), 2) + "% of the entities in "
+                    + stopWatch.getElapsedTimeString());
+
+            System.out.println("Context precision:");
+            CollectionHelper.print(contextInfluences);
+        }
+
+        // switch annotations that are in the dictionary
+        changed = 0;
+        if (switchTagAnnotationsUsingDictionary) {
+            stopWatch.start();
+
+            for (Annotation annotation : annotations) {
+
+                CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                if (ces != null && ces.size() > 0) {
+                    annotation.assignCategoryEntries(ces);
+                    changed++;
+                }
+
+            }
+            LOGGER.info("changed with entity dictionary " + MathHelper.round(100 * changed / annotations.size(), 2)
+                    + "% of the entities (total entities: " + annotations.size() + ") in "
+                    + stopWatch.getElapsedTimeString());
+        }
+
+        // remove all annotations with "DOCSTART- " in them because that is for format purposes
+        Annotations toAdd = new Annotations();
+
+        stopWatch.start();
+        LinkedHashMap<Object, Integer> sortedMap = leftContextMap.getSortedMapDescending();
+
+        for (Annotation annotation : annotations) {
+            // if (annotation.getEntity().toLowerCase().indexOf("docstart") > -1) {
+            // toRemove.add(annotation);
+            // if (true) {
+            // continue;
+            // }
+
+            // if all uppercase, try to find known annotations
+            // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
+            // Math.min(12, annotation.getEntity().length())))) {
+
+            if (unwrapEntities) {
+                Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
+
+                if (!wrappedAnnotations.isEmpty()) {
+                    for (Annotation annotation2 : wrappedAnnotations) {
+                        if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                            toAdd.add(annotation2);
+                            // System.out.println("add " + annotation2.getEntity());
+                        }
+                    }
+                    System.out.print("tried to unwrap again " + annotation.getEntity());
+                    for (Annotation wrappedAnnotation : wrappedAnnotations) {
+                        System.out.print(" | " + wrappedAnnotation.getEntity());
+                    }
+                    System.out.print("\n");
+                }
+            }
+
+            // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
+            // context for people
+
+            if (unwrapEntitiesWithContext) {
+                for (Entry<Object, Integer> leftContextEntry : sortedMap.entrySet()) {
+
+                    String leftContext = leftContextEntry.getKey().toString();
+
+                    if (leftContextEntry.getValue() < 3) {
+                        break;
+                    }
+
+                    if (!StringHelper.startsUppercase(leftContext)) {
+                        continue;
+                    }
+
+                    String entity = annotation.getEntity();
+
+                    int index1 = entity.indexOf(leftContext + " ");
+                    int index2 = entity.indexOf(" " + leftContext + " ");
+                    int length = -1;
+                    int index = -1;
+                    if (index1 == 0) {
+                        length = leftContext.length() + 1;
+                        index = index1;
+                    } else if (index2 > -1) {
+                        length = leftContext.length() + 2;
+                        index = index2;
+                    }
+                    if (index1 == 0 || index2 > -1) {
+
+                        // get the annotation after the index
+                        Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
+                                annotation.getEntity().substring(index + length), annotation.getMostLikelyTagName(),
+                                annotations);
+                        toAdd.add(wrappedAnnotation);
+
+                        // search for a known instance in the prefix
+                        // go through the entity dictionary
+                        for (Map.Entry<Term, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+                            String word = termEntry.getKey().getText();
+
+                            int indexPrefix = annotation.getEntity().substring(0, index + length).indexOf(word + " ");
+                            if (indexPrefix > -1 && word.length() > 2) {
+                                Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
+                                        word,
+                                        termEntry.getValue().getMostLikelyCategoryEntry().getCategory().getName(),
+                                        annotations);
+                                toAdd.add(wrappedAnnotation2);
+                                System.out.println("add from prefix " + wrappedAnnotation2.getEntity());
+                                break;
+                            }
+
+                        }
+
+                        toRemove.add(annotation);
+                        System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
+                                + annotation.getEntity() + " (left context:" + leftContext + ", "
+                                + leftContextEntry.getValue() + ")");
+
+                        break;
+                    }
+
+                }
+            }
+        }
+        LOGGER.info("unwrapped entities in " + stopWatch.getElapsedTimeString());
+
+        LOGGER.info("add " + toAdd.size() + " entities");
+        annotations.addAll(toAdd);
+
+        LOGGER.info("remove " + toRemove.size() + " entities");
+        annotations.removeAll(toRemove);
+    }
+
+    public Annotations getAnnotationsEnglish(String inputText) {
 
         Annotations annotations = new Annotations();
 
@@ -362,337 +784,82 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // annotations.addAll(dictionaryRecognizedAnnotations);
 
         // classify annotations with the UniversalClassifier
-        annotations.addAll(verifyAnnotationsWithUniversalClassifier(entityCandidates, inputText));
+        annotations.addAll(classifyCandidatesEnglish(entityCandidates, inputText));
 
+        
         if (remove) {
-            Annotations toRemove = new Annotations();
-
-            // remove dates
-            if (removeDates) {
-                stopWatch.start();
-                for (Annotation annotation : annotations) {
-                    if (containsDateFragment(annotation.getEntity())) {
-                        toRemove.add(annotation);
-                    }
-                }
-                LOGGER.info("removed purely date annotations in " + stopWatch.getElapsedTimeString());
-            }
-
-            // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-            if (removeDateEntries) {
-                stopWatch.start();
-                for (Annotation annotation : annotations) {
-
-                    Object[] result = removeDateFragment(annotation.getEntity());
-                    String entity = (String) result[0];
-
-                    annotation.setEntity(entity);
-                    annotation.setOffset(annotation.getOffset() + (Integer) result[1]);
-                    annotation.setLength(annotation.getEntity().length());
-                }
-                LOGGER.info("removed partial date annotations in " + stopWatch.getElapsedTimeString());
-            }
-
-            // remove annotations that were found to be incorrectly tagged in the training data
-            if (removeIncorrectlyTaggedInTraining) {
-                stopWatch.start();
-                for (Annotation removeAnnotation : removeAnnotations) {
-                    String removeName = removeAnnotation.getEntity().toLowerCase();
-                    for (Annotation annotation : annotations) {
-                        if (removeName.equals(annotation.getEntity().toLowerCase())) {
-                            toRemove.add(annotation);
-                        }
-                    }
-                }
-                LOGGER.info("removed incorrectly tagged entities in training data in "
-                        + stopWatch.getElapsedTimeString());
-            }
-
-            // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"
-            LingPipePOSTagger lpt = new LingPipePOSTagger();
-            lpt.loadModel();
-
-            if (removeWrongEntityBeginnings) {
-                stopWatch.start();
-                for (Annotation annotation : annotations) {
-
-                    // if annotation starts at sentence AND if first token of entity has POS tag != NP, NN, JJ, and UH,
-                    // remove it
-                    String[] entityParts = annotation.getEntity().split(" ");
-                    if (entityParts.length > 1 && Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
-                        TagAnnotations ta = lpt.tag(entityParts[0]).getTagAnnotations();
-                        if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1
-                                && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
-                                && ta.get(0).getTag().indexOf("UH") == -1) {
-
-                            StringBuilder shortEntity = new StringBuilder();
-                            for (int i = 1; i < entityParts.length; i++) {
-                                shortEntity.append(entityParts[i]).append(" ");
-                            }
-
-                            annotation.setEntity(shortEntity.toString().trim());
-                            annotation.setOffset(annotation.getOffset() + entityParts[0].length() + 1);
-                            annotation.setLength(annotation.getEntity().length());
-                            System.out.println("removing beginning: " + entityParts[0] + " => "
-                                    + annotation.getEntity());
-                        }
-                    }
-
-                }
-
-                LOGGER.info("removed wrong entity beginnings in " + stopWatch.getElapsedTimeString());
-            }
-
-            // remove annotations which are at the beginning of a sentence, are some kind of noun but because of the
-            // following POS tag probably not an entity
-            int c = 0;
-            if (removeSentenceStartErrors) {
-                stopWatch.start();
-
-                for (Annotation annotation : annotations) {
-
-                    // if the annotation is at the start of a sentence
-                    if (Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                            && annotation.getEntity().indexOf(" ") == -1) {
-
-                        TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
-                        if (ta.size() >= 1 && ta.get(0).getTag().indexOf("NP") == -1
-                                && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
-                                && ta.get(0).getTag().indexOf("UH") == -1) {
-                            continue;
-                        }
-
-                        String[] rightContextParts = annotation.getRightContext().split(" ");
-
-                        if (rightContextParts.length == 0) {
-                            continue;
-                        }
-
-                        ta = lpt.tag(rightContextParts[0]).getTagAnnotations();
-
-                        Set<String> allowedPosTags = new HashSet<String>();
-                        allowedPosTags.add("CD");
-                        allowedPosTags.add("VB");
-                        allowedPosTags.add("VBZ");
-                        allowedPosTags.add("VBD");
-                        allowedPosTags.add("VBN");
-                        allowedPosTags.add("MD");
-                        allowedPosTags.add("RB");
-                        allowedPosTags.add("NN");
-                        allowedPosTags.add("NNS");
-                        allowedPosTags.add("NP");
-                        allowedPosTags.add("HV");
-                        allowedPosTags.add("HVD");
-                        allowedPosTags.add("HVZ");
-                        allowedPosTags.add("BED");
-                        allowedPosTags.add("BER");
-                        allowedPosTags.add("BEZ");
-                        allowedPosTags.add("BEDZ");
-                        allowedPosTags.add(",");
-                        allowedPosTags.add("(");
-                        allowedPosTags.add("-");
-                        allowedPosTags.add("--");
-                        allowedPosTags.add(".");
-                        allowedPosTags.add("CC");
-                        allowedPosTags.add("'");
-                        allowedPosTags.add("AP");
-
-                        if (ta.size() > 0 && !allowedPosTags.contains(ta.get(0).getTag())) {
-                            c++;
-                            toRemove.add(annotation);
-                            System.out.println("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
-                                    + rightContextParts[0] + "|" + ta.get(0).getTag());
-                        }
-
-                    }
-                }
-
-                LOGGER.info("removed " + c + " nouns at beginning of sentence in " + stopWatch.getElapsedTimeString());
-            }
-
-            // remove entities which contain only one word which is not a noun
-            if (removeSingleNonNounEntities) {
-                stopWatch.start();
-
-                c = 0;
-                for (Annotation annotation : annotations) {
-
-                    TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
-                    if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1
-                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
-                            && ta.get(0).getTag().indexOf("UH") == -1) {
-                        toRemove.add(annotation);
-                        c++;
-                        // System.out.println("removing: " + annotation.getEntity() + " has POS tag: " +
-                        // ta.get(0).getTag());
-                    }
-
-                }
-
-                LOGGER.info("removed " + c + " non-noun entities in " + stopWatch.getElapsedTimeString());
-            }
-
-            LOGGER.info("remove " + toRemove.size() + " entities");
-            annotations.removeAll(toRemove);
-
-            // switch using pattern information
-            int changed = 0;
-            if (switchTagAnnotationsUsingPatterns) {
-                stopWatch.start();
-
-                for (Annotation annotation : annotations) {
-
-                    String tagNameBefore = annotation.getMostLikelyTagName();
-
-                    getMostLikelyTag(annotation, lpt);
-
-                    if (!annotation.getMostLikelyTagName().equalsIgnoreCase(tagNameBefore)) {
-                        System.out.println("changed " + annotation.getEntity() + " from " + tagNameBefore + " to "
-                                + annotation.getMostLikelyTagName() + ", left context: " + annotation.getLeftContext()
-                                + "____" + annotation.getRightContext());
-                        changed++;
-                    }
-
-                }
-                LOGGER.info("changed " + MathHelper.round(100 * changed / annotations.size(), 2)
-                        + "% of the entities in " + stopWatch.getElapsedTimeString());
-
-                System.out.println("Context precision:");
-                CollectionHelper.print(contextInfluences);
-            }
-
-            // switch annotations that are in the dictionary
-            changed = 0;
-            if (switchTagAnnotationsUsingDictionary) {
-                stopWatch.start();
-
-                for (Annotation annotation : annotations) {
-
-                    CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
-                    if (ces != null && ces.size() > 0) {
-                        annotation.assignCategoryEntries(ces);
-                        changed++;
-                    }
-
-                }
-                LOGGER.info("changed with entity dictionary " + MathHelper.round(100 * changed / annotations.size(), 2)
-                        + "% of the entities (total entities: " + annotations.size() + ") in "
-                        + stopWatch.getElapsedTimeString());
-            }
-
-            // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            Annotations toAdd = new Annotations();
-
-            stopWatch.start();
-            LinkedHashMap<Object, Integer> sortedMap = leftContextMap.getSortedMapDescending();
-
-            for (Annotation annotation : annotations) {
-                // if (annotation.getEntity().toLowerCase().indexOf("docstart") > -1) {
-                // toRemove.add(annotation);
-                // if (true) {
-                // continue;
-                // }
-
-                // if all uppercase, try to find known annotations
-                // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
-                // Math.min(12, annotation.getEntity().length())))) {
-
-                if (unwrapEntities) {
-                    Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
-
-                    if (!wrappedAnnotations.isEmpty()) {
-                        for (Annotation annotation2 : wrappedAnnotations) {
-                            if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
-                                toAdd.add(annotation2);
-                                // System.out.println("add " + annotation2.getEntity());
-                            }
-                        }
-                        System.out.print("tried to unwrap again " + annotation.getEntity());
-                        for (Annotation wrappedAnnotation : wrappedAnnotations) {
-                            System.out.print(" | " + wrappedAnnotation.getEntity());
-                        }
-                        System.out.print("\n");
-                    }
-                }
-
-                // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
-                // context for people
-
-                if (unwrapEntitiesWithContext) {
-                    for (Entry<Object, Integer> leftContextEntry : sortedMap.entrySet()) {
-
-                        String leftContext = leftContextEntry.getKey().toString();
-
-                        if (leftContextEntry.getValue() < 3) {
-                            break;
-                        }
-
-                        if (!StringHelper.startsUppercase(leftContext)) {
-                            continue;
-                        }
-
-                        String entity = annotation.getEntity();
-
-                        int index1 = entity.indexOf(leftContext + " ");
-                        int index2 = entity.indexOf(" " + leftContext + " ");
-                        int length = -1;
-                        int index = -1;
-                        if (index1 == 0) {
-                            length = leftContext.length() + 1;
-                            index = index1;
-                        } else if (index2 > -1) {
-                            length = leftContext.length() + 2;
-                            index = index2;
-                        }
-                        if (index1 == 0 || index2 > -1) {
-
-                            // get the annotation after the index
-                            Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
-                                    annotation.getEntity().substring(index + length),
-                                    annotation.getMostLikelyTagName(), annotations);
-                            toAdd.add(wrappedAnnotation);
-
-                            // search for a known instance in the prefix
-                            // go through the entity dictionary
-                            for (Map.Entry<Term, CategoryEntries> termEntry : entityDictionary.entrySet()) {
-                                String word = termEntry.getKey().getText();
-
-                                int indexPrefix = annotation.getEntity().substring(0, index + length)
-                                        .indexOf(word + " ");
-                                if (indexPrefix > -1 && word.length() > 2) {
-                                    Annotation wrappedAnnotation2 = new Annotation(
-                                            annotation.getOffset() + indexPrefix, word, termEntry.getValue()
-                                                    .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
-                                    toAdd.add(wrappedAnnotation2);
-                                    System.out.println("add from prefix " + wrappedAnnotation2.getEntity());
-                                    break;
-                                }
-
-                            }
-
-                            toRemove.add(annotation);
-                            System.out.println("add " + wrappedAnnotation.getEntity() + ", delete "
-                                    + annotation.getEntity() + " (left context:" + leftContext + ", "
-                                    + leftContextEntry.getValue() + ")");
-
-                            break;
-                        }
-
-                    }
-                }
-            }
-            LOGGER.info("unwrapped entities in " + stopWatch.getElapsedTimeString());
-
-            LOGGER.info("add " + toAdd.size() + " entities");
-            annotations.addAll(toAdd);
-
-            LOGGER.info("remove " + toRemove.size() + " entities");
-            annotations.removeAll(toRemove);
+            filterAnnotations(annotations);
         }
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
 
         return annotations;
+    }
+
+    public Annotations getAnnotationsLanguageIndependent(String inputText) {
+
+        removeDates = false;
+        removeDateEntries = false;
+        removeIncorrectlyTaggedInTraining = false;
+        removeWrongEntityBeginnings = false;
+        removeSentenceStartErrors = false;
+        removeSingleNonNounEntities = false;
+        switchTagAnnotationsUsingPatterns = false;
+        switchTagAnnotationsUsingDictionary = true;
+        unwrapEntities = false;
+        unwrapEntitiesWithContext = false;
+
+        Annotations annotations = new Annotations();
+
+        // get the candates, every token is potentially a (part of) an entity
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.SPLIT_REGEXP);
+
+        // classify annotations with the UniversalClassifier
+        annotations.addAll(classifyCandidatesLanguageIndependent(entityCandidates));
+
+        // filter annotations
+        filterAnnotations(annotations);
+
+        // combine annotations that are right next to each other having the same tag
+        Annotations combinedAnnotations = new Annotations();
+        annotations.sort();
+        Annotation lastAnnotation = new Annotation(-2, "", "");
+        Annotation lastCombinedAnnotation = null;
+
+        for (Annotation annotation : annotations) {
+            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("o")
+                    && annotation.getMostLikelyTagName().equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())
+                    && annotation.getOffset() == lastAnnotation.getEndIndex() + 1) {
+
+                if (lastCombinedAnnotation == null) {
+                    lastCombinedAnnotation = lastAnnotation;
+                }
+
+                Annotation combinedAnnotation = new Annotation(lastCombinedAnnotation.getOffset(),
+                        lastCombinedAnnotation.getEntity() + " " + annotation.getEntity(),
+                        annotation.getMostLikelyTagName(), combinedAnnotations);
+                combinedAnnotations.add(combinedAnnotation);
+                lastCombinedAnnotation = combinedAnnotation;
+                combinedAnnotations.remove(lastCombinedAnnotation);
+            } else {
+                combinedAnnotations.add(annotation);
+                lastCombinedAnnotation = null;
+            }
+
+            lastAnnotation = annotation;
+        }
+
+        // remove all "O"
+        Annotations cleanAnnotations = new Annotations();
+        for (Annotation annotation : combinedAnnotations) {
+            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("o") && annotation.getLength() > 1) {
+                cleanAnnotations.add(annotation);
+            }
+        }
+
+        FileHelper.writeToFile("data/temp/tudNER2Output.txt", tagText(inputText, cleanAnnotations));
+
+        return cleanAnnotations;
     }
 
     private void getMostLikelyTag(Annotation annotation, LingPipePOSTagger lpt) {
@@ -887,23 +1054,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return kbCommunicator.getTrainingEntities(percentage);
     }
 
-    protected void saveModel(String modelFilePath) {
 
-        LOGGER.info("serializing NERCer");
-        FileHelper.serialize(this, modelFilePath);
-
-        LOGGER.info("dictionary size: " + universalClassifier.getTextClassifier().getDictionary().size());
-
-        // write model meta information
-        StringBuilder supportedConcepts = new StringBuilder();
-        for (Category c : universalClassifier.getTextClassifier().getDictionary().getCategories()) {
-            supportedConcepts.append(c.getName()).append("\n");
-        }
-
-        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
-                + "_meta.txt", supportedConcepts);
-        LOGGER.info("model meta information written");
-    }
 
     private boolean containsDateFragment(String text) {
         text = text.toLowerCase();
@@ -972,7 +1123,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         Map<String, CountMap> contextMap = new TreeMap<String, CountMap>();
         leftContextMap = new CountMap();
-        rightContextMap = new TreeMap<String, CountMap>();
+        // rightContextMap = new TreeMap<String, CountMap>();
         CountMap tagCounts = new CountMap();
 
         // get all training annotations including their features
@@ -996,9 +1147,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             String[] rightContexts = annotation.getRightContexts();
 
             // initialize tagMap
-            if (rightContextMap.get(tag) == null) {
-                rightContextMap.put(tag, new CountMap());
-            }
+            // if (rightContextMap.get(tag) == null) {
+            // rightContextMap.put(tag, new CountMap());
+            // }
             if (contextMap.get(tag) == null) {
                 contextMap.put(tag, new CountMap());
             }
@@ -1017,9 +1168,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             contextMap.get(tag).increment(rightContexts[1]);
             contextMap.get(tag).increment(rightContexts[2]);
 
-            rightContextMap.get(tag).increment(rightContexts[0]);
-            rightContextMap.get(tag).increment(rightContexts[1]);
-            rightContextMap.get(tag).increment(rightContexts[2]);
+            // rightContextMap.get(tag).increment(rightContexts[0]);
+            // rightContextMap.get(tag).increment(rightContexts[1]);
+            // rightContextMap.get(tag).increment(rightContexts[2]);
 
             tagCounts.increment(tag);
 
@@ -1134,6 +1285,14 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         String s = FileHelper.readFileToString("data/datasets/ner/conll/test_validation_t.txt");
         s = s.replace("=-DOCSTART-", "\n\n");
         FileHelper.writeToFile("data/datasets/ner/conll/test_validation_t_readable.txt", s);
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 
     /**
@@ -1266,6 +1425,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // using a column trainig and testing file
         StopWatch stopWatch = new StopWatch();
+        tagger.setMode(Mode.English);
         tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
         // System.exit(0);
         // TUDNER.remove = true;

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;

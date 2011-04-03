@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
@@ -573,7 +573,7 @@ public class ControlledTagger extends KeyphraseExtractor {
                     Keyphrase innerTag = tagsArray[j];
                     WordCorrelation correlation = index.getWcm().getCorrelation(outerTag.getValue(), innerTag.getValue());
                     if (correlation != null) {
-                        float reRanking = (float) ((correlationWeight / numReRanking) * correlation
+                        float reRanking = (float) (correlationWeight / numReRanking * correlation
                                 .getRelativeCorrelation());
                         // FIXME why dont we put the numReRanking division outside the loop?
 
@@ -597,7 +597,7 @@ public class ControlledTagger extends KeyphraseExtractor {
             for (Keyphrase tag : assignedTags) {
 
                 // http://de.wikipedia.org/wiki/Normalisierung_(Mathematik)
-                double normalizedWeight = (tag.getWeight() - newMin) * ((oldMax - oldMin) / (newMax - newMin)) + oldMin;
+                double normalizedWeight = (tag.getWeight() - newMin) * (oldMax - oldMin) / (newMax - newMin) + oldMin;
                 tag.setWeight(normalizedWeight);
 
             }
@@ -977,7 +977,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         System.exit(0);
 
         // all tagging parameters are encapsulated by ControlledTaggerSettings
-        ControlledTaggerSettings taggerSettings = tagger.getSettings();
+        // ControlledTaggerSettings taggerSettings = tagger.getSettings();
         // taggerSettings.setCorrelationType(TaggingCorrelationType.NO_CORRELATIONS);
 
         // create a DeliciousDatasetReader + Filter for training
@@ -1033,15 +1033,20 @@ public class ControlledTagger extends KeyphraseExtractor {
 
         System.exit(0);
 
-        String d1 = "If it walks like a duck and quacks like a duck, it must be a duck.";
-        String d2 = "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin.";
-        String d3 = "Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.";
-        String d4 = "6:25 PM 1/7/2007 blog entry: I found this great recipe for Rabbit Braised in Wine on cookingforengineers.com.";
-        // String d5 =
+        // String d1 = "If it walks like a duck and quacks like a duck, it must be a duck.";
+        // String d2 =
+        // "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin.";
+        // String d3 =
+        // "Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.";
+        // String d4 =
+        // "6:25 PM 1/7/2007 blog entry: I found this great recipe for Rabbit Braised in Wine on cookingforengineers.com.";
+        // // String d5 =
+        // //
         // "Last week Li has shown you how to make the Sechuan duck. Today we'll be making Chinese dumplings (Jiaozi), a popular dish that I had a chance to try last summer in Beijing. There are many recipies for Jiaozi.";
-        String d5 = "Last week Li has shown you how to make the Sechuan duck. Today we'll be making Chinese dumplings (Jiaozi), a popular dish that I had a chance to try last summer in Beijing. There are many recipe for Jiaozi.";
-
-        String[] tags = new String[] { "beijing", "dish", "duck", "rabbit", "recipe", "roast" };
+        // String d5 =
+        // "Last week Li has shown you how to make the Sechuan duck. Today we'll be making Chinese dumplings (Jiaozi), a popular dish that I had a chance to try last summer in Beijing. There are many recipe for Jiaozi.";
+        //
+        // String[] tags = new String[] { "beijing", "dish", "duck", "rabbit", "recipe", "roast" };
 
         // tagger.addToVocabulary(Arrays.asList(tags));
         // tagger.tag(Arrays.asList(new String[] { d1, d2, d3, d4, d5 }));
