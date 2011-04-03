@@ -41,19 +41,19 @@ import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
- * The SourceRetriever queries the indices of Yahoo!, Google, Microsoft, and
+ * The WebSearcher queries the indices of Yahoo!, Google, Microsoft, and
  * Hakia.
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
  * @author Philipp Katz
  */
-public class SourceRetriever {
+public class WebSearcher {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SourceRetriever.class);
+    private static final Logger LOGGER = Logger.getLogger(WebSearcher.class);
 
-    private SourceRetrieverManager srManager = null;
+    private WebSearcherManager srManager = null;
 
     /** Determines how many sources (urls) should be retrieved. */
     private int resultCount;
@@ -68,8 +68,8 @@ public class SourceRetriever {
     /** The preferred language of the results. */
     private int language = LANGUAGE_ENGLISH;
 
-    public SourceRetriever() {
-        srManager = SourceRetrieverManager.getInstance();
+    public WebSearcher() {
+        srManager = WebSearcherManager.getInstance();
         setResultCount(srManager.getResultCount());
         setSource(srManager.getSource());
     }
@@ -106,13 +106,13 @@ public class SourceRetriever {
      * @return A list of images.
      */
     public final List<ExtractedImage> getImages(String searchQuery, int source, boolean exact, String[] matchContent) {
-        if (source != SourceRetrieverManager.GOOGLE && source != SourceRetrieverManager.YAHOO_BOSS) {
+        if (source != WebSearcherManager.GOOGLE && source != WebSearcherManager.YAHOO_BOSS) {
             LOGGER.warn("Image search is only supported for Google and Yahoo! BOSS.");
         }
 
-        if (source == SourceRetrieverManager.GOOGLE) {
+        if (source == WebSearcherManager.GOOGLE) {
             return getImagesFromGoogle(searchQuery, exact, matchContent);
-        } else if (source == SourceRetrieverManager.YAHOO_BOSS) {
+        } else if (source == WebSearcherManager.YAHOO_BOSS) {
             return getImagesFromYahooBoss(searchQuery, exact, matchContent);
         }
 
@@ -209,8 +209,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            srManager.addRequest(SourceRetrieverManager.GOOGLE);
-            LOGGER.info("google requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
+            srManager.addRequest(WebSearcherManager.GOOGLE);
+            LOGGER.info("google requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE));
         }
 
         return images;
@@ -226,10 +226,10 @@ public class SourceRetriever {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                            + SourceRetrieverManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
+                            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
                     + Math.max(50, getResultCount()));
             LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
-                    + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().getYahooBossApiKey()
+                    + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
                     + "&format=xml&count=" + Math.max(50, getResultCount()));
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
@@ -305,8 +305,8 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        srManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
+        srManager.addRequest(WebSearcherManager.YAHOO_BOSS);
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO_BOSS));
 
         return images;
     }
@@ -323,7 +323,7 @@ public class SourceRetriever {
 
         DocumentRetriever crawler = new DocumentRetriever();
 
-        if (getSource() == SourceRetrieverManager.GOOGLE) {
+        if (getSource() == WebSearcherManager.GOOGLE) {
 
             String json = crawler
             .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
@@ -343,10 +343,10 @@ public class SourceRetriever {
                 LOGGER.error(searchQuery, e);
             }
 
-        } else if (getSource() == SourceRetrieverManager.BING) {
+        } else if (getSource() == WebSearcherManager.BING) {
 
             String query = "http://api.bing.net/json.aspx?AppId="
-                    + SourceRetrieverManager.getInstance().getBingApiKey()
+                    + WebSearcherManager.getInstance().getBingApiKey()
             + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
             String json = crawler.download(query);
 
@@ -423,40 +423,40 @@ public class SourceRetriever {
         // what's not deprecated for encoding urls?
 
         switch (source) {
-            case SourceRetrieverManager.YAHOO:
+            case WebSearcherManager.YAHOO:
                 // if (exact) searchQuery = "\""+searchQuery+"\"";
                 return getWebResultsFromYahoo(searchQuery);
-            case SourceRetrieverManager.YAHOO_BOSS:
+            case WebSearcherManager.YAHOO_BOSS:
                 // if (exact) searchQuery = "\""+searchQuery+"\"";
                 return getWebResultsFromYahooBoss(searchQuery);
-            case SourceRetrieverManager.GOOGLE:
+            case WebSearcherManager.GOOGLE:
                 // if (exact) searchQuery = "%22"+searchQuery+"%22";
                 return this.getWebResultsFromGoogle(searchQuery);
                 // case SourceRetriever.GOOGLE_PAGE:
                 // //if (exact) searchQuery = "%22"+searchQuery+"%22";
                 // return this.getURLsFromGooglePage(searchQuery);
-            case SourceRetrieverManager.MICROSOFT:
+            case WebSearcherManager.MICROSOFT:
                 // if (exact) searchQuery = URLEncoder.encode(searchQuery);
 
                 // TODO: queries are now automatically redirected to Bing,
                 // so we have to use the Bing method here, can also remove
                 // this if existing code has been adapted.
                 return getWebResultsFromBing(searchQuery);
-            case SourceRetrieverManager.HAKIA:
+            case WebSearcherManager.HAKIA:
                 return getWebResultsFromHakia(searchQuery);
-            case SourceRetrieverManager.BING:
+            case WebSearcherManager.BING:
                 return getWebResultsFromBing(searchQuery);
-            case SourceRetrieverManager.TWITTER:
+            case WebSearcherManager.TWITTER:
                 return getWebResultsFromTwitter(searchQuery);
-            case SourceRetrieverManager.GOOGLE_BLOGS:
+            case WebSearcherManager.GOOGLE_BLOGS:
                 return getWebResultsFromGoogleBlogs(searchQuery);
-            case SourceRetrieverManager.TEXTRUNNER:
+            case WebSearcherManager.TEXTRUNNER:
                 return getWebResultsFromTextRunner(searchQuery);
-            case SourceRetrieverManager.YAHOO_BOSS_NEWS:
+            case WebSearcherManager.YAHOO_BOSS_NEWS:
                 return getWebResultsFromYahooBossNews(searchQuery);
-            case SourceRetrieverManager.GOOGLE_NEWS:
+            case WebSearcherManager.GOOGLE_NEWS:
                 return getWebResultsFromGoogleNews(searchQuery);
-            case SourceRetrieverManager.HAKIA_NEWS:
+            case WebSearcherManager.HAKIA_NEWS:
                 return getNewsResultsFromHakia(searchQuery);
             default:
                 break;
@@ -478,11 +478,11 @@ public class SourceRetriever {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                            + SourceRetrieverManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
+                            + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
                     + "&results=" + getResultCount());
             LOGGER.debug("Search Results for " + searchQuery + "\n"
                     + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + SourceRetrieverManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
+                    + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
                     + getResultCount());
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
@@ -515,7 +515,7 @@ public class SourceRetriever {
                 String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
                 String summary = XPathHelper.getChildNode(resultNode, "Summary").getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO, rank, currentURL, title, summary);
+                WebResult webresult = new WebResult(WebSearcherManager.YAHOO, rank, currentURL, title, summary);
                 rank++;
 
                 LOGGER.debug("yahoo retrieved url " + currentURL);
@@ -528,8 +528,8 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        srManager.addRequest(SourceRetrieverManager.YAHOO);
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO));
+        srManager.addRequest(WebSearcherManager.YAHOO);
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO));
         return webresults;
     }
 
@@ -588,7 +588,7 @@ public class SourceRetriever {
             // for avail parameters see ->
             // http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
             String fixUrl = endpoint + searchQuery + "?appid="
-                    + SourceRetrieverManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
+                    + WebSearcherManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
             + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
 
             // iterate through result responses
@@ -598,7 +598,7 @@ public class SourceRetriever {
                 String iterationUrl = fixUrl + "&start=" + 50 * it;
                 Document searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(iterationUrl);
                 LOGGER.debug("Search Results for " + iterationUrl);
-                srManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
+                srManager.addRequest(WebSearcherManager.YAHOO_BOSS);
 
                 // update number of iterations with each step, as values might
                 // change
@@ -617,7 +617,7 @@ public class SourceRetriever {
                     String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
-                    WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, 
+                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1, 
                             resultUrl, HTMLHelper.stripHTMLTags(title, true, true, true, true),
                             HTMLHelper.stripHTMLTags(summary, true, true, true, true));
 
@@ -642,7 +642,7 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO_BOSS));
         LOGGER.trace("<fetchAndProcessWebResultsFromYahooBoss");
         return webresults;
     }
@@ -713,7 +713,7 @@ public class SourceRetriever {
                         String summary = jsonObject.getString("content");
                         String currentURL = jsonObject.getString("unescapedUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, currentURL, title,
+                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title,
                                 summary);
                         rank++;
 
@@ -730,8 +730,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            srManager.addRequest(SourceRetrieverManager.GOOGLE);
-            LOGGER.debug("google requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
+            srManager.addRequest(WebSearcherManager.GOOGLE);
+            LOGGER.debug("google requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE));
         }
 
         return webresults;
@@ -798,7 +798,7 @@ public class SourceRetriever {
 
                         String currentURL = results.getJSONObject(j).getString("unescapedUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, currentURL, title, summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("google news retrieved url " + currentURL);
@@ -814,8 +814,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            srManager.addRequest(SourceRetrieverManager.GOOGLE_NEWS);
-            LOGGER.info("google news requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE_NEWS));
+            srManager.addRequest(WebSearcherManager.GOOGLE_NEWS);
+            LOGGER.info("google news requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_NEWS));
         }
 
         return webresults;
@@ -847,7 +847,7 @@ public class SourceRetriever {
 
             // rsz=large will respond 8 results
             String json = c.download("http://api.bing.net/json.aspx?AppId="
-                    + SourceRetrieverManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
+                    + WebSearcherManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
                     + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery);
 
             try {
@@ -892,8 +892,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            srManager.addRequest(SourceRetrieverManager.BING);
-            LOGGER.info("bing requests: " + srManager.getRequestCount(SourceRetrieverManager.BING));
+            srManager.addRequest(WebSearcherManager.BING);
+            LOGGER.info("bing requests: " + srManager.getRequestCount(WebSearcherManager.BING));
         }
 
         return webresults;
@@ -923,7 +923,7 @@ public class SourceRetriever {
         // query hakia for search engine results
         try {
 
-            String url = endpoint + SourceRetrieverManager.getInstance().getHakiaApiKey() + "&search.query="
+            String url = endpoint + WebSearcherManager.getInstance().getHakiaApiKey() + "&search.query="
                     + searchQuery
             + "&search.language=en&search.numberofresult=" + getResultCount();
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
@@ -966,7 +966,7 @@ public class SourceRetriever {
                 }
                 String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.HAKIA, rank, currentURL, title, summary, date);
+                WebResult webresult = new WebResult(WebSearcherManager.HAKIA, rank, currentURL, title, summary, date);
                 rank++;
 
                 LOGGER.debug("hakia retrieved url " + currentURL);
@@ -979,7 +979,7 @@ public class SourceRetriever {
             LOGGER.error(searchQuery, e);
         }
 
-        srManager.addRequest(SourceRetrieverManager.HAKIA);
+        srManager.addRequest(WebSearcherManager.HAKIA);
         return webresults;
     }
 
@@ -1033,7 +1033,7 @@ public class SourceRetriever {
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(SourceRetrieverManager.TWITTER, rank, currentURL, title, summary);
+                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, title, summary);
                             rank++;
 
                             LOGGER.info("twitter retrieved url " + tweet.getSource());
@@ -1048,8 +1048,8 @@ public class SourceRetriever {
             }
         }
 
-        srManager.addRequest(SourceRetrieverManager.TWITTER);
-        LOGGER.info("twitter requests: " + srManager.getRequestCount(SourceRetrieverManager.TWITTER));
+        srManager.addRequest(WebSearcherManager.TWITTER);
+        LOGGER.info("twitter requests: " + srManager.getRequestCount(WebSearcherManager.TWITTER));
 
         return webresults;
     }
@@ -1111,7 +1111,7 @@ public class SourceRetriever {
                         String summary = currentResult.getString("content");
                         String currentURL = currentResult.getString("postUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE_BLOGS, rank, currentURL, title, summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE_BLOGS, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("google blogs retrieved url " + currentURL);
@@ -1127,8 +1127,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            srManager.addRequest(SourceRetrieverManager.GOOGLE_BLOGS);
-            LOGGER.info("google blogs requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE_BLOGS));
+            srManager.addRequest(WebSearcherManager.GOOGLE_BLOGS);
+            LOGGER.info("google blogs requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_BLOGS));
         }
 
         return webresults;
@@ -1188,7 +1188,7 @@ public class SourceRetriever {
                         // TODO: setSummary(summary);
                         String summary = null;
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.TEXTRUNNER, rank, currentURL, title, summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.TEXTRUNNER, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.info("textrunner retrieved url " + currentURL);
@@ -1213,7 +1213,7 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        srManager.addRequest(SourceRetrieverManager.TEXTRUNNER);
+        srManager.addRequest(WebSearcherManager.TEXTRUNNER);
 
         return webresults;
     }
@@ -1228,39 +1228,30 @@ public class SourceRetriever {
 
     public static void main(String[] args) {
 
-        // /////////////////////////// simple usage
-        // /////////////////////////////
-        // create source retriever object
-        SourceRetriever s = new SourceRetriever();
+        // ///////////////// simple usage ///////////////////
+        // create web searcher object
+        WebSearcher searcher = new WebSearcher();
 
         // set maximum number of expected results
-        s.setResultCount(10);
+        searcher.setResultCount(10);
 
         // set search result language to english
-        s.setLanguage(LANGUAGE_ENGLISH);
+        searcher.setLanguage(LANGUAGE_ENGLISH);
 
         // set the query source to the Bing search engine
-        // s.setSource(SourceRetrieverManager.BING);
-        s.setSource(SourceRetrieverManager.GOOGLE_NEWS);
+        searcher.setSource(WebSearcherManager.BING);
 
         // search for "Jim Carrey" in exact match mode (second parameter = true)
-        List<String> resultURLs = s.getURLs("Jim Carrey", true);
+        List<String> resultURLs = searcher.getURLs("Jim Carrey", true);
 
         // print the results
         CollectionHelper.print(resultURLs);
-
-        // special example for Eduardo ;)
-        List<WebResult> webResults = s.getWebResults("Jim Carrey", SourceRetrieverManager.GOOGLE_NEWS, false);
-
-        for (WebResult webResult : webResults) {
-            System.out.println(webResult.getTitle());
-        }
-        // //////////////////////////////////////////////////////////////////////
+        // //////////////////////////////////////////////////
 
         System.exit(0);
 
-        s = new SourceRetriever();
-        s.setResultCount(100);
+        searcher = new WebSearcher();
+        searcher.setResultCount(100);
         int[] indices = {
                 // SourceRetrieverManager.YAHOO, // 100
                 // SourceRetrieverManager.GOOGLE, // 64
@@ -1270,12 +1261,12 @@ public class SourceRetriever {
                 // SourceRetrieverManager.BING, // 100
                 // SourceRetrieverManager.TWITTER, // 100
                 // SourceRetrieverManager.GOOGLE_BLOGS, // 64
-                SourceRetrieverManager.TEXTRUNNER, // 0
+                WebSearcherManager.TEXTRUNNER, // 0
         };
 
         HashMap<Integer, String> arl = new HashMap<Integer, String>();
         for (int index : indices) {
-            List<WebResult> srs = s.getWebResults("microsoft", index, false);
+            List<WebResult> srs = searcher.getWebResults("microsoft", index, false);
             // CollectionHelper.print(srs);
             // System.out.println(index + ":" + srs.size());
             if (srs.size() > 0) {

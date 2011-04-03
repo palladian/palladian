@@ -134,7 +134,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         contextClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
         contextClassifier.getDictionary().setName("contextDictionary");
         contextClassifier.getFeatureSetting().setMinNGramLength(5);
-        contextClassifier.getFeatureSetting().setMaxNGramLength(8);
+        contextClassifier.getFeatureSetting().setMaxNGramLength(7);
 
         contextPosClassifier = new DictionaryClassifier();
         contextPosClassifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
@@ -1000,8 +1000,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // ceMerge.addAllRelative(bayesClassifiedInstance.getAssignedCategoryEntries());
             ceMerge.addAllRelative(ce);
             ceMerge.addAllRelative(annotation.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(ti.getAssignedCategoryEntries());
-            ceMerge.addAllRelative(tiPos.getAssignedCategoryEntries());
+        ceMerge.addAllRelative(ti.getAssignedCategoryEntries());
+        // ceMerge.addAllRelative(tiPos.getAssignedCategoryEntries());
             annotation.assignCategoryEntries(ceMerge);
 
             // check how reliable the different factors were

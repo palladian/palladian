@@ -6,7 +6,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.search.SourceRetrieverManager;
+import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
  * Example class illustrating usage of most important feed classes.
@@ -20,7 +20,7 @@ public class FeedsExamples {
 
         // search feeds for "Porsche 911"
         FeedDiscovery feedDiscovery = new FeedDiscovery();
-        feedDiscovery.setSearchEngine(SourceRetrieverManager.YAHOO_BOSS);
+        feedDiscovery.setSearchEngine(WebSearcherManager.YAHOO_BOSS);
         feedDiscovery.addQuery("Porsche 911");
         feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();

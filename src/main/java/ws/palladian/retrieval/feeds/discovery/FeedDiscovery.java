@@ -34,13 +34,13 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
-import ws.palladian.retrieval.search.SourceRetriever;
-import ws.palladian.retrieval.search.SourceRetrieverManager;
+import ws.palladian.retrieval.search.WebSearcher;
+import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
  * FeedDiscovery works like the following:
  * <ol>
- * <li>Query search engine with some terms (see {@link SourceRetrieverManager} for available search engines)</li>
+ * <li>Query search engine with some terms (see {@link WebSearcherManager} for available search engines)</li>
  * <li>Get root URLs for each hit</li>
  * <li>Check page for feeds using RSS/Atom autodiscovery feature</li>
  * </ol>
@@ -69,9 +69,9 @@ public class FeedDiscovery {
     /** DocumentRetriever for downloading pages. */
     private DocumentRetriever documentRetriever = new DocumentRetriever();
 
-    /** Define which search engine to use, see {@link SourceRetrieverManager} for available constants. */
+    /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
     // private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
-    private int searchEngine = SourceRetrieverManager.BING;
+    private int searchEngine = WebSearcherManager.BING;
 
     private int numThreads = DEFAULT_NUM_THREADS;
 
@@ -96,7 +96,7 @@ public class FeedDiscovery {
 
         if (config != null) {
             setNumThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", DEFAULT_NUM_THREADS));
-            setSearchEngine(config.getInt("feedDiscovery.searchEngine", SourceRetrieverManager.YAHOO_BOSS));
+            setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.YAHOO_BOSS));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
         }
@@ -113,13 +113,13 @@ public class FeedDiscovery {
     private Set<String> searchSites(String query, int totalResults) {
 
         // create source retriever object
-        SourceRetriever sourceRetriever = new SourceRetriever();
+        WebSearcher sourceRetriever = new WebSearcher();
 
         // set maximum number of expected results
         sourceRetriever.setResultCount(totalResults);
 
         // set search result language to english
-        sourceRetriever.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
+        sourceRetriever.setLanguage(WebSearcher.LANGUAGE_ENGLISH);
 
         sourceRetriever.setSource(getSearchEngine());
 
@@ -413,7 +413,7 @@ public class FeedDiscovery {
     }
 
     public void setSearchEngine(int searchEngine) {
-        LOGGER.trace("using " + SourceRetrieverManager.getName(searchEngine));
+        LOGGER.trace("using " + WebSearcherManager.getName(searchEngine));
         this.searchEngine = searchEngine;
     }
 

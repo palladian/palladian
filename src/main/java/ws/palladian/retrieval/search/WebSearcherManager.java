@@ -14,10 +14,10 @@ import ws.palladian.helper.ConfigHolder;
  * @author Philipp Katz
  * @author Martin Wunderwald
  */
-public class SourceRetrieverManager {
+public class WebSearcherManager {
 
     // extracting knowledge from other sources (xml, rdf, owl, rss etc.)
-    private final static SourceRetrieverManager INSTANCE = new SourceRetrieverManager();
+    private final static WebSearcherManager INSTANCE = new WebSearcherManager();
     public static final int YAHOO = 1;
     public static final int GOOGLE = 2;
     // public static final int GOOGLE_PAGE = 5;
@@ -56,7 +56,7 @@ public class SourceRetrieverManager {
     private int numberOfGoogleBlogsRequests = 0;
     private int numberOfTextRunnerRequests = 0;
 
-    private SourceRetrieverManager() {
+    private WebSearcherManager() {
 
         ConfigHolder configHolder = ConfigHolder.getInstance();
         PropertiesConfiguration config = configHolder.getConfig();
@@ -76,7 +76,7 @@ public class SourceRetrieverManager {
         }
     }
 
-    public static SourceRetrieverManager getInstance() {
+    public static WebSearcherManager getInstance() {
         return INSTANCE;
     }
 
@@ -174,10 +174,10 @@ public class SourceRetrieverManager {
      * @return An array of indices.
      */
     public static int[] getSearchEngines() {
-        int[] indices = { SourceRetrieverManager.YAHOO, SourceRetrieverManager.GOOGLE,
-                SourceRetrieverManager.MICROSOFT, SourceRetrieverManager.HAKIA, SourceRetrieverManager.YAHOO_BOSS,
-                SourceRetrieverManager.BING, SourceRetrieverManager.TWITTER, SourceRetrieverManager.GOOGLE_BLOGS,
-                SourceRetrieverManager.TEXTRUNNER, SourceRetrieverManager.GOOGLE_NEWS };
+        int[] indices = { WebSearcherManager.YAHOO, WebSearcherManager.GOOGLE,
+                WebSearcherManager.MICROSOFT, WebSearcherManager.HAKIA, WebSearcherManager.YAHOO_BOSS,
+                WebSearcherManager.BING, WebSearcherManager.TWITTER, WebSearcherManager.GOOGLE_BLOGS,
+                WebSearcherManager.TEXTRUNNER, WebSearcherManager.GOOGLE_NEWS };
         return indices;
     }
 
@@ -282,7 +282,7 @@ public class SourceRetrieverManager {
         queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
         queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
         // queryString = "top speed of the Bugatti Veyron is";
-        new SourceRetriever().getURLs(queryString, SourceRetrieverManager.YAHOO, true);
+        new WebSearcher().getURLs(queryString, WebSearcherManager.YAHOO, true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
         // true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,

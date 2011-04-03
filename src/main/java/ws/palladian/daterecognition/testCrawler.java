@@ -24,7 +24,7 @@ import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.date.RatedDateComparator;
 import ws.palladian.retrieval.Crawler;
-import ws.palladian.retrieval.CrawlerCallback;
+import ws.palladian.retrieval.RetrieverCallback;
 
 public class testCrawler {
 
@@ -498,10 +498,10 @@ public class testCrawler {
     }
 
     public static void crawlURLwithDate() {
-        CrawlerCallback cb = new CrawlerCallback() {
+        RetrieverCallback cb = new RetrieverCallback() {
 
             @Override
-            public void crawlerCallback(Document document) {
+            public void onFinishRetrieval(Document document) {
                 String url = document.getDocumentURI();
                 DateGetter dg = new DateGetter(url);
                 dg.setAllFalse();
@@ -535,7 +535,7 @@ public class testCrawler {
 
         Crawler c = new Crawler();
         c.setMaxThreads(500);
-        c.getDocumentRetriever().addCrawlerCallback(cb);
+        c.getDocumentRetriever().addRetrieverCallback(cb);
 
         String url = "http://www.basicthinking.de/blog/";
 
