@@ -41,8 +41,8 @@ import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.search.SourceRetriever;
-import ws.palladian.retrieval.search.SourceRetrieverManager;
+import ws.palladian.retrieval.search.WebSearcher;
+import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
  * This class loads the training and test data, classifies and stores the results.
@@ -176,10 +176,10 @@ public class ClassifierManager {
 
         // retrieve web pages matching the keywords, download pages and build
         // index
-        SourceRetriever sr = new SourceRetriever();
-        sr.setSource(SourceRetrieverManager.GOOGLE);
+        WebSearcher sr = new WebSearcher();
+        sr.setSource(WebSearcherManager.GOOGLE);
         sr.setResultCount(50);
-        sr.setLanguage(SourceRetriever.LANGUAGE_GERMAN);
+        sr.setLanguage(WebSearcher.LANGUAGE_GERMAN);
 
         DocumentRetriever crawler = new DocumentRetriever();
 

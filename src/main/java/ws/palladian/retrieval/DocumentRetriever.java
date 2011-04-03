@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -185,7 +187,7 @@ public class DocumentRetriever {
     private int maxFails = 10;
 
     /** The callback that is called after each crawled page. */
-    private Set<CrawlerCallback> crawlerCallbacks = new HashSet<CrawlerCallback>();
+    private Set<RetrieverCallback> retrieverCallbacks = new HashSet<RetrieverCallback>();
 
     /**
      * Start downloading the supplied URLs.
@@ -377,16 +379,17 @@ public class DocumentRetriever {
     public void setDocument(URL url, Boolean isXML, boolean callback) {
         document = null;
 
+        BufferedInputStream is = null;
         try {
             File file = new File(url.toURI());
-            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+            is = new BufferedInputStream(new FileInputStream(file));
 
             parse(is, isXML, url.toExternalForm());
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
             if (callback && document != null) {
-                callCrawlerCallback(document);
+                callRetrieverCallback(document);
             }
         } catch (URISyntaxException e) {
             LOGGER.error(e);
@@ -398,6 +401,14 @@ public class DocumentRetriever {
             LOGGER.error(e);
         } catch (ParserConfigurationException e) {
             LOGGER.error(e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    LOGGER.error(e);
+                }
+            }
         }
     }
 
@@ -436,7 +447,7 @@ public class DocumentRetriever {
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
             if (callback && document != null) {
-                callCrawlerCallback(document);
+                callRetrieverCallback(document);
             }
 
         } catch (SAXException e) {
@@ -1352,30 +1363,30 @@ public class DocumentRetriever {
         this.feedAutodiscovery = feedAutodiscovery;
         if (feedAutodiscovery) {
             LOGGER.trace("enabled feed autodiscovery");
-            addCrawlerCallback(FeedDiscoveryCallback.getInstance());
+            addRetrieverCallback(FeedDiscoveryCallback.getInstance());
         } else {
             LOGGER.trace("disabled feed autodiscovery");
             removeCrawlerCallback(FeedDiscoveryCallback.getInstance());
         }
     }
 
-    private void callCrawlerCallback(Document document) {
-        for (CrawlerCallback crawlerCallback : crawlerCallbacks) {
-            LOGGER.trace("call crawler callback " + crawlerCallback + "  for " + document.getDocumentURI());
-            crawlerCallback.crawlerCallback(document);
+    private void callRetrieverCallback(Document document) {
+        for (RetrieverCallback retrieverCallback : retrieverCallbacks) {
+            LOGGER.trace("call retriever callback " + retrieverCallback + "  for " + document.getDocumentURI());
+            retrieverCallback.onFinishRetrieval(document);
         }
     }
 
-    public Set<CrawlerCallback> getCrawlerCallbacks() {
-        return crawlerCallbacks;
+    public Set<RetrieverCallback> getRetrieverCallbacks() {
+        return retrieverCallbacks;
     }
 
-    public void addCrawlerCallback(CrawlerCallback crawlerCallback) {
-        crawlerCallbacks.add(crawlerCallback);
+    public void addRetrieverCallback(RetrieverCallback retrieverCallback) {
+        retrieverCallbacks.add(retrieverCallback);
     }
 
-    public void removeCrawlerCallback(CrawlerCallback crawlerCallback) {
-        crawlerCallbacks.remove(crawlerCallback);
+    public void removeCrawlerCallback(RetrieverCallback retrieverCallback) {
+        retrieverCallbacks.remove(retrieverCallback);
     }
 
     public void setNumRetries(int numRetries) {
@@ -1474,9 +1485,49 @@ public class DocumentRetriever {
      * @param args The arguments.
      */
     public static void main(String[] args) {
+
+        // create the object
         DocumentRetriever retriever = new DocumentRetriever();
-        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz");
-        retriever.downloadAndSave("http://www.cinefreaks.com", "data/temp/cf_with_headers.txt", true);
+
+        // download and save a web page including their headers in a gzipped file
+        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", true);
+
+        // create a retriever that is triggered for every retrieved page
+        RetrieverCallback crawlerCallback = new RetrieverCallback() {
+            @Override
+            public void onFinishRetrieval(Document document) {
+                // do something with the page
+                LOGGER.info(document.getDocumentURI());
+            }
+        };
+        retriever.addRetrieverCallback(crawlerCallback);
+
+        // set the maximum number of threads to 10
+        retriever.setMaxThreads(10);
+
+        // the retriever should automatically use different proxies
+        // after every 3rd request (default is no proxy switching)
+        retriever.setSwitchProxyRequests(3);
+
+        // set a list of proxies to choose from
+        List<String> proxyList = new ArrayList<String>();
+        proxyList.add("83.244.106.73:8080");
+        proxyList.add("83.244.106.73:80");
+        proxyList.add("67.159.31.22:8080");
+        retriever.setProxyList(proxyList);
+
+        // give the retriever a list of URLs to download
+        retriever.add("http://www.cinefreaks.com");
+        retriever.add("http://www.imdb.com");
+
+        // download documents
+        Set<Document> documents = retriever.start();
+        CollectionHelper.print(documents);
+
+        // or just get one document
+        Document webPage = retriever.getWebDocument("http://www.cinefreaks.com");
+        LOGGER.info(webPage.getDocumentURI());
+
     }
 
 }

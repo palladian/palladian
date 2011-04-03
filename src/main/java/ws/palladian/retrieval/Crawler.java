@@ -1,7 +1,5 @@
 package ws.palladian.retrieval;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,8 +11,16 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.Callback;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
 
+
+/**
+ * A simple web crawler which can crawl web pages within a domain or crawl cross domain.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class Crawler {
 
     /** The logger for this class. */
@@ -76,34 +82,25 @@ public class Crawler {
         LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || stack size: "
                 + urlStack.size() + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
 
-        // moved this method call to setDocument method ... Philipp, 2010-06-13
-        // callCrawlerCallback(document);
-
         addURLsToStack(links, currentURL);
     }
 
-    public void saveURLDump(String filename) {
+    /**
+     * Save the crawled URLs.
+     * 
+     * @param filename The path where the URLs should be saved to.
+     */
+    public void saveUrlDump(String filename) {
         String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at "
         + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
         urlDumpString += "Number of urls: " + urlDump.size() + "\n\n";
 
-        try {
-            FileWriter fileWriter = new FileWriter(filename);
-            fileWriter.write(urlDumpString);
-
-            Iterator<String> urlDumpIterator = urlDump.iterator();
-            while (urlDumpIterator.hasNext()) {
-                fileWriter.write(urlDumpIterator.next() + "\n");
-                fileWriter.flush();
-            }
-
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (IOException e) {
-            LOGGER.error(filename + ", " + e.getMessage());
-        }
+        FileHelper.writeToFile(filename, urlDump);
     }
 
+    /**
+     * Start the crawling process.
+     */
     private void startCrawl() {
 
         // do the crawling
@@ -139,15 +136,6 @@ public class Crawler {
                     return;
                 }
             }
-
-            // crawl(urlIterator.next());
-            /*
-             * if ((urlDump.size() % 2000 < 1000) && !saved && urlDump.size() > 10) {
-             * saveURLDump("data/crawl/"+Logger.getInstance().getDateString
-             * ()+"_dmoz_urldump"+dumpNumber+".txt"); saved = true; ++dumpNumber; } else if (urlDump.size() % 2000 >
-             * 1000) { saved = false; }
-             */
-            // urlIterator = urlStack.iterator();
         }
 
         // wait for the threads to finish
@@ -174,6 +162,13 @@ public class Crawler {
 
     }
 
+    /**
+     * Start the crawling process.
+     * 
+     * @param urlStack The URLs to crawl.
+     * @param inDomain Follow links that point to other pages within the given domain.
+     * @param outDomain Follow outbound links.
+     */
     public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain) {
         this.urlStack = urlStack;
         this.inDomain = inDomain;
@@ -181,6 +176,13 @@ public class Crawler {
         startCrawl();
     }
 
+    /**
+     * Start the crawling process.
+     * 
+     * @param startURL The URL where the crawler should start.
+     * @param inDomain Follow links that point to other pages within the given domain.
+     * @param outDomain Follow outbound links.
+     */
     public void startCrawl(String startURL, boolean inDomain, boolean outDomain) {
         urlStack = new HashSet<String>();
         urlStack.add(startURL);
@@ -294,8 +296,8 @@ public class Crawler {
         this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
     }
 
-    private void addCrawlerCallback(CrawlerCallback crawlerCallback) {
-        documentRetriever.addCrawlerCallback(crawlerCallback);
+    private void addCrawlerCallback(RetrieverCallback crawlerCallback) {
+        documentRetriever.addRetrieverCallback(crawlerCallback);
     }
 
     public DocumentRetriever getDocumentRetriever() {
@@ -308,17 +310,16 @@ public class Crawler {
 
     public static void main(String[] args) {
 
-        // ////////////////////////// how to use a crawler
-        // ////////////////////////////
+        // ///////////////// simple usage ///////////////////
         // create the crawler object
         Crawler crawler = new Crawler();
 
         // create a callback that is triggered for every crawled page
-        CrawlerCallback crawlerCallback = new CrawlerCallback() {
+        RetrieverCallback crawlerCallback = new RetrieverCallback() {
 
             @Override
-            public void crawlerCallback(Document document) {
-                // TODO write page to database
+            public void onFinishRetrieval(Document document) {
+                LOGGER.info("downloaded the page " + document.getDocumentURI());
             }
         };
         crawler.addCrawlerCallback(crawlerCallback);
@@ -343,8 +344,7 @@ public class Crawler {
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
         crawler.startCrawl("http://www.dmoz.org/", true, true);
-        // //////////////////////////how to use a crawler
-        // ////////////////////////////
+        // //////////////////////////////////////////////////
     }
 
 

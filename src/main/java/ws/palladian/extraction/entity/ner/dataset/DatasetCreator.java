@@ -31,8 +31,8 @@ import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
-import ws.palladian.retrieval.search.SourceRetriever;
-import ws.palladian.retrieval.search.SourceRetrieverManager;
+import ws.palladian.retrieval.search.WebSearcher;
+import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.
@@ -64,7 +64,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private String dataSetLocation = "data/datasets/ner/";
 
     /** The search API to use. */
-    private int sourceAPI = SourceRetrieverManager.GOOGLE;
+    private int sourceAPI = WebSearcherManager.GOOGLE;
 
     /** Save a map with concept name and the seeds searched for every concept. */
     private Map<String, List<String>> conceptSeeds;
@@ -147,7 +147,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
         meta.append("Total Generated Traffic: ").append(DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES))
         .append("MB\n");
-        meta.append("Search Engine used: ").append(SourceRetrieverManager.getName(getSourceAPI())).append("\n");
+        meta.append("Search Engine used: ").append(WebSearcherManager.getName(getSourceAPI())).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
         // check which concepts have entities with their number of mentions
@@ -348,7 +348,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private List<String> getWebPages(String seedEntity) {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
-        SourceRetriever sourceRetriever = new SourceRetriever();
+        WebSearcher sourceRetriever = new WebSearcher();
         sourceRetriever.setResultCount(10 * getMentionsPerEntity());
         sourceRetriever.setSource(getSourceAPI());
 
@@ -720,7 +720,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
         // System.exit(0);
 
-        datasetCreator.setSourceAPI(SourceRetrieverManager.BING);
+        datasetCreator.setSourceAPI(WebSearcherManager.BING);
         datasetCreator.setMentionsPerEntity(10);
         datasetCreator.setSeedsPerConcept(20);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities/");

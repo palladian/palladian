@@ -9,7 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.retrieval.Crawler;
-import ws.palladian.retrieval.CrawlerCallback;
+import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -20,7 +20,7 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author Philipp Katz
  * 
  */
-public class FeedDiscoveryCallback implements CrawlerCallback {
+public class FeedDiscoveryCallback implements RetrieverCallback {
 
     /** The singleton. */
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
@@ -56,7 +56,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     }
 
     @Override
-    public void crawlerCallback(Document document) {
+    public void onFinishRetrieval(Document document) {
         if (document != null) {
             List<DiscoveredFeed> feeds = feedDiscovery.discoverFeeds(document);
             for (DiscoveredFeed feed : feeds) {

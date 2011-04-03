@@ -884,8 +884,9 @@ CollectionHelper.print(detectedFacts);
 
 \section{Retrieval}
 
-\subsection{Source Retriever}
-The source retriever is a module that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
+\subsection{Web Searcher}
+The \verb#WebSearcher# is a class that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
+
 \subsubsection{Basic Features}
 Basic features are:
 \begin{itemize}
@@ -897,52 +898,107 @@ Basic features are:
 \item Query Google Blog search.
 \item Query Textrunner web page.
 \end{itemize}
-Some of the search APIs require API keys which must be specified in the config/apikeys.conf file. See \ref{sec:apikeys.conf} for more information.
+
+Some of the search APIs require API keys which can be specified in the config/palladian.properties file or set programmatically.
 
 \subsubsection{How To}
 \label{sec:howto}
-The following code snippet shows how to initialize the source retriever and get a list of (English) URLs from the Bing search engine for the exact search ``Jim Carrey''.
+The following code snippet shows how to initialize the \verb#WebSearcher# and get a list of (English) URLs from the Bing search engine for the exact search ``Jim Carrey''.
 \begin{codelisting}
 \begin{lstlisting}[caption=Retrieving result URLs from a search engine.,frame=tb]
-// create source retriever object
-SourceRetriever s = new SourceRetriever();
-		
-// set maximum number of expected results 
-s.setResultCount(10);
-		
+// create web searcher object
+WebSearcher searcher = new WebSearcher();
+
+// set maximum number of expected results
+searcher.setResultCount(10);
+
 // set search result language to english
-s.setLanguage(SourceRetrieve.LANGUAGE_ENGLISH);
-		
-// set the query source to the Bing search engine 
-s.setSource(SourceRetrieverManager.BING);
-		
+searcher.setLanguage(LANGUAGE_ENGLISH);
+
+// set the query source to the Bing search engine
+searcher.setSource(WebSearcherManager.BING);
+
 // search for "Jim Carrey" in exact match mode (second parameter = true)
-List<String> resultURLs = s.getURLs("Jim Carrey", true);
-		
+List<String> resultURLs = searcher.getURLs("Jim Carrey", true);
+
 // print the results
-CollectionHelper.print(resultURLs);	
+CollectionHelper.print(resultURLs);
 \end{lstlisting}
 \end{codelisting}
 
-%\subsection{RankAggregation}
-
-\subsection{Web Crawler}
-The web crawler can be used to crawl domains or just retrieve the cleansed HTML document of a single web page.
+\subsection{Document Retriever}
+The \emph{DocumentRetriever} can be used do download documents from the WWW or create W3C documents from (X)HTML files from the hard disk. 
 
 \subsubsection{Basic Features}
 Basic functionalities include:
 \begin{itemize}
 \item Download and save contents of a web page.
-\item Automatically crawl in- and/or outbound links from web pages.
-\item Use URL rules for the crawling process.
-\item Extract title, description, keywords and body content of a web page.
-\item Remove HTML, SCRIPT and CSS tags.
-\item Find a sibling page of a given URL.
-\item Switch proxies after a certain number of requests to avoid being blocked.
+\item Download documents in parallel using threads.
+\item Use \verb#DownloadFilter# to specify which contents are allowed.
+\item Switch proxies after a certain number of requests to avoid being blocked
 \end{itemize}
 
 \subsubsection{How To}
-The following code shows how to instantiate a simple crawler that starts at http://www.dmoz.org and follows all in- and outbound links. The URL of each crawled page is printed to the screen. The crawler will use 10 threads, changes the proxy after every third request and stops after having crawled 1000 pages. Instead of setting the parameters using the code, we can also specify them in the config/crawler.conf file. See \ref{sec:classification.conf} for more information.
+The following code shows how to instantiate a simple \verb#DocumentRetriever#.
+
+\begin{codelisting}
+\begin{lstlisting}[caption=Using the web crawler.,frame=tb]
+// create the object
+DocumentRetriever retriever = new DocumentRetriever();
+   
+// download and save a web page including their headers in a gzipped file
+retriever.downloadAndSave("http://cinefreaks.com", "page.gz", true);
+   
+// create a retriever that is triggered for every retrieved page
+RetrieverCallback crawlerCallback = new RetrieverCallback() {
+     @Override
+     public void onFinishRetrieval(Document document) {
+          // do something with the page
+          LOGGER.info(document.getDocumentURI());
+     }
+};
+retriever.addRetrieverCallback(crawlerCallback);
+   
+// set the maximum number of threads to 10
+retriever.setMaxThreads(10);
+   
+// the retriever should automatically use different proxies
+// after every 3rd request (default is no proxy switching)
+retriever.setSwitchProxyRequests(3);
+   
+ // set a list of proxies to choose from
+List<String> proxyList = new ArrayList<String>();
+proxyList.add("83.244.106.73:8080");
+proxyList.add("83.244.106.73:80");
+proxyList.add("67.159.31.22:8080");
+retriever.setProxyList(proxyList);
+        
+// give the retriever a list of URLs to download
+retriever.add("http://www.cinefreaks.com");
+retriever.add("http://www.imdb.com");
+        
+// download documents
+Set<Document> documents = retriever.start();
+CollectionHelper.print(documents);
+     
+// or just get one document
+Document webPage = retriever.getWebDocument("http://www.cinefreaks.com");
+LOGGER.info(webPage.getDocumentURI());
+\end{lstlisting}
+\end{codelisting}
+
+\subsection{Web Crawler}
+The web crawler can be used to crawl domains or the web in general.
+
+\subsubsection{Basic Features}
+Basic functionalities include:
+\begin{itemize}
+\item Automatically crawl in- and/or outbound links from web pages.
+\item Use URL rules for the crawling process.
+\end{itemize}
+
+\subsubsection{How To}
+The following code shows how to instantiate a simple crawler that starts at http://www.dmoz.org and follows all in- and outbound links. The URL of each crawled page is printed to the screen. The crawler will use 10 threads, changes the proxy after every third request and stops after having crawled 1000 pages. Instead of setting the parameters using the code, we can also specify them in the config/palladian.properties file.
 
 \begin{codelisting}
 \begin{lstlisting}[caption=Using the web crawler.,frame=tb]
@@ -950,35 +1006,33 @@ The following code shows how to instantiate a simple crawler that starts at http
 Crawler crawler = new Crawler();
 
 // create a callback that is triggered for every crawled page
-CrawlerCallback crawlerCallback = new CrawlerCallback() {
-	@Override
-	public void crawlerCallback(Document document) {
-		// TODO do something with the page
-		System.out.println(document.getDocumentURI());
-	}
+RetrieverCallback crawlerCallback = new RetrieverCallback() {
+    @Override
+    public void onFinishRetrieval(Document document) {
+        LOGGER.info("downloaded the page " + document.getDocumentURI());
+    }
 };
 crawler.addCrawlerCallback(crawlerCallback);
 
 // stop after 1000 pages have been crawled (default is unlimited)
 crawler.setStopCount(1000);
 
-// set the maximum number of threads to 10
-crawler.setMaxThreads(10);
+// set the maximum number of threads to 1
+crawler.setMaxThreads(1);
 
-// the crawler should automatically use different proxies
-// after every 3rd request (default is no proxy switching)
-crawler.setSwitchProxyRequests(3);
+// the crawler should automatically use different proxies after every
+// 3rd request (default is no proxy switching)
+crawler.getDocumentRetriever().setSwitchProxyRequests(3);
 
 // set a list of proxies to choose from
 List<String> proxyList = new ArrayList<String>();
 proxyList.add("83.244.106.73:8080");
 proxyList.add("83.244.106.73:80");
 proxyList.add("67.159.31.22:8080");
-crawler.setProxyList(proxyList);
+crawler.getDocumentRetriever().setProxyList(proxyList);
 
-// start the crawling process from a certain page,
-// true = follow links within the start domain
-// true = follow outgoing links
+// start the crawling process from a certain page, true = follow links
+// within the start domain, true = follow outgoing links
 crawler.startCrawl("http://www.dmoz.org/", true, true);
 \end{lstlisting}
 \end{codelisting}
