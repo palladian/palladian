@@ -37,7 +37,7 @@ public class FeedsExamples {
         FeedStore feedStore = new FeedDatabase();
         
         // add some feed URLs to the database
-        FeedImporter feedImporter = new FeedImporter(feedStore);
+        // FeedImporter feedImporter = new FeedImporter(feedStore);
 //        feedImporter.addDiscoveredFeeds(discoveredFeeds);
         
         // start aggregating news for the feeds in the database

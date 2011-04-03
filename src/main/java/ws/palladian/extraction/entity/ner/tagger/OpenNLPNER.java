@@ -496,7 +496,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // TaggingFormat.XML));
 
         // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
         EvaluationResult er = tagger
                 .evaluate(
                         "data/datasets/ner/conll/test_final.txt",

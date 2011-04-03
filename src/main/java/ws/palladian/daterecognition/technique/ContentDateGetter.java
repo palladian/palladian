@@ -19,7 +19,6 @@ import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;

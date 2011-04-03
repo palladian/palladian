@@ -164,7 +164,8 @@ public class JulieNER extends NamedEntityRecognizer {
 
             Utils.writeFile(outFile, tagger.predictIOB(sentences, showSegmentConfidence));
 
-            reformatOutput(outFile);
+            // reformatOutput(outFile);
+            alignContent(outFile, inputText);
 
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
@@ -174,7 +175,6 @@ public class JulieNER extends NamedEntityRecognizer {
         annotations.instanceCategoryToClassified();
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
-        // CollectionHelper.print(annotations);
 
         return annotations;
     }
@@ -186,124 +186,71 @@ public class JulieNER extends NamedEntityRecognizer {
     }
 
     /**
-     * The output of the named entity recognition is not well formatted and we need to reformat it.
+     * The output of the named entity recognition is not well formatted and we need to align it with the input data.
      * 
      * @param file The file where the prediction output is written in BIO format. This file will be overwritten.
      */
-    private void reformatOutput(File file) {
+    private void alignContent(File alignFile, String correctContent) {
 
         // transform to XML
-        FileFormatParser.columnToXML(file.getPath(), file.getPath(), "\t");
+        FileFormatParser.columnToXML(alignFile.getPath(), alignFile.getPath(), "\t");
 
-        String content = FileHelper.readFileToString(file);
+        String alignedContent = FileHelper.readFileToString(alignFile);
 
-        // =-
-        content = content.replace("=- ", "=-");
+        // compare contents, ignore tags and align content with inputText (correctContent)
+        // the index for the aligned context is different because of the tags
+        int alignIndex = 0;
+        boolean jumpOne = false;
+        for (int i = 0; i < correctContent.length(); i++, alignIndex++) {
+            Character correctCharacter = correctContent.charAt(i);
+            Character alignedCharacter = alignedContent.charAt(alignIndex);
+            Character nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
 
-        // O'Brien
-        content = content.replaceAll("(?<= [A-Z])' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
+            // if same, continue
+            if (correctCharacter.equals(alignedCharacter)) {
+                continue;
+            }
 
-        content = content.replaceAll("(?<=[A-Z]\\</.{1,100}\\>)' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
+            // characters are different
 
-        // Tom's
-        content = content.replaceAll("' [s|S](?=\\W)", "'s");
+            // if tag "<" skip it
+            if (alignedCharacter.charValue() == 60
+                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47)) {
+                do {
+                    alignIndex++;
+                    alignedCharacter = alignedContent.charAt(alignIndex);
+                } while (alignedCharacter.charValue() != 62);
 
-        // I'm
-        content = content.replaceAll("' [m|M](?=\\W)", "'m");
+                if (jumpOne) {
+                    alignIndex++;
+                    jumpOne = false;
+                }
+                alignedCharacter = alignedContent.charAt(++alignIndex);
 
-        // we'd
-        content = content.replace("' d ", "'d ");
+                // check again if the characters are the same
+                if (correctCharacter.equals(alignedCharacter)) {
+                    continue;
+                }
+            }
 
-        // won't
-        content = content.replaceAll("' [t|T](?=\\W)", "'t");
+            if (Character.isWhitespace(alignedCharacter)) {
+                alignedContent = alignedContent.substring(0, alignIndex)
+                        + alignedContent.substring(alignIndex + 1, alignedContent.length());
+                if (nextAlignedCharacter.charValue() == 60) {
+                    alignIndex--;
+                    jumpOne = true;
+                } else {
+                    jumpOne = false;
+                }
+            } else {
+                alignedContent = alignedContent.substring(0, alignIndex) + " "
+                        + alignedContent.substring(alignIndex, alignedContent.length());
+            }
 
-        // they're
-        content = content.replaceAll("' re(?=\\W)", "'re");
+            FileHelper.writeToFile(alignFile.getPath(), alignedContent);
+        }
 
-        // I've
-        content = content.replaceAll("' ve(?=\\W)", "'ve");
-
-        content = content.replaceAll(">'B", ">' B");
-
-        // we'll
-        content = content.replaceAll("' ll(?=\\W)", "'ll");
-
-        // x-based
-        content = content.replace("- based", "-based");
-
-        // @reuters
-        content = content.replaceAll("@ (?=\\w)", "@");
-
-        // @ 101
-        content = content.replaceAll("@(?=\\d)", "@ ");
-
-        // `
-        content = content.replace("` ", "`");
-
-        // Gama'a
-        content = content.replace("Gama' a", "Gama'a");
-        content = content.replace("Gama</PER>' a", "Gama</PER>'a");
-        content = content.replace("Gama</ORG>' a", "Gama</ORG>'a");
-        content = content.replace("Gama</MISC>' a", "Gama</MISC>'a");
-        content = content.replace("Gama</LOC>' a", "Gama</LOC>'a");
-        content = content.replace("' o.", "'o.");
-        content = content.replace("' o ", "'o ");
-        content = content.replace("</PER>' o", "</PER>'o");
-        content = content.replace("</ORG>' o", "</ORG>'o");
-        content = content.replace("</MISC>' o", "</MISC>'o");
-        content = content.replace("</LOC>' o", "</LOC>'o");
-
-        // A.de Silva
-        content = content.replaceAll("(?<=[A-Z]\\.\\<\\/.{1,20}?\\>) de ", "de ");
-        content = content.replaceAll("(?<=[A-Z][.]) de ", "de ");
-
-        // S. AFR
-        content = content.replace("S. AFR", "S.AFR");
-
-        // d'a
-        content = content.replace("d' a", "d'a");
-
-        // +
-        content = content.replace("+ ", "+");
-
-        // 6/
-        content = content.replaceAll("(?<=\\d)/ ", "/");
-
-        // - 4
-        content = content.replaceAll("(?<=(\\d|\\(|\\)))- (?=[0-9]+(\\s)[A-Za-z1-9.!?])", "-");
-        content = content.replace("6-2 6-0", "6- 2 6-0");
-        content = content.replace(",- ", ",-");
-        content = content.replace("(- 17", "(-17");
-        content = content.replace(".... I", "....I");
-        content = content.replace("... I do not know", "...I do not know");
-
-        // $ 6= 4
-        content = content.replaceAll("(?<=\\d)= (?=\\d+(\\s))", "=");
-
-        // 4:
-        content = content.replaceAll("(?<=\\d): ", ":");
-
-        // T.O' => T. O
-        content = content.replace("T. O", "T.O");
-
-        // a. 333
-        content = content.replace("a. 333", "a.333");
-
-        content = content.replace("- led", "-led");
-
-        content = content.replace("' ala", "'ala");
-
-        content = content.replace("d' ", "d'");
-
-        content = content.replace("'</LOC> s", "'</LOC>s");
-        content = content.replace("'</PER> s", "'</PER>s");
-        content = content.replace("'</MISC> s", "'</MISC>s");
-        content = content.replace("'</ORG> s", "'</ORG>s");
-
-        // )-1
-        // content = content.replaceAll("(?<=\\))- (?=\\d)", "-");
-        FileHelper.writeToFile(file.getPath(), content);
-
+        FileHelper.writeToFile(alignFile.getPath(), alignedContent);
     }
 
     /**
@@ -536,7 +483,8 @@ public class JulieNER extends NamedEntityRecognizer {
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/juliener.mod");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/juliener.mod",
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
+                "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
         // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",

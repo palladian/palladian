@@ -70,13 +70,20 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
 
+    /** Number of rounds for training. */
+    private int trainingRounds = 20;
+
     public IllinoisLbjNER() {
         setName("Lbj NER");
+        buildConfigFile();
+    }
 
+    private void buildConfigFile() {
+        configFileContent = "";
         configFileContent += "BIO" + "\n";
         configFileContent += "###MODEL_FILE###" + "\n";
         configFileContent += "DualTokenizationScheme" + "\n";
-        configFileContent += "rounds\t20" + "\n";
+        configFileContent += "rounds\t" + getTrainingRounds() + "\n";
         configFileContent += "GazetteersFeatures\t0" + "\n";
         configFileContent += "Forms\t1" + "\n";
         configFileContent += "Capitalization\t1" + "\n";
@@ -91,6 +98,15 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         configFileContent += "prevTagsForContext\t1" + "\n";
         configFileContent += "PatternFeatures\t1" + "\n";
         configFileContent += "PredictionsLevel1\t1" + "\n";
+    }
+
+    public int getTrainingRounds() {
+        return trainingRounds;
+    }
+
+    public void setTrainingRounds(int trainingRounds) {
+        this.trainingRounds = trainingRounds;
+        buildConfigFile();
     }
 
     public void demo(boolean forceSentenceSplitsOnNewLines, String configFilePath) throws IOException {

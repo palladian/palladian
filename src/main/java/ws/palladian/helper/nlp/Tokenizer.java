@@ -18,6 +18,8 @@ import ws.palladian.helper.FileHelper;
  */
 public class Tokenizer {
 
+    public static final String SPLIT_REGEXP = "([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)";
+
     /**
      * Tokenize a given string.
      * 
@@ -28,10 +30,7 @@ public class Tokenizer {
 
         List<String> tokens = new ArrayList<String>();
 
-        Pattern pattern = Pattern
-                .compile(
-                        "([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
-                Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(SPLIT_REGEXP, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {

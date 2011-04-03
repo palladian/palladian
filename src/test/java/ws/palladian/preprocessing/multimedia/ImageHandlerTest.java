@@ -3,8 +3,6 @@ package ws.palladian.preprocessing.multimedia;
 import java.awt.image.BufferedImage;
 
 import junit.framework.TestCase;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.preprocessing.multimedia.ImageHandler;
 
 /**
  * Test cases for the image handler.

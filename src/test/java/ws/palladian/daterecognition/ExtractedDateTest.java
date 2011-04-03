@@ -2,16 +2,13 @@ package ws.palladian.daterecognition;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.daterecognition.dates.ExtractedDate;
+
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.GregorianCalendar;
-
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.date.DateHelper;
 
 public class ExtractedDateTest {
 
