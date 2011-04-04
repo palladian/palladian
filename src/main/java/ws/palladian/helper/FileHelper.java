@@ -958,7 +958,7 @@ public class FileHelper {
      * 
      * @param filename The name of the file or directory.
      * @param deleteNonEmptyDirectory If true, and filename is a directory, it will be deleted with all its contents.
-     * @return True if the deletion was successful, false otherwise.
+     * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
      */
     public static boolean delete(String filename, boolean deleteNonEmptyDirectory) {
         File f = new File(filename);
