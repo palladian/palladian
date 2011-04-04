@@ -346,7 +346,7 @@ public class WikiPage {
 
     /**
      * @param pageIDDestination The pageID this page has a hyperlink to.
-     * @return <code>true</code> if this set did not already contain the specified element.
+     * @return <code>true</code> if this set does not already contains the specified element.
      */
     public final boolean addHyperLinks(Set<Integer> pageIDsDestination) {
         if (pageIDsDestination == null) {

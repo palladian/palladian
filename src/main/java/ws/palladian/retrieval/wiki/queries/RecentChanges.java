@@ -73,7 +73,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
     /** Pattern to parse returned page, @see {@link #parseHasMore(String)}. */
     private static final Pattern HAS_MORE_PATTERN = Pattern.compile(
             "<query-continue>.*?<recentchanges *rcstart=\"(.*?)\" */>.*?</query-continue>", Pattern.DOTALL
-            | Pattern.MULTILINE);
+                    | Pattern.MULTILINE);
 
     /** Constant value for the aplimit-parameter. **/
     private static final int LIMIT = 500;
@@ -115,7 +115,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
      * @throws VersionException if version is incompatible
      */
     public RecentChanges(final MediaWikiBot bot, final String rcstart, final int[] namespaces, final String rctype)
-    throws VersionException {
+            throws VersionException {
         super(bot);
 
         this.bot = bot;
@@ -145,14 +145,14 @@ public class RecentChanges extends TitleQuery<WikiPage> {
         }
 
         final String query = "/api.php?action=query&list=recentchanges"
-            + "&rcprop="
-            + MediaWiki.encode(rcprop)
-            + ((rcstart != null && rcstart.length() > 0) ? ("&rcstart=" + rcstart + "&rcdir=newer") : "")
-            + ((rctype != null && rctype.length() > 0) ? ("&rctype=" + MediaWiki.encode(rctype)) : "")
-            + "&rclimit="
-            + LIMIT
-            + ((namespaces != null && namespaces.length > 0) ? ("&rcnamespace=" + MediaWiki.encode(MWAction
-                    .createNsString(namespaces))) : "") + "&format=xml";
+                + "&rcprop="
+                + MediaWiki.encode(rcprop)
+                + ((rcstart != null && rcstart.length() > 0) ? ("&rcstart=" + rcstart + "&rcdir=newer") : "")
+                + ((rctype != null && rctype.length() > 0) ? ("&rctype=" + MediaWiki.encode(rctype)) : "")
+                + "&rclimit="
+                + LIMIT
+                + ((namespaces != null && namespaces.length > 0) ? ("&rcnamespace=" + MediaWiki.encode(MWAction
+                        .createNsString(namespaces))) : "") + "&format=xml";
 
         return new Get(query);
     }
@@ -183,10 +183,10 @@ public class RecentChanges extends TitleQuery<WikiPage> {
         Document document = null;
         try {
             document = DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse(new StringInputStream(StringHelper.stripNonValidXMLCharacters(StringHelper
-                    .removeNonAsciiCharacters(XML))));
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(new StringInputStream(StringHelper.stripNonValidXMLCharacters(StringHelper
+                            .removeNonAsciiCharacters(XML))));
         } catch (Exception e) {
             LOGGER.error("could not process recent changes! XML file:\n" + XML + "\n", e);
             return null;
@@ -205,11 +205,9 @@ public class RecentChanges extends TitleQuery<WikiPage> {
                         .getNamedItem("timestamp").getTextContent())).getNormalizedDate();
                 revision = new Revision(revisionID, timestamp, author);
             } catch (Exception e) {
-                LOGGER.error(
-                        "Error parsing Wiki timestamp \""
-                        + MediaWiki.decode(recentChange.getAttributes().getNamedItem("timestamp")
-                                .getTextContent()) + "\", revisionID " + revisionID + " has not been added. ",
-                                e);
+                LOGGER.error("Error parsing Wiki timestamp \""
+                        + MediaWiki.decode(recentChange.getAttributes().getNamedItem("timestamp").getTextContent())
+                        + "\", revisionID " + revisionID + " has not been added. Error:" + e.getMessage());
             }
 
             if (pages.containsKey(wikiPage.getPageID())) {

@@ -194,9 +194,8 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
                     revisions.add(new Revision(revisionID, timestamp, author));
                 } catch (Exception e) {
                     LOGGER.error("Error parsing Wiki timestamp \""
-                                    + MediaWiki.decode(revision.getAttributes().getNamedItem("timestamp")
-                                            .getTextContent()) + "\", revisionID " + revisionID
-                                    + " has not been added. Error: ", e);
+                            + MediaWiki.decode(revision.getAttributes().getNamedItem("timestamp").getTextContent())
+                            + "\", revisionID " + revisionID + " has not been added. Error: " + e.getMessage());
                     // FIXME: remove DEBUG code
                     if ((author == null || author.length() == 0) && userNode != null) {
                         LOGGER.error("userNode.toString() = \"" + userNode.toString()
