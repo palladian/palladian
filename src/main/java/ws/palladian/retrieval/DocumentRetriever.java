@@ -193,7 +193,7 @@ public class DocumentRetriever {
      * @param callback The callback to be called for each finished download. If the callback is null, the method will
      *            save the downloaded documents and return them when finished.
      */
-    public Set<Document> start(final DocumentRetrieverCallback callback) {
+    public Set<Document> start(final RetrieverCallback callback) {
 
         LOGGER.trace(">start");
 
@@ -233,14 +233,14 @@ public class DocumentRetriever {
                     try {
                         LOGGER.trace("start downloading " + url);
                         inputStream = downloadInputStream(url);
+                        Document document = getWebDocument(inputStream, url);
 
                         if (callback == null) {
-                            Document document = getWebDocument(inputStream, url);
                             synchronized (downloadedDocuments) {
                                 downloadedDocuments.add(document);
                             }
                         } else {
-                            callback.finished(url, inputStream);
+                            callback.onFinishRetrieval(document);
                         }
 
                         LOGGER.trace("finished downloading " + url);

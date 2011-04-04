@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
@@ -24,8 +22,8 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractor;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.DocumentRetrieverCallback;
 import ws.palladian.retrieval.HeaderInformation;
+import ws.palladian.retrieval.RetrieverCallback;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -204,20 +202,23 @@ public class FeedRetriever {
                 entries.put(feedEntry.getLink(), feedEntry);
             }
         }
-
-        downloader.start(new DocumentRetrieverCallback() {
+        
+        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+            
             @Override
-            public void finished(String url, InputStream inputStream) {
+            public void onFinishRetrieval(Document document) {
                 try {
                     PageContentExtractor extractor = new PageContentExtractor();
-                    extractor.setDocument(new InputSource(inputStream));
+                    extractor.setDocument(document);
                     String pageText = extractor.getResultText();
-                    entries.get(url).setPageText(pageText);
+                    entries.get(document.getDocumentURI()).setPageText(pageText);
                 } catch (PageContentExtractorException e) {
-                    LOGGER.error("PageContentExtractorException " + e);
+                    LOGGER.error("PageContentExtractorException " + e);                    
                 }
             }
-        });
+        };
+        
+        downloader.start(retrieverCallback);
         LOGGER.debug("finished downloading");
     }
 

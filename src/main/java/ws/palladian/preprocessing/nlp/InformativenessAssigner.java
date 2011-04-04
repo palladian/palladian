@@ -1,6 +1,5 @@
 package ws.palladian.preprocessing.nlp;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,7 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.DocumentRetrieverCallback;
+import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
@@ -129,12 +128,11 @@ public class InformativenessAssigner {
 
         final PageSentenceExtractor pse = new PageSentenceExtractor();
         final DocumentRetriever crawler = new DocumentRetriever();
-
-        DocumentRetrieverCallback callback = new DocumentRetrieverCallback() {
-
+        
+        RetrieverCallback callback = new RetrieverCallback() {
+            
             @Override
-            public void finished(String url, InputStream inputStream) {
-                Document document = crawler.getWebDocument(inputStream, url);
+            public void onFinishRetrieval(Document document) {
                 pse.setDocument(document);
                 texts.add(pse.getSentencesString());
             }
