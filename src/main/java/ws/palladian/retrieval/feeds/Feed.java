@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +47,7 @@ public class Feed {
     private long byteSize = 0;
 
     /** The items of this feed. */
-    private List<FeedItem> items = Collections.emptyList();
+    private List<FeedItem> items = new ArrayList<FeedItem>();
 
     /** The number of feed entries presented for each request. */
     private int windowSize = -1;

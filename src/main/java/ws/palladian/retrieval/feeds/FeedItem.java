@@ -24,10 +24,10 @@ public class FeedItem {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
     
-    private static final Map<String, String> namespaceMap = new HashMap<String, String>();
+    private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
     
     static {
-        namespaceMap.put("atom", "http://www.w3.org/2005/Atom");
+        NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
     }
 
     private int id = -1;
@@ -238,7 +238,7 @@ public class FeedItem {
 
                 // for Atom
                 if (node == null) {
-                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", namespaceMap);
+                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
                 }
             }
 
