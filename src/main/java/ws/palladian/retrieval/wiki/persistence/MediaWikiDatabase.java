@@ -497,8 +497,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @param cacheOnly Set to <code>true</code> to only check the cache without querying the database in case of a
      *            cache miss. This is much faster, but may result in a false negative, if the cache size is too small
      *            and the page is in the database but not in the cache. Use with caution!
-     * @return The pageID that belongs to the given PAGE_TITLE in Wiki WIKI_ID or null if PAGE_TITLE is unknown in
-     *         database.
+     * @return The pageID that belongs to the given PAGE_TITLE in Wiki WIKI_ID or <code>null</code> if PAGE_TITLE is
+     *         unknown in database.
      */
     public Integer getPageID(final int wikiID, final String pageTitle, final boolean cacheOnly) {
         Integer pageID = null;
@@ -536,7 +536,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * 
      * @param wikiID The ID of the Wiki the searched page is in.
      * @param pageID The pageID of the page to get information about.
-     * @return {@link WikiPage} containing data from table pages but not from table revisions.
+     * @return {@link WikiPage} containing data from table pages but not from table revisions or <code>null</code> if
+     *         this page is not contained in the given wiki.
      * @see #getPage(int, int)
      */
     public WikiPage getPlainPage(final int wikiID, final int pageID) {
@@ -624,14 +625,16 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * 
      * @param wikiID The ID of the Wiki the page is in.
      * @param pageID The pageID to get.
-     * @return A page and all its revisions from database.
+     * @return A page and all its revisions from database or null if page is not contained in database.
      */
     public WikiPage getPage(final int wikiID, final int pageID) {
         WikiPage page = getPlainPage(wikiID, pageID);
-        for (Revision revision : getRevisions(wikiID, pageID)) {
-            page.addRevision(revision);
+        if (page != null) {
+            for (Revision revision : getRevisions(wikiID, pageID)) {
+                page.addRevision(revision);
+            }
+            page.addHyperLinks(getAllHyperlinks(wikiID, pageID));
         }
-        page.addHyperLinks(getAllHyperlinks(wikiID, pageID));
         return page;
     }
 

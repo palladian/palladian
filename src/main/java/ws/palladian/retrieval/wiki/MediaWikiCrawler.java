@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
 import net.sourceforge.jwbf.mediawiki.actions.meta.Siteinfo;
+import net.sourceforge.jwbf.mediawiki.actions.util.RedirectFilter;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
@@ -350,8 +351,8 @@ public class MediaWikiCrawler implements Runnable {
             }
 
             try {
-                apt = new AllPageTitles(bot, namespaceID);
-                // apt = new AllPageTitles(bot, null, "Dresden", RedirectFilter.all, namespaceID); // test for Philipp
+                // apt = new AllPageTitles(bot, namespaceID);
+                apt = new AllPageTitles(bot, null, "Dresden", RedirectFilter.all, namespaceID); // test for Philipp
             } catch (VersionException e) {
                 LOGGER.fatal("Retrieving all page titles from Wiki is not supported by this version", e);
                 return;
@@ -865,35 +866,37 @@ public class MediaWikiCrawler implements Runnable {
      * @param pageTitle The title of the new or updated page
      */
     private void processNewPage(final String pageTitle) {
-        WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
-                mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle, false));
+        final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle, false);
+        if (pageID != null) {
+            WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(), pageID);
 
-        // String baseURL = mwDescriptor.getAbsoltuePathToContent();
-        // URL pageURL = null;
-        // try {
-        // String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
-        // pageURL = new URL(baseURL + encodedTitle);
-        // } catch (UnsupportedEncodingException e) {
-        // LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
-        // } catch (MalformedURLException e) {
-        // LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
-        // }
-        // page.setPageURL(pageURL);
+            // String baseURL = mwDescriptor.getAbsoltuePathToContent();
+            // URL pageURL = null;
+            // try {
+            // String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
+            // pageURL = new URL(baseURL + encodedTitle);
+            // } catch (UnsupportedEncodingException e) {
+            // LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
+            // } catch (MalformedURLException e) {
+            // LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
+            // }
+            // page.setPageURL(pageURL);
 
-        try {
-            if (DEBUG) {
-                LOGGER.debug("queue size: " + pageQueue.size());
+            try {
+                if (DEBUG) {
+                    LOGGER.debug("queue size: " + pageQueue.size());
+                }
+                if (pageQueue.remainingCapacity() < QUEUE_WARN_CAPACITY) {
+                    LOGGER.warn("Queue to PageConsumers almost full, increase number of consumers! Remaining capacity: "
+                            + pageQueue.remainingCapacity());
+                }
+
+                pageQueue.put(page);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e);
+            } catch (NullPointerException e) {
+                LOGGER.error("Could not put page \"" + pageTitle + "\" to pageQuele: page does not exist.");
             }
-            if (pageQueue.remainingCapacity() < QUEUE_WARN_CAPACITY) {
-                LOGGER.warn("Queue to PageConsumers almost full, increase number of consumers! Remaining capacity: "
-                        + pageQueue.remainingCapacity());
-            }
-
-            pageQueue.put(page);
-        } catch (InterruptedException e) {
-            LOGGER.warn(e);
-        } catch (NullPointerException e) {
-            LOGGER.error("Could not put page \"" + pageTitle + "\" to pageQuele: page does not exist.");
         }
     }
 
