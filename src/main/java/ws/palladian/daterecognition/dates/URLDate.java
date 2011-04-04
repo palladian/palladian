@@ -8,6 +8,8 @@ package ws.palladian.daterecognition.dates;
  */
 public class URLDate extends ExtractedDate {
 
+	private DateType dateType = DateType.UrlDate;
+	
     public URLDate() {
         // TODO Auto-generated constructor stub
     }
@@ -20,12 +22,6 @@ public class URLDate extends ExtractedDate {
     public URLDate(String dateString, String format) {
         super(dateString, format);
         // TODO Auto-generated constructor stub
-    }
-
-    @Override
-    public int getType() {
-        // TODO Auto-generated method stub
-        return TECH_URL;
     }
 
     @Override

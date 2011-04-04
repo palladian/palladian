@@ -2,21 +2,15 @@ package ws.palladian.daterecognition;
 
 import ws.palladian.daterecognition.dates.ArchiveDate;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.daterecognition.dates.URLDate;
 
 public class DateConverter {
-    public static final int TECH_URL = ExtractedDate.TECH_URL;
-    public static final int TECH_HTTP_HEADER = ExtractedDate.TECH_HTTP_HEADER;
-    public static final int TECH_HTML_HEAD = ExtractedDate.TECH_HTML_HEAD;
-    public static final int TECH_HTML_STRUC = ExtractedDate.TECH_HTML_STRUC;
-    public static final int TECH_HTML_CONT = ExtractedDate.TECH_HTML_CONT;
-    public static final int TECH_REFERENCE = ExtractedDate.TECH_REFERENCE;
-    public static final int TECH_ARCHIVE = ExtractedDate.TECH_ARCHIVE;
+    
 
     /**
      * Converts an extracted date into a specific one. <br>
@@ -27,30 +21,33 @@ public class DateConverter {
      * @param techniqueFlag
      * @return
      */
-    public static <T> T convert(ExtractedDate date, int techniqueFlag) {
+    public static <T> T convert(ExtractedDate date, DateType techniqueFlag) {
         T newDate = null;
         if (date != null) {
             switch (techniqueFlag) {
-                case TECH_ARCHIVE:
+                case ArchiveDate:
                     newDate = (T) new ArchiveDate();
+                    ((ExtractedDate)newDate).setType(DateType.ArchiveDate);
                     break;
-                case TECH_URL:
+                case UrlDate:
                     newDate = (T) new URLDate();
+                    ((ExtractedDate)newDate).setType(DateType.UrlDate);
                     break;
-                case TECH_HTTP_HEADER:
-                    newDate = (T) new HTTPDate();
+                case MetaDate:
+                    newDate = (T) new MetaDate();
+                    ((ExtractedDate)newDate).setType(DateType.MetaDate);
                     break;
-                case TECH_HTML_HEAD:
-                    newDate = (T) new HeadDate();
-                    break;
-                case TECH_HTML_STRUC:
+                case StructureDate:
                     newDate = (T) new StructureDate();
+                    ((ExtractedDate)newDate).setType(DateType.StructureDate);
                     break;
-                case TECH_HTML_CONT:
+                case ContentDate:
                     newDate = (T) new ContentDate();
+                    ((ExtractedDate)newDate).setType(DateType.ContentDate);
                     break;
-                case TECH_REFERENCE:
+                case ReferenceDate:
                     newDate = (T) new ReferenceDate();
+                    ((ExtractedDate)newDate).setType(DateType.ReferenceDate);
                     break;
 
             }

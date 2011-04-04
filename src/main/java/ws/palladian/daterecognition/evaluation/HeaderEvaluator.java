@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
@@ -20,7 +20,11 @@ import ws.palladian.daterecognition.technique.HeadDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
+import ws.palladian.daterecognition.technique.URLDateGetter;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+
 
 public class HeaderEvaluator {
 
@@ -29,21 +33,49 @@ public class HeaderEvaluator {
 	 */
 	public static void main(String[] args) {
 		
+		
+		
+		String file = "data/evaluation/daterecognition/datasets/headdataset.txt";
 		//DataSetHandler.addCloumn(EvaluationHelper.HEADEVAL, "mod2", "INT", "-10");
 		
-		TechniqueDateGetter<HeadDate> dg = new HeadDateGetter();
-		TechniqueDateRater<HeadDate> dr = new HeadDateRater(PageDateType.publish);
+		TechniqueDateGetter<MetaDate> dg = new HeadDateGetter();
+		TechniqueDateRater<MetaDate> dr = new HeadDateRater(PageDateType.publish);
 		
 		//TestHeadDateRater testDR = new TestHeadDateRater(PageDateType.publish);
 		
-		String file = "data/evaluation/daterecognition/datasets/headdataset.txt";
-		evaluate("pub1", DBExport.PUB_DATE, dg, dr, file);
-		evaluate("mod1", DBExport.MOD_DATE, dg, dr, file);
 		
+		String path;
+		int des = 3;
+		switch(des){
+		case 0:
+			String in = "D:/_Uni/_semester16/dataset/urlSet18.htm";
+			String out = "D:/_Uni/_semester16/dataset/HeadUrlSet18.htm";
+			//countHeadURls(in, out, (HeadDateGetter)dg);
+			createHeadUrlList(in, out, (HeadDateGetter)dg);
+			break;
+		case 1:
+			path = "data/evaluation/daterecognition/datasets/headdataset.txt";
+			DataSetHandler.createSearchDatesAndDownload("headdateset", path);
+			break;
+		case 2:
+			path = "data/evaluation/daterecognition/datasets/headdataset.txt";
+			DataSetHandler.clearTable("headdateset", path);
+			break;
+		case 3:
+			evaluate("pub0", DBExport.PUB_DATE, dg, dr, file);
+			evaluate("mod0", DBExport.MOD_DATE, dg, dr, file);
+			break;
+		} 
+		
+
+		/*
+		evaluate("pub3", DBExport.PUB_DATE, dg, dr, file);
+		evaluate("mod3", DBExport.MOD_DATE, dg, dr, file);
+		*/
 		
 		/*
-		String in1 = "data/evaluation/daterecognition/datasets/urldataset.txt";
-		String in2 = "data/evaluation/daterecognition/datasets/headdataset3.txt";
+		String in1 = "data/evaluation/daterecognition/datasets/headdataset9.txt";
+		String in2 = "data/evaluation/daterecognition/datasets/urldataset.txt";
 		mergeUrlsets(in1, in2, file);
 		*/
 		
@@ -58,36 +90,144 @@ public class HeaderEvaluator {
 		EvaluationHelper.calculateOutput(round, EvaluationHelper.HEADEVAL);
 		*/
 		
+
 		
-		/*
-		String in = "D:/_Uni/_semester16/dataset/urlSet07.htm";
-		String out = "D:/_Uni/_semester16/dataset/HeadUrlSet.htm";
-		//countHeadURls(in, out, (HeadDateGetter)dg);
-		createHeadUrlList(in, out, (HeadDateGetter)dg);
-		*/
 		
-		String pub = "pub1";
+		
+		String pub = "pub0";
 		System.out.println(pub);
-		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
+		System.out.println("AFR: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
+		System.out.println("ARD: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
+		System.out.println("AWD: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
 				
-		String mod = "mod1";
+		String mod = "mod0";
 		System.out.println(mod);
-		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
+		System.out.println("AFR: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
+		System.out.println("ARD: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
+		System.out.println("AWD: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
 		
 	}
 
-	private static <T> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
-		Evaluator.evaluate(EvaluationHelper.HEADEVAL, round, pub_mod, dg, dr, file);
-	}	
+	private static <T,V> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<V> dr, String file){
+		String table = EvaluationHelper.HEADEVAL;
+		int rnf = 0;
+		int ff= 0;
+		int wnf= 0;
+		int rf= 0;
+		int wf = 0;
+		int counter=0;
+		int compare;
+		
+		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		DocumentRetriever crawler = new DocumentRetriever();
+		
+		for(Entry<String, DBExport> e : set.entrySet()){
+			dg.reset();
+			T bestDate = null;
+			String bestDateString ="";
+			String url =e.getValue().get(DBExport.URL);
+			dg.setUrl(url);
+			//System.out.println(url);
+			if(table.equalsIgnoreCase(EvaluationHelper.CONTENTEVAL) || table.equalsIgnoreCase(EvaluationHelper.STRUCTEVAL) || table.equalsIgnoreCase(EvaluationHelper.HEADEVAL)){
+				String path = e.getValue().get(DBExport.PATH);
+				//System.out.println(path);
+				dg.setDocument(crawler.getWebDocument(path));
+			}else{
+				
+				dg.setUrl(url);
+			}
+			
+			System.out.print("get dates... ");
+			StopWatch timer = new StopWatch();
+			ArrayList<T> list = dg.getDates();
+			timer.stop();
+			timer.getElapsedTimeString(true);
+			list = DateArrayHelper.removeNull(list);
+			
+			if(list.size() > 0){
+				
+				ArrayList<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
+				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+				
+				if(dg instanceof URLDateGetter){
+					filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_IS_IN_RANGE);
+				}
+				
+				
+				if(filteredDates.size()>0){
+						
+					//System.out.print("rate dates... ");
+					dr.rate((ArrayList<V>) filteredDates);
+					//System.out.print("best date... ");
+					bestDate = (T) dr.getBestDate();
+					if(bestDate != null){
+						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+					}
+				}
+			}
+			//System.out.println("compare...");
+			
+			compare = EvaluationHelper.compareDate(bestDate, e.getValue(),pub_mod);
+			ExtractedDate date;
+			String dbExportDateString;
+			if(pub_mod == DBExport.PUB_DATE){
+				date = DateGetterHelper.findDate(e.getValue().getPubDate());
+				dbExportDateString =" - pubDate:" ;
+			}else{
+				date = DateGetterHelper.findDate(e.getValue().getModDate());
+				dbExportDateString =" - modDate:" ;
+			}
+			
+			if(date!=null){
+				dbExportDateString +=  date.getNormalizedDateString();
+			}
+			
+			//System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
+			
+			switch(compare){
+				case DataSetHandler.AFW:
+					wf++;
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
+					break;
+				case DataSetHandler.ANF:
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
+					wnf++;
+					break;
+				case DataSetHandler.AWD:
+					System.out.println(url);
+					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
+					//System.out.println("-------------------------------------------------------");
+					ff++;
+					break;
+				case DataSetHandler.ARD:
+					rnf++;
+					break;
+				case DataSetHandler.AFR:
+					rf++;
+					break;
+					
+			}
+			
+			DataSetHandler.writeInDB(table, e.getValue().getUrl(), compare, round);
+			counter++;
+			
+			//System.out.println();
+			System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+			System.out.println("---------------------------------------------------------------------");
+			
+		}
+		//System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+	}
 
+	
 	
 	private static void countHeadURls(String in, String out, HeadDateGetter dg){
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(in);
@@ -97,7 +237,7 @@ public class HeaderEvaluator {
 		for(Entry<String, DBExport> e : set.entrySet()){
 			System.out.println(index + ": " + e.getKey());
 			dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
-			ArrayList<HeadDate> dates = dg.getDates();
+			ArrayList<MetaDate> dates = dg.getDates();
 			if(dates.size() != 0){
 				headSet.add(e.getValue());
 			}
@@ -133,14 +273,16 @@ public class HeaderEvaluator {
 				if(lineindex>1){
 					int indexStart = line.indexOf('>');
 					int indexEnd = line.indexOf("</a>");
-					String url = line.substring(indexStart + 1, indexEnd);
-					
-					System.out.println(lineindex + ": " + url);
-					dg.setDocument(c.getWebDocument(url));
-					ArrayList<HTTPDate> dates = dg.getDates();
-					if(!dates.isEmpty()){
-						System.out.println("+");
-						headSet.add(line);
+
+					if(indexStart > -1 && indexEnd > -1){
+						String url = line.substring(indexStart + 1, indexEnd);
+						System.out.println(lineindex + ": " + url);
+						dg.setDocument(c.getWebDocument(url));
+						ArrayList<MetaDate> dates = dg.getDates();
+						if(!dates.isEmpty()){
+							System.out.println("+");
+							headSet.add(line);
+						}
 					}
 				}
 				
@@ -188,6 +330,7 @@ public class HeaderEvaluator {
 					HeadDateGetter dg = new HeadDateGetter();
 					
 					dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
+					
 					ArrayList<ExtractedDate> headDates = dg.getDates();
 					System.out.println(headDates.size());					
 					if(headDates.size()>0){
@@ -218,4 +361,6 @@ public class HeaderEvaluator {
 			}
 			
 		}
+	
+	
 }

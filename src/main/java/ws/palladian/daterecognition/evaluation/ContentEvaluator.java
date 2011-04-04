@@ -50,23 +50,23 @@ public class ContentEvaluator {
 		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
 		
 		System.out.println(pub);
-		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
+		System.out.println("AFR: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+		System.out.println("ADR: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+		System.out.println("ADW: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
 				
 		
 		System.out.println(mod);
-		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
+		System.out.println("AFR: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+		System.out.println("ADR: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+		System.out.println("ADW: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
 		
 		String contentTable = "contentfactor3";
 		boolean useWeight = false;
-		evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
+		//evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
 		
 	}
 	

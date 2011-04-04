@@ -90,10 +90,11 @@ public class DataSetHandler{
 	public static final String SEPARATOR = " *;_;* "; 
 	
 	public static void main(String[] args){
-		//String path = "D:/_Uni/_semester16/dataset/";	
-		//String name = "urlSet06.htm";
-		//saveAllUrls(path, name);
-		
+		/*
+		String path = "D:/_Uni/_semester16/dataset/";	
+		String name = "urlSet06.htm";
+		saveAllUrls(path, name);
+		*/
 		//writeSearchEngineDates(SEARCH_ASK);
 		
 		//AskDateGetter adg = new AskDateGetter();
@@ -104,11 +105,11 @@ public class DataSetHandler{
 		
 		//downloadUrls("data/webpages/daterecognition/");
 		
-		/*
-		String path = "data/evaluation/daterecognition/datasets/dataset.txt";
-		createSearchDatesAndDownload("urlset", path);
-		setDownloadTo(path, "urlset", 1);
-		*/
+		
+		//String path = "data/evaluation/daterecognition/datasets/headdataset.txt";
+		//createSearchDatesAndDownload("headdateset", path);
+		//setDownloadTo(path, "urlset", 1);
+		
 		/*
 		String path = "D:/_Uni/_semester16/dataset/";	
 		String in = "urlSet03.htm";
@@ -121,7 +122,9 @@ public class DataSetHandler{
 		
 		//checkWebpagesFile("data/evaluation/daterecognition/datasets/dataset_old.txt","data/evaluation/daterecognition/datasets/dataset.txt","urlset");
 		//exportContentFactor();
-		googleCheck("data/evaluation/daterecognition/datasets/dataset.txt");
+		
+		
+		//googleCheck("data/evaluation/daterecognition/datasets/dataset.txt");
 	}
 	
 	
@@ -169,7 +172,7 @@ public class DataSetHandler{
 		System.out.println("cnt pub or mod: " + cntPubMod);
 		System.out.println("Google but no pub/mod date: " + googleButNoDate);
 	}
-	private static void checkWebpagesFile(String dataSet,String newDataSet, String table){
+	public static void checkWebpagesFile(String dataSet,String newDataSet, String table){
 		HashMap<String, DBExport> map = EvaluationHelper.readFile(dataSet);
 		HashMap<String, DBExport> newMap = new HashMap<String, DBExport>();
 		
@@ -223,7 +226,7 @@ public class DataSetHandler{
 	 * Writes results in to file.
 	 * @param path
 	 */
-	private static void createSearchDatesAndDownload(String table, String path){
+	public static void createSearchDatesAndDownload(String table, String path){
 		ArrayList<DBExport> set = loadURLsFromUrlset(0, table);
 		GoogleDateGetter gdg = new GoogleDateGetter();
 		HakiaDateGetter hdg = new HakiaDateGetter();
@@ -665,7 +668,7 @@ public class DataSetHandler{
 		}
 		return urls;
 	}
-	private static void setDownloadTo(String file, String table, int downloaded){
+	public static void setDownloadTo(String file, String table, int downloaded){
 		HashMap<String, DBExport> readySet = EvaluationHelper.readFile(file);
 		
 		openConnection();
@@ -980,6 +983,42 @@ public class DataSetHandler{
 		System.out.println("simple Tag: " + cntSmplTag);
 		System.out.println("h-Tag: " + cnthTag);
 		
+		
+		closeConnection();
+	}
+	
+	public static void clearTable(String table, String file){
+		HashMap<String, DBExport> dbMap = EvaluationHelper.readFile(file);
+		openConnection();
+		for(Entry<String, DBExport> e : dbMap.entrySet()){
+			String url = e.getKey();
+			String sqlQuery = "UPDATE " + table + " SET downloaded = 2 WHERE url='" + url + "'";
+			try {
+				st.execute(sqlQuery);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
+		ArrayList<String> deleteUrls = new ArrayList<String>();
+		try {
+			String sqlQuery = "SELECT url FROM " + table + " WHERE downloaded=" + 1;
+			rs = st.executeQuery(sqlQuery);
+			while(rs.next()){
+				String url = rs.getString("url");
+				deleteUrls.add(url);
+			}
+			for(int i = 0; i<deleteUrls.size(); i++){
+				sqlQuery = "DELETE FROM " + table + " WHERE url = '" + deleteUrls.get(i) + "'";
+				st.execute(sqlQuery);
+			}
+			sqlQuery = "UPDATE " + table + " SET downloaded = 1";
+			st.execute(sqlQuery);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		closeConnection();
 	}

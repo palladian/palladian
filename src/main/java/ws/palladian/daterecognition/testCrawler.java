@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.daterecognition.dates.AbstractDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.technique.PageDateType;
@@ -742,10 +744,10 @@ public class testCrawler {
             long begin = (new GregorianCalendar()).getTimeInMillis();
             ae.setUrl(e.getKey());
             ae.evaluate();
-            ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
-            ArrayList<ExtractedDate> sameDates = DateArrayHelper.getSameDates(e.getValue()[0], myDates,
+            ArrayList<AbstractDate> myDates = ae.getAllBestRatedDate(true);
+            ArrayList<AbstractDate> sameDates = DateArrayHelper.getSameDates(e.getValue()[0], myDates,
                     DateComparator.STOP_DAY);
-            ExtractedDate sameDate;
+            AbstractDate sameDate;
 
             outputString = e.getValue()[0].getNormalizedDateString() + " | " + e.getValue()[1].getNormalizedDateString() + " | ";
 
@@ -753,7 +755,7 @@ public class testCrawler {
                 sameDate = sameDates.get(0);
                 outputString += sameDate.getNormalizedDate(false);
             } else {
-                RatedDateComparator<ExtractedDate> rdc = new RatedDateComparator<ExtractedDate>();
+                RatedDateComparator<AbstractDate> rdc = new RatedDateComparator<AbstractDate>();
                 Collections.sort(myDates, rdc);
                 sameDate = myDates.get(0);
                 outputString += sameDate.getNormalizedDate(false);
@@ -837,10 +839,10 @@ public class testCrawler {
             long begin = (new GregorianCalendar()).getTimeInMillis();
             ae.setUrl(e.getKey());
             ae.evaluate();
-            ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
-            ArrayList<ExtractedDate> sameDates = DateArrayHelper.getSameDates(e.getValue(), myDates,
+            ArrayList<AbstractDate> myDates = ae.getAllBestRatedDate(true);
+            ArrayList<AbstractDate> sameDates = DateArrayHelper.getSameDates(e.getValue(), myDates,
                     DateComparator.STOP_DAY);
-            ExtractedDate sameDate;
+            AbstractDate sameDate;
 
             outputString = e.getValue().getNormalizedDateString() + " | ";
 
@@ -848,7 +850,7 @@ public class testCrawler {
                 sameDate = sameDates.get(0);
                 outputString += sameDate.getNormalizedDate(false);
             } else {
-                RatedDateComparator<ExtractedDate> rdc = new RatedDateComparator<ExtractedDate>();
+                RatedDateComparator<AbstractDate> rdc = new RatedDateComparator<AbstractDate>();
                 Collections.sort(myDates, rdc);
                 sameDate = myDates.get(0);
                 outputString += sameDate.getNormalizedDate(false);
@@ -936,7 +938,7 @@ public class testCrawler {
 
     }
 
-    public static void evaluateHTTP(String input, String output) {
+    private static void evaluateHTTP(String input, String output) {
         File file = new File(
                 "data/test/webPages/dateExtraction/tests/linkSet/"
                 + input);
@@ -960,7 +962,7 @@ public class testCrawler {
 
         DateGetter dg = new DateGetter();
         dg.setAllFalse();
-        dg.setTechHTTP(true);
+        dg.setTechMeta(true);
 
         DateEvaluator de = new DateEvaluator(PageDateType.publish);
 
@@ -975,7 +977,7 @@ public class testCrawler {
             dgDates = dg.getDate();
 
             deDates = de.rate(dgDates);
-            deDates = DateArrayHelper.filter(deDates, DateArrayHelper.FILTER_TECH_HTTP_HEADER);
+            deDates = DateArrayHelper.filter(deDates, DateType.MetaDate);
             countAll++;
 
             if (deDates.size() > 0) {

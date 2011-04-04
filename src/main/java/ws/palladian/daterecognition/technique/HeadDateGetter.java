@@ -9,8 +9,9 @@ import org.w3c.dom.NodeList;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.helper.RegExp;
 
 /**
@@ -20,12 +21,12 @@ import ws.palladian.helper.RegExp;
  * @author Martin Gregor
  * 
  */
-public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
+public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @SuppressWarnings("unchecked")
 	@Override
     public ArrayList getDates() {
-        ArrayList<HeadDate> result = new ArrayList<HeadDate>();
+        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
        if (document != null) {
             result = getHeadDates(document);
         }
@@ -39,8 +40,8 @@ public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
      * @param document
      * @return a array-list with dates.
      */
-    private static ArrayList<HeadDate> getHeadDates(final Document document) {
-        ArrayList<HeadDate> dates = new ArrayList<HeadDate>();
+    private static ArrayList<MetaDate> getHeadDates(final Document document) {
+        ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
         NodeList headNodeList = document.getElementsByTagName("head");
         Node head = null;
         if (headNodeList != null) {
@@ -75,7 +76,7 @@ public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
                     if (temp == null) {
                         continue;
                     }
-                    HeadDate headDate = DateConverter.convert(temp, DateConverter.TECH_HTML_HEAD);
+                    MetaDate headDate = DateConverter.convert(temp, DateType.MetaDate);
                     headDate.setKeyword(keyword);
                     headDate.setTag(nameAttr.getNodeName());
                     dates.add(headDate);

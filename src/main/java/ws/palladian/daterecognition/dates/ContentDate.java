@@ -9,6 +9,8 @@ package ws.palladian.daterecognition.dates;
  */
 public class ContentDate extends AbstractBodyDate {
 
+	private DateType dateType = DateType.ContentDate;
+	
     /** Keyword found in attribute of surrounding tag. */
     public static final int KEY_LOC_ATTR = 201;
     /** Keyword found in text (content) of surrounding tag. */
@@ -66,16 +68,7 @@ public class ContentDate extends AbstractBodyDate {
         // TODO Auto-generated constructor stub
     }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.daterecognition.ExtractedDate#getType()
-     */
-    @Override
-    public int getType() {
-        // TODO Auto-generated method stub
-        return TECH_HTML_CONT;
-    }
-
+   
     /**
      * Returns location of found keyword as readable string.<br>
      * Field <b>keywordLocation</b> should be set.

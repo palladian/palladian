@@ -16,6 +16,7 @@ import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.helper.RegExp;
@@ -335,7 +336,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     	
     	if(date != null){
 	    	String keyword = getNodeKeyword(node);
-	    	structDate = DateConverter.convert(date, DateConverter.TECH_HTML_STRUC);
+	    	structDate = DateConverter.convert(date, DateType.StructureDate);
 	    	structDate.setKeyword(keyword);
 	    	structDate.setNode(node);
     	}

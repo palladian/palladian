@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.daterecognition.dates.AbstractDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -26,7 +27,7 @@ public class WebPageDateEvaluator {
     /** Standard DateRater. */
     private DateEvaluator dr = new DateEvaluator(PageDateType.publish);
 
-    private  ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+    private  ArrayList<AbstractDate> list = new ArrayList<AbstractDate>();
 
     private String url;
     private Document document;
@@ -85,9 +86,8 @@ public class WebPageDateEvaluator {
             dg.setURL(url);
             dg.setTechReference(reference);
             dg.setTechArchive(archive);
-            ArrayList<ExtractedDate> dates = dg.getDate();
-
-            HashMap<ExtractedDate, Double> ratedDates = dr.rate(dates);
+            ArrayList<AbstractDate> dates = dg.getDate();
+            HashMap<AbstractDate, Double> ratedDates = dr.rate(dates);
             this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
         }
     }
@@ -101,11 +101,11 @@ public class WebPageDateEvaluator {
      * 
      * @return Best rated date.
      */
-    public ExtractedDate getBestRatedDate() {
-        ExtractedDate date = new ExtractedDate();
+    public AbstractDate getBestRatedDate() {
+    	AbstractDate date = new ExtractedDate();
         if (list != null && list.size() > 0) {
-            ArrayList<ExtractedDate> orderedList = list;
-            Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
+            ArrayList<AbstractDate> orderedList = list;
+            Collections.sort(orderedList, new RatedDateComparator<AbstractDate>());
             date = orderedList.get(0);
         }
         return date;
@@ -200,7 +200,7 @@ public class WebPageDateEvaluator {
      * @return
      *         ArraylList of dates.
      */
-    public ArrayList<ExtractedDate> getAllBestRatedDate() {
+    public ArrayList<AbstractDate> getAllBestRatedDate() {
         return getAllBestRatedDate(false);
     }
 
@@ -212,14 +212,14 @@ public class WebPageDateEvaluator {
      * @return
      *         ArraylList of dates.
      */
-    public ArrayList<ExtractedDate>  getAllBestRatedDate(boolean onlyFullDates) {
-        ArrayList<ExtractedDate> dates = list;
+    public ArrayList<AbstractDate>  getAllBestRatedDate(boolean onlyFullDates) {
+        ArrayList<AbstractDate> dates = list;
         if (onlyFullDates) {
             dates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_FULL_DATE);
         }
         double rate = DateArrayHelper.getHighestRate(dates);
         dates = DateArrayHelper.getRatedDates(dates, rate);
-        Collections.sort(dates, new RatedDateComparator<ExtractedDate>());
+        Collections.sort(dates, new RatedDateComparator<AbstractDate>());
         return dates;
     }
 
@@ -228,9 +228,9 @@ public class WebPageDateEvaluator {
      * 
      * @return all dates.
      */
-    public ArrayList<ExtractedDate> getAllDates() {
-        ArrayList<ExtractedDate> sorted = list;
-        Collections.sort(sorted, new RatedDateComparator<ExtractedDate>());
+    public ArrayList<AbstractDate> getAllDates() {
+        ArrayList<AbstractDate> sorted = list;
+        Collections.sort(sorted, new RatedDateComparator<AbstractDate>());
         return sorted;
     }
 

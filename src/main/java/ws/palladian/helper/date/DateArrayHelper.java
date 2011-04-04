@@ -7,10 +7,11 @@ import java.util.Map.Entry;
 
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.ExtractedDateHelper;
+import ws.palladian.daterecognition.dates.AbstractDate;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 
 /**
@@ -23,20 +24,6 @@ public class DateArrayHelper {
 
     /** Filter dates in range (1993 - today). */
     public static final int FILTER_IS_IN_RANGE = 0;
-    /** Filter URLDates. */
-    public static final int FILTER_TECH_URL = ExtractedDate.TECH_URL; // 1
-    /** Filter HTTPHeaderDates. */
-    public static final int FILTER_TECH_HTTP_HEADER = ExtractedDate.TECH_HTTP_HEADER;// 2
-    /** Filter HTMLHeadDates. */
-    public static final int FILTER_TECH_HTML_HEAD = ExtractedDate.TECH_HTML_HEAD;// 3
-    /** Filter HTMLStructureDates. */
-    public static final int FILTER_TECH_HTML_STRUC = ExtractedDate.TECH_HTML_STRUC;// 4
-    /** Filter HTMLContentDates. */
-    public static final int FILTER_TECH_HTML_CONT = ExtractedDate.TECH_HTML_CONT;// 5
-    /** Filter ReferenceDates. */
-    public static final int FILTER_TECH_REFERENCE = ExtractedDate.TECH_REFERENCE;// 6
-    /** Filter ArchiveDates. */
-    public static final int FILTER_TECH_ARCHIVE = ExtractedDate.TECH_ARCHIVE;// 7
     /** Filter contentDates with key-location in attribute. */
     public static final int FILTER_KEYLOC_ATTR = ContentDate.KEY_LOC_ATTR; // 201
     /** Filter contentDates with key-location in content. */
@@ -59,44 +46,13 @@ public class DateArrayHelper {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
         Iterator<T> iterator = dates.iterator();
+        int tempFilter = filter;
         while (iterator.hasNext()) {
             date = iterator.next();
             switch (filter) {
                 case FILTER_IS_IN_RANGE:
                     if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
                         temp.add(date);
-                    }
-                    break;
-                case FILTER_TECH_URL:
-                case FILTER_TECH_HTTP_HEADER:
-                case FILTER_TECH_HTML_HEAD:
-                case FILTER_TECH_HTML_STRUC:
-                case FILTER_TECH_HTML_CONT:
-                case FILTER_TECH_REFERENCE:
-                case FILTER_TECH_ARCHIVE:
-                    if (((ExtractedDate) date).getType() == filter) {
-                        temp.add(date);
-                    }
-                    break;
-                case FILTER_KEYLOC_ATTR:
-                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
-                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == filter) {
-                            temp.add(date);
-                        }
-                    }
-                    break;
-                case FILTER_KEYLOC_CONT:
-                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
-                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == filter) {
-                            temp.add(date);
-                        }
-                    }
-                    break;
-                case FILTER_KEYLOC_NO:
-                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
-                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == -1) {
-                            temp.add(date);
-                        }
                     }
                     break;
                 case FILTER_FULL_DATE:
@@ -107,6 +63,17 @@ public class DateArrayHelper {
                         temp.add(date);
                     }
                     break;
+                case FILTER_KEYLOC_NO:
+                	tempFilter = -1;
+                case FILTER_KEYLOC_CONT:
+                case FILTER_KEYLOC_ATTR:
+                	if(((ExtractedDate)date).getType().equals(DateType.ContentDate)){
+                		int keyloc = ((ContentDate) date).get(ContentDate.KEYWORDLOCATION);
+                		if(keyloc == tempFilter){
+                			temp.add(date);
+                		}
+                	}
+                	break;
             }
 
         }
@@ -114,6 +81,20 @@ public class DateArrayHelper {
 
     }
 
+    public static <T> ArrayList<T> filter(ArrayList<T> dates, DateType filter) {
+        ArrayList<T> temp = new ArrayList<T>();
+        T date;
+        Iterator<T> iterator = dates.iterator();
+        while (iterator.hasNext()) {
+            date = iterator.next();
+        	if (((ExtractedDate) date).getType().equals(filter)) {
+                    temp.add(date);
+            }
+        }
+        return temp;
+    }
+    
+    
     /**
      * Filters an array-list.<br>
      * For filters use this static fields.
@@ -136,20 +117,32 @@ public class DateArrayHelper {
                         temp.put(date, rate);
                     }
                     break;
-                case FILTER_TECH_URL:
-                case FILTER_TECH_HTTP_HEADER:
-                case FILTER_TECH_HTML_HEAD:
-                case FILTER_TECH_HTML_STRUC:
-                case FILTER_TECH_HTML_CONT:
-                case FILTER_TECH_REFERENCE:
-                case FILTER_TECH_ARCHIVE:
-                    if (((ExtractedDate) date).getType() == filter) {
-                        temp.put(date, rate);
-                    }
-                    break;
-
             }
 
+        }
+        return temp;
+
+    }
+    
+    /**
+     * Filters an array-list.<br>
+     * For filters use this static fields.
+     * 
+     * @param <T>
+     * @param dates
+     * @param filter
+     * @return
+     */
+    public static <T> HashMap<T, Double> filter(HashMap<T, Double> dates, DateType filter) {
+        HashMap<T, Double> temp = new HashMap<T, Double>();
+        T date;
+        Double rate;
+        for (Entry<T, Double> e : dates.entrySet()) {
+            date = e.getKey();
+            rate = e.getValue();
+            if (((ExtractedDate) date).getType().equals(filter)) {
+                temp.put(date, rate);
+            }
         }
         return temp;
 
@@ -372,6 +365,34 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
+    public static <T> void printDateArray(ArrayList<T> dates, DateType filterTechnique, String format) {
+        ArrayList<T> temp = dates;
+        if (filterTechnique != null) {
+            temp = filter(dates, filterTechnique);
+        }
+
+        Iterator<T> dateIterator = temp.iterator();
+        while (dateIterator.hasNext()) {
+
+            T date = dateIterator.next();
+            if (format == null || format == ((ExtractedDate) date).getFormat()) {
+                System.out.println(date.toString());
+                System.out
+                        .println("------------------------------------------------------------------------------------------------");
+            }
+        }
+    }
+    
+    /**
+     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties. <br>
+     * And a format, found as second value of RegExp.
+     * 
+     * @param <T>
+     * 
+     * @param dates
+     * @param filterTechnique
+     * @param format
+     */
     public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique, String format) {
         ArrayList<T> temp = dates;
         if (filterTechnique > 0) {
@@ -413,6 +434,20 @@ public class DateArrayHelper {
         printDateArray(dates, filterTechnique, null);
     }
 
+    
+    /**
+     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties.
+     * 
+     * @param <T>
+     * 
+     * @param dates
+     * @param filterTechnique
+     */
+    public static <T> void printDateArray(ArrayList<T> dates, DateType filterTechnique) {
+        printDateArray(dates, filterTechnique, null);
+    }
+    
+    
     /**
      * Remove dates from the array.
      * 
@@ -439,9 +474,10 @@ public class DateArrayHelper {
      * @param dateMap
      */
     public static <T> void printDateMap(Entry<T, Double>[] dateMap) {
-        printDateMap(dateMap, 0);
+        printDateMap(dateMap, null);
     }
 
+    
     /**
      * Prints an entry-array.<br>
      * You got possibility to filter first.
@@ -450,7 +486,7 @@ public class DateArrayHelper {
      * @param dateMap
      * @param filter
      */
-    public static <T> void printDateMap(Entry<T, Double>[] dateMap, int filter) {
+    public static <T> void printDateMap(Entry<T, Double>[] dateMap, DateType filter) {
         for (int i = 0; i < dateMap.length; i++) {
             T date = dateMap[i].getKey();
             String dateString = ((ExtractedDate) date).getDateString();
@@ -459,21 +495,18 @@ public class DateArrayHelper {
             String keyword = "";
             int dist = -1;
             switch (((ExtractedDate) date).getType()) {
-                case ExtractedDate.TECH_HTML_CONT:
+                case ContentDate:
                     keyword = ((ContentDate) date).getKeyword();
                     dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
                     break;
-                case ExtractedDate.TECH_HTML_STRUC:
+                case StructureDate:
                     keyword = ((StructureDate) date).getKeyword();
                     break;
-                case ExtractedDate.TECH_HTML_HEAD:
-                    keyword = ((HeadDate) date).getKeyword();
-                    break;
-                case ExtractedDate.TECH_HTTP_HEADER:
-                    keyword = ((HTTPDate) date).getKeyword();
+                case MetaDate:
+                    keyword = ((MetaDate) date).getKeyword();
                     break;
             }
-            if (((ExtractedDate) date).getType() == filter || filter == 0) {
+            if (((ExtractedDate) date).getType().equals(filter) || filter == null) {
                 System.out.println("Rate: " + dateMap[i].getValue() + " Type: " + type + " Keyword: " + keyword
                         + " Distance: " + dist);
                 System.out.println(dateString + " --> " + normDate);
@@ -490,7 +523,7 @@ public class DateArrayHelper {
      * @param dateMap
      */
     public static <T> void printDateMap(HashMap<T, Double> dateMap) {
-        printDateMap(dateMap, 0);
+        printDateMap(dateMap, null);
     }
 
     /**
@@ -501,7 +534,7 @@ public class DateArrayHelper {
      * @param dateMap
      * @param filter
      */
-    public static <T> void printDateMap(HashMap<T, Double> dateMap, int filter) {
+    public static <T> void printDateMap(HashMap<T, Double> dateMap, DateType filter) {
         for (Entry<T, Double> e : dateMap.entrySet()) {
             T date = e.getKey();
             String dateString = ((ExtractedDate) date).getDateString();
@@ -510,22 +543,19 @@ public class DateArrayHelper {
             String keyword = "";
             int dist = -1;
             switch (((ExtractedDate) date).getType()) {
-                case ExtractedDate.TECH_HTML_CONT:
+                case ContentDate:
                     keyword = ((ContentDate) date).getKeyword();
                     dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
 
                     break;
-                case ExtractedDate.TECH_HTML_STRUC:
+                case StructureDate:
                     keyword = ((StructureDate) date).getKeyword();
                     break;
-                case ExtractedDate.TECH_HTML_HEAD:
-                    keyword = ((HeadDate) date).getKeyword();
-                    break;
-                case ExtractedDate.TECH_HTTP_HEADER:
-                    keyword = ((HTTPDate) date).getKeyword();
+                case MetaDate:
+                    keyword = ((MetaDate) date).getKeyword();
                     break;
             }
-            if (((ExtractedDate) e.getKey()).getType() == filter || filter == 0) {
+            if (((ExtractedDate) e.getKey()).getType().equals(filter) || filter == null) {
                 System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword + " Distance: "
                         + dist);
                 System.out.println(dateString + " --> " + normDate);

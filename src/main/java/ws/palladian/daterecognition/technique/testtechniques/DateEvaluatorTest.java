@@ -9,16 +9,15 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.dates.ArchiveDate;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.technique.ArchiveDateRater;
 import ws.palladian.daterecognition.technique.ContentDateRater;
-import ws.palladian.daterecognition.technique.HeadDateRater;
-import ws.palladian.daterecognition.technique.HttpDateRater;
+import ws.palladian.daterecognition.technique.MetaDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.ReferenceDateRater;
 import ws.palladian.daterecognition.technique.StructureDateRater;
@@ -40,13 +39,13 @@ public class DateEvaluatorTest {
     private String url;
     private boolean referneceLookUp = false;
 
-    private HttpDateRater httpdr;
-    private HeadDateRater headdr;
+    private MetaDateRater mdr;
     private UrlDateRater udr;
     private StructureDateRater sdr;
     private ContentDateRater cdr;
     private ArchiveDateRater adr;
     private ReferenceDateRater rdr;
+	private ExtractedDate actualDate;
 
     /**
      * Standard constructor.
@@ -84,8 +83,7 @@ public class DateEvaluatorTest {
         setPubMod(pub_mod);
     }
     private void setPubMod(PageDateType pub_mod){
-    	httpdr = new HttpDateRater(pub_mod);
-		headdr = new HeadDateRater(pub_mod);
+		mdr = new MetaDateRater(pub_mod);
 		udr = new UrlDateRater(pub_mod);
 		sdr = new StructureDateRater(pub_mod);
 		cdr = new ContentDateRater(pub_mod);
@@ -107,41 +105,33 @@ public class DateEvaluatorTest {
 
         ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> urlResult = new HashMap<T, Double>();
-        HashMap<T, Double> httpResult = new HashMap<T, Double>();
-        HashMap<T, Double> headResult = new HashMap<T, Double>();
+        HashMap<T, Double> metaResult = new HashMap<T, Double>();
         HashMap<T, Double> structResult = new HashMap<T, Double>();
         HashMap<T, Double> contResult = new HashMap<T, Double>();
 
-        ArrayList<URLDate> urlDates = (ArrayList<URLDate>) DateArrayHelper.filter(dates, ExtractedDate.TECH_URL);
 
-        ArrayList<HTTPDate> httpDates = (ArrayList<HTTPDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_HTTP_HEADER);
+        ArrayList<URLDate> urlDates = (ArrayList<URLDate>) DateArrayHelper.filter(dates, DateType.UrlDate);
 
-        ArrayList<HeadDate> headDates = (ArrayList<HeadDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_HTML_HEAD);
+        ArrayList<MetaDate> metaDates = (ArrayList<MetaDate>) DateArrayHelper.filter(dates,DateType.MetaDate);
 
-        ArrayList<StructureDate> structDates = (ArrayList<StructureDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_HTML_STRUC);
+        ArrayList<StructureDate> structDates = (ArrayList<StructureDate>) DateArrayHelper.filter(dates,DateType.StructureDate);
 
-        ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_HTML_CONT);
+        ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates,DateType.ContentDate);
         ArrayList<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
                 DateArrayHelper.FILTER_FULL_DATE);
 
-        ArrayList<ArchiveDate> archiveDate = (ArrayList<ArchiveDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_ARCHIVE);
+        ArrayList<ArchiveDate> archiveDate = (ArrayList<ArchiveDate>) DateArrayHelper.filter(dates, DateType.ArchiveDate);
 
-        ArrayList<ReferenceDate> referenceDate = (ArrayList<ReferenceDate>) DateArrayHelper.filter(dates,
-                ExtractedDate.TECH_REFERENCE);
+        ArrayList<ReferenceDate> referenceDate = (ArrayList<ReferenceDate>) DateArrayHelper.filter(dates, DateType.ReferenceDate);
 
         if (urlDates != null && urlDates.size() > 0) {
             urlResult.putAll((Map<? extends T, ? extends Double>) udr.rate(urlDates));
         }
-        if (httpDates != null && httpDates.size() > 0) {
-            httpResult.putAll((Map<? extends T, ? extends Double>) httpdr.rate(httpDates));
-        }
-        if (headDates != null && headDates.size() > 0) {
-            headResult.putAll((Map<? extends T, ? extends Double>) headdr.rate(headDates));
+        if (metaDates != null && metaDates.size() > 0) {
+        	if(actualDate != null){
+        		mdr.setActualDate(actualDate);
+        	}
+            metaResult.putAll((Map<? extends T, ? extends Double>) mdr.rate(metaDates));
         }
 
         if (contFullDates != null && contFullDates.size() > 0) {
@@ -159,23 +149,17 @@ public class DateEvaluatorTest {
 
         evaluatedDates.putAll(urlResult);
 
-        evaluatedDates.putAll(headResult);
-        evaluatedDates.putAll(httpResult);
+        evaluatedDates.putAll(metaResult);
         evaluatedDates.putAll(structResult);
         evaluatedDates.putAll(contResult);
 
-        evaluatedDates.putAll(influenceHttpAndHead(httpResult, headResult));
 
         evaluatedDates.putAll(deployStructureDates(contResult, (HashMap<StructureDate, Double>) structResult));
 
-        evaluatedDates.putAll(deployMetaDates(headResult, contResult));
-        evaluatedDates.putAll(deployMetaDates(httpResult, contResult));
+        evaluatedDates.putAll(deployMetaDates(metaResult, contResult));
+        evaluatedDates.putAll(deployMetaDates(metaResult, structResult));
 
-        evaluatedDates.putAll(deployMetaDates(headResult, structResult));
-        evaluatedDates.putAll(deployMetaDates(httpResult, structResult));
-
-        evaluatedDates.putAll(deployURLDate(urlResult, httpResult));
-        evaluatedDates.putAll(deployURLDate(urlResult, headResult));
+        evaluatedDates.putAll(deployURLDate(urlResult, metaResult));
         evaluatedDates.putAll(deployURLDate(urlResult, structResult));
         evaluatedDates.putAll(deployURLDate(urlResult, contResult));
 

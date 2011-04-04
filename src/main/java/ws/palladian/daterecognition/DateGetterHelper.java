@@ -9,6 +9,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.html.HTMLHelper;
@@ -111,11 +112,9 @@ public final class DateGetterHelper {
 	            if (!hasPrePostNum) {
 	            	String dateString = tempText.substring(start, end);
 	            	ContentDate date = (ContentDate) DateConverter.convert(
-	            			new ExtractedDate(dateString,((String[])regExps[i])[1]),
-	            			DateConverter.TECH_HTML_CONT);
+	            			new ExtractedDate(dateString,((String[])regExps[i])[1]), DateType.ContentDate);
 	            	int index = tempText.indexOf(date.getDateString());
 	            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
-	                
 	                String xString = getXs(dateString);
 	                tempText = tempText.replaceFirst(dateString, xString);
 	                dates.add(date);

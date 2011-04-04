@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.DateGetter;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
@@ -26,7 +27,7 @@ public class DateArrayHelperTest {
             dateGetter.setTechReference(false);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, ExtractedDate.TECH_HTML_CONT);
+            ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
             assertEquals(6, filter.size());
         }
     }

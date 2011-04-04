@@ -65,7 +65,6 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         ArrayList<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
         ArrayList<ContentDate> contDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_CONT);
         ArrayList<ContentDate> nokeywordDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_NO);
-
         HashMap<ContentDate, Double> attrResult = evaluateKeyLocAttr(attrDates);
         HashMap<ContentDate, Double> contResult = evaluateKeyLocCont(contDates);
         HashMap<ContentDate, Double> nokeywordResult = new HashMap<ContentDate, Double>();

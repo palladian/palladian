@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.DateGetter;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.extraction.PageAnalyzer;
@@ -73,8 +74,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
                 HashMap<ExtractedDate, Double> evaluatedDates = de.rate(referenceDates);
                 double rate = DateArrayHelper.getHighestRate(evaluatedDates);
                 referenceDates = DateArrayHelper.getRatedDates(evaluatedDates, rate);
-                ReferenceDate refDate = DateConverter.convert((ExtractedDate) dc.getOldestDate(referenceDates),
-                        DateConverter.TECH_REFERENCE);
+                ReferenceDate refDate = DateConverter.convert((ExtractedDate) dc.getOldestDate(referenceDates), DateType.ReferenceDate);
                 refDate.setRate(rate);
                 dates.add(refDate);
                 if (i == maxLinks) {

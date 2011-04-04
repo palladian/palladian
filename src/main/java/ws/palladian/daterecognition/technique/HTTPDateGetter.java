@@ -8,8 +8,9 @@ import java.util.Map;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -20,11 +21,11 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author Martin Gregor
  * 
  */
-public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
+public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
-    public ArrayList<HTTPDate> getDates() {
-        ArrayList<HTTPDate> result = new ArrayList<HTTPDate>();
+    public ArrayList<MetaDate> getDates() {
+        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
         if (url != null) {
             result = getHTTPHeaderDate(url);
         }
@@ -38,13 +39,13 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
      * @param url
      * @return The extracted Date.
      */
-    private static ArrayList<HTTPDate> getHTTPHeaderDate(String url) {
-        ArrayList<HTTPDate> result = new ArrayList<HTTPDate>();
+    private static ArrayList<MetaDate> getHTTPHeaderDate(String url) {
+        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
         DocumentRetriever crawler = new DocumentRetriever();
         Map<String, List<String>> headers = crawler.getHeaders(url);
         String[] keywords = KeyWords.HTPP_KEYWORDS;
         for (int i = 0; i < keywords.length; i++) {
-            ArrayList<HTTPDate> temp = checkHttpTags(keywords[i], headers);
+            ArrayList<MetaDate> temp = checkHttpTags(keywords[i], headers);
             if (temp != null) {
                 result.addAll(temp);
             }
@@ -59,8 +60,8 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
      * @param headers Map of headers.
      * @return HTTP-date.
      */
-    private static ArrayList<HTTPDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
-        ArrayList<HTTPDate> result = new ArrayList<HTTPDate>();
+    private static ArrayList<MetaDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
+        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
         Object[] regExpArray = RegExp.getHTTPRegExp();
         ExtractedDate date = null;
         if (headers.containsKey(keyword)) {
@@ -74,7 +75,7 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
                     index++;
                 }
                 if (date != null) {
-                    HTTPDate httpDate = DateConverter.convert(date, DateConverter.TECH_HTTP_HEADER);
+                	MetaDate httpDate = DateConverter.convert(date, DateType.MetaDate);
                     // HTTPDate httpDate = DateConverter.convertToHTTPDate(date);
                     httpDate.setKeyword(keyword);
                     result.add(httpDate);

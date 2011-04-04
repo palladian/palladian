@@ -7,6 +7,8 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 
+	private boolean lookHttpDates = true;
+	
 	private HTTPDateGetter httpDateGetter = new HTTPDateGetter();
 	private HeadDateGetter headDateGetter = new HeadDateGetter();
 	
@@ -15,10 +17,11 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 	public ArrayList<MetaDate> getDates() {
 		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
 		if(checkDocAndUrl()){
-			httpDateGetter.setUrl(this.url);
+			if(lookHttpDates){
+				httpDateGetter.setUrl(this.url);
+				dates.addAll(httpDateGetter.getDates());
+			}
 			headDateGetter.setDocument(this.document);
-			
-			dates.addAll(httpDateGetter.getDates());
 			dates.addAll(headDateGetter.getDates());
 		}
 		return dates;
@@ -54,6 +57,10 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 			}
 		}
 		return result;
+	}
+	
+	public void setLookHttpDates(boolean lookHttpDates){
+		this.lookHttpDates = lookHttpDates;
 	}
 	
 }

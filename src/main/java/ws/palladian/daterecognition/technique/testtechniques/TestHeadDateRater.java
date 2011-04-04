@@ -8,7 +8,7 @@ import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.technique.HeadDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -75,7 +75,7 @@ public class TestHeadDateRater extends HeadDateRater {
      * @param List of head-dates.
      * @return Hashmap with dates and rateings.
      */
-	protected HashMap<HeadDate, Double> evaluateHeadDate(ArrayList<HeadDate> headDates) {
+	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates) {
 		ExtractedDate actualDate = ExtractedDateHelper.createActualDate();
 		return evaluateHeadDate(headDates, actualDate);
 	}
@@ -87,10 +87,10 @@ public class TestHeadDateRater extends HeadDateRater {
      * @param List of head-dates.
      * @return Hashmap with dates and rateings.
      */
-	protected HashMap<HeadDate, Double> evaluateHeadDate(ArrayList<HeadDate> headDates, ExtractedDate actualDate) {
-        HashMap<HeadDate, Double> result = new HashMap<HeadDate, Double>();
+	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates, ExtractedDate actualDate) {
+        HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
         double rate;
-        HeadDate date;
+        MetaDate date;
         for (int i = 0; i < headDates.size(); i++) {
             date = headDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
@@ -103,9 +103,9 @@ public class TestHeadDateRater extends HeadDateRater {
             }
             result.put(date, rate);
         }
-        ArrayList<HeadDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1, true);
-        ArrayList<HeadDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1, true);
-        ArrayList<HeadDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2, true);
+        ArrayList<MetaDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1, true);
+        ArrayList<MetaDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1, true);
+        ArrayList<MetaDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2, true);
         if (highRatedDates.size() > 0) {
             DateRaterHelper.setRateToZero(middleRatedDates, result);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
@@ -128,8 +128,8 @@ public class TestHeadDateRater extends HeadDateRater {
         }
 
         DateComparator dc = new DateComparator();
-        ArrayList<HeadDate> dates = dc.orderDates(result);
-        HeadDate tempDate;
+        ArrayList<MetaDate> dates = dc.orderDates(result);
+        MetaDate tempDate;
         if(old){
         	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
         }else{
@@ -157,11 +157,11 @@ public class TestHeadDateRater extends HeadDateRater {
 	
 	
 	
-	public HeadDate getBestDate(){
+	public MetaDate getBestDate(){
 		double rate = DateArrayHelper.getHighestRate(this.ratedDates);
-		ArrayList<HeadDate> list = DateArrayHelper.getRatedDates(this.ratedDates, rate);
+		ArrayList<MetaDate> list = DateArrayHelper.getRatedDates(this.ratedDates, rate);
 		DateComparator dc = new DateComparator();
-		HeadDate date;
+		MetaDate date;
 		if(old){
 			date = dc.getOldestDate(list);
 		}else{

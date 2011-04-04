@@ -9,7 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.RatedDateComparator;
@@ -36,10 +36,10 @@ public class WebPageDateEvaluatorTest {
     private boolean reference = false;
     private boolean archive = false;
 
-    private ArrayList<HTTPDate> httpDates;
+    private ArrayList<MetaDate> httpDates;
 
 	private ExtractedDate actualDate;
-    public void setHttpDates(ArrayList<HTTPDate>httpDates){
+    public void setHttpDates(ArrayList<MetaDate>httpDates){
     	this.httpDates = httpDates;
     }
     public void setPubMod(PageDateType pub_mod){
