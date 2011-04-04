@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 
@@ -258,28 +259,25 @@ public class ExtractedDateHelper {
      * @param typ
      * @return
      */
-    public static String getTypString(int typ) {
+    public static String getTypString(DateType type) {
         String typeString;
-        switch (typ) {
-            case ExtractedDate.TECH_ARCHIVE:
+        switch (type) {
+            case ArchiveDate:
                 typeString = "archive";
                 break;
-            case ExtractedDate.TECH_URL:
+            case UrlDate:
                 typeString = "URL";
                 break;
-            case ExtractedDate.TECH_HTTP_HEADER:
-                typeString = "HTTP";
+            case MetaDate:
+                typeString = "Meta";
                 break;
-            case ExtractedDate.TECH_HTML_HEAD:
-                typeString = "HTML head";
-                break;
-            case ExtractedDate.TECH_HTML_STRUC:
+            case StructureDate:
                 typeString = "HTML structure";
                 break;
-            case ExtractedDate.TECH_HTML_CONT:
+            case ContentDate:
                 typeString = "HTML content";
                 break;
-            case ExtractedDate.TECH_REFERENCE:
+            case ReferenceDate:
                 typeString = "reference";
                 break;
             default:

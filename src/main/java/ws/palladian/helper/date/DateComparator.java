@@ -7,6 +7,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import ws.palladian.daterecognition.dates.AbstractDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 
 /**
@@ -76,7 +77,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param stopFlag Depth of comparing. Values are given as static constant in this class. (STOP_...)
      * @return
      */
-    public int compare(ExtractedDate date1, ExtractedDate date2, int stopFlag) {
+    public int compare(AbstractDate date1, AbstractDate date2, int stopFlag) {
         int returnValue;
         returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
         if (returnValue == 0 && stopFlag > DateComparator.STOP_YEAR) {

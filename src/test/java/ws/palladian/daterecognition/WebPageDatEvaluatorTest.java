@@ -62,7 +62,6 @@ public class WebPageDatEvaluatorTest {
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        DateArrayHelper.printDateArray(wpde.getAllDates());
         assertEquals(2, wpde.getAllBestRatedDate().size());
     }
 
@@ -85,7 +84,6 @@ public class WebPageDatEvaluatorTest {
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        DateArrayHelper.printDateArray(wpde.getAllDates());
         assertEquals(107, wpde.getAllDates().size());
     }
 

@@ -3,6 +3,7 @@ package ws.palladian.helper.date;
 import java.util.Comparator;
 
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 
 /**
@@ -25,8 +26,8 @@ public class RatedDateComparator<T> implements Comparator<T> {
     public int compare(T date1, T date2) {
         int result = compareRate((ExtractedDate) date1, (ExtractedDate) date2);
         if (result == 0) {
-            if (((ExtractedDate) date1).getType() == ExtractedDate.TECH_HTML_CONT
-                    && ((ExtractedDate) date2).getType() == ExtractedDate.TECH_HTML_CONT) {
+            if (((ExtractedDate) date1).getType().equals(DateType.ContentDate)
+                    && ((ExtractedDate) date2).getType().equals(DateType.ContentDate)) {
                 result = comparePosInDoc((ContentDate) date1, (ContentDate) date2);
             } else {
                 result = compareTechniqe((ExtractedDate) date1, (ExtractedDate) date2);
@@ -73,8 +74,8 @@ public class RatedDateComparator<T> implements Comparator<T> {
      * @return
      */
     private int compareTechniqe(ExtractedDate date1, ExtractedDate date2) {
-        int tech1 = date1.getType();
-        int tech2 = date2.getType();
+        int tech1 = date1.getTypeInt();
+        int tech2 = date2.getTypeInt();
         if (tech1 == 0) {
             tech1 = 99;
         }

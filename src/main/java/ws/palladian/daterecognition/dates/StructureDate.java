@@ -9,6 +9,8 @@ package ws.palladian.daterecognition.dates;
  */
 public class StructureDate extends AbstractBodyDate {
 
+	private DateType dateType = DateType.StructureDate;
+	
     /**
      * 
      */
@@ -31,16 +33,6 @@ public class StructureDate extends AbstractBodyDate {
     public StructureDate(String dateString, String format) {
         super(dateString, format);
         // TODO Auto-generated constructor stub
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.daterecognition.ExtractedDate#getType()
-     */
-    @Override
-    public int getType() {
-        // TODO Auto-generated method stub
-        return TECH_HTML_STRUC;
     }
 
 }

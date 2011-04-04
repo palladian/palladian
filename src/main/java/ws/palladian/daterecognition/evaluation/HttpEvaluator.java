@@ -15,8 +15,9 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.ExtractedDateHelper;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.HTTPDateGetter;
@@ -44,8 +45,8 @@ public class HttpEvaluator {
 		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
 		
 		String file = "data/evaluation/daterecognition/datasets/httpdataset.txt";
-		evaluate("pub1",DBExport.PUB_DATE, dg, dr,file);
-		evaluate("mod1",DBExport.MOD_DATE, dg, dr,file);
+		//evaluate("pub1",DBExport.PUB_DATE, dg, dr,file);
+		//evaluate("mod1",DBExport.MOD_DATE, dg, dr,file);
 		
 		/*
 		String in1 = "data/evaluation/daterecognition/datasets/dataset.txt";
@@ -87,14 +88,14 @@ public class HttpEvaluator {
 			System.out.println(e.getValue().getUrl());
 			System.out.print("get dates... ");
 			
-			ArrayList<HTTPDate> dates = new ArrayList<HTTPDate>();
+			ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
 			ExtractedDate dateDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_DATE));
-			HTTPDate tempDate = DateConverter.convert(dateDate, DateConverter.TECH_HTTP_HEADER);
+			MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
 			ExtractedDate lastDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_LAST));
-			tempDate = DateConverter.convert(lastDate, DateConverter.TECH_HTTP_HEADER);
+			tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
@@ -102,7 +103,7 @@ public class HttpEvaluator {
 			System.out.print("rate...");
 			
 			ExtractedDate downloadedDate = DateGetterHelper.findDate(e.getValue().get(DBExport.ACTUAL_DATE));
-			HashMap<HTTPDate, Double> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
+			HashMap<MetaDate, Double> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
 			double rate = DateArrayHelper.getHighestRate(dateArray);
 			dates = DateArrayHelper.getRatedDates(dateArray, rate);
 			if(dates.size()>0 && dates.get(0) != null){
@@ -165,9 +166,9 @@ public class HttpEvaluator {
 			url = it.next();
 			dg.setUrl(url);
 			
-			Iterator<HTTPDate> dateIterator = dg.getDates().iterator();
+			Iterator<MetaDate> dateIterator = dg.getDates().iterator();
 			while(dateIterator.hasNext()){
-				HTTPDate date = dateIterator.next();
+				MetaDate date = dateIterator.next();
 				if(date.getKeyword().equalsIgnoreCase("last-modified")){
 					dates[0]=date;
 					
@@ -292,7 +293,7 @@ private static void mergeUrlsets(String in1, String in2, String out){
 					
 					System.out.println(url);
 					dg.setUrl(url);
-					ArrayList<HTTPDate> dates = dg.getDates();
+					ArrayList<MetaDate> dates = dg.getDates();
 					if(dates.size() > 0){
 						boolean last = false;
 						for(int i=0; i<dates.size(); i++){

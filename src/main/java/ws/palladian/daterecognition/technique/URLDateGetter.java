@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.helper.RegExp;
@@ -72,7 +73,7 @@ public class URLDateGetter extends TechniqueDateGetter<URLDate> {
             index++;
         }
         if (date != null) {
-            temp = DateConverter.convert(date, DateConverter.TECH_URL);
+            temp = DateConverter.convert(date, DateType.UrlDate);
             temp.setUrl(url);
         }
         return temp;

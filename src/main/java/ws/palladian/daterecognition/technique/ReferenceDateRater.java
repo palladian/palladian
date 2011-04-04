@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ws.palladian.daterecognition.DateGetter;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -58,8 +59,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
         rdg.setUrl(url);
         ArrayList<ReferenceDate> newRefDates = rdg.getDates();
 
-        ArrayList<ReferenceDate> refDates = (ArrayList<ReferenceDate>) DateArrayHelper.filter(newRefDates,
-                ExtractedDate.TECH_REFERENCE);
+        ArrayList<ReferenceDate> refDates = (ArrayList<ReferenceDate>) DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
 
         return rate(refDates);
 

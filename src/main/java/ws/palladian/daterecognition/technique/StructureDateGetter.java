@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.KeyWords;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.StructureDate;
 
@@ -146,7 +147,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
                 String nodeName = attributeNode.getNodeName();
                 if (!nodeName.equalsIgnoreCase("href")) {
                     ExtractedDate t = DateGetterHelper.findDate(attributeNode.getNodeValue());
-                    StructureDate tempDate = DateConverter.convert(t, DateConverter.TECH_HTML_STRUC);
+                    StructureDate tempDate = DateConverter.convert(t, DateType.StructureDate);
                     if (tempDate == null) {
                         if (keyword == null) {
                             keyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),

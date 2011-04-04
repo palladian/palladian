@@ -10,9 +10,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.control.AllTests;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
-import ws.palladian.daterecognition.dates.HeadDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.technique.HTTPDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
@@ -451,7 +451,7 @@ public class DateGetterHelperTest {
             HTTPDateGetter hdg = new HTTPDateGetter();
             hdg.setUrl(url);
 
-            ArrayList<HTTPDate> dates = hdg.getDates();
+            ArrayList<MetaDate> dates = hdg.getDates();
             for (int i = 0; i < dates.size(); i++) {
                 System.out.println(dates.get(i).getDateString());
             }
@@ -567,7 +567,7 @@ public class DateGetterHelperTest {
             dateGetter.setTechArchive(false);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            DateArrayHelper.printDateArray(date, ExtractedDate.TECH_HTML_CONT);
+            DateArrayHelper.printDateArray(date, DateType.ContentDate);
         }
     }
 
@@ -623,7 +623,7 @@ public class DateGetterHelperTest {
             HeadDateGetter hdg = new HeadDateGetter();
             hdg.setDocument(document);
 
-            ArrayList<HeadDate> headDates = hdg.getDates();
+            ArrayList<MetaDate> headDates = hdg.getDates();
             DateArrayHelper.printDateArray(headDates);
         }
 
@@ -633,20 +633,20 @@ public class DateGetterHelperTest {
     public void testGetHeadDates() {
         if (AllTests.ALL_TESTS) {
             String url = "src/test/resources/webpages/dateExtraction/zeit2.htm";
-            ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
-            compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new HeadDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new HeadDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            ArrayList<MetaDate> compareDates = new ArrayList<MetaDate>();
+            compareDates.add(new MetaDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            compareDates.add(new MetaDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            compareDates.add(new MetaDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            compareDates.add(new MetaDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            compareDates.add(new MetaDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+            compareDates.add(new MetaDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
 
             DocumentRetriever c = new DocumentRetriever();
             c.setDocument(url);
             Document document = c.getDocument();
             HeadDateGetter hdg = new HeadDateGetter();
             hdg.setDocument(document);
-            ArrayList<HeadDate> headDates = hdg.getDates();
+            ArrayList<MetaDate> headDates = hdg.getDates();
             assertEquals(6, headDates.size());
             for (int i = 0; i < headDates.size(); i++) {
                 assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());

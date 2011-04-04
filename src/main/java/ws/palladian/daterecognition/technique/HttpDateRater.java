@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 
@@ -15,7 +15,7 @@ import ws.palladian.helper.date.DateComparator;
  * @author Martin Greogr
  * 
  */
-public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
+public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 
     private ExtractedDate actualDate;
 	public HttpDateRater(PageDateType dateType) {
@@ -23,8 +23,8 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
 	}
 
 	@Override
-    public HashMap<HTTPDate, Double> rate(ArrayList<HTTPDate> list) {
-    	HashMap<HTTPDate, Double> returnDates = evaluateHTTPDate(list);
+    public HashMap<MetaDate, Double> rate(ArrayList<MetaDate> list) {
+    	HashMap<MetaDate, Double> returnDates = evaluateHTTPDate(list);
     	this.ratedDates = returnDates;
         return returnDates;
     }
@@ -37,7 +37,7 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
      * @param httpDates
      * @return
      */
-    private HashMap<HTTPDate, Double> evaluateHTTPDate(ArrayList<HTTPDate> httpDates) {
+    private HashMap<MetaDate, Double> evaluateHTTPDate(ArrayList<MetaDate> httpDates) {
     	ExtractedDate current = actualDate;
     	if(current == null){
     		current = ExtractedDateHelper.createActualDate();
@@ -53,9 +53,9 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
      * @param httpDates
      * @return
      */
-    public HashMap<HTTPDate, Double> evaluateHTTPDate(ArrayList<HTTPDate> httpDates,ExtractedDate downloadedDate) {
-        HTTPDate date = null;
-        HashMap<HTTPDate, Double> result = new HashMap<HTTPDate, Double>();
+    public HashMap<MetaDate, Double> evaluateHTTPDate(ArrayList<MetaDate> httpDates,ExtractedDate downloadedDate) {
+    	MetaDate date = null;
+        HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
         double rate = 0;
         for (int i = 0; i < httpDates.size(); i++) {
             date = httpDates.get(i);
@@ -74,8 +74,8 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
         }
 
         DateComparator dc = new DateComparator();
-        ArrayList<HTTPDate> dates = dc.orderDates(result);
-        HTTPDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        ArrayList<MetaDate> dates = dc.orderDates(result);
+        MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
 
         double diff;
         double oldRate;

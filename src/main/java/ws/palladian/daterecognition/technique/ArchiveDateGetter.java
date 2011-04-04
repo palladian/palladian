@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.dates.ArchiveDate;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -50,9 +51,9 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
             contentDates = DateArrayHelper.filter(contentDates, DateArrayHelper.FILTER_FULL_DATE);
             DateComparator dc = new DateComparator();
             ContentDate cDate = dc.getOldestDate(contentDates);
-            oldest = DateConverter.convert(cDate, DateConverter.TECH_ARCHIVE);
+            oldest = DateConverter.convert(cDate, DateType.ArchiveDate);
             contentDates.remove(cDate);
-            oldest = DateConverter.convert(dc.getOldestDate(contentDates), DateConverter.TECH_ARCHIVE);
+            oldest = DateConverter.convert(dc.getOldestDate(contentDates), DateType.ArchiveDate);
         }
         return oldest;
     }

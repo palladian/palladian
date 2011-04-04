@@ -12,12 +12,11 @@ import org.w3c.dom.Document;
 import ws.palladian.daterecognition.DateConverter;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.HTTPDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.daterecognition.technique.ContentDateGetter;
-import ws.palladian.daterecognition.technique.ContentDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
@@ -220,18 +219,18 @@ public class KairosEvaluator {
 		return EvaluationHelper.readFile(file);
 	}
 	
-	private static ArrayList<HTTPDate> getHttpDates(DBExport dbExport){
-		ArrayList<HTTPDate> dates = new ArrayList<HTTPDate>();
+	private static ArrayList<MetaDate> getHttpDates(DBExport dbExport){
+		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
 		String headerDate = dbExport.get(DBExport.HEADER_DATE);
 		String headerLastMod = dbExport.get(DBExport.HEADER_LAST);
 		
 		ExtractedDate headerExtrDate = DateGetterHelper.findDate(headerDate);
-		HTTPDate headerHttpDate = DateConverter.convert(headerExtrDate, DateConverter.TECH_HTTP_HEADER);
+		MetaDate headerHttpDate = DateConverter.convert(headerExtrDate, DateType.MetaDate);
 		if(headerHttpDate != null){
 			headerHttpDate.setKeyword("date");
 		}
 		ExtractedDate headerExtrLastMod = DateGetterHelper.findDate(headerLastMod);
-		HTTPDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod, DateConverter.TECH_HTTP_HEADER);
+		MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod, DateType.MetaDate);
 		if(headerHttpLastMod != null){
 			headerHttpLastMod.setKeyword("last-modified");
 		}

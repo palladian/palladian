@@ -8,8 +8,5 @@ package ws.palladian.daterecognition.dates;
  */
 public class ArchiveDate extends ExtractedDate {
 
-    @Override
-    public int getType() {
-        return TECH_ARCHIVE;
-    }
+	private DateType dateType = DateType.ArchiveDate;
 }

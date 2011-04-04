@@ -17,16 +17,10 @@ import ws.palladian.helper.RegExp;
  * 
  * @author Martin Gregor*
  */
-public class ExtractedDate {
+public class ExtractedDate extends AbstractDate{
 
-    public static final int TECH_URL = 1;
-    public static final int TECH_HTTP_HEADER = 2;
-    public static final int TECH_HTML_HEAD = 3;
-    public static final int TECH_HTML_STRUC = 4;
-    public static final int TECH_HTML_CONT = 5;
-    public static final int TECH_ARCHIVE = 6;
-    public static final int TECH_REFERENCE = 7;
-
+	private DateType dateType = DateType.ExtractedDate;
+	
     public static final int YEAR = 1;
     public static final int MONTH = 2;
     public static final int DAY = 3;
@@ -881,14 +875,42 @@ public class ExtractedDate {
     }
 
     /**
+     * Returns value representing this type of date.<br>
+     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+     * 
+     * @return Integer of this type.
+     */
+    public DateType getType() {
+        return this.dateType;
+    }
+    
+    /**
      * Returns int value representing this type of date.<br>
      * Returning values are equal to this static TECH_ fields. <br>
      * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
      * 
      * @return Integer of this type.
      */
-    public int getType() {
-        return 0;
+    public int getTypeInt() {
+    	int result;
+    	switch(getType()){
+    	case UrlDate:
+    		result = 1;
+    		break;
+    	case ContentDate:
+    		result = 2;
+    		break;
+    	case MetaDate:
+    		result = 3;
+    		break;
+    	case StructureDate:
+    		result = 4;
+    		break;
+		default:
+    		result = 0;
+    		
+    	}
+        return result;
     }
 
     /**
@@ -965,5 +987,9 @@ public class ExtractedDate {
      */
     public double getRate() {
         return rate;
+    }
+    
+    public void setType(DateType dateType){
+    	this.dateType = dateType;
     }
 }
