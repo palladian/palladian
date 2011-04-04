@@ -556,7 +556,7 @@ public class DocumentRetriever {
         return getDocument();
     }
 
-    public Document getWebDocument(InputStream is, String URI) {
+    private Document getWebDocument(InputStream is, String URI) {
         try {
             parse(is, false, URI);
         } catch (SAXException e) {
@@ -1124,7 +1124,7 @@ public class DocumentRetriever {
      * @throws IOException
      * @author Philipp Katz
      */
-    public InputStream downloadInputStream(URL url) throws IOException {
+    private InputStream downloadInputStream(URL url) throws IOException {
         return downloadInputStream(url, true);
     }
 
@@ -1136,7 +1136,7 @@ public class DocumentRetriever {
      * @return
      * @throws IOException
      */
-    public InputStream downloadInputStream(String urlString) throws IOException {
+    private InputStream downloadInputStream(String urlString) throws IOException {
         return downloadInputStream(new URL(urlString));
     }
 
@@ -1396,25 +1396,25 @@ public class DocumentRetriever {
         return numRetries;
     }
 
-    public static Document getWebDocumentFromInputStream(InputStream iStream, String url){
-        DOMParser parser = new DOMParser();
-        Document document = null;
-
-        try {
-            parser.parse(new InputSource(iStream));
-        } catch (SAXException saxEx) {
-            LOGGER.error(saxEx.getMessage());
-        } catch (IOException ioEx) {
-            LOGGER.error(ioEx.getMessage());
-        }
-
-        document = parser.getDocument();
-        if (document != null) {
-            document.setDocumentURI(url);
-        }
-
-        return document;
-    }
+//    private static Document getWebDocumentFromInputStream(InputStream iStream, String url){
+//        DOMParser parser = new DOMParser();
+//        Document document = null;
+//
+//        try {
+//            parser.parse(new InputSource(iStream));
+//        } catch (SAXException saxEx) {
+//            LOGGER.error(saxEx.getMessage());
+//        } catch (IOException ioEx) {
+//            LOGGER.error(ioEx.getMessage());
+//        }
+//
+//        document = parser.getDocument();
+//        if (document != null) {
+//            document.setDocumentURI(url);
+//        }
+//
+//        return document;
+//    }
 
     public void setDownloadFilter(DownloadFilter downloadFilter) {
         this.downloadFilter = downloadFilter;
