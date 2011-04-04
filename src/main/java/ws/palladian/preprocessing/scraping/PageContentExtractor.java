@@ -2,7 +2,6 @@ package ws.palladian.preprocessing.scraping;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -197,8 +196,8 @@ public class PageContentExtractor {
      */
     public PageContentExtractor setDocument(URL url) throws PageContentExtractorException {
         try {
-            InputStream is = crawler.downloadInputStream(url.toString());
-            return setDocument(new InputSource(is));
+            // InputStream is = crawler.downloadInputStream(url.toString());
+            return setDocument(crawler.getWebDocument(url));
         } catch (Throwable t) {
             throw new PageContentExtractorException(t);
         }
