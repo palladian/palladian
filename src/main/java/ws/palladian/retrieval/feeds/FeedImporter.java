@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -15,7 +17,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -37,7 +38,7 @@ public class FeedImporter {
     private static final Logger LOGGER = Logger.getLogger(FeedImporter.class);
 
     /** Maximum number of simultaneous threads when adding multiple feeds at once. */
-    private int maxThreads = 10;
+    private int numThreads = 10;
 
     /** The store which keeps the feeds and items. */
     private final FeedStore store;
@@ -115,7 +116,7 @@ public class FeedImporter {
         LOGGER.trace("<addFeed " + added);
         return added;
     }
-    
+
     public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
         Set<String> feedUrls = new HashSet<String>();
         for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
@@ -125,7 +126,7 @@ public class FeedImporter {
     }
 
     /**
-     * Add a Collection of feedUrls for aggregation. This process runs threaded. Use {@link #setMaxThreads(int)} to set
+     * Add a Collection of feedUrls for aggregation. This process runs threaded. Use {@link #setNumThreads(int)} to set
      * the maximum number of concurrently running threads.
      * 
      * @param feedUrls
@@ -133,76 +134,54 @@ public class FeedImporter {
      */
     public int addFeeds(Collection<String> feedUrls) {
 
-        // TODO also use a thread pool here?
-
-        // Stack to store the URLs we will add
-        final Stack<String> urlStack = new Stack<String>();
-        urlStack.addAll(feedUrls);
-
-        // Counter for active Threads
-        final Counter threadCounter = new Counter();
+        // Queue to store the URLs we will add
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
+        urlQueue.addAll(feedUrls);
 
         // Counter for # of added Feeds
-        final Counter addCounter = new Counter();
+        final AtomicInteger addCounter = new AtomicInteger();
 
         // stop time for adding
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        while (urlStack.size() > 0) {
-            final String currentUrl = urlStack.pop();
-
-            // if maximum # of Threads are already running, wait here
-            while (threadCounter.getCount() >= maxThreads) {
-                LOGGER.trace("max # of Threads running. waiting ...");
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                }
-
-            }
-
-            threadCounter.increment();
-            Thread addThread = new Thread() {
+        // start the specified number of threads for adding feeds simultaneously
+        Thread[] threads = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            threads[i] = new Thread() {
                 @Override
                 public void run() {
-                    try {
-                        boolean added = addFeed(currentUrl);
+                    String feedUrl;
+                    while ((feedUrl = urlQueue.poll()) != null) {
+                        boolean added = addFeed(feedUrl);
                         if (added) {
-                            addCounter.increment();
+                            addCounter.incrementAndGet();
                         }
-                    } finally {
-                        threadCounter.decrement();
                     }
                 }
             };
-            addThread.start();
-
+            threads[i].start();
         }
 
-        // keep on running until all Threads have finished and
-        // the Stack is empty
-        while (threadCounter.getCount() > 0 || urlStack.size() > 0) {
+        // wait until all Threads have finished work.
+        for (Thread thread : threads) {
             try {
-                Thread.sleep(1000);
+                thread.join();
             } catch (InterruptedException e) {
-                LOGGER.warn(e.getMessage());
-                break;
+                LOGGER.error(e);
             }
-            LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + urlStack.size());
         }
 
         stopWatch.stop();
 
         LOGGER.info("-------------------------------");
-        LOGGER.info(" added " + addCounter.getCount() + " new feeds");
+        LOGGER.info(" added " + addCounter.get() + " new feeds");
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
+        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES)
+                + " MB");
         LOGGER.info("-------------------------------");
 
-        return addCounter.getCount();
+        return addCounter.get();
 
     }
 
@@ -232,10 +211,10 @@ public class FeedImporter {
     /**
      * Set the maximum number of threads when adding multiple feeds.
      * 
-     * @param maxThreads
+     * @param numThreads
      */
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
+    public void setNumThreads(int maxThreads) {
+        this.numThreads = maxThreads;
     }
 
     /**
@@ -264,7 +243,7 @@ public class FeedImporter {
         options.addOption(OptionBuilder.withLongOpt("storeItems")
                 .withDescription("also store the items of each added feed to the database").create());
         options.addOption(OptionBuilder.withLongOpt("threads")
-                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
+                .withDescription("number of threads").hasArg().withArgName("nn")
                 .withType(Number.class).create());
 
         try {
@@ -285,7 +264,7 @@ public class FeedImporter {
                 importer.setStoreItems(true);
             }
             if (cmd.hasOption("threads")) {
-                importer.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+                importer.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
             if (cmd.hasOption("add")) {
                 importer.addFeed(cmd.getOptionValue("add"));
