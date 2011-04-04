@@ -889,7 +889,8 @@ public class WebSearcher {
                 }
 
             } catch (JSONException e) {
-                LOGGER.error(e.getMessage());
+                // LOGGER.error(e.getMessage());
+                LOGGER.error(e.getMessage() + "; response was \"" + json + "\"");
             }
 
             srManager.addRequest(WebSearcherManager.BING);
