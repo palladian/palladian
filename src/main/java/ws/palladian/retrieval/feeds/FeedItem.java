@@ -2,6 +2,8 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -21,6 +23,12 @@ public class FeedItem {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
+    
+    private static final Map<String, String> namespaceMap = new HashMap<String, String>();
+    
+    static {
+        namespaceMap.put("atom", "http://www.w3.org/2005/Atom");
+    }
 
     private int id = -1;
 
@@ -222,15 +230,15 @@ public class FeedItem {
 
         try {
 
-            // for rss
+            // for RSS
             node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
 
             if (node == null) {
                 node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
 
-                // for atom
+                // for Atom
                 if (node == null) {
-                    node = XPathHelper.getNode(document, "//entry[id=\"" + getRawId() + "\"]");
+                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", namespaceMap);
                 }
             }
 
