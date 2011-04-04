@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -125,9 +126,6 @@ public class DocumentRetriever {
     /** The stack to store URLs to be downloaded. */
     private Stack<String> urlStack = new Stack<String>();
 
-    /** Number of active threads. */
-    private int threadCount = 0;
-
     /** Accumulates the download size in bytes for this crawler. */
     private long totalDownloadSize = 0;
 
@@ -231,9 +229,10 @@ public class DocumentRetriever {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
+                    InputStream inputStream = null;
                     try {
                         LOGGER.trace("start downloading " + url);
-                        InputStream inputStream = downloadInputStream(url);
+                        inputStream = downloadInputStream(url);
 
                         if (callback == null) {
                             Document document = getWebDocument(inputStream, url);
@@ -250,6 +249,7 @@ public class DocumentRetriever {
                         errors.increment();
                     } finally {
                         counter.decrement();
+                        close(inputStream);
                     }
                 }
             };
@@ -339,10 +339,6 @@ public class DocumentRetriever {
         setOverallTimeout(overallTimeOut);
     }
 
-//    public DocumentRetriever(String configPath) {
-//        loadConfig();
-//    }
-
     /**
      * Load the configuration file from the specified location and set the variables accordingly.
      */
@@ -376,7 +372,7 @@ public class DocumentRetriever {
         setDocument(url, false, true);
     }
 
-    public void setDocument(URL url, Boolean isXML, boolean callback) {
+    public void setDocument(URL url, boolean isXML, boolean callback) {
         document = null;
 
         BufferedInputStream is = null;
@@ -402,13 +398,7 @@ public class DocumentRetriever {
         } catch (ParserConfigurationException e) {
             LOGGER.error(e);
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    LOGGER.error(e);
-                }
-            }
+            close(is);
         }
     }
 
@@ -420,6 +410,8 @@ public class DocumentRetriever {
         document = null;
 
         url = url.trim();
+        
+        InputStream inputStream = null;
 
         try {
             
@@ -433,15 +425,17 @@ public class DocumentRetriever {
 
                 // InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(url)));
                 File file = new File(url);
-                BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+                // BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+                inputStream = new BufferedInputStream(new FileInputStream(file));
 
-                parse(is, isXML, file.toURI().toString());
+                parse(inputStream, isXML, file.toURI().toString());
             } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
-                InputStream fis = getInputStream(urlObject, headerInformation);
+                // InputStream fis = getInputStream(urlObject, headerInformation);
+                inputStream = getInputStream(urlObject, headerInformation);
 
-                parse(fis, isXML, url);
+                parse(inputStream, isXML, url);
             }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
@@ -468,6 +462,8 @@ public class DocumentRetriever {
         } catch (Throwable t) {
             // see @FIXME in #parse
             LOGGER.error(url + ", " + t.getMessage());
+        } finally {
+            close(inputStream);
         }
 
     }
@@ -680,11 +676,12 @@ public class DocumentRetriever {
             contentString = FileHelper.readHTMLFileToString(urlString, stripTags);
         } else {
             StringBuilder html = new StringBuilder();
+            InputStream inputStream = null;
 
             try {
                 urlString = urlString.replaceAll("\\s", "+");
                 URL url = new URL(urlString);
-                InputStream inputStream = getInputStream(url);
+                inputStream = getInputStream(url);
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
                 String line = "";
                 do {
@@ -711,6 +708,8 @@ public class DocumentRetriever {
                 LOGGER.error(urlString + ", " + e.getMessage());
             } catch (Exception e) {
                 LOGGER.error(urlString + ", " + e.getClass() + " " + e.getMessage());
+            } finally {
+                close(inputStream);
             }
 
             contentString = html.toString();
@@ -837,18 +836,6 @@ public class DocumentRetriever {
     // XXX
     public static void setSessionDownloadedBytes(long sessionDownloadedBytes) {
         DocumentRetriever.sessionDownloadedBytes = sessionDownloadedBytes;
-    }
-
-    public int getThreadCount() {
-        return threadCount;
-    }
-
-    public void increaseThreadCount() {
-        this.threadCount++;
-    }
-
-    public void decreaseThreadCount() {
-        this.threadCount--;
     }
 
     /**
@@ -980,15 +967,18 @@ public class DocumentRetriever {
      */
     public boolean checkProxy() {
         boolean result;
+        InputStream is = null;
         try {
             // try to download from Google, if downloading fails we get IOException
-            downloadInputStream("http://www.google.com", false);
+            is = downloadInputStream("http://www.google.com", false);
             if (getProxy() != null) {
                 LOGGER.debug("proxy " + getProxy().address() + " is working.");
             }
             result = true;
         } catch (IOException e) {
             result = false;
+        } finally {
+            close(is);
         }
         return result;
     }
@@ -1053,10 +1043,12 @@ public class DocumentRetriever {
 
         URL u;
         binFile = new File(pathWithFileName);
+        BufferedInputStream in = null;
+        BufferedOutputStream out = null;
         try {
             u = new URL(urlString);
-            BufferedInputStream in = new BufferedInputStream(u.openStream());
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
+            in = new BufferedInputStream(u.openStream());
+            out = new BufferedOutputStream(new FileOutputStream(binFile));
 
             byte[] buffer = new byte[4096];
 
@@ -1080,6 +1072,8 @@ public class DocumentRetriever {
 
             LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
             binFile = null;
+        } finally {
+            close(in, out);
         }
 
         return binFile;
@@ -1170,6 +1164,10 @@ public class DocumentRetriever {
 
         ConnectionTimeout timeout = null;
         InputStream result = null;
+        
+        
+        InputStream urlInputStream = null;
+        ByteArrayOutputStream outputStream = null;
 
         try {
 
@@ -1217,8 +1215,8 @@ public class DocumentRetriever {
             // }
 
             // buffer incoming InputStream
-            InputStream urlInputStream = urlConnection.getInputStream();
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            urlInputStream = urlConnection.getInputStream();
+            outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int length;
             long cumLength = 0; // :-O
@@ -1234,8 +1232,8 @@ public class DocumentRetriever {
                     throw new IOException();
                 }
             }
-            urlInputStream.close();
-            outputStream.close();
+//            urlInputStream.close();
+//            outputStream.close();
 
             addDownloadSize(outputStream.size());
 
@@ -1262,6 +1260,7 @@ public class DocumentRetriever {
             if (timeout != null) {
                 timeout.setActive(false);
             }
+            close(urlInputStream, outputStream);
         }
 
         LOGGER.trace("<download");
@@ -1477,6 +1476,19 @@ public class DocumentRetriever {
                 + " * downloadSize [KB] + " + parameters[1]);
         LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
         LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
+    }
+    
+    /** TODO copy from {@link FileHelper} */
+    private static void close(Closeable... closeables) {
+        for (Closeable closeable : closeables) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    LOGGER.error(e);
+                }
+            }
+        }
     }
 
     /**
