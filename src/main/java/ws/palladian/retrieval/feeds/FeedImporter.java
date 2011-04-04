@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -214,13 +213,9 @@ public class FeedImporter {
      * @return The number of feeds added.
      */
     public int addFeedsFromFile(String filePath) {
-        List<String> lines = FileHelper.readFileToArray(filePath);
-        List<String> feedUrls = new ArrayList<String>();
-        for (String line : lines) {
-            feedUrls.add(line.split(";")[0]);
-        }
+        List<String> feedUrls = FileHelper.readFileToArray(filePath);
         int added = addFeeds(feedUrls);
-        LOGGER.info("file contained " + lines.size() + " entries;");
+        LOGGER.info("file contained " + feedUrls.size() + " entries;");
         LOGGER.info("added " + added + " feeds.");
         return added;
     }
