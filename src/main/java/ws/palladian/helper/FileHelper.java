@@ -1397,15 +1397,17 @@ public class FileHelper {
         boolean concatenated = false;
         FileInputStream fis = null;
         FileOutputStream fos = null;
+        int bufferSize = 4096;
 
         try {
 
             fis = new FileInputStream(file2);
             fos = new FileOutputStream(file1, true);
 
-            int c;
-            while ((c = fis.read()) != -1) {
-                fos.write(c);
+            int count;
+            byte data[] = new byte[bufferSize];
+            while ((count = fis.read(data, 0, bufferSize)) != -1) {
+                fos.write(data, 0, count);
             }
 
             concatenated = true;
@@ -1446,6 +1448,27 @@ public class FileHelper {
      * @param a the arguments
      */
     public static void main(String[] a) {
+
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-03_foundFeeds_philipp_PRISMA.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-04_foundFeeds_philipp_newsseecr.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_newsseecr.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_PRISMA.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/201104051050foundFeeds_Klemens.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/foundFeeds_Sandro.txt"));
+
+        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"));
+
+        // FileHelper.removeDuplicateLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt",
+        // "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt");
+
+        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt"));
+        
 
         // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
         // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
