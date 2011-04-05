@@ -1431,6 +1431,15 @@ public class FileHelper {
         }
     }
 
+    public static String addTrailingSlash(String path) {
+
+        if (!path.endsWith("/")) {
+            return path + "/";
+        }
+
+        return path;
+    }
+
     /**
      * The main method.
      *
@@ -1527,5 +1536,6 @@ public class FileHelper {
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
+
 
 }
