@@ -372,7 +372,7 @@ public class DocumentRetriever {
         setDocument(url, false, true);
     }
 
-    public void setDocument(URL url, boolean isXML, boolean callback) {
+    private void setDocument(URL url, boolean isXML, boolean callback) {
         document = null;
 
         BufferedInputStream is = null;
@@ -402,11 +402,11 @@ public class DocumentRetriever {
         }
     }
 
-    public void setDocument(String url, boolean isXML, boolean callback) {
+    private void setDocument(String url, boolean isXML, boolean callback) {
         setDocument(url, isXML, callback, null);
     }
 
-    public void setDocument(String url, boolean isXML, boolean callback, HeaderInformation headerInformation) {
+    private void setDocument(String url, boolean isXML, boolean callback, HeaderInformation headerInformation) {
         document = null;
 
         url = url.trim();

@@ -154,20 +154,8 @@ feedDiscovery.searchEngine = 6
 # maximum number of threads for discovery
 feedDiscovery.maxDiscoveryThreads = 10
 
-# feed urls containing these fragments will be ignored
-#feedDiscovery.discoveryIgnoreList = gdata.youtube.com
-
 # location of the list for feeds discovered by the Crawler
 feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
-
-# if enabled, only the first feed of each page is returned
-# if disabled, all Atom- or RSS feeds are returned
-feedDiscovery.onlyPreferred = true
-
-# maximum number of threads when aggregating/adding feeds
-feedDiscovery.maxAggregationThreads = 5
-
-feedDiscovery.downloadAssociatedPages = true
 
 ######################## Page Segmentation ########################
 

@@ -41,7 +41,7 @@ public class FeedDiscoveryCallback implements RetrieverCallback {
         Logger.getRootLogger().trace("FeedDiscoveryCallback.<init>");
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         if (config != null) {
-            filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
+            filePath = config.getString("feedDiscovery.crawlerDiscoveryList", DEFAULT_FILE_PATH);
         } else {
             Logger.getRootLogger().warn("could not load configuration, use defaults");
         }
