@@ -95,7 +95,7 @@ public class FeedDiscovery {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            setNumThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", DEFAULT_NUM_THREADS));
+            setNumThreads(config.getInt("feedDiscovery.numDiscoveryThreads", DEFAULT_NUM_THREADS));
             setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.YAHOO_BOSS));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
