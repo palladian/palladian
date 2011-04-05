@@ -12,39 +12,38 @@ import ws.palladian.retrieval.search.WebSearcherManager;
  * Example class illustrating usage of most important feed classes.
  * 
  * @author Philipp Katz
- *
+ * 
  */
 public class FeedsExamples {
-    
+
     public static void main(String[] args) throws FeedRetrieverException {
 
         // search feeds for "Porsche 911"
+        String discoveredFeedsFile = "data/foundFeeds.txt";
         FeedDiscovery feedDiscovery = new FeedDiscovery();
         feedDiscovery.setSearchEngine(WebSearcherManager.YAHOO_BOSS);
+        feedDiscovery.setResultFilePath(discoveredFeedsFile);
         feedDiscovery.addQuery("Porsche 911");
         feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();
-//        List<DiscoveredFeed> discoveredFeeds = feedDiscovery.getFeeds();
-//        CollectionHelper.print(discoveredFeeds);
-        
+
         // download a feed
         FeedRetriever feedRetriever = new FeedRetriever();
         Feed feed = feedRetriever.getFeed("http://rss.cnn.com/rss/edition.rss");
         List<FeedItem> feedItems = feed.getItems();
         CollectionHelper.print(feedItems);
-        
+
         // initialize the FeedDatabase for storing the data
         FeedStore feedStore = new FeedDatabase();
-        
+
         // add some feed URLs to the database
-        // FeedImporter feedImporter = new FeedImporter(feedStore);
-//        feedImporter.addDiscoveredFeeds(discoveredFeeds);
-        
+        FeedImporter feedImporter = new FeedImporter(feedStore);
+        feedImporter.addFeedsFromFile(discoveredFeedsFile);
+
         // start aggregating news for the feeds in the database
         FeedReader feedReader = new FeedReader(feedStore);
         feedReader.aggregate(false);
-        
-        
+
     }
 
 }
