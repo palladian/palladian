@@ -349,10 +349,10 @@ public class DocumentRetriever {
         PropertiesConfiguration config = configHolder.getConfig();
 
         if (config != null) {
-            setMaxThreads(config.getInt("documentRetriever.maxThreads"));
-            setSwitchProxyRequests(config.getInt("documentRetriever.switchProxyRequests"));
-            setProxyList(config.getList("documentRetriever.proxyList"));
-            setFeedAutodiscovery(config.getBoolean("documentRetriever.feedAutoDiscovery"));
+            setMaxThreads(config.getInt("documentRetriever.maxThreads", maxThreads));
+            setSwitchProxyRequests(config.getInt("documentRetriever.switchProxyRequests", switchProxyRequests));
+            setProxyList(config.getList("documentRetriever.proxyList", proxyList));
+            setFeedAutodiscovery(config.getBoolean("documentRetriever.feedAutoDiscovery", feedAutodiscovery));
             setNumRetries(config.getInt("documentRetriever.numRetries", DEFAULT_NUM_RETRIES));
         } else {
             LOGGER.warn("could not load configuration, use defaults");

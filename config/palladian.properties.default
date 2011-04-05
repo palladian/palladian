@@ -146,7 +146,7 @@ api.collecta.key = aef13a5bc659dc610cf6ad300da7994e
 api.majestic.key = 2F85C7EF65
 api.compete.key = aby5srp7nmkb78q44m5ftbm3
 
-######################## Feed Discovery ########################
+######################## Feed ########################
 # search engine for discovery, see SourceRetrieverManager for avail. constants
 # for example ...: Yahoo Boss = 5, Yahoo Boss News = 10
 feedDiscovery.searchEngine = 6
@@ -156,6 +156,9 @@ feedDiscovery.maxDiscoveryThreads = 10
 
 # location of the list for feeds discovered by the Crawler
 feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
+
+# number of threads in the pool for the FeedReader
+feedReader.threadPoolSize = 200
 
 ######################## Page Segmentation ########################
 
