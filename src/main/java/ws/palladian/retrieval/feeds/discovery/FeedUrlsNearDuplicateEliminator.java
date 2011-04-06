@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.MultiMap;
@@ -20,9 +21,11 @@ import ws.palladian.helper.LineAction;
 import ws.palladian.helper.UrlHelper;
 
 /**
- * Quickndirty implementation for Sandro's highly sophisticated Feed-URLs-Near-Duplicate-Detection-Algorithm(tm).
+ * Quickndirty implementation for Sandro's highly sophisticated
+ * Feed-URLs-Near-Duplicate-Detection-Algorithm(tm)(c)(reg).
  * 
  * @author Philipp Katz
+ * @author Sandro Reichert
  */
 public class FeedUrlsNearDuplicateEliminator {
 
@@ -31,7 +34,17 @@ public class FeedUrlsNearDuplicateEliminator {
 
     // be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor
     private static final String[] ATOM = new String[] { "atom10", "atom" };
-    private static final String[] RSS = new String[] { "rss_2.0", "rss200", "rss2", "RSS2", "rss" };
+    private static final String[] RSS = new String[] { "rss_2.0", "rss2.0", "rss200", "rss20", "rss2", "rss" };
+
+    /** a format string must not be preceded by a word character [a-zA-Z0-9] */
+    private static final String START_PATTERN = "(?<!\\w)";
+
+    /** a format string must not be followed by a word character [a-zA-Z0-9] */
+    private static final String STOP_PATTERN = "(?!\\w)";
+
+    /** The compiled pattern */
+    private static Pattern formatPattern;
+
 
     // Atom first, as it is the preferred format
     private static final String[] FORMATS = (String[]) ArrayUtils.addAll(ATOM, RSS);
@@ -42,10 +55,20 @@ public class FeedUrlsNearDuplicateEliminator {
     // ignore all feed URLs containing this pattern
     private static final Pattern IGNORE_PATTERN = Pattern.compile("sessionid|PHPSESSID", Pattern.CASE_INSENSITIVE);
 
+
+    /**
+     * Initiate compiling of the pattern without the need for an constructor.
+     */
+    static {
+        compilePattern();
+    }
+
     public static void main(String[] args) {
 
-        final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt";
-        final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt";
+        // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        final String inputFile = "data/datasets/feedURLs/foundFeedsDeduplicated.txt";
+        final String outputFile = "data/datasets/feedURLs/foundFeedsRemovedNearDuplicates.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
@@ -81,6 +104,28 @@ public class FeedUrlsNearDuplicateEliminator {
 
     }
 
+    /**
+     * Compiles the pattern. Pattern should look like (?<!\w)(atom10|atom|rss_2.0|rss2.0|rss200|rss20|rss2|rss)(?!\w)
+     */
+    private static void compilePattern() {
+        String formatPatternString = START_PATTERN + "(";
+        for (String format : FORMATS) {
+            formatPatternString += format + "|";
+        }
+        formatPatternString = formatPatternString.substring(0, formatPatternString.length() - 1);
+        formatPatternString += ")" + STOP_PATTERN;
+        System.out.println(formatPatternString);
+        formatPattern = Pattern.compile(formatPatternString, Pattern.CASE_INSENSITIVE);
+    }
+
+    /**
+     * For a given {@link Collection} of strings (feed URLs), all near duplicates are eliminated. If more than one feed
+     * format is found and if we ha a Atom feed, this one is chosen, otherwise take the first from what we have.
+     * 
+     * @param linkQueue the urls to check for near duplicates
+     * @return One format per feed. If more than one feed format is found and if we ha a Atom feed, this one is chosen,
+     *         otherwise take the first from what we have.
+     */
     public static List<String> deDuplicate(Collection<String> linkQueue) {
 
         // list with result, candidates without explicitly given format are added directly
@@ -95,13 +140,28 @@ public class FeedUrlsNearDuplicateEliminator {
             }
             String format = null;
             link = link.trim();
-            for (String s : FORMATS) {
-                if (link.contains(s)) {
-                    link = link.replace(s, FORMAT_PLACEHOLDER);
-                    format = s;
+
+            LOGGER.debug("link : " + link);
+
+            Matcher matcher = formatPattern.matcher(link);
+            while (matcher.find()) {
+                if (matcher.groupCount() == 1) {
+                    format = matcher.group(1);
+                    LOGGER.debug("   format : " + format);
+                    link = link.replaceAll(formatPattern.toString(), FORMAT_PLACEHOLDER);
                     break;
+                } else if (matcher.groupCount() > 1) {
+                    LOGGER.fatal("found too many feed formats in : " + link);
                 }
             }
+
+            // for (String s : FORMATS) {
+            // if (link.contains(s)) {
+            // link = link.replace(s, FORMAT_PLACEHOLDER);
+            // format = s;
+            // break;
+            // }
+            // }
             if (format != null) {
                 temp.put(link, format);
             } else {
@@ -141,6 +201,12 @@ public class FeedUrlsNearDuplicateEliminator {
         return result;
     }
 
+    /**
+     * Append some lines to a file.
+     * 
+     * @param filePath Path to file to append to.
+     * @param lines The lines to append.
+     */
     private static void appendFile(String filePath, Collection<String> lines) {
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {

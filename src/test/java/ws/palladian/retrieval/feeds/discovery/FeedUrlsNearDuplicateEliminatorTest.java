@@ -7,8 +7,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ws.palladian.retrieval.feeds.discovery.FeedUrlsNearDuplicateEliminator;
-
 public class FeedUrlsNearDuplicateEliminatorTest {
 
     @Test
@@ -19,28 +17,29 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         urls.add("http://kidneydiettips.davitablogs.com/?feed=atom");
         List<String> deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://kidneydiettips.davitablogs.com/?feed=atom", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://kidneydiettips.davitablogs.com/?feed=atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://en.citizendium.org/wiki?title=Special:RecentChanges&feed=rss");
         urls.add("http://en.citizendium.org/wiki?title=Special:RecentChanges&feed=atom");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://en.citizendium.org/wiki?title=Special:RecentChanges&feed=atom", deDup.get(0));
+        Assert.assertEquals(true,
+                deDup.contains("http://en.citizendium.org/wiki?title=Special:RecentChanges&feed=atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://www.gaucin.com/en.feed?type=rss");
         urls.add("http://www.gaucin.com/en.feed?type=atom");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://www.gaucin.com/en.feed?type=atom", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://www.gaucin.com/en.feed?type=atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://fukui-oozora.jugem.jp/?mode=rss");
         urls.add("http://fukui-oozora.jugem.jp/?mode=atom");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://fukui-oozora.jugem.jp/?mode=atom", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://fukui-oozora.jugem.jp/?mode=atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://hob3photography.smugmug.com/hack/feed.mg?Type=nickname&Data=hob3photography&format=atom10");
@@ -56,56 +55,56 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         urls.add("http://riadzany.blogspot.com/feeds/posts/default?alt=rss");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://riadzany.blogspot.com/feeds/posts/default?alt=rss", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://riadzany.blogspot.com/feeds/posts/default?alt=rss"));
 
         urls = new ArrayList<String>();
         urls.add("http://www.organicfacts.net/feed/rss.html");
         urls.add("http://www.organicfacts.net/feed/atom.html");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://www.organicfacts.net/feed/atom.html", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://www.organicfacts.net/feed/atom.html"));
 
         urls = new ArrayList<String>();
         urls.add("http://prevent-swine-flu.com/feed/");
         urls.add("http://prevent-swine-flu.com/feed/atom/");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://prevent-swine-flu.com/feed/atom/", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://prevent-swine-flu.com/feed/atom/"));
 
         urls = new ArrayList<String>();
         urls.add("http://pigai.livejournal.com/data/rss");
         urls.add("http://pigai.livejournal.com/data/atom");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://pigai.livejournal.com/data/atom", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://pigai.livejournal.com/data/atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://www.sdli.org/index.php/sdli/rss_2.0/");
         urls.add("http://www.sdli.org/index.php/sdli/atom/");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://www.sdli.org/index.php/sdli/atom/", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://www.sdli.org/index.php/sdli/atom/"));
 
         urls = new ArrayList<String>();
         urls.add("http://williamsport-ohio.apartmenthomeliving.com/feed.rss");
         urls.add("http://williamsport-ohio.apartmenthomeliving.com/feed.atom");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://williamsport-ohio.apartmenthomeliving.com/feed.atom", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://williamsport-ohio.apartmenthomeliving.com/feed.atom"));
 
         urls = new ArrayList<String>();
         urls.add("http://bluewaterjrhawks.com/feed.xml");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(1, deDup.size());
-        Assert.assertEquals("http://bluewaterjrhawks.com/feed.xml", deDup.get(0));
+        Assert.assertEquals(true, deDup.contains("http://bluewaterjrhawks.com/feed.xml"));
 
         urls = new ArrayList<String>();
         urls.add("http://www.bluewaterfl.com/feed/");
         urls.add("http://www.bluewaterfl.com/home/feed/");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(2, deDup.size());
-        Assert.assertEquals("http://www.bluewaterfl.com/feed/", deDup.get(0));
-        Assert.assertEquals("http://www.bluewaterfl.com/home/feed/", deDup.get(1));
+        Assert.assertEquals(true, deDup.contains("http://www.bluewaterfl.com/feed/"));
+        Assert.assertEquals(true, deDup.contains("http://www.bluewaterfl.com/home/feed/"));
 
         urls = new ArrayList<String>();
         urls.add("http://www.thefreedictionary.com/_/WoD/rss.aspx?type=article");
@@ -123,18 +122,60 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         Assert.assertEquals(2, deDup.size());
         Assert.assertEquals(true, deDup.contains("http://easterndiocese.org/news/index.rss?cid=1"));
         Assert.assertEquals(true, deDup.contains("http://easterndiocese.org/news/index.rss?cid=2"));
-        
+
+        // problematic feeds that contain several notations of rss within the URL
+        urls = new ArrayList<String>();
+        // contains rss + rss + + rss + rss20
+        urls.add("http://www.br-online.de/br/jsp/global/funktion/rssexport/rssExport.jsp?rssType=rss20&contentId=/index.xml&bereich=HP");
+        // contains rss + rss + + rss + atom
+        urls.add("http://www.br-online.de/br/jsp/global/funktion/rssexport/rssExport.jsp?rssType=atom&contentId=/index.xml&bereich=HP");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(1, deDup.size());
+        Assert.assertEquals(
+                true,
+                deDup.contains("http://www.br-online.de/br/jsp/global/funktion/rssexport/rssExport.jsp?rssType=atom&contentId=/index.xml&bereich=HP"));
+
+        urls = new ArrayList<String>();
+        // contains rss
+        urls.add("http://womenpaintersse.blogspot.com/feeds/posts/default");
+        // contains rss + rss
+        urls.add("http://womenpaintersse.blogspot.com/feeds/posts/default?alt=rss");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(1, deDup.size());
+        Assert.assertEquals(true, deDup.contains("http://womenpaintersse.blogspot.com/feeds/posts/default?alt=rss"));
+
+        urls = new ArrayList<String>();
+        // contains rss + RSS
+        urls.add("http://www.erlangen.de/de/contentXXL/services/newsexport/rss.asmx/GetRSSNewsByTabId?tabid=1");
+        urls.add("http://www.erlangen.de/de/contentXXL/services/newsexport/rss.asmx/GetRSSNewsByTabId?tabid=3");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(2, deDup.size());
+        Assert.assertEquals(
+                true,
+                deDup.contains("http://www.erlangen.de/de/contentXXL/services/newsexport/rss.asmx/GetRSSNewsByTabId?tabid=1"));
+        Assert.assertEquals(
+                true,
+                deDup.contains("http://www.erlangen.de/de/contentXXL/services/newsexport/rss.asmx/GetRSSNewsByTabId?tabid=3"));
+
+        urls = new ArrayList<String>();
+        // contains rss
+        urls.add("http://awoundedwarriorssecondchance.org/feed/");
+        // conatins rss + atom
+        urls.add("http://awoundedwarriorssecondchance.org/feed/atom/");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(1, deDup.size());
+        Assert.assertEquals(true, deDup.contains("http://awoundedwarriorssecondchance.org/feed/atom/"));
+
         // ignore feeds which contain session ids
         urls = new ArrayList<String>();
         urls.add("http://fgsd.des.schoolfusion.us/modules/cms/announceRss.phtml?sessionid=c4e953bd5ed6802d8220af0b25c6645d");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(0, deDup.size());
-        
+
         urls = new ArrayList<String>();
         urls.add("http://www.carbootsaledirectory.co.uk/.xml/?type=rss;PHPSESSID=5ebef52c07aa2776b125cd2c1ebdb3ea");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(0, deDup.size());
-
 
     }
 
