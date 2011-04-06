@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
@@ -18,10 +19,6 @@ import ws.palladian.helper.UrlHelper;
 
 /**
  * Quickndirty implementation for Sandro's highly sophisticated Feed-URLs-Near-Duplicate-Detection-Algorithm(tm).
- * 
- * Not implemented for now:
- * - step 3 of algorithm, which I consider harmful. Will search a negative example. Let's discuss this tomorrow.
- * 
  * @author Philipp Katz
  */
 public class FeedUrlsNearDuplicateEliminator {
@@ -32,7 +29,11 @@ public class FeedUrlsNearDuplicateEliminator {
     // be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor
     private static final String[] ATOM = new String[] { "atom10", "atom" };
     private static final String[] RSS = new String[] { "rss_2.0", "rss200", "rss2", "RSS2", "rss" };
+
+    // Atom first, as it is the preferred format
     private static final String[] FORMATS = (String[]) ArrayUtils.addAll(ATOM, RSS);
+
+    // place holder for temporary replacements
     private static final String FORMAT_PLACEHOLDER = "###FORMAT###";
 
     public static void main(String[] args) {
@@ -72,10 +73,13 @@ public class FeedUrlsNearDuplicateEliminator {
     }
 
     public static List<String> deDuplicate(Collection<String> linkQueue) {
+
+        // list with result, candidates without explicitly given format are added directly
         List<String> result = new ArrayList<String>();
 
         // map contains [ url-with-placeholder ; [ format1; format2; format3; ...] ]
         MultiMap<String, String> temp = new MultiHashMap<String, String>();
+
         for (String link : linkQueue) {
             String format = null;
             link = link.trim();
@@ -86,7 +90,23 @@ public class FeedUrlsNearDuplicateEliminator {
                     break;
                 }
             }
-            temp.put(link, format);
+            if (format != null) {
+                temp.put(link, format);
+            } else {
+                result.add(link);
+            }
+        }
+
+        // remove "overlap", e.g. [ "http://peterdowdall.com/feed/", "http://peterdowdall.com/feed/atom/" ]
+        // is reduced to ""http://peterdowdall.com/feed/atom/", because the whole string is contained in the other
+        ListIterator<String> listIterator = result.listIterator();
+        while (listIterator.hasNext()) {
+            String current = listIterator.next();
+            for (String key : temp.keySet()) {
+                if (key.indexOf(current) != -1) {
+                    listIterator.remove();
+                }
+            }
         }
 
         // find out the "best" alternative; if we have an Atom feed, take this,
@@ -95,18 +115,15 @@ public class FeedUrlsNearDuplicateEliminator {
         for (Entry<String, Collection<String>> entry : entrySet) {
             String link = entry.getKey();
             Collection<String> candidates = entry.getValue();
-            for (String atom : ATOM) {
-                if (candidates.contains(atom)) {
-                    link = link.replace(FORMAT_PLACEHOLDER, atom);
+            for (String format : FORMATS) {
+                if (candidates.contains(format)) {
+                    link = link.replace(FORMAT_PLACEHOLDER, format);
+                    result.add(link);
                     break;
                 }
             }
-            String format = candidates.iterator().next();
-            if (format != null) {
-                link = link.replace(FORMAT_PLACEHOLDER, format);
-            }
-            result.add(link);
         }
+
         // LOGGER.info(linkQueue + " -> " + result);
         return result;
     }
