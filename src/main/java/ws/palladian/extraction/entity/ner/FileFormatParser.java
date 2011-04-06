@@ -23,7 +23,13 @@ import ws.palladian.helper.nlp.Tokenizer;
  */
 public class FileFormatParser {
 
-
+    /**
+     * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the conll 2003 file.
+     * 
+     * @param trainingFilePath The path to the training file.
+     * @param separator The separator used.
+     * @return A set with all tags used.
+     */
     public static Set<String> getTagsFromColumnFile(String trainingFilePath, final String separator) {
 
         final Set<String> tags = new HashSet<String>();
