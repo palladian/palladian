@@ -1,50 +1,18 @@
 # Direct log messages to stdout
 log4j.appender.console=org.apache.log4j.ConsoleAppender
-#log4j.appender.console.layout=org.apache.log4j.TTCCLayout
-#log4j.appender.console.layout.ContextPrinting=true
-#log4j.appender.console.layout.DateFormat=ISO8601
 log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d %p [%8.8t] %l : %m%n
-
-log4j.appender.fileLS=org.apache.log4j.FileAppender
-log4j.appender.fileLS.MaxFileSize=100MB
-log4j.appender.fileLS.MaxBackupIndex=0
-log4j.appender.fileLS.layout=org.apache.log4j.PatternLayout
-log4j.appender.fileLS.layout.ConversionPattern=%m%n
-log4j.appender.fileLS.File=data/logs/liveStatus.log
+log4j.appender.console.layout.ConversionPattern=%d %m%n
 
 log4j.appender.file=org.apache.log4j.RollingFileAppender
 log4j.appender.file.MaxFileSize=100MB
 log4j.appender.file.MaxBackupIndex=50
-#log4j.appender.file.layout=org.apache.log4j.TTCCLayout
-#log4j.appender.file.layout.ContextPrinting=true
-#log4j.appender.file.layout.DateFormat=ISO8601
 log4j.appender.file.layout=org.apache.log4j.PatternLayout
 log4j.appender.file.layout.ConversionPattern=%d %p [%8.8t] %l : %m%n
-log4j.appender.file.File=data/logs/main.log
-
-log4j.appender.plain=org.apache.log4j.RollingFileAppender
-log4j.appender.plain.MaxFileSize=100MB
-log4j.appender.plain.MaxBackupIndex=50
-#log4j.appender.file.layout=org.apache.log4j.TTCCLayout
-#log4j.appender.file.layout.ContextPrinting=true
-#log4j.appender.file.layout.DateFormat=ISO8601
-log4j.appender.plain.layout=org.apache.log4j.PatternLayout
-log4j.appender.plain.layout.ConversionPattern=%m%n
-log4j.appender.plain.File=data/logs/plain.log
+log4j.appender.file.File=palladian.log
 
 # Root logger option
-log4j.rootLogger=INFO, console, file, fileLS
+log4j.rootLogger=INFO, console, file
 
-log4j.logger.tud.iir.classification.page.ClassifierManager=DEBUG, plain
-
-log4j.logger.tud.iir.news.FeedClassifier=INFO
-
-#log4j.logger.tud.iir.news=TRACE
-#log4j.logger.tud.iir.web.Crawler=TRACE
-
-# Hibernate logging options (INFO only shows startup messages)
-#log4j.logger.org.hibernate=INFO
-
-# Log JDBC bind parameter runtime arguments
-#log4j.logger.org.hibernate.type=DEBUG
+# you can change the log level specifically for single packages or classes,
+# for example, use DEBUG log level for all classes in feed package:
+# log4j.logger.ws.palladian.retrieval.feeds=DEBUG
