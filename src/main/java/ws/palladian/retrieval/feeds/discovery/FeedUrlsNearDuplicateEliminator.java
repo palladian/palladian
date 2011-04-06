@@ -113,7 +113,7 @@ public class FeedUrlsNearDuplicateEliminator {
         }
         formatPatternString = formatPatternString.substring(0, formatPatternString.length() - 1);
         formatPatternString += ")" + STOP_PATTERN;
-        System.out.println(formatPatternString);
+        LOGGER.debug(formatPatternString);
         formatPattern = Pattern.compile(formatPatternString, Pattern.CASE_INSENSITIVE);
     }
 
