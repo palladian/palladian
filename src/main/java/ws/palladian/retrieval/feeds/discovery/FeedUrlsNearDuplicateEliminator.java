@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
@@ -37,6 +38,9 @@ public class FeedUrlsNearDuplicateEliminator {
 
     // place holder for temporary replacements
     private static final String FORMAT_PLACEHOLDER = "###FORMAT###";
+    
+    // ignore all feed URLs containing this pattern
+    private static final Pattern IGNORE_PATTERN = Pattern.compile("sessionid|PHPSESSID", Pattern.CASE_INSENSITIVE);
 
     public static void main(String[] args) {
 
@@ -86,6 +90,9 @@ public class FeedUrlsNearDuplicateEliminator {
         MultiMap<String, String> temp = new MultiHashMap<String, String>();
 
         for (String link : linkQueue) {
+            if (IGNORE_PATTERN.matcher(link).find()) {
+                continue;
+            }
             String format = null;
             link = link.trim();
             for (String s : FORMATS) {

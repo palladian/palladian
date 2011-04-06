@@ -121,9 +121,20 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         urls.add("http://easterndiocese.org/news/index.rss?cid=2");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(2, deDup.size());
-        System.out.println(deDup);
         Assert.assertEquals(true, deDup.contains("http://easterndiocese.org/news/index.rss?cid=1"));
         Assert.assertEquals(true, deDup.contains("http://easterndiocese.org/news/index.rss?cid=2"));
+        
+        // ignore feeds which contain session ids
+        urls = new ArrayList<String>();
+        urls.add("http://fgsd.des.schoolfusion.us/modules/cms/announceRss.phtml?sessionid=c4e953bd5ed6802d8220af0b25c6645d");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(0, deDup.size());
+        
+        urls = new ArrayList<String>();
+        urls.add("http://www.carbootsaledirectory.co.uk/.xml/?type=rss;PHPSESSID=5ebef52c07aa2776b125cd2c1ebdb3ea");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(0, deDup.size());
+
 
     }
 
