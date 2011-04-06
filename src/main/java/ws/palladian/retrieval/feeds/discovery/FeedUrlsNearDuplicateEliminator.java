@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
@@ -19,12 +20,13 @@ import ws.palladian.helper.UrlHelper;
 
 /**
  * Quickndirty implementation for Sandro's highly sophisticated Feed-URLs-Near-Duplicate-Detection-Algorithm(tm).
+ * 
  * @author Philipp Katz
  */
 public class FeedUrlsNearDuplicateEliminator {
 
     /** The logger for this class. */
-    // private static final Logger LOGGER = Logger.getLogger(FeedUrlsNearDuplicateEliminator.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedUrlsNearDuplicateEliminator.class);
 
     // be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor
     private static final String[] ATOM = new String[] { "atom10", "atom" };
@@ -38,8 +40,8 @@ public class FeedUrlsNearDuplicateEliminator {
 
     public static void main(String[] args) {
 
-        final String inputFile = "/Users/pk/Desktop/FeedUrlNearDuplicateRemover/foundFeedsDeduplicated_Goldstandard_Input.txt";
-        final String outputFile = "/Users/pk/Desktop/FeedUrlNearDuplicateRemover/foundFeedsDeduplicated_Result.txt";
+        final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt";
+        final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
@@ -50,6 +52,9 @@ public class FeedUrlsNearDuplicateEliminator {
 
             @Override
             public void performAction(String line, int lineNumber) {
+                if (lineNumber % 10000 == 0) {
+                    LOGGER.info(lineNumber + " lines processed.");
+                }
                 String currentDomain = UrlHelper.getDomain(line);
                 // the current Domain differs from the previous iteration;
                 // do the de-duplication on the URLs in the queue and write them out
@@ -105,6 +110,7 @@ public class FeedUrlsNearDuplicateEliminator {
             for (String key : temp.keySet()) {
                 if (key.indexOf(current) != -1) {
                     listIterator.remove();
+                    break;
                 }
             }
         }
