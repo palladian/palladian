@@ -11,8 +11,8 @@ import ws.palladian.helper.FileHelper;
 public class FeedRandomSelectURL {
 
     public static void main(String[] args) {
-        String input = "data/datasets/feedURLs/foundFeedsRemovedNearDuplicates.txt";
-        String finalFeeds = "data/datasets/feedURLs/finalFeeds.txt";
+        String input = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        String finalFeeds = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicatesRandomSampling.txt";
         String temp = "data/datasets/feedURLs/temp.txt";
         double targetNumberOfFeeds = 200000D;
 

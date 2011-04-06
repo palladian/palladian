@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.discovery;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,25 +37,23 @@ public class FeedUrlsNearDuplicateEliminator {
     private static final String[] ATOM = new String[] { "atom10", "atom" };
     private static final String[] RSS = new String[] { "rss_2.0", "rss2.0", "rss200", "rss20", "rss2", "rss" };
 
-    /** a format string must not be preceded by a word character [a-zA-Z0-9] */
+    /** A format string must not be preceded by a word character [a-zA-Z0-9] */
     private static final String START_PATTERN = "(?<!\\w)";
 
-    /** a format string must not be followed by a word character [a-zA-Z0-9] */
+    /** A format string must not be followed by a word character [a-zA-Z0-9] */
     private static final String STOP_PATTERN = "(?!\\w)";
 
-    /** The compiled pattern */
+    /** The compiled pattern for all formats. */
     private static Pattern formatPattern;
 
-
-    // Atom first, as it is the preferred format
+    /** All available formats; Atom first, as it is the preferred format. */
     private static final String[] FORMATS = (String[]) ArrayUtils.addAll(ATOM, RSS);
 
-    // place holder for temporary replacements
+    /** Place holder for temporary replacements. */
     private static final String FORMAT_PLACEHOLDER = "###FORMAT###";
-    
-    // ignore all feed URLs containing this pattern
-    private static final Pattern IGNORE_PATTERN = Pattern.compile("sessionid|PHPSESSID", Pattern.CASE_INSENSITIVE);
 
+    /** Ignore all feed URLs containing this pattern. */
+    private static final Pattern IGNORE_PATTERN = Pattern.compile("sessionid|PHPSESSID", Pattern.CASE_INSENSITIVE);
 
     /**
      * Initiate compiling of the pattern without the need for an constructor.
@@ -65,10 +64,10 @@ public class FeedUrlsNearDuplicateEliminator {
 
     public static void main(String[] args) {
 
-        // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt";
-        // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
-        final String inputFile = "data/datasets/feedURLs/foundFeedsDeduplicated.txt";
-        final String outputFile = "data/datasets/feedURLs/foundFeedsRemovedNearDuplicates.txt";
+        final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
+        final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        // final String inputFile = "data/datasets/feedURLs/foundFeedsDeduplicated.txt";
+        // final String outputFile = "data/datasets/feedURLs/foundFeedsRemovedNearDuplicates.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
@@ -155,13 +154,6 @@ public class FeedUrlsNearDuplicateEliminator {
                 }
             }
 
-            // for (String s : FORMATS) {
-            // if (link.contains(s)) {
-            // link = link.replace(s, FORMAT_PLACEHOLDER);
-            // format = s;
-            // break;
-            // }
-            // }
             if (format != null) {
                 temp.put(link, format);
             } else {
@@ -194,6 +186,17 @@ public class FeedUrlsNearDuplicateEliminator {
                     result.add(link);
                     break;
                 }
+            }
+        }
+
+        // case deduplication; remove duplicates with different cases
+        Set<String> caseDeDup = new HashSet<String>();
+        listIterator = result.listIterator();
+        while (listIterator.hasNext()) {
+            String current = listIterator.next();
+            boolean isCaseDuplicate = !caseDeDup.add(current.toLowerCase());
+            if (isCaseDuplicate) {
+                listIterator.remove();
             }
         }
 
