@@ -176,6 +176,14 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         urls.add("http://www.carbootsaledirectory.co.uk/.xml/?type=rss;PHPSESSID=5ebef52c07aa2776b125cd2c1ebdb3ea");
         deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
         Assert.assertEquals(0, deDup.size());
+        
+        // remove case duplicates
+        urls = new ArrayList<String>();
+        urls.add("http://tanny.ica.com/ica/tko/tkoblog.nsf/blog.rss");
+        urls.add("http://tanny.ica.com/ICA/TKO/tkoblog.nsf/blog.rss");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        System.out.println(deDup);
+        Assert.assertEquals(1, deDup.size());
 
     }
 
