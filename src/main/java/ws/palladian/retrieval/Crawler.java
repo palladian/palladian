@@ -296,7 +296,7 @@ public class Crawler {
         this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
     }
 
-    private void addCrawlerCallback(RetrieverCallback crawlerCallback) {
+    public void addCrawlerCallback(RetrieverCallback crawlerCallback) {
         documentRetriever.addRetrieverCallback(crawlerCallback);
     }
 

@@ -11,6 +11,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
+import ws.palladian.classification.Instances;
 import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
@@ -18,6 +19,7 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * This classifier builds a weighed term look up table for the categories to classify new documents.
@@ -135,7 +137,7 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     /**
-     * Use this save method only if you created the DictionaryClassifier with a path.
+     * <b>Note: Use this save method only if you created the DictionaryClassifier with a path.</b>
      */
     public void save() {
         save(getDictionaryPath());
@@ -266,22 +268,24 @@ public class DictionaryClassifier extends TextClassifier {
         addToDictionary(trainingDocument, getClassificationType());
     }
 
+    public void train(Instances<UniversalInstance> trainingInstances) {
+        setTrainingInstances(trainingInstances);
+        train();
+    }
     public void train() {
 
         categories = new Categories();
 
-        // set the feature settings
-        // FeatureSetting fs = new FeatureSetting();
-        // fs.setMinNGramLength(2);
-        // fs.setMaxNGramLength(9);
-        // dictionaryClassifier.setFeatureSetting(fs);
-
         getDictionary().setDatabaseType(Dictionary.DB_H2);
 
+        int c = 0;
         for (UniversalInstance instance : getTrainingInstances()) {
 
             trainWithInstance(instance);
 
+            if (c++ % 50 == 0) {
+                LOGGER.info("trained " + MathHelper.round(100 * c / getTrainingInstances().size(), 2) + "%");
+            }
         }
 
     }

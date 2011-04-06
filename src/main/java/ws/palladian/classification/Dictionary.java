@@ -634,7 +634,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     }
 
     public void setIndexPath(String indexPath) {
-        this.indexPath = indexPath;
+        this.indexPath = FileHelper.addTrailingSlash(indexPath);
     }
 
     public void setDatabaseType(int databaseType) {
