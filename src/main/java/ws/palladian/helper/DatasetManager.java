@@ -3,6 +3,7 @@ package ws.palladian.helper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 
@@ -299,6 +301,46 @@ public class DatasetManager {
     }
 
     /**
+     * Split a dataset file which contains the complete data (not only links to the data files). The output will be two
+     * files "training" and "test" in the dataset root folder.
+     * 
+     * @param dataset The dataset to split.
+     * @param percentageTraining The percentage that should be used for training, e.g. 0.3 = 30%.
+     */
+    public void splitDataset(Dataset dataset, double percentageTraining) {
+
+        if (dataset.isFirstFieldLink()) {
+            LOGGER.warn("can only split datasets which consist of one file");
+            return;
+        }
+
+        if (percentageTraining > 1) {
+            percentageTraining /= 100;
+        }
+
+        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+        java.util.Collections.shuffle(lines);
+        List<String> linesTraining = new ArrayList<String>();
+        List<String> linesTest = new ArrayList<String>();
+
+        int trainingLines = (int) (percentageTraining * lines.size());
+        for (int i = 0; i < lines.size(); i++) {
+
+            if (i < trainingLines) {
+                linesTraining.add(lines.get(i));
+            } else {
+                linesTest.add(lines.get(i));
+            }
+
+        }
+
+        FileHelper.writeToFile(dataset.getRootPath() + "training.csv", linesTraining);
+        FileHelper.writeToFile(dataset.getRootPath() + "test.csv", linesTest);
+
+    }
+
+
+    /**
      * @param args
      * @throws IOException
      */
@@ -313,5 +355,4 @@ public class DatasetManager {
         // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
 
     }
-
 }

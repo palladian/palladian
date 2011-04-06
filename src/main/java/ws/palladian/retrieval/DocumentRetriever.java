@@ -95,7 +95,7 @@ public class DocumentRetriever {
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
-    
+
     public enum SizeUnit {
         BYTES(1), KILOBYTES(1024), MEGABYTES(1048576), GIGABYTES(1073741824);
         private int bytes;
@@ -410,11 +410,11 @@ public class DocumentRetriever {
         document = null;
 
         url = url.trim();
-        
+
         InputStream inputStream = null;
 
         try {
-            
+
             boolean isFile = false;
             if (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) {
                 isFile = true;
@@ -799,7 +799,7 @@ public class DocumentRetriever {
     }
 
     public long getTotalDownloadSize(SizeUnit unit) {
-        return totalDownloadSize / unit.bytes; 
+        return totalDownloadSize / unit.bytes;
     }
 
     public void setTotalDownloadSize(long totalDownloadSize) {
@@ -824,7 +824,7 @@ public class DocumentRetriever {
         this.lastDownloadSize = size;
         sessionDownloadedBytes += size;
     }
-    
+
     public static long getSessionDownloadSize() {
         return getSessionDownloadSize(SizeUnit.BYTES);
     }
@@ -832,7 +832,7 @@ public class DocumentRetriever {
     public static long getSessionDownloadSize(SizeUnit unit) {
         return sessionDownloadedBytes / unit.bytes;
     }
-    
+
     // XXX
     public static void setSessionDownloadedBytes(long sessionDownloadedBytes) {
         DocumentRetriever.sessionDownloadedBytes = sessionDownloadedBytes;
@@ -1029,7 +1029,7 @@ public class DocumentRetriever {
 
         return location;
     }
-    
+
     /**
      * Download a binary file from specified URL to a given path.
      * 
@@ -1164,8 +1164,8 @@ public class DocumentRetriever {
 
         ConnectionTimeout timeout = null;
         InputStream result = null;
-        
-        
+
+
         InputStream urlInputStream = null;
         ByteArrayOutputStream outputStream = null;
 
@@ -1232,8 +1232,8 @@ public class DocumentRetriever {
                     throw new IOException();
                 }
             }
-//            urlInputStream.close();
-//            outputStream.close();
+            //            urlInputStream.close();
+            //            outputStream.close();
 
             addDownloadSize(outputStream.size());
 
@@ -1396,25 +1396,25 @@ public class DocumentRetriever {
         return numRetries;
     }
 
-//    private static Document getWebDocumentFromInputStream(InputStream iStream, String url){
-//        DOMParser parser = new DOMParser();
-//        Document document = null;
-//
-//        try {
-//            parser.parse(new InputSource(iStream));
-//        } catch (SAXException saxEx) {
-//            LOGGER.error(saxEx.getMessage());
-//        } catch (IOException ioEx) {
-//            LOGGER.error(ioEx.getMessage());
-//        }
-//
-//        document = parser.getDocument();
-//        if (document != null) {
-//            document.setDocumentURI(url);
-//        }
-//
-//        return document;
-//    }
+    //    private static Document getWebDocumentFromInputStream(InputStream iStream, String url){
+    //        DOMParser parser = new DOMParser();
+    //        Document document = null;
+    //
+    //        try {
+    //            parser.parse(new InputSource(iStream));
+    //        } catch (SAXException saxEx) {
+    //            LOGGER.error(saxEx.getMessage());
+    //        } catch (IOException ioEx) {
+    //            LOGGER.error(ioEx.getMessage());
+    //        }
+    //
+    //        document = parser.getDocument();
+    //        if (document != null) {
+    //            document.setDocumentURI(url);
+    //        }
+    //
+    //        return document;
+    //    }
 
     public void setDownloadFilter(DownloadFilter downloadFilter) {
         this.downloadFilter = downloadFilter;
@@ -1475,9 +1475,11 @@ public class DocumentRetriever {
                 + Math.round(parameters[0])
                 + " * downloadSize [KB] + " + parameters[1]);
         LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
-        LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
+        if (sumTime > 0) {
+            LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
+        }
     }
-    
+
     /** TODO copy from {@link FileHelper} */
     private static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
