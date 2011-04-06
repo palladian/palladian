@@ -240,13 +240,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     }
 
-    public boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
+    public boolean train(Annotations annotations, String modelFilePath) {
+        return trainLanguageIndependent(annotations, annotations, modelFilePath);
+    }
 
-        // get all training annotations including their features
-        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
-
-        // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
-        Annotations combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+    public boolean trainLanguageIndependent(Annotations annotations, Annotations combinedAnnotations,
+            String modelFilePath) {
 
         // create instances with nominal and numeric features
         Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
@@ -275,6 +274,17 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         saveModel(modelFilePath);
 
         return true;
+    }
+
+    public boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
+
+        // get all training annotations including their features
+        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
+
+        // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
+        Annotations combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        return trainLanguageIndependent(annotations, combinedAnnotations, modelFilePath);
     }
 
     public boolean trainEnglish(String trainingFilePath, String modelFilePath) {

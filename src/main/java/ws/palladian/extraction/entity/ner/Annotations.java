@@ -122,4 +122,20 @@ public class Annotations extends Instances<Annotation> {
         }
     }
 
+    /**
+     * Checks whether this set of annotations contains an annotation with the same entity name as the given one.
+     * 
+     * @param annotation The annotation to search for.
+     * @return <tt>True</tt>, if an an annotation with the same entity exists in this set, <tt>false</tt> otherwise.
+     */
+    public boolean containsAnnotationWithEntity(Annotation annotation) {
+        for (Annotation containedAnnotation : this) {
+            if (containedAnnotation.getEntity().equalsIgnoreCase(annotation.getEntity())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
