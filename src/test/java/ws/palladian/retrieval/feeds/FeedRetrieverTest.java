@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
@@ -126,13 +125,13 @@ public class FeedRetrieverTest {
         Feed feed = FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile());
         FeedItem feedItem = feed.getItems().iterator().next();
         // FIXME time offset since Atom bug fixed.
-//        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-//        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
+        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
         feed = FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/atomSample2.xml").getFile());
         feedItem = feed.getItems().iterator().next();
-//        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-//        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
+        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
 
         // //////////// RSS feeds ////////////
         feed = FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/rss20Sample1.xml").getFile());
@@ -179,12 +178,12 @@ public class FeedRetrieverTest {
      * Test date parsing mechanism. For the following feeds, the publish dates of the entries cannot be parsed by ROME
      * itself, but some dates can be retrieved using {@link DateGetterHelper}. Commented lines still cannot be parsed.
      */
-    @Ignore
+    // @Ignore
     @Test
     public void testDateParsing() throws ParseException {
 
         // Wed, 02 Feb 2011 12:11:00 GMT
-        checkDate("2011-02-02 12:11:00.000 GMT", "/feeds/feed001.xml");
+        checkDate("2011-02-02 12:11:00.000 MEZ", "/feeds/feed001.xml");
 
         // feed cannot be parsed, as it contains strange white space
         // 2011-02-02T06:33:52.690
@@ -213,10 +212,10 @@ public class FeedRetrieverTest {
         // checkDate("2011-02-02 05:37:00.000 EST", "/feeds/feed010.xml");
 
         // Tue, 11 Jan 2011 00:00:00 -0500
-        checkDate("2011-01-11 00:00:00.000 GMT-05:00", "/feeds/feed012.xml");
+        checkDate("2011-01-11 04:00:00.000 GMT", "/feeds/feed012.xml");
 
         // Wed, 2 Feb 2011 15:00:00 GMT
-        checkDate("2011-02-02 15:00:00.000 GMT", "/feeds/feed014.xml");
+        checkDate("2011-02-02 14:00:00.000 GMT", "/feeds/feed014.xml");
 
         // date cannot be parsed
         // Tue, Feb 01,2011 11:33:33PM
@@ -238,7 +237,7 @@ public class FeedRetrieverTest {
         // checkDate("2011-02-02 10:05:00.000 GMT", "/feeds/feed028.xml");
 
         // 1/30/11
-        checkDate("2011-01-30 00:00:00.000 GMT", "/feeds/feed029.xml");
+        checkDate("2011-01-29 23:00:00.000 GMT", "/feeds/feed029.xml");
 
         // feed cannot be parsed
         // 31 Jan 2011 20:34:17 EST
@@ -252,32 +251,32 @@ public class FeedRetrieverTest {
         // checkDate("2010-08-06 09:53:48.000 GMT", "/feeds/feed035.xml");
 
         // Wed, 02 Feb 2011 2/2/2011 9:00:01 AM UT
-        checkDate("2011-02-02 09:00:01.000 GMT", "/feeds/feed040.xml");
+        checkDate("2011-02-02 08:00:01.000 GMT", "/feeds/feed040.xml");
 
         // date cannot be parsed
         // Jan 25,2011
         // checkDate("2011-01-25 00:00:00.000 GMT", "/feeds/feed043.xml");
 
         // Wednesday, February 02, 2011 4:03:46 AM GMT
-        checkDate("2011-02-02 04:03:46.000 GMT", "/feeds/feed045.xml");
+        checkDate("2011-02-02 03:03:46.000 GMT", "/feeds/feed045.xml");
 
         // Wed 2 Feb 2011 00:00:00 GMT
-        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feed049.xml");
+        checkDate("2011-02-01 23:00:00.000 GMT", "/feeds/feed049.xml");
 
         // Wed, 26 Jan 2011 09:25:02 -0500
-        checkDate("2011-01-26 09:25:02.000 GMT-05:00", "/feeds/feed051.xml");
+        checkDate("2011-01-26 08:25:02.000 GMT-05:00", "/feeds/feed051.xml");
 
         // 11/30/2010 5:25:47 PM
-        checkDate("2010-11-30 17:25:47.000 GMT", "/feeds/feed053.xml");
+        checkDate("2010-11-30 16:25:47.000 GMT", "/feeds/feed053.xml");
 
         // 2011-01-31T11:48:00
-        checkDate("2011-01-31 11:48:00.000 GMT", "/feeds/feed054.xml");
+        checkDate("2011-01-31 10:48:00.000 GMT", "/feeds/feed054.xml");
 
         // Sun, 30 Jan 2011 00:00:00 -0600
         checkDate("2011-01-30 00:00:00.000 GMT-06:00", "/feeds/feed055.xml");
 
         // 2011-02-02T00:00:00.0000000-05:00
-        checkDate("2011-02-02 00:00:00.000 GMT-05:00", "/feeds/feed061.xml");
+        checkDate("2011-02-01 23:00:00.000 GMT-05:00", "/feeds/feed061.xml");
 
         // Wed, 02 Feb 2011 09:12:43 -0500
         checkDate("2011-02-02 09:12:43.000 GMT-05:00", "/feeds/feed063.xml");
@@ -287,7 +286,7 @@ public class FeedRetrieverTest {
         // checkDate("2011-02-02 10:00:00.000 GMT", "/feeds/feed073.xml");
 
         // Feb 2, 2011
-        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feed077.xml");
+        checkDate("2011-02-01 23:00:00.000 GMT", "/feeds/feed077.xml");
 
     }
 

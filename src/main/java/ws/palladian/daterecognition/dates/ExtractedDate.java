@@ -19,8 +19,8 @@ import ws.palladian.helper.RegExp;
  */
 public class ExtractedDate extends AbstractDate{
 
-	private DateType dateType = DateType.ExtractedDate;
-	
+    private DateType dateType = DateType.ExtractedDate;
+
     public static final int YEAR = 1;
     public static final int MONTH = 2;
     public static final int DAY = 3;
@@ -389,6 +389,7 @@ public class ExtractedDate extends AbstractDate{
      * @param dateParts
      * @return
      */
+    @Override
     public String getNormalizedDateString() {
         return getNormalizedDate(true);
     }
@@ -399,29 +400,32 @@ public class ExtractedDate extends AbstractDate{
      * 
      * @return
      */
+    @Override
     public Date getNormalizedDate(){
         return new Date(getLongDate());
     }
 
     public long getLongDate(){
-    	int year = (this.year == -1) ? 0 : this.year;
-    	int month = (this.month == -1) ? 0 : this.month - 1;
-    	int day = (this.day == -1) ? 1 : this.day;
-    	int hour = (this.hour == -1) ? 0 : this.hour;
-    	int minute = (this.minute == -1) ? 0 : this.minute;
-    	int second = (this.second == -1) ? 0 : this.second;
-    	
-    	Calendar cal = new GregorianCalendar();
-    	cal.set(year, month, day, hour, minute, second);
-    	return cal.getTimeInMillis();
+        int year = (this.year == -1) ? 0 : this.year;
+        int month = (this.month == -1) ? 0 : this.month - 1;
+        int day = (this.day == -1) ? 1 : this.day;
+        int hour = (this.hour == -1) ? 0 : this.hour;
+        int minute = (this.minute == -1) ? 0 : this.minute;
+        int second = (this.second == -1) ? 0 : this.second;
+
+        Calendar cal = new GregorianCalendar();
+        cal.set(year, month, day, hour, minute, second);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
     }
-    
+
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
      * 
      * @param dateParts
      * @return
      */
+    @Override
     public String getNormalizedDate(boolean time) {
         String normalizedDate;
         if (year == -1) {
@@ -733,6 +737,7 @@ public class ExtractedDate extends AbstractDate{
      * @param field
      * @return
      */
+    @Override
     public int get(int field) {
         int value = -1;
         switch (field) {
@@ -880,10 +885,11 @@ public class ExtractedDate extends AbstractDate{
      * 
      * @return Integer of this type.
      */
+    @Override
     public DateType getType() {
         return this.dateType;
     }
-    
+
     /**
      * Returns int value representing this type of date.<br>
      * Returning values are equal to this static TECH_ fields. <br>
@@ -891,25 +897,26 @@ public class ExtractedDate extends AbstractDate{
      * 
      * @return Integer of this type.
      */
+    @Override
     public int getTypeInt() {
-    	int result;
-    	switch(getType()){
-    	case UrlDate:
-    		result = 1;
-    		break;
-    	case ContentDate:
-    		result = 2;
-    		break;
-    	case MetaDate:
-    		result = 3;
-    		break;
-    	case StructureDate:
-    		result = 4;
-    		break;
-		default:
-    		result = 0;
-    		
-    	}
+        int result;
+        switch(getType()){
+            case UrlDate:
+                result = 1;
+                break;
+            case ContentDate:
+                result = 2;
+                break;
+            case MetaDate:
+                result = 3;
+                break;
+            case StructureDate:
+                result = 4;
+                break;
+            default:
+                result = 0;
+
+        }
         return result;
     }
 
@@ -988,8 +995,8 @@ public class ExtractedDate extends AbstractDate{
     public double getRate() {
         return rate;
     }
-    
+
     public void setType(DateType dateType){
-    	this.dateType = dateType;
+        this.dateType = dateType;
     }
 }
