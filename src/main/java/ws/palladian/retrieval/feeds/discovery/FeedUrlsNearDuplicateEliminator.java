@@ -64,10 +64,10 @@ public class FeedUrlsNearDuplicateEliminator {
 
     public static void main(String[] args) {
 
-        final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
-        final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
-        // final String inputFile = "data/datasets/feedURLs/foundFeedsDeduplicated.txt";
-        // final String outputFile = "data/datasets/feedURLs/foundFeedsRemovedNearDuplicates.txt";
+        // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
+        // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        final String inputFile = "Z:/in_out/feedDatasetPaper/foundFeedsDeduplicatedSorted.txt";
+        final String outputFile = "Z:/in_out/feedDatasetPaper/foundFeedsDeduplicatedSortedRemovedNearDuplicates.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
