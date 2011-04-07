@@ -1387,8 +1387,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // using a column trainig and testing file
         StopWatch stopWatch = new StopWatch();
-        tagger.setMode(Mode.English);
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        tagger.setMode(Mode.LanguageIndependent);
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
         // System.exit(0);
         // TUDNER.remove = true;
         tagger.loadModel("data/temp/tudner.model");

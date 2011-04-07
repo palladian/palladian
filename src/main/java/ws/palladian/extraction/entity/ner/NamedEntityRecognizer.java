@@ -327,6 +327,9 @@ public abstract class NamedEntityRecognizer {
         return evaluate(tempFilePath, configModelFilePath, TaggingFormat.XML);
     }
 
+    public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
+        return evaluate(testingFilePath, configModelFilePath, format, new Annotations());
+    }
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format,
             Annotations ignoreAnnotations) {
 
@@ -393,9 +396,10 @@ public abstract class NamedEntityRecognizer {
 
             for (Annotation goldStandardAnnotation : goldStandard) {
 
-                // FIXME: does this make any kind of sens?
-                if (!ignoreAnnotations.containsAnnotationWithEntity(goldStandardAnnotation)
-                        && nerAnnotation.getOffset() >= goldStandardAnnotation.getEndIndex()) {
+                // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
+                // (tagged something that should not have been tagged)
+                if (ignoreAnnotations.containsAnnotationWithEntity(goldStandardAnnotation)
+                        && !(nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex() && !taggedOverlap)) {
                     continue;
                 }
                 // check whether annotation has been tagged already, if so, just skip the ner annotation
@@ -474,6 +478,11 @@ public abstract class NamedEntityRecognizer {
                 } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()) {
 
                     if (!taggedOverlap) {
+
+                        // if (ignoreAnnotations.containsAnnotationWithEntity(goldStandardAnnotation)) {
+                        // System.out.println("here");
+                        // }
+
                         // tagged something that should not have been tagged (error1)
                         assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR1);
                         annotationsErrors.get(EvaluationResult.ERROR1).add(nerAnnotation);
@@ -513,185 +522,6 @@ public abstract class NamedEntityRecognizer {
         return evaluationResult;
     }
 
-    public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
-
-        // get the correct annotations from the testing file
-        Annotations goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
-        goldStandard.transformToEvaluationAnnotations();
-        goldStandard.sort();
-        goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
-
-        // get the annotations of the NER
-        Annotations nerAnnotations = null;
-        if (configModelFilePath.length() > 0) {
-            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format), configModelFilePath);
-        } else {
-            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
-        }
-
-        nerAnnotations.removeNestedAnnotations();
-        nerAnnotations.sort();
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + DateHelper.getCurrentDatetime()
-                + ".txt");
-
-        // see EvaluationResult for explanation of that field
-        Map<String, CountMap> assignments = new HashMap<String, CountMap>();
-
-        // create count maps for each possible tag (for gold standard and annotation because both could have different
-        // tags)
-        for (Annotation goldStandardAnnotation : goldStandard) {
-            String tagName = goldStandardAnnotation.getInstanceCategoryName();
-            if (assignments.get(tagName) == null) {
-                CountMap cm = new CountMap();
-                assignments.put(tagName, cm);
-            }
-            assignments.get(tagName).increment(EvaluationResult.POSSIBLE);
-        }
-        for (Annotation nerAnnotation : nerAnnotations) {
-            String tagName = nerAnnotation.getMostLikelyTagName();
-            if (assignments.get(tagName) == null) {
-                CountMap cm = new CountMap();
-                assignments.put(tagName, cm);
-            }
-        }
-
-        // error map of annotations to precisely show which errors were made
-        Map<String, Annotations> annotationsErrors = new HashMap<String, Annotations>();
-        annotationsErrors.put(EvaluationResult.ERROR1, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR2, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR3, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR4, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR5, new Annotations());
-
-        // check each NER annotation against the gold standard and add it to the assignment map depending on its error
-        // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
-        // tagged(<Person>Homer</Person> J. <Person>Simpson</Person>) => tagged(<Person>Homer</Person> J. Simpson)
-        // otherwise we get problems with calculating MUC precision and recall scores
-        for (Annotation nerAnnotation : nerAnnotations) {
-
-            // skip "O" tags
-            if (nerAnnotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
-                continue;
-            }
-
-            boolean taggedOverlap = false;
-
-            for (Annotation goldStandardAnnotation : goldStandard) {
-
-                // check whether annotation has been tagged already, if so, just skip the ner annotation
-                // if (((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
-                // continue;
-                // }
-
-                if (nerAnnotation.matches(goldStandardAnnotation)) {
-
-                    // exact match
-                    if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
-
-                        // correct tag (no error)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.CORRECT);
-
-                        // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
-                                goldStandardAnnotation.getInstanceCategoryName());
-
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
-
-                        break;
-
-                    } else {
-
-                        // wrong tag (error3)
-                        assignments.get(goldStandardAnnotation.getInstanceCategoryName()).increment(
-                                EvaluationResult.ERROR3);
-                        annotationsErrors.get(EvaluationResult.ERROR3).add(nerAnnotation);
-
-                        // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
-                                goldStandardAnnotation.getInstanceCategoryName());
-
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
-
-                        break;
-
-                    }
-
-                } else if (nerAnnotation.overlaps(goldStandardAnnotation)) {
-
-                    // overlaps
-                    if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
-
-                        // correct tag (error4)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR4);
-                        annotationsErrors.get(EvaluationResult.ERROR4).add(nerAnnotation);
-
-                        // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
-                                goldStandardAnnotation.getInstanceCategoryName());
-
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
-
-                        // break;
-
-                    } else {
-
-                        // wrong tag (error5)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR5);
-                        annotationsErrors.get(EvaluationResult.ERROR5).add(nerAnnotation);
-
-                        // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
-                                goldStandardAnnotation.getInstanceCategoryName());
-
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
-
-                        // break;
-
-                    }
-
-                    taggedOverlap = true;
-
-                } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()) {
-
-                    if (!taggedOverlap) {
-                        // tagged something that should not have been tagged (error1)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR1);
-                        annotationsErrors.get(EvaluationResult.ERROR1).add(nerAnnotation);
-
-                        // in confusion matrix add count to "other" since NER tagged something that should not have been
-                        // tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
-                                EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
-                    }
-
-                    break;
-                }
-
-                // break if there is no chance that any upcoming gold standard annotation might match this ner
-                // annotation
-                // if (nerAnnotation.getEndIndex() < goldStandardAnnotation.getOffset()) {
-                // break;
-                // }
-                
-            }
-
-        }
-
-        // check which gold standard annotations have not been found by the NER (error2)
-        for (Annotation goldStandardAnnotation : goldStandard) {
-            if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
-                assignments.get(goldStandardAnnotation.getInstanceCategoryName()).increment(EvaluationResult.ERROR2);
-                annotationsErrors.get(EvaluationResult.ERROR2).add(goldStandardAnnotation);
-            }
-        }
-
-        EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
-
-        printEvaluationDetails(evaluationResult, annotationsErrors,
-                FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results.csv");
-
-        return evaluationResult;
-    }
 
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
         return printEvaluationDetails(evaluationResult, new HashMap<String, Annotations>(), null);
