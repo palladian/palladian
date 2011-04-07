@@ -682,6 +682,9 @@ public class FeedRetriever {
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
+        Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
+        FeedRetriever.printFeed(feed);
+
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
         // Feed feed = downloader
@@ -689,8 +692,8 @@ public class FeedRetriever {
         // printFeed(feed);
 
         // Feed feed = downloader.getFeed(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile());
-        Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
-        FeedRetriever.printFeed(feed, true);
+        // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
+        // FeedRetriever.printFeed(feed, true);
 
     }
 
