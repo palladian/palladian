@@ -162,19 +162,6 @@ public class FeedUrlsNearDuplicateEliminator {
             }
         }
 
-        // remove "overlap", e.g. [ "http://peterdowdall.com/feed/", "http://peterdowdall.com/feed/atom/" ]
-        // is reduced to ""http://peterdowdall.com/feed/atom/", because the whole string is contained in the other
-        ListIterator<String> listIterator = result.listIterator();
-        while (listIterator.hasNext()) {
-            String current = listIterator.next();
-            for (String key : temp.keySet()) {
-                if (key.indexOf(current) != -1) {
-                    listIterator.remove();
-                    break;
-                }
-            }
-        }
-
         // find out the "best" alternative; if we have an Atom feed, take this,
         // elsewise take the first from what we have
         Set<Entry<String, Collection<String>>> entrySet = temp.entrySet();
@@ -185,6 +172,21 @@ public class FeedUrlsNearDuplicateEliminator {
                 if (candidates.contains(format)) {
                     link = link.replace(FORMAT_PLACEHOLDER, format);
                     result.add(link);
+                    break;
+                }
+            }
+        }
+
+        // remove "overlap", e.g. [ "http://peterdowdall.com/feed/", "http://peterdowdall.com/feed/atom/" ]
+        // is reduced to ""http://peterdowdall.com/feed/atom/", because the whole string is contained in the other
+        ListIterator<String> listIterator = result.listIterator();
+        while (listIterator.hasNext()) {
+            String current = listIterator.next();
+            ListIterator<String> listIteratorInner = result.listIterator();
+            while (listIteratorInner.hasNext()) {
+                String key = listIteratorInner.next();
+                if (!key.equals(current) && key.indexOf(current) != -1) {
+                    listIterator.remove();
                     break;
                 }
             }
