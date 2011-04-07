@@ -64,6 +64,14 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         Assert.assertEquals(1, deDup.size());
         Assert.assertEquals(true, deDup.contains("http://www.example.com/feed/index.html"));
 
+        // Sandro: would be a useful improvement to detect this
+        // urls = new ArrayList<String>();
+        // urls.add("http://www.example.com/feed/index.html");
+        // urls.add("http://www.example.com/feed/atom/index.html");
+        // deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        // Assert.assertEquals(1, deDup.size());
+        // Assert.assertEquals(true, deDup.contains("http://www.example.com/feed/atom/index.html"));
+
         urls = new ArrayList<String>();
         urls.add("http://www.organicfacts.net/feed/rss.html");
         urls.add("http://www.organicfacts.net/feed/atom.html");
