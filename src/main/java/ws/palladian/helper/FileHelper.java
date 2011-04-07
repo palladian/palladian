@@ -42,7 +42,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-// TODO Remove all functionalities that are provided by apache commons.
+// FIXME check whether all streams are closed correctly
+// TODO Remove all functionalities that are provided by Apache commons.
 /**
  * The FileHelper helps with file concerning tasks. If you add methods to this class, make sure under all circumstances
  * that all streams are closed correctly. Every time you cause a memory leak, god kills a kitten!
@@ -931,9 +932,12 @@ public class FileHelper {
                 return;
             } else {
 
+                InputStream in = null;
+                OutputStream out = null;
                 try {
-                    InputStream in = new FileInputStream(srcPath);
-                    OutputStream out = new FileOutputStream(dstPath);
+                    in = new FileInputStream(srcPath);
+                    out = new FileOutputStream(dstPath);
+
                     // Transfer bytes from in to out
                     byte[] buf = new byte[1024];
 
@@ -946,6 +950,8 @@ public class FileHelper {
                     out.close();
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage());
+                } finally {
+                    close(in, out);
                 }
             }
         }
@@ -1112,11 +1118,14 @@ public class FileHelper {
 
     public static void zipFiles(File[] files, String targetFilename) {
 
+        FileOutputStream fout = null;
+        ZipOutputStream zout = null;
+
         try {
             byte[] buffer = new byte[1024];
 
-            FileOutputStream fout = new FileOutputStream(targetFilename);
-            ZipOutputStream zout = new ZipOutputStream(fout);
+            fout = new FileOutputStream(targetFilename);
+            zout = new ZipOutputStream(fout);
 
             for (File sourceFile : files) {
 
@@ -1137,10 +1146,10 @@ public class FileHelper {
                 fin.close();
             }
 
-            zout.close();
-
         } catch (IOException ioe) {
             LOGGER.error("error creating the zip, " + ioe);
+        } finally {
+            close(fout, zout);
         }
     }
 
@@ -1153,20 +1162,21 @@ public class FileHelper {
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
 
+        GZIPOutputStream zipout = null;
         try {
-            FileOutputStream out = new FileOutputStream(filenameOutput);
-            GZIPOutputStream zipout = new GZIPOutputStream(out);
+            zipout = new GZIPOutputStream(new FileOutputStream(filenameOutput));
 
             StringReader in = new StringReader(text.toString());
             int c = 0;
             while ((c = in.read()) != -1) {
                 zipout.write((byte) c);
             }
-            in.close();
-            zipout.close();
+
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             return false;
+        } finally {
+            close(zipout);
         }
 
         return true;
@@ -1180,20 +1190,24 @@ public class FileHelper {
      */
     public static String gzipString(String text) {
         StringOutputStream out = null;
+        StringInputStream in = null;
+        GZIPOutputStream zipout = null;
+
         try {
-            StringInputStream in = new StringInputStream(text);
+            in = new StringInputStream(text);
             out = new StringOutputStream();
-            GZIPOutputStream zipout = new GZIPOutputStream(out);
+            zipout = new GZIPOutputStream(out);
 
             int c = 0;
             while ((c = in.read()) != -1) {
                 zipout.write((byte) c);
             }
-            in.close();
-            zipout.close();
+
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             return out.toString();
+        } finally {
+            close(out, in, zipout);
         }
 
         return out.toString();
@@ -1266,15 +1280,17 @@ public class FileHelper {
      * @return The unzipped content of the file.
      */
     public static String ungzipFileToString(String filename) {
+        String result = "";
         InputStream in = null;
         try {
             in = new FileInputStream(filename);
+            result = ungzipInputStreamToString(in);
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
-            return "";
+        } finally {
+            close(in);
         }
-
-        return ungzipInputStreamToString(in);
+        return result;
     }
 
     /**
@@ -1303,6 +1319,7 @@ public class FileHelper {
     public static String ungzipInputStreamToString(InputStream in) {
         StringOutputStream out = new StringOutputStream();
         GZIPInputStream zipIn = null;
+
         try {
             zipIn = new GZIPInputStream(in);
             int chunkSize = 8192;
@@ -1326,11 +1343,13 @@ public class FileHelper {
 
         int bufferSize = 1024;
 
+        ZipInputStream zis = null;
+
         try {
 
             BufferedOutputStream dest = null;
             FileInputStream fis = new FileInputStream(filename);
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+            zis = new ZipInputStream(new BufferedInputStream(fis));
             ZipEntry entry;
 
             while ((entry = zis.getNextEntry()) != null) {
@@ -1352,6 +1371,8 @@ public class FileHelper {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return false;
+        } finally {
+            close(zis);
         }
 
         return true;
