@@ -107,14 +107,15 @@ public class FeedUrlsNearDuplicateEliminator {
      * Compiles the pattern. Pattern should look like (?<!\w)(atom10|atom|rss_2.0|rss2.0|rss200|rss20|rss2|rss)(?!\w)
      */
     private static void compilePattern() {
-        String formatPatternString = START_PATTERN + "(";
+        StringBuilder formatPatternBuilder = new StringBuilder(); 
+        formatPatternBuilder.append(START_PATTERN).append("(");
         for (String format : FORMATS) {
-            formatPatternString += format + "|";
+            formatPatternBuilder.append(format).append("|");
         }
-        formatPatternString = formatPatternString.substring(0, formatPatternString.length() - 1);
-        formatPatternString += ")" + STOP_PATTERN;
-        LOGGER.debug(formatPatternString);
-        formatPattern = Pattern.compile(formatPatternString, Pattern.CASE_INSENSITIVE);
+        formatPatternBuilder.deleteCharAt(formatPatternBuilder.length() - 1);
+        formatPatternBuilder.append(")").append(STOP_PATTERN);
+        LOGGER.debug(formatPatternBuilder.toString());
+        formatPattern = Pattern.compile(formatPatternBuilder.toString(), Pattern.CASE_INSENSITIVE);
     }
 
     /**
