@@ -65,7 +65,8 @@ import ws.palladian.retrieval.feeds.discovery.FeedDiscoveryCallback;
 import com.sun.syndication.io.XmlReader;
 
 /**
- * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
+ * The DocumentRetriever downloads pages from the web or the hard disk. List of proxies can be found here: <a
+ * href="http://www.proxy-list.org/en/index.php">http://www.proxy-list.org/en/index.php</a>.
  * TODO handle namespace in xpath
  * 
  * @author David Urbansky
@@ -96,6 +97,9 @@ public class DocumentRetriever {
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
 
+    /**
+     * Size units.
+     */
     public enum SizeUnit {
         BYTES(1), KILOBYTES(1024), MEGABYTES(1048576), GIGABYTES(1073741824);
         private int bytes;
@@ -144,9 +148,6 @@ public class DocumentRetriever {
     /** Try to use feed auto discovery for every parsed page. */
     private boolean feedAutodiscovery = false;
 
-    /** The response code of the last HTTP request. */
-    // private int lastResponseCode = -1;
-
     /** The filter for the retriever. */
     private DownloadFilter downloadFilter = new DownloadFilter();
 
@@ -157,6 +158,7 @@ public class DocumentRetriever {
      */
     private double compressionSaving = 0.5;
 
+    /** Whether or not to sanitize the XML code before constructing the Document. */
     protected boolean sanitizeXml = true;
 
     // /////////////////////////////////////////////////////////
@@ -279,7 +281,7 @@ public class DocumentRetriever {
     /**
      * Add a URL to be downloaded.
      * 
-     * @param urlString
+     * @param urlString The URL to add to the stack.
      */
     public void add(String urlString) {
         if (!urlStack.contains(urlString)) {
@@ -303,7 +305,7 @@ public class DocumentRetriever {
     /**
      * Set the maximum number of simultaneous threads for downloading.
      * 
-     * @param maxThreads
+     * @param maxThreads The number of threads to use.
      */
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
@@ -673,16 +675,17 @@ public class DocumentRetriever {
 
         // read from file with buffered input stream
         if (isFile) {
-            contentString = FileHelper.readHTMLFileToString(urlString, stripTags);
+            contentString = FileHelper.readHtmlFileToString(urlString, stripTags);
         } else {
             StringBuilder html = new StringBuilder();
             InputStream inputStream = null;
+            BufferedReader br = null;
 
             try {
                 urlString = urlString.replaceAll("\\s", "+");
                 URL url = new URL(urlString);
                 inputStream = getInputStream(url);
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+                br = new BufferedReader(new InputStreamReader(inputStream));
                 String line = "";
                 do {
                     line = br.readLine();
@@ -691,8 +694,6 @@ public class DocumentRetriever {
                     }
                     html.append(line).append("\n");
                 } while (line != null);
-
-                br.close();
 
             } catch (FileNotFoundException e) {
                 LOGGER.error(urlString + ", " + e.getMessage());
@@ -709,7 +710,7 @@ public class DocumentRetriever {
             } catch (Exception e) {
                 LOGGER.error(urlString + ", " + e.getClass() + " " + e.getMessage());
             } finally {
-                close(inputStream);
+                close(br, inputStream);
             }
 
             contentString = html.toString();
@@ -841,7 +842,7 @@ public class DocumentRetriever {
     /**
      * Returns the current Proxy.
      * 
-     * @return
+     * @return The proxy which is used when requesting a URL.
      */
     public Proxy getProxy() {
         return proxy;
@@ -850,7 +851,7 @@ public class DocumentRetriever {
     /**
      * Sets the current Proxy.
      * 
-     * @param proxy
+     * @param proxy The proxy to use.
      */
     public void setProxy(Proxy proxy) {
         this.proxy = proxy;
@@ -938,12 +939,6 @@ public class DocumentRetriever {
         }
     }
 
-    /*
-     * public void setProxyList(List<Proxy> proxyList) {
-     * this.proxyList = new LinkedList<Proxy>(proxyList);
-     * }
-     */
-
     public List<Proxy> getProxyList() {
         return proxyList;
     }
@@ -963,7 +958,7 @@ public class DocumentRetriever {
     /**
      * Check whether the curretly set proxy is working.
      * 
-     * @return True if proxy returns result, false otherwise.
+     * @return <tt>True</tt>, if proxy returns result, <tt>false</tt> otherwise.
      */
     public boolean checkProxy() {
         boolean result;
@@ -1057,9 +1052,6 @@ public class DocumentRetriever {
                 out.write(buffer, 0, n);
             }
 
-            in.close();
-            out.close();
-
             int size = (int) binFile.length();
             sessionDownloadedBytes += size;
 
@@ -1084,8 +1076,8 @@ public class DocumentRetriever {
      * After the specified number of retries without success, an IOException is thrown. After each failing attempt the
      * proxies are cycled, if switching proxies is enabled (see {@link #setSwitchProxyRequests(int)}.
      * 
-     * @param url
-     * @return
+     * @param url The URL to get the stream from.
+     * @return An InputStream.
      * @throws IOException
      * @author Philipp Katz
      */
@@ -1396,26 +1388,6 @@ public class DocumentRetriever {
         return numRetries;
     }
 
-    //    private static Document getWebDocumentFromInputStream(InputStream iStream, String url){
-    //        DOMParser parser = new DOMParser();
-    //        Document document = null;
-    //
-    //        try {
-    //            parser.parse(new InputSource(iStream));
-    //        } catch (SAXException saxEx) {
-    //            LOGGER.error(saxEx.getMessage());
-    //        } catch (IOException ioEx) {
-    //            LOGGER.error(ioEx.getMessage());
-    //        }
-    //
-    //        document = parser.getDocument();
-    //        if (document != null) {
-    //            document.setDocumentURI(url);
-    //        }
-    //
-    //        return document;
-    //    }
-
     public void setDownloadFilter(DownloadFilter downloadFilter) {
         this.downloadFilter = downloadFilter;
     }
@@ -1480,17 +1452,8 @@ public class DocumentRetriever {
         }
     }
 
-    /** TODO copy from {@link FileHelper} */
     private static void close(Closeable... closeables) {
-        for (Closeable closeable : closeables) {
-            if (closeable != null) {
-                try {
-                    closeable.close();
-                } catch (IOException e) {
-                    LOGGER.error(e);
-                }
-            }
-        }
+        FileHelper.close(closeables);
     }
 
     /**

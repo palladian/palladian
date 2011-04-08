@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-// FIXME check whether all streams are closed correctly
 // TODO Remove all functionalities that are provided by Apache commons.
 /**
  * The FileHelper helps with file concerning tasks. If you add methods to this class, make sure under all circumstances
@@ -105,7 +104,7 @@ public class FileHelper {
      * data/models/ => data/models/<br>
      * 
      * @param path The full path.
-     * @return the The folder part of the path without the filename.
+     * @return The folder part of the path without the filename.
      */
     public static String getFilePath(String path) {
         String filePath = path;
@@ -122,9 +121,9 @@ public class FileHelper {
 
     /**
      * Gets the file name.
-     *
-     * @param path the path
-     * @return the file name
+     * 
+     * @param path The path to the file.
+     * @return The file name part of the path.
      */
     public static String getFileName(String path) {
         String fileName = path;
@@ -139,6 +138,12 @@ public class FileHelper {
         return fileName;
     }
 
+    /**
+     * Gets the folder name.
+     * 
+     * @param path The path to the file or folder.
+     * @return The folder name of the path.
+     */
     public static String getFolderName(String path) {
         String fileName = path;
         int lastSeparator = path.lastIndexOf("/") + 1;
@@ -151,6 +156,13 @@ public class FileHelper {
         return fileName;
     }
 
+    /**
+     * Append a string to a file.
+     * 
+     * @param filePath The file to which the string should be appended to.
+     * @param appendix The string to append.
+     * @return
+     */
     public static String appendToFileName(String filePath, String appendix) {
         return getFilePath(filePath) + getFileName(filePath) + appendix + "." + getFileType(filePath);
     }
@@ -187,13 +199,13 @@ public class FileHelper {
     }
 
     /**
-     * Read html file to string.
-     *
-     * @param path the path
-     * @param stripTags the strip tags
-     * @return the string
+     * Read HTML file to string.
+     * 
+     * @param path The path to the HTML file.
+     * @param stripTags Whether tags should be stripped.
+     * @return The HTML string from the file.
      */
-    public static String readHTMLFileToString(String path, boolean stripTags) {
+    public static String readHtmlFileToString(String path, boolean stripTags) {
 
         String contents = readFileToString(path);
 
@@ -209,9 +221,9 @@ public class FileHelper {
 
     /**
      * Read file to string.
-     *
-     * @param path the path
-     * @return the string
+     * 
+     * @param path The path to the file that should be read.
+     * @return The string content of the file.
      */
     public static String readFileToString(String path) {
         File contentFile = new File(path);
@@ -219,10 +231,46 @@ public class FileHelper {
     }
 
     /**
-     * Mimic the "tail" command.
+     * Read file to string.
+     * 
+     * @param file The file that should be read.
+     * @return The string content of the file.
+     */
+    public static String readFileToString(File file) {
+
+        StringBuilder contents = new StringBuilder();
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new FileReader(file));
+
+            String line = "";
+            do {
+                line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                contents.append(line).append("\n");
+            } while (line != null);
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(file + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(file + ", " + e.getMessage());
+        } catch (OutOfMemoryError e) {
+            LOGGER.error(file + ", " + e.getMessage());
+        } finally {
+            close(reader);
+        }
+
+        return contents.toString();
+    }
+
+    /**
+     * Mimic the UNIX "tail" command.
      * 
      * @param path The path of the file.
-     * @param numberOfLines The number of lines from the end of the file that should be returned
+     * @param numberOfLines The number of lines from the end of the file that should be returned.
      * @return A string with text lines from the specified file.
      */
     public static String tail(String path, int numberOfLines) {
@@ -262,37 +310,6 @@ public class FileHelper {
         }
 
         return contents.toString();
-
-    }
-
-    public static String readFileToString(File file) {
-
-        StringBuilder contents = new StringBuilder();
-        BufferedReader reader = null;
-
-        try {
-            reader = new BufferedReader(new FileReader(file));
-
-            String line = "";
-            do {
-                line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                contents.append(line).append("\n");
-            } while (line != null);
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } finally {
-            close(reader);
-        }
-
-        return contents.toString();
     }
 
     /**
@@ -307,22 +324,21 @@ public class FileHelper {
     }
 
     /**
-     * <p>
+     * Create a list with each line of the given file as an element.
      * 
-     * </p>.
-     *
-     * @param fileURL the file url
-     * @return the list
+     * @param fileURL The file URL which should be read into a string.
+     * @return The list with one line per entry.
      */
     public static List<String> readFileToArray(URL fileURL) {
         File contentFile = null;
+
         try {
             contentFile = new File(fileURL.toURI());
         } catch (URISyntaxException e) {
             throw new RuntimeException("File: "+fileURL+" was not accessable!");
         }
-        return readFileToArray(contentFile);
 
+        return readFileToArray(contentFile);
     }
 
     /**
@@ -362,11 +378,11 @@ public class FileHelper {
 
     /**
      * Split the contents of a file into lines.
-     * For example: a, b, c becomes
-     * a
-     * b
-     * c
-     * 
+     * For example: a, b, c becomes<br>
+     * a<br>
+     * b<br>
+     * c<br>
+     * <br>
      * when the separator is ",".
      * 
      * @param inputFilePath The input file.
@@ -407,14 +423,14 @@ public class FileHelper {
     }
 
     /**
-     * Perform action on every line.
-     *
-     * @param filePath the file path
-     * @param la the la
-     * @return the int
+     * Perform action on every line of the input file.
+     * 
+     * @param filePath The path to the file which should be processed line by line.
+     * @param la The line action that should be triggered on each line.
+     * @return The number of lines processed.
      */
     public static int performActionOnEveryLine(String filePath, LineAction la) {
-        int lineNumber = 1;
+        int lineNumber = -1;
         FileReader reader = null;
 
         try {
@@ -429,6 +445,13 @@ public class FileHelper {
         return lineNumber;
     }
 
+    /**
+     * Perform action on every line of the input file.
+     * 
+     * @param reader The reader with the file which should be processed line by line.
+     * @param la The line action that should be triggered on each line.
+     * @return The number of lines processed.
+     */
     public static int performActionOnEveryLine(Reader reader, LineAction la) {
 
         int lineNumber = 1;
@@ -462,51 +485,20 @@ public class FileHelper {
     }
 
     /**
-     * Write to file.
+     * Perform action on every line on the input text.
      * 
-     * @param filePath the file path
-     * @param string the string
-     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}.
-     *         See error log for details (Exceptions)
+     * @param text The text which should be processed line by line.
+     * @param la The line action that should be triggered on each line.
+     * @return The number of lines processed.
      */
-    //    public static boolean writeToFile(String filePath, StringBuilder string) {
-    //        return writeToFile(filePath, string.toString());
-    //    }
-
     public static int performActionOnEveryLineText(String text, LineAction la) {
         return performActionOnEveryLine(new StringReader(text), la);
-
-        //        int lineNumber = 1;
-        //
-        //        StringReader in = new StringReader(text);
-        //        BufferedReader br = new BufferedReader(in);
-        //        try {
-        //            String line = "";
-        //            do {
-        //                line = br.readLine();
-        //                if (line == null) {
-        //                    break;
-        //                }
-        //
-        //                la.performAction(line, lineNumber++);
-        //
-        //            } while (line != null && la.looping);
-        //
-        //            in.close();
-        //            br.close();
-        //
-        //        } catch (IOException e) {
-        //            LOGGER.error(e.getMessage());
-        //        }
-        //
-        //        return lineNumber - 1;
     }
 
     /**
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
      * 
-     * @param filePath the file path
+     * @param filePath The file path.
      * @param lines the lines
      * @author Philipp Katz
      * @author Sandro Reichert
@@ -516,6 +508,7 @@ public class FileHelper {
     public static boolean writeToFile(String filePath, Collection<?> lines) {
 
         boolean success = false;
+
         File file = new File(filePath);
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
@@ -535,6 +528,7 @@ public class FileHelper {
         } finally {
             close(writer);
         }
+
         return success;
     }
 
@@ -544,7 +538,7 @@ public class FileHelper {
      * @param filePath The file path where the contents should be saved to.
      * @param string The string to save.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}. See error log for details (Exceptions)
+     *         {@link filePath}. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, CharSequence string) {
 
@@ -575,62 +569,19 @@ public class FileHelper {
     }
 
     /**
-     * Add some text to a file.
-     * 
-     * TODO Attention -- when appending to files too big for memory this method will cause data loss. readFileToString
-     * will read until memory runs out (catching OutOfMemoryError) and return the partially read content, appendToFile
-     * then appends to the partial content and writes it back to disk. I have added the two methods
-     * appendFile/prependFile which use buffers instead of reading the whole files in memory. -- Philipp, 2010-07-10.
-     * 
-     * @param filePath The path to the file.
-     * @param string The text to append.
-     * @param before If true, the text will be appended before all other content, if false it will be appended to the
-     *            end of the file.
-     */
-    //    @Deprecated
-    //    public static void appendToFile(String filePath, StringBuilder string, boolean before) {
-    //        appendToFile(filePath, string.toString(), before);
-    //    }
-
-    /**
-     * Append to file.
-     *
-     * @param filePath the file path
-     * @param string the string
-     * @param before the before
-     */
-    //    @Deprecated
-    //    public static void appendToFile(String filePath, String string, boolean before) {
-    //        try {
-    //            String currentContent = readFileToString(filePath);
-    //            FileWriter fileWriter = new FileWriter(filePath);
-    //            if (before) {
-    //                fileWriter.write(string);
-    //            }
-    //            fileWriter.write(currentContent);
-    //            if (!before) {
-    //                fileWriter.write(string);
-    //            }
-    //            fileWriter.flush();
-    //            fileWriter.close();
-    //        } catch (IOException e) {
-    //            LOGGER.error(filePath + ", " + e.getMessage());
-    //        }
-    //    }
-
-    /**
      * Appends (i. e. inserts a the end) a string to the specified File.
-     *
+     * 
      * @param filePath the file path
      * @param stringToAppend the string to append
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
-     * @return
+     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
 
         boolean success = false;
         BufferedWriter writer = null;
+
         try {
             writer = new BufferedWriter(new FileWriter(filePath, true));
             writer.append(stringToAppend);
@@ -640,8 +591,8 @@ public class FileHelper {
         } finally {
             close(writer);
         }
-        return success;
 
+        return success;
     }
 
     /**
@@ -649,11 +600,13 @@ public class FileHelper {
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
-     * @return
+     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
+
         boolean added = false;
         final boolean[] add = new boolean[] { true };
+
         // if file exists already, check if it contains specified line
         if (fileExists(filePath)) {
             performActionOnEveryLine(filePath, new LineAction() {
@@ -666,9 +619,11 @@ public class FileHelper {
                 }
             });
         }
+
         if (add[0]) {
             added = appendFile(filePath, stringToAppend + "\n");
         }
+
         return added;
     }
 
@@ -676,12 +631,12 @@ public class FileHelper {
      * Prepends (i. e. inserts a the beginning) a String to the specified File.
      * 
      * Inspired by http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java
-     *
+     * 
      * @param filePath the file path
      * @param stringToPrepend the string to prepend
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
-     * @return
+     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean prependFile(String filePath, String stringToPrepend)  {
 
@@ -732,6 +687,7 @@ public class FileHelper {
         } finally {
             close(randomAccessFile);
         }
+
         return success;
     }
 
@@ -740,9 +696,9 @@ public class FileHelper {
      * method does the cast for you, just deserialize to the appropriate type, like
      * <tt>Foo foo = FileHelper.deserialize("foo.ser");</tt>.
      * 
-     * @param <T> type of the objects.
-     * @param filePath the file path
-     * @return the object
+     * @param <T> Type of the objects.
+     * @param filePath The file path of the serialized object.
+     * @return The deserialized object.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Serializable> T deserialize(String filePath) {
@@ -770,6 +726,13 @@ public class FileHelper {
         return obj;
     }
 
+    /**
+     * Deserialize a serialized object and compressed object.
+     * 
+     * @param <T> type of the objects.
+     * @param filePath The file path of the serialized object.
+     * @return The deserialized object.
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Serializable> T deserializeCompressed(String filePath) {
 
@@ -792,12 +755,11 @@ public class FileHelper {
         return obj;
     }
 
-    //public static void serialize(Object obj, String filePath) {
     /**
      * Serialize a serializable object. If the path ends with ".gz" it is automatically saved using gzip compression.
      * 
-     * @param obj the obj
-     * @param filePath the file path
+     * @param obj The obj to serialize.
+     * @param filePath The file path where the object should be serialized to.
      */
     public static void serialize(Serializable obj, String filePath) {
 
@@ -828,6 +790,12 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Serialize a serializable object and use compression.
+     * 
+     * @param obj The obj to serialize and compress.
+     * @param filePath The file path where the object should be serialized to.
+     */
     public static void serializeCompress(Serializable obj, String filePath) {
         ObjectOutputStream out = null;
         try {
@@ -852,11 +820,11 @@ public class FileHelper {
     }
 
     /**
-     * Rename.
-     *
-     * @param inputFile the input file
-     * @param newName the new name
-     * @return the string
+     * Rename a file.
+     * 
+     * @param inputFile The path to an input file which should be renamed.
+     * @param newName The new name.
+     * @return The name of the new path.
      */
     public static String rename(File inputFile, String newName) {
         String fullPath = inputFile.getAbsolutePath();
@@ -893,7 +861,6 @@ public class FileHelper {
         } finally {
             close(in, out);
         }
-
     }
 
     /**
@@ -955,8 +922,6 @@ public class FileHelper {
                 }
             }
         }
-
-        // System.out.println("Directory copied.");
     }
 
     /**
@@ -1000,9 +965,9 @@ public class FileHelper {
 
     /**
      * Delete.
-     *
-     * @param filename the filename
-     * @return true, if successful
+     * 
+     * @param filename The filename.
+     * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
      */
     public static boolean delete(String filename) {
         return delete(filename, true);
@@ -1010,9 +975,9 @@ public class FileHelper {
 
     /**
      * Delete all files inside a directory.
-     *
+     * 
      * @param dirPath the directoryPath
-     * @return true, if successful
+     * @return <tt>True</tt> if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean cleanDirectory(String dirPath) {
         File file = new File(dirPath);
@@ -1027,17 +992,16 @@ public class FileHelper {
                 returnValue = true;
             }
         }
-        return returnValue;
 
+        return returnValue;
     }
 
-
     /**
-     * Move.
-     *
-     * @param file the file
-     * @param newPath the new path
-     * @return true, if successful
+     * Move a file to a new path.
+     * 
+     * @param file The file to move.
+     * @param newPath The new path.
+     * @return <tt>True</tt> if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean move(File file, String newPath) {
         File newFile = new File(newPath);
@@ -1053,7 +1017,6 @@ public class FileHelper {
     public static void addFileHeader(String folderPath, StringBuilder header) {
         File[] files = getFiles(folderPath);
         for (File file : files) {
-            // FileHelper.appendToFile(file.getAbsolutePath(), header, true);
             appendFile(file.getAbsolutePath(), header + "\n");
         }
     }
@@ -1070,10 +1033,10 @@ public class FileHelper {
 
     /**
      * Gets the files.
-     *
-     * @param folderPath the folder path
-     * @param substring the substring
-     * @return the files
+     * 
+     * @param folderPath The folder path.
+     * @param substring The substring which should appear in the filename.
+     * @return The files which contain the substring.
      */
     public static File[] getFiles(String folderPath, String substring) {
         File folder = new File(folderPath);
@@ -1116,6 +1079,12 @@ public class FileHelper {
         return FileHelper.performActionOnEveryLine(fileName, la);
     }
 
+    /**
+     * Zip a number of file to one file.
+     * 
+     * @param files The files to zip.
+     * @param targetFilename The name of the target zip file.
+     */
     public static void zipFiles(File[] files, String targetFilename) {
 
         FileOutputStream fout = null;
@@ -1158,7 +1127,7 @@ public class FileHelper {
      * 
      * @param text The text to be zipped.
      * @param filenameOutput The name of the zipped file.
-     * @return True if zipping and saving was successfully, false otherwise.
+     * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
 
@@ -1183,10 +1152,10 @@ public class FileHelper {
     }
 
     /**
-     * Zip string.
-     *
-     * @param text the text
-     * @return the string
+     * Zip a string.
+     * 
+     * @param text The text to zip.
+     * @return The zipped string.
      */
     public static String gzipString(String text) {
         StringOutputStream out = null;
@@ -1225,9 +1194,9 @@ public class FileHelper {
     }
 
     /**
-     * Unzip file.
-     *
-     * @param filenameInput the filename input
+     * Unzip a file.
+     * 
+     * @param filenameInput The name of the file to unzip.
      */
     public static void ungzipFile(String filenameInput) {
         String unzippedContent = ungzipFileToString(filenameInput);
@@ -1236,40 +1205,25 @@ public class FileHelper {
     }
 
     /**
-     * Unzip file7z.
-     *
-     * @param filenameInput the filename input
-     */
-    public static void unzipFile7z(String filenameInput) {
-        try {
-            Process p = Runtime.getRuntime().exec("7z e " + filenameInput);
-            InputStream in = p.getInputStream();
-            while (in.read() != -1) {
-                // keep waiting until all output is rendered
-            }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    /**
-     * Unzip file cmd.
-     *
+     * Unzip file using the command line cmd.
+     * 
      * @param filenameInput the filename input
      * @param consoleCommand the console command
      */
     public static void unzipFileCmd(String filenameInput, String consoleCommand) {
         Process p = null;
+        InputStream in = null;
         try {
             p = Runtime.getRuntime().exec(consoleCommand + " " + filenameInput);
-            InputStream in = p.getInputStream();
+            in = p.getInputStream();
             while (in.read() != -1) {
                 // keep waiting until all output is rendered
             }
-            p.getInputStream().close();
-            p.destroy();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(in);
+            p.destroy();
         }
     }
 
@@ -1292,23 +1246,6 @@ public class FileHelper {
         }
         return result;
     }
-
-    /**
-     * Unzip a string.
-     *
-     * @param in the in
-     * @return The unzipped string.
-     */
-    /*
-     * public static String unzipString(String zippedString) { InputStream in = new StringInputStream(zippedString);
-     * //return unzipInputStreamToString(in);
-     * StringOutputStream out = new StringOutputStream(); try { GZIPInputStream zipin = new GZIPInputStream(in); int
-     * chunkSize = 8192; byte[] buffer = new
-     * byte[chunkSize]; int length; while ((length = zipin.read(buffer, 0, chunkSize)) != -1) { out.write(buffer, 0,
-     * length); } out.close(); zipin.close(); }
-     * catch (FileNotFoundException e) { e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); } return
-     * out.toString(); }
-     */
 
     /**
      * Unzip a input stream to string.
@@ -1339,16 +1276,24 @@ public class FileHelper {
         return out.toString();
     }
 
+    /**
+     * Unzip a file.
+     * 
+     * @param filename the file to unzip.
+     * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
+     */
     public static boolean unzipFile(String filename) {
 
         int bufferSize = 1024;
 
+        BufferedOutputStream dest = null;
         ZipInputStream zis = null;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
 
         try {
 
-            BufferedOutputStream dest = null;
-            FileInputStream fis = new FileInputStream(filename);
+            fis = new FileInputStream(filename);
             zis = new ZipInputStream(new BufferedInputStream(fis));
             ZipEntry entry;
 
@@ -1359,30 +1304,29 @@ public class FileHelper {
                 byte data[] = new byte[bufferSize];
 
                 // write the files to the disk
-                FileOutputStream fos = new FileOutputStream(getFilePath(filename) + entry.getName());
+                fos = new FileOutputStream(getFilePath(filename) + entry.getName());
                 dest = new BufferedOutputStream(fos, bufferSize);
                 while ((count = zis.read(data, 0, bufferSize)) != -1) {
                     dest.write(data, 0, count);
                 }
                 dest.close();
             }
-            zis.close();
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return false;
         } finally {
-            close(zis);
+            close(dest, fis, zis, fos);
         }
 
         return true;
     }
 
     /**
-     * File exists.
-     *
-     * @param filePath the file path
-     * @return true, if successful
+     * Check whether a file exists.
+     * 
+     * @param filePath The path to the file to check.
+     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
      */
     public static boolean fileExists(String filePath) {
         File file = new File(filePath);
@@ -1395,14 +1339,20 @@ public class FileHelper {
     /**
      * Check if specified directory exists.
      * 
-     * @param directoryPath
-     * @return
+     * @param directoryPath The path to the directory.
+     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
      */
     public static boolean directoryExists(String directoryPath) {
         File file = new File(directoryPath);
         return file.exists() && file.isDirectory();
     }
 
+    /**
+     * Create a dicrectory.
+     * 
+     * @param directoryPath The path to the directory.
+     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
+     */
     public static boolean createDirectory(String directoryPath) {
         return new File(directoryPath).mkdir();
     }
@@ -1412,7 +1362,7 @@ public class FileHelper {
      * 
      * @param file1 The first file.
      * @param file2 The file that is appended to the end of file1.
-     * @return True, if concatenation worked, false otherwise.
+     * @return <tt>True</tt>, if concatenation worked, <tt>false</tt> otherwise.
      */
     public static boolean concatenateFiles(File file1, File file2) {
         boolean concatenated = false;
@@ -1442,7 +1392,12 @@ public class FileHelper {
         return concatenated;
     }
 
-    private static void close(Closeable... closeables) {
+    /**
+     * Close all given closeables.
+     * 
+     * @param closeables All objects which are closeable.
+     */
+    public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
                 try {
@@ -1454,6 +1409,12 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Add a trailing slash if it does not exist.
+     * 
+     * @param path The path to the directory.
+     * @return The path including the trailing slash.
+     */
     public static String addTrailingSlash(String path) {
 
         if (!path.endsWith("/")) {
@@ -1465,8 +1426,8 @@ public class FileHelper {
 
     /**
      * The main method.
-     *
-     * @param a the arguments
+     * 
+     * @param a The arguments.
      */
     public static void main(String[] a) {
 
@@ -1489,7 +1450,7 @@ public class FileHelper {
         // "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt");
 
         // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt"));
-        
+
 
         // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
         // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
@@ -1552,10 +1513,6 @@ public class FileHelper {
 
         FileHelper.move(new File("abc.txt"), "data");
         System.exit(0);
-        FileHelper.unzipFile7z("wpc_1262_20091020_0017_1.log.gz");
-        // FileHelper.unzipFile7z("abc.log.gz");
-        // FileHelper.unzipFile("abc.log.gz", "abc_unzipped.log");
-        System.exit(0);
 
         FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
 
@@ -1580,6 +1537,5 @@ public class FileHelper {
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
-
 
 }
