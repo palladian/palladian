@@ -7,6 +7,7 @@
 #         # Path to the Wiki, like "http://en.wikipedia.org/". Required parameter.
 #      wikiURL: "http://en.wikipedia.org/"
 #         # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php
+#         # Do not forget the "/" in  the end of the path if there is any.
 #         # Optional parameter. Leave empty if unknown. 		
 #      pathToAPI: "/w/" 
 #         # Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/)         
@@ -14,12 +15,12 @@
 #         # Optional parameter. Leave empty if unknown.
 #      pathToContent: "/wiki/"
 #         # User name to use for crawling.
-#         # Optional parameter. Leave empty if login is not required for reading
+#         # Optional parameter. 
 #      crawlerUserName: "myname" 
 #         # The user's password. Optional parameter. 
 #      crawlerPassword: "mysecret"
-#         # The namespaceID's to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
-#         # namespaceID's that do not exist in the Wiki are ignored.
+#         # The namespaceIDs to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
+#         # namespaceIDs that do not exist in the Wiki are ignored.
 #         # known bug: to crawl a single namespace, add comma like "1,", otherwise all namespaces are crawled! 
 #         # Optional parameter. Leave empty to crawl all namespaces.
 #      namespacesToCrawl: "0, 1, 12" 
@@ -28,20 +29,36 @@
 #    - wikiName: 
 #      wikiURL:  		
 #      pathToAPI:
+#      pathToContent:
 #      crawlerUserName:
 #      crawlerPassword: 
 #      namespacesToCrawl:
 
 
 wikiConfigurations:
-    - wikiName: "Aletheia Projektwiki"
-      wikiURL: "http://87.106.216.160/aletheia/"
-      pathToContent: "/index.php/"
-      crawlerUserName: "Sandro Crawler"
-      crawlerPassword: "********"
-      namespacesToCrawl: "1, 2, 3"
-#    - wikiName: "Wikipedia (en)"
-#      wikiURL: "http://en.wikipedia.org/"
+#    - wikiName: "Aletheia Projektwiki"
+#      wikiURL: "http://87.106.216.160/aletheia/"
+#      pathToContent: "/index.php/"
+#      crawlerUserName: "Sandro Crawler"
+#      crawlerPassword: "crawler"
+#      namespacesToCrawl: "0, 1, 3"
+#    - wikiName: "Wikipedia (bjn)"
+#      wikiURL: "http://bjn.wikipedia.org/"
 #      pathToAPI: "/w/"
 #      pathToContent: "/wiki/"
-#      namespacesToCrawl: "1, 2"
+#      namespacesToCrawl: "0, "
+#    - wikiName: "Wikipedia (yo)"
+#      wikiURL: "http://yo.wikipedia.org/"
+#      pathToAPI: "/w/"
+#      pathToContent: "/wiki/"
+#      namespacesToCrawl: "0, "
+#    - wikiName: "Wikipedia (simple)"
+#      wikiURL: "http://simple.wikipedia.org/"
+#      pathToAPI: "/w/"
+#      pathToContent: "/wiki/"
+#      namespacesToCrawl: "0, "
+    - wikiName: "Wikipedia (en)"
+      wikiURL: "http://en.wikipedia.org/"
+      pathToAPI: "/w/"
+      pathToContent: "/wiki/"
+#      namespacesToCrawl: "0, "

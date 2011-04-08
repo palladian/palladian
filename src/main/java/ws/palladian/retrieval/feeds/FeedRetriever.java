@@ -76,7 +76,7 @@ public class FeedRetriever {
         // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
         // think this over?
-        crawler.getDownloadFilter().setMaxFileSize(-1);
+        crawler.getDownloadFilter().setMaxFileSize(10 * DocumentRetriever.SizeUnit.MEGABYTES.getBytes());
     }
 
     // ///////////////////////////////////////////////////
@@ -681,7 +681,9 @@ public class FeedRetriever {
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
-        Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
+        // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
+        Feed feed = downloader.getFeed("http://beautifulfoto.blogspot.com/feeds/posts/default");
+
         FeedRetriever.printFeed(feed);
 
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");

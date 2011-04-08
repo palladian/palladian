@@ -22,11 +22,12 @@ public class DownloadFilter {
     private Set<String> excludeFileTypes = new HashSet<String>();
 
     /**
-     * The maximum file size which should be downloaded (TODO: only web documents?). -1 means no limit. If you think
-     * that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles Muahahahaha.
+     * The maximum file size in bytes which should be downloaded (TODO: only web documents?). -1 means no limit. If you
+     * think that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles
+     * Muahahahaha.
      */
     private long maxFileSize = 1000000;
-    
+
     public Set<String> getIncludeFileTypes() {
         return includeFileTypes;
     }
@@ -56,6 +57,5 @@ public class DownloadFilter {
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }
-
 
 }
