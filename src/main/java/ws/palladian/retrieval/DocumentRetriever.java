@@ -986,16 +986,21 @@ public class DocumentRetriever {
     public Map<String, List<String>> getHeaders(String pageUrl) {
         URL url;
         URLConnection conn;
+        ConnectionTimeout timeout = null;
         Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
         try {
             url = new URL(pageUrl);
             conn = url.openConnection();
+            timeout = new ConnectionTimeout(conn, overallTimeout);
             headerMap = conn.getHeaderFields();
-
         } catch (MalformedURLException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            if (timeout != null) {
+                timeout.setActive(false);
+            }
         }
 
         return headerMap;
@@ -1157,7 +1162,6 @@ public class DocumentRetriever {
         ConnectionTimeout timeout = null;
         InputStream result = null;
 
-
         InputStream urlInputStream = null;
         ByteArrayOutputStream outputStream = null;
 
@@ -1271,6 +1275,7 @@ public class DocumentRetriever {
         int responseCode = -1;
 
         URL url;
+        ConnectionTimeout timeout = null;
         try {
 
             checkChangeProxy(false);
@@ -1296,6 +1301,8 @@ public class DocumentRetriever {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
 
+            timeout = new ConnectionTimeout(urlConnection, overallTimeout);
+
             urlConnection.connect();
 
             responseCode = urlConnection.getResponseCode();
@@ -1308,6 +1315,10 @@ public class DocumentRetriever {
             LOGGER.error(e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            if (timeout != null) {
+                timeout.setActive(false);
+            }
         }
 
         return responseCode;

@@ -202,9 +202,9 @@ public class FeedRetriever {
                 entries.put(feedEntry.getLink(), feedEntry);
             }
         }
-        
+
         RetrieverCallback retrieverCallback = new RetrieverCallback() {
-            
+
             @Override
             public void onFinishRetrieval(Document document) {
                 try {
@@ -213,11 +213,11 @@ public class FeedRetriever {
                     String pageText = extractor.getResultText();
                     entries.get(document.getDocumentURI()).setPageText(pageText);
                 } catch (PageContentExtractorException e) {
-                    LOGGER.error("PageContentExtractorException " + e);                    
+                    LOGGER.error("PageContentExtractorException " + e);
                 }
             }
         };
-        
+
         downloader.start(retrieverCallback);
         LOGGER.debug("finished downloading");
     }
@@ -666,7 +666,6 @@ public class FeedRetriever {
         }
 
         System.out.println(sb.toString());
-
     }
 
     public static void printFeed(Feed feed) {

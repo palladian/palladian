@@ -613,6 +613,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
                 combinedFile.close();
             } catch (IOException e) {
                 LOGGER.error(e.getMessage());
+            } finally {
+                FileHelper.close(combinedFile);
             }
         }
 
@@ -639,6 +641,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
             combinedFile.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            FileHelper.close(combinedFile);
         }
 
     }
