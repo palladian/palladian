@@ -106,6 +106,10 @@ public class DocumentRetriever {
         SizeUnit(int bytes) {
             this.bytes = bytes;
         }
+
+        public int getBytes() {
+            return bytes;
+        }
     }
 
     // /////////////////////////////////////////////////////////
@@ -169,7 +173,7 @@ public class DocumentRetriever {
     private Proxy proxy = null;
 
     /** Number of request before switching to another proxy, -1 means never switch. */
-    private int switchProxyRequests = 20;
+    private int switchProxyRequests = -1;
 
     /** List of proxies to choose from. */
     private LinkedList<Proxy> proxyList = new LinkedList<Proxy>();
@@ -965,7 +969,7 @@ public class DocumentRetriever {
         InputStream is = null;
         try {
             // try to download from Google, if downloading fails we get IOException
-            is = downloadInputStream("http://www.google.com", false);
+            is = downloadInputStream("http://www.sourceforge.com", false);
             if (getProxy() != null) {
                 LOGGER.debug("proxy " + getProxy().address() + " is working.");
             }
