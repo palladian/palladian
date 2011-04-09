@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +25,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -34,6 +37,36 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class Temp {
+
+    public static void downloadFeedTest() {
+
+        FeedDatabase feedDatabase = new FeedDatabase();
+        List<Feed> feeds = feedDatabase.getFeeds();
+
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+
+        Set<String> urls = new HashSet<String>();
+        for (Feed feed : feeds) {
+            urls.add(feed.getFeedUrl());
+        }
+        documentRetriever.add(urls);
+
+        documentRetriever.setMaxFails(999999999);
+        documentRetriever.setMaxThreads(200);
+
+        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+
+            @Override
+            public void onFinishRetrieval(Document document) {
+                if (document != null) {
+                    System.out.println("downloaded " + document.getDocumentURI());
+                }
+
+            }
+        };
+
+        documentRetriever.start(retrieverCallback);
+    }
 
     public static void classify() {
 
@@ -276,6 +309,9 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+        downloadFeedTest();
+        System.exit(0);
 
         // pos tagging
 
