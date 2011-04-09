@@ -101,7 +101,15 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     // mode
     private Mode mode = Mode.English;
 
+    public TUDNER(Mode mode) {
+        this.mode = mode;
+        setup();
+    }
     public TUDNER() {
+        setup();
+    }
+
+    private void setup() {
         setName("TUD NER");
 
         universalClassifier = new UniversalClassifier();
