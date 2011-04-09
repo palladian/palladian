@@ -229,22 +229,6 @@ public class DatasetCreator {
         LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
     }
 
-    /**
-     * Run creation of the feed dataset from all feeds in the database if possible.
-     * 
-     * @param args Command line arguments are ignored.
-     */
-    public static void main(String[] args) {
-
-        DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        // DatasetCreator.renewFileIDs();
-        // DatasetCreator.cleanUp(true);
-        // DatasetCreator.combineFeedHistories();
-        // dc.addFeedMetaInformation();
-
-    }
-
     public static void renewFileIDs() {
 
         String cleanPath = "data/temp/feedPosts/";
@@ -425,6 +409,22 @@ public class DatasetCreator {
 
         LOGGER.debug("start reading feeds");
         feedChecker.startContinuousReading();
+    }
+
+    /**
+     * Run creation of the feed dataset from all feeds in the database if possible.
+     * 
+     * @param args Command line arguments are ignored.
+     */
+    public static void main(String[] args) {
+
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
+        // DatasetCreator.renewFileIDs();
+        // DatasetCreator.cleanUp(true);
+        // DatasetCreator.combineFeedHistories();
+        // dc.addFeedMetaInformation();
+
     }
 
 }

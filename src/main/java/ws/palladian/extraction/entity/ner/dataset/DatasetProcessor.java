@@ -1,8 +1,18 @@
 package ws.palladian.extraction.entity.ner.dataset;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.StopWatch;
 
 public class DatasetProcessor {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(DatasetProcessor.class);
 
     /**
      * This method separates a dataset file document in X new files where X = maxDocuments - minDocuments + 1.
@@ -15,28 +25,51 @@ public class DatasetProcessor {
      * @param minDocuments The minimal number of documents in a separated file.
      * @param maxDocuments The maximal number of documents in a separated file.
      */
-    public void splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments) {
+    public List<File> splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments) {
+
+        StopWatch sw = new StopWatch();
+
+        List<File> splitFiles = new ArrayList<File>();
 
         String filename = FileHelper.getFileName(datasetPath);
         String content = FileHelper.readFileToString(datasetPath);
 
         String[] documents = content.split(documentSeparator);
 
-        StringBuilder concatenatedDocuments = new StringBuilder();
 
         for (int x = minDocuments; x <= maxDocuments; x++) {
 
+            StringBuilder concatenatedDocuments = new StringBuilder();
+
             int documentCount = 0;
-            for (String document : documents) {
-                if (documentCount++ < x) {
-                    concatenatedDocuments.append(document);
+            for (int i = 0; i < documents.length; i++) {
+
+                // the first document must be empty since the document separator is before each document
+                if (i == 0) {
+                    continue;
                 }
 
-            }
-            FileHelper.writeToFile(filename + "_sep_" + x + ".txt", concatenatedDocuments);
+                String document = documents[i];
 
+                if (documentCount < x) {
+                    concatenatedDocuments.append(documentSeparator);
+                    concatenatedDocuments.append(document);
+                } else {
+                    break;
+                }
+
+                documentCount++;
+            }
+
+            String splitFilename = FileHelper.getFilePath(datasetPath) + filename + "_sep_" + x + ".txt";
+            FileHelper.writeToFile(splitFilename, concatenatedDocuments);
+
+            splitFiles.add(new File(splitFilename));
         }
 
+        LOGGER.info("split file " + datasetPath + " in " + sw.getElapsedTimeString());
+
+        return splitFiles;
     }
 
     public static void main(String[] args) {
@@ -44,7 +77,7 @@ public class DatasetProcessor {
         DatasetProcessor dp = new DatasetProcessor();
 
         // split the conll 2003 training file into 50 documents containing 1 to 50 documents
-        dp.splitFile("data/datasets/ner/conll/training.txt", "DOCSTART", 1, 50);
+        dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50);
 
 
     }
