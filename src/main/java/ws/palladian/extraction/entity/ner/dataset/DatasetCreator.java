@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.entity.ner.Annotation;
+import ws.palladian.extraction.entity.ner.Annotations;
+import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.DatasetCreatorInterface;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
@@ -38,8 +41,8 @@ import ws.palladian.retrieval.search.WebSearcherManager;
  * The DatasetCreator crawls web pages and marks the given seed entities.
  * The marked up pages are saved in:
  * <ol>
- * <li>separate (x)html files</li>
- * <li>separate text files (cleansed html)</li>
+ * <li>separate (X)HTML files</li>
+ * <li>separate text files (cleansed HTML)</li>
  * <li>one long text file, all text files from 2 concatenated</li>
  * </ol>
  * 
@@ -447,7 +450,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         StopWatch stopWatch = new StopWatch();
 
-        String targetLocation = datasetRoot + datasetName + "_cleansed/";
+        String sourceLocation = datasetRoot + datasetName;
+        String targetLocation = sourceLocation + "_cleansed/";
 
         File[] seedFiles = FileHelper.getFiles(seedFolderPath);
 
@@ -487,6 +491,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
             }
 
         }
+
+        // copy the meta information file to the new directory
+        FileHelper.copyFile(sourceLocation + "/metaInformation.txt", targetLocation + "/metaInformation.txt");
 
         LOGGER.info("dataset cleansed in " + stopWatch.getElapsedTimeString());
     }
@@ -558,6 +565,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * file contents.
      */
     public static void postProcessDataset(String seedFolderPath, String dataSetLocation) {
+
+        StopWatch stopWatch = new StopWatch();
 
         File[] seedFiles = FileHelper.getFiles(seedFolderPath);
 
@@ -645,6 +654,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             FileHelper.close(combinedFile);
         }
 
+        LOGGER.info("post processed dataset in " + stopWatch.getElapsedTimeString());
     }
 
     public void setDatasetName(String datasetName) {
@@ -687,11 +697,112 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return sourceAPI;
     }
 
+    public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept) {
+
+        // get seed annotations from the training file
+        Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, numberOfSeedsPerConcept);
+
+        // write the seeds to files
+        Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
+        for (Annotation annotation : annotations) {
+            StringBuilder seedFileContent = fileMap.get(annotation.getInstanceCategoryName());
+            if (seedFileContent == null) {
+                seedFileContent = new StringBuilder();
+                // we need to write a header
+                seedFileContent.append("Seeds for ").append(annotation.getInstanceCategoryName()).append("\n");
+                fileMap.put(annotation.getInstanceCategoryName(), seedFileContent);
+            }
+
+            seedFileContent.append(annotation.getEntity()).append("\n");
+        }
+
+        Set<Entry<String, StringBuilder>> entrySet = fileMap.entrySet();
+        for (Entry<String, StringBuilder> entry : entrySet) {
+            FileHelper.writeToFile("data/temp/seedEntities/" + entry.getKey() + ".txt", entry.getValue());
+        }
+
+        setSourceAPI(WebSearcherManager.BING);
+        setMentionsPerEntity(2);
+        setSeedsPerConcept(numberOfSeedsPerConcept);
+        createDataset("data/temp/seedEntities/");
+
+        cleanDataset(dataSetLocation, getDatasetName(), "data/temp/seedEntities/");
+        postProcessDataset("data/temp/seedEntities/", dataSetLocation + getDatasetName() + "_cleansed/");
+
+        String cleansedPath = dataSetLocation + getDatasetName() + "_cleansed/";
+
+        // replace "new document" and "new concept" with proper string "docstart" and "" respectively
+        String content = FileHelper.readFileToString(cleansedPath + "all.xml");
+        content = content.replaceAll("-+ NEW CONCEPT.*", "");
+        content = content.replaceAll("-+ NEW DOCUMENT .#.*", "=-<DOCSTART>-");
+
+        // delete all lines containing no tagged entity
+        Pattern pattern = Pattern.compile("^((?!<[A-Z]{1,20}?>).)*$", Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(content);
+        content = matcher.replaceAll("");
+
+        content = content.replace("=-<DOCSTART>-", "=-DOCSTART-");
+
+        content = content.replaceAll("(\n){3,}", "\n");
+
+        pattern = Pattern.compile("(=-DOCSTART-\n?){1,}");
+        matcher = pattern.matcher(content);
+        content = matcher.replaceAll("\n=-DOCSTART-\n\n");
+
+        content = content.replaceAll("(\n){3,}", "\n");
+
+        FileHelper.writeToFile(cleansedPath + "allCleansed.xml", content);
+
+        String finalColumnTaggedFilePath = cleansedPath + "allColumn.txt";
+        FileFormatParser.xmlToColumn(cleansedPath + "allCleansed.xml", finalColumnTaggedFilePath, "\t");
+
+        // get the broken DOCSTART lines correct
+        content = FileHelper.readFileToString(finalColumnTaggedFilePath);
+        content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-");
+
+        FileHelper.writeToFile(finalColumnTaggedFilePath, content);
+
+        return finalColumnTaggedFilePath;
+    }
+
     /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
+
+        // String cleansedPath = "data/datasets/ner/www_eval_cleansed/";
+        //
+        // // replace "new document" and "new concept" with proper string "docstart" and "" respectively
+        // String content = FileHelper.readFileToString(cleansedPath + "all.xml");
+        // content = content.replaceAll("-+ NEW CONCEPT.*", "");
+        // content = content.replaceAll("-+ NEW DOCUMENT .#.*", "=-<DOCSTART>-");
+        //
+        // // delete all lines containing no tagged entity
+        // Pattern pattern = Pattern.compile("^((?!<[A-Z]{1,20}?>).)*$", Pattern.MULTILINE);
+        // Matcher matcher = pattern.matcher(content);
+        // content = matcher.replaceAll("");
+        //
+        // content = content.replace("=-<DOCSTART>-", "=-DOCSTART-");
+        //
+        // content = content.replaceAll("(\n){3,}", "\n");
+        //
+        // pattern = Pattern.compile("(=-DOCSTART-\n?){1,}");
+        // matcher = pattern.matcher(content);
+        // content = matcher.replaceAll("\n=-DOCSTART-\n\n");
+        //
+        // content = content.replaceAll("(\n){3,}", "\n");
+        //
+        // FileHelper.writeToFile(cleansedPath + "allCleansed.xml", content);
+        //
+        // FileFormatParser.xmlToColumn(cleansedPath + "allCleansed.xml", cleansedPath + "allColumn.txt", "\t");
+        //
+        // // get the broken DOCSTART lines correct
+        // content = FileHelper.readFileToString(cleansedPath + "allColumn.txt");
+        // content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-");
+        // FileHelper.writeToFile(cleansedPath + "allColumn.txt", content);
+        //
+        // System.exit(0);
 
         // FileHelper.removeDuplicateLines("data/datasets/ner/politician/text/all.xml",
         // "data/datasets/ner/politician/text/allC.xml");
@@ -711,12 +822,15 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // System.exit(0);
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
-        DatasetCreator.cleanDataset("H:\\PalladianData\\Datasets\\wwwner\\ner\\", "www",
-        "data/knowledgeBase/seedEntities/");
-        DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/",
-        "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
+        // DatasetCreator.cleanDataset("H:\\PalladianData\\Datasets\\wwwner\\ner\\", "www",
+        // "data/knowledgeBase/seedEntities/");
+        // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/",
+        // "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
+        // System.exit(0);
+        DatasetCreator datasetCreator = new DatasetCreator("www_eval");
+        cleanDataset("data/datasets/ner/", "www_eval", "data/temp/seedEntities");
+        postProcessDataset("data/temp/seedEntities/", "data/datasets/ner/www_eval_cleansed/");
         System.exit(0);
-        DatasetCreator datasetCreator = new DatasetCreator("www");
         // datasetCreator.setDataSetLocation("C:\\Safe\\");
 
         // datasetCreator.getConceptsMentions();
@@ -725,8 +839,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // System.exit(0);
 
         datasetCreator.setSourceAPI(WebSearcherManager.BING);
-        datasetCreator.setMentionsPerEntity(10);
-        datasetCreator.setSeedsPerConcept(20);
+        datasetCreator.setMentionsPerEntity(2);
+        datasetCreator.setSeedsPerConcept(2);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities/");
         System.exit(0);
 
@@ -735,9 +849,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
         text = text.replaceAll("(\n)+(.{0,80}(\n)){4,}", "\n");
 
         // remove lines without mentions
-        Pattern pattern = Pattern.compile("^((?!POLITICIAN).)*$", Pattern.MULTILINE);
-        Matcher matcher = pattern.matcher(text);
-        text = matcher.replaceAll("");
+        Pattern pattern1 = Pattern.compile("^((?!POLITICIAN).)*$", Pattern.MULTILINE);
+        Matcher matcher1 = pattern1.matcher(text);
+        text = matcher1.replaceAll("");
         text = text.replaceAll("(\n){3,}", "\n");
 
         FileHelper.writeToFile("data/temp/allCleansed.xml", text);
