@@ -7,8 +7,6 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -21,6 +19,13 @@ public class StringHelperTest extends TestCase {
 
     public StringHelperTest(String name) {
         super(name);
+    }
+
+    public void testGetCaseSignature() {
+        assertEquals("Aa", StringHelper.getCaseSignature("Hello"));
+        assertEquals("a a a", StringHelper.getCaseSignature("this is nice"));
+        assertEquals("A 0", StringHelper.getCaseSignature("SUPER 8"));
+        assertEquals("Aa- 0 Aa", StringHelper.getCaseSignature("Super!? 8 Zorro"));
     }
 
     public void testRemoveNumbering() {

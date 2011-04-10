@@ -64,7 +64,12 @@ public class StanfordNER extends NamedEntityRecognizer {
 
     public StanfordNER() {
         setName("Stanford NER");
+        buildConfigFile();
         
+    }
+
+    private void buildConfigFile() {
+        configFileContent = "";
         configFileContent += "#location of the training file" + "\n";
         configFileContent += "trainFile = ###TRAINING_FILE###" + "\n";
         configFileContent += "#location where you would like to save (serialize to) your" + "\n";
@@ -156,6 +161,7 @@ public class StanfordNER extends NamedEntityRecognizer {
         FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
 
         // set the location to the training and the model file in the configs and save the file
+        buildConfigFile();
         configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath2);
         configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
         FileHelper.writeToFile("data/temp/stanfordNerConfig.props", configFileContent);
@@ -530,7 +536,7 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
         // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
                 "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());

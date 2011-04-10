@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.ner.dataset;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +24,11 @@ public class DatasetProcessor {
      * @param minDocuments The minimal number of documents in a separated file.
      * @param maxDocuments The maximal number of documents in a separated file.
      */
-    public List<File> splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments) {
+    public List<String> splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments) {
 
         StopWatch sw = new StopWatch();
 
-        List<File> splitFiles = new ArrayList<File>();
+        List<String> splitFiles = new ArrayList<String>();
 
         String filename = FileHelper.getFileName(datasetPath);
         String content = FileHelper.readFileToString(datasetPath);
@@ -64,7 +63,7 @@ public class DatasetProcessor {
             String splitFilename = FileHelper.getFilePath(datasetPath) + filename + "_sep_" + x + ".txt";
             FileHelper.writeToFile(splitFilename, concatenatedDocuments);
 
-            splitFiles.add(new File(splitFilename));
+            splitFiles.add(splitFilename);
         }
 
         LOGGER.info("split file " + datasetPath + " in " + sw.getElapsedTimeString());

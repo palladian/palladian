@@ -1342,6 +1342,33 @@ public class StringHelper {
     }
 
     /**
+     * Generate a case signature for the input string. Sequences of uppercase letters are transformed to "A", lowercase
+     * letters to
+     * "a", digits to "0", and special chars to "-".<br>
+     * Examples:<br>
+     * 
+     * <pre>
+     * "Hello" => "Aa"
+     * "this is nice" => "a a a"
+     * "SUPER 8" => "A 0"
+     * "Super!? 8 Zorro" => "Aa- 0 Aa"
+     * </pre>
+     * 
+     * @param string The input string for which the case signature should be returned.
+     * @return The case signature.
+     */
+    public static String getCaseSignature(String string) {
+        String caseSignature = string;
+
+        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
+        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
+        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+
+        return caseSignature;
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments
@@ -1470,5 +1497,6 @@ public class StringHelper {
         }
 
     }
+
 
 }
