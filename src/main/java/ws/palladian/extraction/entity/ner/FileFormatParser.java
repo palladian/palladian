@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
@@ -647,6 +648,46 @@ public class FileFormatParser {
         // throw out special characters that might disturb tokenization such as "'" or "=".
         // taggedText = taggedText.replace("'", "").replace("=", "");
         return getAnnotationsFromXMLText(taggedText);
+    }
+
+    /**
+     * <p>
+     * Get a list of annotations from a tagged file.
+     * </p>
+     * 
+     * @param annotatedFilePath The path to the tagged file. The file must be in a tab (\t) separated column column
+     *            format where the first column is the term and the second column is the concept.
+     * @param numberOfSeedsPerConcept The number of annotations that have to be found for each concept. If set to -1 all
+     *            annotations of the file are taken.
+     * @return Annotations with numberOfSeedsPerConcept entries per concept.
+     */
+    public static Annotations getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
+        Annotations annotations = new Annotations();
+
+        // count the number of collected seeds per concept
+        CountMap conceptSeedCount = new CountMap();
+
+        // store entities in a set to avoid duplicates
+        Set<String> entitySet = new HashSet<String>();
+
+        Annotations allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
+
+        // iterate through the annotations and collect numberOfSeedsPerConcept
+        for (Annotation annotation : allAnnotations) {
+
+            String conceptName = annotation.getInstanceCategoryName();
+            int numberOfSeeds = conceptSeedCount.get(conceptName);
+
+            if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
+                    && !entitySet.contains(annotation.getEntity())) {
+                annotations.add(annotation);
+                entitySet.add(annotation.getEntity());
+                conceptSeedCount.increment(conceptName);
+            }
+
+        }
+
+        return annotations;
     }
 
     /**

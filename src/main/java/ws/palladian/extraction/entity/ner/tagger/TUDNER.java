@@ -110,7 +110,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     }
 
     private void setup() {
-        setName("TUD NER");
+        setName("TUDNER (" + getMode() + ")");
 
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
