@@ -758,7 +758,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         // get the broken DOCSTART lines correct
         content = FileHelper.readFileToString(finalColumnTaggedFilePath);
-        content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-");
+        content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-\tO");
 
         FileHelper.writeToFile(finalColumnTaggedFilePath, content);
 
