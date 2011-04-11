@@ -350,8 +350,6 @@ public class HeaderEvaluator {
 						bw.write(write + "\n");
 					
 						System.out.println(write);
-						
-						
 					}
 				}	
 				bw.close();
@@ -359,7 +357,6 @@ public class HeaderEvaluator {
 			} catch(Exception e){
 				e.printStackTrace();
 			}
-			
 		}
 	
 	
