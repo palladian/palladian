@@ -699,6 +699,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
     public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept) {
 
+        StopWatch stopWatch = new StopWatch();
+
+        LOGGER.info("start generating dataset with " + numberOfSeedsPerConcept + " seeds per concept");
+
         // get seed annotations from the training file
         Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, numberOfSeedsPerConcept);
 
@@ -761,6 +765,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-\tO");
 
         FileHelper.writeToFile(finalColumnTaggedFilePath, content);
+
+        LOGGER.info("generated dataset in " + stopWatch.getTotalElapsedTimeString());
 
         return finalColumnTaggedFilePath;
     }

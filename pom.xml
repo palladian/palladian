@@ -57,6 +57,11 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2-beta-5</version>
 				<configuration>
+					<archive>
+	                    <manifest>
+	                        <mainClass>ws.palladian.extraction.entity.ner.evaluation.Evaluator</mainClass>
+	                    </manifest>
+	                </archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
@@ -179,7 +184,7 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId>
-			<version>3.0.3</version>			
+			<version>3.0.3</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -214,10 +219,8 @@
 			<artifactId>stanfordner</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>edu.illinois</groupId>
-			<artifactId>lbj2</artifactId> <version>1.0</version> </dependency>
-		-->
+		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
+			<version>1.0</version> </dependency> -->
 		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
@@ -303,11 +306,8 @@
 			<artifactId>oro</artifactId>
 			<version>2.0.8</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>tud.iir.external</groupId>
-			<artifactId>lbjEdited</artifactId> <version>1.2</version>
-			</dependency>
-		-->
+		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
+			<version>1.2</version> </dependency> -->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
