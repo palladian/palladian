@@ -52,6 +52,14 @@ public abstract class NamedEntityRecognizer {
      */
     public abstract String getModelFileEnding();
 
+    public String getModelFileEndingIfNotSetAutomatically() {
+        if (setsModelFileEndingAutomatically()) {
+            return "";
+        }
+
+        return getModelFileEnding();
+    }
+
     /**
      * Whether or not the NER sets the model file ending itself after specifying the model name.
      * 
@@ -258,6 +266,8 @@ public abstract class NamedEntityRecognizer {
             String tagName = annotation.getMostLikelyTag().getCategory().getName();
 
             taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
+            // taggedText.append(inputText.substring(lastEndIndex, Math.min(inputText.length(),
+            // annotation.getOffset())));
 
             if (!inputText.substring(annotation.getOffset(), annotation.getEndIndex()).equalsIgnoreCase(
                     annotation.getEntity())) {

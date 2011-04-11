@@ -19,6 +19,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Category;
@@ -89,6 +90,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private boolean removeIncorrectlyTaggedInTraining = true;
     private boolean removeWrongEntityBeginnings = false;
     private boolean removeSentenceStartErrors = false;
+    private boolean removeSentenceStartErrors2 = false;
     private boolean removeSingleNonNounEntities = false;
     private boolean switchTagAnnotationsUsingPatterns = true;
     private boolean switchTagAnnotationsUsingDictionary = true;
@@ -192,6 +194,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         this.removeIncorrectlyTaggedInTraining = n.removeIncorrectlyTaggedInTraining;
         this.removeWrongEntityBeginnings = n.removeWrongEntityBeginnings;
         this.removeSentenceStartErrors = n.removeSentenceStartErrors;
+        this.removeSentenceStartErrors2 = n.removeSentenceStartErrors2;
         this.removeSingleNonNounEntities = n.removeSingleNonNounEntities;
         this.switchTagAnnotationsUsingPatterns = n.switchTagAnnotationsUsingPatterns;
         this.switchTagAnnotationsUsingDictionary = n.switchTagAnnotationsUsingDictionary;
@@ -260,13 +263,19 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     private void addToCaseDictionary(String token) {
         token = StringHelper.trim(token);
-        Term term = tokenTermMap.get(token);
-        if (term == null) {
-            term = new Term(token);
-            tokenTermMap.put(token, term);
+        if (token.length() < 2) {
+            return;
         }
         String caseSignature = StringHelper.getCaseSignature(token);
-        caseDictionary.updateWord(term, caseSignature, 1);
+        if (caseSignature.equals("Aa") || caseSignature.equals("A") || caseSignature.equals("a")) {
+            token = token.toLowerCase();
+            Term term = tokenTermMap.get(token);
+            if (term == null) {
+                term = new Term(token);
+                tokenTermMap.put(token, term);
+            }
+            caseDictionary.updateWord(term, caseSignature, 1);
+        }
     }
 
     @Override
@@ -668,6 +677,63 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             }
 
             LOGGER.info("removed " + c + " nouns at beginning of sentence in " + stopWatch.getElapsedTimeString());
+        }
+
+        if (removeSentenceStartErrors2) {
+            stopWatch.start();
+
+            for (Annotation annotation : annotations) {
+
+                // if the annotation is at the start of a sentence
+                if (/*
+                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                     * &&
+                     */annotation.getEntity().indexOf(" ") == -1) {
+
+                    double upperCaseToLowerCaseRatio = 2;
+
+                    // if (annotation.getEntity().equals("NATO")) {
+                    // System.out.println("wait");
+                    // }
+
+                    CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getEntity().toLowerCase()));
+                    if (ces != null && ces.size() > 0) {
+                        double allUpperCase = 0.0;
+                        double upperCase = 0.0;
+                        double lowerCase = 0.0;
+
+                        if (ces.getCategoryEntry("A") != null) {
+                            allUpperCase = ces.getCategoryEntry("A").getRelevance();
+                        }
+
+                        if (ces.getCategoryEntry("Aa") != null) {
+                            upperCase = ces.getCategoryEntry("Aa").getRelevance();
+                        }
+
+                        if (ces.getCategoryEntry("a") != null) {
+                            lowerCase = ces.getCategoryEntry("a").getRelevance();
+                        }
+
+                        if (lowerCase > 0) {
+                            upperCaseToLowerCaseRatio = upperCase / lowerCase;
+                        }
+                        if (allUpperCase > upperCase && allUpperCase > lowerCase) {
+                            upperCaseToLowerCaseRatio = 2;
+                        }
+                    }
+
+                    if (upperCaseToLowerCaseRatio <= 1) {
+                        c++;
+                        toRemove.add(annotation);
+                        LOGGER.debug("remove word at beginning of sentence: " + annotation.getEntity() + " (ratio:"
+                                + upperCaseToLowerCaseRatio + ") | "
+                                + annotation.getRightContext());
+                    }
+
+                }
+            }
+
+            LOGGER.info("removed " + c + " words at beginning of sentence in " + stopWatch.getElapsedTimeString());
         }
 
         // remove entities which contain only one word which is not a noun
@@ -1317,6 +1383,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             removeIncorrectlyTaggedInTraining = false;
             removeWrongEntityBeginnings = false;
             removeSentenceStartErrors = false;
+            removeSentenceStartErrors2 = true;
             removeSingleNonNounEntities = false;
             switchTagAnnotationsUsingPatterns = true;
             switchTagAnnotationsUsingDictionary = true;
@@ -1457,6 +1524,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
+
+        LOGGER.setLevel(Level.DEBUG);
 
         // using a column trainig and testing file
         StopWatch stopWatch = new StopWatch();

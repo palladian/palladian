@@ -159,6 +159,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         // set the location to the training and the model file in the configs and save the file
+        buildConfigFile();
         configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
         FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
 

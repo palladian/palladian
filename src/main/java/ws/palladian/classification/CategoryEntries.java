@@ -41,7 +41,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
 
     public CategoryEntry getCategoryEntry(String categoryName) {
         for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
+            if (ce.getCategory().getName().equals(categoryName)) {
                 return ce;
             }
         }
