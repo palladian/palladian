@@ -10,28 +10,32 @@ import ws.palladian.helper.date.DateHelper;
  */
 public class StopWatch {
 
-    /** the start time */
+    /** The start time. */
     private long startTime = 0;
 
-    /** the stop time */
+    /** The time of the last break point (when start was called). */
+    private long lastBreakpointTime = 0;
+
+    /** The stop time. */
     private long stopTime = 0;
 
-    /** count down in milliseconds, -1 means no count down set */
+    /** Count down in milliseconds, -1 means no count down set. */
     private long countDown = -1;
 
-    /** whether the stop watch is running or not */
+    /** Whether the stop watch is running or not. */
     private boolean running = false;
 
     /**
      * The StopWatch starts running right after object creation.
      */
     public StopWatch() {
+        this.startTime = System.currentTimeMillis();
         start();
     }
 
     /** Start/reset the stop watch. */
     public void start() {
-        this.startTime = System.currentTimeMillis();
+        this.lastBreakpointTime = System.currentTimeMillis();
         this.running = true;
     }
 
@@ -79,9 +83,9 @@ public class StopWatch {
     public long getElapsedTime(boolean inSeconds) {
         long elapsed;
         if (running) {
-            elapsed = System.currentTimeMillis() - startTime;
+            elapsed = System.currentTimeMillis() - lastBreakpointTime;
         } else {
-            elapsed = stopTime - startTime;
+            elapsed = stopTime - lastBreakpointTime;
         }
         if (inSeconds) {
             elapsed = elapsed / 1000;
@@ -99,12 +103,41 @@ public class StopWatch {
     }
 
     /**
-     * Get the elapsed time as a string.
+     * Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
+     * called.
      * 
      * @param output If true, the elapsed time will be printed to the console as well.
      * @return The elapsed time as a string.
      */
     public String getElapsedTimeString(boolean output) {
+        String elapsed;
+        if (running) {
+            elapsed = DateHelper.getRuntime(lastBreakpointTime);
+        } else {
+            elapsed = DateHelper.getRuntime(lastBreakpointTime, stopTime);
+        }
+        if (output) {
+            System.out.println(elapsed);
+        }
+        return elapsed;
+    }
+
+    /**
+     * Get the elapsed time as a string without console output.
+     * 
+     * @return The elapsed time as a string.
+     */
+    public String getElapsedTimeString() {
+        return getElapsedTimeString(false);
+    }
+
+    /**
+     * Get the elapsed time as a string.
+     * 
+     * @param output If true, the elapsed time will be printed to the console as well.
+     * @return The elapsed time as a string.
+     */
+    public String getTotalElapsedTimeString(boolean output) {
         String elapsed;
         if (running) {
             elapsed = DateHelper.getRuntime(startTime);
@@ -122,9 +155,10 @@ public class StopWatch {
      * 
      * @return The elapsed time as a string.
      */
-    public String getElapsedTimeString() {
+    public String getTotalElapsedTimeString() {
         return getElapsedTimeString(false);
     }
+
 
     @Override
     public String toString() {

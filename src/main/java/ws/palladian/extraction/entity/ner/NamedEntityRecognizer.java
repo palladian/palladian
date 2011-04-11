@@ -266,8 +266,6 @@ public abstract class NamedEntityRecognizer {
             String tagName = annotation.getMostLikelyTag().getCategory().getName();
 
             taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
-            // taggedText.append(inputText.substring(lastEndIndex, Math.min(inputText.length(),
-            // annotation.getOffset())));
 
             if (!inputText.substring(annotation.getOffset(), annotation.getEndIndex()).equalsIgnoreCase(
                     annotation.getEntity())) {
@@ -391,6 +389,11 @@ public abstract class NamedEntityRecognizer {
         annotationsErrors.put(EvaluationResult.ERROR4, new Annotations());
         annotationsErrors.put(EvaluationResult.ERROR5, new Annotations());
 
+        Set<Integer> ignoreAnnotationSet = new HashSet<Integer>();
+        for (Annotation annotation : ignoreAnnotations) {
+            ignoreAnnotationSet.add(annotation.getEntity().hashCode());
+        }
+
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
         // tagged(<Person>Homer</Person> J. <Person>Simpson</Person>) => tagged(<Person>Homer</Person> J. Simpson)
@@ -408,7 +411,7 @@ public abstract class NamedEntityRecognizer {
 
                 // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
                 // (tagged something that should not have been tagged)
-                if (ignoreAnnotations.containsAnnotationWithEntity(goldStandardAnnotation)
+                if (ignoreAnnotationSet.contains(goldStandardAnnotation.getEntity().hashCode())
                         && !(nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex() && !taggedOverlap)) {
                     continue;
                 }

@@ -13,6 +13,7 @@ import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
+import ws.palladian.extraction.entity.ner.tagger.JulieNER;
 import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
 import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
@@ -23,11 +24,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
- * @author David
- * 
- */
-/**
- * @author David
+ * @author David Urbansky
  * 
  */
 public class Evaluator {
@@ -182,12 +179,15 @@ public class Evaluator {
     public void evaluateDependencyOnTrainingSetSize(NamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, String documentSeparator, int minDocuments, int maxDocuments) {
 
+        StopWatch stopWatch = new StopWatch();
+
+        LOGGER.info("evaluate " + tagger.getName() + " on " + testFilePath + " with " + minDocuments + " to "
+                + maxDocuments + " documents");
+
         // split the training set in a number of files containing the documents
         DatasetProcessor processor = new DatasetProcessor();
         List<String> splitFilePaths = processor.splitFile(trainingFilePath, documentSeparator, minDocuments,
                 maxDocuments);
-
-        StopWatch stopWatch = new StopWatch();
 
         StringBuilder results = new StringBuilder();
 
@@ -236,7 +236,7 @@ public class Evaluator {
             }
 
             LOGGER.info("evaluated " + tagger.getName() + " on " + numberOfDocuments + " documents in "
-                    + stopWatch.getElapsedTimeString());
+                    + stopWatch.getTotalElapsedTimeString());
 
             FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv",
                     results);
@@ -277,9 +277,9 @@ public class Evaluator {
                 + " seeds");
 
         String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "_" + numberOfSeeds
-                + "."
-                + tagger.getModelFileEndingIfNotSetAutomatically();
+                + "." + tagger.getModelFileEndingIfNotSetAutomatically();
         tagger.train(trainingFilePath, modelFilePath);
+        LOGGER.info("training " + tagger.getName() + " took " + stopWatch.getElapsedTimeString());
 
         StringBuilder results = new StringBuilder();
 
@@ -287,8 +287,13 @@ public class Evaluator {
         Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
 
         // evaluate once with complete test set and once only over unseen entities
+        stopWatch.start();
         EvaluationResult er1 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+        LOGGER.info("evaluating " + tagger.getName() + " on the complete data took " + stopWatch.getElapsedTimeString());
+
+        stopWatch.start();
         EvaluationResult er2 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+        LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
         concepts.remove("O");
@@ -353,7 +358,7 @@ public class Evaluator {
                 + ".csv", results);
 
         LOGGER.info("evaluated " + tagger.getName() + " on " + trainingFilePath + " in "
-                + stopWatch.getElapsedTimeString());
+                + stopWatch.getTotalElapsedTimeString());
     }
 
     public void evaluateOnGeneratedTrainingset(List<NamedEntityRecognizer> taggers, String trainingPathForSeeds,
@@ -376,7 +381,7 @@ public class Evaluator {
         }
 
         LOGGER.info("finished evaluating " + taggers.size() + " NERs on generated training data in "
-                + stopWatch.getElapsedTimeString());
+                + stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -389,14 +394,14 @@ public class Evaluator {
         taggerList.add(new IllinoisLbjNER());
         taggerList.add(new LingPipeNER());
         taggerList.add(new OpenNLPNER());
-        // taggerList.add(new JulieNER());
+        taggerList.add(new JulieNER());
         taggerList.add(new TUDNER(Mode.English));
-        // taggerList.add(new TUDNER(Mode.LanguageIndependent));
+        taggerList.add(new TUDNER(Mode.LanguageIndependent));
 
-        // String conll2003TrainingPath = "data/datasets/ner/conll/training_small.txt";
+        // String conll2003TrainingPath = "data/datasets/ner/conll/training_verysmall.txt";
         // String conll2003TestPath = "data/datasets/ner/conll/test_validation_small.txt";
 
-         String conll2003TrainingPath = "data/datasets/ner/conll/training.txt";
+        String conll2003TrainingPath = "data/datasets/ner/conll/training.txt";
         String conll2003TestPath = "data/datasets/ner/conll/test_final.txt";
 
         Evaluator evaluator = new Evaluator();

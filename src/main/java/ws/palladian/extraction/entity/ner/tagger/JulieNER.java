@@ -73,7 +73,10 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // alignContent(new File("data/temp/t.TXT"), "THURSDAY'S GAMES. NEW YORK");
         // alignContent(new File("data/temp/t.TXT"), "MOODY'S: Aaa");
-
+        // alignContent(
+        // new File("data/temp/t.TXT"),
+        // "Jan Sergi Barjuan 40-1 Rafael Alkorta 33-1 Albert Ferrer 40-1 Chendo Porlan 33-1 Miguel Nadal 40-1 Laurent Blanc=-DOCSTART- SOCCER");
+        
         configFileContent += "pos_feat_enabled = false" + "\n";
         configFileContent += "pos_feat_unit = pos" + "\n";
         configFileContent += "pos_feat_position = 1" + "\n";
@@ -239,6 +242,8 @@ public class JulieNER extends NamedEntityRecognizer {
                     } while (alignedCharacter.charValue() != 62);
                     alignedCharacter = alignedContent.charAt(++alignIndex);
                 }
+
+                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
 
                 // check again if the characters are the same
                 if (correctCharacter.equals(alignedCharacter)) {
@@ -496,9 +501,14 @@ public class JulieNER extends NamedEntityRecognizer {
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/juliener.mod");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
+        // "data/temp/juliener.mod",
+        // TaggingFormat.COLUMN);
+
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
-                "data/temp/juliener.mod",
+                "data/temp/nerEvaluation/Julie NER_nerModel_2..gz",
                 TaggingFormat.COLUMN);
+
         // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
         // "data/temp/juliener_small.mod", TaggingFormat.COLUMN);
