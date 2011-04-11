@@ -12,7 +12,10 @@ import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.helper.date.DateComparator;
 
 public class WekaEvaluator {
-
+	private String db;
+	private void setDB(String db){
+		this.db = db;
+	}
 	/**
 	 * @param args
 	 */
@@ -23,11 +26,15 @@ public class WekaEvaluator {
 		
 		String factorTable = "contentfactor3";
 		String table = "regression"; 
-		table = "weka7";
-		try{
-			we.evaluationOut(pageDateType, table, factorTable);
-		}catch (SQLException e) {
-			// TODO: handle exception
+		
+		for(int i= 1; i< 550; i++){
+			table = "wekaout" + 1;
+			we.setDB("wekaout");
+			try{
+				we.evaluationOut(pageDateType, table, factorTable);
+			}catch (SQLException e) {
+				// TODO: handle exception
+			}
 		}
 		
 	}
@@ -86,7 +93,7 @@ public class WekaEvaluator {
 	private HashMap<Integer, Double> importWeka(PageDateType pageDateType, String table) throws SQLException{
 		HashMap<Integer, Double> wekaMap = new HashMap<Integer, Double>();
 		String yesType = pageDateType.equals(PageDateType.publish) ? "yesPub" : "yesMod";
-		
+		DataSetHandler.setDB(this.db);
 		DataSetHandler.openConnection();
 		String sqlQuery ="SELECT * FROM " + table;
 		

@@ -4,8 +4,10 @@ import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -38,7 +40,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class DataSetHandler{
 	
 	private static final String DRIVER = "jdbc:mysql://localhost/";
-	private static final String DB = "dateset";
+	private static String DB = "dateset";
 	
 	public static Connection cn = null;
 	public static Statement st = null;
@@ -89,6 +91,10 @@ public class DataSetHandler{
 	
 	public static final String SEPARATOR = " *;_;* "; 
 	
+	public static void setDB(String db){
+		DB = db;
+	}
+	
 	public static void main(String[] args){
 		/*
 		String path = "D:/_Uni/_semester16/dataset/";	
@@ -125,6 +131,9 @@ public class DataSetHandler{
 		
 		
 		//googleCheck("data/evaluation/daterecognition/datasets/dataset.txt");
+		String in = "D:/_Uni/_semester16/knime/test2.csv";
+		String outPath = "D:/_Uni/_semester16/knime/wekaout/";
+		splittKnieCVS(in, outPath);
 	}
 	
 	
@@ -569,7 +578,6 @@ public class DataSetHandler{
 					classificationMap.put(url, rs.getInt(round));
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -584,7 +592,6 @@ public class DataSetHandler{
     	try {
 			DataSetHandler.st.executeUpdate(sqlQuery);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	DataSetHandler.closeConnection();
@@ -601,7 +608,6 @@ public class DataSetHandler{
 			System.out.println(sqlQuery);
 			st.execute(sqlQuery);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		closeConnection();
@@ -868,7 +874,6 @@ public class DataSetHandler{
 			try {
 				st.executeUpdate(sqlQuery);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				System.out.println(sqlQuery);
 				e.printStackTrace();
 			}
@@ -957,7 +962,6 @@ public class DataSetHandler{
 				
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Count: " + cnt);
@@ -996,7 +1000,6 @@ public class DataSetHandler{
 			try {
 				st.execute(sqlQuery);
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -1016,11 +1019,54 @@ public class DataSetHandler{
 			sqlQuery = "UPDATE " + table + " SET downloaded = 1";
 			st.execute(sqlQuery);
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		closeConnection();
+	}
+	
+	private static void splittKnieCVS(String in, String outPath){
+		File file = new File(in);
+		File fileOut;
+		FileReader fr;
+		BufferedReader br;
+		
+		FileWriter fw;
+		BufferedWriter bw;
+		try {
+			fr = new FileReader(file);
+			br = new BufferedReader(fr);
+			
+			
+			
+			String line;
+			int index = 0;
+			fileOut = new File(outPath + "wekaOut" + index + ".csv");
+			fw = new FileWriter(fileOut);
+			bw = new BufferedWriter(fw);
+			boolean head;
+			while((line = br.readLine()) != null){
+				head = line.indexOf("id") > -1 ? true : false;
+				if(head){
+					bw.close();
+					fw.close();
+					index++;
+					System.out.println(index);
+					fileOut = new File(outPath + "wekaOut" + index + ".csv");
+					fw = new FileWriter(fileOut, false);
+					bw = new BufferedWriter(fw);
+				}
+				bw.write(line + "\n");
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 	
 }
