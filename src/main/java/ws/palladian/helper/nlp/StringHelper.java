@@ -1360,10 +1360,10 @@ public class StringHelper {
     public static String getCaseSignature(String string) {
         String caseSignature = string;
 
-        caseSignature = caseSignature.replaceAll("[A-Z]+", "A");
-        caseSignature = caseSignature.replaceAll("[a-z]+", "a");
+        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
+        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
         caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-        caseSignature = caseSignature.replaceAll("[-,:?!]+", "-");
+        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
 
         return caseSignature;
     }

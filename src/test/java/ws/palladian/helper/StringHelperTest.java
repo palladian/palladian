@@ -22,10 +22,14 @@ public class StringHelperTest extends TestCase {
     }
 
     public void testGetCaseSignature() {
+        // System.out.println(StringHelper.getCaseSignature("Äpfelsüppchen"));
         assertEquals("Aa", StringHelper.getCaseSignature("Hello"));
         assertEquals("a a a", StringHelper.getCaseSignature("this is nice"));
         assertEquals("A 0", StringHelper.getCaseSignature("SUPER 8"));
         assertEquals("Aa- 0 Aa", StringHelper.getCaseSignature("Super!? 8 Zorro"));
+        assertEquals("Aa", StringHelper.getCaseSignature("Äpfelsüppchen"));
+        assertEquals("a-a-0-", StringHelper.getCaseSignature("amazing(grace){1}"));
+        assertEquals("Aa -Aa- Aa", StringHelper.getCaseSignature("Bruce \"Batman\" Wayne"));
     }
 
     public void testRemoveNumbering() {

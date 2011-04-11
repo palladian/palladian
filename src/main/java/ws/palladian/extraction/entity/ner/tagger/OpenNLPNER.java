@@ -193,7 +193,16 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         StopWatch stopWatch = new StopWatch();
 
-        String[] modelFilePaths = configModelFilePath.split(",");
+        // get all models in the given folder that have the schema of "openNLP_" + conceptName + ".bin"
+        File[] modelFiles = FileHelper.getFiles(FileHelper.getFilePath(configModelFilePath), "openNLP_");
+
+        String modelFileString = "";
+        String[] modelFilePaths = new String[modelFiles.length];
+        int i = 0;
+        for (File modelFile : modelFiles) {
+            modelFilePaths[i++] = modelFile.getPath();
+            modelFileString += modelFile.getPath() + ",";
+        }
 
         NameFinderME[] finders = new NameFinderME[modelFilePaths.length];
         String[] tags = new String[finders.length];
@@ -224,7 +233,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         objs[1] = tags;
 
         setModel(objs);
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("model " + modelFileString + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
     }

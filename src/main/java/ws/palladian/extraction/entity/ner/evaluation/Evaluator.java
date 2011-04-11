@@ -12,6 +12,9 @@ import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
+import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
+import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
+import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.Mode;
@@ -103,7 +106,7 @@ public class Evaluator {
 
                 // train the tagger using seed annotations only
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
-                        + tagger.getModelFileEnding();
+                        + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
 
@@ -200,7 +203,7 @@ public class Evaluator {
             Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-                    + tagger.getModelFileEnding();
+                    + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -234,6 +237,9 @@ public class Evaluator {
 
             LOGGER.info("evaluated " + tagger.getName() + " on " + numberOfDocuments + " documents in "
                     + stopWatch.getElapsedTimeString());
+
+            FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv",
+                    results);
         }
 
         FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv",
@@ -262,14 +268,17 @@ public class Evaluator {
      * @param trainingFilePath The path to the training file that contains all documents.
      * @param testFilePath The path to the test file on which the NER should be tested on.
      */
-    public void evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath, String testFilePath) {
+    public void evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath,
+            String testFilePath, int numberOfSeeds) {
 
         StopWatch stopWatch = new StopWatch();
 
-        LOGGER.info("start evaluating per concept performance for " + tagger.getName());
+        LOGGER.info("start evaluating per concept performance for " + tagger.getName() + " on " + numberOfSeeds
+                + " seeds");
 
-        String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "."
-                + tagger.getModelFileEnding();
+        String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "_" + numberOfSeeds
+                + "."
+                + tagger.getModelFileEndingIfNotSetAutomatically();
         tagger.train(trainingFilePath, modelFilePath);
 
         StringBuilder results = new StringBuilder();
@@ -281,10 +290,10 @@ public class Evaluator {
         EvaluationResult er1 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
         EvaluationResult er2 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
 
-        Set<String> concpets = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
-        concpets.remove("O");
+        Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
+        concepts.remove("O");
 
-        for (String concept : concpets) {
+        for (String concept : concepts) {
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
             for (int k = 0; k < 2; k++) {
@@ -340,7 +349,8 @@ public class Evaluator {
 
         }
 
-        FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + ".csv", results);
+        FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" + numberOfSeeds
+                + ".csv", results);
 
         LOGGER.info("evaluated " + tagger.getName() + " on " + trainingFilePath + " in "
                 + stopWatch.getElapsedTimeString());
@@ -360,7 +370,7 @@ public class Evaluator {
             String generatedTrainingFilePath = dc.generateDataset(trainingPathForSeeds, i);
 
             for (NamedEntityRecognizer tagger : taggers) {
-                evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath);
+                evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i);
             }
 
         }
@@ -376,11 +386,11 @@ public class Evaluator {
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
         taggerList.add(new StanfordNER());
-        // taggerList.add(new IllinoisLbjNER());
+        taggerList.add(new IllinoisLbjNER());
+        taggerList.add(new LingPipeNER());
+        taggerList.add(new OpenNLPNER());
         // taggerList.add(new JulieNER());
-        // taggerList.add(new LingPipeNER());
-        // taggerList.add(new OpenNLPNER());
-        // taggerList.add(new TUDNER(Mode.English));
+        taggerList.add(new TUDNER(Mode.English));
         // taggerList.add(new TUDNER(Mode.LanguageIndependent));
 
         // String conll2003TrainingPath = "data/datasets/ner/conll/training_small.txt";
@@ -396,9 +406,9 @@ public class Evaluator {
 
         // evaluate all tagger how they depend on the number of documents in the training set
          for (NamedEntityRecognizer tagger : taggerList) {
-            // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath,
-            // conll2003TestPath,"=-DOCSTART-\tO", 1, 3);
-            evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath);
+            evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
+            evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
+                    "=-DOCSTART-\tO", 1, 50);
          }
         
         // evaluator.evaluateOnGeneratedTrainingset(taggerList, conll2003TrainingPath, conll2003TestPath, 2, 4, 2);

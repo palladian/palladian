@@ -71,6 +71,9 @@ public class JulieNER extends NamedEntityRecognizer {
     public JulieNER() {
         setName("Julie NER");
 
+        // alignContent(new File("data/temp/t.TXT"), "THURSDAY'S GAMES. NEW YORK");
+        // alignContent(new File("data/temp/t.TXT"), "MOODY'S: Aaa");
+
         configFileContent += "pos_feat_enabled = false" + "\n";
         configFileContent += "pos_feat_unit = pos" + "\n";
         configFileContent += "pos_feat_position = 1" + "\n";
@@ -162,7 +165,9 @@ public class JulieNER extends NamedEntityRecognizer {
         File outFile = new File("data/temp/juliePredictionOutput.txt");
         try {
 
-            Utils.writeFile(outFile, tagger.predictIOB(sentences, showSegmentConfidence));
+            ArrayList<String> predictIOB = tagger.predictIOB(sentences, showSegmentConfidence);
+            Utils.writeFile(outFile, predictIOB);
+            Utils.writeFile(new File("data/temp/juliePredictionOutput_original.txt"), predictIOB);
 
             // reformatOutput(outFile);
             alignContent(outFile, inputText);
@@ -215,7 +220,7 @@ public class JulieNER extends NamedEntityRecognizer {
 
             // if tag "<" skip it
             if (alignedCharacter.charValue() == 60
-                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47)) {
+                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47 || jumpOne)) {
                 do {
                     alignIndex++;
                     alignedCharacter = alignedContent.charAt(alignIndex);
@@ -226,6 +231,14 @@ public class JulieNER extends NamedEntityRecognizer {
                     jumpOne = false;
                 }
                 alignedCharacter = alignedContent.charAt(++alignIndex);
+
+                if (alignedCharacter.charValue() == 60) {
+                    do {
+                        alignIndex++;
+                        alignedCharacter = alignedContent.charAt(alignIndex);
+                    } while (alignedCharacter.charValue() != 62);
+                    alignedCharacter = alignedContent.charAt(++alignIndex);
+                }
 
                 // check again if the characters are the same
                 if (correctCharacter.equals(alignedCharacter)) {
