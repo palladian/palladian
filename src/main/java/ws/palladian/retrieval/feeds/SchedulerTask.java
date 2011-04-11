@@ -67,6 +67,7 @@ class SchedulerTask extends TimerTask {
 	public void run() {
 		LOGGER.debug("wake up to check feeds");
 		int feedCount = 0;
+		int alreadyScheduledFeedCount = 0;
 		for (Feed feed : feedReader.getFeeds()) {
 			if (needsLookup(feed)) {
 				if (LOGGER.isDebugEnabled()) {
@@ -79,6 +80,7 @@ class SchedulerTask extends TimerTask {
 						LOGGER.trace("It seems the machine cannot keep up with update intervall since feed "
 								+ feed.getId() + " is already scheduled.");
 					}
+					alreadyScheduledFeedCount++;
 					continue;
 				}
 				// incrementThreadPoolSize();
@@ -89,6 +91,10 @@ class SchedulerTask extends TimerTask {
 
 		}
 		LOGGER.info("Scheduled " + feedCount + " feeds for reading");
+		if (alreadyScheduledFeedCount > 0) {
+			LOGGER.error("Could not schedule: " + alreadyScheduledFeedCount
+					+ " already scheduled feeds.");
+		}
 		LOGGER.info("Queue now contains: " + scheduledTasks.size());
 	}
 
