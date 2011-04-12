@@ -47,9 +47,7 @@ class FeedTask extends Thread {
     public void run() {
         LOGGER.trace("beginning of feed task");
 
-        LOGGER.debug(DateHelper.getCurrentDatetime() + ": running feed task " + feed.getId() + "(" + feed.getFeedUrl()
-                + ")");
-
+        LOGGER.debug("running feed task " + feed.getId() + " (" + feed.getFeedUrl() + ")");
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
@@ -68,11 +66,12 @@ class FeedTask extends Thread {
 
         // classify feed if it has never been classified before, do it once a month for each feed to be informed about
         // updates
-        LOGGER.debug("Activity Pattern: "+feed.getActivityPattern());
-        LOGGER.debug("Current time: "+System.currentTimeMillis());
-        LOGGER.debug("Last poll time: "+feed.getLastPollTime().getTime());
-        LOGGER.debug("Current time - last poll time: "+(System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-        LOGGER.debug("Milliseconds in a mont: "+DateHelper.MONTH_MS);
+        LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
+        LOGGER.debug("Current time: " + System.currentTimeMillis());
+        LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
+        LOGGER.debug("Current time - last poll time: "
+                + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+        LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
         if (feed.getActivityPattern() == -1
                 || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
             FeedClassifier.classify(feed);
@@ -81,8 +80,7 @@ class FeedTask extends Thread {
         feedReader.updateCheckIntervals(feed);
 
         // perform actions on this feeds entries
-        LOGGER.debug("Performing action on feed: "+feed.getId() + "(" + feed.getFeedUrl()
-                + ")");
+        LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
         feedReader.getFeedProcessingAction().performAction(feed);
 
         // save the feed back to the database
