@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +40,40 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class Temp {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(Temp.class);
+    
+//    public static void threadPoolTest() {
+//        
+//        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+//        FeedDatabase feedDatabase = new FeedDatabase();
+//        List<Feed> feeds = feedDatabase.getFeeds();
+//        LOGGER.info("# feeds " + feeds.size());
+//        final AtomicInteger counter = new AtomicInteger();        
+//        
+//        for (final Feed feed : feeds) {
+//            threadPool.submit(new Runnable() {
+//                @Override
+//                public void run() {
+//                    LOGGER.info("run "  + feed.getFeedUrl());
+//                    DocumentRetriever documentRetriever = new DocumentRetriever();
+//                    documentRetriever.setOverallTimeout(10000);
+//                    documentRetriever.getWebDocument(feed.getFeedUrl());
+//                    counter.incrementAndGet();
+//                }
+//            });
+//        }
+//        
+//        while (true) {
+//            try {
+//                Thread.sleep(1000);
+//                // System.gc();
+//            } catch (InterruptedException e) {
+//                LOGGER.error(e);
+//            }
+//        }
+//    }
 
     public static void downloadFeedTest() {
 
@@ -309,9 +346,13 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+        
+        
+        
 
         downloadFeedTest();
-        System.exit(0);
+        //threadPoolTest();
+        //System.exit(0);
 
         // pos tagging
 
