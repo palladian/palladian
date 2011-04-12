@@ -530,7 +530,7 @@ public abstract class NamedEntityRecognizer {
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
 
         printEvaluationDetails(evaluationResult, annotationsErrors, FileHelper.getFilePath(testingFilePath)
-                + DateHelper.getCurrentDatetime() + "_results.csv");
+                + DateHelper.getCurrentDatetime() + "_results_" + getName() + ".csv");
 
         return evaluationResult;
     }

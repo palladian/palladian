@@ -446,12 +446,17 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
     }
 
-    public static void cleanDataset(String datasetRoot, String datasetName, String seedFolderPath) {
+    public static void cleanDataset(String datasetRoot, String datasetName, String seedFolderPath,
+            boolean copyToNewFolder) {
 
         StopWatch stopWatch = new StopWatch();
 
-        String sourceLocation = datasetRoot + datasetName;
-        String targetLocation = sourceLocation + "_cleansed/";
+        String sourceLocation = datasetRoot + datasetName + "/";
+        String targetLocation = sourceLocation;
+
+        if (copyToNewFolder) {
+            targetLocation += "_cleansed/";
+        }
 
         File[] seedFiles = FileHelper.getFiles(seedFolderPath);
 
@@ -493,7 +498,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
 
         // copy the meta information file to the new directory
-        FileHelper.copyFile(sourceLocation + "/metaInformation.txt", targetLocation + "/metaInformation.txt");
+        if (copyToNewFolder) {
+            FileHelper.copyFile(sourceLocation + "/metaInformation.txt", targetLocation + "/metaInformation.txt");
+        }
 
         LOGGER.info("dataset cleansed in " + stopWatch.getElapsedTimeString());
     }
@@ -697,11 +704,12 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return sourceAPI;
     }
 
-    public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept) {
+    public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept, int minMentionsPerSeed) {
 
         StopWatch stopWatch = new StopWatch();
 
-        LOGGER.info("start generating dataset with " + numberOfSeedsPerConcept + " seeds per concept");
+        LOGGER.info("start generating dataset with " + numberOfSeedsPerConcept + " seeds per concept and at least "
+                + minMentionsPerSeed + " mentions per seed");
 
         // get seed annotations from the training file
         Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, numberOfSeedsPerConcept);
@@ -720,23 +728,22 @@ public class DatasetCreator implements DatasetCreatorInterface {
             seedFileContent.append(annotation.getEntity()).append("\n");
         }
 
+        String seedFolderPath = getDataSetLocation() + "seedEntities/";
         Set<Entry<String, StringBuilder>> entrySet = fileMap.entrySet();
         for (Entry<String, StringBuilder> entry : entrySet) {
-            FileHelper.writeToFile("data/temp/seedEntities/" + entry.getKey() + ".txt", entry.getValue());
+            FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
         setSourceAPI(WebSearcherManager.BING);
-        setMentionsPerEntity(2);
+        setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
-        createDataset("data/temp/seedEntities/");
+        createDataset(seedFolderPath);
 
-        cleanDataset(dataSetLocation, getDatasetName(), "data/temp/seedEntities/");
-        postProcessDataset("data/temp/seedEntities/", dataSetLocation + getDatasetName() + "_cleansed/");
-
-        String cleansedPath = dataSetLocation + getDatasetName() + "_cleansed/";
+        cleanDataset(dataSetLocation, getDatasetName(), seedFolderPath, false);
+        postProcessDataset(seedFolderPath, getDataSetLocation());
 
         // replace "new document" and "new concept" with proper string "docstart" and "" respectively
-        String content = FileHelper.readFileToString(cleansedPath + "all.xml");
+        String content = FileHelper.readFileToString(getDataSetLocation() + "all.xml");
         content = content.replaceAll("-+ NEW CONCEPT.*", "");
         content = content.replaceAll("-+ NEW DOCUMENT .#.*", "=-<DOCSTART>-");
 
@@ -755,10 +762,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         content = content.replaceAll("(\n){3,}", "\n");
 
-        FileHelper.writeToFile(cleansedPath + "allCleansed.xml", content);
+        FileHelper.writeToFile(getDataSetLocation() + "allCleansed.xml", content);
 
-        String finalColumnTaggedFilePath = cleansedPath + "allColumn.txt";
-        FileFormatParser.xmlToColumn(cleansedPath + "allCleansed.xml", finalColumnTaggedFilePath, "\t");
+        String finalColumnTaggedFilePath = getDataSetLocation() + "allColumn.txt";
+        FileFormatParser.xmlToColumn(getDataSetLocation() + "allCleansed.xml", finalColumnTaggedFilePath, "\t");
 
         // get the broken DOCSTART lines correct
         content = FileHelper.readFileToString(finalColumnTaggedFilePath);
@@ -776,6 +783,12 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
+
+        for (int i = 0; i < 5; i++) {
+            DatasetCreator dsc = new DatasetCreator("www_eval_test_seeds_" + i);
+            dsc.generateDataset("data/datasets/ner/conll/training.txt", i, 1);
+        }
+        System.exit(0);
 
         // String cleansedPath = "data/datasets/ner/www_eval_cleansed/";
         //
@@ -834,7 +847,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
         // System.exit(0);
         DatasetCreator datasetCreator = new DatasetCreator("www_eval");
-        cleanDataset("data/datasets/ner/", "www_eval", "data/temp/seedEntities");
+        cleanDataset("data/datasets/ner/", "www_eval", "data/temp/seedEntities", true);
         postProcessDataset("data/temp/seedEntities/", "data/datasets/ner/www_eval_cleansed/");
         System.exit(0);
         // datasetCreator.setDataSetLocation("C:\\Safe\\");
