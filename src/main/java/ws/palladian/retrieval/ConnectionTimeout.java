@@ -52,7 +52,7 @@ public final class ConnectionTimeout implements Runnable {
         if (urlConnection instanceof HttpURLConnection && isActive()) {
             try {
                 ((HttpURLConnection) urlConnection).disconnect();
-                Logger.getRootLogger().warn("urlConnection had to be timed out " + urlConnection.getURL());
+                // Logger.getRootLogger().warn("urlConnection had to be timed out " + urlConnection.getURL()); //XXX
             }catch(Exception e){
                 Logger.getRootLogger().error("urlConnection time-out failed" + urlConnection.getURL());
             }
@@ -66,7 +66,14 @@ public final class ConnectionTimeout implements Runnable {
         return active;
     }
 
+    /**
+     * (De)activates the timer.<br />
+     * <br />
+     * CAUTION! Value currently not set, this is a hack for the feed dataset paper. Ask Philipp Katz :)
+     * 
+     * @param active <code>true</code> if the timeout is active.
+     */
     public void setActive(boolean active) {
-        this.active = active;
+        // this.active = active; //XXX
     }
 }
