@@ -366,13 +366,15 @@ public class Evaluator {
 
         StopWatch stopWatch = new StopWatch();
 
+        int minMentionsPerSeed = 5;
+
         // generate a dataset from seed entities
         for (int i = minSeedsPerConcept; i <= maxSeedsPerConcept; i += seedStepSize) {
             LOGGER.info("start generating training data using " + i + " seeds");
 
             DatasetCreator dc = new DatasetCreator("www_eval_" + i);
             dc.setDataSetLocation(EVALUATION_PATH);
-            String generatedTrainingFilePath = dc.generateDataset(trainingPathForSeeds, i);
+            String generatedTrainingFilePath = dc.generateDataset(trainingPathForSeeds, i, minMentionsPerSeed);
 
             for (NamedEntityRecognizer tagger : taggers) {
                 evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i);
