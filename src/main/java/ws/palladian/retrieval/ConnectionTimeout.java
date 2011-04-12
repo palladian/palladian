@@ -10,9 +10,11 @@ import ws.palladian.helper.date.DateHelper;
 /**
  * The ConnectionTimeout is necessary because Java does not set timeouts when a server starts sending data and stops without sending an end signal.
  * 
+ * @deprecated replaced by {@link ConnectionTimeoutPool}.
  * @author David Urbansky
  * @author Philipp Katz
  */
+@Deprecated
 public final class ConnectionTimeout implements Runnable {
 
     /** The connection timeout class. */

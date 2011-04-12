@@ -96,6 +96,9 @@ public class DocumentRetriever {
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
+    
+    /** The connection timeout pool is responsible for disconnecting HttpURLConnections after the specified timeout. */
+    private static final ConnectionTimeoutPool CONNECTION_TIMEOUT = ConnectionTimeoutPool.getInstance();
 
     /**
      * Size units.
@@ -990,23 +993,17 @@ public class DocumentRetriever {
     public Map<String, List<String>> getHeaders(String pageUrl) {
         URL url;
         URLConnection conn;
-        ConnectionTimeout timeout = null;
         Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
         try {
             url = new URL(pageUrl);
             conn = url.openConnection();
-            timeout = new ConnectionTimeout(conn, overallTimeout);
+            CONNECTION_TIMEOUT.add((HttpURLConnection) conn, overallTimeout);
             headerMap = conn.getHeaderFields();
         } catch (MalformedURLException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-        } finally {
-            if (timeout != null) {
-                timeout.setActive(false);
-            }
         }
-
         return headerMap;
     }
 
@@ -1162,10 +1159,8 @@ public class DocumentRetriever {
             LOGGER.debug("filtered URL: " + url);
             return null;
         }
-
-        ConnectionTimeout timeout = null;
+        
         InputStream result = null;
-
         InputStream urlInputStream = null;
         ByteArrayOutputStream outputStream = null;
 
@@ -1202,7 +1197,7 @@ public class DocumentRetriever {
             }
 
             // use connection timeout from Palladian
-            timeout = new ConnectionTimeout(urlConnection, overallTimeout);
+            CONNECTION_TIMEOUT.add((HttpURLConnection) urlConnection, overallTimeout);
 
             // TODO? getResponseCode seems to be extremely slow or just hangs, similar to
             // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4352956
@@ -1257,9 +1252,6 @@ public class DocumentRetriever {
             }
 
         } finally {
-            if (timeout != null) {
-                timeout.setActive(false);
-            }
             close(urlInputStream, outputStream);
         }
 
@@ -1278,14 +1270,12 @@ public class DocumentRetriever {
 
         int responseCode = -1;
 
-        URL url;
-        ConnectionTimeout timeout = null;
         try {
 
             checkChangeProxy(false);
             proxyRequests++;
 
-            url = new URL(urlString);
+            URL url = new URL(urlString);
 
             HttpURLConnection urlConnection;
 
@@ -1305,7 +1295,7 @@ public class DocumentRetriever {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
 
-            timeout = new ConnectionTimeout(urlConnection, overallTimeout);
+            CONNECTION_TIMEOUT.add(urlConnection, overallTimeout);
 
             urlConnection.connect();
 
@@ -1319,10 +1309,6 @@ public class DocumentRetriever {
             LOGGER.error(e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
-        } finally {
-            if (timeout != null) {
-                timeout.setActive(false);
-            }
         }
 
         return responseCode;
