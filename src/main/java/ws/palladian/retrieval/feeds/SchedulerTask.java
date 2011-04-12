@@ -68,11 +68,11 @@ class SchedulerTask extends TimerTask {
 		LOGGER.debug("wake up to check feeds");
 		int feedCount = 0;
 		int alreadyScheduledFeedCount = 0;
+        StringBuffer feedIDs = new StringBuffer();
 		for (Feed feed : feedReader.getFeeds()) {
 			if (needsLookup(feed)) {
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("Scheduling feed at address: "
-							+ feed.getFeedUrl());
+                    feedIDs.append(feed.getId()).append(",");
 				}
 				// check whether feed is in the queue already
 				if (isScheduled(feed.getId())) {
@@ -91,6 +91,9 @@ class SchedulerTask extends TimerTask {
 
 		}
 		LOGGER.info("Scheduled " + feedCount + " feeds for reading");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Scheduled feed tasks for feedIDs " + feedIDs.toString());
+        }
 		if (alreadyScheduledFeedCount > 0) {
 			LOGGER.error("Could not schedule: " + alreadyScheduledFeedCount
 					+ " already scheduled feeds.");
