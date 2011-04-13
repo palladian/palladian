@@ -158,7 +158,10 @@ feedDiscovery.maxDiscoveryThreads = 10
 feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 
 # number of threads in the pool for the FeedReader
-feedReader.threadPoolSize = 200
+feedReader.threadPoolSize = 100
+
+# if false, do not check system limitations like number of available file descriptors 
+feedReader.checkSystemLimitations=true
 
 ######################## Page Segmentation ########################
 

@@ -1,15 +1,19 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
@@ -42,6 +46,7 @@ import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Sandro Reichert
  * 
  */
 public class DatasetCreator {
@@ -52,6 +57,15 @@ public class DatasetCreator {
     /** Path to the folder where the dataset is stored. */
     protected static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
             + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
+
+    /** We need this many file handles to process one FeedTask. */
+    public static final int FILE_HANDLES_PER_TASK = 20;
+
+    public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
+
+    public DatasetCreator() {
+        detectSystemLimitations();
+    }
 
     /**
      * Cleaning up performs the following steps:
@@ -100,8 +114,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "").replaceAll(
-                                "(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
+                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -264,24 +278,23 @@ public class DatasetCreator {
         // FeedClassifier.classifyFeedInStore(feedStore);
 
         FeedReader feedChecker = new FeedReader(feedStore);
-        feedChecker.setThreadPoolSize(100);
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
         MAVUpdateStrategy updateStrategy = new MAVUpdateStrategy();
-        updateStrategy.setHighestUpdateInterval(60);
+        updateStrategy.setHighestUpdateInterval(360);
         updateStrategy.setLowestUpdateInterval(2);
         feedChecker.setUpdateStrategy(updateStrategy, true);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
-//        Collection<Integer> updateClasses = new HashSet<Integer>();
-//        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
-//        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
-//        updateClasses.add(FeedClassifier.CLASS_SLICED);
-//        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
-//        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
-//        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
-//        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
+        // Collection<Integer> updateClasses = new HashSet<Integer>();
+        // updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
+        // updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
+        // updateClasses.add(FeedClassifier.CLASS_SLICED);
+        // updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
+        // updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
+        // updateClasses.add(FeedClassifier.CLASS_CONSTANT);
+        // updateClasses.add(FeedClassifier.CLASS_CHUNKED);
         // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new FeedProcessingAction() {
@@ -386,7 +399,7 @@ public class DatasetCreator {
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
                 }
-                
+
                 // save the complete feed gzipped in the folder if we found at least one new item
                 if (newItems > 0) {
                     DocumentRetriever documentRetriever = new DocumentRetriever();
@@ -409,6 +422,86 @@ public class DatasetCreator {
 
         LOGGER.debug("start reading feeds");
         feedChecker.startContinuousReading();
+    }
+
+    /**
+     * Detects system limitations like number of file descriptors that might cause trouble.
+     */
+    private void detectSystemLimitations() {
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        boolean checkLimitations = CHECK_SYSTEM_LIMITATIONS_DEFAULT;
+        if (config != null) {
+            checkLimitations= config.getBoolean("feedReader.checkSystemLimitations", CHECK_SYSTEM_LIMITATIONS_DEFAULT);
+        }
+        
+        if (!checkLimitations) {
+            LOGGER.warn("You skipped checking system for limitations. Good luck!");
+            return;
+        }
+        String stdErrorMsg = "Make sure you have at least 20 times more file handles than FeedReader-threads.\n"
+                + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
+                + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
+                + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
+                + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
+                + "<username> soft nofile <minimum-required-size>\n"
+                + "<username> hard nofile <minimum-required-size>+1024\n"
+                + "example"
+                + "feeduser soft nofile 31744\n"
+                + "feeduser hard nofile 32768\n"
+                + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
+                + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
+
+        // detect operating system
+        String os = System.getProperty("os.name");
+        if (os.equalsIgnoreCase("linux")) {
+
+            // get available number of file handles for one UNIX terminal
+            String input = "";
+            try {
+                Process process = Runtime.getRuntime().exec("ulimit -n");
+                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line = null;
+                while ((line = in.readLine()) != null) {
+                    input += line;
+                }
+            } catch (IOException e) {
+                LOGGER.error("Could not get number of available file handles: " + e.getLocalizedMessage());
+            }
+            int fileDescriptors = 0;
+            if (!input.equals("")) {
+                try {
+                    fileDescriptors = (int) Integer.parseInt(input);
+                } catch (NumberFormatException e) {
+                    LOGGER.fatal("Could not process number of available file handles: " + e.getLocalizedMessage()
+                            + "\n" + stdErrorMsg);
+                }
+            }
+            if (fileDescriptors <= 0) {
+                LOGGER.fatal("Illegal number of file descriptors: " + fileDescriptors + ". " + stdErrorMsg);
+                return;
+            }
+
+            // get thread pool size
+            int threadPoolSize = 0;
+            if (config != null) {
+                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReader.DEFAULT_THREAD_POOL_SIZE);
+            }
+
+            /**
+             * Stop executing if not enough file descriptors! Proceeding could cause serious trouble like an incomplete
+             * data set.
+             */
+            if ((threadPoolSize * FILE_HANDLES_PER_TASK) <= fileDescriptors) {
+                LOGGER.fatal("More file handles required! \n" + "threadPoolSize=" + threadPoolSize
+                        + ", available file descriptors=" + fileDescriptors
+                        + ", minimum required file descriptors would be " + threadPoolSize * FILE_HANDLES_PER_TASK
+                        + "\n" + stdErrorMsg);
+                System.exit(-1);
+            }
+
+        } else {
+            LOGGER.info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
+        }
     }
 
     /**
