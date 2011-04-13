@@ -1,3 +1,5 @@
+config.version = 1
+
 ######################## Model Paths ########################
 
 models.root = data/models/

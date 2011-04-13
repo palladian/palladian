@@ -28,7 +28,7 @@ public final class ConfigHolder {
 
     /**
      * <p>
-     * Wrapper class for thread safe singleton handling. See Effective Java, item 48.
+     * Wrapper class for thread safe singleton handling. See "Effective Java", item 48.
      * </p>
      * 
      * @author David Urbansky
@@ -57,6 +57,12 @@ public final class ConfigHolder {
     private static final String CONFIG_PATH = "config/" + CONFIG_NAME;
 
     /**
+     * The version of the palladian.properties.default file. This should be incremented whenever changes are made to
+     * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
+     */
+    private static final int VERSION = 1;
+
+    /**
      * <p>
      * This method realizes the singleton design pattern by providing the one single instance of the {@code
      * ConfigHolder} class.
@@ -82,31 +88,48 @@ public final class ConfigHolder {
 
             PropertiesConfiguration propertiesConfiguration = null;
             if (environmentConfig.exists()) {
-                LOGGER
-.info("Try to load palladian.properties from environment PALLADIAN_HOME: "
-                                + environmentConfig.getAbsolutePath());
+                LOGGER.info("try to load palladian.properties from environment PALLADIAN_HOME: "
+                        + environmentConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration();
                 if (!propertiesConfiguration.getKeys().hasNext()) {
                     propertiesConfiguration = null;
+                    LOGGER.error("failed to load palladian.properties from environment PALLADIAN_HOME: "
+                            + environmentConfig.getAbsolutePath());
                 }
             } else if (resource != null) {
                 File classpathConfig = new File(resource.getFile());
-                LOGGER.info("Try to load palladian.properties from classpath: " + classpathConfig.getAbsolutePath());
+                LOGGER.info("try to load palladian.properties from classpath: " + classpathConfig.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
                 if (!propertiesConfiguration.getKeys().hasNext()) {
                     propertiesConfiguration = null;
+                    LOGGER.error("failed to load palladian.properties from classpath: "
+                            + classpathConfig.getAbsolutePath());
                 }
             } else if (configFile.exists()) {
-                LOGGER.info("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
+                LOGGER.info("try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(configFile);
                 if (!propertiesConfiguration.getKeys().hasNext()) {
                     propertiesConfiguration = null;
+                    LOGGER.error("failed to load palladian.properties from config folder: "
+                            + configFile.getAbsolutePath());
                 }
             }
             if (propertiesConfiguration != null) {
+
+                // check whether the version is up to date
+                if (propertiesConfiguration.containsKey("config.version")) {
+                    int fileVersion = propertiesConfiguration.getInt("config.version");
+                    if (fileVersion != VERSION) {
+                        LOGGER.warn("the palladian.properties file is outdated, it is version " + fileVersion
+                                + " but the latest version is " + VERSION + ", please consider updating");
+                    }
+                } else {
+                    LOGGER.warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");
+                }
+
                 setConfig(propertiesConfiguration);
             } else {
-                LOGGER.error("Palladian configuration file loading error.");
+                LOGGER.error("palladian configuration file loading failed");
                 // we should throw an exception here
             }
         } catch (ConfigurationException e) {
