@@ -305,6 +305,10 @@ public class ClassifierManager {
 
     }
 
+    /**
+     * consider using evaluateClassifier() in TextClassifier
+     */
+    @Deprecated
     public final ClassifierPerformance testClassifier(Dataset dataset, TextClassifier classifier) {
 
         this.classifier = classifier;
@@ -444,6 +448,7 @@ public class ClassifierManager {
         LOGGER.info("FINISH, classified and logged successfully in " + stopWatch.getElapsedTimeString());
     }
 
+    // TODO similar code in TextClassifier (where it belongs, but hierarchy and tagging is only in here)
     private void readTrainingTestingData(Dataset dataset, boolean forTraining, int classType) {
 
         // reset training and testing urls as well as learned categories

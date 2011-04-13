@@ -10,6 +10,9 @@ import ws.palladian.helper.FileHelper;
  */
 public class Dataset {
 
+    /** The name of the dataset to identify it. */
+    private String name = "NONAME";
+
     /** The path pointing to the dataset file. */
     private String path = "";
 
@@ -30,11 +33,32 @@ public class Dataset {
      */
     private boolean firstFieldLink = false;
 
+    public Dataset() {
+    }
+
+    public Dataset(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setPath(String path) {
         this.path = path;
         setRootPath(FileHelper.getFilePath(getPath()));
     }
 
+    /**
+     * Returns the path to the dataset, this is either the complete dataset if {@link isFirstFieldLink()} == false or
+     * the index file of the dataset otherwise.
+     * 
+     * @return The path to the dataset or the index file.
+     */
     public String getPath() {
         return path;
     }
@@ -49,7 +73,7 @@ public class Dataset {
     }
 
     public void setRootPath(String rootPath) {
-        this.rootPath = rootPath;
+        this.rootPath = FileHelper.addTrailingSlash(rootPath);
     }
 
     public void setSeparationString(String separationString) {
@@ -87,11 +111,7 @@ public class Dataset {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Dataset [path=");
-        builder.append(path);
-        builder.append(", separationString=");
-        builder.append(separationString);
-        builder.append("]");
+        builder.append(name);
         return builder.toString();
     }
 

@@ -56,6 +56,12 @@ public class DictionaryClassifier extends TextClassifier {
         setDictionaryPath(dictionaryPath);
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
+    }
+
     public void init() {
         dictionary.setName(getName());
     }
@@ -241,6 +247,7 @@ public class DictionaryClassifier extends TextClassifier {
         loadDictionary(ClassificationTypeSetting.TAG);
     }
 
+    @Override
     public void train(UniversalInstance instance) {
         addTrainingInstance(instance);
         trainWithInstance(instance);
@@ -306,7 +313,7 @@ public class DictionaryClassifier extends TextClassifier {
         return classify(document, loadDictionary, null);
     }
 
-    public TextInstance classify(TextInstance document, boolean loadDictionary,
+    private TextInstance classify(TextInstance document, boolean loadDictionary,
             Set<String> possibleClasses) {
 
         int classType = getClassificationType();
@@ -623,6 +630,15 @@ public class DictionaryClassifier extends TextClassifier {
         if (getDictionary().isUseIndex()) {
             getDictionary().closeIndex();
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getName()).append(", ");
+        builder.append(getFeatureSetting()).append(", ");
+        builder.append(getClassificationTypeSetting());
+        return builder.toString();
     }
 
 }
