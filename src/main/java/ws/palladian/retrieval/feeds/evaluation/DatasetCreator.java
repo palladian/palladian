@@ -470,6 +470,7 @@ public class DatasetCreator {
             int fileDescriptors = 0;
             if (!input.equals("")) {
                 try {
+                    LOGGER.info("ulimit -n: " + input);
                     fileDescriptors = (int) Integer.parseInt(input);
                 } catch (NumberFormatException e) {
                     LOGGER.fatal("Could not process number of available file handles: " + e.getLocalizedMessage()
