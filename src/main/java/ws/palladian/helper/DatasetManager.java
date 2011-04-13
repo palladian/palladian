@@ -140,6 +140,75 @@ public class DatasetManager {
     }
 
     /**
+     * <p>
+     * Create splits of the dataset so that it can be used for cross validation evaluation.
+     * </p>
+     * <p>
+     * For example, if crossValidationFolds = 3 the following files will be created in the dataset root folder:<br>
+     * 
+     * <pre>
+     * crossValidation_training1.txt (containing the first 1/3rd of the data)
+     * crossValidation_test1.txt (containing the last 2/3rd of the data)
+     * crossValidation_training2.txt (containing the second 1/3rd of the data)
+     * crossValidation_test2.txt (containing the rest 2/3rd of the data)
+     * crossValidation_training3.txt (containing the last 1/3rd of the data)
+     * crossValidation_test3.txt (containing the rest 2/3rd of the data)
+     * </pre>
+     * 
+     * This would be returned as 3 entries in the array with each entry containing the path to the training and test
+     * data.
+     * 
+     * </p>
+     * 
+     * @param dataset The dataset to prepare for cross validation.
+     * @param crossValidationFolds The number of folds for the cross validation.
+     * @return The list of files used for the folds.
+     */
+    public List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds) {
+
+        List<String[]> fileSplits = new ArrayList<String[]>();
+
+        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+        int numberOfTrainingLines = lines.size() / crossValidationFolds;
+
+        for (int fold = 1; fold <= crossValidationFolds; fold++) {
+
+            // the numbers that refer to the lines in the index file which bound the training data part
+            int startLineTraining = (fold - 1) * numberOfTrainingLines;
+            int endLineTraining = fold * numberOfTrainingLines;
+
+            StringBuilder trainingData = new StringBuilder();
+            StringBuilder testData = new StringBuilder();
+
+            int lineNumber = 0;
+            for (String line : lines) {
+
+                if (lineNumber >= startLineTraining && lineNumber < endLineTraining) {
+                    trainingData.append(line).append("\n");
+                } else {
+                    testData.append(line).append("\n");
+                }
+
+                lineNumber++;
+            }
+
+            String trainingFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_training" + fold
+                    + ".txt";
+            String testFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_test" + fold + ".txt";
+
+            FileHelper.writeToFile(trainingFilePath, trainingData);
+            FileHelper.writeToFile(testFilePath, testData);
+
+            String[] filePaths = new String[2];
+            filePaths[0] = trainingFilePath;
+            filePaths[1] = testFilePath;
+            fileSplits.add(filePaths);
+        }
+
+        return fileSplits;
+    }
+
+    /**
      * Split the index file into 2 parts (for training and testing).
      * 
      * @param indexFilePath The path to the file which should be split.

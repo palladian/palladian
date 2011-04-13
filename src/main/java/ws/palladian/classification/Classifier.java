@@ -112,5 +112,4 @@ public abstract class Classifier<T> implements Serializable {
     }
 
     public abstract void save(String classifierPath);
-
 }

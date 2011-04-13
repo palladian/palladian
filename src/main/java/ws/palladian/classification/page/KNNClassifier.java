@@ -10,6 +10,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Term;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
@@ -119,7 +120,7 @@ public class KNNClassifier extends TextClassifier {
         if (classType == ClassificationTypeSetting.TAG) {
             document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
                     classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
@@ -154,7 +155,7 @@ public class KNNClassifier extends TextClassifier {
         double matches = 0.0001;
 
         Set<Map.Entry<Term, Double>> entrySet1 = classifyDocument.getWeightedTerms().entrySet();
-        
+
         for (Entry<Term, Double> entry1 : entrySet1) {
 
             if (trainingDocument.getWeightedTerms().containsKey(entry1.getKey())) {
@@ -177,7 +178,7 @@ public class KNNClassifier extends TextClassifier {
     public void save(String path) {
         FileHelper.serialize(this, path + getName() + ".ser");
     }
-    
+
     public int getK() {
         return k;
     }
@@ -202,6 +203,11 @@ public class KNNClassifier extends TextClassifier {
     @Override
     public TextInstance preprocessDocument(String url, TextInstance classificationDocument) {
         return preprocessor.preProcessDocument(url, classificationDocument);
+    }
+
+    @Override
+    public void train(UniversalInstance instance) {
+        // FIXME Auto-generated method stub
     }
 
 }

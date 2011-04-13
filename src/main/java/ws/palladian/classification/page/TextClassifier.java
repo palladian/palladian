@@ -1,11 +1,14 @@
 package ws.palladian.classification.page;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Categories;
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instances;
@@ -13,7 +16,11 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
+import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.LineAction;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -63,6 +70,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         setTrainingInstances(new Instances<UniversalInstance>());
         setTestInstances(new Instances<UniversalInstance>());
         preprocessor = new Preprocessor(this);
+        performance = null;
         initTime = System.currentTimeMillis();
     }
 
@@ -416,6 +424,152 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         // FileHelper.writeToFile("data/temp/dataRewrittenCombinedClassified.csv", structuredOutput);
 
         return show.toString();
+    }
+
+    public void train(Dataset dataset) {
+
+        Instances<UniversalInstance> instances = getTrainingInstances();
+
+        int added = 0;
+        if (!dataset.isFirstFieldLink()) {
+
+            List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
+            for (String string : trainingArray) {
+                String[] parts = string.split(dataset.getSeparationString());
+                if (parts.length != 2) {
+                    continue;
+                }
+
+                String learningText = parts[0];
+                String instanceCategory = parts[1];
+
+                UniversalInstance instance = new UniversalInstance(instances);
+                instance.setInstanceCategory(instanceCategory);
+                instance.setTextFeature(learningText);
+
+                train(instance);
+                added++;
+            }
+
+        }
+
+        LOGGER.info("trained with " + added + " documents from " + dataset.getPath());
+    }
+
+    public abstract void train(UniversalInstance instance);
+
+    public final ClassifierPerformance evaluate(Dataset dataset) {
+
+        StopWatch sw = new StopWatch();
+
+        // read the testing URLs from the given dataset
+        readTestData(dataset);
+
+        // classify
+        classifyTestDocuments();
+
+        LOGGER.info("classified " + getTestDocuments().size() + " documents in " + sw.getTotalElapsedTimeString());
+
+        return getPerformance();
+    }
+
+    private void readTestData(final Dataset dataset) {
+
+        // reset training and testing urls as well as learned categories
+        setTestDocuments(new ClassificationDocuments());
+
+        final List<String[]> documentInformationList = new ArrayList<String[]>();
+
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                // split the line using the separation string
+                String[] siteInformation = line.split(dataset.getSeparationString());
+
+                // store the content (or link to the content) and all categories subsequently
+                String[] documentInformation = new String[siteInformation.length];
+                documentInformation[0] = siteInformation[0];
+
+                // iterate over all parts of the line (in SINGLE mode this would be two iterations)
+                for (int i = 1; i < siteInformation.length; ++i) {
+
+                    String[] categorieNames = siteInformation[i].split("/");
+                    if (categorieNames.length == 0) {
+                        LOGGER.warn("no category names found for " + line);
+                        return;
+                    }
+                    String categoryName = categorieNames[0];
+
+                    documentInformation[i] = categoryName;
+
+                    // add category if it does not exist yet
+                    if (!getCategories().containsCategoryName(categoryName)) {
+                        Category cat = new Category(categoryName);
+                        cat.setClassType(getClassificationType());
+                        cat.increaseFrequency();
+                        getCategories().add(cat);
+                    } else {
+                        getCategories().getCategoryByName(categoryName).setClassType(getClassificationType());
+                        getCategories().getCategoryByName(categoryName).increaseFrequency();
+                    }
+
+                    // only take first category in "first" mode
+                    if (getClassificationType() == ClassificationTypeSetting.SINGLE) {
+                        break;
+                    }
+                }
+
+                // add to test urls
+                documentInformationList.add(documentInformation);
+
+                if (lineNumber % 1000 == 0) {
+                    LOGGER.info("read another 1000 lines from test file, total: " + lineNumber);
+                }
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(dataset.getPath(), la);
+
+        int c = 0;
+        for (String[] documentInformation : documentInformationList) {
+
+            TextInstance preprocessedDocument = null;
+
+            preprocessedDocument = new TestDocument();
+
+            String firstField = documentInformation[0];
+
+            String documentContent = firstField;
+
+            // if the first field should be interpreted as a link to the actual document, get it and preprocess it
+            if (dataset.isFirstFieldLink()) {
+                documentContent = FileHelper.readFileToString(dataset.getRootPath() + firstField);
+            }
+
+            preprocessedDocument = preprocessDocument(documentContent, preprocessedDocument);
+            preprocessedDocument.setUrl(firstField);
+
+            Categories categories = new Categories();
+            for (int j = 1; j < documentInformation.length; j++) {
+                categories.add(new Category(documentInformation[j]));
+            }
+
+            preprocessedDocument.setDocumentType(TextInstance.TEST);
+            preprocessedDocument.setRealCategories(categories);
+            getTestDocuments().add(preprocessedDocument);
+
+            if (c++ % ((documentInformationList.size() / 100) + 1) == 0) {
+                LOGGER.info(Math.floor(100.0 * (c + 1) / documentInformationList.size()) + "% preprocessed (= " + c
+                        + " documents)");
+            }
+        }
+
+        // calculate the prior for all categories classifier.categories.calculatePriors(trainingUrls.size() +
+        // testUrls.size());
+        getCategories().calculatePriors();
     }
 
     @Override

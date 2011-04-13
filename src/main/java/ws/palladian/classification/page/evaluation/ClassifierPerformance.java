@@ -7,10 +7,11 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.page.TextInstance;
+import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.page.ClassificationDocuments;
 import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.page.TextInstance;
 
 /**
  * This class calculates scores for a given classifier such as precision, recall, and F1.
@@ -461,7 +462,7 @@ public class ClassifierPerformance implements Serializable {
     /**
      * Get the average F of all categories.
      * 
-     * @param alpha to weight precision and recall (0.5 for F1)
+     * @param alpha To weight precision and recall (0.5 for F1).
      * @return The average F of all categories.
      */
     public double getAverageF(double alpha, boolean weighted) {
@@ -628,6 +629,36 @@ public class ClassifierPerformance implements Serializable {
         }
 
         return accuracy / count;
+    }
+
+    /**
+     * Write the most basic scores to a result class which only holds these but not the documents. The
+     * ClassifierPerformanceResult class saves memory.
+     * 
+     * @return The most basic results held in the {@link ClassifierPerformanceResult} class.
+     */
+    public ClassifierPerformanceResult getClassifierPerformanceResult() {
+
+        ClassifierPerformanceResult classifierPerformanceResult = new ClassifierPerformanceResult();
+
+        classifierPerformanceResult.setPrecision(getAveragePrecision(true));
+        classifierPerformanceResult.setRecall(getAverageRecall(true));
+        classifierPerformanceResult.setF1(getAverageF(0.5, true));
+
+        classifierPerformanceResult.setSensitivity(getAverageSensitivity(true));
+        classifierPerformanceResult.setSpecificity(getAverageSpecificity(true));
+        classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
+
+        return classifierPerformanceResult;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ClassifierPerformance [");
+        builder.append(getClassifierPerformanceResult());
+        builder.append("]");
+        return builder.toString();
     }
 
 }
