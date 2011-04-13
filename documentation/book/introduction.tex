@@ -83,6 +83,13 @@ The F-measure combines both the Precsion and the Recall to one value. Usually th
 
 \subsection{Mean Squared Error, Root Mean Squared Error}
 
+The Mean Squared Error (MSE) is used for measuring the deviation of estimated or predicted numeric values from their actual values. Therefor, the average of the quadratic differences between each actual value $y$ and the predicted value $\bar y$ is calculated. By squaring down the differences, the bigger errors are weighted stronger compared to small errors. The Root Mean Squared Error (RMSE) additionally extracts the square root from the MSE, as depicted in Equation~\ref{eqn:RMSE}.
+
+\begin{equation}
+	\mathit{RMSE} = \sqrt{\frac{1}{n} \sum\limits_{i=1}^{n}(y_i - \bar y_i)^2}
+	\label{eqn:RMSE}
+\end{equation}
+
 \subsection{Mean Average Precision}
 
 \subsection{Mean Reciprocal Rank}
@@ -93,52 +100,82 @@ Some functionalities of this toolkit are covered in other libraries. If you can'
 
 %TODO clean up list, bullets or table of services
 \begin{enumerate}
-\item \textbf{AlchemyAPI} \cite{alchemyapi} is a commercial web-service that can be used via several programming languages. The service offers named entity recognition, text classification, language identification, concept tagging, keyword extraction, content scraping, and web page cleaning.
+
+	\item \textbf{AlchemyAPI} \cite{alchemyapi} is a commercial web-service that can be used via several programming languages. The service offers named entity recognition, text classification, language identification, concept tagging, keyword extraction, content scraping, and web page cleaning.
 The service comes in 4 variants: free, basic, professional, and metered.
-\item \textbf{Apache Mahout} \cite{settings2apache} is a Java-based machine learning library. Its main features are collaborative filtering, user and item based recommenders, (fuzzy k-means clustering, mean shift clustering, latent dirichlet process allocation, singular value decomposition, parallel frequent pattern mining, complementary naive bayes classifier, and a random forest decision tree based classifier.
+
+	\item \textbf{Apache Mahout} \cite{settings2apache} is a Java-based machine learning library. Its main features are collaborative filtering, user and item based recommenders, (fuzzy k-means clustering, mean shift clustering, latent dirichlet process allocation, singular value decomposition, parallel frequent pattern mining, complementary naive bayes classifier, and a random forest decision tree based classifier.
 The library is licensed under the Apache Software license.
-\item \textbf{Balie} \cite{balie} is a Java-based information extraction library. Its main features are language identification, tokenization, sentence boundary detection, and named entity recognition (using dictionaries).
+
+	\item \textbf{Balie} \cite{balie} is a Java-based information extraction library. Its main features are language identification, tokenization, sentence boundary detection, and named entity recognition (using dictionaries).
 The library is licensed under the GNU GPL and supports English, German, French, Romanian, and Spanish as input languages.
-\item \textbf{Classifier4J} \cite{classifier4j} is a very simple Java library for text classification. Besides Bayesian and vector classification, it offers a text summary feature.
-\item \textbf{ContentAnalyst} \cite{contentanalyst} is a commercial platform for text analytics. The platform's main features are concept search, dynamic clustering, near-duplicate document identification, automatic summarization, text classification, and latent semantic indexing.
-\item The \textbf{Dragon Toolkit} \cite{zhou2007dragon} is a Java-based development package for information retrieval and text mining. Its main features are text classification, text clustering, text summarization, and topic modeling.
-\item \textbf{FreeLing} \cite{atserias2006freeling} is a natural language processing library written in C++. Its main features are Text tokenization, sentence splitting, morphological analysis, sSuffix treatment, retokenization of clitic pronouns, flexible multiword recognition, contraction splitting, probabilistic prediction of unkown word categories, named entity detection, recognition of dates, numbers, ratios, currency, and physical magnitudes, PoS tagging, chart-based shallow parsing, named entity classification,  WordNet based sense annotation and disambiguation, Rule-based dependency parsing, and nominal correference resolution.
+
+	\item \textbf{Classifier4J} \cite{classifier4j} is a very simple Java library for text classification. Besides Bayesian and vector classification, it offers a text summary feature.
+
+	\item \textbf{ContentAnalyst} \cite{contentanalyst} is a commercial platform for text analytics. The platform's main features are concept search, dynamic clustering, near-duplicate document identification, automatic summarization, text classification, and latent semantic indexing.
+
+	\item The \textbf{Dragon Toolkit} \cite{zhou2007dragon} is a Java-based development package for information retrieval and text mining. Its main features are text classification, text clustering, text summarization, and topic modeling.
+
+	\item \textbf{FreeLing} \cite{atserias2006freeling} is a natural language processing library written in C++. Its main features are Text tokenization, sentence splitting, morphological analysis, sSuffix treatment, retokenization of clitic pronouns, flexible multiword recognition, contraction splitting, probabilistic prediction of unkown word categories, named entity detection, recognition of dates, numbers, ratios, currency, and physical magnitudes, PoS tagging, chart-based shallow parsing, named entity classification,  WordNet based sense annotation and disambiguation, Rule-based dependency parsing, and nominal correference resolution.
 It is licensed under GPL and supports Spanish, Catalan, Galician, Italian, English, Welsh, Portuguese, and Asturian as languages. An online demo is available under \url{http://garraf.epsevg.upc.es/freeling/demo.php}.
-\item \textbf{GATE} \cite{cunningham2002gate} is a Java-based text mining and processing framework. The framework itself comes with few text processing features but many plugins can be used and chained into a text engineering pipeline.
+
+	\item \textbf{GATE} \cite{cunningham2002gate} is a Java-based text mining and processing framework. The framework itself comes with few text processing features but many plugins can be used and chained into a text engineering pipeline.
 The framework is licensed under the GNU Lesser General Public License.
-\item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
-\item \textbf{Julie NLP} \cite{tomanek2007uima,hahn2008overview} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
+
+	\item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
+
+	\item \textbf{Julie NLP} \cite{tomanek2007uima,hahn2008overview} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
 The Toolkit is licensed under the Common Public License.
-\item \textbf{Language Computer} \cite{lanuagecomputer} provides commercial products for sentence splitting, tokenization, PoS tagging, named entity recognition, co-reference resolution, attribute extraction, relationship extraction, event extraction, question answering, and text summarization.
-\item \textbf{Lemur Project} \cite{lemur} provides a toolkit with search engines and tools for research tasks in information retrieval and text mining. The project was founded in 2000 by the Center for Intelligent Information Retrieval (CIIR) at the University of Massachusetts, Amherst. Updates for the toolkit are released on a regular basis. The toolkit is written in C++, but also offers C\# and Java APIs. Beside the Lemur toolkit itself, the project offers a search engine called ``Indri'' and a browser plugin to capture users' query and browsing behaviours.
-\item \textbf{Lingo3G} \cite{lingo3g} is a text clustering engine that organizes text collections into hierarchical clusters.
+
+	\item \textbf{Language Computer} \cite{lanuagecomputer} provides commercial products for sentence splitting, tokenization, PoS tagging, named entity recognition, co-reference resolution, attribute extraction, relationship extraction, event extraction, question answering, and text summarization.
+
+	\item \textbf{Lemur Project} \cite{lemur} provides a toolkit with search engines and tools for research tasks in information retrieval and text mining. The project was founded in 2000 by the Center for Intelligent Information Retrieval (CIIR) at the University of Massachusetts, Amherst. Updates for the toolkit are released on a regular basis. The toolkit is written in C++, but also offers C\# and Java APIs. Beside the Lemur toolkit itself, the project offers a search engine called ``Indri'' and a browser plugin to capture users' query and browsing behaviours.
+
+	\item \textbf{Lingo3G} \cite{lingo3g} is a text clustering engine that organizes text collections into hierarchical clusters.
 The software is commercial but \cite{stefanowski2003carrot} offers an open source alternative for text clustering algorithms written in Java. The algorithms integrate with other programming or scripting languages such as PHP, Ruby, and C\# too.
-\item \textbf{LingPipe} \cite{lingpipe} is a text processing toolkit using computational linguistics. LingPipe is written in Java. Its main features are topic classification, named entity recognition, clustering, PoS tagging, sentence detection, spelling correction, database text mining, string comparisons, interesting phrase detection, character language modeling, chinese word segmentation, hyphenation and syllabification, sentiment analysis, language identification, singular value decomposition, logistic regression, expectation maximization, and word sense disambiguation.
+
+	\item \textbf{LingPipe} \cite{lingpipe} is a text processing toolkit using computational linguistics. LingPipe is written in Java. Its main features are topic classification, named entity recognition, clustering, PoS tagging, sentence detection, spelling correction, database text mining, string comparisons, interesting phrase detection, character language modeling, chinese word segmentation, hyphenation and syllabification, sentiment analysis, language identification, singular value decomposition, logistic regression, expectation maximization, and word sense disambiguation.
 LingPipe is available under a free license for academic use and several commercial licenses.
-\item \textbf{Mallet} \cite{mccallum2002mallet} is a Java-based toolkit for statistical natural language processing. Its main features are text classification, sequence tagging (PoS tagging), topic modeling, and numerical optimization.
+
+	\item \textbf{Mallet} \cite{mccallum2002mallet} is a Java-based toolkit for statistical natural language processing. Its main features are text classification, sequence tagging (PoS tagging), topic modeling, and numerical optimization.
 The toolkit is licensed under the Common Public License.
-\item \textbf{MinorThird} \cite{cohen2004minorthird} is a Java-based toolkit for text processing. Its main features are annotating text, named entity recognition, and text classification.
+
+	\item \textbf{MinorThird} \cite{cohen2004minorthird} is a Java-based toolkit for text processing. Its main features are annotating text, named entity recognition, and text classification.
 The toolkit is licensed under the BSD license.
-\item \textbf{MontyLingua} \cite{liu2004montylingua} is a Python and Java-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, and natural language summarization.
+
+	\item \textbf{MontyLingua} \cite{liu2004montylingua} is a Python and Java-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, and natural language summarization.
 The toolkit is free for non-commercial use and licensed under the MontyLingua version 2.0 License.
-\item \textbf{MorphAdorner} \cite{morphadorner} is a Java-based command line program for text processing. Its main features are language recognition, lemmatization, name recognition, PoS tagging, noun pluralization, sentence splitting, spelling standardization, text segmentation, verb conjugation, and word tokenization.
+
+	\item \textbf{MorphAdorner} \cite{morphadorner} is a Java-based command line program for text processing. Its main features are language recognition, lemmatization, name recognition, PoS tagging, noun pluralization, sentence splitting, spelling standardization, text segmentation, verb conjugation, and word tokenization.
 The program is licensed under a NCSA style license.
-\item \textbf{NaCTeM Software Tools} \cite{nactem} are programs for natural language processing and text mining that are made available by the National Centre for Text Mining. The programs include functionality for PoS tagging, syntactic parsing, named entity recognition, sentence splitting, text classification, and sentiment analysis.
-\item \textbf{NLTK} \cite{loper2002nltk} is a Python-based natural language processing toolkit. Its main features are tokenization, stemming, PoS tagging, text classification, and syntactic parsing.
+
+	\item \textbf{NaCTeM Software Tools} \cite{nactem} are programs for natural language processing and text mining that are made available by the National Centre for Text Mining. The programs include functionality for PoS tagging, syntactic parsing, named entity recognition, sentence splitting, text classification, and sentiment analysis.
+
+	\item \textbf{NLTK} \cite{loper2002nltk} is a Python-based natural language processing toolkit. Its main features are tokenization, stemming, PoS tagging, text classification, and syntactic parsing.
 The toolkit is licensed under the Apache 2.0 license.
-\item \textbf{OpenCalais} \cite{opencalais} is a web service that performs named entity recognition, fact and event extraction.
+
+	\item \textbf{OpenCalais} \cite{opencalais} is a web service that performs named entity recognition, fact and event extraction.
 The web service is free for commercial and non-commercial use but limited to 50,000 transactions a day. A professional plan is available too including more transactions and an service license agreement.
-\item \textbf{OpenNLP} \cite{opennlp} is a toolkit of various open source natural language processing packages. The goal of this toolkit is to integrate several stand-alone projects to increase the interoperability. Algorithms in this toolkit include but are not limited to tokenization and named entity recognition.
-\item The \textbf{RASP System} \cite{briscoe2006second} is a C and Lisp-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, morphological analysis, and grammar-based parsing.
+
+	\item \textbf{OpenNLP} \cite{opennlp} is a toolkit of various open source natural language processing packages. The goal of this toolkit is to integrate several stand-alone projects to increase the interoperability. Algorithms in this toolkit include but are not limited to tokenization and named entity recognition.
+
+	\item The \textbf{RASP System} \cite{briscoe2006second} is a C and Lisp-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, morphological analysis, and grammar-based parsing.
 The toolkit is free for non-commercial use and licensed under the RASP System License.
-\item The \textbf{Rosette Linguistic Platform} \cite{rosette} is a software suite that can perform name translation, name matching, named entity recognition, morphological analysis, and language identification. The suite works for 55 European, Asian, and Arabic languages.
+
+	\item The \textbf{Rosette Linguistic Platform} \cite{rosette} is a software suite that can perform name translation, name matching, named entity recognition, morphological analysis, and language identification. The suite works for 55 European, Asian, and Arabic languages.
 The software is a commercial product.
-\item \textbf{Stanford NLP} \cite{stanfordnlp} is a set of Java-based natural language processing libraries. Their main features are PoS tagging, named entity recognition, Chinese word segmentation, and classification.
+
+	\item \textbf{Stanford NLP} \cite{stanfordnlp} is a set of Java-based natural language processing libraries. Their main features are PoS tagging, named entity recognition, Chinese word segmentation, and classification.
 The software distributions are licensed under the GNU Public License.
-\item \textbf{SRILM -- The SRI Language Modeling Toolkit} \cite{stolcke2002srilm} is a C++-based toolkit for language modeling. Its main features are speech recognition, statistical tagging and segmentation, and machine translation.
+
+	\item \textbf{SRILM -- The SRI Language Modeling Toolkit} \cite{stolcke2002srilm} is a C++-based toolkit for language modeling. Its main features are speech recognition, statistical tagging and segmentation, and machine translation.
 The toolkit is free for non-commercial use and licensed under the SRILM Research Community License.
-\item \textbf{TextAnalyst} \cite{textanalyst} is a commercial text processing software offering text summarization, semantic information retrieval, meaning extraction, and text clustering.
-\item \textbf{VisualText} \cite{visualtext} is a natural language processing software that addresses named entity recognition, text indexing, text filtering, text classification, text grading, and text summarization.
-\item \textbf{Weka} \cite{hall2009weka} is a Java-based machine learning and data mining library. The library contains a large set of machine learning algorithms such as Support Vector Machines, Neural Networks, Naive Bayes, k-nearest neighbor for but not limited to (text) clustering, (text) classification, and regression.
+
+	\item \textbf{TextAnalyst} \cite{textanalyst} is a commercial text processing software offering text summarization, semantic information retrieval, meaning extraction, and text clustering.
+
+	\item \textbf{VisualText} \cite{visualtext} is a natural language processing software that addresses named entity recognition, text indexing, text filtering, text classification, text grading, and text summarization.
+
+	\item \textbf{Weka} \cite{hall2009weka} is a Java-based machine learning and data mining library. The library contains a large set of machine learning algorithms such as Support Vector Machines, Neural Networks, Naive Bayes, k-nearest neighbor for but not limited to (text) clustering, (text) classification, and regression.
 The library is licensed under the GNU General Public License.
+
 \end{enumerate}
