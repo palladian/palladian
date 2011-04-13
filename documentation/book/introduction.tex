@@ -52,7 +52,7 @@ This sections outlines important evaluation measures which are typically used fo
 
 % TODO ... work for the holidays
 
-\subsection{Precision, Recall, and F-measure}
+\subsection{Precision, Recall, and F-measure} \label{sec:Introduction:PrRcF1}
 
 Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative``, as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
 
@@ -90,11 +90,55 @@ The Mean Squared Error (MSE) is used for measuring the deviation of estimated or
 	\label{eqn:RMSE}
 \end{equation}
 
-\subsection{Mean Average Precision}
+\subsection{Precision at k, Average Precision, Mean Average Precision}
+
+Precision, Recall and F-measure as described in Section~\ref{sec:Introduction:PrRcF1} are metrics, which only consider unsorted sets of items. To evaluate ordered lists, which are ranked by relevance for example, the following measures can be employed.
+
+``Precision at k'' denotes the precision for a ranked sublist of the first k documents as illustrated in Equation~\ref{eqn:PrAtK}. The binary function $rel(i)$ takes a value of 1, if the document at position $i$ is relevant for the current query, 0 elsewise \cite{Mahesh:1999}. For example, $P(k = 10)$ with 5 relevant and 5 irrelevant documents results in a value of 0.5.
+
+\begin{equation}
+	P(k) = \frac{\sum_{i = 1}^{k} \textit{rel}(i)}{k}
+	\label{eqn:PrAtK}
+\end{equation}
+
+Equation~\ref{eqn:AP} shows the Average Precision (AP), which is the sum of the precisions from Equation~\ref{eqn:PrAtK} where $rel(i)$ equals a value of 1, divided by the total count of relevant documents in the sublist of $n$ results \cite{Mahesh:1999}. Table~\ref{tab:ExampleMAP} gives a calculation example.
+
+\begin{equation}
+	\mathit{AP} = \frac{\sum_{k = 1}^{n} P(k) \textit{rel}(k)}{R}
+	\label{eqn:AP}
+\end{equation}
+
+% Daten siehe --> AveragePrecision.numbers
+\begin{table}[h!tbp]
+	\centering
+	\begin{tabular}{|c|c|c|c|c|}
+				
+		\hline
+		Rank k & relevant? & \# relevant & P(k) & AP  \\
+		\hline
+				
+		1  & $\checkmark$ & 1 & 1                                & 1   \\ \hline
+		2  &              & 1 & $1/2 = 0.5$         & 1   \\ \hline
+		3  & $\checkmark$ & 2 & $2/3 \approx 0.67$  & $(1 + 2/3) / 2 \approx 0.83$  \\ \hline
+		4  & $\checkmark$ & 3 & $3/4 = 0.75$        & $(1 + 2/3 + 3/4) / 3 \approx 0.81 $    \\ \hline
+		5  & $\checkmark$ & 4 & $4/5 = 0.8$         & $(1 + 2/3 + 3/4 + 4/5) / 4 \approx 0.80$    \\ \hline
+		6  & $\checkmark$ & 5 & $5/6 \approx 0.83$  & $(1 + 2/3 + 3/4 + 4/5 + 5/6) / 5 \approx 0.81$    \\ \hline
+		7  &              & 5 & $5/7 \approx 0.71$  & $(1 + 2/3 + 3/4 + 4/5 + 5/6) / 5 \approx 0.81$    \\
+		
+		 \hline
+	\end{tabular}
+
+	\caption{Example for calculating Precision and Average Precision for a ranked list.}
+	\label{tab:ExampleMAP}
+\end{table}
+
+% TODO ... MAP
+
 
 \subsection{Mean Reciprocal Rank}
 
 \section{Alternative and Complimentary Toolkits}
+
 \label{sec:alternativesToPalladian}
 Some functionalities of this toolkit are covered in other libraries. If you can't find the functionality you need in Palladian you might want to take a look at these alternatives. Some of the objectives of Palladian are to create new functionalities or improve existing ones, not to reinvent the wheel and redo work that functions well in other libraries.
 
