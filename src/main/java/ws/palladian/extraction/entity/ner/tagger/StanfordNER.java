@@ -536,7 +536,8 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
         // /////////////////////////// train and test /////////////////////////////
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
+        tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/stanfordNER.model");
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
                 "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
