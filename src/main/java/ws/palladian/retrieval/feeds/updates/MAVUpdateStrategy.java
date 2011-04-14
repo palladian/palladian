@@ -219,13 +219,13 @@ public class MAVUpdateStrategy extends UpdateStrategy {
             feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
         }
 
-        // in case only one entry has been found use the default check time
-        // we add a +- random offset to the default check time to avoid a peak in the number of feeds that have
-        // exactly the same update interval (in our experiments, more than 10.000 feeds got the default check time)
+        // in case only one entry has been found use default check time
         if (entries.size() <= 1) {
-            int rand = (int) ((Math.random() - 0.5) * FeedReader.DEFAULT_CHECK_TIME);
-            int randomTime = FeedReader.DEFAULT_CHECK_TIME + rand;
-            feed.setUpdateInterval(getAllowedUpdateInterval(randomTime));
+            if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME / 2));
+            } else {
+                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+            }
         }
     }
 

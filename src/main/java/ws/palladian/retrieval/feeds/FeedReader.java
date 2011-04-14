@@ -64,7 +64,7 @@ public final class FeedReader {
     /**
      * If a fixed checkInterval could not be learned, this one is taken (in minutes).
      */
-    public static final int DEFAULT_CHECK_TIME = 480;
+    public static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
     private UpdateStrategy updateStrategy = new FixUpdateStrategy();
