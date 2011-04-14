@@ -73,11 +73,11 @@ public class FeedStoreManager {
         LOGGER.info("meta information for all feeds created in " + sw.getElapsedTimeString());
     }
 
-    /**
-     * @param args
-     * @throws FeedRetrieverException
-     */
-    public static void main(String[] args) throws FeedRetrieverException {
+//    /**
+//     * @param args
+//     * @throws FeedRetrieverException
+//     */
+//    public static void main(String[] args) throws FeedRetrieverException {
         // Crawler c = new Crawler();
         // Document document = c.getWebDocument("http://www.newser.com/");
 
@@ -85,6 +85,6 @@ public class FeedStoreManager {
         // Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");
         // System.out.println(f.getFormat() + "," + f.getTextType());
 
-    }
+//    }
 
 }

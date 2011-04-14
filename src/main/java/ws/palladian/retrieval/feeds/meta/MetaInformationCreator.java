@@ -40,7 +40,7 @@ public class MetaInformationCreator {
 
 
     public void createMetaInformation() {
-        ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        ExecutorService threadPool = Executors.newCachedThreadPool();
         Collection<Feed> feedCollection = feedStore.getFeeds();
 
         LOGGER.info("start meta information gathering process");
@@ -49,6 +49,11 @@ public class MetaInformationCreator {
         for (Feed feed : feedCollection) {
             MetaInformationCreationTask command = new MetaInformationCreationTask(feed);
             threadPool.execute(command);
+            try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
         }
     }
 

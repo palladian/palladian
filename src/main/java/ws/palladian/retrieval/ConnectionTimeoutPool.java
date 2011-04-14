@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
  * @author Philipp Katz
  * 
  */
-class ConnectionTimeoutPool implements Runnable {
+public class ConnectionTimeoutPool implements Runnable {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ConnectionTimeoutPool.class);
