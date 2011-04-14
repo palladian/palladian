@@ -56,6 +56,7 @@ class FeedTask extends Thread {
             feedRetriever.updateFeed(feed);
         } catch (FeedRetrieverException e) {
             LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+            feed.setLastPollTime(new Date());
             feed.incrementUnreachableCount();
             feedReader.updateFeed(feed);
             return;

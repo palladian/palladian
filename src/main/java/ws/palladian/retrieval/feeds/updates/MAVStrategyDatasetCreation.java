@@ -92,7 +92,7 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
     @Override
     int getAllowedUpdateInterval(int updateInterval) {
         int allowedInterval = updateInterval;
-        if (getHighestUpdateInterval() != -1 && getHighestUpdateInterval() < updateInterval) {
+        if (getHighestUpdateInterval() != -1 && getHighestUpdateInterval() <= updateInterval) {
             allowedInterval = getHighestUpdateInterval() - getRandomOffset(getHighestUpdateInterval() / 2);
         }
         if (getLowestUpdateInterval() != -1 && getLowestUpdateInterval() > updateInterval) {
