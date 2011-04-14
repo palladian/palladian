@@ -97,7 +97,7 @@ class SchedulerTask extends TimerTask {
 					+ feedIDs.toString());
 		}
 		if (alreadyScheduledFeedCount > 0) {
-			LOGGER.error("Could not schedule: " + alreadyScheduledFeedCount
+            LOGGER.fatal("Could not schedule " + alreadyScheduledFeedCount
 					+ " already scheduled feeds.");
 		}
 		LOGGER.info("Queue now contains: " + scheduledTasks.size());
