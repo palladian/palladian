@@ -26,7 +26,7 @@ import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
 
 /**
  * <p>
@@ -281,7 +281,7 @@ public class DatasetCreator {
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        MAVUpdateStrategy updateStrategy = new MAVUpdateStrategy();
+        MAVStrategyDatasetCreation updateStrategy = new MAVStrategyDatasetCreation();
         updateStrategy.setHighestUpdateInterval(720); // 12hrs (8hrs +- 4hrs)
         updateStrategy.setLowestUpdateInterval(2);
         feedChecker.setUpdateStrategy(updateStrategy, true);
