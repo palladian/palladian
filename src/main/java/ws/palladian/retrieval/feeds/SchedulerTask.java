@@ -43,6 +43,12 @@ class SchedulerTask extends TimerTask {
 	 */
 	private transient final Map<Integer, Future<?>> scheduledTasks;
 
+    /**
+     * The number of times a feed that has never been checked successfully is put into the queue regardless of its
+     * update interval.
+     */
+    private static final int MAX_IMMEDIATE_RETRIES = 3;
+
 	/**
 	 * Creates a new {@code SchedulerTask} for a feed reader.
 	 * 
@@ -131,8 +137,8 @@ class SchedulerTask extends TimerTask {
 						+ (now - feed.getLastPollTime().getTime() > feed
 								.getUpdateInterval() * DateHelper.MINUTE_MS)
 						: ""));
-		Boolean ret = feed.getChecks() == 0
-				|| feed.getLastPollTime() == null
+        Boolean ret = (feed.getChecks() == 0 && feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES)
+                || feed.getLastPollTime() == null
 				|| now - feed.getLastPollTime().getTime() > feed
 						.getUpdateInterval() * DateHelper.MINUTE_MS;
 		if (ret == true) {

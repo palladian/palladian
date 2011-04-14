@@ -85,7 +85,7 @@ public final class FeedReader {
      * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
      * be read.
      */
-    private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
+    private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
 
     /** The constructor. */
     public FeedReader(FeedStore feedStore) {
