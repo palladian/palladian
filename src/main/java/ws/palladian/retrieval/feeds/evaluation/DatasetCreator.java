@@ -282,7 +282,7 @@ public class DatasetCreator {
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
         MAVUpdateStrategy updateStrategy = new MAVUpdateStrategy();
-        updateStrategy.setHighestUpdateInterval(360);
+        updateStrategy.setHighestUpdateInterval(720); // 12hrs (8hrs +- 4hrs)
         updateStrategy.setLowestUpdateInterval(2);
         feedChecker.setUpdateStrategy(updateStrategy, true);
 
