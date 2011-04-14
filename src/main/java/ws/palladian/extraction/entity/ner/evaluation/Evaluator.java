@@ -10,7 +10,6 @@ import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
-import ws.palladian.extraction.entity.ner.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
 import ws.palladian.extraction.entity.ner.tagger.JulieNER;
@@ -81,11 +80,11 @@ public class Evaluator {
             } else {
                 mode = Mode.LanguageIndependent;
             }
-            
+
             LOGGER.info("start evaluating in " + mode + " mode");
-            
-            StringBuilder results = new StringBuilder();            
-            
+
+            StringBuilder results = new StringBuilder();
+
             results.append("TUDNER, mode = ").append(mode).append("\n");
             results.append(";All;;;;;;Unseen only;;;;;;\n");
             results.append("Number of Seeds;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;\n");
@@ -105,7 +104,6 @@ public class Evaluator {
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
                         + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
-
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
                 for (int k = 0; k < 2; k++) {
@@ -140,14 +138,13 @@ public class Evaluator {
                 }
 
             }
-            
+
             FileHelper.writeToFile(EVALUATION_PATH + "evaluateSeedInputOnlyNER_" + mode + ".csv", results);
-            
+
             LOGGER.info("evaluated TUDNER in " + mode + " mode in " + stopWatch.getElapsedTimeString());
         }
-        
-    }
 
+    }
 
     /**
      * <p>
@@ -242,8 +239,7 @@ public class Evaluator {
                     results);
         }
 
-        FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv",
-                results);
+        FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv", results);
     }
 
     /**
@@ -267,8 +263,9 @@ public class Evaluator {
      * @param tagger The named entity recognizer that should be evaluated.
      * @param trainingFilePath The path to the training file that contains all documents.
      * @param testFilePath The path to the test file on which the NER should be tested on.
+     * @return Return the average performance for the given tagger on the given dataset.
      */
-    public void evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath,
+    public String evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, int numberOfSeeds) {
 
         StopWatch stopWatch = new StopWatch();
@@ -282,6 +279,9 @@ public class Evaluator {
         LOGGER.info("training " + tagger.getName() + " took " + stopWatch.getElapsedTimeString());
 
         StringBuilder results = new StringBuilder();
+
+        // this is the last line of the results which sums up the performance
+        StringBuilder averagedLine = new StringBuilder();
 
         // get the annotations
         Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
@@ -297,6 +297,10 @@ public class Evaluator {
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
         concepts.remove("O");
+
+        // write head
+        results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
+        results.append(";Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1;Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1\n");
 
         for (String concept : concepts) {
 
@@ -345,13 +349,15 @@ public class Evaluator {
             if (k == 0) {
                 results.append("Averaged").append(";");
             }
-            results.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-            results.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-            results.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-            results.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-            results.append(er.getRecall(EvaluationResult.MUC)).append(";");
-            results.append(er.getF1(EvaluationResult.MUC)).append(";");
 
+            averagedLine.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getPrecision(EvaluationResult.MUC)).append(";");
+            averagedLine.append(er.getRecall(EvaluationResult.MUC)).append(";");
+            averagedLine.append(er.getF1(EvaluationResult.MUC)).append(";");
+
+            results.append(averagedLine);
         }
 
         FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" + numberOfSeeds
@@ -359,30 +365,46 @@ public class Evaluator {
 
         LOGGER.info("evaluated " + tagger.getName() + " on " + trainingFilePath + " in "
                 + stopWatch.getTotalElapsedTimeString());
+
+        return averagedLine.toString();
     }
 
-    public void evaluateOnGeneratedTrainingset(List<NamedEntityRecognizer> taggers, String trainingPathForSeeds,
-            String testFilePath, int minSeedsPerConcept, int maxSeedsPerConcept, int seedStepSize) {
+    public void evaluateOnGeneratedTrainingset(List<NamedEntityRecognizer> taggers, String targetFolder,
+            String testFilePath) {
 
         StopWatch stopWatch = new StopWatch();
 
-        int minMentionsPerSeed = 5;
+        StringBuilder results = new StringBuilder();
 
-        // generate a dataset from seed entities
-        for (int i = minSeedsPerConcept; i <= maxSeedsPerConcept; i += seedStepSize) {
-            LOGGER.info("start generating training data using " + i + " seeds");
+        // count the numer of text files for evaluation in the target folder
+        int maxNumberOfSeeds = FileHelper.getFiles(targetFolder, "seedsTest").length;
 
-            DatasetCreator dc = new DatasetCreator("www_eval_" + i);
-            dc.setDataSetLocation(EVALUATION_PATH);
-            String generatedTrainingFilePath = dc.generateDataset(trainingPathForSeeds, i, minMentionsPerSeed);
+        // write the result head
+        results.append(";");
+        for (NamedEntityRecognizer tagger : taggers) {
+            results.append(tagger.getName()).append(";;;;;;;;;;;;");
+        }
+        results.append("\n");
+        results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
+        results.append(";Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1;Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1\n");
+
+        for (int i = 1; i <= maxNumberOfSeeds; i++) {
+            LOGGER.info("start evaluating on generated training data using " + i + " seeds");
+
+            results.append(i).append(";");
+
+            String generatedTrainingFilePath = targetFolder + "seedsTest" + i + ".txt";
 
             for (NamedEntityRecognizer tagger : taggers) {
-                evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i);
+                results.append(evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i));
             }
 
+            results.append("\n");
         }
 
-        LOGGER.info("finished evaluating " + taggers.size() + " NERs on generated training data in "
+        FileHelper.writeToFile(EVALUATION_PATH + "autoGeneratedTests.txt", results);
+
+        LOGGER.info("finished evaluating " + taggers.size() + " NERs using generated training data in "
                 + stopWatch.getTotalElapsedTimeString());
     }
 
@@ -403,22 +425,25 @@ public class Evaluator {
         // String conll2003TrainingPath = "data/datasets/ner/conll/training_verysmall.txt";
         // String conll2003TestPath = "data/datasets/ner/conll/test_validation_small.txt";
 
+        // evaluate on Conll 2003 data
         String conll2003TrainingPath = "data/datasets/ner/conll/training.txt";
         String conll2003TestPath = "data/datasets/ner/conll/test_final.txt";
 
         Evaluator evaluator = new Evaluator();
 
         // evaluate using seed entities only (only TUDNER)
-        //evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
+        // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
 
         // evaluate all tagger how they depend on the number of documents in the training set
-         for (NamedEntityRecognizer tagger : taggerList) {
-            evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
-            evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
-                    "=-DOCSTART-\tO", 1, 50);
-         }
-        
-        // evaluator.evaluateOnGeneratedTrainingset(taggerList, conll2003TrainingPath, conll2003TestPath, 2, 4, 2);
+        // for (NamedEntityRecognizer tagger : taggerList) {
+        // evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
+        // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
+        // "=-DOCSTART-\tO", 1, 500);
+        // }
+
+        evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
+
+        // evaluate on TUD 2011 data
 
     }
 

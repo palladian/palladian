@@ -435,10 +435,10 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
         // using a column trainig and testing file
+        // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/lingPipeNER.model");
         tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingPipeNER.model");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
-                "data/temp/lingPipeNER_.model",
-                TaggingFormat.COLUMN);
+                "data/temp/lingPipeNER.model", TaggingFormat.COLUMN);
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
         // "data/temp/lingPipeNER_.model",
         // TaggingFormat.COLUMN);

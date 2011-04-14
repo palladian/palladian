@@ -778,16 +778,28 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return finalColumnTaggedFilePath;
     }
 
+    public static void generateDatasets(String targetFolder, String name, String seedTrainingSetPath, int minSeeds,
+            int maxSeeds, int minMentionsPerSeed) {
+        for (int i = minSeeds; i <= maxSeeds; i++) {
+            DatasetCreator dsc = new DatasetCreator(name + i);
+            dsc.setDataSetLocation(targetFolder);
+            dsc.generateDataset(seedTrainingSetPath, i, minMentionsPerSeed);
+
+            // copy the cleansed, combined "allColumn.txt" from each subfolder in the main folder
+            FileHelper.copyFile(dsc.getDataSetLocation() + "allColumn.txt", targetFolder + "seedsTest" + i + ".txt");
+
+        }
+    }
+
     /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
 
-        for (int i = 0; i < 5; i++) {
-            DatasetCreator dsc = new DatasetCreator("www_eval_test_seeds_" + i);
-            dsc.generateDataset("data/datasets/ner/conll/training.txt", i, 1);
-        }
+        // DatasetCreator.generateDatasets("www_eval_seeds","data/datasets/ner/conll/training.txt", 1, 50, 5);
+        DatasetCreator.generateDatasets("data/temp/autoGeneration/", "www_eval_seeds_t",
+                "data/datasets/ner/conll/training.txt", 1, 3, 1);
         System.exit(0);
 
         // String cleansedPath = "data/datasets/ner/www_eval_cleansed/";
