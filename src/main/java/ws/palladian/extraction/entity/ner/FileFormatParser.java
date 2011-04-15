@@ -91,10 +91,10 @@ public class FileFormatParser {
     public static void columnToXML(String inputFilePath, String outputFilePath, String columnSeparator) {
 
         final Object[] obj = new Object[4];
-        obj[0] = new StringBuilder();
+        final StringBuilder xml = new StringBuilder();
 
         // the currently open tag
-        obj[1] = "";
+        obj[1] = "o";
         obj[2] = columnSeparator;
 
         // whether the last line was a break
@@ -107,16 +107,21 @@ public class FileFormatParser {
 
                 String[] parts = line.split((String) obj[2]);
 
+                // skip empty lines at the beginning of the file
+                if (parts.length < 2 && xml.length() == 0) {
+                    return;
+                }
+
                 if (parts.length < 2) {
 
                     // add breaks for empty lines
                     if (line.length() == 0) {
                         // ((StringBuilder) obj[0]).deleteCharAt(((StringBuilder) obj[0]).length() - 1);
                         if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                            ((StringBuilder) obj[0]).append("</").append((String) obj[1]).append(">");
+                            xml.append("</").append((String) obj[1]).append(">");
                             obj[1] = "o";
                         }
-                        ((StringBuilder) obj[0]).append("\n");
+                        xml.append("\n");
                         obj[3] = true;
                     }
 
@@ -128,14 +133,14 @@ public class FileFormatParser {
                 if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
 
                     if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                        ((StringBuilder) obj[0]).append("</").append((String) obj[1]).append(">");
+                        xml.append("</").append((String) obj[1]).append(">");
                     }
 
                     if (!parts[1].equalsIgnoreCase("o")) {
                         if (lineNumber > 1 && (Boolean) obj[3] == false) {
-                            ((StringBuilder) obj[0]).append(" ");
+                            xml.append(" ");
                         }
-                        ((StringBuilder) obj[0]).append("<").append(parts[1]).append(">");
+                        xml.append("<").append(parts[1]).append(">");
                         openTag = true;
                     }
 
@@ -147,9 +152,9 @@ public class FileFormatParser {
                         && parts[0].length() > 0
                         && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
                         && !openTag && lineNumber > 1 && (Boolean) obj[3] == false) {
-                    ((StringBuilder) obj[0]).append(" ");
+                    xml.append(" ");
                 }
-                ((StringBuilder) obj[0]).append(parts[0]);
+                xml.append(parts[0]);
                 obj[3] = false;
 
             }
@@ -157,7 +162,7 @@ public class FileFormatParser {
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, xml);
     }
 
     /**

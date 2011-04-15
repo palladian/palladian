@@ -93,9 +93,9 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
     public void demo(String inputText) {
         System.out
-                .println(tag(
-                        inputText,
-                        "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz"));
+        .println(tag(
+                inputText,
+        "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz"));
     }
 
     /**
@@ -146,9 +146,9 @@ public class OpenNLPNER extends NamedEntityRecognizer {
                 if (ti != 0) {
                     if (tagOpen
                             && (nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
-                            .endsWith(NameFinderME.OTHER))
-                            && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
-                                    .endsWith(NameFinderME.CONTINUE))) {
+                                                                                                      .endsWith(NameFinderME.OTHER))
+                                                                                                      && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
+                                                                                                                                                                                    .endsWith(NameFinderME.CONTINUE))) {
                         output.append("</").append(openTag).append(">");
                         tagOpen = false;
                     }
@@ -422,7 +422,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -505,12 +505,10 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // TaggingFormat.XML));
 
         // /////////////////////////// train and test /////////////////////////////
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
-        EvaluationResult er = tagger
-                .evaluate(
-                        "data/datasets/ner/conll/test_final.txt",
-                        "data/temp/openNLP_ORG.bin,data/temp/openNLP_LOC.bin,data/temp/openNLP_PER.bin,data/temp/openNLP_MISC.bin",
-                        TaggingFormat.COLUMN);
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
+        tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
