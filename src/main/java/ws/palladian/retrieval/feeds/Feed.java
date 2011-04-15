@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
+
+import com.ibm.icu.util.Calendar;
 
 /**
  * Represents a news feed.
@@ -300,8 +303,20 @@ public class Feed {
         return unreachableCount;
     }
 
+    /**
+     * If date's year is > 9999, we set it to null!
+     * 
+     * @param lastFeedEntry
+     */
     public void setLastFeedEntry(Date lastFeedEntry) {
-        this.lastFeedEntry = lastFeedEntry;
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(lastFeedEntry);
+        int year = cal.get(Calendar.YEAR);
+        if (year >= 9999) {
+            this.lastFeedEntry = null;
+        } else {
+            this.lastFeedEntry = lastFeedEntry;
+        }
     }
 
     public Date getLastFeedEntry() {
