@@ -309,14 +309,15 @@ public class Feed {
      * @param lastFeedEntry
      */
     public void setLastFeedEntry(Date lastFeedEntry) {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(lastFeedEntry);
-        int year = cal.get(Calendar.YEAR);
-        if (year >= 9999) {
-            this.lastFeedEntry = null;
-        } else {
-            this.lastFeedEntry = lastFeedEntry;
+        if (lastFeedEntry != null) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTime(lastFeedEntry);
+            int year = cal.get(Calendar.YEAR);
+            if (year >= 9999) {
+                lastFeedEntry = null;
+            }
         }
+        this.lastFeedEntry = lastFeedEntry;
     }
 
     public Date getLastFeedEntry() {
