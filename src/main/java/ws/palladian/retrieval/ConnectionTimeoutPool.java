@@ -93,7 +93,7 @@ public class ConnectionTimeoutPool implements Runnable {
                 DelayedConnectionTimeout delayedConnectionTimeout = queue.take();
                 HttpURLConnection httpUrlConnection = delayedConnectionTimeout.getHttpUrlConnection();
                 httpUrlConnection.disconnect();
-                LOGGER.warn("disconnected : " + httpUrlConnection.getURL() + " ; # left in queue : " + queue.size());
+                LOGGER.debug("disconnected : " + httpUrlConnection.getURL() + " ; # left in queue : " + queue.size());
             } catch (InterruptedException e) {
                 LOGGER.error("InterruptedException : " + e.getMessage());
             }
