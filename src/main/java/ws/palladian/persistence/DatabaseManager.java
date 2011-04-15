@@ -334,7 +334,8 @@ public class DatabaseManager {
             affectedRows = ps.executeUpdate();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Could not update sql \"" + sql + "\" with args \"" + CollectionHelper.getPrint(args)
+                    + "\", error: " + e.getMessage());
             affectedRows = -1;
         } finally {
             close(connection, ps);
