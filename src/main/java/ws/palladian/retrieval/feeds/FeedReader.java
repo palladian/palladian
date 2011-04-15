@@ -410,8 +410,8 @@ public final class FeedReader {
         return stopped;
     }
 
-    public void updateFeed(Feed feed) {
-        getFeedStore().updateFeed(feed);
+    public boolean updateFeed(Feed feed) {
+        return getFeedStore().updateFeed(feed);
     }
 
     /**

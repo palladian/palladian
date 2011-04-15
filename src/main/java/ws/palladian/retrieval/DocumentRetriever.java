@@ -92,7 +92,7 @@ public class DocumentRetriever {
     public static final int DEFAULT_READ_TIMEOUT = (int) (16 * DateHelper.SECOND_MS);
 
     /** The default overall timeout (after which the connection is reset). */
-    public static final int DEFAULT_OVERALL_TIMEOUT = (int) (60 * DateHelper.SECOND_MS);
+    public static final int DEFAULT_OVERALL_TIMEOUT = (int) (180 * DateHelper.SECOND_MS);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;

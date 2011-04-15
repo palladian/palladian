@@ -283,7 +283,7 @@ public class DatasetCreator {
 
         MAVStrategyDatasetCreation updateStrategy = new MAVStrategyDatasetCreation();
         updateStrategy.setHighestUpdateInterval(360); // 6hrs
-        updateStrategy.setLowestUpdateInterval(2);
+        updateStrategy.setLowestUpdateInterval(5);
         feedChecker.setUpdateStrategy(updateStrategy, true);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
