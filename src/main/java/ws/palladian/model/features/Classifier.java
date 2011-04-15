@@ -1,7 +1,9 @@
 package ws.palladian.model.features;
 
+import ws.palladian.classification.CategoryEntries;
+
 public interface Classifier {
 
-    String classify(FeatureVector featureVector);
+    CategoryEntries classify(FeatureVector featureVector);
 
 }
