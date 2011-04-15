@@ -34,21 +34,21 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
-  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '30' COMMENT 'time in minutes until it is expected to find at least one new entry in the feed',
-  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes until it is expected to find only new but one new entries in the feed',
+  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '5' COMMENT 'time in minutes until it is expected to find at least one new entry in the feed',
+  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '360' COMMENT 'time in minutes until it is expected to find only new but one new entries in the feed',
   `lastHeadlines` longtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
   `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  `lastFeedEntry` timestamp NULL DEFAULT NULL COMMENT 'timestamp of the last feed entry found in this feed',
+  `lastFeedEntry` datetime NULL DEFAULT NULL COMMENT 'timestamp of the last feed entry found in this feed',
   `activityPattern` int(11) NOT NULL DEFAULT '-1' COMMENT 'update class of the feed',
   `supportsLMS` tinyint(1) DEFAULT NULL,
   `supportsETag` tinyint(1) DEFAULT NULL,
   `conditionalGetResponseSize` int(11) DEFAULT NULL,
-  `lastPollTime` timestamp NULL DEFAULT NULL,
+  `lastPollTime` datetime NULL DEFAULT NULL,
   `lastETag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `supportsPubSubHubBub` tinyint(1) DEFAULT NULL COMMENT 'true if feed supports the hub relation used by PubSubHubBub',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 --
 -- Daten für Tabelle `feeds`
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `feeds_post_distribution` (
   `chances` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`feedID`,`minuteOfDay`),
   CONSTRAINT `feeds_post_distribution_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 --
 -- Daten für Tabelle `feeds_post_distribution`
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
   PRIMARY KEY (`id`),
   CONSTRAINT `feed_items_ibfk_1` FOREIGN KEY (`feedId`) REFERENCES `feeds` (`id`) ON DELETE CASCADE,
   UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=101 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 --
 -- Daten für Tabelle `feed_items`
