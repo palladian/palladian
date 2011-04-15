@@ -8,7 +8,7 @@ import ws.palladian.helper.DBStoreTest;
 import ws.palladian.persistence.DictionaryFileIndexTest;
 import ws.palladian.preprocessing.multimedia.ImageHandlerTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
-import ws.palladian.retrieval.CrawlerTest;
+import ws.palladian.retrieval.DocumentRetrieverTest;
 
 /**
  * All tests.
@@ -25,7 +25,7 @@ public class AllTests {
         // $JUnit-BEGIN$
         suite.addTestSuite(ClassifierTest.class);
         suite.addTestSuite(DictionaryFileIndexTest.class);
-        suite.addTestSuite(CrawlerTest.class);
+        suite.addTestSuite(DocumentRetrieverTest.class);
         suite.addTestSuite(ImageHandlerTest.class);
         suite.addTestSuite(NormalizationTest.class);
         suite.addTestSuite(PageAnalyzerTest.class);

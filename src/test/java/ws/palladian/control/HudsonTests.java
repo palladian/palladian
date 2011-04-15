@@ -4,7 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
-import ws.palladian.retrieval.CrawlerTest;
+import ws.palladian.retrieval.DocumentRetrieverTest;
 
 /**
  * All tests performed by Hudson.
@@ -20,7 +20,7 @@ public class HudsonTests {
         TestSuite suite = new TestSuite("Hudson tests.");
         // $JUnit-BEGIN$
         suite.addTestSuite(ClassifierTest.class);
-        suite.addTestSuite(CrawlerTest.class);
+        suite.addTestSuite(DocumentRetrieverTest.class);
         suite.addTestSuite(NormalizationTest.class);
 
         // $JUnit-END$
