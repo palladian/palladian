@@ -67,12 +67,14 @@ class FeedTask extends Thread {
 
         // classify feed if it has never been classified before, do it once a month for each feed to be informed about
         // updates
-        LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
-        LOGGER.debug("Current time: " + System.currentTimeMillis());
-        LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
-        LOGGER.debug("Current time - last poll time: "
-                + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-        LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
+            LOGGER.debug("Current time: " + System.currentTimeMillis());
+            LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
+            LOGGER.debug("Current time - last poll time: "
+                    + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+            LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
+        }
         if (feed.getActivityPattern() == -1
                 || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
             FeedClassifier.classify(feed);

@@ -95,9 +95,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getLastHeadlines());
         parameters.add(feed.getUnreachableCount());
-        parameters.add(feed.getLastFeedEntrySQLTimestamp());
+        parameters.add(feed.getLastFeedEntry());
         parameters.add(feed.getLastETag());
-        parameters.add(feed.getLastPollTimeSQLTimestamp());
+        parameters.add(feed.getLastPollTime());
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getId());
 
