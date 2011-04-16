@@ -26,7 +26,7 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         List<FeedItem> entries = feed.getItems();
 
         int minCheckInterval = feed.getUpdateInterval();
-        int maxCheckInterval = feed.getUpdateInterval();
+        //int maxCheckInterval = feed.getUpdateInterval();
 
         double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
 
@@ -34,16 +34,23 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         // ######################### simple moving average ##############################
         if (newEntries > 0) {
             minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+            //maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
             if (fps.getIntervals().size() > 0) {
                 double averagePostGap = fps.getAveragePostGap();
-                // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-                // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
-                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
-                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
-                maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+                if (averagePostGap == 0D) {
+					// in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
+					minCheckInterval = getHighestUpdateInterval();
+				} else {
+					// averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+					// averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
+					averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
+					averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+					minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+				}
+				
+				
+                //maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
             }
         }
 
@@ -53,11 +60,11 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
 
 
 
-        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+        //if (feed.getUpdateMode() == Feed.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
-        } else {
-            feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
-        }
+        //} else {
+        //    feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+        //}
 
         // in case only one entry has been found use the default check time
         // we subtract a random offset to the default check time to avoid a peak in the number of feeds that have
