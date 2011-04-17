@@ -132,7 +132,7 @@ public class RankingRetriever {
             this.domainLevel = domainLevel;
         }
 
-        int getServiceId() {
+        public int getServiceId() {
             return serviceId;
         }
 
@@ -154,7 +154,7 @@ public class RankingRetriever {
          * @return Service with specified serviceId.
          * @throws NoSuchElementException if no service with specified serviceId exits.
          */
-        static Service getById(int serviceId) {
+        public static Service getById(int serviceId) {
             for (Service s : Service.values()) {
                 if (s.getServiceId() == serviceId) {
                     return s;
@@ -460,8 +460,8 @@ public class RankingRetriever {
 
             String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler
-                    .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
-                            + encUrl);
+            .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
+                    + encUrl);
             if (json != null) {
                 JSONArray stories = json.getJSONArray("stories");
                 result = 0;
@@ -672,8 +672,8 @@ public class RankingRetriever {
 
         String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler
-                .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
-                        + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
+        .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
+                + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
 
         if (doc != null) {
             // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
@@ -707,8 +707,8 @@ public class RankingRetriever {
         String domain = UrlHelper.getDomain(getUrl(), false);
 
         Document doc = crawler
-                .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
-                        + yahooApikey + "&adult_ok=1&query=link:" + getUrl() + "%20-site:" + domain);
+        .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
+                + yahooApikey + "&adult_ok=1&query=link:" + getUrl() + "%20-site:" + domain);
 
         if (doc != null) {
             // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
