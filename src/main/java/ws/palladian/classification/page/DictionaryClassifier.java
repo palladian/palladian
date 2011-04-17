@@ -59,7 +59,8 @@ public class DictionaryClassifier extends TextClassifier {
     @Override
     public void reset() {
         super.reset();
-        dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
+        // FIXME doesn't work that way
+        // dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
     }
 
     public void init() {

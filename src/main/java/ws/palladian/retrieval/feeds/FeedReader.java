@@ -358,7 +358,6 @@ public final class FeedReader {
         startContinuousReading(duration);
 
         LOGGER.info("# of new entries : " + newItems);
-
     }
 
     // ======================
