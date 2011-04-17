@@ -193,16 +193,16 @@ public class PalladianLangDetect extends LanguageClassifier {
 
         // ///////////////// use the language classifier ///////////////////
         // String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
-        String languageModelPath = "data/models/palladianLanguageJRC/palladianLanguageJRC.gz";
-
-        PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
-        String language = pld0.classify("This is a sample text in English");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Se trata de un texto de muestra en español");
-        System.out.println("The text was classified as: " + language);
-        System.exit(0);
+        // String languageModelPath = "data/models/palladianLanguageJRC/palladianLanguageJRC.gz";
+        //
+        // PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
+        // String language = pld0.classify("This is a sample text in English");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Se trata de un texto de muestra en español");
+        // System.out.println("The text was classified as: " + language);
+        // System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
