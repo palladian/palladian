@@ -43,8 +43,7 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public boolean addFeed(Feed feed) {
-        // TODO Auto-generated method stub
-        return false;
+        return feeds.add(feed);
     }
 
     @Override
