@@ -92,6 +92,8 @@ public class ClassifierEvaluator {
                 evaluationMatrix.set(dataset.getName(), classifier.toString(), averagedPerformance);
             }
 
+            // free memory by resetting the classifier (training and test documents will be deleted)
+            classifier.reset();
         }
 
         // write results
