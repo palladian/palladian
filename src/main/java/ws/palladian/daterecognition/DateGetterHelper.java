@@ -53,7 +53,12 @@ public final class DateGetterHelper {
         }
 
         for (int i = 0; i < regExps.length; i++) {
+            // FIXME "Mon, 18 Apr 2011 09:16:00 GMT-0700" fails.
+            try {
             date = getDateFromString(dateString, (String[]) regExps[i]);
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
             if (date != null) {
                 break;
             }

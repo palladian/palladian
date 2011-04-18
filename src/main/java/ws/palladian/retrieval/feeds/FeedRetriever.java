@@ -483,15 +483,17 @@ public class FeedRetriever {
                 Node dateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
                 if (dateNode != null) {
 
-                    ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
-                    if (extractedDate != null) {
-                        try {
+                    // FIXME see Mail from Sandro to David, 18-04-2011 21:42;
+                    // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
+                    try {
+                        ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
+                        if (extractedDate != null) {
                             publishDate = extractedDate.getNormalizedDate();
                             LOGGER.debug("found publish date in original feed file: " + publishDate);
-                        } catch (Exception e) {
-                            LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: "
-                                    + item.getFeedUrl() + ", " + e.getMessage());
                         }
+                    } catch (Exception e) {
+                        LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: "
+                                + item.getFeedUrl() + ", " + e.getMessage());
                     }
                 }
             }
@@ -681,10 +683,14 @@ public class FeedRetriever {
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
+        downloader.setUseDateRecognition(true);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
-        Feed feed = downloader.getFeed("http://beautifulfoto.blogspot.com/feeds/posts/default");
+        StopWatch sw = new StopWatch();
+        Feed feed = downloader.getFeed("http://activism.freebase.com/feed/history/schema/base/activism");
+        System.out.println(feed.getItems().get(0).getPublished());
+        System.out.println("took " + sw);
 
-        FeedRetriever.printFeed(feed);
+        // FeedRetriever.printFeed(feed);
 
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
