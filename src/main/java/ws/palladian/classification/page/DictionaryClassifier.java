@@ -59,8 +59,7 @@ public class DictionaryClassifier extends TextClassifier {
     @Override
     public void reset() {
         super.reset();
-        // FIXME doesn't work that way
-        // dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
+        dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
     }
 
     public void init() {
@@ -207,10 +206,30 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         LOGGER.info("loading dictionary");
+        // XXX, we need to set this to null here so that it can be loaded, by default the classifier has an empty
+        // dictionary and won't load anything
+        classifier.dictionary = null;
         classifier.loadDictionary();
 
         return classifier;
     }
+
+    // public void loadDictionary(String dictionaryPath) {
+    //
+    // reset();
+    //
+    // setDictionaryPath(dictionaryPath);
+    //
+    // // XXX, we need to set this to null here so that it can be loaded, by default the classifier has an empty
+    // // dictionary and won't load anything
+    // dictionary = null;
+    // LOGGER.info("loading dictionary");
+    //
+    // dictionary.setIndexPath(indexPath)
+    // new Dictionary(name, classType);
+    //
+    // //loadDictionary();
+    // }
 
     public void loadDictionary() {
         loadDictionary(0);

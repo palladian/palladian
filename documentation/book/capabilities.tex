@@ -1089,6 +1089,37 @@ feedReader.aggregate(false);
 \end{lstlisting}
 \end{codelisting}
 
+\subsection{Wiktionary Database}\label{sec:wiktionaryDB}
+Palladian offers a simple interface to the Wiktionary\footnote{http://www.wiktionary.org/} data. So far, there are two databases available, one in German and one in English. The database contains information about each word. This information is in particular:
+\begin{itemize}
+\item Language, the language of the word. For example, English, German, Spanish...
+\item Type, the type of the word. For example, Noun, Adjective, Verb...
+\item Synonyms, words which have a similar meaning. For example, notebook = laptop.
+\item Hypernyms, words which are ancestrally related to the word. For example, notebook => computer. Hypernyms are only in the German DB since the English Wiktionary does not provide them.
+\end{itemize}
+
+Code Listing~\ref{listing:wiktionary} shows how to access the database. We create the WordDB with the path to the stored database. Then we can query the database with a string and in case the word is found we get a Word object holding basic information such as language and type. We can then call \verb+aggregateInforamtion(word)+ to find synonyms and hypernyms belonging to the word.
+
+\begin{codelisting}
+\begin{lstlisting}[caption=Using the interface to the Wiktionary WordDB.,frame=tb,label=listing:wiktionary]
+// load a word DB
+WordDB wordDB = new WordDB("data/models/wordDatabaseEnglish/");
+
+// you can load the database into the memory for faster read access
+// wordDB.loadDbToMemory();
+
+// search a word in the dtabase
+Word word = wordDB.getWord("freedom");
+LOGGER.info(word);
+
+// find synonmys and hypernyms for the word
+wordDB.aggregateInformation(word);
+LOGGER.info(word);
+\end{lstlisting}
+\end{codelisting}
+
+Other languages from the Wiktionary project can be parsed after extending the WiktionaryParser. The Wiktionary dumps can be found at \url{http://dumps.wikimedia.org/backup-index.html}.
+
 \subsection{MediaWiki Crawler}\label{sec:MWCrawler}
 The MediaWiki crawler can be used to retrieve content and metadata from Wiki pages. This component is not really a crawler since it uses the MediaWiki API \cite{MWAPI2011} to get all information, anyhow, we call it a crawler. To communicate with the API, the crawler is based on the Java Wiki Bot Framework (jwbf) \cite{jwbf2011}. 
 
