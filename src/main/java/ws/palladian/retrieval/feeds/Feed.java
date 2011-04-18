@@ -27,6 +27,7 @@ import com.ibm.icu.util.Calendar;
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Sandro Reichert
  * 
  */
 public class Feed {
@@ -142,6 +143,9 @@ public class Feed {
     private String rawMarkup;
 
     private double targetPercentageOfNewEntries = -1.0;
+
+    /** Total time in milliseconds that has been spent on processing this feed. */
+    private long totalProcessingTimeMS = 0;
 
     public Feed() {
         super();
@@ -385,20 +389,25 @@ public class Feed {
         return activityPattern;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Feed");
-        // sb.append(" id:").append(id);
-        sb.append(" feedUrl:").append(feedUrl);
-        // sb.append(" siteUrl:").append(siteUrl);
-        sb.append(" title:").append(title);
-        // sb.append(" format:").append(format);
-        // sb.append(" language:").append(language);
-        // sb.append(" added:").append(added);
-
-        return sb.toString();
+        return "Feed [id=" + id + ", feedUrl=" + feedUrl + ", siteUrl=" + siteUrl + ", title=" + title + ", added="
+                + added + ", language=" + language + ", contentType=" + contentType + ", byteSize=" + byteSize
+                + ", items=" + items + ", windowSize=" + windowSize + ", historyFileCompletelyRead="
+                + historyFileCompletelyRead + ", benchmarkLookupTime=" + benchmarkLookupTime
+                + ", benchmarkLastLookupTime=" + benchmarkLastLookupTime + ", checks=" + checks + ", updateInterval="
+                + updateInterval + ", updateMode=" + updateMode + ", lastHeadlines=" + lastHeadlines
+                + ", unreachableCount=" + unreachableCount + ", lastFeedEntry=" + lastFeedEntry + ", pollDataSeries="
+                + pollDataSeries + ", meticulousPostDistribution=" + meticulousPostDistribution
+                + ", oneFullDayOfItemsSeen=" + oneFullDayOfItemsSeen + ", activityPattern=" + activityPattern
+                + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
+                + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
+                + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
+                + ", totalProcessingTimeMS=" + totalProcessingTimeMS + "]";
     }
 
     public void setLastETag(String lastETag) {
@@ -757,6 +766,37 @@ public class Feed {
 
     public int getUpdateMode() {
         return updateMode;
+    }
+
+    /**
+     * Set the time in millisecond that has been spent on processing this feed.
+     * 
+     * @param totalProcessingTimeMS time in milliseconds. Ignored if smaller than zero.
+     */
+    public void setTotalProcessingTime(long totalProcessingTimeMS) {
+        if (totalProcessingTimeMS > 0){
+            this.totalProcessingTimeMS = totalProcessingTimeMS;
+        }
+    }
+
+    /**
+     * Get the time in milliseconds that has been spent on processing this feed.
+     * 
+     * @return time in milliseconds >= 0. Initially 0.
+     */
+    public long getTotalProcessingTime() {
+        return totalProcessingTimeMS;
+    }
+    
+    /**
+     * Increases the time that has been spend on processing this feed by the given value.
+     * 
+     * @param totalProcessingTimeMS time to add in millisecond.
+     */
+    public void increaseTotalProcessingTimeMS(long totalProcessingTimeMS) {
+        if (totalProcessingTimeMS > 0) {
+            setTotalProcessingTime(getTotalProcessingTime() + totalProcessingTimeMS);
+        }
     }
 
 }

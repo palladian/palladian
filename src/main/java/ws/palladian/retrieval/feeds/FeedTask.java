@@ -34,6 +34,11 @@ class FeedTask extends Thread {
     private final FeedReader feedReader;
 
     /**
+     * Warn if processing of a feed takes longer than this.
+     */
+    public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+
+    /**
      * Creates a new retrieval task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
@@ -46,58 +51,69 @@ class FeedTask extends Thread {
 
     @Override
     public void run() {
-        LOGGER.trace("beginning of feed task");
-        LOGGER.info("Start processing of feed id " + feed.getId() + ".");
-        StopWatch timer = new StopWatch();
-
-        LOGGER.debug("running feed task " + feed.getId() + " (" + feed.getFeedUrl() + ")");
-
-        // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
-        // it can be done in parallel
-        FeedRetriever feedRetriever = new FeedRetriever();
         try {
-            feedRetriever.updateFeed(feed);
-        } catch (FeedRetrieverException e) {
-            LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+            LOGGER.trace("Start processing of feed id " + feed.getId() + ".");
+            StopWatch timer = new StopWatch();
+
+            LOGGER.debug("running feed task " + feed.getId() + " (" + feed.getFeedUrl() + ")");
+
+            // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
+            // it can be done in parallel
+            FeedRetriever feedRetriever = new FeedRetriever();
+            try {
+                feedRetriever.updateFeed(feed);
+            } catch (FeedRetrieverException e) {
+                LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+                feed.setLastPollTime(new Date());
+                feed.incrementUnreachableCount();
+                feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+                feedReader.updateFeed(feed);
+                LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
+                return;
+            }
+
+            // remember the time the feed has been checked
             feed.setLastPollTime(new Date());
-            feed.incrementUnreachableCount();
+
+            // classify feed if it has never been classified before, do it once a month for each feed to be informed
+            // about
+            // updates
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
+                LOGGER.debug("Current time: " + System.currentTimeMillis());
+                LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
+                LOGGER.debug("Current time - last poll time: "
+                        + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+                LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
+            }
+            if (feed.getActivityPattern() == -1
+                    || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
+                FeedClassifier.classify(feed);
+            }
+
+            feedReader.updateCheckIntervals(feed);
+
+            // perform actions on this feeds entries
+            LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
+            feedReader.getFeedProcessingAction().performAction(feed);
+            feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+
+            // save the feed back to the database
             feedReader.updateFeed(feed);
-            LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
-            return;
+
+            // since the feed is kept in memory we need to remove all items and the document stored in the feed
+            feed.freeMemory();
+            if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
+                LOGGER.warn("Processing feed id " + feed.getId() + "took very long!");
+            }
+
+            LOGGER.trace("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
+
+            // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
+            // killed by the thread pool internals.
+        } catch (Throwable th) {
+            LOGGER.error(th);
         }
-
-        // remember the time the feed has been checked
-        feed.setLastPollTime(new Date());
-
-        // classify feed if it has never been classified before, do it once a month for each feed to be informed about
-        // updates
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
-            LOGGER.debug("Current time: " + System.currentTimeMillis());
-            LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
-            LOGGER.debug("Current time - last poll time: "
-                    + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-            LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
-        }
-        if (feed.getActivityPattern() == -1
-                || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
-            FeedClassifier.classify(feed);
-        }
-
-        feedReader.updateCheckIntervals(feed);
-
-        // perform actions on this feeds entries
-        LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
-        feedReader.getFeedProcessingAction().performAction(feed);
-
-        // save the feed back to the database
-        feedReader.updateFeed(feed);
-
-        // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        feed.freeMemory();
-
-        LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
-        LOGGER.trace("end of feed task");
     }
 
 }
