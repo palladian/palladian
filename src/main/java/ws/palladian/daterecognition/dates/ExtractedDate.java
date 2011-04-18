@@ -651,7 +651,7 @@ public class ExtractedDate extends AbstractDate{
             this.hour = Integer.parseInt(time);
 
         } else {
-            final String[] timeParts = time.split(":");
+            final String[] timeParts = time.trim().split(":");
             if (timeParts.length > 0) {
                 this.hour = Integer.parseInt(timeParts[0]);
                 if (timeParts.length > 1) {
@@ -663,6 +663,7 @@ public class ExtractedDate extends AbstractDate{
             }
         }
     }
+
 
     /**
      * Sets the year, month and day of this date by getting a array with this values and the position of each value in
