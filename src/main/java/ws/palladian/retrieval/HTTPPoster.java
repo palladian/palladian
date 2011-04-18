@@ -111,12 +111,12 @@ public class HTTPPoster {
      * }
      */
 
-    public void postFile(File file, PostMethod method) throws IOException {
+    public String postFile(File file, PostMethod method) throws IOException {
         method.setRequestEntity(new FileRequestEntity(file, null));
-        handleRequest(method);
+        return handleRequest(method);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
     }
 
