@@ -580,9 +580,13 @@ public class StringHelper {
      * 
      * @param inputString the input string
      * @param keepCharacters the keep characters
-     * @return the string
+     * @return the string or null if inputString was null.
      */
     public static String trim(String inputString, String keepCharacters) {
+
+        if (inputString == null) {
+            return null;
+        }
 
         String string = inputString.trim();
         if (string.length() == 0) {
