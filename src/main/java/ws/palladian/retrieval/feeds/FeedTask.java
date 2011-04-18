@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 
 /**
@@ -46,6 +47,8 @@ class FeedTask extends Thread {
     @Override
     public void run() {
         LOGGER.trace("beginning of feed task");
+        LOGGER.info("Start processing of feed id " + feed.getId() + ".");
+        StopWatch timer = new StopWatch();
 
         LOGGER.debug("running feed task " + feed.getId() + " (" + feed.getFeedUrl() + ")");
 
@@ -59,6 +62,7 @@ class FeedTask extends Thread {
             feed.setLastPollTime(new Date());
             feed.incrementUnreachableCount();
             feedReader.updateFeed(feed);
+            LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
             return;
         }
 
@@ -92,6 +96,7 @@ class FeedTask extends Thread {
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
         feed.freeMemory();
 
+        LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
         LOGGER.trace("end of feed task");
     }
 

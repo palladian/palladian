@@ -368,7 +368,8 @@ public class DatasetCreator {
                         fileEntryID += "\"###NO_TITLE###\";";
                     } else {
                         fileEntryID += "\""
-                                + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                                + StringHelper.removeControlCharacters(entry.getTitle()).replaceAll("\"", "'")
+                                        .replaceAll(";", "putSemicolonHere") + "\";";
                     }
                     fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
                     fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;

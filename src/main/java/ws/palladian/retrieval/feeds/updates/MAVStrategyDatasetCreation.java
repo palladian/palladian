@@ -76,13 +76,13 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
     }
 
     /**
-     * Get a random offset that is in [0, baseInterval).
+     * Get a random offset that is in [0, maxValue].
      * 
-     * @param baseInterval The interval to get the random value for
-     * @return the offset
+     * @param maxValue The maximum returned value
+     * @return the offset which is 0 <= offset <= maxValue
      */
-    protected int getRandomOffset(int baseInterval) {
-        return (int) (Math.random() * baseInterval);
+    protected int getRandomOffset(int maxValue) {
+        return (int) Math.floor(Math.random() * maxValue);
     }
 
     /**
