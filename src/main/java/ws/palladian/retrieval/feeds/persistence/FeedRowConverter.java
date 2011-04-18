@@ -21,16 +21,18 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));
         feed.setChecks(resultSet.getInt("checks"));
-        feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
+        // feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
         feed.setUpdateInterval(resultSet.getInt("maxCheckInterval"));
         feed.setLastHeadlines(resultSet.getString("lastHeadlines"));
         feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
         feed.setLastFeedEntry(resultSet.getTimestamp("lastFeedEntry"));
         feed.setActivityPattern(resultSet.getInt("activityPattern"));
-        feed.setLastETag(resultSet.getString("lastEtag"));
-        feed.setETagSupport(resultSet.getBoolean("supportsETag"));
         feed.setLMSSupport(resultSet.getBoolean("supportsLMS"));
+        feed.setETagSupport(resultSet.getBoolean("supportsETag"));
         feed.setCgHeaderSize(resultSet.getInt("conditionalGetResponseSize"));
+        feed.setLastPollTime(resultSet.getTimestamp("lastPollTime"));
+        feed.setLastETag(resultSet.getString("lastEtag"));
+        feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
         
         return feed;
 
