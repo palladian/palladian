@@ -355,11 +355,13 @@ public class DatasetCreator {
                 StringBuilder newEntries = new StringBuilder();
                 int newItems = 0;
 
+                StringBuilder entryWarnings = new StringBuilder();
+
                 LOGGER.debug("Feed entries: " + feedEntries.size());
                 for (FeedItem entry : feedEntries) {
 
                     if (entry == null || entry.getPublished() == null) {
-                        LOGGER.warn("entry has no published date, ignore it: " + entry);
+                        entryWarnings.append("entry has no published date, ignore it: ").append(entry).append("; ");
                         continue;
                     }
 
@@ -393,6 +395,10 @@ public class DatasetCreator {
                         newItems++;
                     }
 
+                }
+
+                if (entryWarnings.length() > 0) {
+                    FeedReader.LOGGER.warn(entryWarnings);
                 }
 
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a

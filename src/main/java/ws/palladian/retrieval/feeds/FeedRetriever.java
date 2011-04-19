@@ -461,8 +461,9 @@ public class FeedRetriever {
     }
 
     /**
-     * Get the publish date from {@link SyndEntry}. If ROME fails to parse the {@link SyndEntry}, try to get the date
-     * using Palladian's sophisticated date recognition techniques.
+     * Get the publish or updated (Atom) date from {@link SyndEntry}. First, try to get published date from
+     * {@link SyndEntry}, if there is none (or it couldn't be parsed), try to get the publish date. If ROME fails to
+     * get either, try to get a date using Palladian's sophisticated date recognition techniques.
      * 
      * @param syndEntry
      * @param item
@@ -471,6 +472,13 @@ public class FeedRetriever {
     private Date getEntryPublishDate(SyndEntry syndEntry, FeedItem item) {
 
         Date publishDate = syndEntry.getPublishedDate();
+
+        // try to get updated date before entering the expensive search via XPath and DateGetterHelper
+        // since atom feeds must have an updated field and may have an additional publish date.
+        if (publishDate == null) {
+            // as a last resort, use the entry's updated date
+            publishDate = syndEntry.getUpdatedDate();
+        }
 
         // ROME library failed to get the date, use DateGetter, which allows to parse more date formats.
         // There are still some feeds with entries where the publish date cannot be parsed though,
@@ -497,11 +505,6 @@ public class FeedRetriever {
                     }
                 }
             }
-        }
-
-        if (publishDate == null) {
-            // as a last resort, use the entry's updated date
-            publishDate = syndEntry.getUpdatedDate();
         }
 
         return publishDate;
@@ -683,10 +686,12 @@ public class FeedRetriever {
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
-        downloader.setUseDateRecognition(true);
+        downloader.setUseDateRecognition(false);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
         StopWatch sw = new StopWatch();
-        Feed feed = downloader.getFeed("http://activism.freebase.com/feed/history/schema/base/activism");
+        Feed feed = downloader.getFeed("http://libero-sesso.org/rss.php");
+
+        // Wed, 20 Apr 2011 06:46:55 America/Chicago
         System.out.println(feed.getItems().get(0).getPublished());
         System.out.println("took " + sw);
 
