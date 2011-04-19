@@ -537,22 +537,39 @@ public class Feed {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (added == null ? 0 : added.hashCode());
-        result = prime * result + checks;
-        result = prime * result + (items == null ? 0 : items.hashCode());
-        result = prime * result + (feedUrl == null ? 0 : feedUrl.hashCode());
-        result = prime * result + id;
-        result = prime * result + (language == null ? 0 : language.hashCode());
-        result = prime * result + (lastPollTime == null ? 0 : lastPollTime.hashCode());
-        result = prime * result + (lastFeedEntry == null ? 0 : lastFeedEntry.hashCode());
-        result = prime * result + (lastHeadlines == null ? 0 : lastHeadlines.hashCode());
-        result = prime * result + (meticulousPostDistribution == null ? 0 : meticulousPostDistribution.hashCode());
-        result = prime * result + updateInterval;
-        result = prime * result + (siteUrl == null ? 0 : siteUrl.hashCode());
-        result = prime * result + contentType.getIdentifier();
-        result = prime * result + (title == null ? 0 : title.hashCode());
-        result = prime * result + unreachableCount;
         result = prime * result + activityPattern;
+        result = prime * result + ((added == null) ? 0 : added.hashCode());
+        result = prime * result + (int) (benchmarkLastLookupTime ^ (benchmarkLastLookupTime >>> 32));
+        result = prime * result + (int) (benchmarkLookupTime ^ (benchmarkLookupTime >>> 32));
+        result = prime * result + (int) (byteSize ^ (byteSize >>> 32));
+        result = prime * result + ((cgHeaderSize == null) ? 0 : cgHeaderSize.hashCode());
+        result = prime * result + checks;
+        result = prime * result + ((contentType == null) ? 0 : contentType.hashCode());
+        result = prime * result + ((eTagSupport == null) ? 0 : eTagSupport.hashCode());
+        result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
+        result = prime * result + (historyFileCompletelyRead ? 1231 : 1237);
+        result = prime * result + id;
+        result = prime * result + ((items == null) ? 0 : items.hashCode());
+        result = prime * result + ((language == null) ? 0 : language.hashCode());
+        result = prime * result + ((lastETag == null) ? 0 : lastETag.hashCode());
+        result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
+        result = prime * result + ((lastHeadlines == null) ? 0 : lastHeadlines.hashCode());
+        result = prime * result + ((lastPollTime == null) ? 0 : lastPollTime.hashCode());
+        result = prime * result + ((lmsSupport == null) ? 0 : lmsSupport.hashCode());
+        result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
+        result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
+        result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
+        result = prime * result + ((rawMarkup == null) ? 0 : rawMarkup.hashCode());
+        result = prime * result + ((siteUrl == null) ? 0 : siteUrl.hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + (int) (totalProcessingTimeMS ^ (totalProcessingTimeMS >>> 32));
+        result = prime * result + unreachableCount;
+        result = prime * result + updateInterval;
+        result = prime * result + updateMode;
+        result = prime * result + windowSize;
         return result;
     }
 
@@ -562,104 +579,127 @@ public class Feed {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Feed other = (Feed) obj;
+        if (activityPattern != other.activityPattern)
+            return false;
         if (added == null) {
-            if (other.added != null) {
+            if (other.added != null)
                 return false;
-            }
-        } else if (!added.equals(other.added)) {
+        } else if (!added.equals(other.added))
             return false;
-        }
-        if (checks != other.checks) {
+        if (benchmarkLastLookupTime != other.benchmarkLastLookupTime)
             return false;
-        }
-        if (items == null) {
-            if (other.items != null) {
+        if (benchmarkLookupTime != other.benchmarkLookupTime)
+            return false;
+        if (byteSize != other.byteSize)
+            return false;
+        if (cgHeaderSize == null) {
+            if (other.cgHeaderSize != null)
                 return false;
-            }
-        } else if (!items.equals(other.items)) {
+        } else if (!cgHeaderSize.equals(other.cgHeaderSize))
             return false;
-        }
+        if (checks != other.checks)
+            return false;
+        if (contentType != other.contentType)
+            return false;
+        if (eTagSupport == null) {
+            if (other.eTagSupport != null)
+                return false;
+        } else if (!eTagSupport.equals(other.eTagSupport))
+            return false;
         if (feedUrl == null) {
-            if (other.feedUrl != null) {
+            if (other.feedUrl != null)
                 return false;
-            }
-        } else if (!feedUrl.equals(other.feedUrl)) {
+        } else if (!feedUrl.equals(other.feedUrl))
             return false;
-        }
-        if (id != other.id) {
+        if (historyFileCompletelyRead != other.historyFileCompletelyRead)
             return false;
-        }
+        if (id != other.id)
+            return false;
+        if (items == null) {
+            if (other.items != null)
+                return false;
+        } else if (!items.equals(other.items))
+            return false;
         if (language == null) {
-            if (other.language != null) {
+            if (other.language != null)
                 return false;
-            }
-        } else if (!language.equals(other.language)) {
+        } else if (!language.equals(other.language))
             return false;
-        }
-        if (lastPollTime == null) {
-            if (other.lastPollTime != null) {
+        if (lastETag == null) {
+            if (other.lastETag != null)
                 return false;
-            }
-        } else if (!lastPollTime.equals(other.lastPollTime)) {
+        } else if (!lastETag.equals(other.lastETag))
             return false;
-        }
         if (lastFeedEntry == null) {
-            if (other.lastFeedEntry != null) {
+            if (other.lastFeedEntry != null)
                 return false;
-            }
-        } else if (!lastFeedEntry.equals(other.lastFeedEntry)) {
+        } else if (!lastFeedEntry.equals(other.lastFeedEntry))
             return false;
-        }
         if (lastHeadlines == null) {
-            if (other.lastHeadlines != null) {
+            if (other.lastHeadlines != null)
                 return false;
-            }
-        } else if (!lastHeadlines.equals(other.lastHeadlines)) {
+        } else if (!lastHeadlines.equals(other.lastHeadlines))
             return false;
-        }
+        if (lastPollTime == null) {
+            if (other.lastPollTime != null)
+                return false;
+        } else if (!lastPollTime.equals(other.lastPollTime))
+            return false;
+        if (lmsSupport == null) {
+            if (other.lmsSupport != null)
+                return false;
+        } else if (!lmsSupport.equals(other.lmsSupport))
+            return false;
         if (meticulousPostDistribution == null) {
-            if (other.meticulousPostDistribution != null) {
+            if (other.meticulousPostDistribution != null)
                 return false;
-            }
-        } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution)) {
+        } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution))
             return false;
-        }
-        if (updateInterval != other.updateInterval) {
+        if (oneFullDayOfItemsSeen == null) {
+            if (other.oneFullDayOfItemsSeen != null)
+                return false;
+        } else if (!oneFullDayOfItemsSeen.equals(other.oneFullDayOfItemsSeen))
             return false;
-        }
+        if (pollDataSeries == null) {
+            if (other.pollDataSeries != null)
+                return false;
+        } else if (!pollDataSeries.equals(other.pollDataSeries))
+            return false;
+        if (rawMarkup == null) {
+            if (other.rawMarkup != null)
+                return false;
+        } else if (!rawMarkup.equals(other.rawMarkup))
+            return false;
         if (siteUrl == null) {
-            if (other.siteUrl != null) {
+            if (other.siteUrl != null)
                 return false;
-            }
-        } else if (!siteUrl.equals(other.siteUrl)) {
+        } else if (!siteUrl.equals(other.siteUrl))
             return false;
-        }
-        if (contentType != other.contentType) {
+        if (Double.doubleToLongBits(targetPercentageOfNewEntries) != Double
+                .doubleToLongBits(other.targetPercentageOfNewEntries))
             return false;
-        }
         if (title == null) {
-            if (other.title != null) {
+            if (other.title != null)
                 return false;
-            }
-        } else if (!title.equals(other.title)) {
+        } else if (!title.equals(other.title))
             return false;
-        }
-        if (unreachableCount != other.unreachableCount) {
+        if (totalProcessingTimeMS != other.totalProcessingTimeMS)
             return false;
-        }
-        if (activityPattern != other.activityPattern) {
+        if (unreachableCount != other.unreachableCount)
             return false;
-        }
+        if (updateInterval != other.updateInterval)
+            return false;
+        if (updateMode != other.updateMode)
+            return false;
+        if (windowSize != other.windowSize)
+            return false;
         return true;
     }
 
