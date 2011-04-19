@@ -346,9 +346,11 @@ public class DatasetCreator {
 
                 // LOGGER.info("feed: "+feed);
                 // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
-                String feedPlainXML = feed.getRawMarkup();
-                Integer feedSize = feedPlainXML.getBytes().length;
-                long feedContainerSize = feedSize - summedFeedEntrySize;
+                // String feedPlainXML = feed.getRawMarkup();
+                // Integer feedSize = feedPlainXML.getBytes().length;
+                // long feedContainerSize = feedSize - summedFeedEntrySize;
+                // we dont need the size since we store everything in *.gz
+                long feedContainerSize = -1L;
 
                 StringBuilder newEntries = new StringBuilder();
                 int newItems = 0;
@@ -456,6 +458,7 @@ public class DatasetCreator {
         String os = System.getProperty("os.name");
         if (os.equalsIgnoreCase("linux")) {
 
+            // TODO: use new ProcessHelper class
             // get available number of file handles for one UNIX terminal
             String input = "";
             try {
