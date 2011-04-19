@@ -52,10 +52,8 @@ class FeedTask extends Thread {
     @Override
     public void run() {
         try {
-            LOGGER.trace("Start processing of feed id " + feed.getId() + ".");
             StopWatch timer = new StopWatch();
-
-            LOGGER.debug("running feed task " + feed.getId() + " (" + feed.getFeedUrl() + ")");
+            LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
 
             // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
             // it can be done in parallel
@@ -68,7 +66,7 @@ class FeedTask extends Thread {
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
-                LOGGER.info("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
+                LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
                 return;
             }
 
@@ -107,7 +105,7 @@ class FeedTask extends Thread {
                 LOGGER.warn("Processing feed id " + feed.getId() + "took very long!");
             }
 
-            LOGGER.trace("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
+            LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
