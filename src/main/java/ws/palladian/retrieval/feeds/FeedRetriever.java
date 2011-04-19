@@ -76,7 +76,7 @@ public class FeedRetriever {
         // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
         // think this over?
-        crawler.getDownloadFilter().setMaxFileSize(10 * DocumentRetriever.SizeUnit.MEGABYTES.getBytes());
+        crawler.getDownloadFilter().setMaxFileSize(5 * DocumentRetriever.SizeUnit.MEGABYTES.getBytes());
     }
 
     // ///////////////////////////////////////////////////
