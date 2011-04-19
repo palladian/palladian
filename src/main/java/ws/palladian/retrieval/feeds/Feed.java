@@ -827,7 +827,16 @@ public class Feed {
     public long getTotalProcessingTime() {
         return totalProcessingTimeMS;
     }
-    
+
+    /**
+     * Get the average time in milliseconds that has been spent on processing this feed.
+     * 
+     * @return totalProcessingTime/(checks + unreachableCount)
+     */
+    public long getAverageProcessingTime() {
+        return getTotalProcessingTime() / (getChecks() + getUnreachableCount());
+    }
+
     /**
      * Increases the time that has been spend on processing this feed by the given value.
      * 
