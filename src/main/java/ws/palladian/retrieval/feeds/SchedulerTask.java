@@ -50,6 +50,17 @@ class SchedulerTask extends TimerTask {
     private static final int MAX_IMMEDIATE_RETRIES = 3;
 
     /**
+     * max allowed ratio of unreachableCount : checks, if feed was unreachable more often, don't schedule it in the
+     * future.
+     */
+    private static final int CHECKS_TO_UNREACHABLE_RATIO = 10;
+
+    /**
+     * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the future.
+     */
+    private static final long MAXIMUM_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
+
+    /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
      * @param feedReader
@@ -129,9 +140,24 @@ class SchedulerTask extends TimerTask {
                         + "\nUpdate Interval Exceeded"
                         + (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
                         : ""));
+        boolean processingTimeOK = (feed.getAverageProcessingTime() < MAXIMUM_PROCESSING_TIME_MS);
+        if (!processingTimeOK) {
+            LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                    + ") takes on average too long to process and is therefore not scheduled! Average processing time is "
+                    + feed.getAverageProcessingTime() + " milliseconds.");
+        }
+
+        boolean unreachableRatioOK = (feed.getChecks() > feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO);
+        if (!unreachableRatioOK) {
+            LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                    + "has been unreachable too often and is therefore not scheduled! checks = " + feed.getChecks()
+                    + ", unreachableCount = " + feed.getUnreachableCount());
+        }
+
         Boolean ret = (feed.getChecks() == 0 && feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES)
                 || feed.getLastPollTime() == null
-                || now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS;
+                || (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
+                && processingTimeOK && unreachableRatioOK;
         if (ret == true) {
             LOGGER.trace("Feed with id: " + feed.getId() + " need lookup.");
         } else {
