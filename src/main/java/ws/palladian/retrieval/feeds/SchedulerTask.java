@@ -102,7 +102,6 @@ class SchedulerTask extends TimerTask {
             LOGGER.fatal("Could not schedule " + alreadyScheduledFeedCount + " already scheduled feeds.");
         }
         LOGGER.info("Queue now contains: " + scheduledTasks.size());
-        System.exit(1);
     }
 
     /**
