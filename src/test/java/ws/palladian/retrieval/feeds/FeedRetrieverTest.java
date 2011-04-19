@@ -240,6 +240,13 @@ public class FeedRetrieverTest {
         // 1/30/11
         checkDate("2011-01-29 23:00:00.000 GMT", "/feeds/feed029.xml");
 
+        // nonzero nanoseconds cannot be parsed
+        // LocalizeHelper.setUTCandEnglish();
+        // 2011-04-08T17:33:04.0026Z
+        // checkDate("2011-04-08 15:33:04.0026 GMT", "/feeds/feed087.xml");
+        checkDate("2011-04-08 15:33:04.000 GMT", "/feeds/feed087.xml");
+        // LocalizeHelper.restoreTimeZoneAndLocale();
+
         // feed cannot be parsed
         // 31 Jan 2011 20:34:17 EST
         // checkDate("2011-01-31 20:34:17.000 EST", "/feeds/feed030.xml");
