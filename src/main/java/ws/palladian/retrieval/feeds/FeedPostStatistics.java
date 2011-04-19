@@ -81,6 +81,7 @@ public class FeedPostStatistics {
             return;
         }
 
+        StringBuilder warnings = new StringBuilder();
         int c = 0;
         for (FeedItem entry : feedEntries) {
             c++;
@@ -91,7 +92,7 @@ public class FeedPostStatistics {
 
             Date pubDate = entry.getPublished();
             if (pubDate == null) {
-                FeedReader.LOGGER.warn("entry does not have pub date, feed entry " + entry);
+                warnings.append("Entry does not have pub date, feed entry ").append(entry).append(". ");
                 continue;
             }
             long pubTime = pubDate.getTime();
@@ -110,7 +111,9 @@ public class FeedPostStatistics {
             if (timeList.size() > 1) {
                 timeList2.add(pubTime);
             }
-
+        }
+        if (warnings.length() > 0) {
+            FeedReader.LOGGER.warn(warnings);
         }
 
         if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
