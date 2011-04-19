@@ -65,6 +65,9 @@ public class FeedRetriever {
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
 
+    /** If we cant find a pubdate in this many consecutive items, give up. */
+    private static final int MAX_DATE_RETRIES = 5;
+
     /**
      * Whether to clean strings like text and title from feed's items; this means strip out HTML tags and entities. If
      * disabled, the raw content from the feed is aggregated without further treatment.
@@ -322,6 +325,8 @@ public class FeedRetriever {
         @SuppressWarnings("unchecked")
         List<SyndEntry> syndEntries = syndFeed.getEntries();
 
+        int dateRetries = 0;
+
         for (SyndEntry syndEntry : syndEntries) {
 
             FeedItem item = new FeedItem();
@@ -345,9 +350,17 @@ public class FeedRetriever {
             String authors = getEntryAuthors(syndFeed, syndEntry);
             item.setAuthors(authors);
 
-            // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
-            Date publishDate = getEntryPublishDate(syndEntry, item);
-            item.setPublished(publishDate);
+            // only try a certain amount of times to extract a pub date, if none is found don't keep trying
+            if (dateRetries < MAX_DATE_RETRIES) {
+                Date publishDate = getEntryPublishDate(syndEntry, item);
+                if (publishDate == null) {
+                    dateRetries++;
+                } else {
+                    item.setPublished(publishDate);
+                    dateRetries = 0;
+                }
+            }
+
         }
     }
 
@@ -689,7 +702,7 @@ public class FeedRetriever {
         downloader.setUseDateRecognition(false);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
         StopWatch sw = new StopWatch();
-        Feed feed = downloader.getFeed("http://libero-sesso.org/rss.php");
+        Feed feed = downloader.getFeed("http://csafarms.freebase.com/feed/history/all/base/csafarms");
 
         // Wed, 20 Apr 2011 06:46:55 America/Chicago
         System.out.println(feed.getItems().get(0).getPublished());
