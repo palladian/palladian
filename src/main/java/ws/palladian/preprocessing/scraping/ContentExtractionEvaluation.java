@@ -194,7 +194,7 @@ public class ContentExtractionEvaluation {
 
         // use our Palladian's PageContentExtractor /////////////////////////
         try {
-            PageContentExtractor palladianExtractor = new PageContentExtractor();
+            ContentExtractorInterface palladianExtractor = new PageContentExtractor();
             palladianExtractor.setDocument(testDataPath);
             String palladianExtracted = palladianExtractor.getResultText();
             result[1] = getScore(realText, palladianExtracted);

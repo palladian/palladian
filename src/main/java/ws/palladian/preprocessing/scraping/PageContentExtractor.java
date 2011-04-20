@@ -79,7 +79,7 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author David Urbansky
  * 
  */
-public class PageContentExtractor {
+public class PageContentExtractor extends ContentExtractorInterface {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PageContentExtractor.class);
@@ -110,7 +110,7 @@ public class PageContentExtractor {
     private Document document;
 
     /** The filtered and result document. */
-    private Document resultDocument;
+    private Document resultNode;
 
     private boolean weightClasses;
 
@@ -149,34 +149,24 @@ public class PageContentExtractor {
         LOGGER.trace("<setup");
     }
 
-    /**
-     * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument(...).getResultDocument();</code>
-     * 
-     * @param document
-     * @return
-     * @throws PageContentExtractorException
-     */
-    public PageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
+	 */
+    @Override
+	public ContentExtractorInterface setDocument(Document document) throws PageContentExtractorException {
         this.document = document;
         stripUnlikelyCandidates = true;
         weightClasses = true;
         cleanConditionally = true;
-        this.resultDocument = init(document);
+        this.resultNode = init(document);
         return this;
     }
 
-    /**
-     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
-     * 
-     * @param url
-     * @return
-     * @throws PageContentExtractorException
-     */
-    public PageContentExtractor setDocument(InputSource source) throws PageContentExtractorException {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.xml.sax.InputSource)
+	 */
+    @Override
+	public ContentExtractorInterface setDocument(InputSource source) throws PageContentExtractorException {
         try {
             parser.parse(source);
             return setDocument(parser.getDocument());
@@ -185,16 +175,11 @@ public class PageContentExtractor {
         }
     }
 
-    /**
-     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method
-     * invocations, like: <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
-     * 
-     * @param url
-     * @return
-     * @throws PageContentExtractorException
-     */
-    public PageContentExtractor setDocument(URL url) throws PageContentExtractorException {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.net.URL)
+	 */
+    @Override
+	public ContentExtractorInterface setDocument(URL url) throws PageContentExtractorException {
         try {
             // InputStream is = crawler.downloadInputStream(url.toString());
             return setDocument(crawler.getWebDocument(url));
@@ -203,16 +188,11 @@ public class PageContentExtractor {
         }
     }
 
-    /**
-     * Set File to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient
-     * concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument(new File(...)).getResultDocument();</code>
-     * 
-     * @param file
-     * @return
-     * @throws PageContentExtractorException
-     */
-    public PageContentExtractor setDocument(File file) throws PageContentExtractorException {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.io.File)
+	 */
+    @Override
+	public ContentExtractorInterface setDocument(File file) throws PageContentExtractorException {
         try {
             parser.parse(new InputSource(new FileInputStream(file)));
             return setDocument(parser.getDocument());
@@ -221,16 +201,11 @@ public class PageContentExtractor {
         }
     }
 
-    /**
-     * Set the location of document to be processed. Method returns <code>this</code> instance of PageContentExtractor,
-     * to allow convenient concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument("http://website.com").getResultDocument();</code>
-     * 
-     * @param documentLocation The location of the document. This can be either a local file or a URL.
-     * @return The instance of the PageContentExtractor.
-     * @throws PageContentExtractorException
-     */
-    public PageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.lang.String)
+	 */
+    @Override
+	public ContentExtractorInterface setDocument(String documentLocation) throws PageContentExtractorException {
         try {
             if (UrlHelper.isValidURL(documentLocation, false)) {
                 return setDocument(new URL(documentLocation));
@@ -242,88 +217,68 @@ public class PageContentExtractor {
         }
     }
 
-    /**
-     * Returns the filtered result document, as minimal XHTML fragment. Result just contains the filtered content, the
-     * result is not meant to be a complete web page or even to validate.
-     * 
-     * @return
-     */
-    public Document getResultDocument() {
-        return resultDocument;
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultDocument()
+	 */
+    @Override
+	public Node getResultNode() {
+        return resultNode;
     }
 
-    /**
-     * Returns the filtered result as human readable plain text representation.
-     * 
-     * @return The extracted text from the document.
-     */
-    public String getResultText() {
-        String result = HTMLHelper.documentToReadableText(getResultDocument());
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText()
+	 */
+    @Override
+	public String getResultText() {
+        String result = HTMLHelper.documentToReadableText(getResultNode());
         return result;
     }
 
-    /**
-     * Returns a list of (absolute) image URLs that are contained in the main content block.
-     * 
-     * @return A list of image URLs.
-     */
-    public List<String> getImages() {
-        List<String> imageURLs = new ArrayList<String>();
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getImages()
+	 */
+//    @Override
+//	public List<String> getImages() {
+//        List<String> imageURLs = new ArrayList<String>();
+//
+//        String baseURL = document.getDocumentURI();
+//
+//        // PageAnalyzer.printDOM(resultDocument, "");
+//
+//        // we need to query the result document with an xpath but the name space check has to be done on the original
+//        // document
+//        String imgXPath = "//img";
+//        if (XPathHelper.hasXhtmlNs(document)) {
+//            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
+//        }
+//
+//        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
+//        for (Node node : imageNodes) {
+//            try {
+//                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
+//
+//                if (!imageURL.startsWith("http")) {
+//                    imageURL = baseURL + imageURL;
+//                }
+//
+//                imageURLs.add(imageURL);
+//            } catch (NullPointerException e) {
+//                LOGGER.warn("an image has not all necessary attributes");
+//            }
+//        }
+//
+//        return imageURLs;
+//    }
 
-        String baseURL = document.getDocumentURI();
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText(java.lang.String)
+	 */
 
-        // PageAnalyzer.printDOM(resultDocument, "");
-
-        // we need to query the result document with an xpath but the name space check has to be done on the original
-        // document
-        String imgXPath = "//img";
-        if (XPathHelper.hasXhtmlNs(document)) {
-            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
-        }
-
-        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
-        for (Node node : imageNodes) {
-            try {
-                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
-
-                if (!imageURL.startsWith("http")) {
-                    imageURL = baseURL + imageURL;
-                }
-
-                imageURLs.add(imageURL);
-            } catch (NullPointerException e) {
-                LOGGER.warn("an image has not all necessary attributes");
-            }
-        }
-
-        return imageURLs;
-    }
-
-    /**
-     * Shortcut method for <code>new PageContentExtractor().setDocument("http://website.com").getResultText();</code>.
-     * 
-     * @param documentLocation The location of the document. This can be either a local file or a URL.
-     * @return The extracted text from the document.
-     */
-    public String getResultText(String documentLocation) {
-        try {
-            setDocument(documentLocation);
-        } catch (PageContentExtractorException e) {
-            LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
-        }
-        return HTMLHelper.documentToReadableText(getResultDocument());
-    }
-
-    /**
-     * Returns the document's title. This will not just return the text from the document's <code>title</code> element,
-     * but try to remove generic, irrelevant
-     * substrings. For example, for a document with title <i>"Messi reveals close ties with Maradona - CNN.com"</i> this
-     * method will return
-     * <i>"Messi reveals close ties with Maradona"</i>.
-     * 
-     * @return
-     */
-    public String getResultTitle() {
+    /* (non-Javadoc)
+	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultTitle()
+	 */
+    @Override
+	public String getResultTitle() {
         return getArticleTitle(document);
     }
 
@@ -1145,7 +1100,7 @@ public class PageContentExtractor {
     @SuppressWarnings("unused")
     public static void usageExample() throws Exception {
 
-        PageContentExtractor extractor = new PageContentExtractor();
+        ContentExtractorInterface extractor = new PageContentExtractor();
 
         // this method is heavily overloaded and accepts various types of input
         String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
@@ -1155,7 +1110,8 @@ public class PageContentExtractor {
         String contentText = extractor.getResultText();
 
         // get the main content as DOM representation
-        Document contentDocument = extractor.getResultDocument();
+        
+       // Node contentNode = extractor.getResultNode();
 
         // get the title
         String title = extractor.getResultTitle();
@@ -1220,7 +1176,7 @@ public class PageContentExtractor {
                 System.out.println(pageContentExtractor.getResultText());
 
                 if (outputfile != null) {
-                    HTMLHelper.writeXmlDump(pageContentExtractor.getResultDocument(), outputfile);
+                    HTMLHelper.writeXmlDump(pageContentExtractor.getResultNode(), outputfile);
                 }
 
 
@@ -1233,7 +1189,7 @@ public class PageContentExtractor {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
 
-            PageContentExtractor extractor = new PageContentExtractor();
+            ContentExtractorInterface extractor = new PageContentExtractor();
 
             // this method is heavily overloaded and accepts various types of input
             String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
