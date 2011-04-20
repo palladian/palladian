@@ -13,7 +13,7 @@ public class RawDateModuleImpl extends ModuleImpl implements RawDateModule {
     private String rawDate;
 
     @Override
-    public Class getInterface() {
+    public Class<?> getInterface() {
         return RawDateModule.class;
     }
 
