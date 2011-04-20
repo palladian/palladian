@@ -340,8 +340,8 @@ public class FeedRetrieverTest {
      * be parsed, but some feeds contain no publish dates at all)
      */
     @SuppressWarnings("unused")
-    private void buildTestsetWithErrors() {
-        List<String> feedUrls = FileHelper.readFileToArray("data/_feeds_testset.txt");
+    private void buildTestsetWithErrors(String inputPath, String outputPath) {
+        List<String> feedUrls = FileHelper.readFileToArray(inputPath);
         FeedRetriever feedRetriever = new FeedRetriever();
         StringBuilder output = new StringBuilder();
         int counter = 0;
@@ -367,7 +367,7 @@ public class FeedRetrieverTest {
             }
         }
 
-        FileHelper.writeToFile("data/_feeds_errors.txt", output);
+        FileHelper.writeToFile(outputPath, output);
     }
 
     /**
@@ -392,6 +392,7 @@ public class FeedRetrieverTest {
     /**
      * Performance test concerning date recognition.
      */
+    @SuppressWarnings("unused")
     private void evaluateDateParsing() throws FeedRetrieverException {
 
         FeedRetriever feedRetriever = new FeedRetriever();
@@ -416,7 +417,8 @@ public class FeedRetrieverTest {
 
     public static void main(String[] args) throws Exception {
         FeedRetrieverTest feedRetrieverTest = new FeedRetrieverTest();
-        feedRetrieverTest.evaluateDateParsing();
+        // feedRetrieverTest.evaluateDateParsing();
+        // feedRetrieverTest.buildTestsetWithErrors("data/_feeds_testset.txt", "data/_feeds_errors.txt");
     }
 
 }
