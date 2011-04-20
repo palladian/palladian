@@ -337,12 +337,12 @@ public class DatasetCreator {
                 }
 
                 // calculate size of feed header and footer, which should always stay the same.
-                long summedFeedEntrySize = 0;
-                for (FeedItem entry : feedEntries) {
-                    String entryPlainXML = entry.getRawMarkup();
-                    Integer entrySize = entryPlainXML.getBytes().length;
-                    summedFeedEntrySize += entrySize;
-                }
+                // long summedFeedEntrySize = 0;
+                // for (FeedItem entry : feedEntries) {
+                // String entryPlainXML = entry.getRawMarkup();
+                // Integer entrySize = entryPlainXML.getBytes().length;
+                // summedFeedEntrySize += entrySize;
+                // }
 
                 // LOGGER.info("feed: "+feed);
                 // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
@@ -414,10 +414,9 @@ public class DatasetCreator {
                     DocumentRetriever documentRetriever = new DocumentRetriever();
                     documentRetriever.downloadAndSave(feed.getFeedUrl(),
                             folderPath + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + ".gz", true);
+                    LOGGER.debug("Saving new file content: " + newEntries.toString());
+                    FileHelper.prependFile(filePath, newEntries.toString());
                 }
-
-                LOGGER.debug("Saving new file content: " + newEntries.toString());
-                FileHelper.prependFile(filePath, newEntries.toString());
 
                 feed.freeMemory();
                 feed.setLastHeadlines("");
@@ -481,7 +480,7 @@ public class DatasetCreator {
             if (!input.equals("")) {
                 try {
                     LOGGER.info("ulimit -n: " + input);
-                    fileDescriptors = (int) Integer.parseInt(input);
+                    fileDescriptors = Integer.parseInt(input);
                 } catch (NumberFormatException e) {
                     LOGGER.fatal("Could not process number of available file handles: " + e.getLocalizedMessage()
                             + "\n" + stdErrorMsg);
@@ -502,7 +501,7 @@ public class DatasetCreator {
              * Stop executing if not enough file descriptors! Proceeding could cause serious trouble like an incomplete
              * data set.
              */
-            if ((threadPoolSize * FILE_HANDLES_PER_TASK) <= fileDescriptors) {
+            if (threadPoolSize * FILE_HANDLES_PER_TASK <= fileDescriptors) {
                 LOGGER.fatal("More file handles required! \n" + "threadPoolSize=" + threadPoolSize
                         + ", available file descriptors=" + fileDescriptors
                         + ", minimum required file descriptors would be " + threadPoolSize * FILE_HANDLES_PER_TASK
