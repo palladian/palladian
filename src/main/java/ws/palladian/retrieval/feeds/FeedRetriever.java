@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
@@ -18,12 +17,12 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HeaderInformation;
 import ws.palladian.retrieval.RetrieverCallback;
+import ws.palladian.retrieval.feeds.rome.RawDateModule;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -499,26 +498,48 @@ public class FeedRetriever {
         // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
 
-            Node node = item.getNode();
-            if (node != null) {
-
-                Node dateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
-                if (dateNode != null) {
-
-                    // FIXME see Mail from Sandro to David, 18-04-2011 21:42;
-                    // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
-                    try {
-                        ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
-                        if (extractedDate != null) {
-                            publishDate = extractedDate.getNormalizedDate();
-                            LOGGER.debug("found publish date in original feed file: " + publishDate);
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: "
-                                + item.getFeedUrl() + ", " + e.getMessage());
-                    }
-                }
+//            Node node = item.getNode();
+//            if (node != null) {
+//
+//                Node dateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+//                if (dateNode != null) {
+//
+//                    // FIXME see Mail from Sandro to David, 18-04-2011 21:42;
+//                    // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
+//                    try {
+//                        ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
+//                        if (extractedDate != null) {
+//                            publishDate = extractedDate.getNormalizedDate();
+//                            LOGGER.debug("found publish date in original feed file: " + publishDate);
+//                        }
+//                    } catch (Exception e) {
+//                        LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: "
+//                                + item.getFeedUrl() + ", " + e.getMessage());
+//                    }
+//                }
+//            }
+            
+            RawDateModule rawDateModule = (RawDateModule) syndEntry.getModule(RawDateModule.URI);
+            String rawDate = null;
+            if (rawDateModule != null) {
+                rawDate = rawDateModule.getRawDate();
             }
+          // FIX-ME see Mail from Sandro to David, 18-04-2011 21:42;
+          // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
+            if (rawDate != null) {
+
+                
+          try {
+          ExtractedDate extractedDate = DateGetterHelper.findDate(rawDate);
+          if (extractedDate != null) {
+              publishDate = extractedDate.getNormalizedDate();
+              LOGGER.debug("found publish date in original feed file: " + publishDate);
+          }
+      } catch (Exception e) {
+          LOGGER.warn("date format could not be parsed correctly: " + rawDate + ", feed: "
+                  + item.getFeedUrl() + ", " + e.getMessage());
+      }
+        }
         }
 
         return publishDate;
@@ -621,6 +642,7 @@ public class FeedRetriever {
             feedInput.setPreserveWireFeed(true);
 
             SyndFeed syndFeed = feedInput.build(feedDocument);
+            LOGGER.debug("feed type is " + syndFeed.getFeedType());            
 
             return syndFeed;
 
