@@ -19,8 +19,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HeaderInformation;
 import ws.palladian.retrieval.RetrieverCallback;
@@ -170,6 +170,7 @@ public class FeedRetriever {
     public void updateFeed(Feed feed) throws FeedRetrieverException {
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
+        feed.setWindowSize(feed.getItems().size());
         feed.setDocument(downloadedFeed.getDocument());
     }
 
