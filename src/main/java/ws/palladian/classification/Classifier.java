@@ -23,7 +23,7 @@ public abstract class Classifier<T> implements Serializable {
     /** A classifier classifies to certain categories. */
     protected Categories categories;
 
-    protected transient ProcessingPipeline processingPipeline = new ProcessingPipeline();
+    protected ProcessingPipeline processingPipeline = new ProcessingPipeline();
 
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},

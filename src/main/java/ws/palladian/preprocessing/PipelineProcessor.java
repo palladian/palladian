@@ -1,6 +1,8 @@
 package ws.palladian.preprocessing;
 
-public interface PipelineProcessor {
+import java.io.Serializable;
+
+public interface PipelineProcessor extends Serializable {
 
     void process(PipelineDocument document);
 
