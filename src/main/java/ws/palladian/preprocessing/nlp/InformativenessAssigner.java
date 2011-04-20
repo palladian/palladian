@@ -15,7 +15,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
+import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.search.WebSearcher;
@@ -126,7 +126,7 @@ public class InformativenessAssigner {
             urls.add("http://www.randomwebsite.com/cgi-bin/random.pl?a=" + Math.random());
         }
 
-        final PageSentenceExtractor pse = new PageSentenceExtractor();
+        final PalladianContentExtractor pse = new PalladianContentExtractor();
         final DocumentRetriever crawler = new DocumentRetriever();
         
         RetrieverCallback callback = new RetrieverCallback() {

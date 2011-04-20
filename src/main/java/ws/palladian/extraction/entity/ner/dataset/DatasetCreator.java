@@ -31,7 +31,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.preprocessing.scraping.PageSentenceExtractor;
+import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.search.WebSearcher;
@@ -380,7 +380,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         try {
             webPageContent = HTMLHelper.documentToString(webPage);
             // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
-            webPageText = new PageSentenceExtractor().setDocument(webPage).getMainContentText();
+            webPageText = new PalladianContentExtractor().setDocument(webPage).getResultText();
         } catch (Exception e) {
             LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
             return;

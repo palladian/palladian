@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.preprocessing.scraping.PageContentExtractor;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 
 public class PageContentExtractorTest {
@@ -21,7 +21,7 @@ public class PageContentExtractorTest {
     @Test
     @Ignore
     public void runPageContentExtractorWithTestFiles() throws PageContentExtractorException {
-        PageContentExtractor e = new PageContentExtractor();
+        ReadabilityContentExtractor e = new ReadabilityContentExtractor();
         // e.setWriteDump(true);
         FileHelper.writeToFile(ClassifierTest.class.getResource("/pageContentExtractor/result/test001.txt").getFile(), e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test001.html").getFile()).getResultText());
         FileHelper.writeToFile(ClassifierTest.class.getResource("/pageContentExtractor/result/test002.txt").getFile(), e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test002.html").getFile()).getResultText());
@@ -49,7 +49,7 @@ public class PageContentExtractorTest {
     @Test
     @Ignore
     public void calculateHashesForTestFiles() throws PageContentExtractorException {
-        PageContentExtractor e = new PageContentExtractor();
+        ReadabilityContentExtractor e = new ReadabilityContentExtractor();
         System.out.println(DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test001.html").getFile()).getResultText()));
         System.out.println(DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test002.html").getFile()).getResultText()));
         System.out.println(DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test003.html").getFile()).getResultText()));
@@ -77,7 +77,7 @@ public class PageContentExtractorTest {
     @Test
     // @Ignore
     public void testPageContentExtractorWithHashes() throws PageContentExtractorException {
-        PageContentExtractor e = new PageContentExtractor();
+        ReadabilityContentExtractor e = new ReadabilityContentExtractor();
         Assert.assertEquals("test001.html", "a078a28fd8d1a59d9364b53c4818539b", DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test001.html").getFile()).getResultText()));
         Assert.assertEquals("test002.html", "0211a72e522229abdb6b4019279ea128", DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test002.html").getFile()).getResultText()));
         Assert.assertEquals("test003.html", "2865c50e6223a110e0de79c76a45e5fa", DigestUtils.md5Hex(e.setDocument(ClassifierTest.class.getResource("/pageContentExtractor/test003.html").getFile()).getResultText()));

@@ -1,7 +1,5 @@
 package ws.palladian.preprocessing.scraping;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -13,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
@@ -27,7 +24,7 @@ import ws.palladian.retrieval.resources.WebImage;
 /**
  * <p>
  * The PageSentenceExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in
- * the output. Consider the {@link PageContentExtractor} for general content. The main difference is that this class
+ * the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this class
  * also finds sentences in comment sections of web pages.
  * </p>
  * 
@@ -38,15 +35,13 @@ import ws.palladian.retrieval.resources.WebImage;
  * @author David Urbansky
  * 
  */
-public class PageSentenceExtractor extends ContentExtractorInterface {
+public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PageContentExtractor.class);
+    private static final Logger LOGGER = Logger.getLogger(ReadabilityContentExtractor.class);
 
     private Document document;
     private Node resultNode;
-
-    private DocumentRetriever crawler;
 
     private List<String> sentences = new ArrayList<String>();
     private String mainContentHTML = "";
@@ -54,18 +49,18 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
 
     private List<WebImage> imageURLs;
 
-    public PageSentenceExtractor() {
+    public PalladianContentExtractor() {
         crawler = new DocumentRetriever();
     }
 
     @Override
-    public PageSentenceExtractor setDocument(String url) {
+    public PalladianContentExtractor setDocument(String url) {
         crawler.setFeedAutodiscovery(false);
         return setDocument(crawler.getWebDocument(url));
     }
 
     @Override
-    public PageSentenceExtractor setDocument(Document document) {
+    public PalladianContentExtractor setDocument(Document document) {
         this.document = document;
         imageURLs = null;
         parseDocument();
@@ -80,7 +75,7 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         this.crawler = crawler;
     }
 
-    
+
     public Document getDocument() {
         return document;
     }
@@ -142,7 +137,7 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         // System.out.println(mainContentText);
     }
 
-    
+
     public List<WebImage> getImages(String fileType) {
 
         List<WebImage> filteredImages = new ArrayList<WebImage>();
@@ -156,7 +151,7 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         return filteredImages;
     }
 
-    
+
     public List<WebImage> getImages() {
 
         if (imageURLs != null) {
@@ -227,15 +222,16 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         return mainContentHTML;
     }
 
-       
-    public String getMainContentText(){
+
+    @Override
+    public String getResultText(){
         return mainContentText;
     }
 
     @Deprecated
     public static String getText(String url) {
 
-        PageSentenceExtractor pse = new PageSentenceExtractor();
+        PalladianContentExtractor pse = new PalladianContentExtractor();
         pse.setDocument(url);
 
         StringBuilder text = new StringBuilder();
@@ -259,6 +255,14 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         return text.toString();
     }
 
+
+
+    @Override
+    public String getResultTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /**
      * @param args
      * @throws PageContentExtractorException
@@ -275,14 +279,14 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         // System.out.println(pe.getResultText());
         // CollectionHelper.print(pe.getImages());
 
-        PageSentenceExtractor pe = new PageSentenceExtractor();
-        ContentExtractorInterface pe2 = new PageContentExtractor();
+        PalladianContentExtractor pe = new PalladianContentExtractor();
+        WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println(pe2.getResultText());
-        System.out.println(pe.getMainContentText());
+        System.out.println(pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(
@@ -306,45 +310,5 @@ public class PageSentenceExtractor extends ContentExtractorInterface {
         // System.out.println(pe.getMainContentText());
 
     }
-
-	@Override
-	public ContentExtractorInterface setDocument(InputSource source)
-			throws PageContentExtractorException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-//	@Override
-//	public ContentExtractorInterface setDocument(URL url)
-//			throws PageContentExtractorException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-	@Override
-	public ContentExtractorInterface setDocument(File file)
-			throws PageContentExtractorException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public String getResultText() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getResultText(String documentLocation) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getResultTitle() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

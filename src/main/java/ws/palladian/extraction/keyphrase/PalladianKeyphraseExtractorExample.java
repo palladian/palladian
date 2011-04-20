@@ -5,7 +5,7 @@ import java.util.Set;
 
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.preprocessing.scraping.PageContentExtractor;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 
 /**
  * Example on {@link PalladianKeyphraseExtractor} usage.
@@ -51,7 +51,7 @@ public class PalladianKeyphraseExtractorExample {
     }
 
     private static String getSampleText() {
-        PageContentExtractor contentExtractor = new PageContentExtractor();
+        ReadabilityContentExtractor contentExtractor = new ReadabilityContentExtractor();
         String text = contentExtractor
                 .getResultText("http://arstechnica.com/web/news/2011/01/mozilla-google-take-different-approaches-to-user-tracking-opt-out.ars");
         return text;

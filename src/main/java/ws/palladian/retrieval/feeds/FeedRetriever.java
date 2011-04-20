@@ -19,7 +19,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.preprocessing.scraping.PageContentExtractor;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HeaderInformation;
@@ -211,7 +211,7 @@ public class FeedRetriever {
             @Override
             public void onFinishRetrieval(Document document) {
                 try {
-                    PageContentExtractor extractor = new PageContentExtractor();
+                    ReadabilityContentExtractor extractor = new ReadabilityContentExtractor();
                     extractor.setDocument(document);
                     String pageText = extractor.getResultText();
                     entries.get(document.getDocumentURI()).setPageText(pageText);

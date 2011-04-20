@@ -3,7 +3,6 @@ package ws.palladian.preprocessing.scraping;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -28,9 +27,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -79,10 +76,10 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author David Urbansky
  * 
  */
-public class PageContentExtractor extends ContentExtractorInterface {
+public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PageContentExtractor.class);
+    private static final Logger LOGGER = Logger.getLogger(ReadabilityContentExtractor.class);
 
     /** name of attribute for storing readability values in DOM elements */
     private static final String READABILITY_ATTR = "readability";
@@ -100,14 +97,10 @@ public class PageContentExtractor extends ContentExtractorInterface {
     private static final Pattern NORMALIZE_RE = Pattern.compile("\\s{2,}");
     private static final Pattern VIDEO_RE = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com", Pattern.CASE_INSENSITIVE);
 
-    /** The DOM parser has different settings that distinguish it from the one in the Crawler. */
-    private DOMParser parser;
-
-    /** We use the Crawler to take care of retrieving the input stream from remote locations. */
-    private DocumentRetriever crawler;
-
     /** The original document. */
     private Document document;
+
+    private DOMParser parser;
 
     /** The filtered and result document. */
     private Document resultNode;
@@ -120,7 +113,7 @@ public class PageContentExtractor extends ContentExtractorInterface {
 
     private boolean writeDump = false;
 
-    public PageContentExtractor() {
+    public ReadabilityContentExtractor() {
         setup();
     }
 
@@ -150,10 +143,10 @@ public class PageContentExtractor extends ContentExtractorInterface {
     }
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
-	 */
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
+     */
     @Override
-	public ContentExtractorInterface setDocument(Document document) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
         this.document = document;
         stripUnlikelyCandidates = true;
         weightClasses = true;
@@ -162,37 +155,18 @@ public class PageContentExtractor extends ContentExtractorInterface {
         return this;
     }
 
-    /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.xml.sax.InputSource)
-	 */
-    @Override
-	public ContentExtractorInterface setDocument(InputSource source) throws PageContentExtractorException {
-        try {
-            parser.parse(source);
-            return setDocument(parser.getDocument());
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
-        }
-    }
+    // @Override
+    // public WebPageContentExtractor setDocument(InputSource source) throws PageContentExtractorException {
+    // try {
+    // parser.parse(source);
+    // return setDocument(parser.getDocument());
+    // } catch (Throwable t) {
+    // throw new PageContentExtractorException(t);
+    // }
+    // }
 
-    /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.net.URL)
-	 */
     @Override
-	public ContentExtractorInterface setDocument(URL url) throws PageContentExtractorException {
-        try {
-            // InputStream is = crawler.downloadInputStream(url.toString());
-            return setDocument(crawler.getWebDocument(url));
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
-        }
-    }
-
-    /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.io.File)
-	 */
-    @Override
-	public ContentExtractorInterface setDocument(File file) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
         try {
             parser.parse(new InputSource(new FileInputStream(file)));
             return setDocument(parser.getDocument());
@@ -201,84 +175,69 @@ public class PageContentExtractor extends ContentExtractorInterface {
         }
     }
 
-    /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(java.lang.String)
-	 */
-    @Override
-	public ContentExtractorInterface setDocument(String documentLocation) throws PageContentExtractorException {
-        try {
-            if (UrlHelper.isValidURL(documentLocation, false)) {
-                return setDocument(new URL(documentLocation));
-            } else {
-                return setDocument(new File(documentLocation));
-            }
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
-        }
-    }
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultDocument()
-	 */
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultDocument()
+     */
     @Override
-	public Node getResultNode() {
+    public Node getResultNode() {
         return resultNode;
     }
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText()
-	 */
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText()
+     */
     @Override
-	public String getResultText() {
+    public String getResultText() {
         String result = HTMLHelper.documentToReadableText(getResultNode());
         return result;
     }
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getImages()
-	 */
-//    @Override
-//	public List<String> getImages() {
-//        List<String> imageURLs = new ArrayList<String>();
-//
-//        String baseURL = document.getDocumentURI();
-//
-//        // PageAnalyzer.printDOM(resultDocument, "");
-//
-//        // we need to query the result document with an xpath but the name space check has to be done on the original
-//        // document
-//        String imgXPath = "//img";
-//        if (XPathHelper.hasXhtmlNs(document)) {
-//            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
-//        }
-//
-//        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
-//        for (Node node : imageNodes) {
-//            try {
-//                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
-//
-//                if (!imageURL.startsWith("http")) {
-//                    imageURL = baseURL + imageURL;
-//                }
-//
-//                imageURLs.add(imageURL);
-//            } catch (NullPointerException e) {
-//                LOGGER.warn("an image has not all necessary attributes");
-//            }
-//        }
-//
-//        return imageURLs;
-//    }
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getImages()
+     */
+    //    @Override
+    //	public List<String> getImages() {
+    //        List<String> imageURLs = new ArrayList<String>();
+    //
+    //        String baseURL = document.getDocumentURI();
+    //
+    //        // PageAnalyzer.printDOM(resultDocument, "");
+    //
+    //        // we need to query the result document with an xpath but the name space check has to be done on the original
+    //        // document
+    //        String imgXPath = "//img";
+    //        if (XPathHelper.hasXhtmlNs(document)) {
+    //            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
+    //        }
+    //
+    //        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
+    //        for (Node node : imageNodes) {
+    //            try {
+    //                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
+    //
+    //                if (!imageURL.startsWith("http")) {
+    //                    imageURL = baseURL + imageURL;
+    //                }
+    //
+    //                imageURLs.add(imageURL);
+    //            } catch (NullPointerException e) {
+    //                LOGGER.warn("an image has not all necessary attributes");
+    //            }
+    //        }
+    //
+    //        return imageURLs;
+    //    }
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText(java.lang.String)
-	 */
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText(java.lang.String)
+     */
 
     /* (non-Javadoc)
-	 * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultTitle()
-	 */
+     * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultTitle()
+     */
     @Override
-	public String getResultTitle() {
+    public String getResultTitle() {
         return getArticleTitle(document);
     }
 
@@ -1100,7 +1059,7 @@ public class PageContentExtractor extends ContentExtractorInterface {
     @SuppressWarnings("unused")
     public static void usageExample() throws Exception {
 
-        ContentExtractorInterface extractor = new PageContentExtractor();
+        WebPageContentExtractor extractor = new ReadabilityContentExtractor();
 
         // this method is heavily overloaded and accepts various types of input
         String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
@@ -1110,8 +1069,8 @@ public class PageContentExtractor extends ContentExtractorInterface {
         String contentText = extractor.getResultText();
 
         // get the main content as DOM representation
-        
-       // Node contentNode = extractor.getResultNode();
+
+        // Node contentNode = extractor.getResultNode();
 
         // get the title
         String title = extractor.getResultTitle();
@@ -1142,7 +1101,7 @@ public class PageContentExtractor extends ContentExtractorInterface {
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        PageContentExtractor pageContentExtractor = new PageContentExtractor();
+        ReadabilityContentExtractor pageContentExtractor = new ReadabilityContentExtractor();
         String outputfile = null;
 
         CommandLineParser parser = new BasicParser();
@@ -1189,7 +1148,7 @@ public class PageContentExtractor extends ContentExtractorInterface {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
 
-            ContentExtractorInterface extractor = new PageContentExtractor();
+            WebPageContentExtractor extractor = new ReadabilityContentExtractor();
 
             // this method is heavily overloaded and accepts various types of input
             String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
