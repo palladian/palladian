@@ -12,7 +12,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 
 import com.aliasi.chunk.Chunk;
@@ -345,15 +345,15 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
             HiddenMarkovModel hmm;
 
-            if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
-                hmm = (HiddenMarkovModel) DataHolder.getInstance().getDataObject(modelFilePath);
+            if (Cache.getInstance().containsDataObject(modelFilePath)) {
+                hmm = (HiddenMarkovModel) Cache.getInstance().getDataObject(modelFilePath);
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
                 inputStream = new ObjectInputStream(new FileInputStream(modelFilePath));
                 hmm = (HiddenMarkovModel) inputStream.readObject();
-                DataHolder.getInstance().putDataObject(modelFilePath, hmm);
+                Cache.getInstance().putDataObject(modelFilePath, hmm);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "

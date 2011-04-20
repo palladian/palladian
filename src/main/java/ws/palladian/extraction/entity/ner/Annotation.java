@@ -15,7 +15,7 @@ import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationAnnotation;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
@@ -324,7 +324,7 @@ public class Annotation extends UniversalInstance {
 
     public String[] getLeftContextsPOS() {
 
-        Object o = DataHolder.getInstance().getDataObject("lpt");
+        Object o = Cache.getInstance().getDataObject("lpt");
         LingPipePOSTagger lpt;
 
         if (o != null) {
@@ -332,7 +332,7 @@ public class Annotation extends UniversalInstance {
         } else {
             lpt = new LingPipePOSTagger();
             lpt.loadModel();
-            DataHolder.getInstance().putDataObject("lpt", lpt);
+            Cache.getInstance().putDataObject("lpt", lpt);
         }
 
         String[] contexts = new String[3];
@@ -436,7 +436,7 @@ public class Annotation extends UniversalInstance {
 
     public String[] getRightContextsPOS() {
 
-        Object o = DataHolder.getInstance().getDataObject("lpt");
+        Object o = Cache.getInstance().getDataObject("lpt");
         LingPipePOSTagger lpt;
 
         if (o != null) {
@@ -444,7 +444,7 @@ public class Annotation extends UniversalInstance {
         } else {
             lpt = new LingPipePOSTagger();
             lpt.loadModel();
-            DataHolder.getInstance().putDataObject("lpt", lpt);
+            Cache.getInstance().putDataObject("lpt", lpt);
         }
 
         String[] contexts = new String[3];

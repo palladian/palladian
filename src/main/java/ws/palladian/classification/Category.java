@@ -57,11 +57,11 @@ public class Category implements Serializable {
     // public Double getRelevance() {
     // return relevance;
     // }
-    //	
+    //
     // public void setRelevance(Double relevance) {
     // this.relevance = relevance;
     // }
-    //	
+    //
     // public void addRelevance(double relevance) {
     // this.relevance += relevance;
     // }
@@ -164,5 +164,9 @@ public class Category implements Serializable {
 
     public double getTotalTermWeight() {
         return totalTermWeight;
+    }
+
+    public void resetFrequency() {
+        this.frequency = 0;
     }
 }

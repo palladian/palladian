@@ -100,4 +100,11 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
         }
     }
 
+    public void resetFrequencies() {
+        for (Category category : this) {
+            category.resetFrequency();
+            ;
+        }
+    }
+
 }

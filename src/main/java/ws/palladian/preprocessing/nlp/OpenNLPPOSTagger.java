@@ -21,7 +21,7 @@ import opennlp.tools.util.InvalidFormatException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -79,9 +79,9 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
         POSTaggerME tagger = null;
 
-        if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+        if (Cache.getInstance().containsDataObject(modelFilePath)) {
 
-            tagger = (POSTaggerME) DataHolder.getInstance().getDataObject(modelFilePath);
+            tagger = (POSTaggerME) Cache.getInstance().getDataObject(modelFilePath);
 
         } else {
             final StopWatch stopWatch = new StopWatch();
@@ -91,7 +91,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                 final POSModel model = new POSModel(new FileInputStream(modelFilePath));
 
                 tagger = new POSTaggerME(model);
-                DataHolder.getInstance().putDataObject(modelFilePath, tagger);
+                Cache.getInstance().putDataObject(modelFilePath, tagger);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
@@ -122,9 +122,9 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
         InputStream modelIn;
 
-        if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+        if (Cache.getInstance().containsDataObject(modelFilePath)) {
 
-            setTokenizer((Tokenizer) DataHolder.getInstance().getDataObject(modelFilePath));
+            setTokenizer((Tokenizer) Cache.getInstance().getDataObject(modelFilePath));
 
         } else {
 
@@ -135,7 +135,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                     final TokenizerModel model = new TokenizerModel(modelIn);
                     final Tokenizer tokenizer = new TokenizerME(model);
 
-                    DataHolder.getInstance().putDataObject(modelFilePath, tokenizer);
+                    Cache.getInstance().putDataObject(modelFilePath, tokenizer);
                     setTokenizer(tokenizer);
 
                 } catch (final IOException e) {

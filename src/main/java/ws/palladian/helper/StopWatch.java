@@ -156,7 +156,7 @@ public class StopWatch {
      * @return The elapsed time as a string.
      */
     public String getTotalElapsedTimeString() {
-        return getElapsedTimeString(false);
+        return getTotalElapsedTimeString(false);
     }
 
 

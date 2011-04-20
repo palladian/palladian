@@ -2,19 +2,23 @@ package ws.palladian.helper;
 
 import java.util.HashMap;
 
-// TODO Rename to cache
 /**
- * The DataHolder can be used to store data objects such as model files. These files do not have to be re-read from hard disk every time they are needed.
+ * The Cache can be used to store data objects such as model files. These files do not have to be re-read from hard disk
+ * every time they are needed.
  * 
  * @author David Urbansky
  */
-public class DataHolder {
+public class Cache {
 
-    private static final DataHolder INSTANCE = new DataHolder();
+    /** List of objects in the cache. */
     private HashMap<String, Object> dataObjects = new HashMap<String, Object>();
 
-    public static DataHolder getInstance() {
-        return INSTANCE;
+    static class SingletonHolder {
+        static Cache instance = new Cache();
+    }
+
+    public static Cache getInstance() {
+        return SingletonHolder.instance;
     }
 
     public boolean containsDataObject(String name) {
