@@ -834,7 +834,7 @@ public class Feed {
      * @return totalProcessingTime/(checks + unreachableCount)
      */
     public long getAverageProcessingTime() {
-        return getTotalProcessingTime() / (getChecks() + getUnreachableCount());
+        return getTotalProcessingTime() / Math.max(1, (getChecks() + getUnreachableCount()));
     }
 
     /**
