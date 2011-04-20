@@ -147,7 +147,7 @@ class SchedulerTask extends TimerTask {
                     + feed.getAverageProcessingTime() + " milliseconds.");
         }
 
-        boolean unreachableRatioOK = (feed.getChecks() > feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO);
+        boolean unreachableRatioOK = (feed.getChecks() >= feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO);
         if (!unreachableRatioOK) {
             LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                     + "has been unreachable too often and is therefore not scheduled! checks = " + feed.getChecks()
