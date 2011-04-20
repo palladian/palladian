@@ -166,13 +166,13 @@ public class PalladianLangDetect extends LanguageClassifier {
         FeatureSetting featureSetting = new FeatureSetting();
 
         // we want to create character-level n-grams
-        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
 
-        // the minimum length of our n-grams should be 2
-        featureSetting.setMinNGramLength(1);
+        // the minimum length of our n-grams should be 4
+        featureSetting.setMinNGramLength(4);
 
         // the maximum length of our n-grams should be 7
-        featureSetting.setMaxNGramLength(1);
+        featureSetting.setMaxNGramLength(7);
 
         // we assign the settings to our classifier
         classifier.setClassificationTypeSetting(classificationTypeSetting);
@@ -180,6 +180,17 @@ public class PalladianLangDetect extends LanguageClassifier {
 
         // now we can train the classifier using the given dataset
         classifierManager.trainClassifier(dataset, classifier);
+
+        // test the classifier
+        // Dataset testDataset = new Dataset();
+        //
+        // // set the path to the dataset, the first field is a link, and columns are separated with a space
+        // testDataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split2.txt");
+        //
+        // testDataset.setFirstFieldLink(true);
+        // testDataset.setSeparationString(" ");
+        //
+        // System.out.println(classifier.evaluate(testDataset));
 
         LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
     }
@@ -193,16 +204,16 @@ public class PalladianLangDetect extends LanguageClassifier {
 
         // ///////////////// use the language classifier ///////////////////
         // String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
-        // String languageModelPath = "data/models/palladianLanguageJRC/palladianLanguageJRC.gz";
-        //
-        // PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
-        // String language = pld0.classify("This is a sample text in English");
-        // System.out.println("The text was classified as: " + language);
-        // language = pld0.classify("Das ist ein Beispieltext in Deutsch");
-        // System.out.println("The text was classified as: " + language);
-        // language = pld0.classify("Se trata de un texto de muestra en español");
-        // System.out.println("The text was classified as: " + language);
-        // System.exit(0);
+        String languageModelPath = "data/models/palladianLanguageJRC/palladianLanguageJRC.gz";
+
+        PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
+        String language = pld0.classify("This is a sample text in English");
+        System.out.println("The text was classified as: " + language);
+        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        System.out.println("The text was classified as: " + language);
+        language = pld0.classify("Se trata de un texto de muestra en español");
+        System.out.println("The text was classified as: " + language);
+        System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
