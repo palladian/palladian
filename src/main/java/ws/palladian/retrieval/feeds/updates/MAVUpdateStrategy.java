@@ -88,12 +88,18 @@ public class MAVUpdateStrategy extends UpdateStrategy {
         } else {
             if (fps.getIntervals().size() > 0) {
                 double averagePostGap = fps.getAveragePostGap();
-                // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-                // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
-                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
-                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
-                maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+                if (averagePostGap == 0D) {
+                    // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
+                    minCheckInterval = getHighestUpdateInterval();
+                } else {
+                    // ignore negative delays caused by items with pubdates in the future
+                    if (fps.getDelayToNewestPost() > 0) {
+                        averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
+                        averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+                    }
+                    minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+                    maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+                }
             }
         }
 
