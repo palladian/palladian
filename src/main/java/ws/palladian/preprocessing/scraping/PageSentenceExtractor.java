@@ -1,5 +1,7 @@
 package ws.palladian.preprocessing.scraping;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -11,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
@@ -35,13 +38,13 @@ import ws.palladian.retrieval.resources.WebImage;
  * @author David Urbansky
  * 
  */
-public class PageSentenceExtractor {
+public class PageSentenceExtractor extends ContentExtractorInterface {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PageContentExtractor.class);
 
     private Document document;
-    private Node mainContentNode;
+    private Node resultNode;
 
     private DocumentRetriever crawler;
 
@@ -55,11 +58,13 @@ public class PageSentenceExtractor {
         crawler = new DocumentRetriever();
     }
 
+    @Override
     public PageSentenceExtractor setDocument(String url) {
         crawler.setFeedAutodiscovery(false);
         return setDocument(crawler.getWebDocument(url));
     }
 
+    @Override
     public PageSentenceExtractor setDocument(Document document) {
         this.document = document;
         imageURLs = null;
@@ -75,6 +80,7 @@ public class PageSentenceExtractor {
         this.crawler = crawler;
     }
 
+    
     public Document getDocument() {
         return document;
     }
@@ -121,21 +127,22 @@ public class PageSentenceExtractor {
         // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
         // shortestMatchingXPath =
         // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
-        mainContentNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
-        if (mainContentNode == null) {
+        resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
+        if (resultNode == null) {
             LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI());
             return;
         }
 
-        mainContentHTML = HTMLHelper.documentToHTMLString(mainContentNode);
+        mainContentHTML = HTMLHelper.documentToHTMLString(resultNode);
 
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
-        mainContentText = HTMLHelper.documentToReadableText(mainContentNode);
+        mainContentText = HTMLHelper.documentToReadableText(resultNode);
 
         // System.out.println(mainContentHTML);
         // System.out.println(mainContentText);
     }
 
+    
     public List<WebImage> getImages(String fileType) {
 
         List<WebImage> filteredImages = new ArrayList<WebImage>();
@@ -149,6 +156,7 @@ public class PageSentenceExtractor {
         return filteredImages;
     }
 
+    
     public List<WebImage> getImages() {
 
         if (imageURLs != null) {
@@ -164,7 +172,7 @@ public class PageSentenceExtractor {
         // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
         // }
 
-        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(mainContentNode, imgXPath);
+        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(resultNode, imgXPath);
         for (Node node : imageNodes) {
             try {
 
@@ -210,15 +218,17 @@ public class PageSentenceExtractor {
         return imageURLs;
     }
 
-    public Node getMainContentNode() {
-        return mainContentNode;
+    @Override
+    public Node getResultNode() {
+        return resultNode;
     }
 
     public String getMainContentHTML() {
         return mainContentHTML;
     }
 
-    public String getMainContentText() {
+       
+    public String getMainContentText(){
         return mainContentText;
     }
 
@@ -266,7 +276,7 @@ public class PageSentenceExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PageSentenceExtractor pe = new PageSentenceExtractor();
-        PageContentExtractor pe2 = new PageContentExtractor();
+        ContentExtractorInterface pe2 = new PageContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 
@@ -296,5 +306,45 @@ public class PageSentenceExtractor {
         // System.out.println(pe.getMainContentText());
 
     }
+
+	@Override
+	public ContentExtractorInterface setDocument(InputSource source)
+			throws PageContentExtractorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+//	@Override
+//	public ContentExtractorInterface setDocument(URL url)
+//			throws PageContentExtractorException {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
+	@Override
+	public ContentExtractorInterface setDocument(File file)
+			throws PageContentExtractorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String getResultText() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getResultText(String documentLocation) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getResultTitle() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
