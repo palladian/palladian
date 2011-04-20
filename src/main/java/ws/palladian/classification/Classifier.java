@@ -22,6 +22,8 @@ public abstract class Classifier<T> implements Serializable {
     /** A classifier classifies to certain categories. */
     protected Categories categories;
 
+    private ProcessingPipeline processingPipeline = new ProcessingPipeline();
+
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
      * {@link ClassificationTypeSetting.HIERARCHICAL}, or {@link ClassificationTypeSetting.TAG}).
@@ -96,6 +98,9 @@ public abstract class Classifier<T> implements Serializable {
     protected void getPossibleCategories(Instances<T> instances) {
         if (getCategories() == null) {
             setCategories(new Categories());
+        } else {
+            // we need to reset all frequency counts since we're counting them now
+            categories.resetFrequencies();
         }
         for (T instance : instances) {
             String categoryName = ((Instance) instance).getInstanceCategory().getName();

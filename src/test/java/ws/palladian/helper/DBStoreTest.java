@@ -1,6 +1,6 @@
 package ws.palladian.helper;
 
-import ws.palladian.helper.DBStore;
+import ws.palladian.persistence.DBStore;
 import junit.framework.TestCase;
 
 /**

@@ -10,7 +10,7 @@ import opennlp.tools.chunker.ChunkerModel;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
@@ -120,16 +120,16 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         try {
 
             ChunkerME tbc = null;
-            if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+            if (Cache.getInstance().containsDataObject(modelFilePath)) {
 
-                tbc = (ChunkerME) DataHolder.getInstance().getDataObject(modelFilePath);
+                tbc = (ChunkerME) Cache.getInstance().getDataObject(modelFilePath);
 
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
                 tbc = new ChunkerME(new ChunkerModel(new FileInputStream(modelFilePath)));
-                DataHolder.getInstance().putDataObject(modelFilePath, tbc);
+                Cache.getInstance().putDataObject(modelFilePath, tbc);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "

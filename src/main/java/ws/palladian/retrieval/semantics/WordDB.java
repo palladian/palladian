@@ -508,6 +508,9 @@ public class WordDB {
 
     public Word aggregateInformation(Word word) {
 
+        if (word == null) {
+            return word;
+        }
         Set<Word> synonyms = getSynonyms(word);
         Set<Word> hypernyms = getHypernyms(word);
 
@@ -531,7 +534,7 @@ public class WordDB {
 
         // read from file db
         for (int i = 0; i < numIterations; i++) {
-            Word word = getWord("mounding");
+            Word word = getWord(LoremIpsumGenerator.getRandomText(8));
             aggregateInformation(word);
         }
         System.out.println("read word " + numIterations + " times from hdd database in " + sw.getElapsedTimeString());
@@ -547,18 +550,18 @@ public class WordDB {
         // read from memory db
         sw.start();
         for (int i = 0; i < numIterations; i++) {
-            Word word = getWord("mounding");
+            Word word = getWord(LoremIpsumGenerator.getRandomText(8));
             aggregateInformation(word);
         }
         System.out.println("read word " + numIterations + " times from in-memory database in "
                 + sw.getElapsedTimeString());
 
         // insert into memory db
-        for (int i = 0; i < numIterations; i++) {
-            addWord(new Word(-1, LoremIpsumGenerator.getRandomText(5), "", ""));
-        }
-        System.out.println("write word " + numIterations + " times to in-memory database in "
-                + sw.getElapsedTimeString());
+        // for (int i = 0; i < numIterations; i++) {
+        // addWord(new Word(-1, LoremIpsumGenerator.getRandomText(5), "", ""));
+        // }
+        // System.out.println("write word " + numIterations + " times to in-memory database in "
+        // + sw.getElapsedTimeString());
 
     }
 
@@ -595,13 +598,19 @@ public class WordDB {
         StopWatch sw = new StopWatch();
 
         // load a word DB
-        WordDB wordDB = new WordDB("data/models/wordDatabaseEnglish/");
+        WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        // WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman/");
 
         // you can load the database into the memory for faster read access (requires lots of RAM)
         // wordDB.loadDbToMemory();
 
-        // search a word in the dtabase
+        // search a word in the database
+        sw.start();
         Word word = wordDB.getWord("freedom");
+        // Word word = wordDB.getWord("Freiheit");
+        LOGGER.info(word);
+
+        word = wordDB.getWord("Notebook");
         LOGGER.info(word);
 
         // find synonmys and hypernyms for the word
@@ -609,11 +618,25 @@ public class WordDB {
         LOGGER.info(word);
 
         LOGGER.info(sw.getElapsedTimeString());
+        LOGGER.info(sw.getTotalElapsedTimeString());
 
         // WordDB wordDB = new WordDB("data/models/wiktionary2/");
         // wordDB.performanceCheck(100000);
         // WordDB wordDB = new WordDB("data/models/wiktionary5/");
         // wordDB.fillDatabaseFromScript("script.sql");
+
+        // sw.start();
+        // Map<Integer, String> map = new HashMap<Integer, String>();
+        // for (int i = 0; i < 100000; i++) {
+        // map.put(i, LoremIpsumGenerator.getRandomText(8));
+        // }
+        // LOGGER.info(sw.getElapsedTimeString());
+        //
+        // for (int i = 0; i < 100000; i++) {
+        // map.get(i);
+        // }
+        //
+        // LOGGER.info(sw.getElapsedTimeString());
 
     }
 }

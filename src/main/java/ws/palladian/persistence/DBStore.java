@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.persistence;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.persistence.DatabaseManager;
 
 /**
  * This class allows one to save data into a database instead of keeping it in memory.

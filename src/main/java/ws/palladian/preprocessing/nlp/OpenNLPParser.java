@@ -21,7 +21,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -51,13 +51,13 @@ public class OpenNLPParser extends AbstractParser {
 
         TreebankLinker linker;
         try {
-            if (DataHolder.getInstance().containsDataObject(COREF_PATH)) {
-                linker = (TreebankLinker) DataHolder.getInstance().getDataObject(COREF_PATH);
+            if (Cache.getInstance().containsDataObject(COREF_PATH)) {
+                linker = (TreebankLinker) Cache.getInstance().getDataObject(COREF_PATH);
 
             } else {
 
                 linker = new TreebankLinker(COREF_PATH, LinkerMode.TEST);
-                DataHolder.getInstance().putDataObject(COREF_PATH, linker);
+                Cache.getInstance().putDataObject(COREF_PATH, linker);
             }
             final DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
 
@@ -152,8 +152,8 @@ public class OpenNLPParser extends AbstractParser {
 
             opennlp.tools.parser.Parser parser;
 
-            if (DataHolder.getInstance().containsDataObject(configModelPath)) {
-                parser = (opennlp.tools.parser.Parser) DataHolder.getInstance().getDataObject(configModelPath);
+            if (Cache.getInstance().containsDataObject(configModelPath)) {
+                parser = (opennlp.tools.parser.Parser) Cache.getInstance().getDataObject(configModelPath);
 
             } else {
 
@@ -163,7 +163,7 @@ public class OpenNLPParser extends AbstractParser {
                 final InputStream modelIn = new FileInputStream(configModelPath);
                 final ParserModel model = new ParserModel(modelIn);
                 parser = ParserFactory.create(model);
-                DataHolder.getInstance().putDataObject(configModelPath, parser);
+                Cache.getInstance().putDataObject(configModelPath, parser);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + getName() + " from file " + configModelPath + " in "

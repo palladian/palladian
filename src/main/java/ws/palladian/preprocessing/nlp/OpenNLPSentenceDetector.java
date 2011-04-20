@@ -16,7 +16,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DataHolder;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -97,9 +97,9 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         InputStream modelIn = null;
         SentenceDetectorME sdetector = null;
 
-        if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+        if (Cache.getInstance().containsDataObject(modelFilePath)) {
 
-            sdetector = (SentenceDetectorME) DataHolder.getInstance().getDataObject(modelFilePath);
+            sdetector = (SentenceDetectorME) Cache.getInstance().getDataObject(modelFilePath);
 
         } else {
 
@@ -113,7 +113,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
                 sentenceModel = new SentenceModel(modelIn);
 
                 sdetector = new SentenceDetectorME(sentenceModel);
-                DataHolder.getInstance().putDataObject(modelFilePath, sdetector);
+                Cache.getInstance().putDataObject(modelFilePath, sdetector);
                 LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
