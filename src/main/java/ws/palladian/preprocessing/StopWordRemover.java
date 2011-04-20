@@ -6,6 +6,8 @@ import ws.palladian.helper.FileHelper;
 
 public class StopWordRemover implements PipelineProcessor {
 
+    private static final long serialVersionUID = 5014188120999997379L;
+
     @Override
     public void process(PipelineDocument document) {
 

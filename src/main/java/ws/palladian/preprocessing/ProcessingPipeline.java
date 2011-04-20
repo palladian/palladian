@@ -1,5 +1,6 @@
 package ws.palladian.preprocessing;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,9 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
-public class ProcessingPipeline {
+public class ProcessingPipeline implements Serializable {
+
+    private static final long serialVersionUID = -6173687204106619909L;
 
     private List<PipelineProcessor> pipelineProcessors;
 
