@@ -30,7 +30,6 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
 
         double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
 
-
         // ######################### simple moving average ##############################
         if (newEntries > 0) {
             minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
@@ -52,7 +51,6 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
 					minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
 				}
 				
-				
                 //maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
             }
         }
@@ -60,8 +58,6 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         // TODO get the current delay to the latest post? Because if we just take the average interval we might look too
         // late. I think I have tested this though and the results were worse than just taking the average interval
         // minCheckInterval -= (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
-
-
 
         //if (feed.getUpdateMode() == Feed.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
