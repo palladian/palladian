@@ -26,7 +26,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.preprocessing.scraping.PageContentExtractor;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -1013,7 +1013,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         tagger.load("data/models/controlledTaggerModel2.ser");
 
         // assign tags according to a web page's content
-        PageContentExtractor extractor = new PageContentExtractor();
+        ReadabilityContentExtractor extractor = new ReadabilityContentExtractor();
         String content = extractor
                 .getResultText("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars");
         List<Keyphrase> assignedTags = tagger.extract(content);
