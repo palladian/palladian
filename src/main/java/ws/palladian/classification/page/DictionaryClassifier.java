@@ -20,6 +20,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.preprocessing.PipelineDocument;
 
 /**
  * This classifier builds a weighed term look up table for the categories to classify new documents.
@@ -285,7 +286,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         documentCategories.add(knownCategory);
 
-        TextInstance trainingDocument = preprocessor.preProcessDocument(instance.getTextFeature());
+        TextInstance trainingDocument = preprocessDocument(instance.getTextFeature());
         // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
         // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
         trainingDocument.setDocumentType(TextInstance.TRAINING);
@@ -605,12 +606,14 @@ public class DictionaryClassifier extends TextClassifier {
 
     @Override
     public TextInstance preprocessDocument(String text, TextInstance classificationDocument) {
-        return preprocessor.preProcessDocument(text, classificationDocument);
+        PipelineDocument processedDocument = processingPipeline.process(new PipelineDocument(text));
+        return preprocessor.preProcessDocument(processedDocument.getModifiedContent(), classificationDocument);
     }
 
     @Override
     public TextInstance preprocessDocument(String text) {
-        return preprocessor.preProcessDocument(text);
+        PipelineDocument processedDocument = processingPipeline.process(new PipelineDocument(text));
+        return preprocessor.preProcessDocument(processedDocument.getModifiedContent());
     }
 
     public Dictionary getDictionary() {

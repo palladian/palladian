@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.preprocessing.ProcessingPipeline;
 
 public abstract class Classifier<T> implements Serializable {
 
@@ -22,7 +23,7 @@ public abstract class Classifier<T> implements Serializable {
     /** A classifier classifies to certain categories. */
     protected Categories categories;
 
-    private ProcessingPipeline processingPipeline = new ProcessingPipeline();
+    protected transient ProcessingPipeline processingPipeline = new ProcessingPipeline();
 
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
@@ -117,4 +118,13 @@ public abstract class Classifier<T> implements Serializable {
     }
 
     public abstract void save(String classifierPath);
+
+    public void setProcessingPipeline(ProcessingPipeline processingPipeline) {
+        this.processingPipeline = processingPipeline;
+    }
+
+    public ProcessingPipeline getProcessingPipeline() {
+        return processingPipeline;
+    }
+
 }
