@@ -30,8 +30,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, pageText = ?";
-    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?, supportsLMS = ?, supportsETag = ?, lastPollTime = ?, lastETag = ?, totalProcessingTime = ?, misses = ?";
-    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ? WHERE id = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?, supportsLMS = ?, supportsETag = ?, lastPollTime = ?, lastETag = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds ORDER BY id ASC";
@@ -39,7 +39,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
     private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
-    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL";
+    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
@@ -59,7 +59,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getUpdateInterval());
-        parameters.add(feed.getLastHeadlines());
+        parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
@@ -69,6 +69,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastETag());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
+        parameters.add(feed.getLastMissTime());
         
         
         int result = runInsertReturnId(ADD_FEED, parameters);
@@ -101,7 +102,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getUpdateInterval());
-        parameters.add(feed.getLastHeadlines());
+        parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getLastFeedEntry());
         parameters.add(feed.getLastETag());
@@ -109,6 +110,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
+        parameters.add(feed.getLastMissTime());
         parameters.add(feed.getId());
 
         int result = runUpdate(UPDATE_FEED, parameters);

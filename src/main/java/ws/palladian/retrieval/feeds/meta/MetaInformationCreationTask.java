@@ -144,7 +144,7 @@ public final class MetaInformationCreationTask implements Runnable {
 		}
 
 		feed.freeMemory();
-		feed.setLastHeadlines("");
+		feed.setNewestItemHash("");
 		// feed.setItems(null);
 
 		MetaInformationCreator.counter++;
