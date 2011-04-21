@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -24,7 +25,7 @@ public class FeedRetrieverTest {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedRetrieverTest.class);
 
-    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
+    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z", Locale.US);
 
     /**
      * Test downloading a feed from the web.
@@ -182,7 +183,7 @@ public class FeedRetrieverTest {
     public void testDateParsing() throws ParseException {
 
         // Wed, 02 Feb 2011 12:11:00 GMT
-        checkDate("2011-02-02 12:11:00.000 MEZ", "/feeds/feed001.xml");
+        checkDate("2011-02-02 12:11:00.000 CET", "/feeds/feed001.xml");
 
         // feed cannot be parsed, as it contains strange white space
         // 2011-02-02T06:33:52.690
