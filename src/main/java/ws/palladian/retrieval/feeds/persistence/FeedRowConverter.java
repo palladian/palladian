@@ -33,6 +33,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLastPollTime(resultSet.getTimestamp("lastPollTime"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
+        feed.setMisses(resultSet.getInt("misses"));
         
         return feed;
 

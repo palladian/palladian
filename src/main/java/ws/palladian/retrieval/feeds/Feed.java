@@ -147,6 +147,12 @@ public class Feed {
     /** Total time in milliseconds that has been spent on processing this feed. */
     private long totalProcessingTimeMS = 0;
 
+    /**
+     * Number of times that we found a MISS, that is, if we knew the feed's items before, checked it again and none of
+     * the items has been seen before.
+     */
+    private int misses = 0;
+
     public Feed() {
         super();
     }
@@ -407,7 +413,7 @@ public class Feed {
                 + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
                 + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
-                + ", totalProcessingTimeMS=" + totalProcessingTimeMS + "]";
+                + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + "]";
     }
 
     public void setLastETag(String lastETag) {
@@ -557,6 +563,7 @@ public class Feed {
         result = prime * result + ((lastPollTime == null) ? 0 : lastPollTime.hashCode());
         result = prime * result + ((lmsSupport == null) ? 0 : lmsSupport.hashCode());
         result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
+        result = prime * result + misses;
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
         result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
         result = prime * result + ((rawMarkup == null) ? 0 : rawMarkup.hashCode());
@@ -661,6 +668,8 @@ public class Feed {
             if (other.meticulousPostDistribution != null)
                 return false;
         } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution))
+            return false;
+        if (misses != other.misses)
             return false;
         if (oneFullDayOfItemsSeen == null) {
             if (other.oneFullDayOfItemsSeen != null)
@@ -829,6 +838,17 @@ public class Feed {
     }
 
     /**
+     * Increases the time that has been spend on processing this feed by the given value.
+     * 
+     * @param processingTimeToAddMS time to add in millisecond.
+     */
+    public void increaseTotalProcessingTimeMS(long processingTimeToAddMS) {
+        if (processingTimeToAddMS > 0) {
+            setTotalProcessingTime(getTotalProcessingTime() + processingTimeToAddMS);
+        }
+    }
+
+    /**
      * Get the average time in milliseconds that has been spent on processing this feed.
      * 
      * @return totalProcessingTime/(checks + unreachableCount)
@@ -838,14 +858,30 @@ public class Feed {
     }
 
     /**
-     * Increases the time that has been spend on processing this feed by the given value.
+     * Number of times that we found a MISS, that is, if we knew the feed's items before, checked it again and none of
+     * the items has been seen before.
      * 
-     * @param totalProcessingTimeMS time to add in millisecond.
+     * @return the misses
      */
-    public void increaseTotalProcessingTimeMS(long totalProcessingTimeMS) {
-        if (totalProcessingTimeMS > 0) {
-            setTotalProcessingTime(getTotalProcessingTime() + totalProcessingTimeMS);
-        }
+    public final int getMisses() {
+        return misses;
+    }
+
+    /**
+     * Set the number of times that we found a MISS, that is, if we knew the feed's items before, checked it again and
+     * none of the items has been seen before.
+     * 
+     * @param misses The number of misses
+     */
+    public final void setMisses(int misses) {
+        this.misses = misses;
+    }
+
+    /**
+     * Increases the the number of times that we found a MISS by 1.
+     */
+    public void increaseMisses() {
+        setMisses(getMisses() + 1);
     }
 
 }

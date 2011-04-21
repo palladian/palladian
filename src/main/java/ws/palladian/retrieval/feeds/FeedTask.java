@@ -94,6 +94,7 @@ class FeedTask extends Thread {
             // perform actions on this feeds entries
             LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
             feedReader.getFeedProcessingAction().performAction(feed);
+
             feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
 
             // save the feed back to the database
@@ -102,7 +103,7 @@ class FeedTask extends Thread {
             // since the feed is kept in memory we need to remove all items and the document stored in the feed
             feed.freeMemory();
             if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
-                LOGGER.warn("Processing feed id " + feed.getId() + "took very long!");
+                LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
             }
 
             LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
