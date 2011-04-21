@@ -10,6 +10,8 @@ public class ClassifierPerformanceResult {
     private double specificity = -1.0;
     private double accuracy = -1.0;
 
+    private double correctlyClassified = -1.0;
+
     public double getPrecision() {
         return precision;
     }
@@ -58,6 +60,14 @@ public class ClassifierPerformanceResult {
         this.accuracy = accuracy;
     }
 
+    public void setCorrectlyClassified(double correctlyClassified) {
+        this.correctlyClassified = correctlyClassified;
+    }
+
+    public double getCorrectlyClassified() {
+        return correctlyClassified;
+    }
+
     @Override
     public String toString() {
         StringBuilder csv = new StringBuilder();
@@ -68,7 +78,9 @@ public class ClassifierPerformanceResult {
 
         csv.append(sensitivity).append(";");
         csv.append(specificity).append(";");
-        csv.append(accuracy);
+        csv.append(accuracy).append(";");
+
+        csv.append(correctlyClassified);
 
         return csv.toString();
     }

@@ -105,11 +105,11 @@ public class ClassifierEvaluator {
 
         results.append(";");
         for (Dataset dataset : datasets) {
-            results.append(dataset).append(";;;;;;");
+            results.append(dataset).append(";;;;;;;");
         }
         results.append("\n;");
         for (int i = 0; i < datasets.size(); i++) {
-            results.append("Precision;Recall;F1;Sensitivity;Specificity;Acurracy;");
+            results.append("Precision;Recall;F1;Sensitivity;Specificity;Acurracy;Correctness");
         }
         results.append("\n");
 
@@ -141,6 +141,8 @@ public class ClassifierEvaluator {
         double specificity = 0.0;
         double accuracy = 0.0;
 
+        double correctness = 0.0;
+
         for (ClassifierPerformanceResult classifierPerformanceResult : performances) {
             precision += classifierPerformanceResult.getPrecision();
             recall += classifierPerformanceResult.getRecall();
@@ -148,6 +150,7 @@ public class ClassifierEvaluator {
             sensitivity += classifierPerformanceResult.getSensitivity();
             specificity += classifierPerformanceResult.getSpecificity();
             accuracy += classifierPerformanceResult.getAccuracy();
+            correctness += classifierPerformanceResult.getCorrectlyClassified();
         }
 
         precision /= performances.size();
@@ -156,6 +159,7 @@ public class ClassifierEvaluator {
         sensitivity /= performances.size();
         specificity /= performances.size();
         accuracy /= performances.size();
+        correctness /= performances.size();
 
         result.setPrecision(precision);
         result.setRecall(recall);
@@ -163,6 +167,7 @@ public class ClassifierEvaluator {
         result.setSensitivity(sensitivity);
         result.setSpecificity(specificity);
         result.setAccuracy(accuracy);
+        result.setCorrectlyClassified(correctness);
 
         return result;
     }

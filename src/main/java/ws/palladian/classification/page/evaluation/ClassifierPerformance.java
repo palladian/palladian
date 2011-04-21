@@ -649,6 +649,8 @@ public class ClassifierPerformance implements Serializable {
         classifierPerformanceResult.setSpecificity(getAverageSpecificity(true));
         classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
 
+        classifierPerformanceResult.setCorrectlyClassified(getCorrectlyClassified());
+
         return classifierPerformanceResult;
     }
 
