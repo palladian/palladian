@@ -3,7 +3,7 @@ package ws.palladian.retrieval.feeds.rome;
 import com.sun.syndication.feed.module.ModuleImpl;
 
 public class RawDateModuleImpl extends ModuleImpl implements RawDateModule {
-    
+
     private static final long serialVersionUID = 1L;
 
     public RawDateModuleImpl() {
@@ -41,7 +41,5 @@ public class RawDateModuleImpl extends ModuleImpl implements RawDateModule {
         builder.append("]");
         return builder.toString();
     }
-    
-    
 
 }
