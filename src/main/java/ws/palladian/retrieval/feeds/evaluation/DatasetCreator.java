@@ -377,7 +377,9 @@ public class DatasetCreator {
                     }
                     fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
                     fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
-                    fileEntry += entry.getRawMarkup().getBytes().length + ";";
+                    // ignore entry size, we can get it later from *.gz
+                    fileEntry += "-1;";
+                    // fileEntry += entry.getRawMarkup().getBytes().length + ";";
                     fileEntry += feedContainerSize + ";";
                     fileEntry += feedEntries.size();
 

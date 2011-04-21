@@ -41,13 +41,12 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
 					// in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
 					minCheckInterval = getHighestUpdateInterval();
 				} else {
-					// averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-					// averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-					averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
                     // ignore negative delays caused by items with pubdates in the future
                     if (fps.getDelayToNewestPost() > 0) {
-                        averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+                        averagePostGap -= fps.getIntervals().get(0) / (fps.getIntervals().size());
+                        averagePostGap += fps.getDelayToNewestPost() / (fps.getIntervals().size());
                     }
+
 					minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
 				}
 				
