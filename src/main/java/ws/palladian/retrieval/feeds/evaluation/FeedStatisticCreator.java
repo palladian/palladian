@@ -646,7 +646,7 @@ public class FeedStatisticCreator {
             c++;
 
             feed.freeMemory();
-            feed.setLastHeadlines("");
+            feed.setNewestItemHash("");
             feed.setMeticulousPostDistribution(null);
             feed = null;
 

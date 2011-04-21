@@ -23,7 +23,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setChecks(resultSet.getInt("checks"));
         // feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
         feed.setUpdateInterval(resultSet.getInt("maxCheckInterval"));
-        feed.setLastHeadlines(resultSet.getString("lastHeadlines"));
+        feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
         feed.setLastFeedEntry(resultSet.getTimestamp("lastFeedEntry"));
         feed.setActivityPattern(resultSet.getInt("activityPattern"));
@@ -34,6 +34,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
         feed.setMisses(resultSet.getInt("misses"));
+        feed.setLastMissTime(resultSet.getTimestamp("lastMissTimestamp"));
         
         return feed;
 

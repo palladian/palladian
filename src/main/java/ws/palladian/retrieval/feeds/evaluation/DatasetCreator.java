@@ -386,7 +386,7 @@ public class DatasetCreator {
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
                     boolean contains = false;
                     for (String savedFileEntry : fileEntries) {
-                        if (savedFileEntry.substring(14).startsWith(fileEntryID)) {
+                        if (savedFileEntry.substring(savedFileEntry.indexOf(";") + 1).startsWith(fileEntryID)) {
                             contains = true;
                             break;
                         }
@@ -408,7 +408,7 @@ public class DatasetCreator {
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     feed.increaseMisses();
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
-                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
+                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
                 }
 
@@ -422,7 +422,7 @@ public class DatasetCreator {
                 }
 
                 feed.freeMemory();
-                feed.setLastHeadlines("");
+                // feed.setLastHeadlines("");
 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 

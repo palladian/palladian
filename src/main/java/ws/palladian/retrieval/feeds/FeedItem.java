@@ -208,8 +208,11 @@ public class FeedItem {
      */
     public String getRawMarkup() {
         String rawMarkup = "";
+        Node node = getNode();
 
-        rawMarkup = HTMLHelper.documentToHTMLString(getNode());
+        if (node != null) {
+            rawMarkup = HTMLHelper.documentToHTMLString(node);
+        }
 
         return rawMarkup;
     }

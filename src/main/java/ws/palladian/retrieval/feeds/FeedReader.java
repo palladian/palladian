@@ -236,7 +236,7 @@ public final class FeedReader {
                 // fa.updateFeed(feed);
 
                 feed.freeMemory();
-                feed.setLastHeadlines("");
+                feed.setNewestItemHash("");
                 feed.setMeticulousPostDistribution(null);
             }
 

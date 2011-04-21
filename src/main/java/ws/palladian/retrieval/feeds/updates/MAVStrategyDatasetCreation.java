@@ -26,31 +26,31 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         List<FeedItem> entries = feed.getItems();
 
         int minCheckInterval = feed.getUpdateInterval();
-        //int maxCheckInterval = feed.getUpdateInterval();
+        // int maxCheckInterval = feed.getUpdateInterval();
 
-        double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
+        // double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
+        boolean hasNewItem = feed.hasNewItem();
 
         // ######################### simple moving average ##############################
-        if (newEntries > 0) {
-            minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            //maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+
+        double averagePostGap = fps.getAveragePostGap();
+        if (averagePostGap <= 0D) {
+            // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
+            minCheckInterval = getHighestUpdateInterval();
+        } else if (hasNewItem) {
+            minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+            // maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
             if (fps.getIntervals().size() > 0) {
-                double averagePostGap = fps.getAveragePostGap();
-                if (averagePostGap == 0D) {
-					// in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
-					minCheckInterval = getHighestUpdateInterval();
-				} else {
-                    // ignore negative delays caused by items with pubdates in the future
-                    if (fps.getDelayToNewestPost() > 0) {
-                        averagePostGap -= fps.getIntervals().get(0) / (fps.getIntervals().size());
-                        averagePostGap += fps.getDelayToNewestPost() / (fps.getIntervals().size());
-                    }
+                // ignore negative delays caused by items with pubdates in the future
+                if (fps.getDelayToNewestPost() > 0) {
+                    averagePostGap -= fps.getIntervals().get(0) / (fps.getIntervals().size());
+                    averagePostGap += fps.getDelayToNewestPost() / (fps.getIntervals().size());
+                }
 
-					minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
-				}
-				
-                //maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+
+                // maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
             }
         }
 
@@ -58,11 +58,11 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         // late. I think I have tested this though and the results were worse than just taking the average interval
         // minCheckInterval -= (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
 
-        //if (feed.getUpdateMode() == Feed.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
-        //} else {
-        //    feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
-        //}
+        // if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+        feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+        // } else {
+        // feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+        // }
 
         // in case only one entry has been found use the default check time
         // we subtract a random offset to the default check time to avoid a peak in the number of feeds that have

@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
 
@@ -89,7 +90,7 @@ public class Feed {
     private int updateMode = Feed.MIN_DELAY;
 
     /** a list of headlines that were found at the last check */
-    private String lastHeadlines = "";
+    private String newestItemHash = "";
 
     /** number of times the feed was checked but could not be found or parsed */
     private int unreachableCount = 0;
@@ -152,6 +153,8 @@ public class Feed {
      * the items has been seen before.
      */
     private int misses = 0;
+
+    private Date lastMissTime = null;
 
     public Feed() {
         super();
@@ -293,12 +296,12 @@ public class Feed {
         return updateInterval;
     }
 
-    public void setLastHeadlines(String lastHeadlines) {
-        this.lastHeadlines = lastHeadlines;
+    public void setNewestItemHash(String newestItemHash) {
+        this.newestItemHash = newestItemHash;
     }
 
-    public String getLastHeadlines() {
-        return lastHeadlines;
+    public String getNewestItemHash() {
+        return newestItemHash;
     }
 
     public void setUnreachableCount(int unreachableCount) {
@@ -406,14 +409,15 @@ public class Feed {
                 + ", items=" + items + ", windowSize=" + windowSize + ", historyFileCompletelyRead="
                 + historyFileCompletelyRead + ", benchmarkLookupTime=" + benchmarkLookupTime
                 + ", benchmarkLastLookupTime=" + benchmarkLastLookupTime + ", checks=" + checks + ", updateInterval="
-                + updateInterval + ", updateMode=" + updateMode + ", lastHeadlines=" + lastHeadlines
+                + updateInterval + ", updateMode=" + updateMode + ", newestItemHash=" + newestItemHash
                 + ", unreachableCount=" + unreachableCount + ", lastFeedEntry=" + lastFeedEntry + ", pollDataSeries="
                 + pollDataSeries + ", meticulousPostDistribution=" + meticulousPostDistribution
                 + ", oneFullDayOfItemsSeen=" + oneFullDayOfItemsSeen + ", activityPattern=" + activityPattern
                 + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
                 + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
-                + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + "]";
+                + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
+                + lastMissTime + "]";
     }
 
     public void setLastETag(String lastETag) {
@@ -485,13 +489,15 @@ public class Feed {
      * The target percentage depends on the number of total entries and is not always the same as the examples show.
      * 
      * @return The percentage of news calculated as explained.
+     * @deprecated has to save all titles which is not memory efficient...
      */
+    @Deprecated
     public double getTargetPercentageOfNewEntries() {
 
         if (targetPercentageOfNewEntries < 0.0) {
 
             // compare old and new entry titles to get percentage pn of new entries
-            String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
+            String[] oldTitlesArray = getNewestItemHash().split(TITLE_SEPARATION);
             Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
 
             // get new entry titles
@@ -527,12 +533,32 @@ public class Feed {
                 // LOGGER.warn(currentTitles.size() + " title(s) found in " + getId() + " ("+ getFeedUrl() + ")");
             }
 
-            setLastHeadlines(titles.toString());
+            setNewestItemHash(titles.toString());
 
             targetPercentageOfNewEntries = pnTarget;
         }
 
         return targetPercentageOfNewEntries;
+    }
+
+    public boolean hasNewItem() {
+        boolean newItem = false;
+
+        if (items.size() > 0) {
+            FeedItem feedItem = items.get(0);
+            String hash = "";
+            hash += feedItem.getTitle();
+            hash += feedItem.getLink();
+            hash += feedItem.getRawId();
+            hash = StringHelper.sha1(hash);
+
+            if (!hash.equals(getNewestItemHash())) {
+                newItem = true;
+                setNewestItemHash(hash);
+            }
+        }
+
+        return newItem;
     }
 
     /*
@@ -559,11 +585,12 @@ public class Feed {
         result = prime * result + ((language == null) ? 0 : language.hashCode());
         result = prime * result + ((lastETag == null) ? 0 : lastETag.hashCode());
         result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
-        result = prime * result + ((lastHeadlines == null) ? 0 : lastHeadlines.hashCode());
+        result = prime * result + ((lastMissTime == null) ? 0 : lastMissTime.hashCode());
         result = prime * result + ((lastPollTime == null) ? 0 : lastPollTime.hashCode());
         result = prime * result + ((lmsSupport == null) ? 0 : lmsSupport.hashCode());
         result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + misses;
+        result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
         result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
         result = prime * result + ((rawMarkup == null) ? 0 : rawMarkup.hashCode());
@@ -649,10 +676,10 @@ public class Feed {
                 return false;
         } else if (!lastFeedEntry.equals(other.lastFeedEntry))
             return false;
-        if (lastHeadlines == null) {
-            if (other.lastHeadlines != null)
+        if (lastMissTime == null) {
+            if (other.lastMissTime != null)
                 return false;
-        } else if (!lastHeadlines.equals(other.lastHeadlines))
+        } else if (!lastMissTime.equals(other.lastMissTime))
             return false;
         if (lastPollTime == null) {
             if (other.lastPollTime != null)
@@ -670,6 +697,11 @@ public class Feed {
         } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution))
             return false;
         if (misses != other.misses)
+            return false;
+        if (newestItemHash == null) {
+            if (other.newestItemHash != null)
+                return false;
+        } else if (!newestItemHash.equals(other.newestItemHash))
             return false;
         if (oneFullDayOfItemsSeen == null) {
             if (other.oneFullDayOfItemsSeen != null)
@@ -878,10 +910,29 @@ public class Feed {
     }
 
     /**
-     * Increases the the number of times that we found a MISS by 1.
+     * Increases the the number of times that we found a MISS by 1. Sets lastMissTime to {@link #getLastPollTime()}.
      */
     public void increaseMisses() {
         setMisses(getMisses() + 1);
+        setLastMissTime(getLastPollTime());
+    }
+
+    /**
+     * Set the timestamp when we found a MISS for this feed.
+     * 
+     * @param lastMissTime The timestamp we detected the last miss.
+     */
+    public void setLastMissTime(Date lastMissTime) {
+        this.lastMissTime = lastMissTime;
+    }
+
+    /**
+     * Get the timestamp when we found a MISS for this feed.
+     * 
+     * @return The timestamp we detected the last miss.
+     */
+    public Date getLastMissTime() {
+        return lastMissTime;
     }
 
 }
