@@ -1379,6 +1379,17 @@ public class StringHelper {
      */
     public static void main(String[] args) {
 
+        // StopWatch stopWatch = new StopWatch();
+        // for (int i = 0; i < 1000; i++) {
+        // String t = LoremIpsumGenerator.getRandomText(1000);
+        // for (int j = 0; j < 1000; j++) {
+        // String t2 = LoremIpsumGenerator.getRandomText(1000);
+        // // t.substring(10).startsWith(t2);
+        // }
+        // }
+        // System.out.println(stopWatch.getTotalElapsedTimeString());
+        // System.exit(0);
+
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 
         System.out.println(removeNonAsciiCharacters("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
