@@ -54,7 +54,7 @@ This sections outlines important evaluation measures which are typically used fo
 
 \subsection{Precision, Recall, and F-measure} \label{sec:Introduction:PrRcF1}
 
-Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative``, as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
+Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative'', as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
 
 \begin{align}
 %	
@@ -167,6 +167,8 @@ It is licensed under GPL and supports Spanish, Catalan, Galician, Italian, Engli
 The framework is licensed under the GNU Lesser General Public License.
 
 	\item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
+	
+	\item \textbf{JTMT} (Java Text Mining Toolkit) \cite{JTMT} is an assorted collection of Java code for various text mining and information retrieval tasks. Different components are explained in-depth in the author's blog. The toolkit is licensed under the Lesser GNU General Public License (LGPL).
 
 	\item \textbf{Julie NLP} \cite{tomanek2007uima,hahn2008overview} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
 The Toolkit is licensed under the Common Public License.
