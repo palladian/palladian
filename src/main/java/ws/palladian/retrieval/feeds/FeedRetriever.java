@@ -489,7 +489,6 @@ public class FeedRetriever {
         // try to get updated date before entering the expensive search via XPath and DateGetterHelper
         // since atom feeds must have an updated field and may have an additional publish date.
         if (publishDate == null) {
-            // as a last resort, use the entry's updated date
             publishDate = syndEntry.getUpdatedDate();
         }
 
@@ -722,12 +721,11 @@ public class FeedRetriever {
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
-        downloader.setUseDateRecognition(false);
+        downloader.setUseDateRecognition(true);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
         StopWatch sw = new StopWatch();
-        Feed feed = downloader.getFeed("http://csafarms.freebase.com/feed/history/all/base/csafarms");
+        Feed feed = downloader.getFeed("http://dbmarbella.com/ror.xml");
 
-        // Wed, 20 Apr 2011 06:46:55 America/Chicago
         System.out.println(feed.getItems().get(0).getPublished());
         System.out.println("took " + sw);
 

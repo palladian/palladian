@@ -404,6 +404,7 @@ public class DatasetCreator {
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
+                    feed.increaseMisses();
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
