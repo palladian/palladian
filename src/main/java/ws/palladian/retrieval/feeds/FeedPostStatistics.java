@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -19,6 +21,9 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
  * 
  */
 public class FeedPostStatistics {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(FeedPostStatistics.class);
 
     /**
      * Record a list of checkInterval values for each feed: <minuteOfDay : number of posts in that minute.
@@ -134,10 +139,14 @@ public class FeedPostStatistics {
         // in case no pub date was found correctly, we set the newest entry time to now so we know next time which entries are newer
         if (timeNewestEntry == 0) {
             timeNewestEntry = System.currentTimeMillis();
+            LOGGER.warn("Did not find a valid timestamp, setting timeNewestEntry to current timestamp. Feed id: "
+                    + feed.getId());
         }
         // in case no pub date was found correctly, we set the oldest entry time one week in the past
         if (timeOldestEntry == Long.MAX_VALUE) {
             timeOldestEntry = System.currentTimeMillis() - DateHelper.WEEK_MS;
+            LOGGER.warn("Did not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: "
+                    + feed.getId());
         }
 
         // in benchmark mode we simulate the lookup time, otherwise it's the current time
