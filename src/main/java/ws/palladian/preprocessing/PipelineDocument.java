@@ -1,30 +1,27 @@
 package ws.palladian.preprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureVector;
 
 public class PipelineDocument {
 
-    private List<Feature<?>> features;
+    private FeatureVector featureVector;
 
-    private String originalContent = "";
+    private String originalContent;
 
-    private String modifiedContent = "";
+    private String modifiedContent;
 
     public PipelineDocument(String originalContent) {
         this.originalContent = originalContent;
         this.modifiedContent = originalContent;
-        this.features = new ArrayList<Feature<?>>();
+        this.featureVector = new FeatureVector();
     }
 
-    public List<Feature<?>> getFeatures() {
-        return features;
+    public FeatureVector getFeatureVector() {
+        return featureVector;
     }
 
-    public void setFeatures(List<Feature<?>> features) {
-        this.features = features;
+    public void setFeatureVector(FeatureVector featureVector) {
+        this.featureVector = featureVector;
     }
 
     /**
@@ -48,5 +45,23 @@ public class PipelineDocument {
     public void setModifiedContent(String modifiedContent) {
         this.modifiedContent = modifiedContent;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PipelineDocument [featureVector=");
+        builder.append(featureVector);
+        builder.append(", originalContent=");
+        builder.append(originalContent);
+        builder.append(", modifiedContent=");
+        builder.append(modifiedContent);
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
 
 }

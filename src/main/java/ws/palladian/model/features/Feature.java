@@ -1,30 +1,36 @@
 package ws.palladian.model.features;
 
 /**
- * The base class for all features used by different Information Retrieval and
- * Extraction components inside palladian. A {@code Feature} can be any
- * information from or about a document that is helpful to guess correct
- * information about that particular document.
+ * <p>
+ * The base class for all features used by different Information Retrieval and Extraction components inside Palladian. A
+ * {@code Feature} can be any information from or about a document that is helpful to guess correct information about
+ * that particular document.
+ * </p>
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
  * @see ws.palladian.classification.Classifier
  * @param <T>
- *            The data type used to represent this {@code Feature}s value.
+ *            The data type used to represent this {@code Feature}'s value.
  */
 public class Feature<T> {
     /**
+     * <p>
      * The {@link FeatureVector} wide unique identifier of this {@code Feature}.
+     * </p>
      */
     private String name;
     /**
-     * The {@code Feature}'s value containing concrete extracted data from a
-     * document.
+     * <p>
+     * The {@code Feature}'s value containing concrete extracted data from a document.
+     * </p>
      */
     private T value;
 
     /**
+     * <p>
      * Creates a new {@code Feature} with all attributes initialized.
+     * </p>
      * 
      * @param name
      *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
@@ -39,7 +45,9 @@ public class Feature<T> {
     }
 
     /**
+     * <p>
      * Provides the {@link FeatureVector} wide unique identifier of this {@code Feature}.
+     * </p>
      * 
      * @return The string representing this {@code Feature}s identifier.
      */
@@ -48,8 +56,9 @@ public class Feature<T> {
     }
 
     /**
-     * Resets this {@code Feature}'s identifier overwriting the old one. Use
-     * with care!
+     * <p>
+     * Resets this {@code Feature}'s identifier overwriting the old one. Use with care!
+     * </p>
      * 
      * @param name
      *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
@@ -59,8 +68,9 @@ public class Feature<T> {
     }
 
     /**
-     * Provides the {@code Feature}'s value containing concrete extracted data
-     * from a document.
+     * <p>
+     * Provides the {@code Feature}'s value containing concrete extracted data from a document.
+     * </p>
      * 
      * @return The {@code Feature}'s value
      */
@@ -69,7 +79,9 @@ public class Feature<T> {
     }
 
     /**
+     * <p>
      * Resets and overwrites the {@code Feature}'s value.
+     * </p>
      * 
      * @param value
      *            The {@code Feature}'s value containing concrete extracted data
@@ -78,4 +90,20 @@ public class Feature<T> {
     public final void setValue(T value) {
         this.value = value;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Feature [name=");
+        builder.append(name);
+        builder.append(", value=");
+        builder.append(value);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
