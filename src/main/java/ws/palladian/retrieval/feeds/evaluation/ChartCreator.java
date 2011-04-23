@@ -578,14 +578,14 @@ public class ChartCreator {
         ChartCreator cc = new ChartCreator(200, 200);
 
         // cc.printFeedPolls();
-        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 12.11. DB Schema v2
-        // cc.createFeedAgeFile(); // letzter Test 12.11. DB Schema v2
-        // cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
-        // cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MIN, true, 210000); // letzter Test 12.11. DB Schema v2
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test2 12.11. DB Schema v2
+        // cc.createFeedAgeFile(); // letzter Test2 12.11. DB Schema v2
+        // cc.createAverageScoreMinByPollFile(); // letzter Test2 12.11. DB Schema v2
+        // cc.createPercentageNewMaxPollFile(); // letzter Test2 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test2 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test2 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test2 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MIN, true, 210000); // letzter Test2 12.11. DB Schema v2
 	}
 
 }

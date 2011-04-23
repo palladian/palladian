@@ -13,8 +13,8 @@ public class WordCounter implements PipelineProcessor {
         int wordCount = StringHelper.countWords(document.getModifiedContent());
 
         NumericFeature numericFeature = new NumericFeature("wordCount", (double) wordCount);
-
-        document.getFeatures().add(numericFeature);
+        
+        document.getFeatureVector().add(numericFeature);
 
     }
 

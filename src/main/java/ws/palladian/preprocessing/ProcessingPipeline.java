@@ -4,14 +4,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.helper.StopWatch;
 
 public class ProcessingPipeline implements Serializable {
 
     private static final long serialVersionUID = -6173687204106619909L;
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
 
     private List<PipelineProcessor> pipelineProcessors;
 
@@ -24,9 +30,16 @@ public class ProcessingPipeline implements Serializable {
     }
 
     public PipelineDocument process(PipelineDocument document) {
+
+        StopWatch stopWatch = new StopWatch();
+
         for (PipelineProcessor processor : pipelineProcessors) {
+            StopWatch stopWatch2 = new StopWatch();
             processor.process(document);
+            LOGGER.debug("processor " + processor + " took " + stopWatch2);
         }
+
+        LOGGER.debug("pipeline took " + stopWatch);
 
         return document;
     }
