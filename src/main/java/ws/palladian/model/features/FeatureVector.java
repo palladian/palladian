@@ -75,6 +75,6 @@ public final class FeatureVector {
 
     @Override
     public String toString() {
-        return features.toString();
+        return features.values().toString();
     }
 }
