@@ -98,11 +98,14 @@ public class Feature<T> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Feature [name=");
+//        builder.append("Feature [name=");
+//        builder.append(name);
+//        builder.append(", value=");
+//        builder.append(value);
+//        builder.append("]");
         builder.append(name);
-        builder.append(", value=");
+        builder.append("=");
         builder.append(value);
-        builder.append("]");
         return builder.toString();
     }
 
