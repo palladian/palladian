@@ -28,6 +28,10 @@ public class ProcessingPipeline implements Serializable {
     public void add(PipelineProcessor pipelineProcessor) {
         pipelineProcessors.add(pipelineProcessor);
     }
+    
+    public List<PipelineProcessor> getPipelineProcessors() {
+        return pipelineProcessors;
+    }
 
     public PipelineDocument process(PipelineDocument document) {
 
