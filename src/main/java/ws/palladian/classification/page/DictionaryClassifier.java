@@ -202,14 +202,15 @@ public class DictionaryClassifier extends TextClassifier {
         classifier = (DictionaryClassifier) FileHelper.deserialize(classifierPath);
         classifier.reset();
 
-        if ((classifier).getDictionary().isUseIndex()) {
-            (classifier).useIndex();
+        if (classifier.getDictionary().isUseIndex()) {
+            classifier.useIndex();
         }
 
         LOGGER.info("loading dictionary");
         // XXX, we need to set this to null here so that it can be loaded, by default the classifier has an empty
         // dictionary and won't load anything
         classifier.dictionary = null;
+        classifier.dictionaryPath = FileHelper.getFilePath(classifierPath);
         classifier.loadDictionary();
 
         return classifier;
