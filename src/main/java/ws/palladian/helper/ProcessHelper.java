@@ -44,7 +44,9 @@ public class ProcessHelper {
             LOGGER.error(e.getMessage());
         } finally {
             FileHelper.close(in, stringOutputStream);
-            p.destroy();
+            if (p != null) {
+                p.destroy();
+            }
         }
 
         return result.toString();

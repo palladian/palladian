@@ -15,7 +15,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
-import org.h2.java.lang.System;
 
 import ws.palladian.external.lbj.IO.Keyboard;
 import ws.palladian.external.lbj.Tagger.BracketFileManager;

@@ -56,6 +56,13 @@ import ws.palladian.tagging.EntityList;
 import ws.palladian.tagging.KnowledgeBaseCommunicatorInterface;
 import ws.palladian.tagging.StringTagger;
 
+/**
+ * TUDLI => token-based, language independent
+ * TUDEng => NED + NEC, English only
+ * 
+ * @author David
+ * 
+ */
 public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
     /** The logger for this class. */

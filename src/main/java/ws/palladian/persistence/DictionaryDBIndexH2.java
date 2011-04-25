@@ -100,7 +100,8 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
         if (inMemoryMode) {
             url = "jdbc:" + getDbType() + ":mem:" + getIndexPath() + dbName + ";DB_CLOSE_DELAY=-1";
         } else {
-            url = "jdbc:" + getDbType() + ":" + getIndexPath() + dbName;
+            url = "jdbc:" + getDbType() + ":" + getIndexPath() + dbName + ";CACHE_SIZE=60000;CACHE_TYPE=SOFT_LRU";// +
+                                                                                              // ";CACHE_SIZE=531072;CACHE_TYPE=SOFT_LRU";
         }
 
         try {
@@ -121,7 +122,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             PreparedStatement psCreateTable4;
 
             psCreateTable1 = connection
-            .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
