@@ -1,7 +1,9 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,8 +20,13 @@ import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.dates.StructureDate;
+import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.ContentDateComparator;
+import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -60,10 +67,78 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         if (document != null) {
             result = getContentDates(this.document);
             //DataSetHandler.writeDateFactors(result, url, doc);
+            setFeatures(result);
         }
         return result;
     }
    
+    private void setFeatures(ArrayList<ContentDate> dates){
+    	
+    	LinkedList<ContentDate> posOrder = new LinkedList<ContentDate>();
+		LinkedList<ContentDate> ageOrder = new LinkedList<ContentDate>();
+		for(int i=0; i< dates.size(); i++){
+			if(dates.get(i).get(ContentDate.DATEPOS_IN_DOC) != -1){
+				posOrder.add(dates.get(i));
+			}
+			ageOrder.add(dates.get(i));
+		}
+		
+		Collections.sort(posOrder, new ContentDateComparator());
+		Collections.sort(ageOrder, new DateComparator());
+		
+		MetaDateGetter mdg = new MetaDateGetter();
+		URLDateGetter udg = new URLDateGetter();
+		mdg.setDocument(document);
+		mdg.setUrl(url);
+		udg.setUrl(url);
+		ArrayList<MetaDate> metaDates = DateArrayHelper.removeNull(mdg.getDates());
+		ArrayList<URLDate> urlDates = DateArrayHelper.removeNull(udg.getDates());
+		
+    	for(ContentDate date : dates){
+    		
+    		date.setRelSize(1.0 / (double)dates.size());
+    		
+    		double ordDocPos = Math.round(
+					((double)(posOrder.indexOf(date) + 1.0) /(double)posOrder.size())
+					*1000.0
+				) / 1000.0;
+    		date.setOrdDocPos(ordDocPos);
+    		
+			double ordAgePos = Math.round(
+						((double)(ageOrder.indexOf(date) + 1.0)/(double)dates.size())
+						*1000.0
+					)/1000.0;
+			date.setOrdAgePos(ordAgePos);
+
+			if(metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateComparator.STOP_DAY) > 0){
+				date.setInMetaDates(true);
+			}
+			if(urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateComparator.STOP_DAY) > 0){
+				date.setInUrl(true);
+			}
+			
+			double relCntSame = Math.round(( (double)(DateArrayHelper.countDates(date, dates, DateComparator.STOP_DAY) + 1) / (double)dates.size() ) * 1000.0) / 1000.0;
+			date.setRelCntSame(relCntSame);
+			
+			int datePosOrderAbsl = posOrder.indexOf(date);
+			if(datePosOrderAbsl > 0){
+				date.setDistPosBefore(date.get(ContentDate.DATEPOS_IN_DOC) - posOrder.get(datePosOrderAbsl -1).get(ContentDate.DATEPOS_IN_DOC));
+			}
+			if(datePosOrderAbsl < posOrder.size() -1){
+				date.setDistPosAfter(posOrder.get(datePosOrderAbsl +1).get(ContentDate.DATEPOS_IN_DOC) - date.get(ContentDate.DATEPOS_IN_DOC));
+			}
+			int dateAgeOrdAbsl = ageOrder.indexOf(date);
+			DateComparator dc = new DateComparator();
+			if(dateAgeOrdAbsl > 0){
+				date.setDistAgeBefore(Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl - 1), DateComparator.MEASURE_HOUR)));
+			}
+			if(dateAgeOrdAbsl < ageOrder.size() -1){
+				date.setDistAgeAfter(Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl + 1), DateComparator.MEASURE_HOUR)));
+			}
+    		
+    	}
+    }
+    
     /**
      * Get dates of text-nodes of body part of document.
      * 
@@ -163,9 +238,14 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     	   date.setTagNode(parent.toString());
     	   date.setTag(tag.getNodeName());
     	   date.setNode(tag);
+    	   
+    	   date.setSimpleTag(HTMLHelper.isSimpleElement(tag) ? "1" : "0");
+    	   date.sethTag(HTMLHelper.isHeadlineTag(tag) ? "1" : "0");
 			
     	   if (index != -1) {
-    		   date.set(ContentDate.DATEPOS_IN_DOC, index + date.get(ContentDate.DATEPOS_IN_TAGTEXT));
+    		   int ablsDocPos = index + date.get(ContentDate.DATEPOS_IN_TAGTEXT);
+    		   date.set(ContentDate.DATEPOS_IN_DOC, ablsDocPos);
+    		   date.setRelDocPos(Math.round(((double)ablsDocPos/(double)doc.length())*1000.0)/1000.0);
     	   }
 			
     	   //String keyword = DateGetterHelper.findNodeKeywordPart(tag, KeyWords.BODY_CONTENT_KEYWORDS_FIRST);
@@ -179,19 +259,36 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 				
     		   keyword3Class  = KeyWords.getKeywordPriority(keyword) == KeyWords.OTHER_KEYWORD ;
     		   date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
+    		   date.setKeyLoc("1");
+    		   date.setKeyLoc201("1");
     	   }
 			
     	   if(keyword.equals("") ||  keyword3Class ){
     		   setClosestKeyword(date);
     		   if(date.getKeyword() != null){
     			   date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
+    			   date.setKeyLoc("2");
+    			   date.setKeyLoc202("1");
     			   keyword = date.getKeyword();
     		   }
     	   }
 			
     	   if(!keyword.equals("")){
-    		   date.setKeyword(keyword);
+    		   	date.setKeyword(keyword);
+    		   	switch(KeyWords.getKeywordPriority(keyword)){
+    		   	case 1: 
+    		   		date.setIsKeyClass1("1");
+    		   		break;
+    		   	case 2: 
+    		   		date.setIsKeyClass2("1");
+    		   		break;
+    		   	case 3: 
+    		   		date.setIsKeyClass3("1");
+    		   		break;
+    		   	
+    		   	}
     	   }
+    	  
     	   returnDates.add(date);
        }
        return returnDates;
@@ -260,6 +357,11 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     			date.setKeyword(keyword);
     			int diff = StringHelper.countWhitespaces(this.doc.substring(subStart, subEnd));
     			date.set(ContentDate.DISTANCE_DATE_KEYWORD, diff);
+				if(diff >= 30 || diff == -1){
+					date.setKeyDiff(0.0);
+				}else{
+					date.setKeyDiff(1 - Math.round((diff / 30.0)*1000.0)/1000.0);
+				}
     		}
     	}
     }

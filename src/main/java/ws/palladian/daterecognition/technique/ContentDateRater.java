@@ -4,12 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import weka.classifiers.Classifier;
+import weka.classifiers.meta.AttributeSelectedClassifier;
+import weka.classifiers.meta.ThresholdSelector;
+import weka.core.Instance;
+import weka.core.SerializationHelper;
 import ws.palladian.daterecognition.DateRaterHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
+import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 /**
  *This class evaluates content-dates. <br>
@@ -23,7 +29,8 @@ import ws.palladian.helper.date.DateComparator;
  * 
  */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
-
+	
+	 
 
     private byte hightPriority;
     private byte middlePriority;
@@ -44,8 +51,37 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
 	@Override
     public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
+		
+		HashMap<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
+		//NEW
+		DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(dateType);
+		Classifier classifier = null;
+		
+		try {
+			classifier = (AttributeSelectedClassifier) SerializationHelper.read("data/wekaClassifier/classifier.model");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		for(ContentDate date : list){
+			
+			Instance instance = dwif.getDateInstanceByArffTemplate(date).firstInstance();
+			
+			try {
+				double[] dbl = classifier.distributionForInstance(instance);
+				returnDates.put(date, dbl[0]);
+				//System.out.println(dbl[1] + " - " + date.getNormalizedDateString());
+				//System.out.println();
+				//System.out.println(instance);
+			} catch (Exception e) {
+				System.out.println(date.getDateString());
+				System.out.println(instance);
+				e.printStackTrace();
+			} 
+		}
+		/* OLD
     	HashMap<ContentDate, Double> returnDates = evaluateContentDate(list);
     	this.ratedDates = returnDates;
+    	*/
         return returnDates;
     }
 

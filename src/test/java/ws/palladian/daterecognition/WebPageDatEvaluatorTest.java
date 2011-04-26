@@ -8,8 +8,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.WebPageDateEvaluator;
-import ws.palladian.helper.date.DateArrayHelper;
 
 /**
  * @author Martin Gregor
@@ -52,17 +50,18 @@ public class WebPageDatEvaluatorTest {
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(2, wpde.getAllBestRatedDate().size());
+        assertEquals(1, wpde.getAllBestRatedDate().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(5, wpde.getAllBestRatedDate().size());
+        assertEquals(1, wpde.getAllBestRatedDate().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(2, wpde.getAllBestRatedDate().size());
+//        System.out.println(wpde.getAllDates());
+        assertEquals(3, wpde.getAllBestRatedDate().size());
     }
 
     /**
@@ -74,17 +73,17 @@ public class WebPageDatEvaluatorTest {
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(9, wpde.getAllDates().size());
+        assertEquals(2, wpde.getAllDates().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(44, wpde.getAllDates().size());
+        assertEquals(5, wpde.getAllDates().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(107, wpde.getAllDates().size());
+        assertEquals(12, wpde.getAllDates().size());
     }
 
 }

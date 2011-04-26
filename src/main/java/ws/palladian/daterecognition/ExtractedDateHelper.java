@@ -250,6 +250,7 @@ public class ExtractedDateHelper {
      */
     public static String[] removeTimezone(String dateString) {
         String timezoneRegRex = RegExp.getTimezones();
+//        System.out.println(" - " + ws.palladian.helper.nlp.StringHelper.removeFirstStringpart(dateString, timezoneRegRex)[0]); 
         return ws.palladian.helper.nlp.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
     }
 

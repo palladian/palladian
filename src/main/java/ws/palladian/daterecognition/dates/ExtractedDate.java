@@ -27,6 +27,7 @@ public class ExtractedDate extends AbstractDate{
     public static final int HOUR = 4;
     public static final int MINUTE = 5;
     public static final int SECOND = 6;
+    public static final int EXACTENESS = 7;
 
     /**
      * Found date as string.
@@ -759,6 +760,9 @@ public class ExtractedDate extends AbstractDate{
                 break;
             case SECOND:
                 value = this.second;
+                break;
+            case EXACTENESS:
+                value = getExactness();
                 break;
         }
         return value;
