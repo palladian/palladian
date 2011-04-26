@@ -1,5 +1,6 @@
 package ws.palladian.persistence;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -53,7 +54,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
     private PreparedStatement psGetWordCategoryTuple2 = null;
 
     /** if fastmode = true, only one table will be used to store all information */
-    private boolean fastMode = true;
+    private boolean fastMode = false;
 
     /**
      * if true, the db will be kept in memory until the virtual machine is closed, if false, db is serialized to disk.
@@ -67,19 +68,21 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
         setIndexPath(indexPath);
         connection = getConnection();
     }
-    public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword) {
-        setDbName(dbName);
-        setDbUsername(dbUsername);
-        setDbPassword(dbPassword);
-        connection = getConnection();
 
-        // try to find the classification configuration, if it is not present
-        // use default values
-        /*
-         * try { config = new PropertiesConfiguration("config/db_h2.conf"); inMemoryMode = config.getBoolean("db.inMemoryMode"); } catch (ConfigurationException
-         * e) { LOGGER.error(e.getMessage()); }
-         */
-    }
+    // public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword) {
+    // setDbName(dbName);
+    // setDbUsername(dbUsername);
+    // setDbPassword(dbPassword);
+    // connection = getConnection();
+    //
+    // // try to find the classification configuration, if it is not present
+    // // use default values
+    // /*
+    // * try { config = new PropertiesConfiguration("config/db_h2.conf"); inMemoryMode =
+    // config.getBoolean("db.inMemoryMode"); } catch (ConfigurationException
+    // * e) { LOGGER.error(e.getMessage()); }
+    // */
+    // }
 
     /**
      * Constructor with the choice of using a in-memory data base or writing it to disk and connects to the data base
@@ -89,10 +92,10 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      * @param dbPassword The user's password.
      * @param inMemoryMode If true, the db will be kept in memory until the virtual machine is terminated, if false, db is serialized to disk.
      */
-    public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword, boolean inMemoryMode) {
-        this(dbName, dbUsername, dbPassword);
-        this.inMemoryMode = inMemoryMode;
-    }
+    // public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword, boolean inMemoryMode) {
+    // this(dbName, dbUsername, dbPassword);
+    // this.inMemoryMode = inMemoryMode;
+    // }
 
     private Connection getConnection() {
 
@@ -101,7 +104,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             url = "jdbc:" + getDbType() + ":mem:" + getIndexPath() + dbName + ";DB_CLOSE_DELAY=-1";
         } else {
             url = "jdbc:" + getDbType() + ":" + getIndexPath() + dbName + ";CACHE_SIZE=60000;CACHE_TYPE=SOFT_LRU";// +
-                                                                                              // ";CACHE_SIZE=531072;CACHE_TYPE=SOFT_LRU";
+            // ";CACHE_SIZE=531072;CACHE_TYPE=SOFT_LRU";
         }
 
         try {
@@ -122,7 +125,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             PreparedStatement psCreateTable4;
 
             psCreateTable1 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
+            .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
@@ -638,6 +641,33 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
 
     public void setInMemoryMode(boolean inMemoryMode) {
         this.inMemoryMode = inMemoryMode;
+    }
+
+    public static void main(String[] args) throws SQLException, UnsupportedEncodingException {
+        // DictionaryDBIndexH2 db = new DictionaryDBIndexH2("palladianLanguageJRCDictionary", "root", "");
+        // db.dictionary = new Dictionary("", 0);
+        // db.setIndexPath("C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC\\");
+        // PreparedStatement ps = db.connection.prepareStatement("SELECT word FROM DICTIONARY where id = 34");
+        // ResultSet runQuery = db.runQuery(ps);
+        // runQuery.next();
+        // String xxx = runQuery.getString("word");
+        // String yyy = new String(xxx.getBytes(), "UTF-8");
+        // System.out.println(yyy);
+        // System.out.println(xxx.length());
+        //
+        // db.setFastMode(false);
+        // CategoryEntries read = db.read(yyy);
+        // System.out.println(read);
+
+        DictionaryDBIndexH2 db = new DictionaryDBIndexH2("palladianLanguageJRCDictionary", "root", "", "");
+        db.setIndexPath("C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC\\");
+        PreparedStatement ps = db.connection.prepareStatement("SELECT id, word FROM DICTIONARY where WORD = 'eliki '");
+        ResultSet runQuery = db.runQuery(ps);
+        while (runQuery.next()) {
+            String word = runQuery.getString("word");
+            int id = runQuery.getInt("id");
+            System.out.println(id + ":" + word);
+        }
     }
 
 }

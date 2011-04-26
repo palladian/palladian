@@ -250,6 +250,8 @@ public class DictionaryClassifier extends TextClassifier {
             String modelFilePath = getDictionaryPath() + getDictionaryName() + ".gz";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
+            dictionary.setIndexPath(FileHelper.getFilePath(modelFilePath));
+
             // all serialized dictionaries must use the index since their dictionaries are not serialized
             dictionary.useIndex();
         }
