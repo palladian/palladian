@@ -1,6 +1,5 @@
 package ws.palladian.daterecognition.searchengine;
 
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,12 +26,10 @@ import ws.palladian.daterecognition.ExtractedDateHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.evaluation.EvaluationHelper;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -131,9 +128,9 @@ public class DataSetHandler{
 		
 		
 		//googleCheck("data/evaluation/daterecognition/datasets/dataset.txt");
-		String in = "D:/_Uni/_semester16/knime/test2.csv";
+		String in = "D:/_Uni/_semester16/knime/test4.csv";
 		String outPath = "D:/_Uni/_semester16/knime/wekaout/";
-		splittKnieCVS(in, outPath);
+		splittKnimeCVS(in, outPath);
 	}
 	
 	
@@ -414,8 +411,12 @@ public class DataSetHandler{
 	}	
 
 	public static void closeConnection(){
+		closeConnection(true);
+	}
+	
+	public static void closeConnection(boolean closeRS){
 		try {
-			if(rs != null){
+			if(rs != null && closeRS){
 				rs.close();
 			}
 			st.close();
@@ -1025,7 +1026,7 @@ public class DataSetHandler{
 		closeConnection();
 	}
 	
-	private static void splittKnieCVS(String in, String outPath){
+	private static void splittKnimeCVS(String in, String outPath){
 		File file = new File(in);
 		File fileOut;
 		FileReader fr;

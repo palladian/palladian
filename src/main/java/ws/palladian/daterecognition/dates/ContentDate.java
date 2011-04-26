@@ -3,6 +3,8 @@
  */
 package ws.palladian.daterecognition.dates;
 
+import weka.core.Attribute;
+
 /**
  * @author Martin Gregor
  * 
@@ -33,7 +35,34 @@ public class ContentDate extends AbstractBodyDate {
     private int keywordLocation = -1;
     /** Position of datestring in the document it was found. */
     private int positionInDocument = -1;
-
+   
+    private double relDocPos = 0;
+    private double ordDocPos = 0;
+    private double ordAgePos = 0;
+    
+    private String keyClass = "0";
+    private String keyLoc = "0";
+    private double keyDiff = 0;
+	
+    private String simpleTag = "0";
+    private String hTag = "0";
+	
+    private double relCntSame = 0;
+	private double relSize = 0;
+	
+	private long distPosBefore = -1;
+	private long distPosAfter = -1;
+	private long distAgeBefore = -1;
+	private long distAgeAfter = -1;
+	
+	private String keyLoc201 = "0";
+	private String keyLoc202 = "0";
+	
+	private String isKeyClass1 = "0";
+	private String isKeyClass2 = "0";
+	private String isKeyClass3 = "0";
+    
+    
     /**
      * Related Structure-Date for this Content-Date.
      */
@@ -182,6 +211,158 @@ public class ContentDate extends AbstractBodyDate {
 
 	public boolean isInUrl() {
 		return inUrl;
+	}
+
+	public void setRelDocPos(double relDocPos) {
+		this.relDocPos = relDocPos;
+	}
+
+	public double getRelDocPos() {
+		return relDocPos;
+	}
+
+	public void setOrdDocPos(double ordDocPos) {
+		this.ordDocPos = ordDocPos;
+	}
+
+	public double getOrdDocPos() {
+		return ordDocPos;
+	}
+
+	public void setOrdAgePos(double ordAgePos) {
+		this.ordAgePos = ordAgePos;
+	}
+
+	public double getOrdAgePos() {
+		return ordAgePos;
+	}
+
+	public void setKeyClass(String keyClass) {
+		this.keyClass = keyClass;
+	}
+
+	public String getKeyClass() {
+		return keyClass;
+	}
+
+	public void setKeyLoc(String keyLoc) {
+		this.keyLoc = keyLoc;
+	}
+
+	public String getKeyLoc() {
+		return keyLoc;
+	}
+
+	public void setKeyDiff(double keyDiff) {
+		this.keyDiff = keyDiff;
+	}
+
+	public double getKeyDiff() {
+		return keyDiff;
+	}
+
+	public void setSimpleTag(String simpleTag) {
+		this.simpleTag = simpleTag;
+	}
+
+	public String getSimpleTag() {
+		return simpleTag;
+	}
+
+	public void sethTag(String hTag) {
+		this.hTag = hTag;
+	}
+
+	public String gethTag() {
+		return hTag;
+	}
+
+	public void setRelCntSame(double relCntSame) {
+		this.relCntSame = relCntSame;
+	}
+
+	public double getRelCntSame() {
+		return relCntSame;
+	}
+
+	public void setRelSize(double relSize) {
+		this.relSize = relSize;
+	}
+
+	public double getRelSize() {
+		return relSize;
+	}
+
+	public void setDistPosBefore(int distPosBefore) {
+		this.distPosBefore = distPosBefore;
+	}
+
+	public long getDistPosBefore() {
+		return distPosBefore;
+	}
+
+	public void setDistPosAfter(long distPosAfter) {
+		this.distPosAfter = distPosAfter;
+	}
+
+	public long getDistPosAfter() {
+		return distPosAfter;
+	}
+
+	public void setDistAgeBefore(long distAgeBefore) {
+		this.distAgeBefore = distAgeBefore;
+	}
+
+	public long getDistAgeBefore() {
+		return distAgeBefore;
+	}
+
+	public void setIsKeyClass1(String isKeyClass1) {
+		this.isKeyClass1 = isKeyClass1;
+	}
+
+	public String getIsKeyClass1() {
+		return isKeyClass1;
+	}
+
+	public void setKeyLoc202(String keyLoc202) {
+		this.keyLoc202 = keyLoc202;
+	}
+
+	public String getKeyLoc202() {
+		return keyLoc202;
+	}
+
+	public void setIsKeyClass2(String isKeyClass2) {
+		this.isKeyClass2 = isKeyClass2;
+	}
+
+	public String getIsKeyClass2() {
+		return isKeyClass2;
+	}
+
+	public void setKeyLoc201(String keyLoc201) {
+		this.keyLoc201 = keyLoc201;
+	}
+
+	public String getKeyLoc201() {
+		return keyLoc201;
+	}
+
+	public void setIsKeyClass3(String isKeyClass3) {
+		this.isKeyClass3 = isKeyClass3;
+	}
+
+	public String getIsKeyClass3() {
+		return isKeyClass3;
+	}
+
+	public void setDistAgeAfter(long distAgeAfter) {
+		this.distAgeAfter = distAgeAfter;
+	}
+
+	public long getDistAgeAfter() {
+		return distAgeAfter;
 	}
 
 

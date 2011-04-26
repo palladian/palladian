@@ -17,6 +17,8 @@ import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
+import ws.palladian.daterecognition.technique.ContentDateGetter;
+import ws.palladian.daterecognition.technique.ContentDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
@@ -30,40 +32,45 @@ public class KairosEvaluator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		/*
-		// TODO Auto-generated method stub
+		
 		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
 		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(PageDateType.publish);
 		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
 		
+		String pub = "pub0";
+		String mod = "mod0";
+		
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		evaluate(EvaluationHelper.KAIROSEVAL, "pub0",PageDateType.publish, dg, pub_dr, file);
-		evaluate(EvaluationHelper.KAIROSEVAL, "mod0",PageDateType.last_modified, dg, mod_dr, file);
+	//	evaluate(EvaluationHelper.KAIROSEVAL, pub,PageDateType.publish, dg, pub_dr, file);
+	//	evaluate(EvaluationHelper.KAIROSEVAL, mod,PageDateType.last_modified, dg, mod_dr, file);
 		
 		
 		
 		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
-		System.out.println("pub");
-		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.KAIROSEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.KAIROSEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AWD));
-				
-		System.out.println("mod");
-		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.KAIROSEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.KAIROSEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.KAIROSEVAL, DataSetHandler.AWD));
-		*/
 		
+		System.out.println(pub);
+		System.out.println("ARF: " + EvaluationHelper.count(file, pub, EvaluationHelper.KAIROSEVAL, DataSetHandler.AFR));
+		System.out.println("ADR: " + EvaluationHelper.count(file, pub, EvaluationHelper.KAIROSEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, pub, EvaluationHelper.KAIROSEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, pub, EvaluationHelper.KAIROSEVAL, DataSetHandler.ANF));
+		System.out.println("ADW: " + EvaluationHelper.count(file, pub, EvaluationHelper.KAIROSEVAL, DataSetHandler.AWD));
+				
+		
+		System.out.println(mod);
+		System.out.println("AFR: " + EvaluationHelper.count(file, mod, EvaluationHelper.KAIROSEVAL, DataSetHandler.AFR));
+		System.out.println("ADR: " + EvaluationHelper.count(file, mod, EvaluationHelper.KAIROSEVAL, DataSetHandler.ARD));
+		System.out.println("AFW: " + EvaluationHelper.count(file, mod, EvaluationHelper.KAIROSEVAL, DataSetHandler.AFW));
+		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.KAIROSEVAL, DataSetHandler.ANF));
+		System.out.println("ADW: " + EvaluationHelper.count(file, mod, EvaluationHelper.KAIROSEVAL, DataSetHandler.AWD));
+		
+		
+		/*
 		KairosEvaluator ke = new KairosEvaluator();
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
 		ke.evaluationToDB(file, "kairosweka", PageDateType.publish);
 		
 		ke.evaluationOut(PageDateType.publish);
-		
+		*/
 	}
 	
 	private void evaluationOut(PageDateType pageDateType){
@@ -247,11 +254,11 @@ public class KairosEvaluator {
 	}
 	
 	public static <T> void evaluate(String table, String round,PageDateType pub_mod, TechniqueDateGetter<ContentDate> dg, TechniqueDateRater<ContentDate> dr, String file){
-		int rnf = 0;
-		int ff= 0;
-		int wnf= 0;
-		int rf= 0;
-		int wf = 0;
+		int ard = 0;
+		int awd= 0;
+		int anf= 0;
+		int afr= 0;
+		int afw = 0;
 		int counter=0;
 		int compare;
 		
@@ -274,9 +281,13 @@ public class KairosEvaluator {
 			T bestDate = (T) wp.getBestRatedDate();
 			
 			String bestDateString ="";
+			String rate = "-1";
 			
 			System.out.print("get dates... ");
-			bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+			if(bestDate != null){
+				bestDateString = ((ExtractedDate) bestDate).getDateString();
+				rate = String.valueOf(((ExtractedDate)bestDate).getRate());
+			}
 				
 			System.out.println("compare...");
 			int pub_mod_int;
@@ -300,23 +311,23 @@ public class KairosEvaluator {
 				dbExportDateString +=  date.getNormalizedDateString();
 			}
 			
-			System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
+			System.out.print(compare + " bestDate:" + bestDateString +" ("+ rate + ")" + dbExportDateString);
 			
 			switch(compare){
 				case DataSetHandler.AFW:
-					wf++;
+					afw++;
 					break;
 				case DataSetHandler.ANF:
-					wnf++;
+					anf++;
 					break;
 				case DataSetHandler.AWD:
-					ff++;
+					awd++;
 					break;
 				case DataSetHandler.ARD:
-					rnf++;
+					ard++;
 					break;
 				case DataSetHandler.AFR:
-					rf++;
+					afr++;
 					break;
 					
 			}
@@ -325,10 +336,10 @@ public class KairosEvaluator {
 			counter++;
 			
 			System.out.println();
-			System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+			System.out.println("all: " + counter + " afr: " + afr + " ard: " + ard + " afw: " + afw + " awd: " + awd + " anf: " + anf);
 			System.out.println("---------------------------------------------------------------------");
 		}
-		System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+		System.out.println("all: " + counter + " afr: " + afr + " ard: " + ard + " afw: " + afw + " awd: " + awd + " anf: " + anf);
 		
 	}
 }

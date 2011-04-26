@@ -1,6 +1,7 @@
 package ws.palladian.daterecognition;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +106,6 @@ public class DateEvaluator {
     @SuppressWarnings("unchecked")
     public <T> HashMap<T, Double> rate(ArrayList<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
-
         ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> urlResult = new HashMap<T, Double>();
         HashMap<T, Double> metaResult = new HashMap<T, Double>();
@@ -136,11 +136,18 @@ public class DateEvaluator {
             metaResult.putAll((Map<? extends T, ? extends Double>) mdr.rate(metaDates));
         }
 
+        //NEW
+        contResult.putAll((Map<? extends T, ? extends Double>) cdr.rate(contFullDates));
+        
+        evaluatedDates.putAll(contResult);
+        
+        /* OLD
         if (contFullDates != null && contFullDates.size() > 0) {
             contResult.putAll((Map<? extends T, ? extends Double>) cdr.rate(contFullDates));
         } else if (contDates != null && contDates.size() > 0) {
             contResult.putAll((Map<? extends T, ? extends Double>) cdr.rate(contDates));
         }
+        
         if (urlResult.size() > 0 && contResult.size() > 0) {
             checkDayMonthYearOrder(DateArrayHelper.getFirstElement(urlResult), contResult);
         }
@@ -176,7 +183,7 @@ public class DateEvaluator {
                     .putAll((Map<? extends T, ? extends Double>) guessRate((HashMap<ContentDate, Double>) contResult));
 
         }
-
+*/
         DateRaterHelper.writeRateInDate(evaluatedDates);
 
         if (archiveDate != null && archiveDate.size() > 0) {

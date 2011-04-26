@@ -141,8 +141,8 @@ public class ExtractedDateHelperTest {
      */
     @Test
     public void testRemoveTimezone() {
-        assertEquals("22:10", ExtractedDateHelper.removeTimezone("22:10  UTC")[0]);
-        assertEquals("22:10", ExtractedDateHelper.removeTimezone("22:10 UTC")[0]);
-        assertEquals("22:10", ExtractedDateHelper.removeTimezone("22:10 GMT")[0]);
+        assertEquals("22:10 ", ExtractedDateHelper.removeTimezone("22:10  UTC")[0]);
+        assertEquals("22:10 ", ExtractedDateHelper.removeTimezone("22:10 UTC")[0]);
+        assertEquals("22:10 ", ExtractedDateHelper.removeTimezone("22:10 GMT")[0]);
     }
 }

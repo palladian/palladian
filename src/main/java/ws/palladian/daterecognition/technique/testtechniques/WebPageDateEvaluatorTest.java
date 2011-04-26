@@ -8,6 +8,8 @@ import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.DateEvaluator;
 import ws.palladian.daterecognition.DateGetter;
+import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.technique.PageDateType;
@@ -123,13 +125,42 @@ public class WebPageDateEvaluatorTest {
      * @return Best rated date.
      */
     public ExtractedDate getBestRatedDate() {
-        ExtractedDate date = new ExtractedDate();
+    	return getBestRatedDate(-1);
+    }
+    
+	public ExtractedDate getBestRatedDate(double limit) {
+        ExtractedDate result = null;
         if (list != null && list.size() > 0) {
             ArrayList<ExtractedDate> orderedList = list;
             Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
-            date = orderedList.get(0);
+            ExtractedDate date = orderedList.get(0);
+            //NEW
+            if(limit < 0){
+	        	 DateType dateType = date.getType();
+	        	 if(dateType.equals(DateType.ContentDate)){
+	        		 double size = 1 / ((ContentDate)date).getRelSize();
+	        		 if(0 < size && size <= 1){
+	        			 limit = 0.12;
+	        		 }else if(1 < size && size <= 3){
+	        			 limit = 0.37;
+	        		 }else if(3 < size && size <= 10){
+	        			 limit = 0.23;
+	        		 }else if(10 < size && size <= 20){
+	        			 limit = 0.28;
+	        		 }else if(20 < size && size <=50){
+	        			 limit = 0.29;
+	        		 }else if(50 < size){
+	        			 limit = 0.28;
+	        		 }
+	        	 }else{
+	        		 limit = 0;
+	        	 }
+	       	 }
+	       	 if(date.getRate() >= limit){
+	       		result = date;
+	       	 }
         }
-        return date;
+        return result;
     }
     
    /**
@@ -148,7 +179,11 @@ public class WebPageDateEvaluatorTest {
      * @param externalSearch
      * @return
      */
-     public static ExtractedDate getBestRatedDate(String url, boolean externalSearch, PageDateType pub_mod) {
+    public static ExtractedDate getBestRatedDate(String url, boolean externalSearch, PageDateType pub_mod) {
+    	return getBestRatedDate(url, externalSearch, pub_mod,-1);
+    }
+    
+     public static ExtractedDate getBestRatedDate(String url, boolean externalSearch, PageDateType pub_mod, double limit) {
      	ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
      	DateGetter dg = new DateGetter();
      	DateEvaluator dr = new DateEvaluator(pub_mod);
@@ -164,11 +199,39 @@ public class WebPageDateEvaluatorTest {
              ratedDates = dr.rate(dates);
              list = DateArrayHelper.hashMapToArrayList(ratedDates);
          }
-         ExtractedDate date = new ExtractedDate();
+         
+     	ExtractedDate date = new ExtractedDate();
+         
          if (list != null && list.size() > 0) {
              ArrayList<ExtractedDate> orderedList = list;
              Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
              date = orderedList.get(0);
+             
+             //NEW
+             if(limit < 0){
+	        	 DateType dateType = date.getType();
+	        	 if(dateType.equals(DateType.ContentDate)){
+	        		 double size = 1 / ((ContentDate)date).getRelSize();
+	        		 if(0 < size && size <= 1){
+	        			 limit = 0.12;
+	        		 }else if(1 < size && size <= 3){
+	        			 limit = 0.37;
+	        		 }else if(3 < size && size <= 10){
+	        			 limit = 0.23;
+	        		 }else if(10 < size && size <= 20){
+	        			 limit = 0.28;
+	        		 }else if(20 < size && size <=50){
+	        			 limit = 0.29;
+	        		 }else if(50 < size){
+	        			 limit = 0.28;
+	        		 }
+	        	 }else{
+	        		 limit = 0;
+	        	 }
+        	 }
+        	 if(date.getRate() < limit){
+        		 date = null;
+        	 }
          }
          return date;
      }

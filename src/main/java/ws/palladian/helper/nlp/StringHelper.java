@@ -1140,7 +1140,7 @@ public class StringHelper {
             int start = matcher.start();
             int end = matcher.end();
             removedString = string.substring(start, end);
-            returnString = string.replace(removedString, "");
+            returnString = string.replace(removedString, " ");
             returnString = returnString.replaceAll("  ", " ");
         }
         String[] result = { returnString, removedString };

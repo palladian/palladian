@@ -1,6 +1,7 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,10 @@ public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
     private static ArrayList<MetaDate> getHTTPHeaderDate(String url) {
         ArrayList<MetaDate> result = new ArrayList<MetaDate>();
         DocumentRetriever crawler = new DocumentRetriever();
-        Map<String, List<String>> headers = crawler.getHeaders(url);
+        Map<String, List<String>> headers = new  HashMap<String, List<String>>();
+        if(url.indexOf("http") != -1){
+        	headers = crawler.getHeaders(url);
+        }
         String[] keywords = KeyWords.HTPP_KEYWORDS;
         for (int i = 0; i < keywords.length; i++) {
             ArrayList<MetaDate> temp = checkHttpTags(keywords[i], headers);
