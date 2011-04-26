@@ -208,16 +208,17 @@ public class PalladianLangDetect extends LanguageClassifier {
         // ///////////////// use the language classifier ///////////////////
         // String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
         // String languageModelPath = "data/models/palladianLanguageJRC/palladianLanguageJRC.gz";
-        String languageModelPath = "C:\\Users\\David\\Desktop\\palladianLanguageJRC\\palladianLanguageJRC.gz";
-
-        PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
-        String language = pld0.classify("This is a sample text in English");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Se trata de un texto de muestra en español");
-        System.out.println("The text was classified as: " + language);
-        System.exit(0);
+        // String languageModelPath =
+        // "C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC_o\\palladianLanguageJRC.gz";
+        //
+        // PalladianLangDetect pld0 = new PalladianLangDetect(languageModelPath);
+        // String language = pld0.classify("This is a sample text in English");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Se trata de un texto de muestra en español");
+        // System.out.println("The text was classified as: " + language);
+        // System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
@@ -232,8 +233,8 @@ public class PalladianLangDetect extends LanguageClassifier {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset, the first field is a link, and columns are separated with a space
-        // dataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
-        dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
+        dataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
+        // dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
 
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");

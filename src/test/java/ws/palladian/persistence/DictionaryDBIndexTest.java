@@ -6,13 +6,12 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
-import ws.palladian.persistence.DictionaryDBIndexH2;
 
 public class DictionaryDBIndexTest extends TestCase {
 
     public void testDBIndex() {
 
-        DictionaryDBIndexH2 dbIndex = new DictionaryDBIndexH2("test_dictionary", "root", "");
+        DictionaryDBIndexH2 dbIndex = new DictionaryDBIndexH2("test_dictionary", "root", "", "");
         dbIndex.setDictionary(new Dictionary("test_dictionary", 1));
         dbIndex.empty();
 
