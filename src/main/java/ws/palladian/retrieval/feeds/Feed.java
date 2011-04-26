@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
+import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
 
 import com.ibm.icu.util.Calendar;
@@ -154,7 +155,15 @@ public class Feed {
      */
     private int misses = 0;
 
+    /**
+     * The timestamp when we found the last MISS for this feed.
+     */
     private Date lastMissTime = null;
+
+    /**
+     * If true, this feed is not used to create a data set by {@link DatasetCreator}.
+     */
+    private boolean blocked = false;
 
     public Feed() {
         super();
@@ -417,7 +426,7 @@ public class Feed {
                 + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
                 + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
-                + lastMissTime + "]";
+                + lastMissTime + ", blocked=" + blocked + "]";
     }
 
     public void setLastETag(String lastETag) {
@@ -573,6 +582,7 @@ public class Feed {
         result = prime * result + ((added == null) ? 0 : added.hashCode());
         result = prime * result + (int) (benchmarkLastLookupTime ^ (benchmarkLastLookupTime >>> 32));
         result = prime * result + (int) (benchmarkLookupTime ^ (benchmarkLookupTime >>> 32));
+        result = prime * result + (blocked ? 1231 : 1237);
         result = prime * result + (int) (byteSize ^ (byteSize >>> 32));
         result = prime * result + ((cgHeaderSize == null) ? 0 : cgHeaderSize.hashCode());
         result = prime * result + checks;
@@ -630,6 +640,8 @@ public class Feed {
         if (benchmarkLastLookupTime != other.benchmarkLastLookupTime)
             return false;
         if (benchmarkLookupTime != other.benchmarkLookupTime)
+            return false;
+        if (blocked != other.blocked)
             return false;
         if (byteSize != other.byteSize)
             return false;
@@ -918,7 +930,7 @@ public class Feed {
     }
 
     /**
-     * Set the timestamp when we found a MISS for this feed.
+     * Set the timestamp when we found the last MISS for this feed.
      * 
      * @param lastMissTime The timestamp we detected the last miss.
      */
@@ -927,12 +939,30 @@ public class Feed {
     }
 
     /**
-     * Get the timestamp when we found a MISS for this feed.
+     * Get the timestamp when we found the last MISS for this feed.
      * 
      * @return The timestamp we detected the last miss.
      */
     public Date getLastMissTime() {
         return lastMissTime;
+    }
+
+    /**
+     * If true, do not use feed to create a data set, e.g. by {@link DatasetCreator}
+     * 
+     * @return If true, do not use feed to create a data set, e.g. by {@link DatasetCreator}
+     */
+    public final boolean isBlocked() {
+        return blocked;
+    }
+
+    /**
+     * Set to true to not use the feed to create a data set, e.g. by {@link DatasetCreator}
+     * 
+     * @param blocked set to true to block the feed.
+     */
+    public final void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
 }

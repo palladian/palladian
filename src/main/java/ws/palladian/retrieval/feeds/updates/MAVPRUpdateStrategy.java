@@ -28,6 +28,7 @@ public class MAVPRUpdateStrategy extends UpdateStrategy {
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
 
+        @SuppressWarnings("deprecation")
         double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
 
         // determine winner of last prediction

@@ -35,6 +35,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
         feed.setMisses(resultSet.getInt("misses"));
         feed.setLastMissTime(resultSet.getTimestamp("lastMissTimestamp"));
+        feed.setBlocked(resultSet.getBoolean("blocked"));
         
         return feed;
 

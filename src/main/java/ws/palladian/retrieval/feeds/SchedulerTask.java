@@ -133,31 +133,40 @@ class SchedulerTask extends TimerTask {
                 + feed.getLastPollTime()
                 + "\nNow: "
                 + now
-                + "\nUpdateInterval:"
+                + "\nUpdateInterval: "
                 + feed.getUpdateInterval()
                 * DateHelper.MINUTE_MS
                 + (feed.getLastPollTime() != null ? "\nnow - lastPollTime: " + (now - feed.getLastPollTime().getTime())
-                        + "\nUpdate Interval Exceeded"
+                        + "\nUpdate Interval Exceeded "
                         + (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
                         : ""));
-        boolean processingTimeOK = (feed.getAverageProcessingTime() < MAXIMUM_PROCESSING_TIME_MS);
-        if (!processingTimeOK) {
-            LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                    + ") takes on average too long to process and is therefore not scheduled! Average processing time is "
-                    + feed.getAverageProcessingTime() + " milliseconds.");
+
+        // check whether the feed needs to be blocked
+        if (!feed.isBlocked()) {
+            if (feed.getAverageProcessingTime() >= MAXIMUM_PROCESSING_TIME_MS) {
+                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
+                        + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
+                feed.setBlocked(true);
+                feedReader.updateFeed(feed);
+            }
+
+            if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
+                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + "has been unreachable too often and is therefore blocked (never scheduled again)!"
+                        + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
+                feed.setBlocked(true);
+                feedReader.updateFeed(feed);
+            }
         }
 
-        boolean unreachableRatioOK = (feed.getChecks() >= feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO);
-        if (!unreachableRatioOK) {
-            LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                    + "has been unreachable too often and is therefore not scheduled! checks = " + feed.getChecks()
-                    + ", unreachableCount = " + feed.getUnreachableCount());
-        }
-
-        Boolean ret = (feed.getChecks() == 0 && feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES)
-                || feed.getLastPollTime() == null
-                || (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
-                && processingTimeOK && unreachableRatioOK;
+        boolean isBlocked = feed.isBlocked();
+        boolean immediateRetry = (feed.getChecks() == 0) && (feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES);
+        boolean notYetPolled = (feed.getLastPollTime() == null);
+        boolean regularSchedule = !notYetPolled
+                && (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS);
+        
+        Boolean ret = !isBlocked && (immediateRetry || notYetPolled || regularSchedule);
         if (ret == true) {
             LOGGER.trace("Feed with id: " + feed.getId() + " need lookup.");
         } else {
@@ -187,4 +196,10 @@ class SchedulerTask extends TimerTask {
         }
         return ret;
     }
+
+    public static void main(String[] args) {
+        boolean test = false && false;
+        System.out.println(test);
+    }
+
 }
