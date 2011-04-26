@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -201,6 +202,10 @@ public class PalladianLangDetect extends LanguageClassifier {
     @Override
     public String classify(String text) {
         return palladianClassifier.classify(text, getPossibleClasses()).getAssignedCategoryEntryNames();
+    }
+
+    public CategoryEntry classifyAsCategoryEntry(String text) {
+        return palladianClassifier.classify(text, getPossibleClasses()).getMainCategoryEntry();
     }
 
     public static void main(String[] args) {
