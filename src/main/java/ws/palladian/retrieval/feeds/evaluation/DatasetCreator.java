@@ -470,7 +470,7 @@ public class DatasetCreator {
             // get available number of file handles for one UNIX terminal
             String input = "";
             try {
-                Process process = Runtime.getRuntime().exec("ulimit -n");
+                Process process = Runtime.getRuntime().exec("/bin/sh ulimit -n");
                 BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line = null;
                 while ((line = in.readLine()) != null) {
