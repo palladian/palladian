@@ -448,7 +448,9 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
                 instance.setTextFeature(learningText);
 
                 train(instance);
-                added++;
+                if (added++ % 100 == 0) {
+                    LOGGER.info("trained another 100 documents from " + dataset.getPath());
+                }
             }
 
         }
@@ -561,7 +563,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             preprocessedDocument.setRealCategories(categories);
             getTestDocuments().add(preprocessedDocument);
 
-            if (c++ % ((documentInformationList.size() / 100) + 1) == 0) {
+            if (c++ % (documentInformationList.size() / 100 + 1) == 0) {
                 LOGGER.info(Math.floor(100.0 * (c + 1) / documentInformationList.size()) + "% preprocessed (= " + c
                         + " documents)");
             }
