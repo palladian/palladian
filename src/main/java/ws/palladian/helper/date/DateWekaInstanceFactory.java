@@ -75,11 +75,14 @@ public class DateWekaInstanceFactory {
 	public Instances getDateInstanceByArffTemplate(ContentDate date) {
 		Instances instances = null;
 		try {
+			String arffTemplate = DateWekaInstanceFactory.class.getResource(
+					"/wekaclassifier/template.arff").getFile();
+			String arffTemp = DateWekaInstanceFactory.class.getResource("/wekaclassifier/temp.arff").getFile();
 			BufferedReader reader = new BufferedReader(new FileReader(
-					"data/wekaclassifier/template.arff"));
+					arffTemplate));
 
-			File file = new File("data/wekaclassifier/temp.arff");
-			FileWriter fileWriter = new FileWriter(file, false);
+//			File file = new File("data/wekaclassifier/temp.arff");
+			FileWriter fileWriter = new FileWriter(arffTemp, false);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -89,7 +92,7 @@ public class DateWekaInstanceFactory {
 			bufferedWriter.close();
 			fileWriter.close();
 			reader.close();
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new FileReader(arffTemp));
 			instances = new Instances(reader);
 			instances.setClassIndex(0);
 		} catch (IOException e) {
@@ -149,13 +152,13 @@ public class DateWekaInstanceFactory {
 		// String distAgeBefore = date.getDistAgeBefore();
 		// String distAgeAfter = date.getDistAgeAfter();
 
-		//if formatString .index(,) > -1 then ''
+		// if formatString .index(,) > -1 then ''
 		// else if fomratstring.ind (" " > -1 then ''
 		String format = formatString;
-		if (formatString.indexOf(",") > -1 || formatString.indexOf(" ") > -1){
-			format = "'" + formatString + "'" ;
+		if (formatString.indexOf(",") > -1 || formatString.indexOf(" ") > -1) {
+			format = "'" + formatString + "'";
 		}
-		
+
 		String keyword = (keywordString.indexOf(" ") > -1) ? "'"
 				+ keywordString + "'" : keywordString;
 		String excatness = String.valueOf(date.getExactness());
