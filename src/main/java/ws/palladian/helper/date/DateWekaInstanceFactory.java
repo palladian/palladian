@@ -76,9 +76,9 @@ public class DateWekaInstanceFactory {
 		Instances instances = null;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(
-					"d:/wekaout/arff/template.arff"));
+					"data/wekaclassifier/template.arff"));
 
-			File file = new File("d:/wekaout/arff/temp.arff");
+			File file = new File("data/wekaclassifier/temp.arff");
 			FileWriter fileWriter = new FileWriter(file, false);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 			String line;
