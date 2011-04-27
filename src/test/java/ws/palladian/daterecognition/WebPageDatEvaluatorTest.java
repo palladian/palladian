@@ -50,18 +50,18 @@ public class WebPageDatEvaluatorTest {
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(1, wpde.getAllBestRatedDate().size());
+        assertEquals(2, wpde.getAllBestRatedDate().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals(1, wpde.getAllBestRatedDate().size());
+        assertEquals(5, wpde.getAllBestRatedDate().size());
 
         url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
 //        System.out.println(wpde.getAllDates());
-        assertEquals(3, wpde.getAllBestRatedDate().size());
+        assertEquals(12, wpde.getAllBestRatedDate().size());
     }
 
     /**

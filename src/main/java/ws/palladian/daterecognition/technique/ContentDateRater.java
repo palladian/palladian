@@ -65,7 +65,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 		}
 		for(ContentDate date : list){
 			
-			Instance instance = dwif.getDateInstanceByArffTemplate(date).firstInstance();
+			Instance instance = dwif.getDateInstanceByArffTemplate(date);
 			
 			try {
 				double[] dbl = classifier.distributionForInstance(instance);
