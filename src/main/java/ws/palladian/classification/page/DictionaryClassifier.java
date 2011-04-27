@@ -216,6 +216,10 @@ public class DictionaryClassifier extends TextClassifier {
         return classifier;
     }
 
+    public void serialize(String filePath) {
+        FileHelper.serialize(this, filePath);
+    }
+
     // public void loadDictionary(String dictionaryPath) {
     //
     // reset();
