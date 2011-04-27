@@ -21,18 +21,21 @@ import ws.palladian.daterecognition.technique.PageDateType;
  */
 public class DateWekaInstanceFactory {
 
-	private PageDateType pageDateType;
-
+	private String templateFile;
 	private StringBuffer template = new StringBuffer();
 
 	public DateWekaInstanceFactory(PageDateType pageDateType) {
-		this.pageDateType = pageDateType;
+		if (pageDateType.equals(PageDateType.publish)) {
+			this.templateFile = "/wekaClassifier/pubTemplate.arff";
+		} else {
+			this.templateFile = "/wekaClassifier/modTemplate.arff";
+		}
 		readTemplate();
 	}
 
 	private void readTemplate() {
 		String arffTemplate = DateWekaInstanceFactory.class.getResource(
-				"/wekaClassifier/template.arff").getFile();
+				this.templateFile).getFile();
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader(new FileReader(arffTemplate));
