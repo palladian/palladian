@@ -58,7 +58,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 		Classifier classifier = null;
 		
 		try {
-			classifier = (AttributeSelectedClassifier) SerializationHelper.read("data/wekaClassifier/classifier.model");
+			String modelPath = ContentDate.class.getResource("/wekaClassifier/classifier.model").getFile();
+			classifier = (AttributeSelectedClassifier) SerializationHelper.read(modelPath);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
