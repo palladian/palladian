@@ -1,0 +1,55 @@
+format 74
+
+classcanvas 128514 class_ref 128514 // Feature
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 572.8 126.3 2000
+end
+classcanvas 128642 class_ref 128642 // NominalFeature
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 510.3 370 2000
+end
+classcanvas 128770 class_ref 128770 // NumericFeature
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 657.5 370 2000
+end
+classcanvas 129282 class_ref 128898 // FeatureVector
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 71.1 225.2 2000
+end
+classcanvas 133378 class_ref 129154 // BagOfWordsFeature
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 342.4 371.8 2000
+end
+relationcanvas 130434 relation_ref 129026 // <realization>
+  geometry VHV unfixed
+  decenter_end 503
+  from ref 128642 z 2001 to point 559 291
+  line 131842 z 2001 to point 612 291
+  line 131970 z 2001 label "<T->String>" xyz 566 325.5 3000 to ref 128514
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 130562 relation_ref 129154 // <realization>
+  geometry VHV unfixed
+  from ref 128770 z 2001 to point 707 291
+  line 132098 z 2001 label "<T->Double>" xyz 717 326 3000 to point 612 291
+  line 132226 z 2001 to ref 128514
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 133122 relation_ref 129538 // <directional aggregation>
+  geometry VH
+  from ref 129282 z 2001 to point 244 167
+  line 133890 z 2001 stereotype "<<map>>" xyz 382.5 150 3000 to ref 128514
+  role_a_pos 521 149 3000 no_role_b
+  multiplicity_a_pos 548 177 3000 no_multiplicity_b
+end
+relationcanvas 133506 relation_ref 129666 // <realization>
+  geometry VHV
+  from ref 133378 z 2001 to point 404 289
+  line 134274 z 2001 label "<T->Collection<String>>" xyz 407 324 3000 to point 611 289
+  line 134402 z 2001 to ref 128514
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+end

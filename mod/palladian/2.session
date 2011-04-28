@@ -1,0 +1,12 @@
+window_sizes 1680 1025 393 1281 831 120
+diagrams
+  active  classdiagram_ref 128002 // diagramm
+    1281 831 160 4 37 83
+end
+show_stereotypes
+selected 
+  package_ref 128386 // features
+open
+  deploymentview_ref 128002 // features
+end
+end
