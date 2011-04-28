@@ -56,7 +56,8 @@ class SchedulerTask extends TimerTask {
     private static final int CHECKS_TO_UNREACHABLE_RATIO = 10;
 
     /**
-     * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the future.
+     * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the
+     * future.
      */
     private static final long MAXIMUM_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
 
@@ -81,36 +82,40 @@ class SchedulerTask extends TimerTask {
     @Override
     public void run() {
         LOGGER.debug("wake up to check feeds");
-        int feedCount = 0;
+        int newlyScheduledFeedsCount = 0;
         int alreadyScheduledFeedCount = 0;
-        StringBuffer feedIDs = new StringBuffer();
+        StringBuffer scheduledFeedIDs = new StringBuffer();
+        StringBuffer alreadyScheduledFeedIDs = new StringBuffer();
         for (Feed feed : feedReader.getFeeds()) {
-            // check whether feed is in the queue already
-            if (!isScheduled(feed.getId())) {
-                if (needsLookup(feed)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        feedIDs.append(feed.getId()).append(",");
-                    }
-                    // incrementThreadPoolSize();
-                    scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedReader)));
-                    feedCount++;
-                }
-            } else {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("It seems the machine cannot keep up with update intervall since feed " + feed.getId()
-                            + " is already scheduled.");
-                }
-                alreadyScheduledFeedCount++;
-                continue;
-            }
+            // remove completed FeedTasks
+            removeFeedTaskIfDone(feed.getId());
+            if (needsLookup(feed)) {
+                if (scheduledTasks.containsKey(feed.getId())) {
+                    alreadyScheduledFeedCount++;
 
+                    if (LOGGER.isDebugEnabled()) {
+                        alreadyScheduledFeedIDs.append(feed.getId()).append(",");
+                    }
+                } else {
+                    scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedReader)));
+                    newlyScheduledFeedsCount++;
+
+                    if (LOGGER.isDebugEnabled()) {
+                        scheduledFeedIDs.append(feed.getId()).append(",");
+                    }
+                }
+            }
         }
-        LOGGER.info("Scheduled " + feedCount + " feeds for reading");
+        LOGGER.info("Scheduled " + newlyScheduledFeedsCount + " feeds for reading");
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Scheduled feed tasks for feedIDs " + feedIDs.toString());
+            LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
         }
         if (alreadyScheduledFeedCount > 0) {
             LOGGER.fatal("Could not schedule " + alreadyScheduledFeedCount + " already scheduled feeds.");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Could not scheduled feedIDs that are already in queue: "
+                        + alreadyScheduledFeedIDs.toString());
+            }
         }
         LOGGER.info("Queue now contains: " + scheduledTasks.size());
     }
@@ -165,7 +170,7 @@ class SchedulerTask extends TimerTask {
         boolean notYetPolled = (feed.getLastPollTime() == null);
         boolean regularSchedule = !notYetPolled
                 && (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS);
-        
+
         Boolean ret = !isBlocked && (immediateRetry || notYetPolled || regularSchedule);
         if (ret == true) {
             LOGGER.trace("Feed with id: " + feed.getId() + " need lookup.");
@@ -175,31 +180,21 @@ class SchedulerTask extends TimerTask {
         return ret;
     }
 
+
     /**
-     * Checks if this feed is already queued for updates. If this is the case
-     * one should not queue it a second time to reduce traffic.
+     * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
      * 
-     * @param feedId
-     *            The id of the feed to check.
-     * @return {@code true} if this feed is already queued and {@code false} otherwise.
+     * @param feedId The feed to check and remove if the {@link FeedTask} is done.
      */
-    private Boolean isScheduled(final Integer feedId) {
+    private void removeFeedTaskIfDone(final Integer feedId) {
         final Future<?> future = scheduledTasks.get(feedId);
-        Boolean ret = true;
-        if (future == null) {
-            ret = false;
-        } else {
-            if (future.isDone()) {
-                scheduledTasks.remove(feedId);
-                ret = false;
-            }
+        if (future != null && future.isDone()) {
+            scheduledTasks.remove(feedId);
         }
-        return ret;
     }
 
     public static void main(String[] args) {
-        boolean test = false && false;
-        System.out.println(test);
+
     }
 
 }
