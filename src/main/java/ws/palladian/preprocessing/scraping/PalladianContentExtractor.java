@@ -17,6 +17,7 @@ import ws.palladian.extraction.XPathSet;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.WebImage;
@@ -259,8 +260,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO Needs better implementation.
+    	String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+        return resultTitle;
     }
 
     /**
@@ -285,8 +287,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
-        System.out.println(pe2.getResultText());
+        System.out.println("Result Text: "+pe2.getResultText());
         System.out.println(pe.getResultText());
+        System.out.println("Title:"+pe.getResultTitle());
         // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(
