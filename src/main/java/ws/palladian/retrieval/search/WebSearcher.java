@@ -226,7 +226,7 @@ public class WebSearcher {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
+                    + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
                     + Math.max(50, getResultCount()));
             LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
                     + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
@@ -346,8 +346,8 @@ public class WebSearcher {
         } else if (getSource() == WebSearcherManager.BING) {
 
             String query = "http://api.bing.net/json.aspx?AppId="
-                    + WebSearcherManager.getInstance().getBingApiKey()
-            + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
+                + WebSearcherManager.getInstance().getBingApiKey()
+                + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
             String json = crawler.download(query);
 
             try {
@@ -478,7 +478,7 @@ public class WebSearcher {
             .newInstance()
             .newDocumentBuilder()
             .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                            + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
+                    + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
                     + "&results=" + getResultCount());
             LOGGER.debug("Search Results for " + searchQuery + "\n"
                     + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
@@ -588,7 +588,7 @@ public class WebSearcher {
             // for avail parameters see ->
             // http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
             String fixUrl = endpoint + searchQuery + "?appid="
-                    + WebSearcherManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
+            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
             + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
 
             // iterate through result responses
@@ -617,7 +617,7 @@ public class WebSearcher {
                     String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
-                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1, 
+                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1,
                             resultUrl, HTMLHelper.stripHTMLTags(title, true, true, true, true),
                             HTMLHelper.stripHTMLTags(summary, true, true, true, true));
 
@@ -857,19 +857,19 @@ public class WebSearcher {
                     // query gave no results
                     break;
                 }
-                
+
                 JSONArray results = jsonWeb.getJSONArray("Results");
                 int resultSize = results.length();
-                
+
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
-                        
+
                         WebResult webResult = new WebResult();
                         JSONObject currentResult = results.getJSONObject(j);
-                        
+
                         String currentURL = currentResult.getString("Url");
                         webResult.setUrl(currentURL);
-                        
+
                         if (currentResult.has("Title")) {
                             webResult.setTitle(currentResult.getString("Title"));
                         }
@@ -925,7 +925,7 @@ public class WebSearcher {
         try {
 
             String url = endpoint + WebSearcherManager.getInstance().getHakiaApiKey() + "&search.query="
-                    + searchQuery
+            + searchQuery
             + "&search.language=en&search.numberofresult=" + getResultCount();
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
             LOGGER.debug("Search Results for " + searchQuery + ":" + url);

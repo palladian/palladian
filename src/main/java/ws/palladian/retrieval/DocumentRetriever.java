@@ -96,7 +96,7 @@ public class DocumentRetriever {
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
-    
+
     /** The connection timeout pool is responsible for disconnecting HttpURLConnections after the specified timeout. */
     private static final ConnectionTimeoutPool CONNECTION_TIMEOUT = ConnectionTimeoutPool.getInstance();
 
@@ -1093,7 +1093,7 @@ public class DocumentRetriever {
         boolean keepTrying = true;
         do {
             try {
-                result = downloadInputStream(url, true, headerInformation);
+                result = downloadInputStream(url, true, headerInformation, 0);
                 keepTrying = false;
             } catch (IOException e) {
                 if (retry >= getNumRetries()) {
@@ -1143,11 +1143,12 @@ public class DocumentRetriever {
     }
 
     private InputStream downloadInputStream(URL url, boolean checkChangeProxy) throws IOException {
-        return downloadInputStream(url, checkChangeProxy, null);
+        return downloadInputStream(url, checkChangeProxy, null, 0);
 
     }
 
-    private InputStream downloadInputStream(URL url, boolean checkChangeProxy, HeaderInformation headerInformation)
+    private InputStream downloadInputStream(URL url, boolean checkChangeProxy, HeaderInformation headerInformation,
+            int redirectNumber)
     throws IOException {
         LOGGER.trace(">download " + url);
 
@@ -1159,7 +1160,7 @@ public class DocumentRetriever {
             LOGGER.debug("filtered URL: " + url);
             return null;
         }
-        
+
         InputStream result = null;
         InputStream urlInputStream = null;
         ByteArrayOutputStream outputStream = null;
@@ -1241,6 +1242,12 @@ public class DocumentRetriever {
                 encoding = urlConnection.getContentEncoding();
             }
             LOGGER.trace("encoding " + encoding);
+
+            String redirectLocation = urlConnection.getHeaderField("Location");
+            if (redirectLocation != null && redirectLocation.length() != 0 && redirectNumber == 0) {
+                return downloadInputStream(new URL(redirectLocation), checkChangeProxy, headerInformation,
+                        redirectNumber++);
+            }
 
             // if result is compressed, wrap it accordingly
             if (encoding != null) {
