@@ -160,7 +160,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
 
         // we use only a single category per document
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
         // we want the classifier to be serialized in the end
         classificationTypeSetting.setSerializeClassifier(true);

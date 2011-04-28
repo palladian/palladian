@@ -16,6 +16,7 @@ import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
@@ -502,7 +503,7 @@ public class FeedRetriever {
             if (rawDateModule != null) {
                 rawDate = rawDateModule.getRawDate();
             }
-            
+
             // FIXME see Mail from Sandro to David, 18-04-2011 21:42;
             // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
             if (rawDate != null) {
@@ -620,7 +621,7 @@ public class FeedRetriever {
             feedInput.setPreserveWireFeed(true);
 
             SyndFeed syndFeed = feedInput.build(feedDocument);
-            LOGGER.debug("feed type is " + syndFeed.getFeedType());            
+            LOGGER.debug("feed type is " + syndFeed.getFeedType());
 
             return syndFeed;
 
@@ -693,20 +694,28 @@ public class FeedRetriever {
 
     public static void main(String[] args) throws Exception {
 
+
         // String clean =
         // cleanup("Anonymous created the <a href=\"/forum/message.php?msg_id=126707\" title=\"phpMyAdmin\">Welcome to Open Discussion</a> forum thread");
         // System.out.println(clean);
         // System.exit(0);
+
+        DocumentRetriever retr = new DocumentRetriever();
+        retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
+        System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
         downloader.setUseDateRecognition(true);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
         StopWatch sw = new StopWatch();
-        Feed feed = downloader.getFeed("http://dbmarbella.com/ror.xml");
+        // Feed feed = downloader.getFeed("http://808chiangmai.com/?feed=atom");
+        Feed feed = downloader.getFeed("http://z.umn.edu/musicevents");
 
-        System.out.println(feed.getItems().get(0).getPublished());
+        CollectionHelper.print(feed.getItems());
+        // System.out.println(feed.getItems().get(0).getPublished());
         System.out.println("took " + sw);
+        System.exit(0);
 
         // FeedRetriever.printFeed(feed);
 
