@@ -1,11 +1,16 @@
 package ws.palladian.retrieval.feeds;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
@@ -66,6 +71,7 @@ class FeedTask extends Thread {
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
+                writeUnparsableFeedToGZ(feed);
                 LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
                 return;
             }
@@ -114,6 +120,43 @@ class FeedTask extends Thread {
         } catch (Throwable th) {
             LOGGER.error(th);
         }
+    }
+
+    /**
+     * Quickndirty write everything that we cant parse to a gz
+     * 
+     * @param unparsable feed to write to gz
+     */
+    private void writeUnparsableFeedToGZ(Feed feed) {
+        // get the filename of the feed
+        String safeFeedName = StringHelper.makeSafeName(
+                feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
+
+        int slice = (int) Math.floor(feed.getId() / 1000.0);
+
+        String folderPath = DatasetCreator.DATASET_PATH + slice + System.getProperty("file.separator") + feed.getId()
+                + System.getProperty("file.separator");
+        String filePath = folderPath + feed.getId() + "_" + safeFeedName + ".csv";
+
+        File postEntryFile = new File(filePath);
+        if (!postEntryFile.exists()) {
+            boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
+            try {
+                if (directoriesCreated) {
+                    postEntryFile.createNewFile();
+                } else {
+                    LOGGER.error("could not create the directories " + filePath);
+                }
+            } catch (IOException e) {
+                LOGGER.error("could not create the file " + filePath);
+            }
+        }
+
+        filePath = folderPath + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + "_unparsable.gz";
+        LOGGER.debug("saving unparsable feed to: " + filePath);
+
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.downloadAndSave(feed.getFeedUrl(), filePath, true);
     }
 
 }

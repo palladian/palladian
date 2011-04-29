@@ -55,7 +55,7 @@ public class DatasetCreator {
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    protected static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
+    public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
             + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
 
     /** We need this many file handles to process one FeedTask. */
