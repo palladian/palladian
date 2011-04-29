@@ -90,6 +90,7 @@ class FeedTask extends Thread {
             }
 
             feedReader.updateCheckIntervals(feed);
+            feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
 
             // perform actions on this feeds entries
             LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");

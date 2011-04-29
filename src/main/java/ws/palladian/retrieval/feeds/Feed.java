@@ -165,6 +165,12 @@ public class Feed {
      */
     private boolean blocked = false;
 
+    /**
+     * The timestamp this feed has been successfully checked the last time. A successful check happens if the feed is
+     * reachable and parsable. This timestamp should be set every time {@link #checks} is increased.
+     */
+    private Date lastSuccessfulCheckTime = null;
+
     public Feed() {
         super();
     }
@@ -426,7 +432,7 @@ public class Feed {
                 + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
                 + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
-                + lastMissTime + ", blocked=" + blocked + "]";
+                + lastMissTime + ", blocked=" + blocked + ", lastSuccessfulCheckTime=" + lastSuccessfulCheckTime + "]";
     }
 
     public void setLastETag(String lastETag) {
@@ -597,6 +603,7 @@ public class Feed {
         result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
         result = prime * result + ((lastMissTime == null) ? 0 : lastMissTime.hashCode());
         result = prime * result + ((lastPollTime == null) ? 0 : lastPollTime.hashCode());
+        result = prime * result + ((lastSuccessfulCheckTime == null) ? 0 : lastSuccessfulCheckTime.hashCode());
         result = prime * result + ((lmsSupport == null) ? 0 : lmsSupport.hashCode());
         result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + misses;
@@ -697,6 +704,11 @@ public class Feed {
             if (other.lastPollTime != null)
                 return false;
         } else if (!lastPollTime.equals(other.lastPollTime))
+            return false;
+        if (lastSuccessfulCheckTime == null) {
+            if (other.lastSuccessfulCheckTime != null)
+                return false;
+        } else if (!lastSuccessfulCheckTime.equals(other.lastSuccessfulCheckTime))
             return false;
         if (lmsSupport == null) {
             if (other.lmsSupport != null)
@@ -963,6 +975,26 @@ public class Feed {
      */
     public final void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    /**
+     * The timestamp this feed has been successfully checked the last time. A successful check happens if the feed is
+     * reachable and parsable.
+     * 
+     * @return The timestamp of the last successful check.
+     */
+    public final Date getLastSuccessfulCheckTime() {
+        return lastSuccessfulCheckTime;
+    }
+
+    /**
+     * The timestamp this feed has been successfully checked the last time. A successful check happens if the feed is
+     * reachable and parsable. This timestamp should be set every time {@link #checks} is increased.
+     * 
+     * @param lastSuccessfulCheckTime The timestamp of the last successful check.
+     */
+    public final void setLastSuccessfulCheckTime(Date lastSuccessfulCheckTime) {
+        this.lastSuccessfulCheckTime = lastSuccessfulCheckTime;
     }
 
 }
