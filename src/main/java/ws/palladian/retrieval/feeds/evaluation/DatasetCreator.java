@@ -302,6 +302,14 @@ public class DatasetCreator {
             @Override
             public void performAction(Feed feed) {
 
+                // get all posts in the feed as timestamp;headline;link
+                List<FeedItem> feedEntries = feed.getItems();
+
+                if (feedEntries == null) {
+                    LOGGER.warn("no feed entries for " + feed.getFeedUrl());
+                    return;
+                }
+
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
                         .replaceFirst("www.", ""), 30);
@@ -326,15 +334,8 @@ public class DatasetCreator {
                         LOGGER.error("could not create the file " + filePath);
                     }
                 }
-                List<String> fileEntries = FileHelper.readFileToArray(filePath);
-
-                // get all posts in the feed as timestamp;headline;link
-                List<FeedItem> feedEntries = feed.getItems();
-
-                if (feedEntries == null) {
-                    LOGGER.warn("no feed entries for " + feed.getFeedUrl());
-                    return;
-                }
+                // load only the last window from file
+                List<String> fileEntries = FileHelper.readFileToArray(filePath, feed.getWindowSize());
 
                 // calculate size of feed header and footer, which should always stay the same.
                 // long summedFeedEntrySize = 0;
