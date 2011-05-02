@@ -143,7 +143,7 @@ public abstract class WebPageContentExtractor {
      * 
      * @return
      */
-    public abstract String getResultTitle() throws PageContentExtractorException;
+    public abstract String getResultTitle();
 
 
 
