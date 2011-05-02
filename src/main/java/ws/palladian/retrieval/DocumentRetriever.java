@@ -564,6 +564,10 @@ public class DocumentRetriever {
         numberOfDownloadedPages++;
         return getDocument();
     }
+    
+    public Document getWebDocument(InputStream is) {
+    	return getWebDocument(is, "");
+    }
 
     private Document getWebDocument(InputStream is, String URI) {
         try {
