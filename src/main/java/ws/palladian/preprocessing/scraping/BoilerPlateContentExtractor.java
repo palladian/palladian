@@ -1,14 +1,16 @@
 package ws.palladian.preprocessing.scraping;
 
+import java.io.StringReader;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.ExtractorBase;
-import de.l3s.boilerpipe.sax.BoilerpipeHTMLContentHandler;
+import de.l3s.boilerpipe.document.TextDocument;
+import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 
 public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 	
@@ -16,6 +18,7 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
     private static final Logger LOGGER = Logger.getLogger(BoilerPlateContentExtractor.class);
     
     private Document document;
+    private TextDocument textDocument;
     //private Node resultNode;
 
     //private String mainContentHTML = "";
@@ -26,9 +29,31 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
     
     @Override
     public BoilerPlateContentExtractor setDocument(String url) throws PageContentExtractorException {
-        crawler.setFeedAutodiscovery(false);
-        return setDocument(crawler.getWebDocument(url));
+   	
+    	crawler.setFeedAutodiscovery(false);
     	
+        setDocument(crawler.getWebDocument(url));
+    	
+		StringReader stringReader = new StringReader(HTMLHelper.getXmlDump(document));
+		final InputSource is = new InputSource(stringReader);
+		
+		
+		try {
+			final BoilerpipeSAXInput in = new BoilerpipeSAXInput(is);
+			
+			 textDocument = in.getTextDocument();
+		} catch (SAXException e) {
+			throw new PageContentExtractorException(e);
+
+		} catch (BoilerpipeProcessingException e) {
+			throw new PageContentExtractorException(e);
+
+		}
+
+		//this.textDocument = textDocument;
+		return this;
+
+
     }
    
 	@Override
@@ -36,10 +61,6 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 			throws PageContentExtractorException {
 		
 		this.document = document;
-//		String content = document.toString();
-//		BoilerpipeHTMLParser parser = new BoilerpipeHTMLParser();
-//		parser.parse(content);
-        
         return this;
 		
 	}
@@ -68,49 +89,28 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 	public String getResultText() {
 		// TODO Auto-generated method stub
 		
-		ExtractorBase boilerplateExtractor = ArticleExtractor.INSTANCE;
+		String resultText = textDocument.getText(true, true);
 		
-		
-		//ExtractorBase boilerplateExtractor = DefaultExtractor.INSTANCE;
-		//String content = boilerplateExtractor.
-		
-//		String docURI = document.getDocumentURI();
-//		String content = crawler.download(docURI);
-
-        //String mainContentHTML = HTMLHelper.documentToHTMLString(document);
-        
-        String mainContentHTML = HTMLHelper.getXmlDump(document);
-        
-        String mainContentText=null;
-		try {			
-			mainContentText = boilerplateExtractor.getText(mainContentHTML);
-			//System.out.println(mainContentText);
-		} catch (BoilerpipeProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return mainContentText;
+		return resultText;
 	}
 
 	@Override
-	public String getResultTitle() {
+	public String getResultTitle() throws PageContentExtractorException {
 		// TODO Auto-generated method stub
-		
-		BoilerpipeHTMLContentHandler boilerPlateTitleExtractor = new BoilerpipeHTMLContentHandler();
-		String resultTitle = boilerPlateTitleExtractor.getTitle();
-
-        return resultTitle;
+				
+	    String resultTitle = "";
+	    resultTitle=textDocument.getTitle();
+	    return resultTitle;
 
 	}
 
 
     public static void main(String[] args) throws Exception {
     	
-    	BoilerPlateContentExtractor bp = new BoilerPlateContentExtractor();
-        bp.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
-        System.out.println("ResultText: " + bp.getResultText());
-        System.out.println("ResultTitle: " +bp.getResultTitle());
+    	  BoilerPlateContentExtractor bp = new BoilerPlateContentExtractor();
+          bp.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
+          System.out.println("ResultText: " + bp.getResultText());
+          System.out.println("ResultTitle: " +bp.getResultTitle());
 
     }
 
