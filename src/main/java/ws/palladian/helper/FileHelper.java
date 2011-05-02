@@ -326,6 +326,18 @@ public class FileHelper {
     /**
      * Create a list with each line of the given file as an element.
      * 
+     * @param path The path of the file.
+     * @param numberOfLines The number of lines to read.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(String path, int numberOfLines) {
+        File contentFile = new File(path);
+        return readFileToArray(contentFile, numberOfLines);
+    }
+
+    /**
+     * Create a list with each line of the given file as an element.
+     * 
      * @param fileURL The file URL which should be read into a string.
      * @return The list with one line per entry.
      */
@@ -343,11 +355,22 @@ public class FileHelper {
 
     /**
      * Create a list with each line of the given file as an element.
-     *
+     * 
      * @param contentFile the content file
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(File contentFile) {
+        return readFileToArray(contentFile, -1);
+    }
+
+    /**
+     * Create a list with each line of the given file as an element.
+     * 
+     * @param contentFile the content file
+     * @param numberOfLines The number of lines to read. Use -1 to read whole file.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(File contentFile, int numberOfLines) {
         List<String> list = new ArrayList<String>();
         BufferedReader reader = null;
 
@@ -360,8 +383,11 @@ public class FileHelper {
                 if (line == null) {
                     break;
                 }
+                // if (numberOfLines != -1 && list.size() == numberOfLines) {
+                // break;
+                // }
                 list.add(line);
-            } while (line != null);
+            } while (line != null && (numberOfLines == -1 || list.size() < numberOfLines));
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
@@ -408,7 +434,7 @@ public class FileHelper {
      * @param outputFilePath Where the transformed file should be saved.
      */
     public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
-        List<String> lines = readFileToArray(inputFilePath);
+        List<String> lines = readFileToArray(inputFilePath, -1);
 
         Set<String> lineSet = new HashSet<String>();
 
@@ -1429,6 +1455,9 @@ public class FileHelper {
      * 
      * @param a The arguments.
      */
+    /**
+     * @param a
+     */
     public static void main(String[] a) {
 
         // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
@@ -1454,7 +1483,6 @@ public class FileHelper {
 
         // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
         // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
-        System.exit(0);
 
         // //////////////////////// add license to every file //////////////////////////
         // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");

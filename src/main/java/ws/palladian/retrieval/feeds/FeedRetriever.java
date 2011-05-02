@@ -514,9 +514,9 @@ public class FeedRetriever {
                         publishDate = extractedDate.getNormalizedDate();
                         LOGGER.debug("found publish date in original feed file: " + publishDate);
                     }
-                } catch (Exception e) {
+                } catch (Throwable th) {
                     LOGGER.warn("date format could not be parsed correctly: " + rawDate + ", feed: "
-                            + item.getFeedUrl() + ", " + e.getMessage());
+                            + item.getFeedUrl() + ", " + th.getMessage());
                 }
             }
         }
