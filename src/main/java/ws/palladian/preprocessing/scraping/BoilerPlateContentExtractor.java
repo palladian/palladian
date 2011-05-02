@@ -57,7 +57,7 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultText() {
-        return textDocument.getText(true, true);
+        return textDocument.getContent();
     }
 
     @Override
