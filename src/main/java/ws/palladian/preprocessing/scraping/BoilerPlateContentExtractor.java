@@ -14,6 +14,10 @@ import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 
+/**
+ * @author Ruchit Beri
+ *
+ */
 public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
@@ -45,9 +49,22 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public BoilerPlateContentExtractor setDocument(Document document) throws PageContentExtractorException {
-        this.document = document;
+    public BoilerPlateContentExtractor setDocument(Document doc) throws PageContentExtractorException {
+    	
+    	document = doc;
+
+        try {
+            StringReader stringReader = new StringReader(HTMLHelper.getXmlDump(document));
+            InputSource inputSource = new InputSource(stringReader);
+            BoilerpipeSAXInput boilerpipeInput = new BoilerpipeSAXInput(inputSource);
+            textDocument = boilerpipeInput.getTextDocument();
+        } catch (SAXException e) {
+            throw new PageContentExtractorException(e);
+        } catch (BoilerpipeProcessingException e) {
+            throw new PageContentExtractorException(e);
+        }
         return this;
+    	
     }
 
     @Override
@@ -57,7 +74,8 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultText() {
-        return textDocument.getContent();
+        return textDocument.getText(true, true);
+
     }
 
     @Override
@@ -68,6 +86,7 @@ public class BoilerPlateContentExtractor extends WebPageContentExtractor {
     public static void main(String[] args) throws Exception {
         BoilerPlateContentExtractor bpce = new BoilerPlateContentExtractor();
         bpce.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
+        //bpce.setDocument("http://www.bbc.co.uk/news/world/europe/");
         LOGGER.info("ResultText: " + bpce.getResultText());
         LOGGER.info("ResultTitle: " + bpce.getResultTitle());
     }
