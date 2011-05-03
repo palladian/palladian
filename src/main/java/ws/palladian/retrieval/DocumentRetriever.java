@@ -564,9 +564,9 @@ public class DocumentRetriever {
         numberOfDownloadedPages++;
         return getDocument();
     }
-    
+
     public Document getWebDocument(InputStream is) {
-    	return getWebDocument(is, "");
+        return getWebDocument(is, "");
     }
 
     private Document getWebDocument(InputStream is, String URI) {
@@ -1182,6 +1182,10 @@ public class DocumentRetriever {
             } else {
                 urlConnection = url.openConnection();
             }
+
+            // use connection timeout from Palladian
+            CONNECTION_TIMEOUT.add((HttpURLConnection) urlConnection, overallTimeout);
+
             urlConnection.setConnectTimeout(connectionTimout);
             urlConnection.setReadTimeout(readTimeout);
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
@@ -1200,9 +1204,6 @@ public class DocumentRetriever {
                 }
 
             }
-
-            // use connection timeout from Palladian
-            CONNECTION_TIMEOUT.add((HttpURLConnection) urlConnection, overallTimeout);
 
             // TODO? getResponseCode seems to be extremely slow or just hangs, similar to
             // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4352956
@@ -1250,7 +1251,7 @@ public class DocumentRetriever {
             String redirectLocation = urlConnection.getHeaderField("Location");
             if (redirectLocation != null && redirectLocation.length() != 0 && redirectNumber == 0) {
                 return downloadInputStream(new URL(redirectLocation), checkChangeProxy, headerInformation,
-                        redirectNumber++);
+                        ++redirectNumber);
             }
 
             // if result is compressed, wrap it accordingly
