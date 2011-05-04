@@ -19,7 +19,6 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**
@@ -50,15 +49,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private List<WebImage> imageURLs;
 
-    public PalladianContentExtractor() {
-        crawler = new DocumentRetriever();
-    }
-
-    @Override
-    public PalladianContentExtractor setDocument(String url) {
-        crawler.setFeedAutodiscovery(false);
-        return setDocument(crawler.getWebDocument(url));
-    }
 
     @Override
     public PalladianContentExtractor setDocument(Document document) {
@@ -68,13 +58,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return this;
     }
 
-    public DocumentRetriever getCrawler() {
-        return crawler;
-    }
-
-    public void setCrawler(DocumentRetriever crawler) {
-        this.crawler = crawler;
-    }
 
 
     public Document getDocument() {
@@ -232,14 +215,19 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Deprecated
     public static String getText(String url) {
 
-        PalladianContentExtractor pse = new PalladianContentExtractor();
-        pse.setDocument(url);
-
         StringBuilder text = new StringBuilder();
-        List<String> sentences = pse.getSentences();
+        
+        try {
+            PalladianContentExtractor pse = new PalladianContentExtractor();
+            pse.setDocument(url);
 
-        for (String string : sentences) {
-            text.append(string).append(" ");
+            List<String> sentences = pse.getSentences();
+
+            for (String string : sentences) {
+                text.append(string).append(" ");
+            }
+        } catch (PageContentExtractorException e) {
+            LOGGER.error(e);
         }
 
         return text.toString();
@@ -264,6 +252,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     	String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
         return resultTitle;
     }
+    
+    @Override
+    public String getExtractorName() {
+        return "Palladian";
+    }
 
     /**
      * @param args
@@ -282,12 +275,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PalladianContentExtractor pe = new PalladianContentExtractor();
-        WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
+        //WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
-        System.out.println("Result Text: "+pe2.getResultText());
+        System.out.println("Result Text: "+pe.getResultText());
         System.out.println(pe.getResultText());
         System.out.println("Title:"+pe.getResultTitle());
         // CollectionHelper.print(pe.getSentences());

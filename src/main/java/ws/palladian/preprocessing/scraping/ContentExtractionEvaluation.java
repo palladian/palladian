@@ -1,13 +1,17 @@
 package ws.palladian.preprocessing.scraping;
 
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -18,15 +22,10 @@ import ws.palladian.helper.LineAction;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.ExtractorBase;
 
 /**
  * Evaluates two page content extraction techniques:
  * 
- * 1) Boilerpipe, as described in "Boilerplate Detection using Shallow Text Features"; Kohlschütter, Christian;
- * Fankhauser, Peter; Nejdl, Wolfgang; 2010 and available on http://code.google.com/p/boilerpipe/ and
- * http://www.l3s.de/~kohlschuetter/boilerplate/
  * 
  * 2) PageContentExtractor from Palladian which was ported from Readability available from
  * http://lab.arc90.com/experiments/readability
@@ -45,10 +44,12 @@ public class ContentExtractionEvaluation {
     private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
 
     /** Base path with the evaluation data set. */
-    private final String BASE_PATH;
+    private final String datasetPath;
 
     /** Use the Crawler to retrieve documents. */
     private DocumentRetriever crawler = new DocumentRetriever();
+
+    private List<WebPageContentExtractor> extractors = new ArrayList<WebPageContentExtractor>();
 
     /**
      * Whether only a comparison of the main content block should be done. If false, also user generated content is
@@ -58,7 +59,11 @@ public class ContentExtractionEvaluation {
 
     public ContentExtractionEvaluation() {
         crawler.setFeedAutodiscovery(false);
-        BASE_PATH = ConfigHolder.getInstance().getConfig().getString("datasets.boilerplate");
+        datasetPath = ConfigHolder.getInstance().getConfig().getString("datasets.boilerplate");
+    }
+
+    public void addExtractor(WebPageContentExtractor extractor) {
+        this.extractors.add(extractor);
     }
 
     /**
@@ -71,7 +76,7 @@ public class ContentExtractionEvaluation {
         final Pattern split = Pattern.compile("<urn:uuid:([a-z0-9\\-]*?)>\\s(.*?)");
         final Map<String, String> data = new HashMap<String, String>();
 
-        FileHelper.performActionOnEveryLine(BASE_PATH + "/url-mapping.txt", new LineAction() {
+        FileHelper.performActionOnEveryLine(datasetPath + "/url-mapping.txt", new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -109,40 +114,59 @@ public class ContentExtractionEvaluation {
     public String evaluate(Map<String, String> dataset) {
 
         StringBuilder sb = new StringBuilder();
-        LOGGER.info("File name in test set\tURL\tBoilerplate score\tPalladian score");
-        int count = 0;
-        int[] stats = { 0, 0, 0 };
-        float[] score = { 0, 0 };
-        int[] errors = { 0, 0 };
 
+        int count = 0;
+        boolean writeHeader = true;
+        
+        // keep statistics
+        Bag<WebPageContentExtractor> wins = new HashBag<WebPageContentExtractor>();
+        Bag<WebPageContentExtractor> errors = new HashBag<WebPageContentExtractor>();
+        Map<WebPageContentExtractor, SummaryStatistics> stats = new HashMap<WebPageContentExtractor, SummaryStatistics>();
+
+        // loop through the dataset
         for (Entry<String, String> entry : dataset.entrySet()) {
 
-            float[] result = evaluate(entry.getKey());
+            // evaluate all provided implementations
+            LinkedHashMap<WebPageContentExtractor, Float> result = evaluate(entry.getKey());
 
+            // write header for results file
+            if (writeHeader) {
+                String head = "UUID\tURL\t";
+                for (WebPageContentExtractor technique : result.keySet()) {
+                    head += technique.getExtractorName() + "\t";
+                    stats.put(technique, new SummaryStatistics());
+                }
+                LOGGER.info(head);
+                writeHeader = false;
+            }
+
+            // write result data and score, determine winner
             String resultStr = entry.getKey() + "\t"; // file UUID
             resultStr += entry.getValue() + "\t"; // URL
-            resultStr += (result[0] != -1 ? result[0] : "fail") + "\t"; // Boilerplate result
-            resultStr += result[1] != -1 ? result[1] : "fail"; // Palladian result
 
-            if (result[0] > result[1]) {
-                stats[0]++;
-            } else if (result[0] < result[1]) {
-                stats[1]++;
-            } else {
-                stats[2]++;
+            WebPageContentExtractor winner = null;
+            float maxScore = -1;
+            for (Entry<WebPageContentExtractor, Float> techniqueScore : result.entrySet()) {
+
+                Float score = techniqueScore.getValue();
+                WebPageContentExtractor technique = techniqueScore.getKey();
+
+                resultStr += (score != -1 ? score : "### fail ### ") + "\t";
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    winner = technique;
+                }
+                if (score == -1) {
+                    errors.add(technique);
+                } else {
+                    stats.get(technique).addValue(score);
+                }
             }
 
-            if (result[0] == -1) {
-                errors[0]++;
-            } else {
-                score[0] += result[0];
+            if (winner != null) {
+                wins.add(winner);
             }
-            if (result[1] == -1) {
-                errors[1]++;
-            } else {
-                score[1] += result[1];
-            }
-
             count++;
 
             LOGGER.info(resultStr);
@@ -150,16 +174,11 @@ public class ContentExtractionEvaluation {
 
         }
 
-        LOGGER.info("------------- and the winner is --------------");
-        LOGGER.info(" # Boilerpipe  : " + stats[0]);
-        LOGGER.info(" # Palladian   : " + stats[1]);
-        LOGGER.info(" # Equality    : " + stats[2]);
-        LOGGER.info("------------------ score ---------------------");
-        LOGGER.info(" Boilerpipe    : " + score[0] / (count - errors[0]));
-        LOGGER.info(" Palladian     : " + score[1] / (count - errors[1]));
-        LOGGER.info("----------------- errors ---------------------");
-        LOGGER.info(" Boilerpipe    : " + errors[0]);
-        LOGGER.info(" Palladian     : " + errors[1]);
+        LOGGER.info("------------- stats ------------------");
+        for (WebPageContentExtractor extractor : extractors) {
+            LOGGER.info(" " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
+                    + errors.getCount(extractor) + "\tavg. score:" + stats.get(extractor).getMean());
+        }
 
         return sb.toString();
     }
@@ -173,33 +192,25 @@ public class ContentExtractionEvaluation {
      * @param uuid
      * @return
      */
-    private float[] evaluate(String uuid) {
+    private LinkedHashMap<WebPageContentExtractor, Float> evaluate(String uuid) {
 
-        float[] result = { -1, -1 };
-
+        LinkedHashMap<WebPageContentExtractor, Float> result = new LinkedHashMap<WebPageContentExtractor, Float>();
         String realText = getRealText(uuid);
-        String testDataPath = BASE_PATH + "original/" + uuid + ".html";
+        String testDataPath = datasetPath + "original/" + uuid + ".html";
 
-        // use Boilerplate technique ////////////////////////////////////////
-        try {
-            // Boilerplate provides different Extractor implementations.
-            // I use the ArticleExtractor here which gave best results at first glance.
-            ExtractorBase boilerplateExtractor = ArticleExtractor.INSTANCE;
-            String boilerplateExtracted = boilerplateExtractor.getText(new URL("file://" + testDataPath));
-            // String boilerplateExtracted = new PageSentenceExtractor().setDocument(testDataPath).getMainContentText();
-            result[0] = getScore(realText, boilerplateExtracted);
-        } catch (Exception e) {
-            // ignore. show error in results.
-        }
+        for (WebPageContentExtractor extractor : extractors) {
 
-        // use our Palladian's PageContentExtractor /////////////////////////
-        try {
-            WebPageContentExtractor palladianExtractor = new ReadabilityContentExtractor();
-            palladianExtractor.setDocument(testDataPath);
-            String palladianExtracted = palladianExtractor.getResultText();
-            result[1] = getScore(realText, palladianExtracted);
-        } catch (Exception e) {
-            // ignore. show error in results.
+            float score = -1;
+
+            try {
+                String resultText = extractor.setDocument(testDataPath).getResultText();
+                score = getScore(realText, resultText);
+            } catch (Exception e) {
+                // ignore. show error in results.
+            }
+
+            result.put(extractor, score);
+
         }
 
         return result;
@@ -209,9 +220,9 @@ public class ContentExtractionEvaluation {
     private String getRealText(String uuid) {
 
         StringBuilder sb = new StringBuilder();
-        
+
         // get the manually annotated document from the data set
-        Document annotatedDocument = crawler.getWebDocument(BASE_PATH + "annotated/" + uuid + ".html");
+        Document annotatedDocument = crawler.getWebDocument(datasetPath + "annotated/" + uuid + ".html");
 
         if (annotatedDocument != null) {
 
@@ -271,6 +282,11 @@ public class ContentExtractionEvaluation {
     public static void main(String[] args) {
 
         ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
+        
+        // extractors to evaluate
+        evaluation.addExtractor(new BoilerpipeContentExtractor());
+        evaluation.addExtractor(new ReadabilityContentExtractor());
+        evaluation.addExtractor(new PalladianContentExtractor());
 
         // String text = evaluation.getRealText("ec407a8c-7d1b-4485-816d-39a1887f84b3");
         // text = normalizeString(text);
@@ -284,6 +300,8 @@ public class ContentExtractionEvaluation {
         evaluation.setMainContentOnly(true);
         String result = evaluation.evaluate(dataset);
         FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
+
+        System.exit(0);
 
         evaluation.setMainContentOnly(false);
         result = evaluation.evaluate(dataset);

@@ -29,7 +29,6 @@ import org.xml.sax.SAXNotSupportedException;
 
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 
 // TODO move to preprocessing package
 //
@@ -132,7 +131,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
             parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
 
-            crawler = new DocumentRetriever();
+            // crawler = new DocumentRetriever();
 
         } catch (SAXNotSupportedException e) {
             LOGGER.error("initialization of DOMParser failed", e);
@@ -252,6 +251,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     public boolean isWriteDump() {
         return writeDump;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "Readability";
     }
 
     // ///////////////////////////////////////////////////////////////////////////////
