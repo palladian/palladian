@@ -12,7 +12,6 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 	private HTTPDateGetter httpDateGetter = new HTTPDateGetter();
 	private HeadDateGetter headDateGetter = new HeadDateGetter();
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<MetaDate> getDates() {
 		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
