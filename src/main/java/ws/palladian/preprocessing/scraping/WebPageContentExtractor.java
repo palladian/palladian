@@ -16,7 +16,12 @@ public abstract class WebPageContentExtractor {
     private static final Logger LOGGER = Logger.getLogger(WebPageContentExtractor.class);
 
     /** We use the Crawler to take care of retrieving the input stream from remote locations. */
-    protected DocumentRetriever crawler;
+    private DocumentRetriever crawler;
+    
+    public WebPageContentExtractor() {
+        crawler = new DocumentRetriever();
+        crawler.setFeedAutodiscovery(false);
+    }
 
     /**
      * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
@@ -144,6 +149,8 @@ public abstract class WebPageContentExtractor {
      * @return
      */
     public abstract String getResultTitle();
+    
+    public abstract String getExtractorName();
 
 
 
