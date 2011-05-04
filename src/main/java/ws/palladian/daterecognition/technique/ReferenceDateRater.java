@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.DateType;
-import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
@@ -19,10 +18,10 @@ import ws.palladian.helper.date.DateComparator;
 public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
 
     public ReferenceDateRater(PageDateType dateType) {
-		super(dateType);
-	}
+        super(dateType);
+    }
 
-	private String url;
+    private String url;
 
     @Override
     public HashMap<ReferenceDate, Double> rate(ArrayList<ReferenceDate> list) {
@@ -59,7 +58,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
         rdg.setUrl(url);
         ArrayList<ReferenceDate> newRefDates = rdg.getDates();
 
-        ArrayList<ReferenceDate> refDates = (ArrayList<ReferenceDate>) DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
+        ArrayList<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
 
         return rate(refDates);
 

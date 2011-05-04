@@ -1,5 +1,6 @@
 package ws.palladian.daterecognition.technique;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -24,49 +25,51 @@ import ws.palladian.helper.date.DateWekaInstanceFactory;
  */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
-	Classifier classifier = null;
+    Classifier classifier = null;
 
-	public ContentDateRater(PageDateType dateType) {
-		super(dateType);
-		loadClasifier();
-	}
+    public ContentDateRater(PageDateType dateType) {
+        super(dateType);
+        loadClasifier();
+    }
 
-	private void loadClasifier() {
-		String classifierFile;
-		if (this.dateType.equals(PageDateType.publish)) {
-			classifierFile = "/wekaClassifier/pubClassifier.model";
-		} else {
-			classifierFile = "/wekaClassifier/modClassifier.model";
-		}
-		try {
-			String modelPath = ContentDate.class.getResource(classifierFile)
-					.getFile();
-			this.classifier = (Classifier) SerializationHelper.read(modelPath);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+    private void loadClasifier() {
+        String classifierFile;
+        if (this.dateType.equals(PageDateType.publish)) {
+            classifierFile = "/wekaClassifier/pubClassifier.model";
+        } else {
+            classifierFile = "/wekaClassifier/modClassifier.model";
+        }
+        try {
+            // String modelPath = ContentDate.class.getResource(classifierFile)
+            // .getFile();
+            // this.classifier = (Classifier) SerializationHelper.read(modelPath);
+            InputStream stream = ContentDate.class.getResourceAsStream(classifierFile);
+            this.classifier = (Classifier) SerializationHelper.read(stream);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
 
-	}
+    }
 
-	@Override
-	public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
+    @Override
+    public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
 
-		HashMap<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
-		DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(
-				this.dateType);
+        HashMap<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
+        DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(
+                this.dateType);
 
-		for (ContentDate date : list) {
-			Instance instance = dwif.getDateInstanceByArffTemplate(date);
-			try {
-				double[] dbl = this.classifier
-						.distributionForInstance(instance);
-				returnDates.put(date, dbl[0]);
-			} catch (Exception e) {
-				System.out.println(date.getDateString());
-				System.out.println(instance);
-				e.printStackTrace();
-			}
-		}
-		return returnDates;
-	}
+        for (ContentDate date : list) {
+            Instance instance = dwif.getDateInstanceByArffTemplate(date);
+            try {
+                double[] dbl = this.classifier
+                .distributionForInstance(instance);
+                returnDates.put(date, dbl[0]);
+            } catch (Exception e) {
+                System.out.println(date.getDateString());
+                System.out.println(instance);
+                e.printStackTrace();
+            }
+        }
+        return returnDates;
+    }
 }

@@ -19,15 +19,15 @@ import ws.palladian.helper.RegExp;
  * Therefore it needs a document.
  * 
  * @author Martin Gregor
+ * @author David Urbansky
  * 
  */
 public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
 
-    @SuppressWarnings("unchecked")
-	@Override
-    public ArrayList getDates() {
+    @Override
+    public ArrayList<MetaDate> getDates() {
         ArrayList<MetaDate> result = new ArrayList<MetaDate>();
-       if (document != null) {
+        if (document != null) {
             result = getHeadDates(document);
         }
         return result;

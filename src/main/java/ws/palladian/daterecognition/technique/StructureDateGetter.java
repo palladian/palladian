@@ -1,7 +1,6 @@
 package ws.palladian.daterecognition.technique;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -23,10 +22,10 @@ import ws.palladian.daterecognition.dates.StructureDate;
  */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
-	private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
-	private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>(); 
-	private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
-	
+    // private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
+    // private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>();
+    // private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
+
     @Override
     public ArrayList<StructureDate> getDates() {
         ArrayList<StructureDate> result = new ArrayList<StructureDate>();
@@ -129,14 +128,14 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      */
     private StructureDate checkForDate(final Node node) {
 
-    	StructureDate date = null;
-    	/*
+        StructureDate date = null;
+        /*
     	if(this.lookedUpNodeMap.get(node) == null){
-    		
+
     	}else{
     		date = this.structDateMap.get(node);
     	}
-    	*/
+         */
         NamedNodeMap tag = node.getAttributes();
         if (tag != null) {
             String keyword = null;

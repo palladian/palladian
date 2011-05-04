@@ -15,7 +15,6 @@ import ws.palladian.daterecognition.dates.ReferenceDate;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
-import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * This class tries get dates in lined pages.<br>
@@ -24,7 +23,7 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author Martin Gregor
  * 
  */
-public class ReferenceDateGetter extends TechniqueDateGetter {
+public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
 
     @Override
     public ArrayList<ReferenceDate> getDates() {
@@ -58,7 +57,6 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
     private static ArrayList<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
         ArrayList<ReferenceDate> dates = new ArrayList<ReferenceDate>();
         if (document != null) {
-            DocumentRetriever c = new DocumentRetriever();
             Iterator<String> linksTo = PageAnalyzer.getLinks(document, true, true).iterator();
             DateGetter dateGetter = new DateGetter();
             dateGetter.setTechReference(false);
@@ -74,7 +72,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
                 HashMap<ExtractedDate, Double> evaluatedDates = de.rate(referenceDates);
                 double rate = DateArrayHelper.getHighestRate(evaluatedDates);
                 referenceDates = DateArrayHelper.getRatedDates(evaluatedDates, rate);
-                ReferenceDate refDate = DateConverter.convert((ExtractedDate) dc.getOldestDate(referenceDates), DateType.ReferenceDate);
+                ReferenceDate refDate = DateConverter.convert(dc.getOldestDate(referenceDates), DateType.ReferenceDate);
                 refDate.setRate(rate);
                 dates.add(refDate);
                 if (i == maxLinks) {
