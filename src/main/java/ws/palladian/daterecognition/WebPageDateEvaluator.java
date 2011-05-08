@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.daterecognition.dates.AbstractDate;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.technique.PageDateType;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.RatedDateComparator;
 
@@ -78,7 +79,7 @@ public class WebPageDateEvaluator {
      * Be sure than an url is set. Otherwise use <b>evaluate(String url)</b>.
      */
     public  void evaluate() {
-    	
+//    	StopWatch timer = new StopWatch();
         if (this.url != null) {
             if(document != null){
             	dg.setDocument(document);
@@ -86,8 +87,12 @@ public class WebPageDateEvaluator {
             dg.setURL(url);
             dg.setTechReference(reference);
             dg.setTechArchive(archive);
+//            timer.start();
             ArrayList<AbstractDate> dates = dg.getDate();
+//            timer.getTotalElapsedTimeString(true);
+//            timer.start();
             HashMap<AbstractDate, Double> ratedDates = dr.rate(dates);
+//            timer.getElapsedTimeString(true);
             this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
         }
     }

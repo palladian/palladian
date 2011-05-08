@@ -32,24 +32,25 @@ public class StructureEvaluator {
 		TechniqueDateGetter<StructureDate> dg = new StructureDateGetter();
 		TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.publish);
 		TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.last_modified);
-		
+		String pub = "pub1";
+		String mod = "mod1";
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		evaluate("pub0", DBExport.PUB_DATE, dg, pub_dr,file);
-		evaluate("mod0", DBExport.MOD_DATE, dg, mod_dr,file);
+		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr,file);
+		evaluate(mod, DBExport.MOD_DATE, dg, mod_dr,file);
 		
 		System.out.println("pub");
-		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AWD));
+		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.STRUCTEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.STRUCTEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.STRUCTEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.STRUCTEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.STRUCTEVAL, DataSetHandler.AWD));
 				
 		System.out.println("mod");
-		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AFR));
-		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.ARD));
-		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AFW));
-		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.ANF));
-		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.AWD));
+		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.STRUCTEVAL, DataSetHandler.AFR));
+		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.STRUCTEVAL, DataSetHandler.ARD));
+		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.STRUCTEVAL, DataSetHandler.AFW));
+		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.STRUCTEVAL, DataSetHandler.ANF));
+		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.STRUCTEVAL, DataSetHandler.AWD));
 		
 	}
 

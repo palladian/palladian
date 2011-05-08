@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.DateEvaluator;
+import ws.palladian.daterecognition.DateEvaluator_old;
 import ws.palladian.daterecognition.DateGetter;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.DateType;
@@ -29,7 +30,7 @@ public class WebPageDateEvaluatorTest {
     private DateGetter dg = new DateGetter();
 
     /** Standard DateRater. */
-    private DateEvaluator dr = new DateEvaluator(PageDateType.publish);
+    private DateEvaluator_old dr = new DateEvaluator_old(PageDateType.publish);
 
     private  ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
@@ -45,7 +46,7 @@ public class WebPageDateEvaluatorTest {
     	this.httpDates = httpDates;
     }
     public void setPubMod(PageDateType pub_mod){
-    	this.dr = new DateEvaluator(pub_mod);
+    	this.dr = new DateEvaluator_old(pub_mod);
     }
     
     /**

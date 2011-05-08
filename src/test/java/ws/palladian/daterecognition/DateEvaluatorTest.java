@@ -19,22 +19,21 @@ public class DateEvaluatorTest {
             // DateGetter dg = new DateGetter(
             // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
             String url;
-            // url =
-            url = "http://www.dailymail.co.uk/tvshowbiz/article-533432/Patrick-Swayze-smoking-despite-diagnosed-pancreatic-cancer.html";
-            url = "http://www.nytimes.com/1990/04/10/science/in-alchemists-notes-clues-to-modern-chemistry.html?pagewanted=2";
-            // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
-            url = "http://classactiondefense.jmbm.com/2009/06/bofa_class_action_defense_case.html";
-            url = "http://www.smh.com.au/articles/2006/11/21/1163871393154.html";
-            //url = "http://www.tmcnet.com/news/2006/03/29/1517705.htm";
             WebPageDateEvaluator ae = new WebPageDateEvaluator();
+            Class classResource = DateEvaluatorTest.class;
+//            for(int index = 19; index <= 27; index++){
+//            	System.out.println(index);
+//	            url = classResource.getResource("/webPages/dateExtraction/tests/page" + index + ".htm").getFile();
+////	            System.out.println(url);
+//	            ae.setUrl(url);
+//	            ae.evaluate();
+////	            System.out.println(ae.getBestRatedDate().getNormalizedDate());
+//            }
+            url = "http://www.aegypten-online.de/aegypten-themen/blog/artikel/date/2011/05/03/title/nach-tod-von-osama-bin-laden-aegypten-erhoeht-sicherheit-fuer-touristen-00184.htm";
+//            System.out.println(url);
             ae.setUrl(url);
             ae.evaluate();
-            // DateArrayHelper.printDateArray(dates);
-            DateArrayHelper.printDateArray(ae.getAllDates());
-          
-			ae.getBestRatedDate().getNormalizedDate();
-		
-            // assertEquals(dates.size(), dateMap.size());
+            System.out.println(ae.getBestRatedDate());
         }
     }
 

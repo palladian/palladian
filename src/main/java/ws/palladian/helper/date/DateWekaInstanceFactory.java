@@ -67,7 +67,9 @@ public class DateWekaInstanceFactory {
     public Instance getDateInstanceByArffTemplate(ContentDate date) {
         Instance instance = null;
         StringBuilder dateInstanceBuffer = this.template;
-        dateInstanceBuffer.append("0," + datefeaturesToString(date) + "\n");
+        String dateFeatures = datefeaturesToString(date);
+        dateInstanceBuffer.append("0," + dateFeatures + "\n");
+//        System.out.println(dateFeatures);
         BufferedReader reader = new BufferedReader(new StringReader(
                 dateInstanceBuffer.toString()));
         try {
@@ -92,10 +94,13 @@ public class DateWekaInstanceFactory {
         String keywordString = date.getKeyword();
         if (keywordString != null) {
             keywordString = keywordString.toLowerCase();
+            if (!isNormalKeyword(keywordString)) {
+                keywordString = getNormalKeyword(keywordString);
+            }
+        }else {
+        	keywordString = "null";
         }
-        if (!isNormalKeyword(keywordString)) {
-            keywordString = "null";
-        }
+        
 
         String hour = (date.get(ContentDate.HOUR) > -1) ? "1" : "0";
         String minute = (date.get(ContentDate.HOUR) > -1) ? "1" : "0";
@@ -169,9 +174,26 @@ public class DateWekaInstanceFactory {
     }
 
     private static boolean isNormalKeyword(String keyword) {
-        return KeyWords.getKeywordPriority(keyword) == -1 ? false : true;
+    	return KeyWords.hasKeyword(keyword, KeyWords.ARFF_KEYWORDS);
     }
 
+    private static String getNormalKeyword(String keyword){
+    	String normalKeyword = null;
+    	int prio = KeyWords.getKeywordPriority(keyword);
+    	switch(prio){
+    	case 1:
+    		normalKeyword = "publish";
+    		break;
+    	case 2:
+    		normalKeyword = "update";
+    		break;
+    	case 3:
+    		normalKeyword = "date";
+    		break;
+    	}
+    	return normalKeyword;
+    }
+    
     private static boolean isNormalTag(String tagName) {
         return tagName.equalsIgnoreCase("TD")
         || tagName.equalsIgnoreCase("OPTION")

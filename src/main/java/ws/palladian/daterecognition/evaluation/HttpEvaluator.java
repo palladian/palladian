@@ -45,8 +45,10 @@ public class HttpEvaluator {
 		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
 		
 		String file = "data/evaluation/daterecognition/datasets/httpdataset.txt";
-		//evaluate("pub1",DBExport.PUB_DATE, dg, dr,file);
-		//evaluate("mod1",DBExport.MOD_DATE, dg, dr,file);
+		String pub = "pub1";
+		String mod = "mod1";
+		evaluate(pub,DBExport.PUB_DATE, dg, dr,file);
+		evaluate(mod,DBExport.MOD_DATE, dg, dr,file);
 		
 		/*
 		String in1 = "data/evaluation/daterecognition/datasets/dataset.txt";
@@ -54,7 +56,6 @@ public class HttpEvaluator {
 		mergeUrlsets(in1, in2, file);
 		*/
 		
-		String pub = "pub0";
 		System.out.println(pub);
 		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.AFR));
 		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.ARD));
@@ -62,7 +63,6 @@ public class HttpEvaluator {
 		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.ANF));
 		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.AWD));
 				
-		String mod = "mod0";
 		System.out.println(mod);
 		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.AFR));
 		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.ARD));

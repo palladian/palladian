@@ -18,7 +18,7 @@ import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
-import ws.palladian.daterecognition.technique.ContentDateRater;
+import ws.palladian.daterecognition.technique.ContentDateRater_old;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
@@ -34,15 +34,15 @@ public class KairosEvaluator {
 	public static void main(String[] args) {
 		
 		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
-		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(PageDateType.publish);
-		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
+		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater_old(PageDateType.publish);
+		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater_old(PageDateType.last_modified);
 		
-		String pub = "pub0";
-		String mod = "mod0";
+		String pub = "pub1";
+		String mod = "mod1";
 		
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-	//	evaluate(EvaluationHelper.KAIROSEVAL, pub,PageDateType.publish, dg, pub_dr, file);
-	//	evaluate(EvaluationHelper.KAIROSEVAL, mod,PageDateType.last_modified, dg, mod_dr, file);
+		evaluate(EvaluationHelper.KAIROSEVAL, pub,PageDateType.publish, dg, pub_dr, file);
+		evaluate(EvaluationHelper.KAIROSEVAL, mod,PageDateType.last_modified, dg, mod_dr, file);
 		
 		
 		

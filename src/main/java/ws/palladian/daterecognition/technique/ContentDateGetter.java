@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.dom4j.rule.pattern.NodeTypePattern;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -60,6 +62,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 	
 	private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
 	private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>(); 
+	private HashMap<Node, Boolean> visibleNodeMap = new HashMap<Node, Boolean>();
 	
     @Override
     public ArrayList<ContentDate> getDates() {
@@ -150,7 +153,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     	List<Node> nodeList = XPathHelper.getNodes(document, "//text()");
     	if(!nodeList.isEmpty()){
     		NodeList body = document.getElementsByTagName("body");
-    		
+    		//TODO: Check if an element is visible
+//    		checkVisiblityOfAllNodes(body.item(0));
     		//Get webpage as text (for finding position).
     		this.doc = StringHelper.removeDoubleWhitespaces(
     				HTMLHelper.replaceHTMLSymbols(
@@ -171,6 +175,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         	setDocKeywords();
         	
     		for(int i = 0; i< nodeList.size(); i++){
+    			
     			if (nodeList.get(i).getNodeType() == Node.TEXT_NODE) {
     				Node node = nodeList.get(i);
     				Node parent = node.getParentNode();
@@ -186,7 +191,39 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         
         return dates;
     }
-   
+    private void checkVisiblityOfAllNodes(Node node){
+    	boolean visible = acceptNode(node);
+    	if(!visible){
+    		addAllChildrenToInvisible(node);
+    	}else{
+    		this.visibleNodeMap.put(node, true);
+    		NodeList nodeList = node.getChildNodes();
+    		for(int i=0; i< nodeList.getLength(); i++){
+    			checkVisiblityOfAllNodes(nodeList.item(i));
+    		}
+    	}
+    }
+    
+    private void addAllChildrenToInvisible(Node node){
+    	this.visibleNodeMap.put(node, false);
+    	System.out.println(node.getNodeValue());
+    	NodeList nodeChildren = node.getChildNodes();
+    	for(int i=0; i < nodeChildren.getLength(); i++){
+    		addAllChildrenToInvisible(nodeChildren.item(i));
+    	}
+    }
+    
+    private boolean acceptNode(Node thisNode) { 
+        if (thisNode.getNodeType() == Node.ELEMENT_NODE) { 
+             Element e = (Element)thisNode; 
+             if (e.getAttribute("style").indexOf("display:none") != -1) {
+            	 System.out.println(e.getAttribute("style"));
+            	 System.out.println(thisNode.getNodeName());
+                  return false; 
+             }  
+        } 
+        return true; 
+   } 
    /**
      * Find a date in text of node.<br>
      * Node as to be a {@link Text}.
@@ -402,6 +439,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     	this.nodeIndexMap = new HashMap<String, Integer>();
     	this.lookedUpNodeMap = new HashMap<Node, Boolean>();
     	this.structDateMap = new HashMap<Node, StructureDate>();
+    	this.visibleNodeMap = new HashMap<Node, Boolean>();
     }
     
     

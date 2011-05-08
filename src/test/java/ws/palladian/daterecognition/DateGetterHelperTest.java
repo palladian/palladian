@@ -385,7 +385,8 @@ public class DateGetterHelperTest {
         assertEquals("2008-09-20", DateGetterHelper.findALLDates("Saturday, September 20, 2008").get(0)
                 .getNormalizedDateString());
         assertEquals("2011-04-18 16:16:00", DateGetterHelper.findDate("Mon, 18 Apr 2011 09:16:00 GMT-0700").getNormalizedDateString());
-
+        assertEquals("2011-05-03", (DateGetterHelper.findALLDates("Dienstag, 03. Mai 2011 um 05:13")).get(0)
+                .getNormalizedDateString());
     }
 
     @Test
