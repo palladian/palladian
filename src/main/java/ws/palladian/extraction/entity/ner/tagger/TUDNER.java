@@ -849,6 +849,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
             // context for people
 
+            // TODO move this up?
             if (unwrapEntitiesWithContext) {
                 for (Entry<Object, Integer> leftContextEntry : sortedMap.entrySet()) {
 

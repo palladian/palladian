@@ -3,9 +3,6 @@ package ws.palladian.retrieval.feeds.evaluation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
@@ -20,6 +17,12 @@ import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
+/**
+ * An evaluator for the FeedReader.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class FeedReaderEvaluator {
 
     /** The logger for this class. */
@@ -150,9 +153,6 @@ public class FeedReaderEvaluator {
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
-
-            DecimalFormat format = new DecimalFormat("0.#################");
-            format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
             // loop through all feeds
             for (Feed feed : feedReader.getFeeds()) {
