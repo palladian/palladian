@@ -9,6 +9,7 @@ import weka.core.Instance;
 import weka.core.SerializationHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 /**
@@ -34,6 +35,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
     private void loadClasifier() {
         String classifierFile;
+        String classifierCacheString = "wekaRandomCommitteeObjectModel";
         if (this.dateType.equals(PageDateType.publish)) {
             classifierFile = "/wekaClassifier/pubClassifier.model";
         } else {
@@ -43,8 +45,13 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             // String modelPath = ContentDate.class.getResource(classifierFile)
             // .getFile();
             // this.classifier = (Classifier) SerializationHelper.read(modelPath);
-            InputStream stream = ContentDate.class.getResourceAsStream(classifierFile);
-            this.classifier = (Classifier) SerializationHelper.read(stream);
+        	this.classifier = (Classifier) Cache.getInstance().getDataObject(classifierCacheString);
+        	if(this.classifier == null){
+        		System.out.println("load classifier");
+	            InputStream stream = ContentDate.class.getResourceAsStream(classifierFile);
+	            this.classifier = (Classifier) SerializationHelper.read(stream);
+	            Cache.getInstance().putDataObject(classifierCacheString, this.classifier);
+        	}
         } catch (Exception e1) {
             e1.printStackTrace();
         }

@@ -10,13 +10,13 @@ import java.util.Map.Entry;
 import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
 import ws.palladian.daterecognition.technique.ContentDateRater;
+import ws.palladian.daterecognition.technique.ContentDateRater_old;
 import ws.palladian.daterecognition.technique.MetaDateGetter;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
@@ -36,14 +36,14 @@ public class ContentEvaluator {
 	public static void main(String[] args){
 		
 		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
-		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(PageDateType.publish);
-		//TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
+		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater_old(PageDateType.publish);
+		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater_old(PageDateType.last_modified);
 		
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		String pub = "pub5";
-		String mod = "mod5";
-		//evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
-		//evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
+		String pub = "pub6";
+		String mod = "mod6";
+		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
+		evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
 		
 		
 		
