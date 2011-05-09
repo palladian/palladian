@@ -1,4 +1,7 @@
-config.version = 1
+config.version = 2
+### version history:
+### 2: added timeouts for DocumentRetriever
+### 1: initial version
 
 ######################## Model Paths ########################
 
@@ -47,8 +50,8 @@ db.password =
 # false = persistent, true = RAM only (10x faster) (only for H2 databse)
 db.inMemoryMode = true 
 
-######################## Crawler ########################
-# maximum number of threads during crawling
+######################## DocumentRetriever ########################
+# maximum number of threads for simultaneous downloads
 documentRetriever.maxThreads = 10
 
 #  number of request before switching to another proxy, default is -1 and means never switch
@@ -60,6 +63,11 @@ documentRetriever.feedAutoDiscovery = false
 
 # maximum number of retries if download request fails, default is 0 and means no retry
 documentRetriever.numRetries = 0
+
+# timeouts in milliseconds
+documentRetriever.connectionTimeout = 10000
+documentRetriever.overallTimeout = 16000
+documentRetriever.readTimeout = 180000
 
 # list of proxies to choose from
 # see: http://proxy-list.org/en/index.php
@@ -156,7 +164,7 @@ feedDiscovery.searchEngine = 6
 # maximum number of threads for discovery
 feedDiscovery.maxDiscoveryThreads = 10
 
-# location of the list for feeds discovered by the Crawler
+# location of the list for feeds discovered by the DocumentRetriever
 feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 
 # number of threads in the pool for the FeedReader

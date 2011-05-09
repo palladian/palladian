@@ -363,6 +363,9 @@ public class DocumentRetriever {
             setProxyList(config.getList("documentRetriever.proxyList", proxyList));
             setFeedAutodiscovery(config.getBoolean("documentRetriever.feedAutoDiscovery", feedAutodiscovery));
             setNumRetries(config.getInt("documentRetriever.numRetries", DEFAULT_NUM_RETRIES));
+            setConnectionTimout(config.getInt("documentRetriever.connectionTimeout", DEFAULT_CONNECTION_TIMEOUT));
+            setOverallTimeout(config.getInt("documentRetriever.overallTimeout", DEFAULT_OVERALL_TIMEOUT));
+            setReadTimeout(config.getInt("documentRetriever.readTimeout", DEFAULT_READ_TIMEOUT));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
         }
