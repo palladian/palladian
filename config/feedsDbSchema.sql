@@ -63,7 +63,7 @@ CREATE TABLE `feeds` (
   `lastSuccessfulCheck` datetime DEFAULT NULL COMMENT 'Timestamp of last successful check (feed has been retrieved and successfully parsed)',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Daten für Tabelle `feeds`
