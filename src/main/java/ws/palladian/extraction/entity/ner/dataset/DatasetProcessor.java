@@ -23,8 +23,10 @@ public class DatasetProcessor {
      * @param documentSeparator The separation sequence which determines the beginning and end of a document.
      * @param minDocuments The minimal number of documents in a separated file.
      * @param maxDocuments The maximal number of documents in a separated file.
+     * @param stepSize The size of the steps between minDocuments and maxDocuments.
      */
-    public List<String> splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments) {
+    public List<String> splitFile(String datasetPath, String documentSeparator, int minDocuments, int maxDocuments,
+            int stepSize) {
 
         StopWatch sw = new StopWatch();
 
@@ -36,7 +38,7 @@ public class DatasetProcessor {
         String[] documents = content.split(documentSeparator);
 
 
-        for (int x = minDocuments; x <= maxDocuments; x++) {
+        for (int x = minDocuments; x <= maxDocuments; x += stepSize) {
 
             StringBuilder concatenatedDocuments = new StringBuilder();
 
@@ -76,7 +78,7 @@ public class DatasetProcessor {
         DatasetProcessor dp = new DatasetProcessor();
 
         // split the conll 2003 training file into 50 documents containing 1 to 50 documents
-        dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50);
+        dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50, 1);
 
 
     }

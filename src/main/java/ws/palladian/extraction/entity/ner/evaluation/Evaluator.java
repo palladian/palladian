@@ -172,19 +172,20 @@ public class Evaluator {
      * @param documentSeparator The separator for the documents in the given file.
      * @param minDocuments The minimal number of documents to consider.
      * @param maxDocuments The maximal number of documents to consider.
+     * @param stepSize The size of the steps between minDocuments and maxDocuments.
      */
     public void evaluateDependencyOnTrainingSetSize(NamedEntityRecognizer tagger, String trainingFilePath,
-            String testFilePath, String documentSeparator, int minDocuments, int maxDocuments) {
+            String testFilePath, String documentSeparator, int minDocuments, int maxDocuments, int stepSize) {
 
         StopWatch stopWatch = new StopWatch();
 
         LOGGER.info("evaluate " + tagger.getName() + " on " + testFilePath + " with " + minDocuments + " to "
-                + maxDocuments + " documents");
+                + maxDocuments + " documents with step size" + stepSize);
 
         // split the training set in a number of files containing the documents
         DatasetProcessor processor = new DatasetProcessor();
         List<String> splitFilePaths = processor.splitFile(trainingFilePath, documentSeparator, minDocuments,
-                maxDocuments);
+                maxDocuments, stepSize);
 
         StringBuilder results = new StringBuilder();
 
@@ -357,8 +358,10 @@ public class Evaluator {
             averagedLine.append(er.getRecall(EvaluationResult.MUC)).append(";");
             averagedLine.append(er.getF1(EvaluationResult.MUC)).append(";");
 
-            results.append(averagedLine);
+
         }
+
+        results.append(averagedLine);
 
         FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" + numberOfSeeds
                 + ".csv", results);
@@ -436,13 +439,13 @@ public class Evaluator {
         Evaluator evaluator = new Evaluator();
 
         // evaluate using seed entities only (only TUDNER)
-        evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
+        // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
 
         // evaluate all tagger how they depend on the number of documents in the training set
         for (NamedEntityRecognizer tagger : taggerList) {
             evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
-                    "=-DOCSTART-\tO", 1, 500);
+                    "=-DOCSTART-\tO", 1, 300, 10);
         }
 
         evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
