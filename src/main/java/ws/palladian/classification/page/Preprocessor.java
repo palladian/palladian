@@ -47,10 +47,11 @@ public final class Preprocessor implements Serializable {
 
     /**
      * Global map of terms, all documents that are processed by this preprocessor share this term map, this will save
-     * memory since strings do not have to be
-     * copied but references to the terms will be kept.
+     * memory since strings do not have to be copied but references to the terms will be kept.
+     * XXX this does NOT save memory when the classifier is used many times since the map will store all possible terms
+     * and use large amounts of memory.
      */
-    private transient Map<String, Term> termMap = new HashMap<String, Term>();
+    // private transient Map<String, Term> termMap = new HashMap<String, Term>();
 
     /** The term x weight map. */
     private transient Map<Term, Double> map;
@@ -118,11 +119,13 @@ public final class Preprocessor implements Serializable {
 
         termString = termString.toLowerCase();
 
-        Term term = termMap.get(termString);
-        if (term == null) {
-            term = new Term(termString);
-            termMap.put(termString, term);
-        }
+        // Term term = termMap.get(termString);
+        // if (term == null) {
+        // term = new Term(termString);
+        // termMap.put(termString, term);
+        // }
+
+        Term term = new Term(termString);
 
         if (map.containsKey(term)) {
             double currentWeight = map.get(term);
@@ -138,7 +141,8 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Preprocess a string (such as a URL) and create a classification document. A map of n-grams is created for the document and added to it. If a n-gram term
+     * Pre-process a string (such as a URL) and create a classification document. A map of n-grams is created for the
+     * document and added to it. If a n-gram term
      * exists, it will be taken from the n-gram index.
      * 
      * @param inputString The input string.
@@ -148,9 +152,9 @@ public final class Preprocessor implements Serializable {
     public TextInstance preProcessDocument(String inputString, TextInstance classificationDocument) {
 
         // the term map is transient and might need to be initialized
-        if (termMap == null) {
-            termMap = new HashMap<String, Term>();
-        }
+        // if (termMap == null) {
+        // termMap = new HashMap<String, Term>();
+        // }
 
         // create a new term map for the classification document
         map = new HashMap<Term, Double>();

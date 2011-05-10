@@ -27,7 +27,7 @@ import ws.palladian.helper.StopWatch;
 /**
  * @author Martin Wunderwald
  */
-public class OpenNLPPOSTagger extends AbstractPOSTagger {
+public class OpenNLPPOSTagger extends PosTagger {
 
     /** The tokenizer. **/
     private Tokenizer tokenizer;
