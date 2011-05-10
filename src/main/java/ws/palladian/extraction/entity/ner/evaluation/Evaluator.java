@@ -11,10 +11,6 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
-import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
-import ws.palladian.extraction.entity.ner.tagger.JulieNER;
-import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
-import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.Mode;
@@ -51,8 +47,8 @@ public class Evaluator {
      * <pre>
      *                 |                     Complete Test Set                                     |                           Unseen entities only
      * Number of Seeds | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1 | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1
-     * minNumberOfSeeds|    
-     * ...             |               
+     * minNumberOfSeeds|
+     * ...             |
      * maxNumberOfSeeds|
      * </pre>
      * 
@@ -102,7 +98,7 @@ public class Evaluator {
 
                 // train the tagger using seed annotations only
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
-                        + tagger.getModelFileEndingIfNotSetAutomatically();
+                + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -158,8 +154,8 @@ public class Evaluator {
      * <pre>
      *                      |                     Complete Test Set                                     |                           Unseen entities only
      * Number of Documents  | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1 | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1
-     * minDocuments         |    
-     * ...                  |               
+     * minDocuments         |
+     * ...                  |
      * maxDocuments         |
      * </pre>
      * 
@@ -201,7 +197,7 @@ public class Evaluator {
             Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-                    + tagger.getModelFileEndingIfNotSetAutomatically();
+            + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -275,7 +271,7 @@ public class Evaluator {
                 + " seeds");
 
         String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "_" + numberOfSeeds
-                + "." + tagger.getModelFileEndingIfNotSetAutomatically();
+        + "." + tagger.getModelFileEndingIfNotSetAutomatically();
         tagger.train(trainingFilePath, modelFilePath);
         LOGGER.info("training " + tagger.getName() + " took " + stopWatch.getElapsedTimeString());
 
@@ -422,12 +418,12 @@ public class Evaluator {
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
         taggerList.add(new StanfordNER());
-        taggerList.add(new IllinoisLbjNER());
-        taggerList.add(new LingPipeNER());
-        taggerList.add(new OpenNLPNER());
-        taggerList.add(new JulieNER());
-        taggerList.add(new TUDNER(Mode.English));
-        taggerList.add(new TUDNER(Mode.LanguageIndependent));
+        // taggerList.add(new IllinoisLbjNER());
+        // taggerList.add(new LingPipeNER());
+        // taggerList.add(new OpenNLPNER());
+        // taggerList.add(new JulieNER());
+        // taggerList.add(new TUDNER(Mode.English));
+        // taggerList.add(new TUDNER(Mode.LanguageIndependent));
 
         // String conll2003TrainingPath = "data/datasets/ner/conll/training_verysmall.txt";
         // String conll2003TestPath = "data/datasets/ner/conll/test_validation_small.txt";

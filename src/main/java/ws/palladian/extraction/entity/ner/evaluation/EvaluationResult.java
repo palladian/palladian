@@ -141,6 +141,10 @@ public class EvaluationResult {
 
         CountMap cm = assignments.get(tagName);
 
+        if (cm == null) {
+            return precision;
+        }
+
         int correctAssignments = 0;
         int totalAssignments = 0;
 
@@ -148,7 +152,7 @@ public class EvaluationResult {
 
             correctAssignments = cm.get(CORRECT);
             totalAssignments = cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5)
-                    + correctAssignments;
+            + correctAssignments;
 
         } else if (type == MUC) {
 
@@ -170,6 +174,10 @@ public class EvaluationResult {
         double recall = -1;
 
         CountMap cm = assignments.get(tagName);
+
+        if (cm == null) {
+            return recall;
+        }
 
         int correctAssignments = 0;
         int possibleAssignments = 0;
@@ -273,6 +281,10 @@ public class EvaluationResult {
 
             CountMap cm = tagEntry.getValue();
 
+            if (cm == null) {
+                continue;
+            }
+
             if (type == EXACT_MATCH) {
 
                 correctAssignments += cm.get(CORRECT);
@@ -302,6 +314,10 @@ public class EvaluationResult {
         for (Entry<String, CountMap> tagEntry : assignments.entrySet()) {
 
             CountMap cm = tagEntry.getValue();
+
+            if (cm == null) {
+                continue;
+            }
 
             if (type == EXACT_MATCH) {
 
