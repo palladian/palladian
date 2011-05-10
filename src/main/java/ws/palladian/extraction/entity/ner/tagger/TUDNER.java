@@ -1538,20 +1538,26 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // using a column trainig and testing file
         StopWatch stopWatch = new StopWatch();
         tagger.setMode(Mode.English);
-        tagger.setTrainingMode(TrainingMode.Incomplete);
+        // tagger.setTrainingMode(TrainingMode.Incomplete);
+        tagger.setTrainingMode(TrainingMode.Complete);
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
-        tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/tudner.model");
+        // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/tudner.model");
+        tagger.train("G:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/tudner2.model");
         // System.exit(0);
         // TUDNER.remove = true;
-        tagger.loadModel("data/temp/tudner.model");
+        tagger.loadModel("data/temp/tudner2.model");
         // System.exit(0);
+
 
         // tagger = TUDNER.load("data/temp/tudner.model");
 
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
         // "data/temp/tudner.model",
         // TaggingFormat.COLUMN);
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "", TaggingFormat.COLUMN);
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "",
+        // TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate("G:\\My Dropbox\\taggedHierarchicalPrepared_test.txt", "",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

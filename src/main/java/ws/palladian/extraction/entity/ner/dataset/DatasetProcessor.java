@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 
@@ -36,7 +37,6 @@ public class DatasetProcessor {
         String content = FileHelper.readFileToString(datasetPath);
 
         String[] documents = content.split(documentSeparator);
-
 
         for (int x = minDocuments; x <= maxDocuments; x += stepSize) {
 
@@ -73,13 +73,64 @@ public class DatasetProcessor {
         return splitFiles;
     }
 
+    /**
+     * Split a dataset file of any format 50/50 with alternating assignments of the documents to split 1 and 2.
+     * So all even documents go into the first split, the rest in the second split.
+     */
+    public void splitFileByDocuments(String datasetPath, String documentSeparator) {
+
+        StopWatch sw = new StopWatch();
+
+        String filename = FileHelper.getFileName(datasetPath);
+        String content = FileHelper.readFileToString(datasetPath);
+
+        String[] documents = content.split(documentSeparator);
+
+        StringBuilder split1 = new StringBuilder();
+        StringBuilder split2 = new StringBuilder();
+
+        for (int i = 0; i < documents.length; i++) {
+
+            // the first document must be empty since the document separator is before each document
+            if (i == 0) {
+                continue;
+            }
+
+            String document = documents[i];
+
+            if (i % 2 == 0) {
+                split1.append(documentSeparator);
+                split1.append(document);
+            } else {
+                split2.append(documentSeparator);
+                split2.append(document);
+            }
+
+        }
+
+        String splitFilename = FileHelper.getFilePath(datasetPath) + filename + "_part1.txt";
+        FileHelper.writeToFile(splitFilename, split1);
+
+        splitFilename = FileHelper.getFilePath(datasetPath) + filename + "_part2.txt";
+        FileHelper.writeToFile(splitFilename, split2);
+
+        LOGGER.info("split file " + datasetPath + " in " + sw.getElapsedTimeString());
+
+    }
+
     public static void main(String[] args) {
 
         DatasetProcessor dp = new DatasetProcessor();
 
         // split the conll 2003 training file into 50 documents containing 1 to 50 documents
-        dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50, 1);
+        // dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50, 1);
 
+        // dp.splitFileByDocuments("G:\\My Dropbox\\taggedHierarchicalPrepared.xml", "---- NEW DOCUMENT ----");
+
+        FileFormatParser.xmlToColumn("G:\\My Dropbox\\taggedHierarchicalPrepared_part1.txt",
+                "G:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "\t");
+        FileFormatParser.xmlToColumn("G:\\My Dropbox\\taggedHierarchicalPrepared_part2.txt",
+                "G:\\My Dropbox\\taggedHierarchicalPrepared_test.txt", "\t");
 
     }
 

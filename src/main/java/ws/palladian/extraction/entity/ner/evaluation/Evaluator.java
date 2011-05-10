@@ -439,14 +439,14 @@ public class Evaluator {
 
         // evaluate all tagger how they depend on the number of documents in the training set
         for (NamedEntityRecognizer tagger : taggerList) {
-            evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
-            // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
-            // "=-DOCSTART-\tO", 1, 500, 10);
+            // evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
+            evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
+                    "=-DOCSTART-\tO", 201, 500, 10);
         }
 
-        taggerList.clear();
-        taggerList.add(new TUDNER(Mode.English));
-        evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
+        // taggerList.clear();
+        // taggerList.add(new TUDNER(Mode.English));
+        // evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
 
         // evaluate on TUD 2011 data
         // TODO
