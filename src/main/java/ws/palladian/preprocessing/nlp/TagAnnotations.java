@@ -12,7 +12,7 @@ import com.aliasi.util.Arrays;
  * 
  * @author Martin Wunderwald
  * @author Klemens Muthmann
- * @see AbstractPOSTagger
+ * @see PosTagger
  */
 public class TagAnnotations extends ArrayList<TagAnnotation> {
 

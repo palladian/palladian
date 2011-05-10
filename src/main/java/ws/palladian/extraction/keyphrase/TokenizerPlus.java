@@ -24,7 +24,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.preprocessing.nlp.AbstractPOSTagger;
+import ws.palladian.preprocessing.nlp.PosTagger;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
@@ -50,7 +50,7 @@ public class TokenizerPlus {
     // private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
     /** POS tagger, only necessary if POS tagging is enabled. */
-    private AbstractPOSTagger posTagger = null; // new LingPipePOSTagger();
+    private PosTagger posTagger = null; // new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;

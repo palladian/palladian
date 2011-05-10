@@ -15,7 +15,7 @@ public abstract class AbstractNaturalLanguageProcessor {
     protected NamedEntityRecognizer ner;
 
     /** The POS-Tagger used in this class. **/
-    protected AbstractPOSTagger posTagger;
+    protected PosTagger posTagger;
 
     /** The PhraseChunker. **/
     protected AbstractPhraseChunker phraseChunker;
@@ -79,7 +79,7 @@ public abstract class AbstractNaturalLanguageProcessor {
     /**
      * @return the posTagger
      */
-    public final AbstractPOSTagger getPosTagger() {
+    public final PosTagger getPosTagger() {
         return posTagger;
     }
 
@@ -144,7 +144,7 @@ public abstract class AbstractNaturalLanguageProcessor {
      * @param posTagger
      *            the posTagger to set
      */
-    public final void setPosTagger(final AbstractPOSTagger posTagger) {
+    public final void setPosTagger(final PosTagger posTagger) {
         this.posTagger = posTagger;
     }
 

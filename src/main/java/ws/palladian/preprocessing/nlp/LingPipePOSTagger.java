@@ -10,8 +10,8 @@ import java.util.Locale;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 import com.aliasi.hmm.HiddenMarkovModel;
@@ -24,7 +24,7 @@ import com.aliasi.util.FastCache;
 /**
  * @author Martin Wunderwald
  */
-public class LingPipePOSTagger extends AbstractPOSTagger {
+public class LingPipePOSTagger extends PosTagger {
 
     /** the logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LingPipePOSTagger.class);
@@ -125,11 +125,11 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
 
         // apply pos tagger
-        final String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
-        final List<String> tokenList = Arrays.asList(tokens);
-        final Tagging<String> tagging = posTagger.tag(tokenList);
+        String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
+        List<String> tokenList = Arrays.asList(tokens);
+        Tagging<String> tagging = posTagger.tag(tokenList);
 
-        final TagAnnotations tagAnnotations = new TagAnnotations();
+        TagAnnotations tagAnnotations = new TagAnnotations();
         for (int i = 0; i < tagging.size(); i++) {
 
             final TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tagging.token(i)), tagging.tag(i)
@@ -141,11 +141,6 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String,
-     * java.lang.String)
-     */
     @Override
     public LingPipePOSTagger tag(String sentence, String modelFilePath) {
         return this.loadModel(modelFilePath).tag(sentence);
