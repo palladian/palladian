@@ -514,6 +514,9 @@ public class DatasetCreator {
             }
 
         } else {
+            // be carful! Windows 7 has no Limit, Win XP SP2 has a limit of concurrent connections, different
+            // tools do not work, see (http://www.lvllord.de/), XP SP2 also has a limit of file handles
+            // (C:\windows\system32\CONFIG.NT FILES=xx)
             LOGGER.info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
         }
     }
@@ -524,6 +527,10 @@ public class DatasetCreator {
      * @param args Command line arguments are ignored.
      */
     public static void main(String[] args) {
+
+        // System.out.println(System.getProperty("os.name"));
+        //
+        // System.exit(0);
 
         DatasetCreator dc = new DatasetCreator();
         dc.createDataset();
