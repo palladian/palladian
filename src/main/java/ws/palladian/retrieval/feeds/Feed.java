@@ -322,10 +322,13 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
+        if (newestItemHash == null) {
+            calculateNewestItemHash();
+        }
         return newestItemHash;
     }
 
-    public void calculateNewestItemHash() {
+    private void calculateNewestItemHash() {
         if (items.size() > 0) {
             FeedItem feedItem = items.get(0);
             newestItemHash = feedItem.getHash();
