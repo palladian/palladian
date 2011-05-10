@@ -2,26 +2,21 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
-
-import com.ibm.icu.util.Calendar;
 
 /**
  * Represents a news feed.
@@ -33,11 +28,6 @@ import com.ibm.icu.util.Calendar;
  * 
  */
 public class Feed {
-
-    private static final Logger LOGGER = Logger.getLogger(Feed.class);
-
-    /** Symbols to separate headlines. */
-    public static final String TITLE_SEPARATION = "#-#";
 
     private int id = -1;
     private String feedUrl;
@@ -171,6 +161,12 @@ public class Feed {
      */
     private Date lastSuccessfulCheckTime = null;
 
+    /**
+     * Flag, to indicate if this feed contains a new item since the last update. If this value is <code>null</code>, we
+     * need to re-determine if we have a new item, by comparing the last {@link FeedItem}'s hashes each.
+     */
+    private Boolean newItem = null;
+
     public Feed() {
         super();
     }
@@ -255,14 +251,16 @@ public class Feed {
             feedItem.setFeed(this);
         }
         this.items = items;
+        setNewItem(null);
     }
-    
+
     public void addItem(FeedItem item) {
         if (items == null) {
             items = new ArrayList<FeedItem>();
         }
         items.add(item);
         item.setFeed(this);
+        setNewItem(null);
     }
 
     public List<FeedItem> getItems() {
@@ -277,6 +275,7 @@ public class Feed {
         rawMarkup = "";
         document = null;
         setItems(new ArrayList<FeedItem>());
+        setNewestItemHash("");
     }
 
     public void setChecks(int checks) {
@@ -315,8 +314,22 @@ public class Feed {
         this.newestItemHash = newestItemHash;
     }
 
+    /**
+     * Return the newest item hash when the feed was checked the last time, but is not updated when its items are
+     * updated. Don't never ever ever ever use this. This is meant to be used only by the persistence layer and
+     * administrative authorities. And Chuck Norris.
+     * 
+     * @return
+     */
     public String getNewestItemHash() {
         return newestItemHash;
+    }
+
+    public void calculateNewestItemHash() {
+        if (items.size() > 0) {
+            FeedItem feedItem = items.get(0);
+            newestItemHash = feedItem.getHash();
+        }
     }
 
     public void setUnreachableCount(int unreachableCount) {
@@ -472,105 +485,33 @@ public class Feed {
         return byteSize;
     }
 
-    /**
-     * <p>
-     * Get a separated string with the headlines and links of all feed entries. The primary key is headline + link since
-     * sometimes the headlines for several entries are the same but they point to different articles.
-     * </p>
-     * 
-     * @param items Feed entries.
-     * @return A separated string with the headlines of all feed entries.
-     */
-    private StringBuilder getNewEntryTitles() {
-
-        StringBuilder titles = new StringBuilder();
-        for (FeedItem entry : getItems()) {
-            titles.append(entry.getTitle() + entry.getLink()).append(TITLE_SEPARATION);
-        }
-
-        return titles;
+    public void setNewItem(Boolean newItem) {
+        this.newItem = newItem;
     }
 
-    /**
-     * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries /
-     * totalEntries Target Percentage = pTarget =
-     * newEntries / (totalEntries - 1) A target percentage of 1 means that all entries but one are new and this is
-     * exactly what we want.
-     * 
-     * Example 1: newEntries = 3, totalEntries = 4, pn = 0.75, pTarget = 3 / (4-1) = 1
-     * 
-     * Example 2: newEntries = 7, totalEntries = 10, pn = 0.7, pTarget = 7 / (10-1) ~ 0.78
-     * 
-     * The target percentage depends on the number of total entries and is not always the same as the examples show.
-     * 
-     * @return The percentage of news calculated as explained.
-     * @deprecated has to save all titles which is not memory efficient...
-     */
-    @Deprecated
-    public double getTargetPercentageOfNewEntries() {
+    public Boolean hasNewItem() {
+        // boolean newItem = false;
+        //
+        // if (items.size() > 0) {
+        // FeedItem feedItem = items.get(0);
+        // String hash = "";
+        // hash += feedItem.getTitle();
+        // hash += feedItem.getLink();
+        // hash += feedItem.getRawId();
+        // hash = StringHelper.sha1(hash);
+        //
+        // if (!hash.equals(getNewestItemHash())) {
+        // newItem = true;
+        // // who added this? setNewestItemHash(hash);
+        // }
+        // }
+        //
+        // return newItem;
 
-        if (targetPercentageOfNewEntries < 0.0) {
-
-            // compare old and new entry titles to get percentage pn of new entries
-            String[] oldTitlesArray = getNewestItemHash().split(TITLE_SEPARATION);
-            Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
-
-            // get new entry titles
-            StringBuilder titles = getNewEntryTitles();
-            Set<String> currentTitles = CollectionHelper.toHashSet(titles.toString().split(TITLE_SEPARATION));
-
-            // count number of same titles
-            int overlap = 0;
-            for (String oldTitle : oldTitles) {
-                for (String newTitle : currentTitles) {
-                    if (oldTitle.equalsIgnoreCase(newTitle)) {
-                        overlap++;
-                        LOGGER.trace("equal headline: " + oldTitle);
-                        LOGGER.trace("with headline:  " + newTitle);
-                        break;
-                    }
-                }
-            }
-
-            // number of really new headlines
-            int newEntries = Math.max(0, currentTitles.size() - overlap);
-
-            // percentage of new entries - 1 entry, this is our target, if we know
-            // at least one entry we know that we did not miss any
-            double pnTarget = 1;
-
-            if (currentTitles.size() > 1) {
-                pnTarget = newEntries / ((double) currentTitles.size() - 1);
-                // pnTarget = newEntries / ((double) currentTitles.size());
-            } else {
-                // in this special case we just look at the feed the default check time
-                // pnTarget = -1;
-                // LOGGER.warn(currentTitles.size() + " title(s) found in " + getId() + " ("+ getFeedUrl() + ")");
-            }
-
-            setNewestItemHash(titles.toString());
-
-            targetPercentageOfNewEntries = pnTarget;
-        }
-
-        return targetPercentageOfNewEntries;
-    }
-
-    public boolean hasNewItem() {
-        boolean newItem = false;
-
-        if (items.size() > 0) {
-            FeedItem feedItem = items.get(0);
-            String hash = "";
-            hash += feedItem.getTitle();
-            hash += feedItem.getLink();
-            hash += feedItem.getRawId();
-            hash = StringHelper.sha1(hash);
-
-            if (!hash.equals(getNewestItemHash())) {
-                newItem = true;
-                setNewestItemHash(hash);
-            }
+        if (newItem == null) {
+            String oldNewestItemHash = getNewestItemHash();
+            calculateNewestItemHash();
+            newItem = !oldNewestItemHash.equals(getNewestItemHash());
         }
 
         return newItem;
@@ -879,7 +820,7 @@ public class Feed {
      * @param totalProcessingTimeMS time in milliseconds. Ignored if smaller than zero.
      */
     public void setTotalProcessingTime(long totalProcessingTimeMS) {
-        if (totalProcessingTimeMS > 0){
+        if (totalProcessingTimeMS > 0) {
             this.totalProcessingTimeMS = totalProcessingTimeMS;
         }
     }

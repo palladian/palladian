@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * Represents a news item within a feed ({@link Feed}).
@@ -273,6 +274,19 @@ public class FeedItem {
 
     public void setFeedId(int feedId) {
         this.feedId = feedId;
+    }
+    
+    /**
+     * Returns a custom hash representation calculated by the item's title, link and raw id.
+     * 
+     * @return
+     */
+    public String getHash() {
+        StringBuilder hash = new StringBuilder();
+        hash.append(getTitle());
+        hash.append(getLink());
+        hash.append(getRawId());
+        return StringHelper.sha1(hash.toString());
     }
 
 }

@@ -26,8 +26,6 @@ public class MAVUpdateStrategy extends UpdateStrategy {
         int minCheckInterval = feed.getUpdateInterval();
         int maxCheckInterval = feed.getUpdateInterval();
 
-        double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
-
         // ########################## linear wave #########################
         // the factor by which the max checkInterval is multiplied, ranges between 2 and 0.5
         // double fMax = 1.0;
@@ -82,7 +80,7 @@ public class MAVUpdateStrategy extends UpdateStrategy {
         // }
 
         // ######################### simple moving average ##############################
-        if (newEntries > 0) {
+        if (feed.hasNewItem()) {
             minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
             maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
