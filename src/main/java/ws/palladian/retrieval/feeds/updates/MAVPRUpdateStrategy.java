@@ -28,16 +28,13 @@ public class MAVPRUpdateStrategy extends UpdateStrategy {
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
 
-        @SuppressWarnings("deprecation")
-        double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
-
         // determine winner of last prediction
         double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * DateHelper.MINUTE_MS
         - fps.getTimeNewestPost();
         double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * DateHelper.MINUTE_MS
         - fps.getTimeNewestPost();
 
-        if (newEntries > 0) {
+        if (feed.hasNewItem()) {
             if (Math.abs(diffPR) < Math.abs(diffMAV)) {
                 usePostRate = true;
             } else {

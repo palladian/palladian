@@ -700,9 +700,9 @@ public class FeedRetriever {
         // System.out.println(clean);
         // System.exit(0);
 
-        DocumentRetriever retr = new DocumentRetriever();
-        retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
-        System.exit(0);
+//        DocumentRetriever retr = new DocumentRetriever();
+//        retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
+//        System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
@@ -711,7 +711,8 @@ public class FeedRetriever {
         StopWatch sw = new StopWatch();
         // Feed feed = downloader.getFeed("http://808chiangmai.com/?feed=atom");
         Feed feed = downloader.getFeed("http://z.umn.edu/musicevents");
-
+        feed = downloader.getFeed("http://www.pittsburghgrapevine.com/public/rss/act_blogs/rss_20/");
+        
         CollectionHelper.print(feed.getItems());
         // System.out.println(feed.getItems().get(0).getPublished());
         System.out.println("took " + sw);
