@@ -21,8 +21,6 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -39,40 +37,40 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class Temp {
-
+    
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Temp.class);
-
-    //    public static void threadPoolTest() {
-    //
-    //        ExecutorService threadPool = Executors.newFixedThreadPool(10);
-    //        FeedDatabase feedDatabase = new FeedDatabase();
-    //        List<Feed> feeds = feedDatabase.getFeeds();
-    //        LOGGER.info("# feeds " + feeds.size());
-    //        final AtomicInteger counter = new AtomicInteger();
-    //
-    //        for (final Feed feed : feeds) {
-    //            threadPool.submit(new Runnable() {
-    //                @Override
-    //                public void run() {
-    //                    LOGGER.info("run "  + feed.getFeedUrl());
-    //                    DocumentRetriever documentRetriever = new DocumentRetriever();
-    //                    documentRetriever.setOverallTimeout(10000);
-    //                    documentRetriever.getWebDocument(feed.getFeedUrl());
-    //                    counter.incrementAndGet();
-    //                }
-    //            });
-    //        }
-    //
-    //        while (true) {
-    //            try {
-    //                Thread.sleep(1000);
-    //                // System.gc();
-    //            } catch (InterruptedException e) {
-    //                LOGGER.error(e);
-    //            }
-    //        }
-    //    }
+    
+//    public static void threadPoolTest() {
+//        
+//        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+//        FeedDatabase feedDatabase = new FeedDatabase();
+//        List<Feed> feeds = feedDatabase.getFeeds();
+//        LOGGER.info("# feeds " + feeds.size());
+//        final AtomicInteger counter = new AtomicInteger();        
+//        
+//        for (final Feed feed : feeds) {
+//            threadPool.submit(new Runnable() {
+//                @Override
+//                public void run() {
+//                    LOGGER.info("run "  + feed.getFeedUrl());
+//                    DocumentRetriever documentRetriever = new DocumentRetriever();
+//                    documentRetriever.setOverallTimeout(10000);
+//                    documentRetriever.getWebDocument(feed.getFeedUrl());
+//                    counter.incrementAndGet();
+//                }
+//            });
+//        }
+//        
+//        while (true) {
+//            try {
+//                Thread.sleep(1000);
+//                // System.gc();
+//            } catch (InterruptedException e) {
+//                LOGGER.error(e);
+//            }
+//        }
+//    }
 
     public static void downloadFeedTest() {
 
@@ -204,9 +202,9 @@ public class Temp {
                 }
 
                 String safeFeedName = feed.getId()
-                + "_"
-                + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
-                        "www.", ""), 30);
+                        + "_"
+                        + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
+                                "www.", ""), 30);
 
                 String fileName = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -340,44 +338,46 @@ public class Temp {
 
     }
 
-    public void test(int n) {
-        System.out.println(n);
-        // ThreadHelper.deepSleep(1000);
-        test(n);
-    }
-
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-
-        List<String> array = FileHelper.readFileToArray("C:\\My Dropbox\\taggedHierarchical.xml");
-        HashSet<String> set = new HashSet<String>();
-
-        CountMap cm = new CountMap();
-
-        for (String string : array) {
+        
+        
+        List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\taggedHierarchical.xml");
+        
+        for (String string : fileArray) {
 
             Pattern pattern = Pattern.compile("<(.*?)>");
-
             Matcher matcher = pattern.matcher(string);
 
+            String lastTag = "";
             while (matcher.find()) {
-                // set.add(matcher.group().replace("</", "").replace("<", "").replace(">", ""));
-                cm.increment(matcher.group().replace("</", "").replace("<", "").replace(">", ""));
+
+                String currentTag = matcher.group(0);
+
+                boolean closingTag = false;
+                if (currentTag.indexOf("/") > -1) {
+                    closingTag = true;
+                }
+
+                currentTag = currentTag.replace("</", "").replace(">", "").replace("<", "");
+
+                if (closingTag && !lastTag.equals(currentTag)) {
+                    System.out.println("here!!!");
+                }
+
+                lastTag = currentTag;
+                // System.out.println(lastTag);
+
             }
 
         }
 
-        CollectionHelper.print(cm);
-
-        // new Temp().test(0);
-        System.exit(0);
-
-        downloadFeedTest();
+        // downloadFeedTest();
         //threadPoolTest();
-        //System.exit(0);
+        System.exit(0);
 
         // pos tagging
 
