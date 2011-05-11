@@ -500,7 +500,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
                         int offset = matcher.start();
 
                         Annotation annotation = new Annotation(offset, namedEntity.getName(),
- namedEntity.getTagName());
+                                namedEntity.getTagName());
                         annotations.add(annotation);
                     }
 
@@ -512,6 +512,8 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
         annotations.sort();
         CollectionHelper.print(annotations);
+
+        FileHelper.writeToFile("data/test/ner/alchemyOutput.txt", tagText(inputText, annotations));
 
         return annotations;
     }
@@ -529,7 +531,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
         try {
             method.setRequestEntity(new StringRequestEntity("text=" + URLEncoder.encode(inputText, "UTF-8")
                     + "&apikey=" + URLEncoder.encode(API_KEY, "UTF-8") + "&outputMode=json&disambiguate=0", "text/raw",
-                    "UTF-8"));
+            "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("encoding is not supported, " + e.getMessage());
         }
@@ -591,7 +593,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

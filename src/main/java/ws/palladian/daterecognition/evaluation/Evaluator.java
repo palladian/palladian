@@ -16,9 +16,6 @@ import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public abstract class Evaluator {
-
-	
-	private ExtractedDate actualDate;
 	
 	public static <T> void evaluate(String table, String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
 		int rnf = 0;

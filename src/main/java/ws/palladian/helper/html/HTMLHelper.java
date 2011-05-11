@@ -288,7 +288,7 @@ public class HTMLHelper {
         }
 
         // close gaps
-        htmlText = htmlText.replaceAll("(\\s){2,}", " ");
+        // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
 
         // return htmlText.trim();
         return htmlText;
@@ -1043,7 +1043,7 @@ public class HTMLHelper {
      */
     public static String documentToString(Document document) {
         String documentString = "";
-    
+
         try {
             DOMSource domSource = new DOMSource(document);
             StringWriter writer = new StringWriter();
@@ -1057,7 +1057,7 @@ public class HTMLHelper {
         } catch (NullPointerException e) {
             LOGGER.error("could not get string representation of document " + e.getMessage());
         }
-    
+
         return documentString;
     }
 

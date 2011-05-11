@@ -253,13 +253,13 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             LOGGER.error("could not tag text with " + getName() + ", " + e.getMessage());
         }
 
-        String taggedTextFilePath = "data/test/ner/openNLPOutput.txt";
+        String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
         annotations.instanceCategoryToClassified();
 
-        FileHelper.writeToFile("data/test/ner/openNLPOutput2.txt", tagText(inputText, annotations));
+        FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
 
         // CollectionHelper.print(annotations);
 

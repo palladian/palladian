@@ -608,7 +608,6 @@ public class FileFormatParser {
             String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
                     Math.min(taggedText.length(), matcher.end() + windowSize)));
 
-
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
 
@@ -645,7 +644,6 @@ public class FileFormatParser {
 
         return annotations;
     }
-
 
     public static Annotations getAnnotationsFromXMLFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);

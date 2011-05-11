@@ -161,12 +161,12 @@ public class EvriNER extends NamedEntityRecognizer {
                 // try to get an array of entities, if it was only one found, get the one as json object instead
                 try {
                     entities = json.getJSONObject("evriThing").getJSONObject("graph").getJSONObject("entities")
-                            .getJSONArray("entity");
+                    .getJSONArray("entity");
                 } catch (JSONException e) {
                     LOGGER.debug(getName() + " only one entity found, " + e.getMessage());
 
                     JSONObject singleEntity = json.getJSONObject("evriThing").getJSONObject("graph")
-                            .getJSONObject("entities").getJSONObject("entity");
+                    .getJSONObject("entities").getJSONObject("entity");
                     entities.put(singleEntity);
                 }
 
@@ -214,6 +214,8 @@ public class EvriNER extends NamedEntityRecognizer {
         // annotations.removeNestedAnnotations();
         annotations.sort();
         CollectionHelper.print(annotations);
+
+        FileHelper.writeToFile("data/test/ner/evriOutput.txt", tagText(inputText, annotations));
 
         return annotations;
     }
@@ -299,7 +301,7 @@ public class EvriNER extends NamedEntityRecognizer {
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }

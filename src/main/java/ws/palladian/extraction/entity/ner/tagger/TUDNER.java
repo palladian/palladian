@@ -135,11 +135,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -387,7 +387,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         for (String token : tokens) {
             addToCaseDictionary(token);
         }
-        
+
         if (retraining) {
             // //////////////////////////////////////////// wrong entities //////////////////////////////////////
             universalClassifier.trainAll();
@@ -523,6 +523,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         } else {
             annotations = getAnnotationsLanguageIndependent(inputText);
         }
+
+        FileHelper.writeToFile("data/test/ner/tudNEROutput.txt", tagText(inputText, annotations));
 
         LOGGER.info("got annotations in " + stopWatch.getElapsedTimeString());
 
@@ -693,9 +695,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
                 // if the annotation is at the start of a sentence
                 if (/*
-                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                     * &&
-                     */annotation.getEntity().indexOf(" ") == -1) {
+                 * Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                 * &&
+                 */annotation.getEntity().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
@@ -943,7 +945,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             filterAnnotations(annotations);
         }
 
-        FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
+        // FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt", tagText(inputText, annotations));
 
         return annotations;
     }
@@ -1009,7 +1011,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             }
         }
 
-        FileHelper.writeToFile("data/temp/tudNER2Output.txt", tagText(inputText, cleanAnnotations));
+        // FileHelper.writeToFile("data/temp/tudNER2Output.txt", tagText(inputText, cleanAnnotations));
 
         return cleanAnnotations;
     }
@@ -1132,7 +1134,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         String contextString = "";
 
         TagAnnotations tas = lpt.tag(annotation.getLeftContext() + "__" + annotation.getRightContext())
-                .getTagAnnotations();
+        .getTagAnnotations();
         for (TagAnnotation ta : tas) {
             contextString += ta.getTag() + " ";
         }
@@ -1225,7 +1227,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void demo(String optionValue) {
         LOGGER.info(tag(
                 "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
-                "data/models/tudnerdemo.model"));
+        "data/models/tudnerdemo.model"));
     }
 
     public void analyzeContexts(String trainingFilePath) {
@@ -1439,7 +1441,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -1542,7 +1544,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         tagger.setTrainingMode(TrainingMode.Complete);
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
         // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/tudner.model");
-        tagger.train("G:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/tudner2.model");
+        tagger.train("C:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/tudner2.model");
         // System.exit(0);
         // TUDNER.remove = true;
         tagger.loadModel("data/temp/tudner2.model");
@@ -1556,7 +1558,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // TaggingFormat.COLUMN);
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "",
         // TaggingFormat.COLUMN);
-        EvaluationResult er = tagger.evaluate("G:\\My Dropbox\\taggedHierarchicalPrepared_test.txt", "",
+        EvaluationResult er = tagger.evaluate("C:\\My Dropbox\\taggedHierarchicalPrepared_test.txt", "",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

@@ -357,8 +357,8 @@ public abstract class NamedEntityRecognizer {
 
         nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + DateHelper.getCurrentDatetime()
-                + ".txt");
+        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + getName()
+                + DateHelper.getCurrentDatetime() + ".txt");
 
         // see EvaluationResult for explanation of that field
         Map<String, CountMap> assignments = new HashMap<String, CountMap>();
@@ -547,7 +547,7 @@ public abstract class NamedEntityRecognizer {
 
         results.append("Number of distinct tags:; ").append(evaluationResult.getAssignments().size()).append("\n");
         results.append("Total annotations in test set:; ").append(evaluationResult.getGoldStandardAnnotations().size())
-                .append("\n");
+        .append("\n");
         results.append("Confusion Matrix:\n");
 
         results.append("predicted\\real;");
@@ -588,7 +588,7 @@ public abstract class NamedEntityRecognizer {
 
             // precision, recall, and F1 for exact match
             results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(
-                    ";");
+            ";");
             results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
             results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
 
@@ -614,30 +614,30 @@ public abstract class NamedEntityRecognizer {
 
         // precision, recall, and F1 for exact match
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.EXACT_MATCH), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.EXACT_MATCH), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationResult.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.EXACT_MATCH), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.EXACT_MATCH), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getRecall(EvaluationResult.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.EXACT_MATCH), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.EXACT_MATCH), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.EXACT_MATCH), 4)).append(";");
 
         // precision, recall, and F1 for MUC score
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.MUC), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.MUC), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationResult.MUC), 4)).append(";");
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.MUC), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.MUC), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getRecall(EvaluationResult.MUC), 4)).append(";");
         results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.MUC), 4))
-                .append(", overall:");
+        .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.MUC), 4))
+        .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.MUC), 4)).append("\n");
 
         Map<String, String> errorTypes = new TreeMap<String, String>();

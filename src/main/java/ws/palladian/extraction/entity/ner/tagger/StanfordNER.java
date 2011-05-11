@@ -65,7 +65,7 @@ public class StanfordNER extends NamedEntityRecognizer {
     public StanfordNER() {
         setName("Stanford NER");
         buildConfigFile();
-        
+
     }
 
     private void buildConfigFile() {
@@ -260,6 +260,7 @@ public class StanfordNER extends NamedEntityRecognizer {
             LOGGER.error(getName() + " could not tag input, " + e.getMessage());
         }
 
+        FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
         return annotations;
@@ -287,7 +288,7 @@ public class StanfordNER extends NamedEntityRecognizer {
                 LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
 
                 taggedText.append(word.word()).append("/").append(word.get(AnswerAnnotation.class).toUpperCase())
-                        .append(" ");
+                .append(" ");
 
                 // String tag = word.get(AnswerAnnotation.class);
                 // if (!tag.equalsIgnoreCase("o")) {
@@ -451,7 +452,7 @@ public class StanfordNER extends NamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -543,7 +544,7 @@ public class StanfordNER extends NamedEntityRecognizer {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
-// Dataset trainingDataset = new Dataset();
+        // Dataset trainingDataset = new Dataset();
         // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
         // tagger.train(trainingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
         //

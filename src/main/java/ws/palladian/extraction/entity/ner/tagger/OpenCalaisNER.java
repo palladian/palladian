@@ -152,7 +152,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
         Annotations annotations = new Annotations();
 
-     // we need to build chunks of texts because we can not send very long texts at once to open calais
+        // we need to build chunks of texts because we can not send very long texts at once to open calais
         List<String> sentences = Tokenizer.getSentences(inputText);
         List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
         StringBuilder currentTextChunk = new StringBuilder();
@@ -219,7 +219,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
                                     Annotation annotation = new Annotation(cumulatedOffset + offset,
                                             namedEntity.getName(), namedEntity
-.getTagName());
+                                            .getTagName());
                                     annotations.add(annotation);
                                 }
                             }
@@ -242,6 +242,8 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
         annotations.sort();
         CollectionHelper.print(annotations);
+
+        FileHelper.writeToFile("data/test/ner/openCalaisOutput.txt", tagText(inputText, annotations));
 
         return annotations;
     }
@@ -327,7 +329,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }
