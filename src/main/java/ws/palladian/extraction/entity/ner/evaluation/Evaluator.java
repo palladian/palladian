@@ -387,7 +387,8 @@ public class Evaluator {
         results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
         results.append(";Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1;Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1\n");
 
-        for (int i = 1; i <= maxNumberOfSeeds; i++) {
+        // FIXME 10 is just temporary
+        for (int i = 10; i <= maxNumberOfSeeds; i++) {
             LOGGER.info("start evaluating on generated training data using " + i + " seeds");
 
             results.append(i).append(";");
@@ -438,15 +439,15 @@ public class Evaluator {
         // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
 
         // evaluate all tagger how they depend on the number of documents in the training set
-        for (NamedEntityRecognizer tagger : taggerList) {
-            // evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
-            evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
-                    "=-DOCSTART-\tO", 201, 500, 10);
-        }
+        // for (NamedEntityRecognizer tagger : taggerList) {
+        // evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
+        // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
+        // "=-DOCSTART-\tO", 201, 500, 10);
+        // }
 
-        // taggerList.clear();
-        // taggerList.add(new TUDNER(Mode.English));
-        // evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
+        taggerList.clear();
+        taggerList.add(new TUDNER(Mode.English));
+        evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
 
         // evaluate on TUD 2011 data
         // TODO
