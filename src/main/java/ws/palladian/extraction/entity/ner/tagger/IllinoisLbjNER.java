@@ -218,6 +218,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
         // transform text back to online line since the tagger puts one sentence on each line
         String taggedFilePathTransformed = inputTextPath.replaceAll("\\.txt", "_tagged_transformed.txt");
+
         try {
             final FileWriter fileWriter = new FileWriter(taggedFilePathTransformed);
 
@@ -242,9 +243,13 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
             LOGGER.error("could not transform tagged text, " + e.getMessage());
         }
 
-        cleanFile(taggedFilePathTransformed);
+        // cleanFile(taggedFilePathTransformed);
 
-        FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
+        // FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
+        FileFormatParser.bracketToColumn(taggedFilePathTransformed, taggedFilePathTransformed, "\t");
+
+        alignContent(taggedFilePathTransformed, inputText);
+
         Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
 
         annotations.instanceCategoryToClassified();
@@ -448,14 +453,13 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // System.exit(0);
 
         // using a column trainig and testing file
-        //tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
-        // "data/temp/lbj.model",
-        // TaggingFormat.COLUMN);
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lbj.model",
+                TaggingFormat.COLUMN);
 
-        tagger.train("C:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/lbj2.model");
-        EvaluationResult er = tagger.evaluate("C:\\My Dropbox\\taggedHierarchicalPrepared_test.txt",
-                "data/temp/lbj2.model", TaggingFormat.COLUMN);
+        // tagger.train("C:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/lbj2.model");
+        // EvaluationResult er = tagger.evaluate("C:\\My Dropbox\\taggedHierarchicalPrepared_test.txt",
+        // "data/temp/lbj2.model", TaggingFormat.COLUMN);
 
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());

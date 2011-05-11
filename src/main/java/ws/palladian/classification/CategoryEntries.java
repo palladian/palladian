@@ -107,11 +107,17 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
             }
             if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
                 CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-                ce.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
+                if (ce != null) {
+                    ce.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
+                } else {
+                    CategoryEntry categoryEntry = new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient
+                            * newCategoryEntry.getRelevance());
+                    this.add(categoryEntry);
+                }
             } else {
                 CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
                 newCategoryEntry2.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
-                super.add(newCategoryEntry2);
+                this.add(newCategoryEntry2);
             }
             listChanged = true;
         }
@@ -190,7 +196,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         boolean hasEntry = false;
 
         for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equalsIgnoreCase(category.getName())) {
+            if (ce.getCategory().getName().equals(category.getName())) {
                 hasEntry = true;
                 break;
             }
