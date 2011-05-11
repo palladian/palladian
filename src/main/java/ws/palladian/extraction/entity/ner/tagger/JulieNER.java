@@ -431,8 +431,8 @@ public class JulieNER extends NamedEntityRecognizer {
         // "data/temp/nerEvaluation/Julie NER_nerModel_2..gz",
         // TaggingFormat.COLUMN);
 
-        tagger.train("G:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/julieNER2.model");
-        EvaluationResult er = tagger.evaluate("G:\\My Dropbox\\taggedHierarchicalPrepared_test.txt",
+        // tagger.train("data/datasets/ner/tud/tud2011_train.txt", "data/temp/julieNER2.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt",
                 "data/temp/julieNER2.model", TaggingFormat.COLUMN);
 
         // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
