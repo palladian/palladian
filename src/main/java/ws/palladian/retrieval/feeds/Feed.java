@@ -322,7 +322,7 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
-        if (newestItemHash == null) {
+         if (newestItemHash.isEmpty()) {
             calculateNewestItemHash();
         }
         return newestItemHash;

@@ -422,7 +422,12 @@ public class DatasetCreator {
                     FileHelper.prependFile(filePath, newEntries.toString());
                 }
 
-                feed.freeMemory();
+                // removed by Philipp, 2011-05-11; this is already invoked by the feed task itself, after ;
+                // freeing the memory at this point will cause undesired behaviour, for example missing
+                // item hashes, shouldn't make a difference, memory-wise
+                // feed.freeMemory();
+                // end remove //
+                
                 // feed.setLastHeadlines("");
 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");

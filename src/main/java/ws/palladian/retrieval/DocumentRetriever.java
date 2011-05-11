@@ -434,19 +434,13 @@ public class DocumentRetriever {
 
             // read from file with buffered input stream
             if (isFile) {
-
-                // InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(url)));
                 File file = new File(url);
-                // BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
                 inputStream = new BufferedInputStream(new FileInputStream(file));
-
                 parse(inputStream, isXML, file.toURI().toString());
             } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
-                // InputStream fis = getInputStream(urlObject, headerInformation);
                 inputStream = getInputStream(urlObject, headerInformation);
-
                 parse(inputStream, isXML, url);
             }
 
