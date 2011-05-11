@@ -72,6 +72,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     /** Number of rounds for training. */
     private int trainingRounds = 20;
 
+    private boolean conllEvaluation = false;
+
     public IllinoisLbjNER() {
         setName("Lbj NER");
         buildConfigFile();
@@ -243,7 +245,9 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
             LOGGER.error("could not transform tagged text, " + e.getMessage());
         }
 
-        // cleanFile(taggedFilePathTransformed);
+        if (isConllEvaluation()) {
+            cleanFile(taggedFilePathTransformed);
+        }
 
         // FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
         FileFormatParser.bracketToColumn(taggedFilePathTransformed, taggedFilePathTransformed, "\t");
@@ -256,7 +260,6 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
 
-        // FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
         return annotations;
@@ -328,6 +331,14 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         Annotations annotations = ffp.getAnnotationsFromXMLFile(taggedFilePath);
 
         CollectionHelper.print(annotations);
+    }
+
+    public void setConllEvaluation(boolean conllEvaluation) {
+        this.conllEvaluation = conllEvaluation;
+    }
+
+    public boolean isConllEvaluation() {
+        return conllEvaluation;
     }
 
     @SuppressWarnings("static-access")
@@ -453,7 +464,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // System.exit(0);
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        tagger.setConllEvaluation(true);
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lbj.model",
                 TaggingFormat.COLUMN);
 
