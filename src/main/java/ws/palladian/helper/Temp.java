@@ -345,29 +345,41 @@ public class Temp {
     public static void main(String[] args) throws Exception {
         
         
-        List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\taggedHierarchical.xml");
+        List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\taggedHierarchicalPrepared.xml");
         
+        boolean lastClosing = false;
+
         for (String string : fileArray) {
 
-            Pattern pattern = Pattern.compile("<(.*?)>");
+            Pattern pattern = Pattern.compile("<(.*?)>(?=(.{30}))");
             Matcher matcher = pattern.matcher(string);
 
             String lastTag = "";
+
             while (matcher.find()) {
 
-                String currentTag = matcher.group(0);
+                String currentTag = matcher.group(1);
 
                 boolean closingTag = false;
                 if (currentTag.indexOf("/") > -1) {
                     closingTag = true;
                 }
 
-                currentTag = currentTag.replace("</", "").replace(">", "").replace("<", "");
+                currentTag = currentTag.replace("/", "").replace(">", "").replace("<", "");
 
                 if (closingTag && !lastTag.equals(currentTag)) {
-                    System.out.println("here!!!");
+                    System.out.println("here1 !!! " + matcher.group(2));
                 }
 
+                if (lastClosing && closingTag) {
+                    System.out.println("here2 !!! " + matcher.group(2));
+                }
+
+                if (!lastClosing && !closingTag && lastTag.length() > 0) {
+                    System.out.println("here3 !!! " + matcher.group(2));
+                }
+
+                lastClosing = closingTag;
                 lastTag = currentTag;
                 // System.out.println(lastTag);
 

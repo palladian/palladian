@@ -11,9 +11,14 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
+import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
+import ws.palladian.extraction.entity.ner.tagger.JulieNER;
+import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
+import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.Mode;
+import ws.palladian.extraction.entity.ner.tagger.TUDNER.TrainingMode;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.StringHelper;
@@ -387,8 +392,7 @@ public class Evaluator {
         results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
         results.append(";Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1;Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1\n");
 
-        // FIXME 10 is just temporary
-        for (int i = 10; i <= maxNumberOfSeeds; i++) {
+        for (int i = 1; i <= maxNumberOfSeeds; i++) {
             LOGGER.info("start evaluating on generated training data using " + i + " seeds");
 
             results.append(i).append(";");
@@ -419,24 +423,27 @@ public class Evaluator {
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
         taggerList.add(new StanfordNER());
-        // taggerList.add(new IllinoisLbjNER());
-        // taggerList.add(new LingPipeNER());
-        // taggerList.add(new OpenNLPNER());
-        // taggerList.add(new JulieNER());
-        // taggerList.add(new TUDNER(Mode.English));
-        // taggerList.add(new TUDNER(Mode.LanguageIndependent));
+        taggerList.add(new IllinoisLbjNER());
+        taggerList.add(new LingPipeNER());
+        taggerList.add(new OpenNLPNER());
+        taggerList.add(new JulieNER());
+        taggerList.add(new TUDNER(Mode.English));
+        taggerList.add(new TUDNER(Mode.LanguageIndependent));
 
         // String conll2003TrainingPath = "data/datasets/ner/conll/training_verysmall.txt";
         // String conll2003TestPath = "data/datasets/ner/conll/test_validation_small.txt";
 
-        // evaluate on Conll 2003 data
+        // ////////////////////////// evaluate on CoNLL 2003 data ////////////////////////////
         String conll2003TrainingPath = "data/datasets/ner/conll/training.txt";
         String conll2003TestPath = "data/datasets/ner/conll/test_final.txt";
+
+        String tud2011TrainingPath = "data/datasets/ner/tud/tud2011_train.txt";
+        String tud2011TestPath = "data/datasets/ner/tud/tud2011_test.txt";
 
         Evaluator evaluator = new Evaluator();
 
         // evaluate using seed entities only (only TUDNER)
-        // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 5);
+        evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
         // for (NamedEntityRecognizer tagger : taggerList) {
@@ -445,12 +452,25 @@ public class Evaluator {
         // "=-DOCSTART-\tO", 201, 500, 10);
         // }
 
-        taggerList.clear();
-        taggerList.add(new TUDNER(Mode.English));
-        evaluator.evaluateOnGeneratedTrainingset(taggerList, "data/temp/autoGeneration/", conll2003TestPath);
+        List<NamedEntityRecognizer> taggerListWebLearning = new ArrayList<NamedEntityRecognizer>();
+        TUDNER tudnerForIncompleteTraining = new TUDNER(Mode.English);
+        tudnerForIncompleteTraining.setTrainingMode(TrainingMode.Incomplete);
 
-        // evaluate on TUD 2011 data
-        // TODO
+        taggerListWebLearning.add(tudnerForIncompleteTraining);
+        evaluator.evaluateOnGeneratedTrainingset(taggerListWebLearning, "data/temp/autoGeneration/", conll2003TestPath);
+
+        // ////////////////////////// evaluate on TUD 2011 data ////////////////////////////
+
+        // evaluate using seed entities only (only TUDNER)
+        evaluator.evaluateSeedInputOnly(tud2011TrainingPath, tud2011TestPath, 1, 50);
+
+        // evaluate all tagger how they depend on the number of documents in the training set
+        for (NamedEntityRecognizer tagger : taggerList) {
+            evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
+            evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
+                    "=-DOCSTART-\tO", 1, 60, 5);
+        }
+
     }
 
 }
