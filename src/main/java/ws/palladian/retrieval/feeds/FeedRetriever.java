@@ -16,7 +16,6 @@ import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
@@ -34,7 +33,8 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * The FeedRetriever is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for downloading
+ * The FeedRetriever is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for
+ * downloading
  * the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for parsing
  * problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items, to fetch
  * additional content.
@@ -133,7 +133,7 @@ public class FeedRetriever {
      * @throws FeedRetrieverException
      */
     public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
-    throws FeedRetrieverException {
+            throws FeedRetrieverException {
 
         StopWatch sw = new StopWatch();
 
@@ -198,7 +198,7 @@ public class FeedRetriever {
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
             boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-            || fileType.equals("pdf");
+                    || fileType.equals("pdf");
             if (ignore) {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
@@ -586,7 +586,7 @@ public class FeedRetriever {
      * @throws FeedRetrieverException
      */
     private Document downloadFeedDocument(String feedUrl, HeaderInformation headerInformation)
-    throws FeedRetrieverException {
+            throws FeedRetrieverException {
 
         Document feedDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
         if (feedDocument == null) {
@@ -694,29 +694,30 @@ public class FeedRetriever {
 
     public static void main(String[] args) throws Exception {
 
-
         // String clean =
         // cleanup("Anonymous created the <a href=\"/forum/message.php?msg_id=126707\" title=\"phpMyAdmin\">Welcome to Open Discussion</a> forum thread");
         // System.out.println(clean);
         // System.exit(0);
 
-//        DocumentRetriever retr = new DocumentRetriever();
-//        retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
-//        System.exit(0);
+        // DocumentRetriever retr = new DocumentRetriever();
+        // retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
+        // System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
         downloader.setCleanStrings(false);
         downloader.setUseDateRecognition(true);
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
-        StopWatch sw = new StopWatch();
+        // StopWatch sw = new StopWatch();
         // Feed feed = downloader.getFeed("http://808chiangmai.com/?feed=atom");
-        Feed feed = downloader.getFeed("http://z.umn.edu/musicevents");
-        feed = downloader.getFeed("http://www.pittsburghgrapevine.com/public/rss/act_blogs/rss_20/");
-        
-        CollectionHelper.print(feed.getItems());
-        // System.out.println(feed.getItems().get(0).getPublished());
-        System.out.println("took " + sw);
+        // Feed feed = downloader.getFeed("http://z.umn.edu/musicevents");
+
         System.exit(0);
+        // feed = downloader.getFeed("http://www.pittsburghgrapevine.com/public/rss/act_blogs/rss_20/");
+
+        // CollectionHelper.print(feed.getItems());
+        // System.out.println(feed.getItems().get(0).getPublished());
+        // System.out.println("took " + sw);
+        // System.exit(0);
 
         // FeedRetriever.printFeed(feed);
 
