@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +58,7 @@ public class DatasetCreator {
 
     /** Path to the folder where the dataset is stored. */
     public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
-            + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
+    + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
 
     /** We need this many file handles to process one FeedTask. */
     public static final int FILE_HANDLES_PER_TASK = 20;
@@ -114,8 +116,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
-                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
+                .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -335,25 +337,9 @@ public class DatasetCreator {
                     }
                 }
                 // load only the last window from file
-                List<String> fileEntries = FileHelper.readFileToArray(filePath, feed.getWindowSize());
+                List<String> fileEntries = FileHelper.tail(filePath, feed.getWindowSize());
 
-                // calculate size of feed header and footer, which should always stay the same.
-                // long summedFeedEntrySize = 0;
-                // for (FeedItem entry : feedEntries) {
-                // String entryPlainXML = entry.getRawMarkup();
-                // Integer entrySize = entryPlainXML.getBytes().length;
-                // summedFeedEntrySize += entrySize;
-                // }
-
-                // LOGGER.info("feed: "+feed);
-                // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
-                // String feedPlainXML = feed.getRawMarkup();
-                // Integer feedSize = feedPlainXML.getBytes().length;
-                // long feedContainerSize = feedSize - summedFeedEntrySize;
-                // we dont need the size since we store everything in *.gz
-                long feedContainerSize = -1L;
-
-                StringBuilder newEntries = new StringBuilder();
+                List<String> newEntries = new ArrayList<String>();
                 int newItems = 0;
 
                 StringBuilder entryWarnings = new StringBuilder();
@@ -366,35 +352,34 @@ public class DatasetCreator {
                         continue;
                     }
 
-                    String fileEntry = "";
-                    String fileEntryID = "";
+                    StringBuilder fileEntry = new StringBuilder();
+                    StringBuilder fileEntryID = new StringBuilder();
 
                     if (entry.getTitle() == null || entry.getTitle().length() == 0) {
-                        fileEntryID += "\"###NO_TITLE###\";";
+                        fileEntryID.append("\"###NO_TITLE###\";");
                     } else {
-                        fileEntryID += "\""
+                        fileEntryID.append("\""
                                 + StringHelper.removeControlCharacters(entry.getTitle()).replaceAll("\"", "'")
-                                        .replaceAll(";", "putSemicolonHere") + "\";";
+                                .replaceAll(";", "putSemicolonHere") + "\";");
                     }
-                    fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
-                    fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
+                    fileEntryID.append("\"" + StringHelper.trim(entry.getLink()) + "\";");
+                    fileEntry.append(entry.getPublished().getTime()).append(";").append(fileEntryID);
                     // ignore entry size, we can get it later from *.gz
-                    fileEntry += "-1;";
-                    // fileEntry += entry.getRawMarkup().getBytes().length + ";";
-                    fileEntry += feedContainerSize + ";";
-                    fileEntry += feedEntries.size();
+                    fileEntry.append("-1;");
+                    fileEntry.append(feedEntries.size());
 
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
                     boolean contains = false;
                     for (String savedFileEntry : fileEntries) {
-                        if (savedFileEntry.substring(savedFileEntry.indexOf(";") + 1).startsWith(fileEntryID)) {
+                        if (savedFileEntry.substring(savedFileEntry.indexOf(";") + 1)
+                                .startsWith(fileEntryID.toString())) {
                             contains = true;
                             break;
                         }
                     }
 
                     if (!contains) {
-                        newEntries.append(fileEntry).append("\n");
+                        newEntries.add(fileEntry.toString());
                         newItems++;
                     }
 
@@ -408,18 +393,27 @@ public class DatasetCreator {
                 // special line
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     feed.increaseMisses();
-                    newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
+                    newEntries.add("MISS;MISS;MISS;MISS;MISS;");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
                 }
 
                 // save the complete feed gzipped in the folder if we found at least one new item
                 if (newItems > 0) {
+
+                    Collections.reverse(newEntries);
+
+                    StringBuilder newEntryBuilder = new StringBuilder();
+                    for (String string : newEntries) {
+                        newEntryBuilder.append(string).append("\n");
+                    }
+
                     DocumentRetriever documentRetriever = new DocumentRetriever();
                     documentRetriever.downloadAndSave(feed.getFeedUrl(),
                             folderPath + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + ".gz", true);
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
-                    FileHelper.prependFile(filePath, newEntries.toString());
+                    // FileHelper.prependFile(filePath, newEntries.toString());
+                    FileHelper.appendFile(filePath, newEntryBuilder);
                 }
 
                 // removed by Philipp, 2011-05-11; this is already invoked by the feed task itself, after ;
@@ -428,10 +422,8 @@ public class DatasetCreator {
                 // feed.freeMemory();
                 // end remove //
                 
-                // feed.setLastHeadlines("");
 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
-
             }
         };
 
@@ -450,23 +442,23 @@ public class DatasetCreator {
         if (config != null) {
             checkLimitations= config.getBoolean("feedReader.checkSystemLimitations", CHECK_SYSTEM_LIMITATIONS_DEFAULT);
         }
-        
+
         if (!checkLimitations) {
             LOGGER.warn("You skipped checking system for limitations. Good luck!");
             return;
         }
         String stdErrorMsg = "Make sure you have at least 20 times more file handles than FeedReader-threads.\n"
-                + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
-                + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
-                + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
-                + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
-                + "<username> soft nofile <minimum-required-size>\n"
-                + "<username> hard nofile <minimum-required-size>+1024\n"
-                + "example"
-                + "feeduser soft nofile 31744\n"
-                + "feeduser hard nofile 32768\n"
-                + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
-                + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
+            + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
+            + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
+            + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
+            + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
+            + "<username> soft nofile <minimum-required-size>\n"
+            + "<username> hard nofile <minimum-required-size>+1024\n"
+            + "example"
+            + "feeduser soft nofile 31744\n"
+            + "feeduser hard nofile 32768\n"
+            + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
+            + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
 
         // detect operating system
         String os = System.getProperty("os.name");

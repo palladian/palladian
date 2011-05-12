@@ -273,9 +273,10 @@ public class FileHelper {
      * @param numberOfLines The number of lines from the end of the file that should be returned.
      * @return A string with text lines from the specified file.
      */
-    public static String tail(String path, int numberOfLines) {
+    public static List<String> tail(String path, int numberOfLines) {
 
-        StringBuilder contents = new StringBuilder();
+        List<String> list = new ArrayList<String>();
+
         BufferedReader reader = null;
 
         int totalNumberOfLines = getNumberOfLines(path);
@@ -294,7 +295,7 @@ public class FileHelper {
                 }
 
                 if (totalNumberOfLines - numberOfLines < lineCount) {
-                    contents.append(line).append("\n");
+                    list.add(line);
                 }
 
             } while (line != null);
@@ -309,7 +310,7 @@ public class FileHelper {
             close(reader);
         }
 
-        return contents.toString();
+        return list;
     }
 
     /**
@@ -654,9 +655,18 @@ public class FileHelper {
     }
 
     /**
+     * <p>
      * Prepends (i. e. inserts a the beginning) a String to the specified File.
+     * </p>
      * 
-     * Inspired by http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java
+     * <p>
+     * Inspired by <a href="http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java">Stack Overflow
+     * Thread</a>
+     * </p>
+     * 
+     * <p>
+     * <b>Note: Prepending is much slower than appending, so do not use this if you need high performance!</b>
+     * </p>
      * 
      * @param filePath the file path
      * @param stringToPrepend the string to prepend
