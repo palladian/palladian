@@ -5,8 +5,9 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: TUDIIR
-    Description: none
+    Checkstyle-Configuration: Palladian Configuration
+    Description: 
+Slightly modified version of Sun Checks that better matches the default code formatter setting of Eclipse.
 -->
 <module name="Checker">
   <property name="severity" value="warning"/>
@@ -44,8 +45,10 @@
     <module name="OperatorWrap"/>
     <module name="ParenPad"/>
     <module name="TypecastParenPad">
+      <property name="severity" value="ignore"/>
       <property name="option" value="space"/>
       <property name="tokens" value="RPAREN,TYPECAST"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="WhitespaceAfter"/>
     <module name="WhitespaceAround"/>
@@ -56,7 +59,10 @@
     <module name="LeftCurly"/>
     <module name="NeedBraces"/>
     <module name="RightCurly"/>
-    <module name="AvoidInlineConditionals"/>
+    <module name="AvoidInlineConditionals">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
     <module name="DoubleCheckedLocking"/>
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
@@ -81,12 +87,14 @@
     <module name="MethodName"/>
     <module name="PackageName"/>
     <module name="StaticVariableName"/>
-    <module name="LineLength">
-      <property name="max" value="120"/>
-    </module>
     <module name="TypecastParenPad">
+      <property name="severity" value="ignore"/>
       <property name="option" value="space"/>
       <property name="tokens" value="RPAREN,TYPECAST"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
+    <module name="LineLength">
+      <property name="max" value="120"/>
     </module>
   </module>
   <module name="Translation"/>
