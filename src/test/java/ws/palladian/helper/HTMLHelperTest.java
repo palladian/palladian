@@ -53,13 +53,14 @@ public class HTMLHelperTest {
     @Test
     public void testStripTags() {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        assertEquals("this is relevant", HTMLHelper.stripHTMLTags(htmlContent, true, true, true, true).trim());
+        assertEquals("this is relevant",
+                HTMLHelper.stripHTMLTags(htmlContent, true, true, true, true).trim());
 
         DocumentRetriever crawler = new DocumentRetriever();
         String content = crawler.download(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
-        String result = HTMLHelper.stripHTMLTags(content, true, true, true, false).trim();
-        // System.out.println(result);
+        String result = HTMLHelper.stripHTMLTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
+        System.out.println(result);
         // System.out.println(DigestUtils.md5Hex(result));
         Assert.assertEquals("ecf0720bd7f9afc0dc40ec100ca8e96f", DigestUtils.md5Hex(result));
     }
