@@ -72,7 +72,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastMissTime());
         parameters.add(feed.isBlocked());
         parameters.add(feed.getLastSuccessfulCheckTime());
-        
+
         int result = runInsertReturnId(ADD_FEED, parameters);
         if (result > 0) {
             feed.setId(result);
