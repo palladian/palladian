@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <ruleset xmlns="http://pmd.sf.net/ruleset/1.0.0" name="pmd_ruleset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd" xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd">
-   <description>Palladian PMD rule set</description>
+   <description>Palladian PMD rules</description>
    <rule ref="rulesets/typeresolution.xml/LooseCoupling"/>
    <rule ref="rulesets/typeresolution.xml/CloneMethodMustImplementCloneable"/>
    <rule ref="rulesets/typeresolution.xml/UnusedImports"/>
@@ -61,7 +61,6 @@
    <rule ref="rulesets/strictexception.xml/SignatureDeclareThrowsException"/>
    <rule ref="rulesets/strictexception.xml/ExceptionAsFlowControl"/>
    <rule ref="rulesets/strictexception.xml/AvoidCatchingNPE"/>
-   <rule ref="rulesets/strictexception.xml/AvoidThrowingRawExceptionTypes"/>
    <rule ref="rulesets/strictexception.xml/AvoidThrowingNullPointerException"/>
    <rule ref="rulesets/strictexception.xml/AvoidRethrowingException"/>
    <rule ref="rulesets/strictexception.xml/DoNotExtendJavaLangError"/>
@@ -113,8 +112,6 @@
    <rule ref="rulesets/j2ee.xml/DoNotCallSystemExit"/>
    <rule ref="rulesets/j2ee.xml/StaticEJBFieldShouldBeFinal"/>
    <rule ref="rulesets/j2ee.xml/DoNotUseThreads"/>
-   <rule ref="rulesets/optimizations.xml/LocalVariableCouldBeFinal"/>
-   <rule ref="rulesets/optimizations.xml/AvoidInstantiatingObjectsInLoops"/>
    <rule ref="rulesets/optimizations.xml/UseArrayListInsteadOfVector"/>
    <rule ref="rulesets/optimizations.xml/SimplifyStartsWith"/>
    <rule ref="rulesets/optimizations.xml/UseStringBufferForStringAppends"/>
@@ -178,7 +175,6 @@
    <rule ref="rulesets/junit.xml/SimplifyBooleanAssertion"/>
    <rule ref="rulesets/controversial.xml/UnnecessaryConstructor"/>
    <rule ref="rulesets/controversial.xml/NullAssignment"/>
-   <rule ref="rulesets/controversial.xml/OnlyOneReturn"/>
    <rule ref="rulesets/controversial.xml/UnusedModifier"/>
    <rule ref="rulesets/controversial.xml/AssignmentInOperand"/>
    <rule ref="rulesets/controversial.xml/AtLeastOneConstructor"/>
@@ -188,17 +184,12 @@
    <rule ref="rulesets/controversial.xml/UnnecessaryParentheses"/>
    <rule ref="rulesets/controversial.xml/DefaultPackage"/>
    <rule ref="rulesets/controversial.xml/BooleanInversion"/>
-   <rule ref="rulesets/controversial.xml/DataflowAnomalyAnalysis"/>
-   <rule ref="rulesets/controversial.xml/AvoidFinalLocalVariable"/>
    <rule ref="rulesets/controversial.xml/AvoidUsingShortType"/>
    <rule ref="rulesets/controversial.xml/AvoidUsingVolatile"/>
    <rule ref="rulesets/controversial.xml/AvoidUsingNativeCode"/>
    <rule ref="rulesets/controversial.xml/AvoidAccessibilityAlteration"/>
-   <rule ref="rulesets/controversial.xml/DoNotCallGarbageCollectionExplicitly"/>
    <rule ref="rulesets/naming.xml/ShortVariable"/>
-   <rule ref="rulesets/naming.xml/LongVariable">
-      <priority>5</priority>
-   </rule>
+   <rule ref="rulesets/naming.xml/LongVariable"/>
    <rule ref="rulesets/naming.xml/ShortMethodName"/>
    <rule ref="rulesets/naming.xml/VariableNamingConventions"/>
    <rule ref="rulesets/naming.xml/MethodNamingConventions"/>
