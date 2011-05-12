@@ -443,6 +443,10 @@
 			<id>snapshots</id>
 			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
 		</repository>
+		<repository>
+			<id>weka</id>
+			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
