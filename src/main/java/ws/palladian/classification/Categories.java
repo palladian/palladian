@@ -12,35 +12,6 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Check whether ArrayList contains obj.
-     * 
-     * @return True if the obj is contained, false otherwise.
-     */
-    @Override
-    public boolean contains(final Object obj) {
-        String categoryName = ((Category) obj).getName();
-
-        for (Category c : this) {
-            if (c.equals(categoryName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean containsCategoryName(final String categoryName) {
-
-        for (Category c : this) {
-            if (c.equals(categoryName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     @Override
     public boolean add(final Category category) {
 
@@ -71,6 +42,53 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
     }
 
     /**
+     * The prior for a category is the probability of encountering a document of this category in a set of documents,
+     * where each one is labeled with its true category. So in a set of labeled training documents, each category has a
+     * frequency. The ratio of this frequency to total number of documents will be used to calculate the priors for each
+     * category.
+     * 
+     * @param totalDocuments The total number of documents having a category assigned.
+     */
+    public void calculatePriors() {
+        int totalDocuments = 0;
+        for (Category category : this) {
+            totalDocuments += category.getFrequency();
+        }
+        for (Category category : this) {
+            category.calculatePrior(totalDocuments);
+        }
+    }
+
+    /**
+     * Check whether ArrayList contains obj.
+     * 
+     * @return True if the obj is contained, false otherwise.
+     */
+    @Override
+    public boolean contains(final Object obj) {
+        String categoryName = ((Category) obj).getName();
+
+        for (Category c : this) {
+            if (c.equals(categoryName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean containsCategoryName(final String categoryName) {
+
+        for (Category c : this) {
+            if (c.equals(categoryName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get a certain category from the list.
      * 
      * @param categoryName
@@ -83,21 +101,6 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
             }
         }
         return null;
-    }
-
-    /**
-     * After the learning phase, each category has a frequency. The ratio of frequency to total number of documents will be used to calculate the priors.
-     * 
-     * @param totalDocuments The total number of documents having a category assigned.
-     */
-    public void calculatePriors() {
-        int totalDocuments = 0;
-        for (Category category : this) {
-            totalDocuments += category.getFrequency();
-        }
-        for (Category category : this) {
-            category.calculatePrior(totalDocuments);
-        }
     }
 
     public void resetFrequencies() {
