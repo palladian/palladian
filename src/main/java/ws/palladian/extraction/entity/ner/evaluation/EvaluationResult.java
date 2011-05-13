@@ -212,7 +212,11 @@ public class EvaluationResult {
         precision = getPrecisionFor(tagName, type);
         recall = getRecallFor(tagName, type);
 
-        if (precision == 0 && recall == 0 || precision == -1 || recall == -1) {
+        if (precision == 0 || recall == 0) {
+            return 0.0;
+        }
+
+        if (precision == -1 || recall == -1) {
             return f1;
         }
 
@@ -265,6 +269,12 @@ public class EvaluationResult {
 
         double precision = getTagAveragedPrecision(type);
         double recall = getTagAveragedRecall(type);
+
+        if (precision == 0 || recall == 0) {
+            return 0.0;
+        } else if (precision < 0 || recall < 0) {
+            return f1;
+        }
 
         f1 = 2 * precision * recall / (precision + recall);
 
@@ -347,7 +357,9 @@ public class EvaluationResult {
         precision = getPrecision(type);
         recall = getRecall(type);
 
-        if (precision == 0 && recall == 0) {
+        if (precision == 0 || recall == 0) {
+            return 0.0;
+        } else if (precision < 0 || recall < 0) {
             return f1;
         }
 

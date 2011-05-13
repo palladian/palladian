@@ -21,6 +21,8 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -343,52 +345,96 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        
-        
 
-        // List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\tud2011Complete.xml");
-        List<String> fileArray = FileHelper.readFileToArray("data/datasets/ner/tud/tud2011Complete.xml");
-        
-        boolean lastClosing = false;
-
-        for (String string : fileArray) {
-
-            Pattern pattern = Pattern.compile("<(.*?)>(?=(.{0,10}))");
-            Matcher matcher = pattern.matcher(string);
-
-            String lastTag = "";
-
-            while (matcher.find()) {
-
-                String currentTag = matcher.group(1);
-
-                boolean closingTag = false;
-                if (currentTag.indexOf("/") > -1) {
-                    closingTag = true;
-                }
-
-                currentTag = currentTag.replace("/", "").replace(">", "").replace("<", "");
-
-                if (closingTag && !lastTag.equals(currentTag)) {
-                    System.out.println("here1 !!! " + matcher.group(2));
-                }
-
-                if (lastClosing && closingTag) {
-                    System.out.println("here2 !!! " + matcher.group(2));
-                }
-
-                if (!lastClosing && !closingTag && lastTag.length() > 0) {
-                    System.out.println("here3 !!! " + matcher.group(2) + ", " + matcher.start());
-                    System.out.println("last tag: " + lastTag + ", this tag: " + currentTag);
-                }
-
-                lastClosing = closingTag;
-                lastTag = currentTag;
-                // System.out.println(lastTag);
-
-            }
-
+        List<String> readFileToArray = FileHelper
+                .readFileToArray("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml");
+        CountMap countMap = new CountMap();
+        for (String string : readFileToArray) {
+            countMap.increment(string.substring(1, string.indexOf(">")));
         }
+        CollectionHelper.print(countMap);
+        
+// StringBuilder seedFile = new StringBuilder();
+        //
+        // String seedFolderPath = "G:\\Projects\\Programming\\Java\\WebKnox\\data\\knowledgeBase\\seedEntities\\";
+        // File[] files = FileHelper.getFiles("H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed");
+        // for (File file : files) {
+        //
+        // if (file.isDirectory()) {
+        //
+        // List<String> seeds = FileHelper.readFileToArray(file.getPath() + "\\seeds\\seeds.txt");
+        // List<String> cleansedSeeds = new ArrayList<String>();
+        // for (String string : seeds) {
+        // cleansedSeeds.add(string.replaceAll("###.*", ""));
+        // }
+        // CollectionHelper.print(cleansedSeeds);
+        //
+        // String conceptName = file.getPath().substring(file.getPath().lastIndexOf("\\") + 1).toLowerCase();
+        //
+        // List<String> seeds2 = FileHelper.readFileToArray(seedFolderPath+conceptName+".txt");
+        //
+        // for (String string : seeds2) {
+        // if (string.indexOf("#") > -1) {
+        // continue;
+        // }
+        // if (!cleansedSeeds.contains(string)) {
+        // seedFile.append("<" + conceptName.toUpperCase() + ">" + string + "</"
+        // + conceptName.toUpperCase() + ">\n");
+        // }
+        // }
+        //
+        //
+        // }
+        //
+        // }
+        //
+        // FileHelper.writeToFile("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml", seedFile);
+
+        // /////////////////////////////// check xml file for closed tags ///////////////////////////////
+        // List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\tud2011Complete.xml");
+        // List<String> fileArray = FileHelper.readFileToArray("data/datasets/ner/tud/tud2011Complete.xml");
+        //
+        // boolean lastClosing = false;
+        //
+        // for (String string : fileArray) {
+        //
+        // Pattern pattern = Pattern.compile("<(.*?)>(?=(.{0,10}))");
+        // Matcher matcher = pattern.matcher(string);
+        //
+        // String lastTag = "";
+        //
+        // while (matcher.find()) {
+        //
+        // String currentTag = matcher.group(1);
+        //
+        // boolean closingTag = false;
+        // if (currentTag.indexOf("/") > -1) {
+        // closingTag = true;
+        // }
+        //
+        // currentTag = currentTag.replace("/", "").replace(">", "").replace("<", "");
+        //
+        // if (closingTag && !lastTag.equals(currentTag)) {
+        // System.out.println("here1 !!! " + matcher.group(2));
+        // }
+        //
+        // if (lastClosing && closingTag) {
+        // System.out.println("here2 !!! " + matcher.group(2));
+        // }
+        //
+        // if (!lastClosing && !closingTag && lastTag.length() > 0) {
+        // System.out.println("here3 !!! " + matcher.group(2) + ", " + matcher.start());
+        // System.out.println("last tag: " + lastTag + ", this tag: " + currentTag);
+        // }
+        //
+        // lastClosing = closingTag;
+        // lastTag = currentTag;
+        // // System.out.println(lastTag);
+        //
+        // }
+        //
+        // }
+        // /////////////////////////////////////////////////////////////////////////////////////////////////
 
         // downloadFeedTest();
         //threadPoolTest();
