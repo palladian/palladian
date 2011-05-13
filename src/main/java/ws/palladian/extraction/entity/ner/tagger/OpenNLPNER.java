@@ -81,7 +81,8 @@ import ws.palladian.helper.StopWatch;
  */
 public class OpenNLPNER extends NamedEntityRecognizer {
 
-    private NameFinderME[] nameFinders;
+    /** Set this true if you evaluate on the CoNLL 2003 corpus. */
+    private boolean conllEvaluation = false;
 
     public OpenNLPNER() {
         setName("OpenNLP NER");
@@ -332,10 +333,10 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
             // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
             // few places, so we delete all lines with no tags for the concepts with few mentions
-            if (false/*
-                      * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
-                      * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
-                      */) {
+            if (!isConllEvaluation()/*
+                                     * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
+                                     * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
+                                     */) {
 
                 List<String> array = FileHelper.readFileToArray("data/temp/openNLPNERTraining.xml");
 
@@ -409,6 +410,14 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
 
         return true;
+    }
+
+    public void setConllEvaluation(boolean conllEvaluation) {
+        this.conllEvaluation = conllEvaluation;
+    }
+
+    public boolean isConllEvaluation() {
+        return conllEvaluation;
     }
 
     /**
@@ -528,7 +537,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // TaggingFormat.XML));
 
         // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
+        tagger.setConllEvaluation(true);
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
         // tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP.bin",
                 TaggingFormat.COLUMN);
