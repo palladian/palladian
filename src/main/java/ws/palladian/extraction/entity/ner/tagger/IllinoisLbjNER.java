@@ -72,6 +72,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     /** Number of rounds for training. */
     private int trainingRounds = 20;
 
+    /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
 
     public IllinoisLbjNER() {
