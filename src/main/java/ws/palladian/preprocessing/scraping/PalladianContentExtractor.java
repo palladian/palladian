@@ -277,7 +277,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         PalladianContentExtractor pe = new PalladianContentExtractor();
         //WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
-        pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
+        // pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
+        pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Result Text: "+pe.getResultText());

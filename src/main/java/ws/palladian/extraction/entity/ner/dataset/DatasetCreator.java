@@ -31,7 +31,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
+import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.search.WebSearcher;
@@ -274,7 +274,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StopWatch stopWatch = new StopWatch();
 
         DocumentRetriever urlDownloader = new DocumentRetriever();
-        urlDownloader.setUseCompression(false);
+        urlDownloader.setUseCompression(true);
         urlDownloader.setDownloadFilter(downloadFilter);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
@@ -304,7 +304,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             seedFileCopy.append(seedEntity).append("###")
             .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
-            List<String> urls = getWebPages(seedEntity);
+            List<String> urls = getWebPages(seedEntity, seedFileName);
             urlDownloader.add(urls);
 
             Set<Document> documents = urlDownloader.start();
@@ -348,14 +348,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @param seedEntity The name of the seed entity.
      * @return A list of URLs containing the seed entity.
      */
-    private List<String> getWebPages(String seedEntity) {
+    private List<String> getWebPages(String seedEntity, String conceptName) {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         WebSearcher sourceRetriever = new WebSearcher();
         sourceRetriever.setResultCount(10 * getMentionsPerEntity());
         sourceRetriever.setSource(getSourceAPI());
 
-        return sourceRetriever.getURLs(seedEntity, true);
+        return sourceRetriever.getURLs("\"" + seedEntity + "\" " + conceptName.toLowerCase(), false);
     }
 
     /**
@@ -380,7 +380,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         try {
             webPageContent = HTMLHelper.documentToString(webPage);
             // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
-            webPageText = new PalladianContentExtractor().setDocument(webPage).getResultText();
+            webPageText = new ReadabilityContentExtractor().setDocument(webPage).getResultText();
+
+            if (webPageText.length() < 100) {
+                return;
+            }
         } catch (Exception e) {
             LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
             return;
@@ -390,13 +394,21 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
 
         // mark up all seed entities
+        boolean foundMarkup = false;
         for (String seedEntity : seedEntities) {
 
             try {
 
                 String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
-                String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
+                String searchRegexp = escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
                 + "(?=\\s)";
+
+                // remove tags
+                webPageText = HTMLHelper.stripHTMLTags(webPageText);
+
+                if (webPageText.contains(seedEntity)) {
+                    foundMarkup = true;
+                }
 
                 // mark up html
                 webPageContent = webPageContent.replaceAll(searchRegexp,
@@ -418,7 +430,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
 
         // save web page
-        if (webPageContent.length() > 10) {
+        if (webPageContent.length() > 100 && foundMarkup) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
                     + StringHelper.makeSafeName(UrlHelper.getCleanURL(webPage.getDocumentURI()), 30) + ".html",
@@ -428,20 +440,15 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
 
         // save text
-        if (webPageText.length() > 0) {
+        if (webPageText.length() > 50 && foundMarkup) {
 
-            // webPageText = cleanText(webPageText, conceptName);
+            String filePath = getDataSetLocation() + seedFileName + "/"
+                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+            FileHelper.writeToFile(filePath, webPageText);
 
-            if (webPageText.length() > 10) {
+            FileHelper.removeDuplicateLines(filePath, filePath);
 
-                String filePath = getDataSetLocation() + seedFileName + "/"
-                + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
-                FileHelper.writeToFile(filePath, webPageText);
-
-                FileHelper.removeDuplicateLines(filePath, filePath);
-
-                LOGGER.debug("saved text file");
-            }
+            LOGGER.debug("saved text file");
 
         }
     }

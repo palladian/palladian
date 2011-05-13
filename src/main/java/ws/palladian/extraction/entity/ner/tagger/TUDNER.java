@@ -325,6 +325,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         LOGGER.info("start training classifiers now...");
         universalClassifier.trainAll();
 
+        // XXX can this be switched on? training with annotations only?
         // analyzeContexts(trainingFilePath);
 
         saveModel(modelFilePath);
