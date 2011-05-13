@@ -14,7 +14,6 @@ import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
 import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
 import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
-import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.Mode;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.TrainingMode;
@@ -425,8 +424,8 @@ public class Evaluator {
         // System.exit(0);
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
-        taggerList.add(new StanfordNER());
-        taggerList.add(new IllinoisLbjNER());
+        // taggerList.add(new StanfordNER());
+        taggerList.add(new IllinoisLbjNER()); // you have to set conllEvaluation to true if used for conll
         taggerList.add(new LingPipeNER());
         taggerList.add(new OpenNLPNER());
         // taggerList.add(new JulieNER());
@@ -446,7 +445,7 @@ public class Evaluator {
         Evaluator evaluator = new Evaluator();
 
         // evaluate using seed entities only (only TUDNER)
-        evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
+        // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
         // for (NamedEntityRecognizer tagger : taggerList) {
@@ -455,12 +454,13 @@ public class Evaluator {
         // "=-DOCSTART-\tO", 201, 500, 10);
         // }
 
-        List<NamedEntityRecognizer> taggerListWebLearning = new ArrayList<NamedEntityRecognizer>();
-        TUDNER tudnerForIncompleteTraining = new TUDNER(Mode.English);
-        tudnerForIncompleteTraining.setTrainingMode(TrainingMode.Incomplete);
-
-        taggerListWebLearning.add(tudnerForIncompleteTraining);
-        evaluator.evaluateOnGeneratedTrainingset(taggerListWebLearning, "data/temp/autoGeneration/", conll2003TestPath);
+        // List<NamedEntityRecognizer> taggerListWebLearning = new ArrayList<NamedEntityRecognizer>();
+        // TUDNER tudnerForIncompleteTraining = new TUDNER(Mode.English);
+        // tudnerForIncompleteTraining.setTrainingMode(TrainingMode.Incomplete);
+        //
+        // taggerListWebLearning.add(tudnerForIncompleteTraining);
+        // evaluator.evaluateOnGeneratedTrainingset(taggerListWebLearning, "data/temp/autoGeneration/",
+        // conll2003TestPath);
 
         // ////////////////////////// evaluate on TUD 2011 data ////////////////////////////
 
