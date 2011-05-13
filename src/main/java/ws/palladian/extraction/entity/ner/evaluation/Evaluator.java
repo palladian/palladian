@@ -11,9 +11,6 @@ import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
-import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
-import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
-import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.Mode;
 import ws.palladian.extraction.entity.ner.tagger.TUDNER.TrainingMode;
@@ -425,9 +422,9 @@ public class Evaluator {
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
-        taggerList.add(new IllinoisLbjNER()); // you have to set conllEvaluation to true if used for conll
-        taggerList.add(new LingPipeNER());
-        taggerList.add(new OpenNLPNER());
+        // taggerList.add(new IllinoisLbjNER()); // you have to set conllEvaluation to true if used for conll
+        // taggerList.add(new LingPipeNER());
+        // taggerList.add(new OpenNLPNER());
         // taggerList.add(new JulieNER());
         taggerList.add(new TUDNER(Mode.English));
         taggerList.add(new TUDNER(Mode.LanguageIndependent));
@@ -465,13 +462,13 @@ public class Evaluator {
         // ////////////////////////// evaluate on TUD 2011 data ////////////////////////////
 
         // evaluate using seed entities only (only TUDNER)
-        evaluator.evaluateSeedInputOnly(tud2011TrainingPath, tud2011TestPath, 1, 50);
+        // evaluator.evaluateSeedInputOnly(tud2011TrainingPath, tud2011TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
         for (NamedEntityRecognizer tagger : taggerList) {
             evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
-                    "=-DOCSTART-\tO", 1, 60, 5);
+                    "=-DOCSTART-\tO", 1, 61, 5);
         }
 
     }
