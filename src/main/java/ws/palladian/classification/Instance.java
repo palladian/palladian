@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
+// Klemens: Eine Instanz ist also ein Dokument? Dann ist die Klase Instances also die Dokumentenmenge.
 public abstract class Instance<T> implements Serializable {
 
     private static final long serialVersionUID = -3259696661191824716L;
@@ -25,17 +26,47 @@ public abstract class Instance<T> implements Serializable {
      */
     private Instances<Instance<T>> instances;
 
+    public void addCategoryEntry(CategoryEntry categoryEntry) {
+        this.assignedCategoryEntries.add(categoryEntry);
+    }
+
+    public void assignCategoryEntries(CategoryEntries categoryEntries) {
+        this.assignedCategoryEntries = categoryEntries;
+        categoryEntries.transformRelevancesInPercent(true);
+    }
+
+    public CategoryEntries getAssignedCategoryEntries() {
+        return assignedCategoryEntries;
+    }
+
     /**
-     * Get the category that is most relevant to this document.
+     * Get all categories for the document.
      * 
-     * @param relevanceInPercent If true then the relevance will be output in percent.
-     * @return The most relevant category.
+     * @param relevancesInPercent If true then the relevance will be output in percent.
+     * @return All categories.
      */
-    public CategoryEntry getMainCategoryEntry(boolean relevanceInPercent) {
-        if (relevanceInPercent) {
+    public CategoryEntries getAssignedCategoryEntries(boolean relevancesInPercent) {
+        if (relevancesInPercent) {
             assignedCategoryEntries.transformRelevancesInPercent(true);
         }
-        return getMainCategoryEntry();
+        return assignedCategoryEntries;
+    }
+
+    public CategoryEntries getAssignedCategoryEntriesByRelevance(int classType) {
+        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
+            return assignedCategoryEntries;
+        }
+        sortCategoriesByRelevance();
+        return assignedCategoryEntries;
+    }
+
+    public String getAssignedCategoryEntryNames() {
+        StringBuilder nameList = new StringBuilder();
+
+        for (CategoryEntry ce : assignedCategoryEntries) {
+            nameList.append(ce.getCategory().getName()).append(",");
+        }
+        return nameList.substring(0, Math.max(0, nameList.length() - 1));
     }
 
     public CategoryEntry getCategoryEntry(String categoryName) {
@@ -54,6 +85,36 @@ public abstract class Instance<T> implements Serializable {
         }
 
         return ceMatch;
+    }
+
+    public int getClassifiedAs() {
+        return classifiedAs;
+    }
+
+    public String getClassifiedAsReadable() {
+        switch (classifiedAs) {
+            case ClassificationTypeSetting.SINGLE:
+                return "single";
+            case ClassificationTypeSetting.TAG:
+                return "tag";
+            case ClassificationTypeSetting.HIERARCHICAL:
+                return "hierarchical";
+            case ClassificationTypeSetting.REGRESSION:
+                return "regression";
+        }
+        return "unknown";
+    }
+
+    public Category getInstanceCategory() {
+        return instanceCategory;
+    }
+
+    public String getInstanceCategoryName() {
+        return instanceCategory.getName();
+    }
+
+    public Instances<Instance<T>> getInstances() {
+        return instances;
     }
 
     public CategoryEntry getMainCategoryEntry() {
@@ -86,72 +147,16 @@ public abstract class Instance<T> implements Serializable {
     }
 
     /**
-     * Get all categories for the document.
+     * Get the category that is most relevant to this document.
      * 
-     * @param relevancesInPercent If true then the relevance will be output in percent.
-     * @return All categories.
+     * @param relevanceInPercent If true then the relevance will be output in percent.
+     * @return The most relevant category.
      */
-    public CategoryEntries getAssignedCategoryEntries(boolean relevancesInPercent) {
-        if (relevancesInPercent) {
+    public CategoryEntry getMainCategoryEntry(boolean relevanceInPercent) {
+        if (relevanceInPercent) {
             assignedCategoryEntries.transformRelevancesInPercent(true);
         }
-        return assignedCategoryEntries;
-    }
-
-    public CategoryEntries getAssignedCategoryEntries() {
-        return assignedCategoryEntries;
-    }
-
-    public String getAssignedCategoryEntryNames() {
-        StringBuilder nameList = new StringBuilder();
-
-        for (CategoryEntry ce : assignedCategoryEntries) {
-            nameList.append(ce.getCategory().getName()).append(",");
-        }
-        return nameList.substring(0, Math.max(0, nameList.length() - 1));
-    }
-
-    public void assignCategoryEntries(CategoryEntries categoryEntries) {
-        this.assignedCategoryEntries = categoryEntries;
-        categoryEntries.transformRelevancesInPercent(true);
-    }
-
-    public void addCategoryEntry(CategoryEntry categoryEntry) {
-        this.assignedCategoryEntries.add(categoryEntry);
-    }
-
-    public int getClassifiedAs() {
-        return classifiedAs;
-    }
-
-    public String getClassifiedAsReadable() {
-        switch (classifiedAs) {
-            case ClassificationTypeSetting.SINGLE:
-                return "single";
-            case ClassificationTypeSetting.TAG:
-                return "tag";
-            case ClassificationTypeSetting.HIERARCHICAL:
-                return "hierarchical";
-            case ClassificationTypeSetting.REGRESSION:
-                return "regression";
-        }
-        return "unknown";
-    }
-
-    public void setClassifiedAs(int classifiedAs) {
-        this.classifiedAs = classifiedAs;
-    }
-
-    public void sortCategoriesByRelevance() {
-        assignedCategoryEntries.sortByRelevance();
-    }
-
-    public CategoryEntries getAssignedCategoryEntriesByRelevance(int classType) {
-        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
-            return assignedCategoryEntries;
-        }
-        sortCategoriesByRelevance();
-        return assignedCategoryEntries;
+        return getMainCategoryEntry();
     }
 
     /**
@@ -174,6 +179,10 @@ public abstract class Instance<T> implements Serializable {
         assignCategoryEntries(limitedCategories);
     }
 
+    public void setClassifiedAs(int classifiedAs) {
+        this.classifiedAs = classifiedAs;
+    }
+
     public void setInstanceCategory(Category instanceCategory) {
         this.instanceCategory = instanceCategory;
     }
@@ -187,20 +196,12 @@ public abstract class Instance<T> implements Serializable {
         this.instanceCategory = category;
     }
 
-    public Category getInstanceCategory() {
-        return instanceCategory;
-    }
-
-    public String getInstanceCategoryName() {
-        return instanceCategory.getName();
-    }
-
     public void setInstances(Instances<Instance<T>> instances) {
         this.instances = instances;
     }
 
-    public Instances<Instance<T>> getInstances() {
-        return instances;
+    public void sortCategoriesByRelevance() {
+        assignedCategoryEntries.sortByRelevance();
     }
 
     @Override

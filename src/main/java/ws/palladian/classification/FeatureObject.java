@@ -13,12 +13,16 @@ import java.util.Map.Entry;
  */
 public class FeatureObject {
 
+    // Klemens: Warum sind alle features double?
     /** The features. */
     private Double[] features;
 
+    // Klemens: Was für Werte hat ein Feature denn?
     /** The feature names. */
     private String[] featureNames;
 
+    // Klemens: Jedes Feature sollte in Relation zu mehreren Klassen stehen können und diese Beziehung sollte aus der
+    // Klasse kommen.
     /** The class association. */
     private int classAssociation;
 
@@ -34,20 +38,9 @@ public class FeatureObject {
         this.features = features;
         // setFeatureNames(featureNames);
         this.featureNames = featureNames;
+        // Klemens: What the ...!!!
         // setClassAssociation((int) Math.floor((features[features.length - 1])));
         this.classAssociation = (int) Math.floor(features[features.length - 1]);
-    }
-
-    /**
-     * Instantiates a new feature object.
-     * 
-     * @param features the features
-     * @param classAssociation the class association
-     */
-    public FeatureObject(final Map<String, Double> features, final Double classAssociation) {
-        this(features);
-        // setClassAssociation((int) Math.floor(classAssociation));
-        this.classAssociation = (int) Math.floor(classAssociation);
     }
 
     /**
@@ -74,21 +67,51 @@ public class FeatureObject {
     }
 
     /**
-     * Gets the features.
+     * Instantiates a new feature object.
      * 
-     * @return the features
+     * @param features the features
+     * @param classAssociation the class association
      */
-    public Double[] getFeatures() {
-        return features;
+    public FeatureObject(final Map<String, Double> features, final Double classAssociation) {
+        this(features);
+        // setClassAssociation((int) Math.floor(classAssociation));
+        this.classAssociation = (int) Math.floor(classAssociation);
+    }
+
+    public int getClassAssociation() {
+        return classAssociation;
+    }
+
+    // Klemens: Heißt das das ein Feature nur dann eine Klasse beschreibt
+    /**
+     * Gets the class association as string.
+     * 
+     * @return the class association as string
+     */
+    public String getClassAssociationAsString() {
+        if (getClassAssociation() == 1.0) {
+            return "positive";
+        }
+        return "negative";
     }
 
     /**
-     * Sets the features.
+     * Get a feature by its featureName.
      * 
-     * @param features the new features
+     * @param featureName
+     * @return value of the specified featureName, or <code>null</code> if no feature with specified name, or no
+     *         featureNames specified at all.
+     * @author Philipp Katz
      */
-    public void setFeatures(Double[] features) { // NOPMD by David on 14.06.10 01:02
-        this.features = features;
+    public Double getFeature(String featureName) {
+        Double feature = null;
+        if (featureNames != null) {
+            int position = Arrays.asList(featureNames).indexOf(featureName);
+            if (position != -1) {
+                feature = features[position];
+            }
+        }
+        return feature;
     }
 
     /**
@@ -98,6 +121,24 @@ public class FeatureObject {
      */
     public String[] getFeatureNames() {
         return featureNames;
+    }
+
+    /**
+     * Gets the features.
+     * 
+     * @return the features
+     */
+    public Double[] getFeatures() {
+        return features;
+    }
+
+    /**
+     * Sets the class association.
+     * 
+     * @param classAssociation the new class association
+     */
+    public void setClassAssociation(final int classAssociation) {
+        this.classAssociation = classAssociation;
     }
 
     /**
@@ -119,48 +160,13 @@ public class FeatureObject {
         }
     }
 
-    public int getClassAssociation() {
-        return classAssociation;
-    }
-
     /**
-     * Gets the class association as string.
+     * Sets the features.
      * 
-     * @return the class association as string
+     * @param features the new features
      */
-    public String getClassAssociationAsString() {
-        if (getClassAssociation() == 1.0) {
-            return "positive";
-        }
-        return "negative";
-    }
-
-    /**
-     * Sets the class association.
-     * 
-     * @param classAssociation the new class association
-     */
-    public void setClassAssociation(final int classAssociation) {
-        this.classAssociation = classAssociation;
-    }
-    
-    /**
-     * Get a feature by its featureName.
-     * 
-     * @param featureName
-     * @return value of the specified featureName, or <code>null</code> if no feature with specified name, or no
-     *         featureNames specified at all.
-     * @author Philipp Katz
-     */
-    public Double getFeature(String featureName) {
-        Double feature = null;
-        if (featureNames != null) {
-            int position = Arrays.asList(featureNames).indexOf(featureName);
-            if (position != -1) {
-                feature = features[position];
-            }
-        }
-        return feature;
+    public void setFeatures(Double[] features) { // NOPMD by David on 14.06.10 01:02
+        this.features = features;
     }
 
     /*
