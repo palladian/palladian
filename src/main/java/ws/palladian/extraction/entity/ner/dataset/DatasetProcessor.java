@@ -125,12 +125,12 @@ public class DatasetProcessor {
         // split the conll 2003 training file into 50 documents containing 1 to 50 documents
         // dp.splitFile("data/datasets/ner/conll/training.txt", "=-DOCSTART-\tO", 1, 50, 1);
 
-        dp.splitFileByDocuments("G:\\My Dropbox\\tud2011Complete.xml", "=-DOCSTART-");
+        dp.splitFileByDocuments("data/datasets/ner/tud/tud2011Complete.xml", "=-DOCSTART-");
 
-        FileFormatParser.xmlToColumn("G:\\My Dropbox\\tud2011Complete_part1.txt", "G:\\My Dropbox\\tud2011_train.txt",
-                "\t");
-        FileFormatParser.xmlToColumn("G:\\My Dropbox\\tud2011Complete_part2.txt", "G:\\My Dropbox\\tud2011_test.txt",
-                "\t");
+        FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part1.txt",
+                "data/datasets/ner/tud/tud2011_train.txt", "\t");
+        FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part2.txt",
+                "data/datasets/ner/tud/tud2011_test.txt", "\t");
 
     }
 

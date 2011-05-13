@@ -345,13 +345,15 @@ public class Temp {
     public static void main(String[] args) throws Exception {
         
         
-        List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\taggedHierarchicalPrepared.xml");
+
+        // List<String> fileArray = FileHelper.readFileToArray("G:\\My Dropbox\\tud2011Complete.xml");
+        List<String> fileArray = FileHelper.readFileToArray("data/datasets/ner/tud/tud2011Complete.xml");
         
         boolean lastClosing = false;
 
         for (String string : fileArray) {
 
-            Pattern pattern = Pattern.compile("<(.*?)>(?=(.{30}))");
+            Pattern pattern = Pattern.compile("<(.*?)>(?=(.{0,10}))");
             Matcher matcher = pattern.matcher(string);
 
             String lastTag = "";
@@ -376,7 +378,8 @@ public class Temp {
                 }
 
                 if (!lastClosing && !closingTag && lastTag.length() > 0) {
-                    System.out.println("here3 !!! " + matcher.group(2));
+                    System.out.println("here3 !!! " + matcher.group(2) + ", " + matcher.start());
+                    System.out.println("last tag: " + lastTag + ", this tag: " + currentTag);
                 }
 
                 lastClosing = closingTag;

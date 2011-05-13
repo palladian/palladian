@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -329,7 +330,28 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
             modelFilePath = FileHelper.getFilePath(modelFilePath) + "openNLP_" + conceptName + ".bin";
 
-            String content = FileHelper.readFileToString("data/temp/openNLPNERTraining.xml");
+            // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
+            // few places, so we delete all lines with no tags for the concepts with few mentions
+            if (false/*
+                      * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
+                      * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
+                      */) {
+
+                List<String> array = FileHelper.readFileToArray("data/temp/openNLPNERTraining.xml");
+
+                StringBuilder sb = new StringBuilder();
+                for (String string : array) {
+                    if (string.indexOf("<" + conceptName + ">") > -1) {
+                        sb.append(string).append("\n");
+                    }
+                }
+
+                FileHelper.writeToFile("data/temp/openNLPNERTraining2.xml", sb);
+            } else {
+                FileHelper.copyFile("data/temp/openNLPNERTraining.xml", "data/temp/openNLPNERTraining2.xml");
+            }
+
+            String content = FileHelper.readFileToString("data/temp/openNLPNERTraining2.xml");
 
             // we need to use the tag style <START:tagname> blabla <END>
             content = content.replaceAll("<" + conceptName + ">", "<START:" + conceptName.toLowerCase() + "> ");
@@ -344,6 +366,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
                 content = content.replace("</" + otherTag.toUpperCase() + ">", "");
             }
 
+
             FileHelper.writeToFile("data/temp/openNLPNERTraining" + conceptName + ".xml", content);
 
             ObjectStream<String> lineStream;
@@ -353,7 +376,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
                         + ".xml"), "UTF-8");
 
                 ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
-
+                
                 model = NameFinderME.train("en", conceptName, sampleStream, Collections.<String, Object> emptyMap(),
                         100, 5);
 
@@ -506,8 +529,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
-        tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP",
+        // tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP.bin",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

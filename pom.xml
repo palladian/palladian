@@ -310,14 +310,16 @@
 		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
 			<version>1.2</version> </dependency> -->
 		<dependency>
-			<groupId>tud.iir.external</groupId>
-			<artifactId>opennlp</artifactId>
-			<version>1.5.0</version>
+		  <groupId>tud.iir.external</groupId>
+		  <artifactId>opennlp</artifactId>
+		  <version>1.5.1</version>
+		  <classifier>incubating</classifier>
 		</dependency>
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>maxent</artifactId>
-			<version>3.0.0</version>
+			  <version>3.0.1</version>
+ 			 <classifier>incubating</classifier>
 		</dependency>
 		<dependency>
 			<groupId>edu.umass.cs</groupId>
