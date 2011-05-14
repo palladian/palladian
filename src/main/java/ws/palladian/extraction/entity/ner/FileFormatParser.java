@@ -599,7 +599,7 @@ public class FileFormatParser {
              * }
              */
 
-            int windowSize = 40;
+            int windowSize = 120; // FIXME (was 40) and this is a magic number
 
             // get the left and right context of the annotation
             String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(

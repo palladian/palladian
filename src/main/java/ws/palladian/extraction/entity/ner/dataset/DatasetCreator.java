@@ -352,7 +352,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         WebSearcher sourceRetriever = new WebSearcher();
-        sourceRetriever.setResultCount(10 * getMentionsPerEntity());
+        sourceRetriever.setResultCount(getMentionsPerEntity());
         sourceRetriever.setSource(getSourceAPI());
 
         return sourceRetriever.getURLs("\"" + seedEntity + "\" " + conceptName.toLowerCase(), false);
