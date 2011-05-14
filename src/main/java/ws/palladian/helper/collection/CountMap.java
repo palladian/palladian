@@ -17,10 +17,28 @@ public class CountMap extends HashMap<Object, Integer> {
         return CollectionHelper.sortByValue(this, false);
     }
 
+    /**
+     * Increment the entry with the key by one.
+     * 
+     * @param key The key of the value that should be incremented.
+     */
     public void increment(Object key) {
         Integer count = get(key);
         int counter = count.intValue();
         counter++;
+        put(key, counter);
+    }
+
+    /**
+     * Increment the entry with the key by a certain number.
+     * 
+     * @param key The key of the value that should be incremented.
+     * @param increment The number of increments.
+     */
+    public void increment(Object key, int increment) {
+        Integer count = get(key);
+        int counter = count.intValue();
+        counter += increment;
         put(key, counter);
     }
 
