@@ -537,10 +537,15 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
         // /////////////////////////// train and test /////////////////////////////
-        tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/stanfordNER.model");
+        // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/stanfordNER.model");
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
-                "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
+        // "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
+
+        tagger.train("data/datasets/ner/tud/tud2011_train.txt", "data/temp/stanfordNER2.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", "data/temp/stanfordNER2.model",
+                TaggingFormat.COLUMN);
+
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
@@ -554,7 +559,6 @@ public class StanfordNER extends NamedEntityRecognizer {
         // tagger.getModelFileEnding());
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-
     }
 
 }
