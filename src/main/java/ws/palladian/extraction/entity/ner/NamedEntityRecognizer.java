@@ -384,6 +384,7 @@ public abstract class NamedEntityRecognizer {
 
         // error map of annotations to precisely show which errors were made
         Map<String, Annotations> annotationsErrors = new HashMap<String, Annotations>();
+        annotationsErrors.put(EvaluationResult.CORRECT, new Annotations());
         annotationsErrors.put(EvaluationResult.ERROR1, new Annotations());
         annotationsErrors.put(EvaluationResult.ERROR2, new Annotations());
         annotationsErrors.put(EvaluationResult.ERROR3, new Annotations());
@@ -428,6 +429,7 @@ public abstract class NamedEntityRecognizer {
 
                         // correct tag (no error)
                         assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.CORRECT);
+                        annotationsErrors.get(EvaluationResult.CORRECT).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
                         assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
@@ -649,6 +651,8 @@ public abstract class NamedEntityRecognizer {
         errorTypes.put(EvaluationResult.ERROR5, "ERROR 5: Wrong Boundaries, Wrong Tag");
 
         results.append("\n\n");
+        results.append("CORRECT:");
+        results.append(" : ").append(annotationErrors.get(EvaluationResult.CORRECT).size()).append("\n");
         for (Entry<String, String> errorTypeEntry : errorTypes.entrySet()) {
             results.append(errorTypeEntry.getValue());
             results.append(" : ").append(annotationErrors.get(errorTypeEntry.getKey()).size()).append("\n");

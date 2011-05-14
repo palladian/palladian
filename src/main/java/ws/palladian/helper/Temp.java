@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -346,8 +347,13 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
 
+        FileHelper.removeDuplicateLines("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml",
+                "data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
         List<String> readFileToArray = FileHelper
-                .readFileToArray("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml");
+                .readFileToArray("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
+
+        Collections.shuffle(readFileToArray);
+        FileHelper.writeToFile("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml", readFileToArray);
         CountMap countMap = new CountMap();
         for (String string : readFileToArray) {
             countMap.increment(string.substring(1, string.indexOf(">")));
