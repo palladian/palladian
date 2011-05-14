@@ -393,6 +393,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
             return;
         }
 
+        // remove tags
+        webPageText = HTMLHelper.stripHTMLTags(webPageText);
+
         // mark up all seed entities
         boolean foundMarkup = false;
         for (String seedEntity : seedEntities) {
@@ -400,24 +403,22 @@ public class DatasetCreator implements DatasetCreatorInterface {
             try {
 
                 String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
-                String searchRegexp = escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                + "(?=\\s)";
-
-                // remove tags
-                webPageText = HTMLHelper.stripHTMLTags(webPageText);
+                String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
+                + "(?=(\\s|[.,!?]))";
 
                 if (webPageText.contains(seedEntity)) {
                     foundMarkup = true;
+
+                    // mark up html
+                    webPageContent = webPageContent.replaceAll(searchRegexp,
+                            "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">"
+                                    + seedEntity + "</" + conceptName.toUpperCase() + ">");
+
+                    // mark up text
+                    webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">"
+                            + seedEntity + "</" + conceptName.toUpperCase() + ">");
+
                 }
-
-                // mark up html
-                webPageContent = webPageContent.replaceAll(searchRegexp,
-                        "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">" + seedEntity
-                        + "</" + conceptName.toUpperCase() + ">");
-
-                // mark up text
-                webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity
-                        + "</" + conceptName.toUpperCase() + ">");
 
             } catch (Error e) {
                 LOGGER.error("something went wrong marking up the page content with seed " + seedEntity + ", "
