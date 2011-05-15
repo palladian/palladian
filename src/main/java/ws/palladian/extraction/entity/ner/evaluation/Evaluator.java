@@ -12,6 +12,7 @@ import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
+import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
 import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.PalladianNer;
 import ws.palladian.extraction.entity.ner.tagger.PalladianNer.LanguageMode;
@@ -440,7 +441,7 @@ public class Evaluator {
         taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
         lbjNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         taggerList.add(lbjNer);
-        // taggerList.add(new LingPipeNER());
+        taggerList.add(new LingPipeNER());
         OpenNLPNER openNlpNer = new OpenNLPNER();
         openNlpNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         taggerList.add(openNlpNer);
