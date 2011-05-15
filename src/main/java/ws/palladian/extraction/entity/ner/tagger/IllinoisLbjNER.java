@@ -37,8 +37,9 @@ import com.ibm.icu.util.StringTokenizer;
 
 /**
  * <p>
- * This class wraps the Learning Java Based Illinois Named Entity Tagger. The implementation is in an external library
- * and the approach is explained in the following paper by L. Ratinov and D. Roth:<br>
+ * This class wraps the Learning Java Based Illinois Named Entity Tagger. It uses conditional random fields for tagging.
+ * The implementation is in an external library and the approach is explained in the following paper by L. Ratinov and
+ * D. Roth:<br>
  * "Design Challenges and Misconceptions in Named Entity Recognition", CoNLL 2009
  * </p>
  * 
