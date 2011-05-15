@@ -462,10 +462,6 @@ public class Evaluator {
         // evaluate using seed entities only (only TUDNER)
         // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
 
-        taggerList.clear();
-        taggerList.add(new PalladianNer(LanguageMode.English));
-        taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
-
         // evaluate all tagger how they depend on the number of documents in the training set
         for (NamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
@@ -488,6 +484,9 @@ public class Evaluator {
         // evaluator.evaluateSeedInputOnly(tud2011TrainingPath, tud2011TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
+        taggerList.clear();
+        taggerList.add(new PalladianNer(LanguageMode.English));
+        taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
         for (NamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
