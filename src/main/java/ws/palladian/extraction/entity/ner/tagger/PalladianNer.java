@@ -225,6 +225,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // with entity 2-8 and context 4-5: 29MB model
         // precision MUC: 75.05%, recall MUC: 81.08%, F1 MUC: 77.95%
         // precision exact: 62.36%, recall exact: 67.37%, F1 exact: 64.77%
+        // with entity 2-8 and context 4-5, window size 40 was 120 in previous tests: 23MB model
+        // precision MUC: 75.17%, recall MUC: 81.2%, F1 MUC: 78.07%
+        // precision exact: 62.54%, recall exact: 67.56%, F1 exact: 64.95%
     }
 
     @Override
