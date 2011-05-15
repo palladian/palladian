@@ -207,7 +207,7 @@ public class KNNClassifier extends TextClassifier {
 
     @Override
     public void train(UniversalInstance instance) {
-        // FIXME Auto-generated method stub
+        // TODO Auto-generated method stub
     }
 
 }

@@ -603,8 +603,6 @@ public class ClassifierManager {
             // if the first field should be interpreted as a link to the actual document, get it and preprocess it
             if (dataset.isFirstFieldLink()) {
                 documentContent = FileHelper.readFileToString(dataset.getRootPath() + firstField);
-                // FIXME remove
-                // documentContent = documentContent.substring(0, Math.min(10, documentContent.length()));
             }
 
             preprocessedDocument = classifier.preprocessDocument(documentContent, preprocessedDocument);

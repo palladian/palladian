@@ -576,7 +576,7 @@ public class FileFormatParser {
         int cumulatedTagOffset = 0;
 
         // remove nested annotations
-        // FIXME
+        // XXX
         // text <PERSON><PHONE>John J</PHONE>. Smith</PERSON> lives
         // text <PERSON><PHONE>John J</PHONE>. <PHONE>Smith</PHONE></PERSON> lives
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
@@ -599,7 +599,7 @@ public class FileFormatParser {
              * }
              */
 
-            int windowSize = 120; // FIXME (was 40) and this is a magic number
+            int windowSize = Annotation.WINDOW_SIZE;
 
             // get the left and right context of the annotation
             String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(

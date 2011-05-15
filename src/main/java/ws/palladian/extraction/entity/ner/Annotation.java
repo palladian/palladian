@@ -30,6 +30,8 @@ import ws.palladian.preprocessing.nlp.TagAnnotations;
  */
 public class Annotation extends UniversalInstance {
 
+    public static final int WINDOW_SIZE = 40;
+
     private static final long serialVersionUID = 6235371698078169268L;
 
     /** The start index of the annotation in the annotated text. */
