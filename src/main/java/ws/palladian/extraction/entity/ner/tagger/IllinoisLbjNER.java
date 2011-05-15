@@ -30,7 +30,6 @@ import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
-import ws.palladian.helper.collection.CollectionHelper;
 import LBJ2.classify.Classifier;
 
 import com.ibm.icu.util.StringTokenizer;
@@ -262,8 +261,6 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
 
-        // CollectionHelper.print(annotations);
-
         return annotations;
     }
 
@@ -287,23 +284,6 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         return getAnnotations(inputText);
     }
 
-    @Deprecated
-    public void trainNER(String trainingFilePath, String testingFilePath, boolean forceSentenceSplitsOnNewLines,
-            String configFilePath) {
-        Parameters.readConfigAndLoadExternalData(configFilePath);
-        Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
-
-        String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
-        FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
-
-        String testingFilePath2 = testingFilePath.replaceAll("\\.", "_tranformed.");
-        FileFormatParser.tsvToSsv(testingFilePath, testingFilePath2);
-
-        // trainingFilePath2 = "data/temp/reuters2003.tsv";
-        // testingFilePath2 = "data/temp/reuters2003.tsv";
-        LearningCurve.getLearningCurve(trainingFilePath2, testingFilePath2);
-    }
-
     public void testNER(String testingFilePath, boolean forceSentenceSplitsOnNewLines,
             String configFilePath) {
 
@@ -311,28 +291,6 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
 
         NETester.test(testingFilePath, "-c");
-    }
-
-
-    @Deprecated
-    public void useLearnedNER(String inputText, boolean forceSentenceSplitsOnNewLines, String configFilePath) {
-
-        Parameters.readConfigAndLoadExternalData(configFilePath);
-        Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
-
-        String inputTextPath = "data/temp/illinoisInputText.txt";
-        FileHelper.writeToFile(inputTextPath, inputText);
-
-        String taggedFilePath = inputTextPath.replaceAll("\\.txt", "_tagged.txt");
-
-        // last parameter is debug mode
-        NETagPlain.tagFile(inputTextPath, taggedFilePath, false);
-
-        FileFormatParser ffp = new FileFormatParser();
-        ffp.bracketToXML(taggedFilePath, taggedFilePath);
-        Annotations annotations = ffp.getAnnotationsFromXMLFile(taggedFilePath);
-
-        CollectionHelper.print(annotations);
     }
 
     public void setConllEvaluation(boolean conllEvaluation) {

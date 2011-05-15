@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+// FIXME make this generic
 public class CountMap extends HashMap<Object, Integer> {
 
     /** The serial version id. */

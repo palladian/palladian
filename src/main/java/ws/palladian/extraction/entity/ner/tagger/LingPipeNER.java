@@ -15,7 +15,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.external.lingpipe.Conll2002ChunkTagParser;
-import ws.palladian.external.lingpipe.FileScorer;
 import ws.palladian.extraction.entity.ner.Annotation;
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.Entity;
@@ -25,19 +24,11 @@ import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 
-import com.aliasi.chunk.AbstractCharLmRescoringChunker;
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunker;
-import com.aliasi.chunk.ChunkerEvaluator;
 import com.aliasi.chunk.Chunking;
-import com.aliasi.chunk.NBestChunker;
-import com.aliasi.corpus.Parser;
-import com.aliasi.corpus.parsers.Muc6ChunkParser;
-import com.aliasi.lm.LanguageModel.Process;
-import com.aliasi.lm.LanguageModel.Sequence;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.AbstractExternalizable;
@@ -200,109 +191,39 @@ public class LingPipeNER extends NamedEntityRecognizer {
         return getAnnotations(inputText);
     }
 
-    // java TrainGeneTag <trainingInputFile> <modelOutputFile>
-    @Deprecated
-    public void trainNER(String trainingFilePath, String developmentFilePath,
-            String modelOutputFilePath) throws IOException {
 
-        FileFormatParser ffp = new FileFormatParser();
-        String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
-        "_tranformed.");
-        ffp.tsvToSsv(trainingFilePath, trainingFilePath2);
-
-        File corpusFile = new File(trainingFilePath2);
-        File modelFile = new File(modelOutputFilePath);
-        File devFile = new File(developmentFilePath);
-
-        System.out.println("Setting up Chunker Estimator");
-        TokenizerFactory factory = IndoEuropeanTokenizerFactory.INSTANCE;
-        CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(
-                factory, NUM_CHUNKINGS_RESCORED, MAX_N_GRAM, NUM_CHARS,
-                LM_INTERPOLATION);
-        // HmmCharLmEstimator hmmEstimator = new HmmCharLmEstimator(MAX_N_GRAM,
-        // NUM_CHARS, LM_INTERPOLATION);
-        // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(factory,
-        // hmmEstimator);
-
-        System.out.println("Setting up Data Parser");
-        // GeneTagParser parser = new GeneTagParser();
-        Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
-        parser.setHandler(chunkerEstimator);
-
-        System.out.println("Training with Data from File=" + corpusFile);
-        parser.parse(corpusFile);
-
-        System.out.println("Training with Data from File=" + devFile);
-        // parser.parse(devFile);
-
-        System.out.println("Compiling and Writing Model to File=" + modelFile);
-        AbstractExternalizable.compileTo(chunkerEstimator, modelFile);
-    }
-
-    public void evaluateNER(String modelFilePath, String testFilePath)
-    throws Exception {
-
-        File chunkerFile = new File(modelFilePath);
-        File testFile = new File(testFilePath);
-
-        @SuppressWarnings("rawtypes")
-        AbstractCharLmRescoringChunker<NBestChunker, Process, Sequence> chunker = (AbstractCharLmRescoringChunker) AbstractExternalizable
-        .readObject(chunkerFile);
-
-        ChunkerEvaluator evaluator = new ChunkerEvaluator(chunker);
-        evaluator.setVerbose(true);
-
-        Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
-        parser.setHandler(evaluator);
-
-        parser.parse(testFile);
-
-        System.out.println(evaluator.toString());
-    }
-
-    public void scoreNER(String[] args) throws IOException {
-        File refFile = new File(args[0]);
-        File responseFile = new File(args[1]);
-
-        Parser parser = new Muc6ChunkParser();
-        FileScorer scorer = new FileScorer(parser);
-        scorer.score(refFile, responseFile);
-
-        System.out.println(scorer.evaluation().toString());
-    }
-
-    @Deprecated
-    public void useLearnedNER(String modelFilePath, String inputText)
-    throws IOException, ClassNotFoundException {
-
-        File modelFile = new File(modelFilePath);
-
-        System.out.println("Reading chunker from file=" + modelFile);
-        Chunker chunker = (Chunker) AbstractExternalizable
-        .readObject(modelFile);
-
-        Annotations annotations = new Annotations();
-
-        String[] args = new String[1];
-        args[0] = inputText;
-        Set<Chunk> chunkSet = new HashSet<Chunk>();
-        for (int i = 0; i < args.length; ++i) {
-            Chunking chunking = chunker.chunk(args[i]);
-            System.out.println("Chunking=" + chunking);
-            chunkSet.addAll(chunking.chunkSet());
-        }
-
-        for (Chunk chunk : chunkSet) {
-            int offset = chunk.start();
-            Entity namedEntity = new Entity("???", chunk.type());
-
-            Annotation annotation = new Annotation(offset, namedEntity
-                    .getName(), namedEntity.getTagName());
-            annotations.add(annotation);
-        }
-
-        CollectionHelper.print(annotations);
-    }
+    // public void evaluateNER(String modelFilePath, String testFilePath)
+    // throws Exception {
+    //
+    // File chunkerFile = new File(modelFilePath);
+    // File testFile = new File(testFilePath);
+    //
+    // @SuppressWarnings("rawtypes")
+    // AbstractCharLmRescoringChunker<NBestChunker, Process, Sequence> chunker = (AbstractCharLmRescoringChunker)
+    // AbstractExternalizable
+    // .readObject(chunkerFile);
+    //
+    // ChunkerEvaluator evaluator = new ChunkerEvaluator(chunker);
+    // evaluator.setVerbose(true);
+    //
+    // Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
+    // parser.setHandler(evaluator);
+    //
+    // parser.parse(testFile);
+    //
+    // System.out.println(evaluator.toString());
+    // }
+    //
+    // public void scoreNER(String[] args) throws IOException {
+    // File refFile = new File(args[0]);
+    // File responseFile = new File(args[1]);
+    //
+    // Parser parser = new Muc6ChunkParser();
+    // FileScorer scorer = new FileScorer(parser);
+    // scorer.score(refFile, responseFile);
+    //
+    // System.out.println(scorer.evaluation().toString());
+    // }
 
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
