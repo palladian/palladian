@@ -20,7 +20,8 @@ import ws.palladian.persistence.DictionaryFileIndex;
 import ws.palladian.persistence.DictionaryIndex;
 
 /**
- * A dictionary holds a list of words with their probabilities/scores of belonging to certain categories. Word Category1 ... CategoryN test 0.1 0.3 ...
+ * A dictionary holds a list of words with their probabilities/scores of belonging to certain categories. Word Category1
+ * ... CategoryN test 0.1 0.3 ...
  * 
  * @author David Urbansky
  */
@@ -95,9 +96,11 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     }
 
     /**
-     * Open or create an index. Either in database or on a Lucene index on disk. The index is then ready to be read or written.
+     * Open or create an index. Either in database or on a Lucene index on disk. The index is then ready to be read or
+     * written.
      * 
-     * @param classType The class type distinguishes certain indexes. There can be several indexes with the same name but only with different class types.
+     * @param classType The class type distinguishes certain indexes. There can be several indexes with the same name
+     *            but only with different class types.
      */
     public void useIndex() {
 
@@ -126,7 +129,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             } else {
                 Logger.getRootLogger().error(
                         "no dictionary index could be found for the dictionary " + getName() + " with the index type "
-                        + indexType);
+                                + indexType);
             }
 
         }
@@ -349,8 +352,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             }
 
             if (bestFitCategoryEntries.containsKey(categoryEntry.getCategory().getName())) {
-                bestFitCategoryEntries.put(categoryEntry.getCategory().getName(), bestFitCategoryEntries.get(categoryEntry.getCategory().getName())
-                        + categoryEntry.getRelevance());
+                bestFitCategoryEntries.put(
+                        categoryEntry.getCategory().getName(),
+                        bestFitCategoryEntries.get(categoryEntry.getCategory().getName())
+                                + categoryEntry.getRelevance());
             } else {
                 bestFitCategoryEntries.put(categoryEntry.getCategory().getName(), categoryEntry.getRelevance());
                 bestFitCategoryEntries2.put(categoryEntry.getCategory().getName(), categoryEntry);
@@ -466,22 +471,15 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 } else {
                     dictionaryString.append(ce.getRelevance()).append(",");
                 }
-                // if (term.getValue().contains(category)) {
-                // dictionaryString.append(term.getValue().getCategoryByName(category.getName()).getRelevance()).append(",");
-                // } else {
-                // dictionaryString.append("0.0,");
-                // }
             }
             dictionaryString.append("\n");
         }
 
-        Logger.getRootLogger().info("save dictionary...");
+        Logger.getRootLogger().debug("save dictionary...");
         FileHelper.writeToFile(
                 "data/temp/" + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + getName() + ".csv",
                 dictionaryString);
-        // System.out.println("saved");
     }
-
 
     public void calculateCategoryPriors() {
         categories.calculatePriors();
@@ -500,7 +498,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             emptyIndex();
         }
 
-        //        HashSet<String> usedString = new HashSet<String>();
+        // HashSet<String> usedString = new HashSet<String>();
 
         int c = 0;
         for (Map.Entry<Term, CategoryEntries> dictionaryEntry : entrySet()) {
@@ -615,7 +613,6 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     public void setClassType(int classType) {
         this.classType = classType;
     }
-
 
     public int getClassType() {
         return classType;

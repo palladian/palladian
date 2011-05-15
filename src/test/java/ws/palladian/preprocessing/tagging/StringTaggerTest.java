@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.FileFormatParser;
+import ws.palladian.extraction.entity.ner.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.tagging.StringTagger;
 
 public class StringTaggerTest {
 

@@ -20,7 +20,6 @@ import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
@@ -231,34 +230,22 @@ public class StanfordNER extends NamedEntityRecognizer {
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
-        try {
+        AbstractSequenceClassifier classifier = (AbstractSequenceClassifier) getModel();
 
-            AbstractSequenceClassifier classifier = (AbstractSequenceClassifier) getModel();
+        String inputTextPath = "data/temp/inputText.txt";
+        FileHelper.writeToFile(inputTextPath, inputText);
 
-            String inputTextPath = "data/temp/inputText.txt";
-            FileHelper.writeToFile(inputTextPath, inputText);
+        StringBuilder taggedText = new StringBuilder();
+        taggedText.append(classifier.classifyWithInlineXML(inputText));
 
-            String fileContents = StringUtils.slurpFile(inputTextPath);
+        String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
+        FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-            // parse(new DocumentPreprocessor(PTBTokenizerFactory.newWordTokenizerFactory("americanize=false"))
-            // .getWordsFromString(str));
+        annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
-            List<List<CoreLabel>> out = classifier.classify(fileContents);
-            StringBuilder taggedText = new StringBuilder();
-            taggedText.append(classifier.classifyWithInlineXML(inputText));
+        annotations.instanceCategoryToClassified();
 
-            String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
-            FileHelper.writeToFile(taggedTextFilePath, taggedText);
-
-            annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
-
-            annotations.instanceCategoryToClassified();
-
-            FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
-
-        } catch (IOException e) {
-            LOGGER.error(getName() + " could not tag input, " + e.getMessage());
-        }
+        FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
         FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
@@ -272,151 +259,66 @@ public class StanfordNER extends NamedEntityRecognizer {
         return getAnnotations(inputText);
     }
 
-    @Deprecated
-    public void useLearnedNER(String modelFilePath, String inputText) throws IOException {
-
-        AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelFilePath);
-
-        String inputTextPath = "data/temp/inputText.txt";
-        FileHelper.writeToFile(inputTextPath, inputText);
-
-        String fileContents = StringUtils.slurpFile(inputTextPath);
-        List<List<CoreLabel>> out = classifier.classify(fileContents);
-        StringBuilder taggedText = new StringBuilder();
-        for (List<CoreLabel> sentence : out) {
-            for (CoreLabel word : sentence) {
-                LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
-
-                taggedText.append(word.word()).append("/").append(word.get(AnswerAnnotation.class).toUpperCase())
-                .append(" ");
-
-                // String tag = word.get(AnswerAnnotation.class);
-                // if (!tag.equalsIgnoreCase("o")) {
-                // taggedText.append("<").append(word.get(AnswerAnnotation.class)).append(">");
-                // taggedText.append(word.word());
-                // taggedText.append("</").append(word.get(AnswerAnnotation.class)).append(">");
-                // }
-
-            }
-        }
-
-        String taggedTextFilePath = "data/temp/taggedText.txt";
-        FileHelper.writeToFile(taggedTextFilePath, taggedText);
-
-        FileFormatParser ffp = new FileFormatParser();
-        ffp.slashToXML(taggedTextFilePath, taggedTextFilePath);
-        Annotations annotations = ffp.getAnnotationsFromXMLFile(taggedTextFilePath);
-
-        CollectionHelper.print(annotations);
-
-        // edu.stanford.nlp.ie.crf.CRFClassifier -textFile sample.txt
-        // CRFClassifier classifier = new CRFClassifier();
-
-    }
-
-    @Deprecated
-    public void trainNER(String configFilePath) throws Exception {
-        String[] args = new String[2];
-        args[0] = "-props";
-        args[1] = configFilePath;
-
-        Properties props = StringUtils.argsToProperties(args);
-        CRFClassifier crf = new CRFClassifier(props);
-        String loadPath = crf.flags.loadClassifier;
-        String loadTextPath = crf.flags.loadTextClassifier;
-        String serializeTo = crf.flags.serializeTo;
-        String serializeToText = crf.flags.serializeToText;
-
-        if (loadPath != null) {
-            crf.loadClassifierNoExceptions(loadPath, props);
-        } else if (loadTextPath != null) {
-            System.err.println("Warning: this is now only tested for Chinese Segmenter");
-            System.err.println("(Sun Dec 23 00:59:39 2007) (pichuan)");
-            try {
-                crf.loadTextClassifier(loadTextPath, props);
-                // System.err.println("DEBUG: out from crf.loadTextClassifier");
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("error loading " + loadTextPath);
-            }
-        } else if (crf.flags.loadJarClassifier != null) {
-            crf.loadJarClassifier(crf.flags.loadJarClassifier, props);
-        } else if (crf.flags.trainFile != null || crf.flags.trainFileList != null) {
-            crf.train();
-        } else {
-            crf.loadDefaultClassifier();
-        }
-
-        if (serializeTo != null) {
-            crf.serializeClassifier(serializeTo);
-        }
-
-        if (serializeToText != null) {
-            crf.serializeTextClassifier(serializeToText);
-        }
-
-    }
-
-    public void evaluateNER(String modelFilePath, String testFilePath) throws Exception {
-
-        String[] args = new String[4];
-        args[0] = "-loadClassifier";
-        args[1] = modelFilePath;
-        args[2] = "-testFile";
-        args[3] = testFilePath;
-
-        Properties props = StringUtils.argsToProperties(args);
-        CRFClassifier crf = new CRFClassifier(props);
-        String testFile = crf.flags.testFile;
-        String loadPath = crf.flags.loadClassifier;
-
-        if (loadPath != null) {
-            crf.loadClassifierNoExceptions(loadPath, props);
-        } else {
-            crf.loadDefaultClassifier();
-        }
-
-        if (testFile != null) {
-            if (crf.flags.searchGraphPrefix != null) {
-                crf.classifyAndWriteViterbiSearchGraph(testFile, crf.flags.searchGraphPrefix);
-            } else if (crf.flags.printFirstOrderProbs) {
-                crf.printFirstOrderProbs(testFile);
-            } else if (crf.flags.printProbs) {
-                crf.printProbs(testFile);
-            } else if (crf.flags.useKBest) {
-                int k = crf.flags.kBest;
-                crf.classifyAndWriteAnswersKBest(testFile, k);
-            } else if (crf.flags.printLabelValue) {
-                crf.printLabelInformation(testFile);
-            } else {
-                // crf.classifyAndWriteAnswers(testFile);
-
-                String testText = FileHelper.readFileToString(testFilePath);
-                String classifiedString = crf.classifyToString(testText, "inlineXML", true);
-                LOGGER.info("cs:" + classifiedString);
-
-                FileHelper.writeToFile("data/temp/stanfordClassified.xml", classifiedString);
-
-                FileFormatParser ffp = new FileFormatParser();
-                ffp.xmlToColumn("data/temp/stanfordClassified.xml", "data/temp/stanfordClassifiedColumn.tsv", "\t");
-
-                /*
-                 * List<List<CoreLabel>> out = crf.classify(testFile);
-                 * for (List<CoreLabel> sentence : out) {
-                 * for (CoreLabel word : sentence) {
-                 * System.out.println(word.word());
-                 * System.out.println(word.get(AnswerAnnotation.class));
-                 * System.out.println(word.value());
-                 * System.out.println(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
-                 * }
-                 * System.out.println();
-                 * }
-                 */
-            }
-        }
-
-        // port to Java: http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt
-    }
+    // public void evaluateNER(String modelFilePath, String testFilePath) throws Exception {
+    //
+    // String[] args = new String[4];
+    // args[0] = "-loadClassifier";
+    // args[1] = modelFilePath;
+    // args[2] = "-testFile";
+    // args[3] = testFilePath;
+    //
+    // Properties props = StringUtils.argsToProperties(args);
+    // CRFClassifier crf = new CRFClassifier(props);
+    // String testFile = crf.flags.testFile;
+    // String loadPath = crf.flags.loadClassifier;
+    //
+    // if (loadPath != null) {
+    // crf.loadClassifierNoExceptions(loadPath, props);
+    // } else {
+    // crf.loadDefaultClassifier();
+    // }
+    //
+    // if (testFile != null) {
+    // if (crf.flags.searchGraphPrefix != null) {
+    // crf.classifyAndWriteViterbiSearchGraph(testFile, crf.flags.searchGraphPrefix);
+    // } else if (crf.flags.printFirstOrderProbs) {
+    // crf.printFirstOrderProbs(testFile);
+    // } else if (crf.flags.printProbs) {
+    // crf.printProbs(testFile);
+    // } else if (crf.flags.useKBest) {
+    // int k = crf.flags.kBest;
+    // crf.classifyAndWriteAnswersKBest(testFile, k);
+    // } else if (crf.flags.printLabelValue) {
+    // crf.printLabelInformation(testFile);
+    // } else {
+    // // crf.classifyAndWriteAnswers(testFile);
+    //
+    // String testText = FileHelper.readFileToString(testFilePath);
+    // String classifiedString = crf.classifyToString(testText, "inlineXML", true);
+    // LOGGER.info("cs:" + classifiedString);
+    //
+    // FileHelper.writeToFile("data/temp/stanfordClassified.xml", classifiedString);
+    //
+    // FileFormatParser ffp = new FileFormatParser();
+    // ffp.xmlToColumn("data/temp/stanfordClassified.xml", "data/temp/stanfordClassifiedColumn.tsv", "\t");
+    //
+    // /*
+    // * List<List<CoreLabel>> out = crf.classify(testFile);
+    // * for (List<CoreLabel> sentence : out) {
+    // * for (CoreLabel word : sentence) {
+    // * System.out.println(word.word());
+    // * System.out.println(word.get(AnswerAnnotation.class));
+    // * System.out.println(word.value());
+    // * System.out.println(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+    // * }
+    // * System.out.println();
+    // * }
+    // */
+    // }
+    // }
+    //
+    // // port to Java: http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt
+    // }
 
     /**
      * @param args
@@ -452,7 +354,7 @@ public class StanfordNER extends NamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")

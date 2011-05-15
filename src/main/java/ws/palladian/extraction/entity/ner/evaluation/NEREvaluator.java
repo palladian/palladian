@@ -13,7 +13,7 @@ import ws.palladian.extraction.entity.ner.tagger.JulieNER;
 import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
 import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
-import ws.palladian.extraction.entity.ner.tagger.TUDNER;
+import ws.palladian.extraction.entity.ner.tagger.PalladianNer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.StringHelper;
@@ -119,7 +119,7 @@ public class NEREvaluator {
         OpenNLPNER on = new OpenNLPNER();
         nerList.add(on);
 
-        TUDNER tn = new TUDNER();
+        PalladianNer tn = new PalladianNer();
         // nerList.add(tn);
 
         List<Dataset> datasets = new ArrayList<Dataset>();

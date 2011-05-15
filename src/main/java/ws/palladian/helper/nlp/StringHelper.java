@@ -413,7 +413,7 @@ public class StringHelper {
      * Checks if is numeric expression.
      * 
      * @param string the string
-     * @return true, if is numeric expression
+     * @return <tt>True</tt>, if is numeric expression, <tt>false</tt> otherwise.
      * @throws NumberFormatException the number format exception
      * @throws OutOfMemoryError the out of memory error
      */
@@ -435,7 +435,6 @@ public class StringHelper {
                 isNumericExpression = false;
                 break;
             }
-            // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
 
         Pattern pattern = Pattern.compile("^" + RegExp.NUMBER);
@@ -452,7 +451,7 @@ public class StringHelper {
 
             }
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().warn(m.group() + ", " + e.getMessage());
+            Logger.getRootLogger().debug(m.group() + ", " + e.getMessage());
             return false;
         }
 
