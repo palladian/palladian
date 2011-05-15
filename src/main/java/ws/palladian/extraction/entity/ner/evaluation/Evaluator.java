@@ -399,7 +399,7 @@ public class Evaluator {
         results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
         results.append(";Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1;Ex. Prec.;Ex. Rec.;Ex. F1;MUC Prec.;MUC Rec.;MUC F1\n");
 
-        for (int i = 10; i <= 10 * maxNumberOfSeeds; i += 10) {
+        for (int i = 1; i <= maxNumberOfSeeds; i++) {
             LOGGER.info("start evaluating on generated training data using " + i + " seeds");
 
             results.append(i).append(";");

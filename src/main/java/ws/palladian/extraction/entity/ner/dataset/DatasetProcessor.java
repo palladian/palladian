@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.entity.ner.FileFormatParser;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 
@@ -127,10 +126,10 @@ public class DatasetProcessor {
 
         dp.splitFileByDocuments("data/datasets/ner/tud/tud2011Complete.xml", "=-DOCSTART-");
 
-        FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part1.txt",
-                "data/datasets/ner/tud/tud2011_train.txt", "\t");
-        FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part2.txt",
-                "data/datasets/ner/tud/tud2011_test.txt", "\t");
+        // FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part1.txt",
+        // "data/datasets/ner/tud/tud2011_train.txt", "\t");
+        // FileFormatParser.xmlToColumn("data/datasets/ner/tud/tud2011Complete_part2.txt",
+        // "data/datasets/ner/tud/tud2011_test.txt", "\t");
 
     }
 
