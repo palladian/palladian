@@ -714,7 +714,10 @@ public abstract class NamedEntityRecognizer {
         for (int i = 0; i < correctContent.length(); i++, alignIndex++) {
             Character correctCharacter = correctContent.charAt(i);
             Character alignedCharacter = alignedContent.charAt(alignIndex);
-            Character nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
+            Character nextAlignedCharacter = 0;
+            if (i < correctContent.length() - 1) {
+                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
+            }
 
             // if same, continue
             if (correctCharacter.equals(alignedCharacter)) {
