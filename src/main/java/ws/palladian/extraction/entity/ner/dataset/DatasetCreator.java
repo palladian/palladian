@@ -352,6 +352,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         WebSearcher sourceRetriever = new WebSearcher();
+        sourceRetriever.setLanguage(WebSearcher.LANGUAGE_ENGLISH);
         sourceRetriever.setResultCount(getMentionsPerEntity());
         sourceRetriever.setSource(getSourceAPI());
 
@@ -412,7 +413,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
                     // mark up html
                     webPageContent = webPageContent.replaceAll(searchRegexp,
                             "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">"
-                                    + seedEntity + "</" + conceptName.toUpperCase() + ">");
+                            + seedEntity + "</" + conceptName.toUpperCase() + ">");
 
                     // mark up text
                     webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">"
@@ -444,7 +445,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageText.length() > 50 && foundMarkup) {
 
             String filePath = getDataSetLocation() + seedFileName + "/"
-                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+            + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
             FileHelper.writeToFile(filePath, webPageText);
 
             FileHelper.removeDuplicateLines(filePath, filePath);
