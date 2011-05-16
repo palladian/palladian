@@ -46,9 +46,6 @@ public class Annotation extends UniversalInstance {
     /** The left context of the annotation */
     private String leftContext = "";
 
-    // FIXME
-    public boolean leftWhitespace = false;
-
     /** The right context of the annotation */
     private String rightContext = "";
 

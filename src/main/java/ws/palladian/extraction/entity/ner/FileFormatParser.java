@@ -631,13 +631,6 @@ public class FileFormatParser {
             annotation.createFeatures();
             annotations.add(annotation);
 
-            if (leftContext.endsWith(" ")) {
-                annotation.leftWhitespace = true;
-            }
-
-            // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
-            // System.out.println("annotation text: " + annotationText);
-
             // add tag </ + name + > and nested tag length to cumulated tag offset
             cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
         }
