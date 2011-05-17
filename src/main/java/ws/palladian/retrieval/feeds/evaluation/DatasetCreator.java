@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -342,31 +341,33 @@ public class DatasetCreator {
                 List<String> newEntries = new ArrayList<String>();
                 int newItems = 0;
 
+                long pollTimestamp = System.currentTimeMillis();
+
                 StringBuilder entryWarnings = new StringBuilder();
 
                 LOGGER.debug("Feed entries: " + feedEntries.size());
-                for (FeedItem entry : feedEntries) {
+                for (FeedItem item : feedEntries) {
 
-                    if (entry == null || entry.getPublished() == null) {
-                        entryWarnings.append("entry has no published date, ignore it: ").append(entry).append("; ");
+                    if (item == null || item.getPublished() == null) {
+                        entryWarnings.append("entry has no published date, ignore it: ").append(item).append("; ");
                         continue;
                     }
 
                     StringBuilder fileEntry = new StringBuilder();
                     StringBuilder fileEntryID = new StringBuilder();
 
-                    if (entry.getTitle() == null || entry.getTitle().length() == 0) {
+                    if (item.getTitle() == null || item.getTitle().length() == 0) {
                         fileEntryID.append("\"###NO_TITLE###\";");
                     } else {
                         fileEntryID.append("\""
-                                + StringHelper.removeControlCharacters(entry.getTitle()).replaceAll("\"", "'")
+                                + StringHelper.removeControlCharacters(item.getTitle()).replaceAll("\"", "'")
                                 .replaceAll(";", "putSemicolonHere") + "\";");
                     }
-                    fileEntryID.append("\"" + StringHelper.trim(entry.getLink()) + "\";");
-                    fileEntry.append(entry.getPublished().getTime()).append(";").append(fileEntryID);
+                    fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
+                    fileEntry.append(item.getPublished().getTime()).append(";");
+                    fileEntry.append(pollTimestamp).append(";");
+                    fileEntry.append(fileEntryID);
                     // ignore entry size, we can get it later from *.gz
-                    fileEntry.append("-1;");
-                    fileEntry.append(feedEntries.size());
 
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
                     boolean contains = false;
@@ -393,7 +394,7 @@ public class DatasetCreator {
                 // special line
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     feed.increaseMisses();
-                    newEntries.add("MISS;MISS;MISS;MISS;MISS;");
+                    newEntries.add("MISS;;;;");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks());
                 }
@@ -410,7 +411,7 @@ public class DatasetCreator {
 
                     DocumentRetriever documentRetriever = new DocumentRetriever();
                     documentRetriever.downloadAndSave(feed.getFeedUrl(),
-                            folderPath + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + ".gz", true);
+ folderPath + pollTimestamp + ".gz", true);
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
                     // FileHelper.prependFile(filePath, newEntries.toString());
                     FileHelper.appendFile(filePath, newEntryBuilder);
@@ -421,7 +422,7 @@ public class DatasetCreator {
                 // item hashes, shouldn't make a difference, memory-wise
                 // feed.freeMemory();
                 // end remove //
-                
+
 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
             }
