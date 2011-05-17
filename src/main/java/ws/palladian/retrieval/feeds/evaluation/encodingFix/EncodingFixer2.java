@@ -58,7 +58,7 @@ public class EncodingFixer2 extends Thread {
             // FIXME: debug hack
             if (feed == null) {
                 feed = new Feed();
-                csvPath = "data/datasets/feedPosts/411_http___19614155_at_webry_info_.csv";
+                csvPath = "data/datasets/_einzeltests/83_http___0_tqn_com_6_g_useconomy.csv";
             } else {
                 // get path to csv, taken from DatasetCreator
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
@@ -80,7 +80,6 @@ public class EncodingFixer2 extends Thread {
             File originalCSV = new File(csvPath);
             List<String> items = FileHelper.readFileToArray(originalCSV);
 
-            boolean feedContainsMiss = false;
             String[] missLine = null;
             List<String[]> splitItems = new ArrayList<String[]>();
 
@@ -89,16 +88,10 @@ public class EncodingFixer2 extends Thread {
                 lineCount++;
                 String[] split = item.split(";");
                 if (split[0].startsWith("MISS")) {
-                    feedContainsMiss = true;
                     missLine = split;
                     linesContainingMISS.add(lineCount);
-                } else if (windowSize != Integer.parseInt(split[5])) {
-                    if (windowSize == 0) {
-                        windowSize = Integer.parseInt(split[5]);
-                    } else {
-                        LOGGER.fatal("Window size not stable, ignoring this feed!");
-                        return;
-                    }
+                } else if (windowSize <= Integer.parseInt(split[5])) {
+                    windowSize = Integer.parseInt(split[5]);
                 }
                 splitItems.add(split);
             }
@@ -106,101 +99,94 @@ public class EncodingFixer2 extends Thread {
             // buffer size = window size + 1 to store 1 MISS in buffer
             windowBuffer = new BoundedFifoBuffer(windowSize + 1);
 
-            if (feedContainsMiss) {
+            boolean recentLineWasMiss = false;
 
-                boolean recentLineWasMiss = false;
-                // System.out.println(splitItems.size());
-                for (int currentLineNr = splitItems.size(); currentLineNr >= 1; currentLineNr--) {
-                    // System.out.println(line);
-                    String[] currentItem = splitItems.get(currentLineNr - 1);
+            for (int currentLineNr = splitItems.size(); currentLineNr >= 1; currentLineNr--) {
 
-                    // in the beginning, store first window
-                    if (windowBuffer.size() < windowSize) {
-                        if (currentItem[0].equals("MISS") && windowBuffer.isEmpty()) {
-                            LOGGER.debug("last line in csv was MISS - removed it.");
-                            // we do not need to store this miss to recentLineWasMiss!
-                            continue;
-                        }
-                        addToBuffer(currentItem);
-                    } else {
+                String[] currentItem = splitItems.get(currentLineNr - 1);
 
-                        // keep MISS in mind
-                        if (currentItem[0].equals("MISS")) {
-                            recentLineWasMiss = true;
-                            continue;
-                        }
-
-                        // does buffer contain currentItem?
-                        boolean encodingDuplicate = false;
-                        Iterator iterator = windowBuffer.iterator();
-                        while (iterator.hasNext()) {
-                            String[] bufferdItem = (String[]) (iterator.next());
-                            if (currentItem[0].equals(bufferdItem[0])
-                                    && currentItem[1].length() == bufferdItem[1].length()
-                                    && isDuplicate(currentItem[1], bufferdItem[1])
-                                    && currentItem[2].equals(bufferdItem[2])) {
-                                encodingDuplicate = true;
-                                // we know, that the feed has been checked before, so the item in the buffer is the
-                                // original and the current line is the encoding duplicate. Therefore, we do not
-                                // put the duplicate to buffer but discard it.
-                                LOGGER.debug("found duplicate lines in file " + csvPath + "\n" + "original:  "
-                                        + restoreCSVString(bufferdItem) + " -> added\n" + "duplicate: "
-                                        + restoreCSVString(currentItem));
-                                break;
-                            }
-                        }
-                        if (!encodingDuplicate) {
-                            // remember the miss - since we did not found an encoding duplicate, it is a real miss
-                            // and we need to write it to the buffer
-                            if (recentLineWasMiss) {
-                                addToBuffer(missLine);
-                                recentLineWasMiss = false;
-                            }
-                            addToBuffer(currentItem);
-                        } else if (recentLineWasMiss) {
-                            recentLineWasMiss = false;
-                        }
-                    }
-
+                // ignore MISS in last line of csv
+                if (currentItem[0].equals("MISS") && windowBuffer.isEmpty()) {
+                    LOGGER.debug("last line in csv was MISS - removed it.");
+                    // we do not need to store this miss to recentLineWasMiss!
+                    continue;
                 }
 
-                // get remaining Elements from buffer.
+                // keep MISS in mind, if its between items
+                if (currentItem[0].equals("MISS")) {
+                    recentLineWasMiss = true;
+                    continue;
+                }
+
+                // does buffer contain currentItem?
+                boolean encodingDuplicate = false;
                 Iterator iterator = windowBuffer.iterator();
                 while (iterator.hasNext()) {
-                    iterator.next();
-                    String[] currentItem = (String[]) (windowBuffer.remove());
-                    deduplicatedItems.add(currentItem);
-                    LOGGER.trace("adding to deduplicated items: " + restoreCSVString(currentItem));
-                }
-
-                List<String> finalItems = new ArrayList<String>();
-
-                LOGGER.trace("final List:");
-                for (String[] currentItem : deduplicatedItems) {
-                    finalItems.add(restoreCSVString(currentItem));
-                    LOGGER.trace(restoreCSVString(currentItem));
-                }
-
-                // store new list if we found at least one duplicate (the new list another size than the original)
-                if (finalItems.size() != items.size()) {
-                    // reverse to get original order of csv
-                    List<String> reversedItems = CollectionHelper.reverse(finalItems);
-
-                    boolean backupOriginal = originalCSV.renameTo(new File(csvPath + ".bak"));
-                    boolean newFileWritten = false;
-                    if (backupOriginal) {
-                        newFileWritten = FileHelper.writeToFile(csvPath, reversedItems);
-                    }
-                    if (backupOriginal && newFileWritten) {
-                        LOGGER.info("Found misses for feed id " + feed.getId() + ", new file written to " + csvPath);
-                    } else {
-                        LOGGER.fatal("could not write output file, dumping to log:\n" + reversedItems);
+                    String[] bufferdItem = (String[]) (iterator.next());
+                    if (currentItem[0].equals(bufferdItem[0]) && currentItem[1].length() == bufferdItem[1].length()
+                            && isDuplicate(currentItem[1], bufferdItem[1]) && currentItem[2].equals(bufferdItem[2])) {
+                        encodingDuplicate = true;
+                        // we know, that the feed has been checked before, so the item in the buffer is the
+                        // original and the current line is the encoding duplicate. Therefore, we do not
+                        // put the duplicate to buffer but discard it.
+                        LOGGER.debug("found duplicate lines in file " + csvPath + "\n" + "original:  "
+                                + restoreCSVString(bufferdItem) + " -> added\n" + "duplicate: "
+                                + restoreCSVString(currentItem));
+                        break;
                     }
                 }
-
-            } else {
-                LOGGER.debug("Nothing to do for file " + csvPath);
+                if (!encodingDuplicate) {
+                    // remember the miss - since we did not found an encoding duplicate, it is a real miss
+                    // and we need to write it to the buffer
+                    if (recentLineWasMiss) {
+                        addToBuffer(missLine);
+                        recentLineWasMiss = false;
+                    }
+                    addToBuffer(currentItem);
+                } else if (recentLineWasMiss) {
+                    recentLineWasMiss = false;
+                }
             }
+
+            // get remaining Elements from buffer.
+            Iterator iterator = windowBuffer.iterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                String[] currentItem = (String[]) (windowBuffer.remove());
+                deduplicatedItems.add(currentItem);
+                LOGGER.trace("adding to deduplicated items: " + restoreCSVString(currentItem));
+            }
+
+            List<String> finalItems = new ArrayList<String>();
+
+            LOGGER.trace("final List:");
+            for (String[] currentItem : deduplicatedItems) {
+                finalItems.add(restoreCSVString(currentItem));
+                LOGGER.trace(restoreCSVString(currentItem));
+            }
+
+            // store new list if we found at least one duplicate (the new list another size than the original)
+            if (finalItems.size() != items.size()) {
+                // reverse to get original order of csv
+                List<String> reversedItems = CollectionHelper.reverse(finalItems);
+
+                boolean backupOriginal = originalCSV.renameTo(new File(csvPath + ".bak"));
+                boolean newFileWritten = false;
+                if (backupOriginal) {
+                    newFileWritten = FileHelper.writeToFile(csvPath, reversedItems);
+                }
+                if (backupOriginal && newFileWritten) {
+                    LOGGER.info("Found misses for feed id " + feed.getId() + ", new file written to " + csvPath);
+                } else {
+                    LOGGER.fatal("could not write output file, dumping to log:\n" + reversedItems);
+                }
+            } else {
+                LOGGER.debug("No dupliates found in  to do for file " + csvPath);
+            }
+
+            // } else {
+            // LOGGER.debug("Nothing to do for file " + csvPath);
+            // }
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
@@ -211,7 +197,7 @@ public class EncodingFixer2 extends Thread {
 
     private void addToBuffer(String[] itemToAdd) {
         // if full, store last element
-        if (windowBuffer.size() == windowSize) {
+        if (windowBuffer.maxSize() == windowBuffer.size()) {
             String[] leastRecentItem = (String[]) (windowBuffer.remove());
             deduplicatedItems.add(leastRecentItem);
             LOGGER.trace("adding to deduplicated items: " + restoreCSVString(leastRecentItem));
