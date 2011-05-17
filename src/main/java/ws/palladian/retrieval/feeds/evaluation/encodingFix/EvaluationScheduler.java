@@ -89,8 +89,9 @@ class EvaluationScheduler {
                 }
                 removeFeedTaskIfDone(feed.getId());
             }
+            LOGGER.info("Number of remaining tasks to be done: " + scheduledTasks.size());
         }
-        LOGGER.info("all tasks done");
+        LOGGER.info("All tasks done. Bye.");
         System.exit(0);
         
     }
@@ -104,6 +105,7 @@ class EvaluationScheduler {
         final Future<?> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);
+            LOGGER.trace("Removed completed feed from feed task pool: " + feedId);
         }
     }
 
