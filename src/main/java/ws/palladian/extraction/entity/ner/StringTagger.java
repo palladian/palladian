@@ -36,6 +36,8 @@ public class StringTagger {
         regexp += "|";
         regexp += "([A-Z]\\.)( )?[A-Z]{1}['A-Za-z]{1,100}";
         regexp += "|";
+        regexp += "[A-Z][a-z]+ [A-Z]{1}\\. [A-Za-z]{1,100}";
+        regexp += "|";
         regexp += "([A-Z][a-z]{0,2}\\.) [A-Z]{1}[A-Za-z]{1,100}";
         regexp += "|";
         // regexp +=

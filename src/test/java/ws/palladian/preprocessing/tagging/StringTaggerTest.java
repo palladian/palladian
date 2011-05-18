@@ -2,7 +2,6 @@ package ws.palladian.preprocessing.tagging;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.ner.Annotations;
@@ -13,7 +12,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 public class StringTaggerTest {
 
     @Test
-    @Ignore
     public void testTagString() {
 
         Annotations annotations = null;
@@ -35,25 +33,26 @@ public class StringTaggerTest {
         Assert.assertEquals("U.S.S. Enterprise", annotations.get(5).getEntity());
 
         // names
-        taggedText = "Mr. Yakomoto and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is";
+        taggedText = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is";
 
         taggedText = StringTagger.tagString(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
         CollectionHelper.print(annotations);
 
-        Assert.assertEquals(12, annotations.size());
+        Assert.assertEquals(13, annotations.size());
         Assert.assertEquals("Mr. Yakomoto", annotations.get(0).getEntity());
-        Assert.assertEquals("Bill Drody", annotations.get(1).getEntity());
-        Assert.assertEquals("T. Sheff", annotations.get(2).getEntity());
-        Assert.assertEquals("L.Carding", annotations.get(3).getEntity());
-        Assert.assertEquals("T.O'Brian", annotations.get(4).getEntity());
-        Assert.assertEquals("Harry O'Sullivan", annotations.get(5).getEntity());
-        Assert.assertEquals("O'Brody", annotations.get(6).getEntity());
-        Assert.assertEquals("Saturday", annotations.get(7).getEntity());
-        Assert.assertEquals("Friday", annotations.get(8).getEntity());
-        Assert.assertEquals("Night", annotations.get(9).getEntity());
-        Assert.assertEquals("THURSDAY", annotations.get(10).getEntity());
-        Assert.assertEquals("St. Petersburg", annotations.get(11).getEntity());
+        Assert.assertEquals("John J. Smith", annotations.get(1).getEntity());
+        Assert.assertEquals("Bill Drody", annotations.get(2).getEntity());
+        Assert.assertEquals("T. Sheff", annotations.get(3).getEntity());
+        Assert.assertEquals("L.Carding", annotations.get(4).getEntity());
+        Assert.assertEquals("T.O'Brian", annotations.get(5).getEntity());
+        Assert.assertEquals("Harry O'Sullivan", annotations.get(6).getEntity());
+        Assert.assertEquals("O'Brody", annotations.get(7).getEntity());
+        Assert.assertEquals("Saturday", annotations.get(8).getEntity());
+        Assert.assertEquals("Friday", annotations.get(9).getEntity());
+        Assert.assertEquals("Night", annotations.get(10).getEntity());
+        Assert.assertEquals("THURSDAY", annotations.get(11).getEntity());
+        Assert.assertEquals("St. Petersburg", annotations.get(12).getEntity());
         // Assert.assertEquals("Google Inc.", annotations.get(12).getEntity());
 
         // composites

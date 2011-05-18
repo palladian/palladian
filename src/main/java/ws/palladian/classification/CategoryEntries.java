@@ -105,18 +105,22 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
             if (newCategoryEntry == null) {
                 continue;
             }
+            double relevance = newCategoryEntry.getRelevance();
+            if (relevance < 0) {
+                relevance = 0;
+            }
             if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
                 CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
                 if (ce != null) {
-                    ce.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
+                    ce.addAbsoluteRelevance(coefficient * relevance);
                 } else {
                     CategoryEntry categoryEntry = new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient
-                            * newCategoryEntry.getRelevance());
+                            * relevance);
                     this.add(categoryEntry);
                 }
             } else {
                 CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
-                newCategoryEntry2.addAbsoluteRelevance(coefficient * newCategoryEntry.getRelevance());
+                newCategoryEntry2.addAbsoluteRelevance(coefficient * relevance);
                 this.add(newCategoryEntry2);
             }
             listChanged = true;
