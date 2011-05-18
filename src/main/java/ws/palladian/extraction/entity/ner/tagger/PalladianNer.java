@@ -1597,34 +1597,75 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         // ################################# HOW TO USE #################################
+
+        // // training the tagger
+        // needs to point to a column separated file
+        String trainingPath = "data/datasets/ner/conll/training_small.txt";
+        String modelPath = "data/temp/palladianNer";
+
+        // set mode (English or language independent)
+        tagger.setLanguageMode(LanguageMode.English);
+
+        // set type of training set (complete supervised or sparse semi-supervised)
+        tagger.setTrainingMode(TrainingMode.Complete);
+
+        // train the tagger on the training file
+        tagger.train(trainingPath, modelPath);
+
+        // // using a trained tagger
+        // load a trained tagger
+        tagger.loadModel(modelPath);
+
+        // tag a sentence
+        String inputText = "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.";
+        String taggedText = tagger.tag(inputText);
+        System.out.println(taggedText);
+
+        // // evaluate a tagger
+        String testPath = "data/datasets/ner/conll/test_final.txt";
+        EvaluationResult evr = tagger.evaluate(testPath, modelPath, TaggingFormat.COLUMN);
+        System.out.println(evr.getMUCResultsReadable());
+        System.out.println(evr.getExactMatchResultsReadable());
+
+        System.exit(0);
+
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
+        // "data/temp/tudner.model",
+        // TaggingFormat.COLUMN);
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "", TaggingFormat.COLUMN);
+        // EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        //
+        // System.out.println(stopWatch.getElapsedTimeString());
+        //
         // HashSet<String> trainingTexts = new HashSet<String>();
-        // trainingTexts.add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
+        // trainingTexts
+        // .add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
         // trainingTexts
         // .add("Many countries, such as Germany and Great Britain, have a strong economy. Other countries such as Iceland and Norway are in the north and have a smaller population");
         // trainingTexts.add("In south Europe, a nice country named Italy is formed like a boot.");
         // trainingTexts.add("In the western part of Europe, the is a country named Spain which is warm.");
-        // trainingTexts.add("Bruce Willis is an actor, Jim Carrey is an actor too, but Trinidad is a country name and and actor name as well.");
+        // trainingTexts
+        // .add("Bruce Willis is an actor, Jim Carrey is an actor too, but Trinidad is a country name and and actor name as well.");
         // trainingTexts.add("In west Europe, a warm country named Spain has good seafood.");
         // trainingTexts.add("Another way of thinking of it is to drive to another coutry and have some fun.");
         //
-        // // set the kb communicator that knows the entities
-        // nercer.setKbCommunicator(new TestKnowledgeBaseCommunicator());
-
-        // possible tags
+        // // possible tags
         // CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
-
-        // train
+        //
+        // // train
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
-
-        // tag
+        //
+        // // tag
         // tagger.loadModel("data/models/tudner/tudner.model");
         // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
-
+        //
         // tagger.tag(
         // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
         // "data/models/tudner/tudner.model");
-
-        // evaluate
+        //
+        // // evaluate
         // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
         // TaggingFormat.COLUMN);
 
