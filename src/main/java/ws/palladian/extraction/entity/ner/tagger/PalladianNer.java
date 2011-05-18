@@ -240,7 +240,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     @Override
     public String getModelFileEnding() {
-        return "model";
+        return "model.gz";
     }
 
     @Override
@@ -608,7 +608,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             }
 
             if (i % 100 == 0) {
-                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+                LOGGER.debug("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
             }
             i++;
         }
@@ -1610,14 +1610,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         tagger.setTrainingMode(TrainingMode.Complete);
 
         // train the tagger on the training file
-        tagger.train(trainingPath, modelPath);
+        // tagger.train(trainingPath, modelPath);
 
         // // using a trained tagger
         // load a trained tagger
         tagger.loadModel(modelPath);
 
         // tag a sentence
-        String inputText = "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.";
+        String inputText = "Peter J. Johnson lives in New York City in the U.S.A.";
         String taggedText = tagger.tag(inputText);
         System.out.println(taggedText);
 
