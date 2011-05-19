@@ -38,11 +38,11 @@ import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * <pre>
- * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";
+ * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";FEEDSIZE;WINDOWSIZE;
  * </pre>
  * <p>
  * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
- * <tt>MISS;;;;</tt>.
+ * <tt>MISS;;;;;;</tt>.
  * </p>
  * 
  * @author David Urbansky
@@ -343,6 +343,9 @@ public class DatasetCreator {
 
                 long pollTimestamp = System.currentTimeMillis();
 
+                String feedPlainXML = feed.getRawMarkup();
+                Integer feedSize = feedPlainXML.getBytes().length;
+
                 StringBuilder entryWarnings = new StringBuilder();
 
                 LOGGER.debug("Feed entries: " + feedEntries.size());
@@ -367,6 +370,8 @@ public class DatasetCreator {
                     fileEntry.append(item.getPublished().getTime()).append(";");
                     fileEntry.append(pollTimestamp).append(";");
                     fileEntry.append(fileEntryID);
+                    fileEntry.append(feedSize);
+                    fileEntry.append(feed.getWindowSize());
                     // ignore entry size, we can get it later from *.gz
 
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
@@ -398,7 +403,7 @@ public class DatasetCreator {
                 // special line
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     feed.increaseMisses();
-                    newEntries.add("MISS;;;;");
+                    newEntries.add("MISS;;;;;");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks() + ", misses: " + feed.getMisses());
                 }
