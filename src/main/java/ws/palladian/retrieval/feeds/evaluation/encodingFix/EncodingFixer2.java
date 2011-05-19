@@ -3,7 +3,13 @@
  */
 package ws.palladian.retrieval.feeds.evaluation.encodingFix;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +36,7 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
  * 
  * 
  * @author Sandro Reichert
+ * @author Philipp Katz
  * 
  */
 public class EncodingFixer2 extends Thread {
@@ -46,11 +53,7 @@ public class EncodingFixer2 extends Thread {
 
     private BoundedFifoBuffer windowBuffer = null;
 
-    List<String[]> deduplicatedItems = new ArrayList<String[]>();
-
-    private String csvPath = "";
-
-    private final boolean normalMode;
+    private List<String[]> deduplicatedItems = new ArrayList<String[]>();
 
     public static final String BACKUP_FILE_EXTENSION = ".original";
 
@@ -59,35 +62,26 @@ public class EncodingFixer2 extends Thread {
      */
     public EncodingFixer2(Feed feed) {
         this.feed = feed;
-        normalMode = true;
     }
 
     /**
      * For usage in JUnit Test only!
-     * 
-     * @param csvPath the path to the file to be tested.
      */
-    public EncodingFixer2(String csvPath) {
-        this.csvPath = csvPath;
-        this.feed = new Feed();
-        normalMode = false;
+    /* package */ EncodingFixer2() {
+
     }
 
     @Override
     public void run() {
         try {
+            // get path to csv, taken from DatasetCreator
+            String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
+                    .replaceFirst("www.", ""), 30);
 
-            // if !normalmode -> we are in testMode for JUnitTest and got path in constructor
-            if (normalMode) {
-                // get path to csv, taken from DatasetCreator
-                String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
-                        .replaceFirst("www.", ""), 30);
+            int slice = (int) Math.floor(feed.getId() / 1000.0);
 
-                int slice = (int) Math.floor(feed.getId() / 1000.0);
-
-                String folderPath = DatasetCreator.DATASET_PATH + slice + "/" + feed.getId() + "/";
-                csvPath = folderPath + feed.getId() + "_" + safeFeedName + ".csv";
-            }
+            String folderPath = DatasetCreator.DATASET_PATH + slice + "/" + feed.getId() + "/";
+            String csvPath = folderPath + feed.getId() + "_" + safeFeedName + ".csv";
 
             // read csv
             LOGGER.debug("processing: " + csvPath);
@@ -97,107 +91,23 @@ public class EncodingFixer2 extends Thread {
                 return;
             }
             File originalCSV = new File(csvPath);
-            List<String> items = FileHelper.readFileToArray(originalCSV);
+            List<String> items = readCsv(csvPath);
 
-            String[] missLine = null;
-            List<String[]> splitItems = new ArrayList<String[]>();
-
-            int lineCount = 0;
-            for (String item : items) {
-                lineCount++;
-                String[] split = item.split(";");
-                if (split[0].startsWith("MISS")) {
-                    missLine = split;
-                    linesContainingMISS.add(lineCount);
-                } else if (windowSize <= Integer.parseInt(split[5])) {
-                    windowSize = Integer.parseInt(split[5]);
-                }
-                splitItems.add(split);
-            }
-
-            // buffer size = window size + 1 to store 1 MISS in buffer
-            windowBuffer = new BoundedFifoBuffer(windowSize + 1);
-
-            boolean recentLineWasMiss = false;
-
-            for (int currentLineNr = splitItems.size(); currentLineNr >= 1; currentLineNr--) {
-
-                String[] currentItem = splitItems.get(currentLineNr - 1);
-
-                // ignore MISS in last line of csv
-                if (currentItem[0].equals("MISS") && windowBuffer.isEmpty()) {
-                    LOGGER.debug("last line in csv was MISS - removed it.");
-                    // we do not need to store this miss to recentLineWasMiss!
-                    continue;
-                }
-
-                // keep MISS in mind, if its between items
-                if (currentItem[0].equals("MISS")) {
-                    recentLineWasMiss = true;
-                    continue;
-                }
-
-                // does buffer contain currentItem?
-                boolean encodingDuplicate = false;
-                Iterator iterator = windowBuffer.iterator();
-                while (iterator.hasNext()) {
-                    String[] bufferdItem = (String[]) (iterator.next());
-                    if (currentItem[0].equals(bufferdItem[0]) && currentItem[1].length() == bufferdItem[1].length()
-                            && isDuplicate(currentItem[1], bufferdItem[1]) && currentItem[2].equals(bufferdItem[2])) {
-                        encodingDuplicate = true;
-                        // we know, that the feed has been checked before, so the item in the buffer is the
-                        // original and the current line is the encoding duplicate. Therefore, we do not
-                        // put the duplicate to buffer but discard it.
-                        LOGGER.debug("found duplicate lines in file " + csvPath + "\n" + "original:  "
-                                + restoreCSVString(bufferdItem) + " -> added\n" + "duplicate: "
-                                + restoreCSVString(currentItem));
-                        break;
-                    }
-                }
-                if (!encodingDuplicate) {
-                    // remember the miss - since we did not found an encoding duplicate, it is a real miss
-                    // and we need to write it to the buffer
-                    if (recentLineWasMiss) {
-                        addToBuffer(missLine);
-                        recentLineWasMiss = false;
-                    }
-                    addToBuffer(currentItem);
-                } else if (recentLineWasMiss) {
-                    recentLineWasMiss = false;
-                }
-            }
-
-            // get remaining Elements from buffer.
-            Iterator iterator = windowBuffer.iterator();
-            while (iterator.hasNext()) {
-                iterator.next();
-                String[] currentItem = (String[]) (windowBuffer.remove());
-                deduplicatedItems.add(currentItem);
-                LOGGER.trace("adding to deduplicated items: " + restoreCSVString(currentItem));
-            }
-
-            List<String> finalItems = new ArrayList<String>();
-
-            LOGGER.trace("final List:");
-            for (String[] currentItem : deduplicatedItems) {
-                finalItems.add(restoreCSVString(currentItem));
-                LOGGER.trace(restoreCSVString(currentItem));
-            }
+            // do the actual de-duplication magic
+            List<String> finalItems = deduplicate(items, csvPath);
 
             // store new list if we found at least one duplicate (the new list another size than the original)
             if (finalItems.size() != items.size()) {
-                // reverse to get original order of csv
-                List<String> reversedItems = CollectionHelper.reverse(finalItems);
 
                 boolean backupOriginal = originalCSV.renameTo(new File(csvPath + BACKUP_FILE_EXTENSION));
                 boolean newFileWritten = false;
                 if (backupOriginal) {
-                    newFileWritten = FileHelper.writeToFile(csvPath, reversedItems);
+                    newFileWritten = FileHelper.writeToFile(csvPath, finalItems);
                 }
                 if (backupOriginal && newFileWritten) {
                     LOGGER.info("Found misses for feed id " + feed.getId() + ", new file written to " + csvPath);
                 } else {
-                    LOGGER.fatal("could not write output file, dumping to log:\n" + reversedItems);
+                    LOGGER.fatal("could not write output file, dumping to log:\n" + finalItems);
                 }
             } else {
                 LOGGER.debug("No dupliates found in  to do for file " + csvPath);
@@ -212,6 +122,127 @@ public class EncodingFixer2 extends Thread {
             LOGGER.error(th);
         }
 
+    }
+
+    /* package */ static List<String> readCsv(String csvPath) {
+        //List<String> items = FileHelper.readFileToArray(csvPath);
+        //return items;
+        
+        // FileHelper does not set an encoding explicitly, this causes trouble, when our test cases
+        // are run via maven. I suppose the problem has to do with a different default encoding,
+        // although everything seems to be configured correctly at first glance. We should think whether
+        // it makes sense to always explicitly set UTF-8 when reading files. -- Philipp.
+        BufferedReader reader = null;
+        List<String> result = new ArrayList<String>();
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvPath), "UTF-8"));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                result.add(line);
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            FileHelper.close(reader);
+        }
+        return result;
+        
+    }
+
+    /* package */ List<String> deduplicate(List<String> items, String csvPath) {
+        String[] missLine = null;
+        List<String[]> splitItems = new ArrayList<String[]>();
+
+        int lineCount = 0;
+        for (String item : items) {
+            lineCount++;
+            String[] split = item.split(";");
+            if (split[0].startsWith("MISS")) {
+                missLine = split;
+                linesContainingMISS.add(lineCount);
+            } else if (windowSize <= Integer.parseInt(split[5])) {
+                windowSize = Integer.parseInt(split[5]);
+            }
+            splitItems.add(split);
+        }
+
+        // buffer size = window size + 1 to store 1 MISS in buffer
+        windowBuffer = new BoundedFifoBuffer(windowSize + 1);
+
+        boolean recentLineWasMiss = false;
+
+        for (int currentLineNr = splitItems.size(); currentLineNr >= 1; currentLineNr--) {
+
+            String[] currentItem = splitItems.get(currentLineNr - 1);
+
+            // ignore MISS in last line of csv
+            if (currentItem[0].equals("MISS") && windowBuffer.isEmpty()) {
+                LOGGER.debug("last line in csv was MISS - removed it.");
+                // we do not need to store this miss to recentLineWasMiss!
+                continue;
+            }
+
+            // keep MISS in mind, if its between items
+            if (currentItem[0].equals("MISS")) {
+                recentLineWasMiss = true;
+                continue;
+            }
+
+            // does buffer contain currentItem?
+            boolean encodingDuplicate = false;
+            Iterator<?> iterator = windowBuffer.iterator();
+            while (iterator.hasNext()) {
+                String[] bufferdItem = (String[]) (iterator.next());
+                if (currentItem[0].equals(bufferdItem[0]) && currentItem[1].length() == bufferdItem[1].length()
+                        && isDuplicate(currentItem[1], bufferdItem[1]) && currentItem[2].equals(bufferdItem[2])) {
+                    encodingDuplicate = true;
+                    // we know, that the feed has been checked before, so the item in the buffer is the
+                    // original and the current line is the encoding duplicate. Therefore, we do not
+                    // put the duplicate to buffer but discard it.
+                    LOGGER.debug("found duplicate lines in file " + csvPath + "\n" + "original:  "
+                            + restoreCSVString(bufferdItem) + " -> added\n" + "duplicate: "
+                            + restoreCSVString(currentItem));
+                    break;
+                }
+            }
+            if (!encodingDuplicate) {
+                // remember the miss - since we did not found an encoding duplicate, it is a real miss
+                // and we need to write it to the buffer
+                if (recentLineWasMiss) {
+                    addToBuffer(missLine);
+                    recentLineWasMiss = false;
+                }
+                addToBuffer(currentItem);
+            } else if (recentLineWasMiss) {
+                recentLineWasMiss = false;
+            }
+        }
+
+        // get remaining Elements from buffer.
+        Iterator<?> iterator = windowBuffer.iterator();
+        while (iterator.hasNext()) {
+            iterator.next();
+            String[] currentItem = (String[]) (windowBuffer.remove());
+            deduplicatedItems.add(currentItem);
+            LOGGER.trace("adding to deduplicated items: " + restoreCSVString(currentItem));
+        }
+
+        List<String> finalItems = new ArrayList<String>();
+
+        LOGGER.trace("final List:");
+        for (String[] currentItem : deduplicatedItems) {
+            finalItems.add(restoreCSVString(currentItem));
+            LOGGER.trace(restoreCSVString(currentItem));
+        }
+        
+        // reverse to get original order of csv
+        List<String> reversedItems = CollectionHelper.reverse(finalItems);
+
+        return reversedItems;
     }
 
     private void addToBuffer(String[] itemToAdd) {
@@ -290,7 +321,7 @@ public class EncodingFixer2 extends Thread {
     }
 
     // detect encoding and normal duplicates
-    private static boolean isDuplicate(String stringA, String stringB) {
+    /* package */ static boolean isDuplicate(String stringA, String stringB) {
         String aStriped = StringHelper.removeNonAsciiCharacters(stringA.replace("?", "").replace("–", ""));
         String bStriped = StringHelper.removeNonAsciiCharacters(stringB.replace("?", "").replace("–", ""));
         return aStriped.equals(bStriped);
@@ -300,10 +331,22 @@ public class EncodingFixer2 extends Thread {
      * @param args
      */
     public static void main(String[] args) {
+        
+        /*
+        EncodingFixer2 fixer = new EncodingFixer2();
+        List<String> input = EncodingFixer2.readCsv("src/test/resources/feedDataset/EncodingBug_Goldstandard/90_http___0_tqn_com_6_g_golftrave.encodingBug.csv");
+        List<String> gold = EncodingFixer2.readCsv("src/test/resources/feedDataset/EncodingBug_Goldstandard/90_http___0_tqn_com_6_g_golftrave.goldstandard.csv");
+        List<String> deduplicate = fixer.deduplicate(input, null);
+        System.out.println("#input:" + input.size());
+        System.out.println("#dedup:" + deduplicate.size());
+        System.out.println("#gold:" + gold.size());
+        System.out.println("dedup=gold:" + deduplicate.equals(gold));
+        
+        CollectionHelper.print(gold);
+        CollectionHelper.print(deduplicate);
+        */
 
-        EncodingFixer2 fixer = new EncodingFixer2("data/datasets/_einzeltests/83_http___0_tqn_com_6_g_useconomy.csv");
-        fixer.run();
-
+        // fixer.run();
         // String boese = "?????hk????????????? ???? nputSemicolonHere??l?";
         // String gut = "æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹";
         // boolean equal = isTitleEqual(gut, boese);
