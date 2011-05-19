@@ -38,11 +38,11 @@ import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * <pre>
- * TIMESTAMP;"TITLE";LINK
+ * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";
  * </pre>
  * <p>
  * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
- * <tt>MISS;MISS;MISS</tt>.
+ * <tt>MISS;;;;</tt>.
  * </p>
  * 
  * @author David Urbansky
@@ -370,12 +370,16 @@ public class DatasetCreator {
                     // ignore entry size, we can get it later from *.gz
 
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
+                    // Why not also using publish timestamp? We currently ignore on-the-fly generated timestamps, is
+                    // this what we want? -- Sandro
                     boolean contains = false;
                     for (String savedFileEntry : fileEntries) {
-                        if (savedFileEntry.substring(savedFileEntry.indexOf(";") + 1)
+                        // ignore first+second timestamp
+                        if (savedFileEntry.substring(savedFileEntry.indexOf(";", savedFileEntry.indexOf(";") + 1) + 1)
                                 .startsWith(fileEntryID.toString())) {
                             contains = true;
                             break;
+
                         }
                     }
 
@@ -396,7 +400,7 @@ public class DatasetCreator {
                     feed.increaseMisses();
                     newEntries.add("MISS;;;;");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
-                            + feed.getChecks());
+                            + feed.getChecks() + ", misses: " + feed.getMisses());
                 }
 
                 // save the complete feed gzipped in the folder if we found at least one new item
@@ -410,8 +414,7 @@ public class DatasetCreator {
                     }
 
                     DocumentRetriever documentRetriever = new DocumentRetriever();
-                    documentRetriever.downloadAndSave(feed.getFeedUrl(),
- folderPath + pollTimestamp + ".gz", true);
+                    documentRetriever.downloadAndSave(feed.getFeedUrl(), folderPath + pollTimestamp + ".gz", true);
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
                     // FileHelper.prependFile(filePath, newEntries.toString());
                     FileHelper.appendFile(filePath, newEntryBuilder);
