@@ -85,10 +85,13 @@ public class FeedDiscovery {
     private BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
 
     /** Store all discovered feed's URLs. */
-//    private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
+    // private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
 
     /** Number of search engine results to retrieve for each query. */
     private int numResults = 10;
+
+    /** Whether to output full CSVs with feeds' meta data, instead of only URLs. */
+    private boolean csvOutput = false;
 
     public FeedDiscovery() {
 
@@ -246,7 +249,7 @@ public class FeedDiscovery {
 
         }
 
-         LOGGER.debug(result.size() + " feeds for " + pageUrl);
+        LOGGER.debug(result.size() + " feeds for " + pageUrl);
         return result;
 
     }
@@ -259,23 +262,22 @@ public class FeedDiscovery {
         // StopWatch sw = new StopWatch();
         LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
                 + " results per query = " + numResults * queryQueue.size() + " urlQueue to check for feeds");
-        
-        
+
         // do the search
         Thread searchThread = new Thread() {
-             @Override
+            @Override
             public void run() {
-                 String query;
-                 StopWatch sw = new StopWatch();
-                 int totalQueries = queryQueue.size();
-                 int currentQuery = 0;
-                 while ((query = queryQueue.poll()) != null) {
-                     currentQuery++;
-                     LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
-                     Set<String> foundSites = searchSites(query, numResults);
-                     urlQueue.addAll(foundSites);
-                 }
-                 LOGGER.info("finished queries in " + sw.getElapsedTimeString());                 
+                String query;
+                StopWatch sw = new StopWatch();
+                int totalQueries = queryQueue.size();
+                int currentQuery = 0;
+                while ((query = queryQueue.poll()) != null) {
+                    currentQuery++;
+                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
+                    Set<String> foundSites = searchSites(query, numResults);
+                    urlQueue.addAll(foundSites);
+                }
+                LOGGER.info("finished queries in " + sw.getElapsedTimeString());
             }
         };
         searchThread.start();
@@ -288,9 +290,9 @@ public class FeedDiscovery {
                 @Override
                 public void run() {
                     while (queryQueue.size() > 0 || urlQueue.size() > 0) {
-                        
+
                         String url = urlQueue.poll();
-                        
+
                         // we got no new URL from the queue, search engine might still be busy, so wait a moment before
                         // we continue looping.
                         if (url == null) {
@@ -301,7 +303,7 @@ public class FeedDiscovery {
                             }
                             continue;
                         }
-                        
+
                         try {
                             List<DiscoveredFeed> discoveredFeeds = discoverFeeds(url);
                             addDiscoveredFeeds(discoveredFeeds);
@@ -329,11 +331,12 @@ public class FeedDiscovery {
     private synchronized void addDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
             for (DiscoveredFeed feed : discoveredFeeds) {
-//                boolean added = feeds.add(feed);
-//                if (added && getResultFilePath() != null) {
-                    // FileHelper.appendFile(getResultFilePath(), feed.toCSV() + "\n");
-                    FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
-//                }
+                // boolean added = feeds.add(feed);
+                // if (added && getResultFilePath() != null) {
+                // FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
+                // }
+                String writeLine = isCsvOutput() ? feed.toCSV() : feed.getFeedLink();
+                FileHelper.appendFile(getResultFilePath(), writeLine + "\n");
             }
         }
     }
@@ -390,9 +393,9 @@ public class FeedDiscovery {
      * 
      * @return
      */
-//    public List<DiscoveredFeed> getFeeds() {
-//        return new ArrayList<DiscoveredFeed>(feeds);
-//    }
+    // public List<DiscoveredFeed> getFeeds() {
+    // return new ArrayList<DiscoveredFeed>(feeds);
+    // }
 
     /**
      * Set max number of concurrent autodiscovery requests.
@@ -420,7 +423,7 @@ public class FeedDiscovery {
     public int getSearchEngine() {
         return searchEngine;
     }
-    
+
     /**
      * Use the given queries and combine them, to get the specified targetCount of queries.
      * 
@@ -476,6 +479,14 @@ public class FeedDiscovery {
 
     }
 
+    public void setCsvOutput(boolean csvOutput) {
+        this.csvOutput = csvOutput;
+    }
+
+    public boolean isCsvOutput() {
+        return csvOutput;
+    }
+
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
@@ -499,11 +510,13 @@ public class FeedDiscovery {
         options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
                 .withArgName("url").create());
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
-                .withDescription("combine single queries to create more mixed queries").hasArg()
-                .withArgName("nn").withType(Number.class).create());
+                .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
+                .withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("searchEngine")
                 .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
                 .withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("csvOutput")
+                .withDescription("write full output with additional data as CSV file instead of only URLs").create());
 
         try {
 
@@ -539,6 +552,9 @@ public class FeedDiscovery {
             if (cmd.hasOption("searchEngine")) {
                 int searchEngine = ((Number) cmd.getParsedOptionValue("searchEngine")).intValue();
                 discovery.setSearchEngine(searchEngine);
+            }
+            if (cmd.hasOption("csvOutput")) {
+                discovery.setCsvOutput(true);
             }
 
             discovery.findFeeds();
