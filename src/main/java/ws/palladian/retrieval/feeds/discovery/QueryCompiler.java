@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search;
+package ws.palladian.retrieval.feeds.discovery;
 
 import java.util.ArrayList;
 import java.util.List;

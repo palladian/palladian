@@ -63,7 +63,7 @@ public class FeedDiscoveryCallback implements RetrieverCallback {
                 // output to the file must be synced, or we will lose data when
                 // writing from multiple crawl threads
                 synchronized (this) {
-                    FileHelper.appendLineIfNotPresent(filePath, feed.toCSV());
+                    FileHelper.appendLineIfNotPresent(filePath, feed.toCsv());
                 }
             }
         }

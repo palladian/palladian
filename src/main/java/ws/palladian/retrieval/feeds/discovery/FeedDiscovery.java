@@ -43,6 +43,7 @@ import ws.palladian.retrieval.search.WebSearcherManager;
  * <li>Query search engine with some terms (see {@link WebSearcherManager} for available search engines)</li>
  * <li>Get root URLs for each hit</li>
  * <li>Check page for feeds using RSS/Atom autodiscovery feature</li>
+ * <li>Write the discovered feed URLs to file</li>
  * </ol>
  * 
  * @author Philipp Katz
@@ -273,11 +274,13 @@ public class FeedDiscovery {
                 int currentQuery = 0;
                 while ((query = queryQueue.poll()) != null) {
                     currentQuery++;
-                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
+                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries
+                            + "; url queue size: " + urlQueue.size());
                     Set<String> foundSites = searchSites(query, numResults);
                     urlQueue.addAll(foundSites);
                 }
-                LOGGER.info("finished queries in " + sw.getElapsedTimeString());
+                LOGGER.info("finished queries in " + sw.getElapsedTimeString() + " ; url queue size: "
+                        + urlQueue.size());
             }
         };
         searchThread.start();
@@ -335,7 +338,7 @@ public class FeedDiscovery {
                 // if (added && getResultFilePath() != null) {
                 // FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
                 // }
-                String writeLine = isCsvOutput() ? feed.toCSV() : feed.getFeedLink();
+                String writeLine = isCsvOutput() ? feed.toCsv() : feed.getFeedLink();
                 FileHelper.appendFile(getResultFilePath(), writeLine + "\n");
             }
         }
