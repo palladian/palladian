@@ -5,6 +5,7 @@ package ws.palladian.retrieval.feeds.meta;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,13 +20,15 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import com.jolbox.bonecp.ConnectionTesterThread;
-
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.retrieval.ConnectionTimeoutPool;
 import ws.palladian.retrieval.feeds.Feed;
+
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedInput;
 
 /**
  * The MetaInformationCreator gets information about last modified since and
@@ -55,6 +58,8 @@ public final class MetaInformationCreationTask implements Runnable {
 	private static final String psSupportsPubSubHubBub = "UPDATE feeds SET supportsPubSubHubBub=? WHERE id=?";
 
 	private static final String psIsAccessibleFeed = "UPDATE feeds SET isAccessibleFeed=? WHERE id=?";
+	
+	private static final String psFeedVersion = "UPDATE feeds SET feedFormat=? WHERE id=?";
 
 	private static final Pattern[] validFeedPatterns = new Pattern[] {
 			Pattern.compile("<rss"), Pattern.compile("<feed"),
@@ -133,10 +138,19 @@ public final class MetaInformationCreationTask implements Runnable {
 			LOGGER.error("Could not get Content with information about PubSubHubBub information for feed with id: "
 					+ feed.getId() + ".");
 		}
+		
+		String feedVersion = null;
+        try {
+            feedVersion = getFeedVersion();
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Unable to determine feed version.",e);
+        } catch (FeedException e) {
+            LOGGER.error("Unable to determine feed version.",e);
+        }
 
 		try {
 			writeMetaInformationToDatabase(feed, supports304, supportsETag,
-					responseSize, supportsPubSubHubBub, isAccessibleFeed);
+					responseSize, supportsPubSubHubBub, isAccessibleFeed, feedVersion);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Unable to store results to Database.",
@@ -246,10 +260,17 @@ public final class MetaInformationCreationTask implements Runnable {
 		}
 		return ret;
 	}
+	
+	private String getFeedVersion() throws IllegalArgumentException, FeedException {
+	    SyndFeedInput input = new SyndFeedInput();
+	    StringReader currentFeedInputReader = new StringReader(currentFeedContent);
+	    SyndFeed feed = input.build(currentFeedInputReader);
+	    return feed.getFeedType();
+	}
 
 	private void writeMetaInformationToDatabase(Feed feed, Boolean supportsLMS,
 			Boolean supportsETag, Integer responseSizeValue,
-			Boolean supportsPubSubHubBub, Boolean isAccessibleFeed)
+			Boolean supportsPubSubHubBub, Boolean isAccessibleFeed, String feedVersion)
 			throws SQLException {
 
 		Integer id = feed.getId();
@@ -259,6 +280,7 @@ public final class MetaInformationCreationTask implements Runnable {
 		dbManager.runUpdate(psResponseSize, responseSizeValue, id);
 		dbManager.runUpdate(psSupportsPubSubHubBub, supportsPubSubHubBub, id);
 		dbManager.runUpdate(psIsAccessibleFeed, isAccessibleFeed, id);
+		dbManager.runUpdate(psFeedVersion, feedVersion, id);
 	}
 
 	/**
