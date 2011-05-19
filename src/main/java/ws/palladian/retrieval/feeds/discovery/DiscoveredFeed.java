@@ -1,5 +1,9 @@
 package ws.palladian.retrieval.feeds.discovery;
 
+/**
+ * Represents a feed which was found on a web page.
+ * @author Philipp Katz
+ */
 public class DiscoveredFeed {
     
     public static enum Type {
@@ -71,7 +75,11 @@ public class DiscoveredFeed {
             return false;
         return true;
     }
-    public String toCSV() {
+    /**
+     * Return a CSV representation of the discovered feed, containing feed link, feed type and page link.
+     * @return
+     */
+    public String toCsv() {
         StringBuilder sb = new StringBuilder();
         sb.append(feedLink).append(";");
         sb.append(feedType).append(";");
