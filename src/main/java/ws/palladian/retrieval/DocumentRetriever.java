@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Proxy;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -456,8 +457,10 @@ public class DocumentRetriever {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (UnknownHostException e) {
             LOGGER.error(url + ", " + e.getMessage());
-        } catch (IOException e) {
+        } catch (SocketException e) {
             LOGGER.error(url + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(url + ", " + e.getMessage() + " caused by " + e.getCause().getMessage());
         } catch (OutOfMemoryError e) {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (DOMException e) {
