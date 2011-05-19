@@ -61,14 +61,14 @@ class EvaluationScheduler {
 
 
     public void run() {
-        LOGGER.debug("Scheduling all feeds to be checked for the charset bug");
+        LOGGER.info("Scheduling all feeds to be checked for the charset duplicates and duplicates within the window");
 
         for (Feed feed : feedReader.getFeeds()) {
 
             // FIXME remove debug code 3 lines
-            if (feed.getId() > 1000) {
-                return;
-            }
+            // if (feed.getId() > 100) {
+            // break;
+            // }
 
             scheduledTasks.put(feed.getId(), threadPool.submit(new EncodingFixer2(feed)));
         }
@@ -76,7 +76,7 @@ class EvaluationScheduler {
         while (!scheduledTasks.isEmpty()) {
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -84,9 +84,9 @@ class EvaluationScheduler {
 
             for (Feed feed : feedReader.getFeeds()) {
                 // FIXME remove debug code 3 lines
-                if (feed.getId() > 1000) {
-                    return;
-                }
+                // if (feed.getId() > 100) {
+                // break;
+                // }
                 removeFeedTaskIfDone(feed.getId());
             }
             LOGGER.info("Number of remaining tasks to be done: " + scheduledTasks.size());
@@ -111,6 +111,8 @@ class EvaluationScheduler {
 
 
     public static void main(String[] args) {
+
+
         FeedStore feedStore = new FeedDatabase();
         FeedReader feedChecker = new FeedReader(feedStore);
         EvaluationScheduler scheduler = new EvaluationScheduler(feedChecker);

@@ -20,6 +20,8 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 /**
  * Quick'n'dirty
  * 
+ * Detect real and encoding duplicates within one window
+ * 
  * Required for CIKM feed dataset paper using TUDCS2 dataset. On one machine, the encoding has temporarily been changed,
  * so non-ASCII characters have been written as "?" to *.csv and *.gz files.
  * Detects duplicate items like
@@ -46,20 +48,37 @@ public class EncodingFixer2 extends Thread {
 
     List<String[]> deduplicatedItems = new ArrayList<String[]>();
 
+    private String csvPath = "";
+
+    private final boolean normalMode;
+
+    public static final String BACKUP_FILE_EXTENSION = ".original";
+
+    /**
+     * @param feed the Feed to process
+     */
     public EncodingFixer2(Feed feed) {
         this.feed = feed;
+        normalMode = true;
+    }
+
+    /**
+     * For usage in JUnit Test only!
+     * 
+     * @param csvPath the path to the file to be tested.
+     */
+    public EncodingFixer2(String csvPath) {
+        this.csvPath = csvPath;
+        this.feed = new Feed();
+        normalMode = false;
     }
 
     @Override
     public void run() {
         try {
 
-            String csvPath = "";
-            // FIXME: debug hack
-            if (feed == null) {
-                feed = new Feed();
-                csvPath = "data/datasets/_einzeltests/83_http___0_tqn_com_6_g_useconomy.csv";
-            } else {
+            // if !normalmode -> we are in testMode for JUnitTest and got path in constructor
+            if (normalMode) {
                 // get path to csv, taken from DatasetCreator
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
                         .replaceFirst("www.", ""), 30);
@@ -170,7 +189,7 @@ public class EncodingFixer2 extends Thread {
                 // reverse to get original order of csv
                 List<String> reversedItems = CollectionHelper.reverse(finalItems);
 
-                boolean backupOriginal = originalCSV.renameTo(new File(csvPath + ".bak"));
+                boolean backupOriginal = originalCSV.renameTo(new File(csvPath + BACKUP_FILE_EXTENSION));
                 boolean newFileWritten = false;
                 if (backupOriginal) {
                     newFileWritten = FileHelper.writeToFile(csvPath, reversedItems);
@@ -282,7 +301,7 @@ public class EncodingFixer2 extends Thread {
      */
     public static void main(String[] args) {
 
-        EncodingFixer2 fixer = new EncodingFixer2(null);
+        EncodingFixer2 fixer = new EncodingFixer2("data/datasets/_einzeltests/83_http___0_tqn_com_6_g_useconomy.csv");
         fixer.run();
 
         // String boese = "?????hk????????????? ???? nputSemicolonHere??l?";
