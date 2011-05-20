@@ -42,7 +42,8 @@ public class EncodingFixer2Test {
             "/feedDataset/EncodingBug_Goldstandard/83_http___0_tqn_com_6_g_useconomy",
             "/feedDataset/EncodingBug_Goldstandard/86040_http___orlando-hiphop_forumoti",
             "/feedDataset/EncodingBug_Goldstandard/90_http___0_tqn_com_6_g_golftrave",
-            "/feedDataset/EncodingBug_Goldstandard/92_http___0_tqn_com_6_g_journalis" };
+            "/feedDataset/EncodingBug_Goldstandard/92_http___0_tqn_com_6_g_journalis",
+            "/feedDataset/EncodingBug_Goldstandard/889_http___44_agendaculturel_fr_rs" };
 
     @Test
     public void testEncodingFix2() {
