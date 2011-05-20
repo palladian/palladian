@@ -18,12 +18,21 @@ public class EncodingFixer2Test {
     private static final String ENCODING_BUG_FILE_EXTENSION = ".encodingBug.csv";
     private static final String GOLD_STANDARD_FILE_EXTENSION = ".goldstandard.csv";
 
+    /*
+     * Comment on 2_http___00-oth-man-00_skyrock_c:
+     * Feed-Anbieter hatte scheinbar 2 Probleme:
+     * manchmal wechselnde SessionIDs, die sich im Pfad hinter /f/ verbergen,
+     * scheinbar hat der Anbieter selbst (das Encoding) hin und wieder verhauen, denn die Zeile
+     * "1287142740000;"Article post? le vendredi 15 octobre 2010 07:35";"
+     * kommt in 3 Versionen vor, bei denen sich auch noch der in den Titel integeriete Zeitstempel ändert, 4:35....
+     * ...so the gold standard is not perfect but the best we can do so far
+     */
     private static final String[] TESTS = {
             "/feedDataset/EncodingBug_Goldstandard/113_http___0_tqn_com_6_g_hepatitis",
             "/feedDataset/EncodingBug_Goldstandard/115_http___0_tqn_com_6_g_ent_b_rss",
             "/feedDataset/EncodingBug_Goldstandard/2_http___00-oth-man-00_skyrock_c",
             "/feedDataset/EncodingBug_Goldstandard/25_http___0misspumpkin_blogspot_c",
-            // "/feedDataset/EncodingBug_Goldstandard/27_http___0taku_planet_ee_feed=at",
+            "/feedDataset/EncodingBug_Goldstandard/27_http___0taku_planet_ee_feed_at",
             "/feedDataset/EncodingBug_Goldstandard/28_http___0tattakata0_blog28_fc2_",
             "/feedDataset/EncodingBug_Goldstandard/41_http___0_tqn_com_6_g_ancienthi",
             "/feedDataset/EncodingBug_Goldstandard/62_http___0_tqn_com_6_g_patients_",
@@ -32,7 +41,7 @@ public class EncodingFixer2Test {
             "/feedDataset/EncodingBug_Goldstandard/78_http___0_tqn_com_6_g_jewelryma",
             "/feedDataset/EncodingBug_Goldstandard/83_http___0_tqn_com_6_g_useconomy",
             "/feedDataset/EncodingBug_Goldstandard/86040_http___orlando-hiphop_forumoti",
-            // "src/test/resources/feedDataset/EncodingBug_Goldstandard/90_http___0_tqn_com_6_g_golftrave",
+            "/feedDataset/EncodingBug_Goldstandard/90_http___0_tqn_com_6_g_golftrave",
             "/feedDataset/EncodingBug_Goldstandard/92_http___0_tqn_com_6_g_journalis" };
 
     @Test
