@@ -478,9 +478,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * 
      * @param trainingFilePath The apther of the training file.
      * @param modelFilePath The path where the model should be saved to.
+     * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    private boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
+    private boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath,
+            Annotations additionalTrainingAnnotations) {
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
@@ -488,9 +490,17 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
         Annotations combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
+        // add the additional training annotations, they will be used for the context analysis too
+        annotations.addAll(additionalTrainingAnnotations);
+        combinedAnnotations.addAll(additionalTrainingAnnotations);
+
         analyzeContexts(trainingFilePath, annotations);
 
         return trainLanguageIndependent(annotations, combinedAnnotations, modelFilePath);
+    }
+
+    private boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
+        return trainLanguageIndependent(trainingFilePath, modelFilePath, new Annotations());
     }
 
     /**
@@ -498,12 +508,17 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * 
      * @param trainingFilePath The apther of the training file.
      * @param modelFilePath The path where the model should be saved to.
+     * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    private boolean trainEnglish(String trainingFilePath, String modelFilePath) {
+    private boolean trainEnglish(String trainingFilePath, String modelFilePath,
+            Annotations additionalTrainingAnnotations) {
 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        // add the additional training annotations, they will be used for the context analysis too
+        annotations.addAll(additionalTrainingAnnotations);
 
         // create instances with nominal and numeric features
         Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
@@ -574,6 +589,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         saveModel(modelFilePath);
 
         return true;
+    }
+
+    private boolean trainEnglish(String trainingFilePath, String modelFilePath) {
+        return trainEnglish(trainingFilePath, modelFilePath, new Annotations());
     }
 
     /**
