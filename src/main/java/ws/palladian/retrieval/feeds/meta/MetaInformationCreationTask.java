@@ -44,9 +44,9 @@ public final class MetaInformationCreationTask implements Runnable {
 
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
-    private Feed feed;
+    private final Feed feed;
 
-    private DatabaseManager dbManager = new DatabaseManager();
+    private final DatabaseManager dbManager;
 
     private static final String psSupportsLMS = "UPDATE feeds SET supportsLMS=? WHERE id=?";
 
@@ -54,7 +54,7 @@ public final class MetaInformationCreationTask implements Runnable {
 
     private static final String psResponseSize = "UPDATE feeds SET conditionalGetResponseSize=? WHERE id=?";
 
-    private static final String psSupportsPubSubHubBub = "UPDATE feeds SET supportsPubSubHubBub=? WHERE id=?";
+    private static final String psSupportsPubSubHubBub = "UPDATE feeds SET supportsPubSuHubBub=? WHERE id=?";
 
     private static final String psIsAccessibleFeed = "UPDATE feeds SET isAccessibleFeed=? WHERE id=?";
 
@@ -65,8 +65,9 @@ public final class MetaInformationCreationTask implements Runnable {
 
     private String currentFeedContent;
 
-    public MetaInformationCreationTask(Feed feed) {
+    public MetaInformationCreationTask(Feed feed, DatabaseManager dbManager) {
         this.feed = feed;
+        this.dbManager = dbManager;
     }
 
     private String getContent(URL feedURL) throws IOException {
@@ -241,7 +242,9 @@ public final class MetaInformationCreationTask implements Runnable {
         // feed.setItems(null);
 
         MetaInformationCreator.counter++;
-        LOGGER.info("percent done: "
+        LOGGER.info("Processed feed: "
+                + feed.getId()
+                + "; percent done: "
                 + MathHelper.round(100 * MetaInformationCreator.counter
                         / (double) MetaInformationCreator.collectionSize, 2) + "(" + MetaInformationCreator.counter
                 + ")");
