@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +27,8 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.retrieval.ConnectionTimeoutPool;
 import ws.palladian.retrieval.feeds.Feed;
 
+import com.sun.syndication.feed.rss.Guid;
+import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
@@ -60,8 +63,11 @@ public final class MetaInformationCreationTask implements Runnable {
 
     private static final String psFeedVersion = "UPDATE feeds SET feedFormat=? WHERE id=?";
 
+    private static final String psHasItemIds = "UPDATE feeds SET hasItemIds=? WHERE id=?";
+
     private static final Pattern[] validFeedPatterns = new Pattern[] { Pattern.compile("<rss"),
             Pattern.compile("<feed"), Pattern.compile("<rdf:RDF") };
+
 
     private String currentFeedContent;
 
@@ -135,12 +141,21 @@ public final class MetaInformationCreationTask implements Runnable {
         }
     }
 
-    private String getFeedVersion() throws IllegalArgumentException, FeedException {
+    private String getFeedVersion(SyndFeed feed) throws IllegalArgumentException, FeedException {
+        return feed.getFeedType();
+    }
+
+    /**
+     * @return
+     * @throws FeedException
+     */
+    private SyndFeed getSyndFeed() throws FeedException {
         SyndFeedInput input = new SyndFeedInput();
+        input.setPreserveWireFeed(true);
         StringReader currentFeedInputReader = new StringReader(currentFeedContent);
         SyndFeed feed = input.build(currentFeedInputReader);
         currentFeedInputReader.close();
-        return feed.getFeedType();
+        return feed;
     }
 
     private Boolean getSupportsETag(final URLConnection connection) {
@@ -230,17 +245,24 @@ public final class MetaInformationCreationTask implements Runnable {
         }
 
         String feedVersion = null;
+        SyndFeed syndFeed = null;
         try {
-            feedVersion = getFeedVersion();
+            syndFeed = getSyndFeed();
+            feedVersion = getFeedVersion(syndFeed);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Unable to determine feed version.", e);
         } catch (FeedException e) {
             LOGGER.error("Unable to determine feed version.", e);
         }
 
+        boolean hasItemIds = false;
+        if (syndFeed != null) {
+            hasItemIds = checkForItemIds(syndFeed);
+        }
+
         try {
             writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, supportsPubSubHubBub,
-                    isAccessibleFeed, feedVersion);
+                    isAccessibleFeed, feedVersion, hasItemIds);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to store results to Database.", e);
         } finally {
@@ -257,6 +279,32 @@ public final class MetaInformationCreationTask implements Runnable {
                 + MathHelper.round(100 * MetaInformationCreator.counter
                         / (double) MetaInformationCreator.collectionSize, 2) + "(" + MetaInformationCreator.counter
                 + ")");
+    }
+
+    private boolean checkForItemIds(SyndFeed syndFeed) {
+
+        boolean result = false;
+
+        Iterator<?> it = syndFeed.getEntries().iterator();
+        if (it.hasNext()) {
+            SyndEntry syndEntry = (SyndEntry) it.next();
+            Object wireEntry = syndEntry.getWireEntry();
+
+            if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
+                com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
+                String rawId = atomEntry.getId();
+                if (rawId != null && !rawId.isEmpty()) {
+                    result = true;
+                }
+            } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
+                com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
+                Guid guid = rssItem.getGuid();
+                if (guid != null && !guid.getValue().isEmpty()) {
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -280,7 +328,8 @@ public final class MetaInformationCreationTask implements Runnable {
     }
 
     private void writeMetaInformationToDatabase(Feed feed, Boolean supportsLMS, Boolean supportsETag,
-            Integer responseSizeValue, Boolean supportsPubSubHubBub, Boolean isAccessibleFeed, String feedVersion)
+            Integer responseSizeValue, Boolean supportsPubSubHubBub, Boolean isAccessibleFeed, String feedVersion,
+            boolean hasItemIds)
             throws SQLException {
 
         Integer id = feed.getId();
@@ -291,6 +340,7 @@ public final class MetaInformationCreationTask implements Runnable {
         dbManager.runUpdate(psSupportsPubSubHubBub, supportsPubSubHubBub, id);
         dbManager.runUpdate(psIsAccessibleFeed, isAccessibleFeed, id);
         dbManager.runUpdate(psFeedVersion, feedVersion, id);
+        dbManager.runUpdate(psHasItemIds, hasItemIds, id);
     }
 
 }
