@@ -370,8 +370,8 @@ public class DatasetCreator {
                     fileEntry.append(item.getPublished().getTime()).append(";");
                     fileEntry.append(pollTimestamp).append(";");
                     fileEntry.append(fileEntryID);
-                    fileEntry.append(feedSize);
-                    fileEntry.append(feed.getWindowSize());
+                    fileEntry.append(feedSize).append(";");
+                    fileEntry.append(feed.getWindowSize()).append(";");
                     // ignore entry size, we can get it later from *.gz
 
                     // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
