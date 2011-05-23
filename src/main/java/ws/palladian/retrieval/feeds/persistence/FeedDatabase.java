@@ -14,6 +14,7 @@ import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
@@ -44,6 +45,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
+    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET supportsLMS = ?, supportsETag = ?, conditionalGetResponseSize = ?, supportsPubSuHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ? WHERE id = ?";
 
     @Override
     public boolean addFeed(Feed feed) {
@@ -277,6 +279,19 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     public ResultIterator<FeedItem> getFeedItems() {
         return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
+    }
+    
+    public boolean updateMetaInformation(Feed feed, FeedMetaInformation metaInformation) {
+        List<Object> parameters = new ArrayList<Object>();
+        parameters.add(metaInformation.isSupports304());
+        parameters.add(metaInformation.isSupportsETag());
+        parameters.add(metaInformation.getResponseSize());
+        parameters.add(metaInformation.isSupportsPubSubHubBub());
+        parameters.add(metaInformation.isAccessible());
+        parameters.add(metaInformation.getFeedVersion());
+        parameters.add(metaInformation.hasItemIds());
+        parameters.add(feed.getId());
+        return runUpdate(UPDATE_FEED_META_INFORMATION, parameters) != -1;
     }
 
     public void clearFeedTables() {

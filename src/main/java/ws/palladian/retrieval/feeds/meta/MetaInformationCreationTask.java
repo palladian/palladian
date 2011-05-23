@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,9 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.retrieval.ConnectionTimeoutPool;
 import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -48,32 +47,20 @@ public final class MetaInformationCreationTask implements Runnable {
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
     private final Feed feed;
+    
+    private final FeedMetaInformation metaInformation;
 
-    private final DatabaseManager dbManager;
+    private final FeedDatabase feedDatabase;
 
-    private static final String psSupportsLMS = "UPDATE feeds SET supportsLMS=? WHERE id=?";
-
-    private static final String psSupportsEtag = "UPDATE feeds SET supportsETag=? WHERE id=?";
-
-    private static final String psResponseSize = "UPDATE feeds SET conditionalGetResponseSize=? WHERE id=?";
-
-    private static final String psSupportsPubSubHubBub = "UPDATE feeds SET supportsPubSuHubBub=? WHERE id=?";
-
-    private static final String psIsAccessibleFeed = "UPDATE feeds SET isAccessibleFeed=? WHERE id=?";
-
-    private static final String psFeedVersion = "UPDATE feeds SET feedFormat=? WHERE id=?";
-
-    private static final String psHasItemIds = "UPDATE feeds SET hasItemIds=? WHERE id=?";
-
-    private static final Pattern[] validFeedPatterns = new Pattern[] { Pattern.compile("<rss"),
+    private static final Pattern[] VALID_FEED_PATTERNS = new Pattern[] { Pattern.compile("<rss"),
             Pattern.compile("<feed"), Pattern.compile("<rdf:RDF") };
-
 
     private String currentFeedContent;
 
-    public MetaInformationCreationTask(Feed feed, DatabaseManager dbManager) {
+    public MetaInformationCreationTask(Feed feed, FeedDatabase dbManager) {
         this.feed = feed;
-        this.dbManager = dbManager;
+        this.feedDatabase = dbManager;
+        metaInformation = new FeedMetaInformation();
     }
 
     private String getContent(URL feedURL) throws IOException {
@@ -98,7 +85,7 @@ public final class MetaInformationCreationTask implements Runnable {
         return ret;
     }
 
-    private Integer getFeedResponseSize(final HttpURLConnection connection) {
+    private int getFeedResponseSize(final HttpURLConnection connection) {
         int ret = 0;
         try {
             if (HttpURLConnection.HTTP_NOT_MODIFIED == connection.getResponseCode()) {
@@ -124,7 +111,7 @@ public final class MetaInformationCreationTask implements Runnable {
      * @return {@code true} if the feed supports conditional gets, {@code false} otherwise.
      * @throws IOException
      */
-    private Boolean getFeedSupports304(final HttpURLConnection connection) throws IOException {
+    private boolean getFeedSupports304(final HttpURLConnection connection) throws IOException {
         Boolean ret = false;
 
         if (HttpURLConnection.HTTP_NOT_MODIFIED == connection.getResponseCode()) {
@@ -133,11 +120,11 @@ public final class MetaInformationCreationTask implements Runnable {
         return ret;
     }
 
-    private Boolean getFeedSupportsPubSubHubBub(final URLConnection connection) throws IOException {
+    private boolean getFeedSupportsPubSubHubBub(final URLConnection connection) throws IOException {
         if (currentFeedContent != null && currentFeedContent.contains("rel=\"hub\"")) {
-            return Boolean.valueOf(true);
+            return true;
         } else {
-            return Boolean.valueOf(false);
+            return false;
         }
     }
 
@@ -158,19 +145,19 @@ public final class MetaInformationCreationTask implements Runnable {
         return feed;
     }
 
-    private Boolean getSupportsETag(final URLConnection connection) {
+    private boolean getSupportsETag(final URLConnection connection) {
         boolean ret = false;
         ret = connection.getHeaderField("Etag") == null;
         return ret;
     }
 
-    private Boolean isAccessibleFeed(HttpURLConnection connection) throws IOException {
+    private boolean isAccessibleFeed(HttpURLConnection connection) throws IOException {
         if (HttpURLConnection.HTTP_NOT_FOUND == connection.getResponseCode()
                 || HttpURLConnection.HTTP_FORBIDDEN == connection.getResponseCode()) {
             return false;
         }
         if (currentFeedContent != null) {
-            for (Pattern pattern : validFeedPatterns) {
+            for (Pattern pattern : VALID_FEED_PATTERNS) {
                 Matcher matcher = pattern.matcher(currentFeedContent);
                 if (matcher.find()) {
                     return true;
@@ -213,32 +200,32 @@ public final class MetaInformationCreationTask implements Runnable {
             connection.disconnect();
         }
 
-        Boolean isAccessibleFeed = false;
         try {
-            isAccessibleFeed = isAccessibleFeed(connection);
+            boolean isAccessibleFeed = isAccessibleFeed(connection);
+            metaInformation.setAccessible(isAccessibleFeed);
         } catch (IOException e) {
             LOGGER.error("Unable to check if feed at URL " + feed.getFeedUrl() + " is accessible.");
         }
 
-        Boolean supports304 = false;
-
+        boolean supports304 = false;
         try {
-
             supports304 = getFeedSupports304(connection);
-
+            metaInformation.setSupports304(supports304);
         } catch (IOException e) {
             LOGGER.error("Could not get HTTP header information for feed with id: " + feed.getId() + ".");
         }
 
         Boolean supportsETag = getSupportsETag(connection);
-        Integer responseSize = -1;
+        metaInformation.setSupportsETag(supportsETag);
+        
         if (supports304) {
-            responseSize = getFeedResponseSize(connection);
+            int responseSize = getFeedResponseSize(connection);
+            metaInformation.setResponseSize(responseSize);
         }
-        Boolean supportsPubSubHubBub = Boolean.valueOf(false);
 
         try {
-            supportsPubSubHubBub = getFeedSupportsPubSubHubBub(connection);
+            boolean supportsPubSubHubBub = getFeedSupportsPubSubHubBub(connection);
+            metaInformation.setSupportsPubSubHubBub(supportsPubSubHubBub);
         } catch (IOException e1) {
             LOGGER.error("Could not get Content with information about PubSubHubBub information for feed with id: "
                     + feed.getId() + ".");
@@ -249,28 +236,28 @@ public final class MetaInformationCreationTask implements Runnable {
         try {
             syndFeed = getSyndFeed();
             feedVersion = getFeedVersion(syndFeed);
+            metaInformation.setFeedVersion(feedVersion);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Unable to determine feed version.", e);
         } catch (FeedException e) {
             LOGGER.error("Unable to determine feed version.", e);
         }
 
-        boolean hasItemIds = false;
         if (syndFeed != null) {
-            hasItemIds = checkForItemIds(syndFeed);
+            boolean hasItemIds = checkForItemIds(syndFeed);
+            metaInformation.setHasItemIds(hasItemIds);
         }
 
         try {
-            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, supportsPubSubHubBub,
-                    isAccessibleFeed, feedVersion, hasItemIds);
-        } catch (SQLException e) {
-            throw new RuntimeException("Unable to store results to Database.", e);
+            boolean success = feedDatabase.updateMetaInformation(feed, metaInformation);
+            if (!success) {
+                throw new RuntimeException("Unable to store results to Database.");
+            }
         } finally {
             connection.disconnect();
         }
 
         feed.freeMemory();
-        // feed.setItems(null);
 
         MetaInformationCreator.counter++;
         LOGGER.info("Processed feed: "
@@ -325,22 +312,6 @@ public final class MetaInformationCreationTask implements Runnable {
             }
         }
         return ret;
-    }
-
-    private void writeMetaInformationToDatabase(Feed feed, Boolean supportsLMS, Boolean supportsETag,
-            Integer responseSizeValue, Boolean supportsPubSubHubBub, Boolean isAccessibleFeed, String feedVersion,
-            boolean hasItemIds)
-            throws SQLException {
-
-        Integer id = feed.getId();
-
-        dbManager.runUpdate(psSupportsLMS, supportsLMS, id);
-        dbManager.runUpdate(psSupportsEtag, supportsETag, id);
-        dbManager.runUpdate(psResponseSize, responseSizeValue, id);
-        dbManager.runUpdate(psSupportsPubSubHubBub, supportsPubSubHubBub, id);
-        dbManager.runUpdate(psIsAccessibleFeed, isAccessibleFeed, id);
-        dbManager.runUpdate(psFeedVersion, feedVersion, id);
-        dbManager.runUpdate(psHasItemIds, hasItemIds, id);
     }
 
 }
