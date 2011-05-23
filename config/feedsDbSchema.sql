@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `rankingCache` (
 --
 
 CREATE TABLE IF NOT EXISTS `feeds` (
- `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `feedUrl` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
   `siteUrl` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
   `title` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `lastMissTimestamp` TIMESTAMP NULL DEFAULT NULL COMMENT 'The timestamp we detected the last MISS.',
   `blocked` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'IF TRUE, DO NOT USE feed TO CREATE a DATA SET',
   `lastSuccessfulCheck` DATETIME DEFAULT NULL COMMENT 'Timestamp of last successful check (feed has been retrieved and successfully parsed)',
+  `feedFormat` CHAR(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Contains the version of the feed such as RSS/0.9 or ATOM/1.0',
   `supportsPubSuHubBub` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Does the feed support pubsuphubbub',
   `isAccessibleFeed` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Is the feed accessible?',
   `hasItemIds` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Does the items have an id field?',
