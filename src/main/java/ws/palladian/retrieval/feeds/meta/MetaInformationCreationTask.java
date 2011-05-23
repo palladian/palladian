@@ -38,6 +38,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  * 
@@ -60,7 +61,7 @@ public final class MetaInformationCreationTask implements Runnable {
     public MetaInformationCreationTask(Feed feed, FeedDatabase dbManager) {
         this.feed = feed;
         this.feedDatabase = dbManager;
-        metaInformation = new FeedMetaInformation();
+        metaInformation = new FeedMetaInformation(feed);
     }
 
     private String getContent(URL feedURL) throws IOException {
@@ -112,7 +113,7 @@ public final class MetaInformationCreationTask implements Runnable {
      * @throws IOException
      */
     private boolean getFeedSupports304(final HttpURLConnection connection) throws IOException {
-        Boolean ret = false;
+        boolean ret = false;
 
         if (HttpURLConnection.HTTP_NOT_MODIFIED == connection.getResponseCode()) {
             ret = true;
@@ -215,7 +216,7 @@ public final class MetaInformationCreationTask implements Runnable {
             LOGGER.error("Could not get HTTP header information for feed with id: " + feed.getId() + ".");
         }
 
-        Boolean supportsETag = getSupportsETag(connection);
+        boolean supportsETag = getSupportsETag(connection);
         metaInformation.setSupportsETag(supportsETag);
         
         if (supports304) {
@@ -236,16 +237,24 @@ public final class MetaInformationCreationTask implements Runnable {
         try {
             syndFeed = getSyndFeed();
             feedVersion = getFeedVersion(syndFeed);
-            metaInformation.setFeedVersion(feedVersion);
+            metaInformation.setFeedFormat(feedVersion);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Unable to determine feed version.", e);
         } catch (FeedException e) {
             LOGGER.error("Unable to determine feed version.", e);
         }
 
-        if (syndFeed != null) {
-            boolean hasItemIds = checkForItemIds(syndFeed);
-            metaInformation.setHasItemIds(hasItemIds);
+//        if (syndFeed != null) {
+//            boolean hasItemIds = checkForItemIds(syndFeed);
+//            metaInformation.setHasItemIds(hasItemIds);
+//        }
+        
+        if (feedVersion != null) {
+            if (feedVersion.toLowerCase().contains("rss")) {
+                determineRssMetaInformation(syndFeed, metaInformation);
+            } else if (feedVersion.toLowerCase().contains("atom")) {
+                determineAtomMetaInformation(syndFeed, metaInformation);
+            }
         }
 
         try {
@@ -268,31 +277,72 @@ public final class MetaInformationCreationTask implements Runnable {
                 + ")");
     }
 
-    private boolean checkForItemIds(SyndFeed syndFeed) {
-
-        boolean result = false;
-
+    /**
+     * Determine Atom specific meta information.
+     * @param syndFeed
+     * @param metaInformation
+     */
+    private void determineAtomMetaInformation(SyndFeed syndFeed, FeedMetaInformation metaInformation) {
         Iterator<?> it = syndFeed.getEntries().iterator();
         if (it.hasNext()) {
             SyndEntry syndEntry = (SyndEntry) it.next();
-            Object wireEntry = syndEntry.getWireEntry();
+            com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) syndEntry.getWireEntry();
+            String rawId = atomEntry.getId();
 
-            if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
-                com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
-                String rawId = atomEntry.getId();
-                if (rawId != null && !rawId.isEmpty()) {
-                    result = true;
-                }
-            } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
-                com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
-                Guid guid = rssItem.getGuid();
-                if (guid != null && !guid.getValue().isEmpty()) {
-                    result = true;
-                }
-            }
+            metaInformation.setHasItemIds(rawId != null && !rawId.isEmpty());
+            metaInformation.setHasUpdated(atomEntry.getUpdated() != null);
+            metaInformation.setHasPublished(atomEntry.getPublished() != null);
         }
-        return result;
     }
+
+    /**
+     * Determine RSS specific meta information.
+     * @param syndFeed
+     * @param metaInformation
+     */
+    private void determineRssMetaInformation(SyndFeed syndFeed, FeedMetaInformation metaInformation) {
+        Iterator<?> it = syndFeed.getEntries().iterator();
+        if (it.hasNext()) {
+            SyndEntry syndEntry = (SyndEntry) it.next();
+            
+            com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) syndEntry.getWireEntry();
+            com.sun.syndication.feed.rss.Channel channel = (com.sun.syndication.feed.rss.Channel) syndFeed.originalWireFeed();
+            Guid guid = rssItem.getGuid();
+
+            metaInformation.setHasItemIds(guid != null && !guid.getValue().isEmpty());
+            metaInformation.setHasPubDate(rssItem.getPubDate() != null);
+            metaInformation.setHasCloud(channel.getCloud() != null);
+            metaInformation.setTtl(channel.getTtl());
+            metaInformation.setHasSkipDays(!channel.getSkipDays().isEmpty());
+            metaInformation.setHasSkipHours(!channel.getSkipHours().isEmpty());
+        }
+    }
+
+//    private boolean checkForItemIds(SyndFeed syndFeed) {
+//
+//        boolean result = false;
+//
+//        Iterator<?> it = syndFeed.getEntries().iterator();
+//        if (it.hasNext()) {
+//            SyndEntry syndEntry = (SyndEntry) it.next();
+//            Object wireEntry = syndEntry.getWireEntry();
+//
+//            if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
+//                com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
+//                String rawId = atomEntry.getId();
+//                if (rawId != null && !rawId.isEmpty()) {
+//                    result = true;
+//                }
+//            } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
+//                com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
+//                Guid guid = rssItem.getGuid();
+//                if (guid != null && !guid.getValue().isEmpty()) {
+//                    result = true;
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
     /**
      * @param headerFields
