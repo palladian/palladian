@@ -73,8 +73,10 @@ public final class MetaInformationCreationTask implements Runnable {
     private String getContent(URL feedURL) throws IOException {
         InputStream feedInput = null;
         String ret = "";
+        HttpURLConnection connection = null;
         try {
-            HttpURLConnection connection = (HttpURLConnection) feedURL.openConnection();
+            connection = (HttpURLConnection) feedURL.openConnection();
+            connection.setReadTimeout(10000);
             ConnectionTimeoutPool timeoutPool = ConnectionTimeoutPool.getInstance();
             timeoutPool.add(connection, 2 * DateHelper.MINUTE_MS);
             connection.setRequestProperty("User-Agent",
@@ -83,6 +85,9 @@ public final class MetaInformationCreationTask implements Runnable {
             ret = IOUtils.toString(feedInput);
         } finally {
             IOUtils.closeQuietly(feedInput);
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return ret;
     }
@@ -181,6 +186,7 @@ public final class MetaInformationCreationTask implements Runnable {
             connection.setIfModifiedSince(System.currentTimeMillis() + 60000);
             connection.setRequestProperty("User-Agent",
                     "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4");
+            connection.setReadTimeout(10000);
             connection.connect();
 
             currentFeedContent = getContent(feedURL);
@@ -188,6 +194,8 @@ public final class MetaInformationCreationTask implements Runnable {
             throw new RuntimeException("URL of feed with id: " + feed.getId() + " is malformed!", e);
         } catch (IOException e) {
             throw new RuntimeException("Could not reed from feed with id: " + feed.getId(), e);
+        } finally {
+            connection.disconnect();
         }
 
         Boolean isAccessibleFeed = false;
@@ -234,8 +242,9 @@ public final class MetaInformationCreationTask implements Runnable {
             writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, supportsPubSubHubBub,
                     isAccessibleFeed, feedVersion);
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("Unable to store results to Database.", e);
+        } finally {
+            connection.disconnect();
         }
 
         feed.freeMemory();
