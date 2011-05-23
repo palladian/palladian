@@ -96,6 +96,9 @@ public class ConnectionTimeoutPool implements Runnable {
                 LOGGER.debug("disconnected : " + httpUrlConnection.getURL() + " ; # left in queue : " + queue.size());
             } catch (InterruptedException e) {
                 LOGGER.error("InterruptedException : " + e.getMessage());
+            } catch (Exception e) {
+                // prevent the Thread from dying
+                LOGGER.error("Exception : " + e);
             }
         }
     }
