@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `hasItemIds` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'Does the items have an id field?',
   `hasPubDate` TINYINT(1) DEFAULT '0' COMMENT 'does the entries have a pubDate (RSS2 specific)',
   `hasCloud` TINYINT(1) DEFAULT NULL COMMENT 'does the feed support the cloud element (RSS2 specific)',
-  `ttl` LONGBLOB COMMENT 'The time to live, (RSS2 specific)',
+  `ttl` DOUBLE DEFAULT NULL COMMENT 'The time to live, (RSS2 specific)',
   `hasSkipHours` TINYINT(1) DEFAULT NULL COMMENT 'does the feed support the skipHours element (RSS2 specific)',
   `hasSkipDays` TINYINT(1) DEFAULT NULL COMMENT 'does the feed support the skipDays element (RSS2 specific)',
   `hasUpdated` TINYINT(1) DEFAULT NULL COMMENT 'does the feed support the updated element (Atom specific)',
