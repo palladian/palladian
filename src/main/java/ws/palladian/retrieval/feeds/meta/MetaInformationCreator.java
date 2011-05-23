@@ -11,11 +11,9 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 class IntegerRowConverter implements RowConverter<Integer> {
 
@@ -32,6 +30,7 @@ class IntegerRowConverter implements RowConverter<Integer> {
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  * 
@@ -42,9 +41,7 @@ public class MetaInformationCreator {
 
     private final static Integer THREAD_POOL_SIZE = 100;
 
-    private final FeedStore feedStore;
-
-    private final DatabaseManager dbManager;
+    private final FeedDatabase feedDatabase;
 
     private final Integer feedIdentifierLowerBound;
     private final Integer feedIdentifierUpperBound;
@@ -64,13 +61,12 @@ public class MetaInformationCreator {
     }
 
     public MetaInformationCreator() {
-        dbManager = new DatabaseManager();
-        feedStore = new FeedDatabase();
-        this.feedIdentifierLowerBound = dbManager
+        feedDatabase = new FeedDatabase();
+        this.feedIdentifierLowerBound = feedDatabase
                 .runSingleQuery(new IntegerRowConverter(), "SELECT MIN(id) FROM feeds");
-        this.feedIdentifierUpperBound = dbManager
+        this.feedIdentifierUpperBound = feedDatabase
                 .runSingleQuery(new IntegerRowConverter(), "SELECT MAX(id) FROM feeds");
-        this.availableFeedIdentifier = dbManager.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
+        this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
     }
 
     /**
@@ -78,9 +74,8 @@ public class MetaInformationCreator {
      * @param string2
      */
     public MetaInformationCreator(Integer feedIdentifierLowerBound, Integer feedIdentifierUpperBound) {
-        dbManager = new DatabaseManager();
-        feedStore = new FeedDatabase();
-        this.availableFeedIdentifier = dbManager.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
+        feedDatabase = new FeedDatabase();
+        this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
         this.feedIdentifierLowerBound = feedIdentifierLowerBound;
         this.feedIdentifierUpperBound = feedIdentifierUpperBound;
 
@@ -94,8 +89,8 @@ public class MetaInformationCreator {
 
         for (Integer feedIdentifier : availableFeedIdentifier) {
             if (feedIdentifier >= feedIdentifierLowerBound && feedIdentifier <= feedIdentifierUpperBound) {
-                Feed feed = feedStore.getFeedByID(feedIdentifier);
-                MetaInformationCreationTask command = new MetaInformationCreationTask(feed, dbManager);
+                Feed feed = feedDatabase.getFeedByID(feedIdentifier);
+                MetaInformationCreationTask command = new MetaInformationCreationTask(feed, feedDatabase);
                 threadPool.execute(command);
                 try {
                     Thread.sleep(100);
