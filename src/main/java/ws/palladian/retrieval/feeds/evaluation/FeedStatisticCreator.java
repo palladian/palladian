@@ -944,15 +944,16 @@ public class FeedStatisticCreator {
      */
     public static void main(String[] args) throws IOException, SQLException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
-        // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),"data/temp/feedUpdateIntervals.csv");
+        FeedStatisticCreator.createFeedUpdateIntervalDistribution(new FeedDatabase(),
+                "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation2_fix60_max_min_poll");
-        FeedStatisticCreator.minDelayPolicyEvaluationAll();
+        // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
         // FeedStatisticCreator.createTempTableMin();
-        FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
+        // FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.pollsWithNewItems = 500;
         // delayChart();
 

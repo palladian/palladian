@@ -60,7 +60,7 @@ public final class ConfigHolder {
      * The version of the palladian.properties.default file. This should be incremented whenever changes are made to
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      */
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
 
     /**
      * <p>
