@@ -1,5 +1,6 @@
-config.version = 2
+config.version = 3
 ### version history:
+### 3: added thread pool size for MetadataCreator
 ### 2: added timeouts for DocumentRetriever
 ### 1: initial version
 
@@ -169,6 +170,9 @@ feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 
 # number of threads in the pool for the FeedReader
 feedReader.threadPoolSize = 100
+
+# number of threads in the pool for the MetadataCreator
+metaInformationCreator.threadPoolSize = 500
 
 # if false, do not check system limitations like number of available file descriptors 
 feedReader.checkSystemLimitations=true
