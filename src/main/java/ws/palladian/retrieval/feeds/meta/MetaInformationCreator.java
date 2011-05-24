@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -39,7 +41,10 @@ public class MetaInformationCreator {
 
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
-    private final static Integer THREAD_POOL_SIZE = 100;
+    /** Maximum number of feed metadata reading threads at the same time. */
+    public static final Integer DEFAULT_THREAD_POOL_SIZE = 200;
+
+    private static Integer THREAD_POOL_SIZE = DEFAULT_THREAD_POOL_SIZE;
 
     private final FeedDatabase feedDatabase;
 
@@ -62,11 +67,12 @@ public class MetaInformationCreator {
 
     public MetaInformationCreator() {
         feedDatabase = new FeedDatabase();
-        this.feedIdentifierLowerBound = feedDatabase
-                .runSingleQuery(new IntegerRowConverter(), "SELECT MIN(id) FROM feeds");
-        this.feedIdentifierUpperBound = feedDatabase
-                .runSingleQuery(new IntegerRowConverter(), "SELECT MAX(id) FROM feeds");
+        this.feedIdentifierLowerBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
+                "SELECT MIN(id) FROM feeds");
+        this.feedIdentifierUpperBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
+                "SELECT MAX(id) FROM feeds");
         this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
+        loadConfig();
     }
 
     /**
@@ -78,7 +84,20 @@ public class MetaInformationCreator {
         this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
         this.feedIdentifierLowerBound = feedIdentifierLowerBound;
         this.feedIdentifierUpperBound = feedIdentifierUpperBound;
+        loadConfig();
 
+    }
+
+    /**
+     * Load thread pool size from palladian.properties
+     */
+    private void loadConfig() {
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        if (config != null) {
+            THREAD_POOL_SIZE = config.getInteger("metaInformationCreator.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
+        } else {
+            LOGGER.warn("could not load configuration, use defaults");
+        }
     }
 
     public void createMetaInformation() {
