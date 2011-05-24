@@ -72,8 +72,8 @@ public class FeedClassifier {
         }
 
         while (!threadPool.isTerminated()) {
-            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES)
-                    + "MB");
+            LOGGER.info(sw.getElapsedTimeString() + ", traffic: "
+                    + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + "MB");
 
             try {
                 Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -103,15 +103,14 @@ public class FeedClassifier {
 
         // // use rule based classification
 
-        if (!fps.isValidStatistics() && items.size() > 0) {
-            feedClass = CLASS_UNKNOWN;
-        } else if (items.size() == 0) {
+        if (items.size() == 0) {
             feedClass = CLASS_EMPTY;
         } else if (items.size() == 1) {
             feedClass = CLASS_SINGLE_ENTRY;
-        } else
+        } else if (fps.isValidStatistics()) {
 
-            // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at the
+            // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at
+            // the
             // same time
             if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
                 if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
@@ -144,8 +143,9 @@ public class FeedClassifier {
                     }
 
                 }
-
             }
+
+        }
 
         return feedClass;
     }
@@ -233,7 +233,11 @@ public class FeedClassifier {
 
         // System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.news-journalonline.com/atom.xml")));
 
-        // final String className = fc.getClassName(fc.classify("http://feeds.nydailynews.com/nydnrss/news"));
+        FeedClassifier fc = new FeedClassifier();
+
+        final String className = fc.getClassName(fc.classify("http://absolutebailbond.com/feed/atom"));
+        System.out.println(className);
+
         // final String className = fc.getClassName(fc.classify("http://feeds.gawker.com/lifehacker/full"));
 
         // System.out
