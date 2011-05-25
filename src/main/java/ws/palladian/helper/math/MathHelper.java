@@ -40,6 +40,26 @@ public class MathHelper {
         return power;
     }
 
+    /**
+     * Check whether one value is in a certain range of another value.
+     * For example, value1: 5 is within the range: 2 of value2: 3.
+     * 
+     * @param value1 The value to check whether it is in the range of the other value.
+     * @param value2 The value for which the range is added or subtracted.
+     * @param range The range.
+     * @return <tt>True</tt>, if value1 <= alue2 + range && value1 >= value2 - range, <tt>false</tt> otherwise.
+     */
+    public static boolean isWithinRange(double value1, double value2, double range) {
+        double numMin = value2 - range;
+        double numMax = value2 + range;
+
+        if (value1 <= numMax && value1 >= numMin) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static boolean isWithinMargin(double value1, double value2, double margin) {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;

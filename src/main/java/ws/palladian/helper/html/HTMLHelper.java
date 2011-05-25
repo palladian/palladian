@@ -38,8 +38,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -56,6 +54,9 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.StringOutputStream;
+
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -904,7 +905,23 @@ public class HTMLHelper {
         // String result = htmlDocToString(doc);
         // System.out.println(DigestUtils.md5Hex(result)); // 489eb91cf94343d0b62e69c396bc6b6f
         // System.out.println(result);
+    }
 
+    public static String xmlToString(Node node) {
+        try {
+            Source source = new DOMSource(node);
+            StringWriter stringWriter = new StringWriter();
+            Result result = new StreamResult(stringWriter);
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer();
+            transformer.transform(source, result);
+            return stringWriter.getBuffer().toString();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -915,6 +932,8 @@ public class HTMLHelper {
      */
     public static String documentToHTMLString(Document document) {
 
+        String htmlString = "";
+
         OutputStream os = new StringOutputStream();
 
         try {
@@ -922,13 +941,16 @@ public class HTMLHelper {
             XMLSerializer serializer = new XMLSerializer(os, format);
             serializer.serialize(document);
 
+            // for some reason the following line is added to the document even if it doesn't exist
+            htmlString = os.toString().replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
+
         } catch (IOException e) {
             LOGGER.error("could not serialize document, " + e.getMessage());
         } catch (Exception e) {
             LOGGER.error("could not serialize document, " + e.getMessage());
         }
 
-        return os.toString();
+        return htmlString;
     }
 
     /**
@@ -987,7 +1009,7 @@ public class HTMLHelper {
         if (node.getTextContent() != null) {
 
             if (node.getNodeName().equalsIgnoreCase("#text")) {
-                sb.append(node.getTextContent().trim());
+                sb.append(node.getTextContent().trim()).append(" ");
             }
 
         }
@@ -1001,7 +1023,7 @@ public class HTMLHelper {
             child = child.getNextSibling();
         }
 
-        return sb.toString();
+        return sb.toString().replaceAll("[ ]{2,}", "");
     }
 
     public static String getDocumentTextDump(Document document) {
