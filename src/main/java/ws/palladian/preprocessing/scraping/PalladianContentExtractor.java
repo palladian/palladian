@@ -144,6 +144,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         imageURLs = new ArrayList<WebImage>();
 
+        if (resultNode == null) {
+            return imageURLs;
+        }
+
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
         String imgXPath = "//IMG";
@@ -178,12 +182,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 }
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
-                    w.replace("px", "");
+                    w = w.replace("px", "");
                     webImage.setWidth(Integer.parseInt(w));
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
-                    h.replace("px", "");
+                    h = h.replace("px", "");
                     webImage.setHeight(Integer.parseInt(h));
                 }
 
@@ -216,7 +220,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public static String getText(String url) {
 
         StringBuilder text = new StringBuilder();
-        
+
         try {
             PalladianContentExtractor pse = new PalladianContentExtractor();
             pse.setDocument(url);
@@ -249,10 +253,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Override
     public String getResultTitle() {
         // TODO Needs better implementation.
-    	String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+        String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
         return resultTitle;
     }
-    
+
     @Override
     public String getExtractorName() {
         return "Palladian";

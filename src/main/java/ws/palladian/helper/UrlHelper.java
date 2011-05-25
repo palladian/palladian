@@ -42,7 +42,7 @@ public class UrlHelper {
             try {
                 resultUrl = new URL(pageUrl);
             } catch (MalformedURLException e) {
-                LOGGER.trace("makeFullURL: pageUrl: " + e.getMessage());
+                LOGGER.error("makeFullURL: pageUrl: " + e.getMessage());
             }
             // create URL object considering baseUrl, relative to pageUrl
             try {
@@ -55,13 +55,13 @@ public class UrlHelper {
                     resultUrl = new URL(resultUrl, baseUrl);
                 }
             } catch (MalformedURLException e) {
-                LOGGER.trace("makeFullURL: baseUrl: " + e.getMessage());
+                LOGGER.error("makeFullURL: baseUrl: " + e.getMessage());
             }
             // create URL object considering linkUrl, relative to pageUrl+baseUrl
             try {
                 resultUrl = new URL(resultUrl, linkUrl);
             } catch (MalformedURLException e) {
-                LOGGER.trace("makeFullURL: linkUrl: " + e.getMessage());
+                LOGGER.error("makeFullURL: linkUrl: " + e.getMessage());
             }
             if (resultUrl != null) {
                 result = resultUrl.toString();
@@ -104,23 +104,23 @@ public class UrlHelper {
      * @author Martin Werner
      */
     public static boolean isValidURL(String url, boolean checkHTTPResp) {
-    
+
         // URLConnection conn = null;
         // URL url = null;
         boolean returnValue = false;
-    
+
         // FIXME: URL filter for black and whitelists (currently in Extractor)
         // if (MIOExtractor.getInstance().isURLallowed(url)) {
-    
+
         String[] schemes = { "http", "https" };
         UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
-    
+
         if (urlValidator.isValid(url)) {
             returnValue = true;
         }
-    
+
         // }
-    
+
         return returnValue;
     }
 
@@ -171,23 +171,23 @@ public class UrlHelper {
      * @return the verified URL
      */
     public static String verifyURL(final String urlCandidate, final String pageURL) {
-    
+
         String returnValue = "";
-    
+
         final String modUrlCandidate = urlCandidate.trim();
         if (modUrlCandidate.startsWith("http://")) {
             if (isValidURL(modUrlCandidate, false)) {
                 returnValue = modUrlCandidate;
             }
         } else {
-    
+
             if (modUrlCandidate.length() > 2) {
                 final String modifiedURL = makeFullURL(pageURL, modUrlCandidate);
                 if (isValidURL(modifiedURL, false)) {
                     returnValue = modifiedURL;
                 }
             }
-    
+
         }
         return returnValue;
     }

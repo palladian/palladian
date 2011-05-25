@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -217,14 +216,14 @@ public class PalladianLangDetect extends LanguageClassifier {
         // String languageModelPath =
         // "C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC_o\\palladianLanguageJRC.gz";
         //
-         PalladianLangDetect pld0 = new PalladianLangDetect("/home/newsmanager/palladianLanguageJRC/palladianLanguageJRC.gz");
-         String language = pld0.classify("This is a sample text in English");
-         System.out.println("The text was classified as: " + language);
-         language = pld0.classify("Das ist ein Beispieltext in Deutsch");
-         System.out.println("The text was classified as: " + language);
-         language = pld0.classify("Se trata de un texto de muestra en español");
-         System.out.println("The text was classified as: " + language);
-         System.exit(0);
+        PalladianLangDetect pld0 = new PalladianLangDetect("data/models/PLC/PLC.gz");
+        String language = pld0.classify("This is a sample text in English");
+        System.out.println("The text was classified as: " + language);
+        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        System.out.println("The text was classified as: " + language);
+        language = pld0.classify("Se trata de un texto de muestra en español");
+        System.out.println("The text was classified as: " + language);
+        System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
@@ -245,7 +244,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        PalladianLangDetect.train(dataset, "palladianLanguageJRC", "data/models/");
+        PalladianLangDetect.train(dataset, "PLC", "data/models/");
         // ////////////////////////////////////////////////////////////////
 
     }
