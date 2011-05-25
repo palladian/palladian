@@ -40,8 +40,8 @@ public class ControlledVocabularyFilter extends TokenRemover {
     }
 
     @Override
-    protected boolean remove(String tokenValue) {
-        return !vocabulary.contains(tokenValue.toLowerCase());
+    protected boolean remove(Token token) {
+        return !vocabulary.contains(token.getValue().toLowerCase());
     }
 
 }

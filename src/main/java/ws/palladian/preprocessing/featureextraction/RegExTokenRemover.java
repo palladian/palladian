@@ -15,16 +15,8 @@ public class RegExTokenRemover extends TokenRemover {
     }
     
     @Override
-    protected boolean remove(String tokenValue) {
-        return pattern.matcher(tokenValue).matches();
-    }
-    
-    public static void main(String[] args) {
-        //RegExTokenRemover remover = new RegExTokenRemover("\\p{Punct}");
-        RegExTokenRemover remover = new RegExTokenRemover(".");
-        System.out.println(remover.remove("."));
-        System.out.println(remover.remove("a"));
-        System.out.println(remover.remove("ab"));
+    protected boolean remove(Token token) {
+        return pattern.matcher(token.getValue()).matches();
     }
 
 }
