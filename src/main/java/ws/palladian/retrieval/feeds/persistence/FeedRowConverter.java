@@ -37,6 +37,9 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLastMissTime(resultSet.getTimestamp("lastMissTimestamp"));
         feed.setBlocked(resultSet.getBoolean("blocked"));
         feed.setLastSuccessfulCheckTime(resultSet.getTimestamp("lastSuccessfulCheck"));
+        feed.setWindowSize(resultSet.getInt("windowSize"));
+        feed.setVariableWindowSize(resultSet.getBoolean("hasVariableWindowSize"));
+        feed.setNumberOfItemsReceived(resultSet.getInt("numberOfItems"));
         
         return feed;
 

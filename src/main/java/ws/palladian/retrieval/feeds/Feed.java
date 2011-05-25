@@ -45,8 +45,17 @@ public class Feed {
     /** The items of this feed. */
     private List<FeedItem> items = new ArrayList<FeedItem>();
 
+    /**
+     * The number of unique items downloaded so far. This value may differ from {@link #items}.size() since
+     * {@link #items} may have been reseted by calling {@link #freeMemory()}.
+     */
+    private int numberOfItemsReceived = 0;
+
     /** The number of feed entries presented for each request. */
     private int windowSize = -1;
+
+    /** Set to <code>true</code> if the feed has a variable window size. */
+    private boolean variableWindowSize = false;
 
     /**
      * For benchmarking purposes we need to know when the history file was read completely, that is the case if the last
@@ -939,6 +948,38 @@ public class Feed {
      */
     public final void setLastSuccessfulCheckTime(Date lastSuccessfulCheckTime) {
         this.lastSuccessfulCheckTime = lastSuccessfulCheckTime;
+    }
+
+    /**
+     * @param variableWindowSize Set to <code>true</code> if the feed has a variable window size.
+     */
+    public void setVariableWindowSize(boolean variableWindowSize) {
+        this.variableWindowSize = variableWindowSize;
+    }
+
+    /**
+     * @return If <code>true</code>, the feed has a variable window size. <code>false</code> by default.
+     */
+    public boolean hasVariableWindowSize() {
+        return variableWindowSize;
+    }
+
+    /**
+     * The number of unique items downloaded so far. This value may differ from {@link #items}.size() since
+     * {@link #items} may have been reseted by calling {@link #freeMemory()}.
+     * 
+     * @param numberOfItemsReceived The number of unique items downloaded so far.
+     */
+    public void setNumberOfItemsReceived(int numberOfItemsReceived) {
+        this.numberOfItemsReceived = numberOfItemsReceived;
+    }
+
+    /**
+     * @return The number of unique items downloaded so far. This value may differ from {@link #items}.size() since
+     *         {@link #items} may have been reseted by calling {@link #freeMemory()}.
+     */
+    public int getNumberOfItemsReceived() {
+        return numberOfItemsReceived;
     }
 
 }
