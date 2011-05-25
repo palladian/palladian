@@ -20,7 +20,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -223,13 +222,17 @@ public class FeedDiscovery {
             feedUrl = UrlHelper.makeFullURL(pageUrl, baseHref, feedUrl);
 
             // validate URL
-            UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
-            boolean isValidUrl = urlValidator.isValid(feedUrl);
-
-            if (!isValidUrl) {
-                LOGGER.warn("invalid url : " + feedUrl);
-                continue;
-            }
+            
+            // disabled for now; we can validate URLs as postprocessing step;
+            // furthermore, Apache's UrlValidator seems to be oversensitive
+            
+//            UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
+//            boolean isValidUrl = urlValidator.isValid(feedUrl);
+//
+//            if (!isValidUrl) {
+//                LOGGER.warn("invalid url : " + feedUrl);
+//                continue;
+//            }
 
             feed.setFeedLink(feedUrl);
             feed.setPageLink(pageUrl);

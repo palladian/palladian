@@ -131,7 +131,9 @@ public final class CollectionHelper {
      * @param <T>
      * @param list
      * @return
+     * @deprecated Use Mama's {@link Collections#reverse(List)}.
      */
+    @Deprecated
     public static <T> List<T> reverse(List<T> list) {
         ArrayList<T> reversedList = new ArrayList<T>();
 
