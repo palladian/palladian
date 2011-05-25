@@ -31,8 +31,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, pageText = ?";
-    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?, supportsLMS = ?, supportsETag = ?, lastPollTime = ?, lastETag = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ?";
-    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ? WHERE id = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?, supportsLMS = ?, supportsETag = ?, lastPollTime = ?, lastETag = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ?, byteSize = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ?, byteSize = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds ORDER BY id ASC";
@@ -77,6 +77,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getWindowSize());
         parameters.add(feed.hasVariableWindowSize());
         parameters.add(feed.getNumberOfItemsReceived());
+        parameters.add(feed.getByteSize());
 
         int result = runInsertReturnId(ADD_FEED, parameters);
         if (result > 0) {
@@ -122,6 +123,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getWindowSize());
         parameters.add(feed.hasVariableWindowSize());
         parameters.add(feed.getNumberOfItemsReceived());
+        parameters.add(feed.getByteSize());
         parameters.add(feed.getId());
 
         int result = runUpdate(UPDATE_FEED, parameters);

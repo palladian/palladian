@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `windowSize` INT(11) NOT NULL DEFAULT '-1' COMMENT 'The number of items at one request.',
   `hasVariableWindowSize` TINYINT(1) DEFAULT '0' COMMENT 'If true, the window size varies.',
   `numberOfItems` INT(11) DEFAULT '0' COMMENT 'The number or unique items received so far.',
+  `byteSize` INT(11) DEFAULT NULL COMMENT 'The size of the raw feed at the time the activity pattern is determined, that is the first (successful) poll and once every month.',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
