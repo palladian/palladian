@@ -38,7 +38,7 @@ import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * <pre>
- * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";FEEDSIZE;WINDOWSIZE;
+ * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";WINDOWSIZE;
  * </pre>
  * <p>
  * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
@@ -343,9 +343,6 @@ public class DatasetCreator {
 
                 long pollTimestamp = System.currentTimeMillis();
 
-                String feedPlainXML = feed.getRawMarkup();
-                Integer feedSize = feedPlainXML.getBytes().length;
-
                 StringBuilder entryWarnings = new StringBuilder();
 
                 LOGGER.debug("Feed entries: " + feedEntries.size());
@@ -370,7 +367,6 @@ public class DatasetCreator {
                     fileEntry.append(item.getPublished().getTime()).append(";");
                     fileEntry.append(pollTimestamp).append(";");
                     fileEntry.append(fileEntryID);
-                    fileEntry.append(feedSize).append(";");
                     fileEntry.append(feed.getWindowSize()).append(";");
                     // ignore entry size, we can get it later from *.gz
 
