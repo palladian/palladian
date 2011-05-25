@@ -95,6 +95,10 @@ class FeedTask extends Thread {
                 FeedClassifier.classify(feed);
             }
 
+            if (feed.getByteSize() == 0) {
+                feed.setByteSize(feed.getRawMarkup().getBytes().length);
+            }
+
             feedReader.updateCheckIntervals(feed);
             feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
 

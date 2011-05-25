@@ -40,6 +40,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setWindowSize(resultSet.getInt("windowSize"));
         feed.setVariableWindowSize(resultSet.getBoolean("hasVariableWindowSize"));
         feed.setNumberOfItemsReceived(resultSet.getInt("numberOfItems"));
+        feed.setByteSize(resultSet.getInt("byteSize"));
         
         return feed;
 
