@@ -93,11 +93,9 @@ class FeedTask extends Thread {
             if (feed.getActivityPattern() == -1
                     || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
                 FeedClassifier.classify(feed);
-            }
-
-            if (feed.getByteSize() == 0) {
                 feed.setByteSize(feed.getRawMarkup().getBytes().length);
             }
+
 
             feedReader.updateCheckIntervals(feed);
             feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
