@@ -21,8 +21,8 @@ public class StopTokenRemover extends TokenRemover {
     }
 
     @Override
-    protected boolean remove(String tokenValue) {
-        return stopwords.contains(tokenValue);
+    protected boolean remove(Token token) {
+        return stopwords.contains(token.getValue());
     }
 
 }

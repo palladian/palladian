@@ -1,103 +1,97 @@
 package ws.palladian.preprocessing.featureextraction;
 
 import gnu.trove.TObjectIntHashMap;
+import gnu.trove.TObjectIntIterator;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
+
+import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 
-public class TroveTermCorpus implements Serializable, TermCorpus {
+public class TroveTermCorpus extends TermCorpus {
     
-    private static final long serialVersionUID = 1L;
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(TroveTermCorpus.class);
+    
     private TObjectIntHashMap<String> termMap;
-    private int numDocs;
-    
+
     public TroveTermCorpus() {
-        //terms = new HashBag<String>();
+        super();
         termMap = new TObjectIntHashMap<String>();
-        numDocs = 0;
     }
     
-    /* (non-Javadoc)
+    public TroveTermCorpus(String filePath) {
+        this();
+        load(filePath);
+    }
+
+    /*
+     * (non-Javadoc)
      * @see com.newsseecr.xperimental.preprocessing.TermCorpus#addTermsFromDocument(java.util.Set)
      */
     @Override
     public void addTermsFromDocument(Set<String> terms) {
         for (String term : terms) {
-            this.termMap.adjustOrPutValue(term, 1, 1);            
+            termMap.adjustOrPutValue(term, 1, 1);
         }
-        numDocs++;
+        incrementNumDocs();
     }
-    
-    /* (non-Javadoc)
-     * @see com.newsseecr.xperimental.preprocessing.TermCorpus#serialize(java.lang.String)
-     */
-    @Override
-    public void serialize(String filePath) {
-        FileHelper.serialize(this, filePath);
-    }
-    
-    public static TermCorpus deserialize(String filePath) {
-        return (TroveTermCorpus) FileHelper.deserialize(filePath);
-    }
-    
-    /* (non-Javadoc)
-     * @see com.newsseecr.xperimental.preprocessing.TermCorpus#getDf(java.lang.String)
-     */
-    @Override
-    public double getDf(String term) {
-        int termCount = this.termMap.get(term);
-        // add 1; prevent division by zero
-        double documentFrequency = Math.log10((double) numDocs / (termCount + 1));
-        // double documentFrequency = (double) termCount / numDocs;
-        return documentFrequency;
-    }
-    
-    /* (non-Javadoc)
-     * @see com.newsseecr.xperimental.preprocessing.TermCorpus#getNumDocs()
-     */
-    @Override
-    public int getNumDocs() {
-        return numDocs;
-    }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TroveTermCorpus");
-        sb.append(" numDocs=").append(numDocs);
-        // sb.append(" numUniqueTerms=").append(terms.uniqueSet().size());
+        sb.append(" numDocs=").append(getNumDocs());
         sb.append(" numUniqueTerms=").append(termMap.size());
-        // sb.append(" numTerms=").append(terms.size());
         return sb.toString();
     }
-    
-    
-    public static void main(String[] args) {
-        
-        TermCorpus corpus = TroveTermCorpus.deserialize("data/titleCountCorpus.ser");
-        System.out.println(corpus.toString());
-        System.out.println(corpus.getDf("apple"));
-        System.out.println(corpus.getDf("und"));
-        System.out.println(corpus.getDf("mit"));
-        System.out.println(corpus.getDf("microsoft"));
-        System.out.println(corpus.getDf("askldjalksd"));
-        
-        System.exit(0);
-        
-        
-        corpus = new TroveTermCorpus();
-        corpus.addTermsFromDocument(new HashSet<String>(Arrays.asList("one", "two", "three")));
-        corpus.addTermsFromDocument(new HashSet<String>(Arrays.asList("one", "four", "seven")));
-        System.out.println(corpus.getDf("one"));
-        corpus.serialize("data/temp/tempSer.ser");
 
-        corpus = null;
-        corpus = TroveTermCorpus.deserialize("data/temp/tempSer.ser");
-        System.out.println(corpus.getDf("one"));
+    @Override
+    public void save(String fileName) {
+        
+        OutputStream outputStream = null;
+        PrintWriter printWriter = null;
+        
+        try {
+            outputStream = new GZIPOutputStream(new FileOutputStream(fileName));
+            printWriter = new PrintWriter(outputStream);
+            
+            TObjectIntIterator<String> iterator = termMap.iterator();
+            printWriter.println("numDocs" + SEPARATOR + getNumDocs());
+            printWriter.println();
+            
+            while (iterator.hasNext()) {
+                iterator.advance();
+                String key = iterator.key();
+                int value = iterator.value();
+                String line = key + SEPARATOR + value;
+                printWriter.println(line);
+            }
+            
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            FileHelper.close(outputStream, printWriter);
+        }
+    }
+
+    @Override
+    protected void setDf(String term, int df) {
+        termMap.put(term, df);
+    }
+
+    @Override
+    protected int getTermCount(String term) {
+        return termMap.get(term);
     }
 
 }

@@ -14,7 +14,7 @@ public abstract class TokenRemover implements PipelineProcessor {
         super();
     }
 
-    protected abstract boolean remove(String tokenValue);
+    protected abstract boolean remove(Token token);
 
     @Override
     public final void process(PipelineDocument document) {
@@ -30,8 +30,7 @@ public abstract class TokenRemover implements PipelineProcessor {
         List<Token> resultTokens = new ArrayList<Token>();
         for (Iterator<Token> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
             Token token = tokenIterator.next();
-            String tokenValue = token.getValue();
-            if (!remove(tokenValue)) {
+            if (!remove(token)) {
                 resultTokens.add(token);
             }
         }

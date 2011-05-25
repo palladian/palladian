@@ -26,11 +26,24 @@ public class FrequencyCalculator implements PipelineProcessor {
         for (Token token : tokenList) {
             tokenBag.add(token.getValue());
         }
+//        for (Token token : tokenList) {
+//            double frequency = (double) tokenBag.getCount(token.getValue()) / tokenBag.size();
+//            NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
+//            token.getFeatureVector().add(frequencyFeature);
+//        }
+        
+        // calculate "normalized term frequency", see "Information Retrieval", Grossman/Frieder, p. 32
+        int maxCount = 1;
+        for (String token : tokenBag.uniqueSet()) {
+            maxCount = Math.max(maxCount, tokenBag.getCount(token));
+        }
+        
         for (Token token : tokenList) {
-            double frequency = (double) tokenBag.getCount(token.getValue()) / tokenBag.size();
+            double frequency = (double) tokenBag.getCount(token.getValue()) / maxCount;
             NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
             token.getFeatureVector().add(frequencyFeature);
         }
+        
     }
 
 }
