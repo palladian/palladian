@@ -19,6 +19,7 @@ import ws.palladian.helper.ConfigHolder;
  * The Factory is able to load new subclasses of {@code DatabaseManager} dynamically if they are on the class path.
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  */
@@ -100,7 +101,8 @@ public final class DatabaseManagerFactory {
             final Class<DatabaseManager> databaseManagerClass = (Class<DatabaseManager>) Class
                     .forName(managerClassName);
             final Constructor<DatabaseManager> dbManagerConstructor = databaseManagerClass
-                    .getConstructor(ConnectionManager.class);
+                    .getDeclaredConstructor(ConnectionManager.class);
+            dbManagerConstructor.setAccessible(true);
             final DatabaseManager ret = dbManagerConstructor.newInstance(getConnectionManager(jdbcDriverClassName,
                     jdbcConnectionUrl, username, password));
             return ret;
