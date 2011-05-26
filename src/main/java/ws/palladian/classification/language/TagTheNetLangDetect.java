@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,12 +38,12 @@ public class TagTheNetLangDetect extends LanguageClassifier {
         String result = "";
 
         HTTPPoster poster = new HTTPPoster();
-        PostMethod postMethod = new PostMethod("http://tagthe.net/api");
-        postMethod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        HttpPost postMethod = new HttpPost("http://tagthe.net/api");
+        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         try {
 
-            postMethod.setRequestEntity(new StringRequestEntity("text=" + StringHelper.urlEncode(text) + "&view=json",
+            postMethod.setEntity(new StringEntity("text=" + StringHelper.urlEncode(text) + "&view=json",
                     "text/raw", "UTF-8"));
 
             String response = poster.handleRequest(postMethod);

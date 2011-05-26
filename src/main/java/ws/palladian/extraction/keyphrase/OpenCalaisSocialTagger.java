@@ -1,12 +1,16 @@
 package ws.palladian.extraction.keyphrase;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,21 +50,28 @@ public class OpenCalaisSocialTagger extends KeyphraseExtractor {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        PostMethod postMethod = new PostMethod("http://api.opencalais.com/tag/rs/enrich");
+        HttpPost postMethod = new HttpPost("http://api.opencalais.com/tag/rs/enrich");
 
         // set mandatory parameters
-        postMethod.setRequestHeader("x-calais-licenseID", apiKey);
+        postMethod.setHeader("x-calais-licenseID", apiKey);
 
         // set input content type
-        postMethod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        postMethod.setRequestHeader("Accept", "application/json");
+        postMethod.setHeader("Accept", "application/json");
 
         // create the content of the request
-        String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:enableMetadataType=\"SocialTags\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\"></c:userDirectives></c:params>";
-        NameValuePair[] data = { new NameValuePair("content", inputText), new NameValuePair("paramsXML", paramsXML) };
-        postMethod.setRequestBody(data);
+        try {
+            String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:enableMetadataType=\"SocialTags\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\"></c:userDirectives></c:params>";
+            List<NameValuePair> data = new ArrayList<NameValuePair>();
+            data.add(new BasicNameValuePair("content", inputText));
+            data.add(new BasicNameValuePair("paramsXML", paramsXML));
+            HttpEntity entity = new UrlEncodedFormEntity(data);
+            postMethod.setEntity(entity);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e);
+        }
 
         HTTPPoster poster = new HTTPPoster();
         String response = poster.handleRequest(postMethod);
