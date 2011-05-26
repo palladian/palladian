@@ -1,11 +1,15 @@
 package ws.palladian.extraction.keyphrase;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,20 +52,25 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        PostMethod postMethod = new PostMethod("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
+        HttpPost postMethod = new HttpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
 
         // set input content type
-        postMethod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        postMethod.setRequestHeader("Accept", "application/json");
+        postMethod.setHeader("Accept", "application/json");
 
         // create the content of the request
-        NameValuePair[] data = { new NameValuePair("text", inputText), new NameValuePair("apikey", apiKey),
-                new NameValuePair("outputMode", "json"),
-                new NameValuePair("maxRetrieve", String.valueOf(getKeyphraseCount())),
-                new NameValuePair("keywordExtractMode", strictExtractMode ? "strict" : "normal") };
-        postMethod.setRequestBody(data);
+        try {
+            NameValuePair[] data = { new BasicNameValuePair("text", inputText), new BasicNameValuePair("apikey", apiKey),
+                    new BasicNameValuePair("outputMode", "json"),
+                    new BasicNameValuePair("maxRetrieve", String.valueOf(getKeyphraseCount())),
+                    new BasicNameValuePair("keywordExtractMode", strictExtractMode ? "strict" : "normal") };
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(Arrays.asList(data));
+            postMethod.setEntity(entity);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e);
+        }
 
         HTTPPoster poster = new HTTPPoster();
         String response = poster.handleRequest(postMethod);

@@ -391,11 +391,13 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>apache-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>jwbf</artifactId>
@@ -434,6 +436,11 @@
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
 			<version>2.1.0</version>
+		</dependency>
+				<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1.1</version>
 		</dependency>
 	</dependencies>
 	<properties>

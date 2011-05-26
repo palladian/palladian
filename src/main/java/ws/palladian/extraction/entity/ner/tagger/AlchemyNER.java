@@ -16,10 +16,9 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +29,7 @@ import ws.palladian.extraction.entity.ner.Entity;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -382,7 +382,7 @@ import ws.palladian.retrieval.HTTPPoster;
 public class AlchemyNER extends NamedEntityRecognizer {
 
     /** The API key for the Alchemy API service. */
-    private final String API_KEY;
+    private final String apiKey;
 
     /** The maximum number of characters allowed to send per request (actually 150,000). */
     private final int MAXIMUM_TEXT_LENGTH = 140000;
@@ -390,18 +390,12 @@ public class AlchemyNER extends NamedEntityRecognizer {
     public AlchemyNER() {
         setName("Alchemy API NER");
 
-        PropertiesConfiguration config = null;
-
-        try {
-            config = new PropertiesConfiguration("config/apikeys.conf");
-        } catch (ConfigurationException e) {
-            LOGGER.error("could not get api key from config/apikeys.conf, " + e.getMessage());
-        }
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            API_KEY = config.getString("alchemy.api.key");
+            apiKey = config.getString("api.alchemy.key");
         } else {
-            API_KEY = "";
+            apiKey = "";
         }
     }
 
@@ -462,12 +456,12 @@ public class AlchemyNER extends NamedEntityRecognizer {
             // use get
             // Crawler c = new Crawler();
             // JSONObject json = c
-            // .getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities?apikey=" + API_KEY
+            // .getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities?apikey=" + apiKey
             // + "&text=" + inputText + "&disambiguate=0&outputMode=json");
 
             try {
 
-                PostMethod pm = createPostMethod(textChunk.toString());
+                HttpPost pm = createPostMethod(textChunk.toString());
 
                 HTTPPoster poster = new HTTPPoster();
                 String response = poster.handleRequest(pm);
@@ -518,19 +512,19 @@ public class AlchemyNER extends NamedEntityRecognizer {
         return annotations;
     }
 
-    private PostMethod createPostMethod(String inputText) {
+    private HttpPost createPostMethod(String inputText) {
 
-        PostMethod method = new PostMethod(" http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
+        HttpPost method = new HttpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
 
         // set input content type
-        method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        method.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        method.setRequestHeader("Accept", "application/json");
+        method.setHeader("Accept", "application/json");
 
         try {
-            method.setRequestEntity(new StringRequestEntity("text=" + URLEncoder.encode(inputText, "UTF-8")
-                    + "&apikey=" + URLEncoder.encode(API_KEY, "UTF-8") + "&outputMode=json&disambiguate=0", "text/raw",
+            method.setEntity(new StringEntity("text=" + URLEncoder.encode(inputText, "UTF-8")
+                    + "&apikey=" + URLEncoder.encode(apiKey, "UTF-8") + "&outputMode=json&disambiguate=0", "text/raw",
             "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("encoding is not supported, " + e.getMessage());
@@ -590,7 +584,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
         // // HOW TO USE ////
         // System.out.println(tagger.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
         // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
-
+        
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
         .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);

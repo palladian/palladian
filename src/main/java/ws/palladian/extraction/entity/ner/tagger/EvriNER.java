@@ -16,8 +16,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -136,7 +136,7 @@ public class EvriNER extends NamedEntityRecognizer {
                 // System.out.println(restCall);
                 // JSONObject json = c.getJSONDocument(restCall);
 
-                PostMethod pm = createPostMethod(textChunk.toString());
+                HttpPost pm = createPostMethod(textChunk.toString());
 
                 HTTPPoster poster = new HTTPPoster();
                 String response = poster.handleRequest(pm);
@@ -161,12 +161,12 @@ public class EvriNER extends NamedEntityRecognizer {
                 // try to get an array of entities, if it was only one found, get the one as json object instead
                 try {
                     entities = json.getJSONObject("evriThing").getJSONObject("graph").getJSONObject("entities")
-                    .getJSONArray("entity");
+                            .getJSONArray("entity");
                 } catch (JSONException e) {
                     LOGGER.debug(getName() + " only one entity found, " + e.getMessage());
 
                     JSONObject singleEntity = json.getJSONObject("evriThing").getJSONObject("graph")
-                    .getJSONObject("entities").getJSONObject("entity");
+                            .getJSONObject("entities").getJSONObject("entity");
                     entities.put(singleEntity);
                 }
 
@@ -182,7 +182,18 @@ public class EvriNER extends NamedEntityRecognizer {
                     }
 
                     if (entity.has("facets")) {
-                        concept = entity.getJSONObject("facets").getJSONObject("facet").getString("$");
+                        JSONObject facets = entity.getJSONObject("facets");
+
+                        // dirty workaround, as the JSON sometimes returns facet as Array, sometimes as Object
+                        try {
+                            concept = facets.getJSONObject("facet").getString("$");
+                        } catch (Exception e) {
+                            JSONArray array = facets.getJSONArray("facet");
+                            if (array.length() > 0) {
+                                concept = array.getString(0);
+                            }
+                        }
+
                     } else {
                         String href = entity.getString("@href");
                         concept = StringHelper.upperCaseFirstLetter(href.substring(1, href.indexOf("/", 1)));
@@ -191,8 +202,7 @@ public class EvriNER extends NamedEntityRecognizer {
                     // get locations of named entity
                     String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
                     Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
-                            + escapedEntity + "(?=\\s)",
-                            Pattern.DOTALL);
+                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
 
                     Matcher matcher = pattern.matcher(inputText);
                     while (matcher.find()) {
@@ -220,19 +230,18 @@ public class EvriNER extends NamedEntityRecognizer {
         return annotations;
     }
 
-    private PostMethod createPostMethod(String inputText) {
+    private HttpPost createPostMethod(String inputText) {
 
-        PostMethod method = new PostMethod("http://api.evri.com/v1/media/entities.json");
+        HttpPost method = new HttpPost("http://api.evri.com/v1/media/entities.json");
 
         // set input content type
-        method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        method.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        method.setRequestHeader("Accept", "application/json");
+        method.setHeader("Accept", "application/json");
 
         try {
-            method.setRequestEntity(new StringRequestEntity("uri="
-                    + URLEncoder.encode("http://www.webknox.com", "UTF-8") + "&text="
+            method.setEntity(new StringEntity("uri=" + URLEncoder.encode("http://www.webknox.com", "UTF-8") + "&text="
                     + URLEncoder.encode(inputText, "UTF-8") + "&appId=evri.com-restdoc", "text/raw", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("encoding is not supported, " + e.getMessage());
@@ -290,7 +299,9 @@ public class EvriNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // System.out.println(ot.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
+        // System.out
+        // .println(tagger
+        // .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
         // System.out
         // .println(tagger
         // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
@@ -301,7 +312,7 @@ public class EvriNER extends NamedEntityRecognizer {
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
-        .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }

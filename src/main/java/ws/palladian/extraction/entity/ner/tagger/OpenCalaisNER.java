@@ -13,10 +13,9 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +26,7 @@ import ws.palladian.extraction.entity.ner.Entity;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.Tokenizer;
@@ -95,7 +95,7 @@ import ws.palladian.retrieval.HTTPPoster;
 public class OpenCalaisNER extends NamedEntityRecognizer {
 
     /** The API key for the Open Calais service. */
-    private final String API_KEY;
+    private final String apiKey;
 
     /** The maximum number of characters allowed to send per request (actually 100,000). */
     private final int MAXIMUM_TEXT_LENGTH = 90000;
@@ -103,18 +103,12 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     public OpenCalaisNER() {
         setName("OpenCalais NER");
 
-        PropertiesConfiguration config = null;
-
-        try {
-            config = new PropertiesConfiguration("config/apikeys.conf");
-        } catch (ConfigurationException e) {
-            LOGGER.error("could not get api key from config/apikeys.conf, " + e.getMessage());
-        }
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            API_KEY = config.getString("opencalais.api.key");
+            apiKey = config.getString("api.opencalais.key");
         } else {
-            API_KEY = "";
+            apiKey = "";
         }
     }
 
@@ -179,12 +173,12 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
                 // Crawler c = new Crawler();
                 // String parameters =
                 // "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"Application/JSON\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-                // String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + API_KEY + "&content="
+                // String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + apiKey + "&content="
                 // + inputText + "&paramsXML=" + URLEncoder.encode(parameters, "UTF-8");
                 // // System.out.println(restCall);
                 // JSONObject json = c.getJSONDocument(restCall);
 
-                PostMethod pm = createPostMethod(textChunk.toString());
+                HttpPost pm = createPostMethod(textChunk.toString());
 
                 HTTPPoster poster = new HTTPPoster();
                 String response = poster.handleRequest(pm);
@@ -248,22 +242,22 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
         return annotations;
     }
 
-    private PostMethod createPostMethod(String inputText) {
+    private HttpPost createPostMethod(String inputText) {
 
-        PostMethod method = new PostMethod("http://api.opencalais.com/tag/rs/enrich");
+        HttpPost method = new HttpPost("http://api.opencalais.com/tag/rs/enrich");
 
         // set mandatory parameters
-        method.setRequestHeader("x-calais-licenseID", API_KEY);
+        method.setHeader("x-calais-licenseID", apiKey);
 
         // set input content type
-        method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        method.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        method.setRequestHeader("Accept", "application/json");
+        method.setHeader("Accept", "application/json");
 
         try {
             String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-            method.setRequestEntity(new StringRequestEntity("content=" + URLEncoder.encode(inputText, "UTF-8")
+            method.setEntity(new StringEntity("content=" + URLEncoder.encode(inputText, "UTF-8")
                     + "&paramsXML=" + URLEncoder.encode(paramsXML, "UTF-8"),
                     "text/raw", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -321,11 +315,12 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
         }
 
-        // // HOW TO USE ////
-        // System.out.println(ot.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
-        // System.out
-        // .println(ot
-        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+         // HOW TO USE ////
+         System.out.println(tagger.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
+         System.out
+         .println(tagger
+         .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
