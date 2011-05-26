@@ -3,10 +3,8 @@ package ws.palladian.persistence;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 import com.jolbox.bonecp.BoneCP;
@@ -23,7 +21,7 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
  * @see http://jolbox.com/
  * 
  */
-/* package */class ConnectionManager {
+public class ConnectionManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ConnectionManager.class);
@@ -32,55 +30,8 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
     private BoneCP connectionPool;
 
     /** The private constructor. */
-    private ConnectionManager() {
-        setup();
-    }
-
-    /** Hold the lazy initialized singleton instance. */
-    private static class SingletonHolder {
-        private static final ConnectionManager INSTANCE = new ConnectionManager();
-    }
-
-    /**
-     * Get {@link ConnectionManager} singleton instance.
-     * 
-     * @return
-     */
-    public static final ConnectionManager getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    /**
-     * Setup the connection pool, read configuration from properties file.
-     */
-    private void setup() {
-        
-        // The configuration file can be found under config/palladian.properties.
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        String driver = "";
-        String jdbcUrl = "";
-        String username = "";
-        String password = "";
-
-        if (config == null) {
-            LOGGER.warn("could not load configuration, use defaults: jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false");
-
-            driver = "com.mysql.jdbc.Driver";
-            jdbcUrl = "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false";
-            username = "root";
-            password = "";
-        } else {
-            driver = config.getString("db.driver");
-            jdbcUrl = config.getString("db.jdbcUrl");
-            username = config.getString("db.username");
-            password = config.getString("db.password");
-        }
-
-        if (config != null) {
-            config.setThrowExceptionOnMissing(true);
-        }
-
+    protected ConnectionManager(final String driver, final String jdbcUrl, final String username, final String password) {
+        super();
         connect(driver, jdbcUrl, username, password);
     }
 
@@ -109,17 +60,17 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
 
             // setup the connection pool
             BoneCPConfig boneConfig = new BoneCPConfig();
-            
+
             boneConfig.setJdbcUrl(jdbcUrl);
             boneConfig.setUsername(username);
             boneConfig.setPassword(password);
             boneConfig.setMinConnectionsPerPartition(5);
             boneConfig.setMaxConnectionsPerPartition(10);
             boneConfig.setPartitionCount(1);
-            
+
             // only enable this for debugging purposes!
             // boneConfig.setCloseConnectionWatch(true);
-            
+
             // BoneCP is reluctant/lazy to change auto-commit state. This means, that logic connections which are handed
             // back to the pool and which auto-commit state has been disabled and enabled again, might actually still be
             // in auto-commit = false, which has led to long hangs (java.sql.SQLException: Lock wait timeout exceeded;
@@ -145,7 +96,7 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
             }
 
             connectionPool = new BoneCP(boneConfig);
-            
+
             LOGGER.debug("initialized the connection pool in " + sw.getElapsedTimeString());
 
         } catch (SQLException e) {
@@ -172,30 +123,4 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
         }
         return connection;
     }
-
-    public static void main(String[] args) throws Exception {
-
-        ConnectionManager.getInstance();
-
-        /*
-         * final Random random = new Random();
-         * for (int i = 0; i < 1000; i++) {
-         * new Thread() {
-         * public void run() {
-         * try {
-         * Connection connection = ConnectionManager.getInstance().getConnection();
-         * // pretend to do something with the connection
-         * sleep(random.nextInt(10000));
-         * connection.close();
-         * } catch (SQLException e) {
-         * LOGGER.error(e);
-         * } catch (InterruptedException e) {
-         * LOGGER.error(e);
-         * }
-         * };
-         * }.start();
-         * }
-         */
-    }
-
 }

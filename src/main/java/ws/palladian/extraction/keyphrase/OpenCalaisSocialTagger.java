@@ -37,11 +37,20 @@ public class OpenCalaisSocialTagger extends KeyphraseExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(OpenCalaisSocialTagger.class);
 
+    public static void main(String[] args) {
+
+        OpenCalaisSocialTagger extractor = new OpenCalaisSocialTagger();
+        List<Keyphrase> keywords = extractor
+                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
+        CollectionHelper.print(keywords);
+
+    }
+
     /** OpenCalais API key. */
     private String apiKey = "";
 
     public OpenCalaisSocialTagger() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         apiKey = config.getString("api.opencalais.key");
     }
 
@@ -109,22 +118,13 @@ public class OpenCalaisSocialTagger extends KeyphraseExtractor {
     }
 
     @Override
-    public boolean needsTraining() {
-        return false;
-    }
-
-    @Override
     public String getExtractorName() {
         return "OpenCalais SocialTags";
     }
 
-    public static void main(String[] args) {
-
-        OpenCalaisSocialTagger extractor = new OpenCalaisSocialTagger();
-        List<Keyphrase> keywords = extractor
-                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
-        CollectionHelper.print(keywords);
-
+    @Override
+    public boolean needsTraining() {
+        return false;
     }
 
 }

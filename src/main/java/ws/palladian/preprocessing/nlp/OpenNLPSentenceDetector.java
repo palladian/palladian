@@ -15,8 +15,8 @@ import opennlp.tools.util.InvalidFormatException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -39,16 +39,8 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         super();
         setName("OpenNLP Sentence Detector");
 
-        PropertiesConfiguration config = null;
-
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/opennlp/sentdetect/en-sent.bin";
-            LOGGER.warn("could not load configuration, use default location: " + MODEL);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.sentdetect");
-        }
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.sentdetect");
     }
 
     /*

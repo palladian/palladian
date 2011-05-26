@@ -31,6 +31,15 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(AlchemyKeywordExtraction.class);
 
+    public static void main(String[] args) {
+
+        AlchemyKeywordExtraction extractor = new AlchemyKeywordExtraction();
+        List<Keyphrase> keywords = extractor
+                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
+        CollectionHelper.print(keywords);
+
+    }
+
     /** Alchemy API key. */
     private String apiKey = "";
 
@@ -38,7 +47,7 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
     private boolean strictExtractMode = false;
 
     public AlchemyKeywordExtraction() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         apiKey = config.getString("api.alchemy.key");
     }
 
@@ -100,6 +109,16 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
 
     }
 
+    @Override
+    public String getExtractorName() {
+        return "Alchemy API; Keyword/Term Extraction";
+    }
+
+    @Override
+    public boolean needsTraining() {
+        return false;
+    }
+
     /**
      * keyword extraction mode (normal or strict)
      * normal - normal keyword extraction mode (default)
@@ -110,25 +129,6 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
      */
     public void setStrictExtractMode(boolean strictExtractMode) {
         this.strictExtractMode = strictExtractMode;
-    }
-
-    @Override
-    public boolean needsTraining() {
-        return false;
-    }
-
-    @Override
-    public String getExtractorName() {
-        return "Alchemy API; Keyword/Term Extraction";
-    }
-
-    public static void main(String[] args) {
-
-        AlchemyKeywordExtraction extractor = new AlchemyKeywordExtraction();
-        List<Keyphrase> keywords = extractor
-                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
-        CollectionHelper.print(keywords);
-
     }
 
 }

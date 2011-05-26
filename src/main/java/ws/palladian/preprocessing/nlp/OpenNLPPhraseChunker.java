@@ -9,8 +9,8 @@ import opennlp.tools.chunker.ChunkerModel;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
@@ -24,16 +24,9 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     public OpenNLPPhraseChunker() {
         super();
         setName("OpenNLP Phrase Chunker");
-        PropertiesConfiguration config = null;
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/opennlp/chunker/en-chunker.bin";
-            LOGGER.warn("could not load configuration, use default location: " + MODEL);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
-        }
+        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
     }
 
     /*

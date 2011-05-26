@@ -27,6 +27,7 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
@@ -40,70 +41,40 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class Temp {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Temp.class);
-    
-//    public static void threadPoolTest() {
-//        
-//        ExecutorService threadPool = Executors.newFixedThreadPool(10);
-//        FeedDatabase feedDatabase = new FeedDatabase();
-//        List<Feed> feeds = feedDatabase.getFeeds();
-//        LOGGER.info("# feeds " + feeds.size());
-//        final AtomicInteger counter = new AtomicInteger();        
-//        
-//        for (final Feed feed : feeds) {
-//            threadPool.submit(new Runnable() {
-//                @Override
-//                public void run() {
-//                    LOGGER.info("run "  + feed.getFeedUrl());
-//                    DocumentRetriever documentRetriever = new DocumentRetriever();
-//                    documentRetriever.setOverallTimeout(10000);
-//                    documentRetriever.getWebDocument(feed.getFeedUrl());
-//                    counter.incrementAndGet();
-//                }
-//            });
-//        }
-//        
-//        while (true) {
-//            try {
-//                Thread.sleep(1000);
-//                // System.gc();
-//            } catch (InterruptedException e) {
-//                LOGGER.error(e);
-//            }
-//        }
-//    }
 
-    public static void downloadFeedTest() {
-
-        FeedDatabase feedDatabase = new FeedDatabase();
-        List<Feed> feeds = feedDatabase.getFeeds();
-
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-
-        Set<String> urls = new HashSet<String>();
-        for (Feed feed : feeds) {
-            urls.add(feed.getFeedUrl());
-        }
-        documentRetriever.add(urls);
-
-        documentRetriever.setMaxFails(999999999);
-        documentRetriever.setMaxThreads(200);
-
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
-
-            @Override
-            public void onFinishRetrieval(Document document) {
-                if (document != null) {
-                    System.out.println("downloaded " + document.getDocumentURI());
-                }
-
-            }
-        };
-
-        documentRetriever.start(retrieverCallback);
-    }
+    // public static void threadPoolTest() {
+    //        
+    // ExecutorService threadPool = Executors.newFixedThreadPool(10);
+    // FeedDatabase feedDatabase = new FeedDatabase();
+    // List<Feed> feeds = feedDatabase.getFeeds();
+    // LOGGER.info("# feeds " + feeds.size());
+    // final AtomicInteger counter = new AtomicInteger();
+    //        
+    // for (final Feed feed : feeds) {
+    // threadPool.submit(new Runnable() {
+    // @Override
+    // public void run() {
+    // LOGGER.info("run " + feed.getFeedUrl());
+    // DocumentRetriever documentRetriever = new DocumentRetriever();
+    // documentRetriever.setOverallTimeout(10000);
+    // documentRetriever.getWebDocument(feed.getFeedUrl());
+    // counter.incrementAndGet();
+    // }
+    // });
+    // }
+    //        
+    // while (true) {
+    // try {
+    // Thread.sleep(1000);
+    // // System.gc();
+    // } catch (InterruptedException e) {
+    // LOGGER.error(e);
+    // }
+    // }
+    // }
 
     public static void classify() {
 
@@ -185,7 +156,7 @@ public class Temp {
 
     public static void createTrainingData() {
 
-        FeedDatabase fd = new FeedDatabase();
+        FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
         List<Feed> feeds = fd.getFeeds();
 
         FileWriter fileWriter = null;
@@ -256,6 +227,37 @@ public class Temp {
             Logger.getRootLogger().error(e.getMessage());
         }
 
+    }
+
+    public static void downloadFeedTest() {
+
+        FeedDatabase feedDatabase = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
+                FeedDatabase.class.getName());
+        List<Feed> feeds = feedDatabase.getFeeds();
+
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+
+        Set<String> urls = new HashSet<String>();
+        for (Feed feed : feeds) {
+            urls.add(feed.getFeedUrl());
+        }
+        documentRetriever.add(urls);
+
+        documentRetriever.setMaxFails(999999999);
+        documentRetriever.setMaxThreads(200);
+
+        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+
+            @Override
+            public void onFinishRetrieval(Document document) {
+                if (document != null) {
+                    System.out.println("downloaded " + document.getDocumentURI());
+                }
+
+            }
+        };
+
+        documentRetriever.start(retrieverCallback);
     }
 
     public static void imprintExtractor(String imprintURL) {
@@ -359,8 +361,8 @@ public class Temp {
             countMap.increment(string.substring(1, string.indexOf(">")));
         }
         CollectionHelper.print(countMap);
-        
-// StringBuilder seedFile = new StringBuilder();
+
+        // StringBuilder seedFile = new StringBuilder();
         //
         // String seedFolderPath = "G:\\Projects\\Programming\\Java\\WebKnox\\data\\knowledgeBase\\seedEntities\\";
         // File[] files = FileHelper.getFiles("H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed");
@@ -443,7 +445,7 @@ public class Temp {
         // /////////////////////////////////////////////////////////////////////////////////////////////////
 
         // downloadFeedTest();
-        //threadPoolTest();
+        // threadPoolTest();
         System.exit(0);
 
         // pos tagging

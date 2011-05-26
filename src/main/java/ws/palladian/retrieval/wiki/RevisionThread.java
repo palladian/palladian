@@ -5,6 +5,7 @@ import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.data.Revision;
 import ws.palladian.retrieval.wiki.data.WikiDescriptor;
 import ws.palladian.retrieval.wiki.data.WikiPage;
@@ -42,7 +43,8 @@ public class RevisionThread implements Runnable {
      * @param page The page to crawl revisions for.
      */
     public RevisionThread(MediaWikiBot bot, final WikiDescriptor mwDescriptor, final WikiPage page) {
-        this.mwDatabase = new MediaWikiDatabase();
+        this.mwDatabase = (MediaWikiDatabase) DatabaseManagerFactory.getInstance().create(
+                MediaWikiDatabase.class.getName());
         this.mwDescriptor = mwDescriptor;
         this.bot = bot;
         this.page = page;
@@ -74,8 +76,8 @@ public class RevisionThread implements Runnable {
                 }
             } else {
                 revisionsSkipped++;
-                LOGGER.error("skip wikiID:" + mwDescriptor.getWikiID() + " pageID:" + page.getPageID()
-                        + " revisionID:" + revision.getRevisionID() + " " + revision.getTimestamp());
+                LOGGER.error("skip wikiID:" + mwDescriptor.getWikiID() + " pageID:" + page.getPageID() + " revisionID:"
+                        + revision.getRevisionID() + " " + revision.getTimestamp());
             }
         }
         if (LOGGER.isInfoEnabled()) {

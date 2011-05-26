@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import ws.palladian.persistence.DatabaseManager;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.ranking.RankingRetriever.Service;
 
@@ -35,8 +36,31 @@ public class RankingCacheDB extends RankingCache {
     /** Prepared statement to add ranking. */
     private static final String SQL_ADD_RANKING = "INSERT INTO rankingCache (url, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP";
 
+    public static void main(String[] args) {
+        RankingCacheDB cache = new RankingCacheDB();
+        cache.clear();
+    }
+
     /** The database manager. */
-    private DatabaseManager databaseManager = new DatabaseManager();
+    private DatabaseManager databaseManager = DatabaseManagerFactory.getInstance().create(
+            DatabaseManager.class.getName());
+
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.web.URLRankingCache#add(tud.iir.knowledge.Source, java.util.Map)
+     */
+    @Override
+    public void add(String url, Map<Service, Float> rankings) {
+
+        for (Entry<Service, Float> ranking : rankings.entrySet()) {
+            databaseManager.runUpdate(SQL_ADD_RANKING, url, ranking.getKey().getServiceId(), ranking.getValue());
+        }
+
+    }
+
+    private void clear() {
+        databaseManager.runUpdate("TRUNCATE TABLE rankingCache");
+    }
 
     /*
      * (non-Javadoc)
@@ -71,28 +95,6 @@ public class RankingCacheDB extends RankingCache {
 
         return result;
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.web.URLRankingCache#add(tud.iir.knowledge.Source, java.util.Map)
-     */
-    @Override
-    public void add(String url, Map<Service, Float> rankings) {
-
-        for (Entry<Service, Float> ranking : rankings.entrySet()) {
-            databaseManager.runUpdate(SQL_ADD_RANKING, url, ranking.getKey().getServiceId(), ranking.getValue());
-        }
-
-    }
-
-    private void clear() {
-        databaseManager.runUpdate("TRUNCATE TABLE rankingCache");
-    }
-
-    public static void main(String[] args) {
-        RankingCacheDB cache = new RankingCacheDB();
-        cache.clear();
     }
 
 }

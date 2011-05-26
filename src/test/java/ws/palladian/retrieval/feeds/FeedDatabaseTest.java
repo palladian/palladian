@@ -7,11 +7,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class FeedDatabaseTest {
 
-    private static FeedDatabase db = new FeedDatabase();
+    private static FeedDatabase db = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
+            FeedDatabase.class.getName());
 
     @BeforeClass
     public static void beforeClass() {
@@ -20,12 +22,25 @@ public class FeedDatabaseTest {
     }
 
     @Test
-    //@Ignore
-    public void testAddFeed() throws FeedRetrieverException {
+    public void testAddDuplicateEntry() throws FeedRetrieverException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedRetriever newsAggregator = new FeedRetriever();
-        Feed feed = newsAggregator.getFeed(feedUrl);
+
+        FeedRetriever aggregator = new FeedRetriever();
+        Feed feed = aggregator.getFeed(feedUrl);
+
+        System.out.println(feed);
         db.addFeed(feed);
+        System.out.println("added");
+
+        List<FeedItem> entries = aggregator.getFeed(feedUrl).getItems();
+        System.out.println(entries);
+        FeedItem firstEntry = entries.iterator().next();
+        System.out.println(firstEntry);
+
+        System.out.println(db.addFeedItem(feed, firstEntry));
+        System.out.println(db.addFeedItem(feed, firstEntry));
+        System.out.println(db.addFeedItem(feed, firstEntry));
+
     }
 
     @Test
@@ -50,6 +65,15 @@ public class FeedDatabaseTest {
     }
 
     @Test
+    // @Ignore
+    public void testAddFeed() throws FeedRetrieverException {
+        String feedUrl = "http://www.tagesschau.de/xml/rss2";
+        FeedRetriever newsAggregator = new FeedRetriever();
+        Feed feed = newsAggregator.getFeed(feedUrl);
+        db.addFeed(feed);
+    }
+
+    @Test
     @Ignore
     public void testGetFeedByUrl() {
         db.getFeedByUrl("http://www.tagesschau.de/xml/rss2");
@@ -60,28 +84,6 @@ public class FeedDatabaseTest {
     public void testGetFeeds() {
         List<Feed> feeds = db.getFeeds();
         CollectionHelper.print(feeds);
-    }
-
-    @Test
-    public void testAddDuplicateEntry() throws FeedRetrieverException {
-        String feedUrl = "http://www.tagesschau.de/xml/rss2";
-
-        FeedRetriever aggregator = new FeedRetriever();
-        Feed feed = aggregator.getFeed(feedUrl);
-
-        System.out.println(feed);
-        db.addFeed(feed);
-        System.out.println("added");
-
-        List<FeedItem> entries = aggregator.getFeed(feedUrl).getItems();
-        System.out.println(entries);
-        FeedItem firstEntry = entries.iterator().next();
-        System.out.println(firstEntry);
-
-        System.out.println(db.addFeedItem(feed, firstEntry));
-        System.out.println(db.addFeedItem(feed, firstEntry));
-        System.out.println(db.addFeedItem(feed, firstEntry));
-
     }
 
     // @Test

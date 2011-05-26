@@ -38,16 +38,9 @@ public class LingPipePOSTagger extends PosTagger {
     public LingPipePOSTagger() {
         super();
         setName("LingPipe POS-Tagger");
-        PropertiesConfiguration config = null;
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel";
-            LOGGER.warn("could not load configuration, use default location: " + MODEL);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
-        }
+        MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
     }
 
     /*
