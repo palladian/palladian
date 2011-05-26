@@ -1,10 +1,14 @@
 package ws.palladian.helper;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,10 +61,13 @@ public final class ConfigHolder {
     private static final String CONFIG_PATH = "config/" + CONFIG_NAME;
 
     /**
+     * <p>
      * The version of the palladian.properties.default file. This should be incremented whenever changes are made to
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
+     * </p>
      */
-    private static final int VERSION = 3;
+    private static final String VERSION = "3";
+
 
     /**
      * <p>
@@ -78,86 +85,83 @@ public final class ConfigHolder {
     private PropertiesConfiguration config = null;
 
     /**
+     * <p>
      * This class is a singleton and therefore the constructor is private.
+     * </p>
      */
     private ConfigHolder() {
+        FileInputStream propertiesInput = null;
         try {
-            File configFile = new File(CONFIG_PATH);
-            File environmentConfig = new File(System.getenv("PALLADIAN_HOME") + "/" + CONFIG_PATH);
-            URL resource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
+            final List<String> configCandidates = new ArrayList<String>(3);
+            configCandidates.add(System.getenv("PALLADIAN_HOME") + File.separatorChar + CONFIG_PATH);
+            configCandidates.add(ConfigHolder.class.getResource("/" + CONFIG_NAME).getFile());
+            configCandidates.add(CONFIG_PATH);
 
-            PropertiesConfiguration propertiesConfiguration = null;
-            if (environmentConfig.exists()) {
-                LOGGER.info("try to load palladian.properties from environment PALLADIAN_HOME: "
-                        + environmentConfig.getAbsolutePath());
-                propertiesConfiguration = new PropertiesConfiguration();
-                if (!propertiesConfiguration.getKeys().hasNext()) {
-                    propertiesConfiguration = null;
-                    LOGGER.error("failed to load palladian.properties from environment PALLADIAN_HOME: "
-                            + environmentConfig.getAbsolutePath());
-                }
-            } else if (resource != null) {
-                File classpathConfig = new File(resource.getFile());
-                LOGGER.info("try to load palladian.properties from classpath: " + classpathConfig.getAbsolutePath());
-                propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
-                if (!propertiesConfiguration.getKeys().hasNext()) {
-                    propertiesConfiguration = null;
-                    LOGGER.error("failed to load palladian.properties from classpath: "
-                            + classpathConfig.getAbsolutePath());
-                }
-            } else if (configFile.exists()) {
-                LOGGER.info("try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
-                propertiesConfiguration = new PropertiesConfiguration(configFile);
-                if (!propertiesConfiguration.getKeys().hasNext()) {
-                    propertiesConfiguration = null;
-                    LOGGER.error("failed to load palladian.properties from config folder: "
-                            + configFile.getAbsolutePath());
-                }
-            }
-            if (propertiesConfiguration != null) {
-
-                // check whether the version is up to date
-                if (propertiesConfiguration.containsKey("config.version")) {
-                    int fileVersion = propertiesConfiguration.getInt("config.version");
-                    if (fileVersion != VERSION) {
-                        LOGGER.warn("the palladian.properties file is outdated, it is version " + fileVersion
-                                + " but the latest version is " + VERSION + ", please consider updating");
-                    }
-                } else {
-                    LOGGER.warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");
-                }
-
-                setConfig(propertiesConfiguration);
+            Iterator<String> candidateIter = configCandidates.iterator();
+            File configFile = null;
+            do {
+                configFile = new File(candidateIter.next());
+            } while (configFile == null && candidateIter.hasNext());
+            if (configFile.exists()) {
+                LOGGER.info("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
             } else {
-                LOGGER.error("palladian configuration file loading failed");
-                // we should throw an exception here
+                throw new IllegalStateException(
+                        "No Palladian configuration file availabel. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
             }
+
+            final PropertiesConfiguration properties = new PropertiesConfiguration(configFile);
+            if (properties.isEmpty()) {
+                throw new IllegalStateException("Failed to parse Palladian configuration file at: "
+                        + configFile.getAbsolutePath());
+            }
+
+            checkPropertiesVersion(properties);
+            setConfig(properties);
+
         } catch (ConfigurationException e) {
-            LOGGER.error("Palladian configuration under " + CONFIG_PATH + " could not be loaded completely: "
-                    + e.getMessage());
+            throw new IllegalStateException("Palladian configuration under " + CONFIG_PATH
+                    + " could not be loaded completely.", e);
+        } finally {
+            IOUtils.closeQuietly(propertiesInput);
         }
     }
 
     /**
-     * <p>
-     * Provides the current configuration held by this object.
-     * </p>
+     * Prints a warning if the currently loaded version of the properties file is not correct.
      * 
-     * @return The current palladian configuration.
+     * @param properties The properties loaded from the current 'palladian.properties' file.
      */
-    public PropertiesConfiguration getConfig() {
-        return config;
+    private void checkPropertiesVersion(final PropertiesConfiguration properties) {
+        if (properties.containsKey("config.version")) {
+            String fileVersion = properties.getString("config.version");
+            if (fileVersion != VERSION) {
+                LOGGER.warn("the palladian.properties file is outdated, it is version " + fileVersion
+                        + " but the latest version is " + VERSION + ", please consider updating");
+            }
+        } else {
+            LOGGER
+                    .warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");
+        }
     }
 
     /**
+     * @return
+     */
+    public PropertiesConfiguration getConfig() {
+        return this.config;
+    }
+
+    /**
+     * <p>
      * Return the value of the field with the specified field name.
+     * </p>
      * 
      * @param fieldName
      *            The name of the field for which a value should be retrieved.
      * @return The value of the field as Object since we don't know the type.
      */
-    public Object getField(String fieldName) {
-        return config.getProperty(fieldName);
+    public Object getField(final String fieldName) {
+        return this.config.getProperty(fieldName);
     }
 
     /**
@@ -168,7 +172,7 @@ public final class ConfigHolder {
      * 
      * @param config The new configuration this config holder shall hold.
      */
-    private void setConfig(PropertiesConfiguration config) {
-        this.config = config;
+    private void setConfig(final PropertiesConfiguration properties) {
+        this.config = properties;
     }
 }
