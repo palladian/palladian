@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator.Policy;
@@ -23,34 +24,42 @@ public final class EvaluationDatabase extends DatabaseManager {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String psGetPollsFromAdaptiveMaxTime = "SELECT feedID, numberOfPoll, activityPattern, conditionalGetResponseSize, sizeOfPoll, pollTimestamp, checkInterval, newWindowItems, missedItems, windowSize, culmulatedDelay, culmulatedLateDelay, timeliness, timelinessLate FROM feed_evaluation2_adaptive_max_time";
+
     private static final String psGetFeedSizeDistribution = "SELECT feedID, activityPattern, sizeOfPoll FROM feed_evaluation2_fix1440_max_min_poll WHERE numberOfPoll = 1 AND pollTimestamp <= ?";
     private static final String psGetAverageUpdateIntervals = "SELECT feedID, activityPattern, averageUpdateInterval FROM feed_evaluation2_update_intervals";
-
     // for timeliness2 (ScoreMin vs. Polls)
     private static final String psGetAvgScoreMinByPollFromAdaptivePoll = "SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_adaptive_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ?  AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
+
     private static final String psGetAvgScoreMinByPollFromFixLearnedPoll = "SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix_learned_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgScoreMinByPollFromFix1440Poll = "SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix1440_max_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgScoreMinByPollFromFix60Poll = "SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix60_max_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgScoreMinByPollFromPorbabilisticPoll = "SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_probabilistic_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
-
     // get average percentages of new entries by poll for MAX-policy
     private static final String psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll = "SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_adaptive_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
+
     private static final String psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll = "SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix_learned_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll = "SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix1440_max_min_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll = "SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
     private static final String psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll = "SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_probabilistic_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll";
-
     // 6521 = Anzahl Stunden seit 01.01.2010 00:00 bis zum Start des Experiments am 28.09.2010 16:00
     // Wert wird verwendet, damit das Experiment von Stunde 1 bis 672 (4 Wochen) läuft
     private static final String psGetTransferVolumeByHourFromAdaptiveMaxTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_adaptive_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
+
     private static final String psGetTransferVolumeByHourFromFix1440MaxMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix1440_max_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
     private static final String psGetTransferVolumeByHourFromFix60MaxMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix60_max_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
     private static final String psGetTransferVolumeByHourFromFixLearnedMaxTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix_learned_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
     private static final String psGetTransferVolumeByHourFromProbabilisticMaxTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_probabilistic_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
-
     private static final String psGetTransferVolumeByHourFromAdaptiveMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_adaptive_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
+
     private static final String psGetTransferVolumeByHourFromFixLearnedMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix_learned_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
     private static final String psGetTransferVolumeByHourFromProbabilisticMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_probabilistic_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
+
+    /**
+     * @param connectionManager
+     */
+    protected EvaluationDatabase(ConnectionManager connectionManager) {
+        super(connectionManager);
+    }
 
     /**
      * Was just a simple test whether DB Connection works properly.
@@ -85,95 +94,6 @@ public final class EvaluationDatabase extends DatabaseManager {
         List<EvaluationFeedPoll> result = runQuery(converter, psGetPollsFromAdaptiveMaxTime);
 
         LOGGER.trace("<getFeedPolls " + result.size());
-        return result;
-    }
-
-    /**
-     * returns the result of "SELECT id, updateClass, sizeOfPoll FROM feed_evaluation2_fix1440_max_min_poll WHERE
-     * numberOfPoll = 1 AND sizeOfPoll > 0 AND pollTimestamp <= {@link EvaluationDatabase#FeedReaderEvaluator /1000L}"
-     * 
-     * @return List contains for every FeedID one {@link EvaluationFeedPoll} object with the size of the first poll and
-     *         its activity pattern.
-     */
-    public List<EvaluationFeedPoll> getFeedSizes() {
-        LOGGER.trace(">getFeedSizes");
-
-        RowConverter<EvaluationFeedPoll> converter = new RowConverter<EvaluationFeedPoll>() {
-
-            @Override
-            public EvaluationFeedPoll convert(ResultSet resultSet) throws SQLException {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setActivityPattern(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                return feedPoll;
-            }
-        };
-
-        final List<EvaluationFeedPoll> result = runQuery(converter, psGetFeedSizeDistribution,
-                FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
-
-        LOGGER.trace("<getFeedSizes");
-        return result;
-    }
-
-    /**
-     * returns the result of "SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation2_update_intervals"
-     * 
-     * @return List contains for every FeedID one {@link EvaluationItemIntervalItem} object with the activity pattern
-     *         and the feed's average update interval.
-     */
-    public List<EvaluationItemIntervalItem> getAverageUpdateIntervals() {
-        LOGGER.trace(">getAverageUpdateIntervals");
-
-        RowConverter<EvaluationItemIntervalItem> converter = new RowConverter<EvaluationItemIntervalItem>() {
-
-            @Override
-            public EvaluationItemIntervalItem convert(ResultSet resultSet) throws SQLException {
-                EvaluationItemIntervalItem itemIntervalItem = new EvaluationItemIntervalItem();
-                itemIntervalItem.setFeedID(resultSet.getInt(1));
-                itemIntervalItem.setActivityPattern(resultSet.getInt(2));
-                itemIntervalItem.setAverageUpdateInterval(resultSet.getLong(3));
-                return itemIntervalItem;
-            }
-        };
-
-        List<EvaluationItemIntervalItem> result = runQuery(converter, psGetAverageUpdateIntervals);
-
-        LOGGER.trace("<getAverageUpdateIntervals");
-        return result;
-    }
-
-    /**
-     * Private helper to processes a prepared Statement to get an average value like scoreMin or percentaegNewEntries by
-     * poll and returns a result set containing the average value for each numberOfPoll.
-     * 
-     * @param maxNumberOfPolls The highest numberOfPolls value to calculate the average value for.
-     * @param ps The PreparedStatement to process.
-     * @return a result set containing the average value (specified by the PreparedStatement {@link ps) for each
-     *         numberOfPoll.
-     */
-    private List<EvaluationFeedPoll> getAverageValueByPoll(final int maxNumberOfPolls, final String ps) {
-        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
-
-        RowConverter<EvaluationFeedPoll> converter = new RowConverter<EvaluationFeedPoll>() {
-
-            @Override
-            public EvaluationFeedPoll convert(ResultSet resultSet) throws SQLException {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setAverageValue(resultSet.getDouble(2));
-                return feedPoll;
-            }
-        };
-
-        List<Object> args = new ArrayList<Object>();
-        args.add(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
-        args.add(maxNumberOfPolls);
-        args.add(maxNumberOfPolls);
-        List<EvaluationFeedPoll> result = runQuery(converter, ps, args);
-
-        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps);
         return result;
     }
 
@@ -248,6 +168,95 @@ public final class EvaluationDatabase extends DatabaseManager {
                 throw new IllegalStateException("unknown Algorithm: " + strategy.toString());
         }
         return getAverageValueByPoll(maxNumberOfPolls, ps);
+    }
+
+    /**
+     * returns the result of "SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation2_update_intervals"
+     * 
+     * @return List contains for every FeedID one {@link EvaluationItemIntervalItem} object with the activity pattern
+     *         and the feed's average update interval.
+     */
+    public List<EvaluationItemIntervalItem> getAverageUpdateIntervals() {
+        LOGGER.trace(">getAverageUpdateIntervals");
+
+        RowConverter<EvaluationItemIntervalItem> converter = new RowConverter<EvaluationItemIntervalItem>() {
+
+            @Override
+            public EvaluationItemIntervalItem convert(ResultSet resultSet) throws SQLException {
+                EvaluationItemIntervalItem itemIntervalItem = new EvaluationItemIntervalItem();
+                itemIntervalItem.setFeedID(resultSet.getInt(1));
+                itemIntervalItem.setActivityPattern(resultSet.getInt(2));
+                itemIntervalItem.setAverageUpdateInterval(resultSet.getLong(3));
+                return itemIntervalItem;
+            }
+        };
+
+        List<EvaluationItemIntervalItem> result = runQuery(converter, psGetAverageUpdateIntervals);
+
+        LOGGER.trace("<getAverageUpdateIntervals");
+        return result;
+    }
+
+    /**
+     * Private helper to processes a prepared Statement to get an average value like scoreMin or percentaegNewEntries by
+     * poll and returns a result set containing the average value for each numberOfPoll.
+     * 
+     * @param maxNumberOfPolls The highest numberOfPolls value to calculate the average value for.
+     * @param ps The PreparedStatement to process.
+     * @return a result set containing the average value (specified by the PreparedStatement {@link ps) for each
+     *         numberOfPoll.
+     */
+    private List<EvaluationFeedPoll> getAverageValueByPoll(final int maxNumberOfPolls, final String ps) {
+        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
+
+        RowConverter<EvaluationFeedPoll> converter = new RowConverter<EvaluationFeedPoll>() {
+
+            @Override
+            public EvaluationFeedPoll convert(ResultSet resultSet) throws SQLException {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setAverageValue(resultSet.getDouble(2));
+                return feedPoll;
+            }
+        };
+
+        List<Object> args = new ArrayList<Object>();
+        args.add(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
+        args.add(maxNumberOfPolls);
+        args.add(maxNumberOfPolls);
+        List<EvaluationFeedPoll> result = runQuery(converter, ps, args);
+
+        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps);
+        return result;
+    }
+
+    /**
+     * returns the result of "SELECT id, updateClass, sizeOfPoll FROM feed_evaluation2_fix1440_max_min_poll WHERE
+     * numberOfPoll = 1 AND sizeOfPoll > 0 AND pollTimestamp <= {@link EvaluationDatabase#FeedReaderEvaluator /1000L}"
+     * 
+     * @return List contains for every FeedID one {@link EvaluationFeedPoll} object with the size of the first poll and
+     *         its activity pattern.
+     */
+    public List<EvaluationFeedPoll> getFeedSizes() {
+        LOGGER.trace(">getFeedSizes");
+
+        RowConverter<EvaluationFeedPoll> converter = new RowConverter<EvaluationFeedPoll>() {
+
+            @Override
+            public EvaluationFeedPoll convert(ResultSet resultSet) throws SQLException {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setFeedID(resultSet.getInt(1));
+                feedPoll.setActivityPattern(resultSet.getInt(2));
+                feedPoll.setSizeOfPoll(resultSet.getInt(3));
+                return feedPoll;
+            }
+        };
+
+        final List<EvaluationFeedPoll> result = runQuery(converter, psGetFeedSizeDistribution,
+                FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
+
+        LOGGER.trace("<getFeedSizes");
+        return result;
     }
 
     /**

@@ -20,6 +20,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -57,16 +58,12 @@ public class DatasetCreator {
 
     /** Path to the folder where the dataset is stored. */
     public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
-    + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
+            + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
 
     /** We need this many file handles to process one FeedTask. */
     public static final int FILE_HANDLES_PER_TASK = 20;
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
-
-    public DatasetCreator() {
-        detectSystemLimitations();
-    }
 
     /**
      * Cleaning up performs the following steps:
@@ -115,8 +112,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
-                .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "").replaceAll(
+                                "(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -244,6 +241,26 @@ public class DatasetCreator {
         LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
     }
 
+    /**
+     * Run creation of the feed dataset from all feeds in the database if possible.
+     * 
+     * @param args Command line arguments are ignored.
+     */
+    public static void main(String[] args) {
+
+        // System.out.println(System.getProperty("os.name"));
+        //
+        // System.exit(0);
+
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
+        // DatasetCreator.renewFileIDs();
+        // DatasetCreator.cleanUp(true);
+        // DatasetCreator.combineFeedHistories();
+        // dc.addFeedMetaInformation();
+
+    }
+
     public static void renewFileIDs() {
 
         String cleanPath = "data/temp/feedPosts/";
@@ -268,12 +285,16 @@ public class DatasetCreator {
 
     }
 
+    public DatasetCreator() {
+        detectSystemLimitations();
+    }
+
     /**
      * Start creating the dataset.
      */
     public void createDataset() {
 
-        FeedStore feedStore = new FeedDatabase();
+        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
@@ -361,7 +382,7 @@ public class DatasetCreator {
                     } else {
                         fileEntryID.append("\""
                                 + StringHelper.removeControlCharacters(item.getTitle()).replaceAll("\"", "'")
-                                .replaceAll(";", "putSemicolonHere") + "\";");
+                                        .replaceAll(";", "putSemicolonHere") + "\";");
                     }
                     fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
                     fileEntry.append(item.getPublished().getTime()).append(";");
@@ -427,7 +448,6 @@ public class DatasetCreator {
                 // feed.freeMemory();
                 // end remove //
 
-
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
             }
         };
@@ -445,7 +465,7 @@ public class DatasetCreator {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         boolean checkLimitations = CHECK_SYSTEM_LIMITATIONS_DEFAULT;
         if (config != null) {
-            checkLimitations= config.getBoolean("feedReader.checkSystemLimitations", CHECK_SYSTEM_LIMITATIONS_DEFAULT);
+            checkLimitations = config.getBoolean("feedReader.checkSystemLimitations", CHECK_SYSTEM_LIMITATIONS_DEFAULT);
         }
 
         if (!checkLimitations) {
@@ -453,17 +473,17 @@ public class DatasetCreator {
             return;
         }
         String stdErrorMsg = "Make sure you have at least 20 times more file handles than FeedReader-threads.\n"
-            + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
-            + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
-            + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
-            + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
-            + "<username> soft nofile <minimum-required-size>\n"
-            + "<username> hard nofile <minimum-required-size>+1024\n"
-            + "example"
-            + "feeduser soft nofile 31744\n"
-            + "feeduser hard nofile 32768\n"
-            + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
-            + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
+                + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
+                + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
+                + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
+                + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
+                + "<username> soft nofile <minimum-required-size>\n"
+                + "<username> hard nofile <minimum-required-size>+1024\n"
+                + "example"
+                + "feeduser soft nofile 31744\n"
+                + "feeduser hard nofile 32768\n"
+                + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
+                + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
 
         // detect operating system
         String os = System.getProperty("os.name");
@@ -519,28 +539,9 @@ public class DatasetCreator {
             // be carful! Windows 7 has no Limit, Win XP SP2 has a limit of concurrent connections, different
             // tools do not work, see (http://www.lvllord.de/), XP SP2 also has a limit of file handles
             // (C:\windows\system32\CONFIG.NT FILES=xx)
-            LOGGER.info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
+            LOGGER
+                    .info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
         }
-    }
-
-    /**
-     * Run creation of the feed dataset from all feeds in the database if possible.
-     * 
-     * @param args Command line arguments are ignored.
-     */
-    public static void main(String[] args) {
-
-        // System.out.println(System.getProperty("os.name"));
-        //
-        // System.exit(0);
-
-        DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        // DatasetCreator.renewFileIDs();
-        // DatasetCreator.cleanUp(true);
-        // DatasetCreator.combineFeedHistories();
-        // dc.addFeedMetaInformation();
-
     }
 
 }

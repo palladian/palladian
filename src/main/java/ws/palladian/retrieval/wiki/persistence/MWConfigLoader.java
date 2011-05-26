@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.MediaWikiCrawler;
 import ws.palladian.retrieval.wiki.data.MWCrawlerConfiguration;
 import ws.palladian.retrieval.wiki.data.WikiDescriptor;
@@ -28,8 +29,25 @@ public final class MWConfigLoader {
     /** The instance of this class. */
     protected static MWConfigLoader instance = null;
 
+    /**
+     * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
+     * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
+     * Additional calls of have no effect.
+     * 
+     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
+     *            process these pages.
+     */
+    public static void initialize(LinkedBlockingQueue<WikiPage> pageQueue) {
+        if (instance == null) {
+            instance = new MWConfigLoader(pageQueue);
+        } else {
+            LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
+        }
+    };
+
     /** The {@link MediaWikiDatabase} which acts as persistence layer. */
-    protected final MediaWikiDatabase mwDatabase = new MediaWikiDatabase();
+    protected final MediaWikiDatabase mwDatabase = (MediaWikiDatabase) DatabaseManagerFactory.getInstance().create(
+            MediaWikiDatabase.class.getName());
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -49,18 +67,13 @@ public final class MWConfigLoader {
     }
 
     /**
-     * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
-     * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
-     * Additional calls of have no effect.
-     * 
-     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
-     *            process these pages.
+     * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
      */
-    public static void initialize(LinkedBlockingQueue<WikiPage> pageQueue) {
-        if (instance == null) {
-            instance = new MWConfigLoader(pageQueue);
-        } else {
-            LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
+    private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
+        for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
+            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
+                    + wikis.getWikiID());
+            mwCrawler.start();
         }
     }
 
@@ -72,8 +85,7 @@ public final class MWConfigLoader {
     private MWCrawlerConfiguration loadConfigurationFromConfigFile() {
         MWCrawlerConfiguration returnValue = null;
         try {
-            final MWCrawlerConfiguration config = Yaml
-            .loadType(new File(CONFIG_FILE_PATH),
+            final MWCrawlerConfiguration config = Yaml.loadType(new File(CONFIG_FILE_PATH),
                     MWCrawlerConfiguration.class);
 
             returnValue = config;
@@ -150,18 +162,6 @@ public final class MWConfigLoader {
         }
     }
 
-    /**
-     * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
-     */
-    private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
-        for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
-            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
-                    + wikis.getWikiID());
-            mwCrawler.start();
-        }
-    }
-    
-    
     /**
      * Debug helper to reset the database. All Wikis and their complete content is removed from the database.
      * Use with caution...

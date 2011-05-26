@@ -20,8 +20,8 @@ import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -40,18 +40,10 @@ public class OpenNLPPOSTagger extends PosTagger {
     public OpenNLPPOSTagger() {
         super();
         setName("OpenNLP POS-Tagger");
-        PropertiesConfiguration config = null;
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/opennlp/postag/en-pos-maxent.bin";
-            MODEL_TOK = "data/models/opennlp/tokenize/en-token.bin";
-            LOGGER.warn("could not load configuration, use default location: " + MODEL + " and " + MODEL_TOK);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.postag");
-            MODEL_TOK = config.getString("models.root") + config.getString("models.opennlp.en.tokenize");
-        }
+        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.postag");
+        MODEL_TOK = config.getString("models.root") + config.getString("models.opennlp.en.tokenize");
     }
 
     /**

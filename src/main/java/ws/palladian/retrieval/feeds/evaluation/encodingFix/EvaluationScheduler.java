@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -28,6 +29,15 @@ class EvaluationScheduler {
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.properties</tt>.
      */
     private static final Logger LOGGER = Logger.getLogger(EvaluationScheduler.class);
+
+    public static void main(String[] args) {
+
+        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        FeedReader feedChecker = new FeedReader(feedStore);
+        EvaluationScheduler scheduler = new EvaluationScheduler(feedChecker);
+        scheduler.run();
+
+    }
 
     /**
      * The collection of all the feeds this scheduler should create update
@@ -59,6 +69,18 @@ class EvaluationScheduler {
         scheduledTasks = new TreeMap<Integer, Future<?>>();
     }
 
+    /**
+     * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
+     * 
+     * @param feedId The feed to check and remove if the {@link FeedTask} is done.
+     */
+    private void removeFeedTaskIfDone(final Integer feedId) {
+        final Future<?> future = scheduledTasks.get(feedId);
+        if (future != null && future.isDone()) {
+            scheduledTasks.remove(feedId);
+            LOGGER.trace("Removed completed feed from feed task pool: " + feedId);
+        }
+    }
 
     public void run() {
         LOGGER.info("Scheduling all feeds to be checked for the charset duplicates and duplicates within the window");
@@ -93,30 +115,6 @@ class EvaluationScheduler {
         }
         LOGGER.info("All tasks done. Bye.");
         System.exit(0);
-        
-    }
-
-    /**
-     * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
-     * 
-     * @param feedId The feed to check and remove if the {@link FeedTask} is done.
-     */
-    private void removeFeedTaskIfDone(final Integer feedId) {
-        final Future<?> future = scheduledTasks.get(feedId);
-        if (future != null && future.isDone()) {
-            scheduledTasks.remove(feedId);
-            LOGGER.trace("Removed completed feed from feed task pool: " + feedId);
-        }
-    }
-
-
-    public static void main(String[] args) {
-
-
-        FeedStore feedStore = new FeedDatabase();
-        FeedReader feedChecker = new FeedReader(feedStore);
-        EvaluationScheduler scheduler = new EvaluationScheduler(feedChecker);
-        scheduler.run();
 
     }
 

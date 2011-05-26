@@ -3,12 +3,14 @@ package ws.palladian.helper.shingling;
 import java.util.List;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class ShinglesPerformanceTest {
 
-    private static FeedDatabase fd = new FeedDatabase();
+    private static FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
+            FeedDatabase.class.getName());
 
     public static void main(String[] args) {
         runTest(new ShinglesIndexJDBM(), 10000);

@@ -43,6 +43,51 @@ public class ContentExtractionEvaluation {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
 
+    public static void main(String[] args) {
+
+        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
+
+        // extractors to evaluate
+        evaluation.addExtractor(new BoilerpipeContentExtractor());
+        evaluation.addExtractor(new ReadabilityContentExtractor());
+        evaluation.addExtractor(new PalladianContentExtractor());
+
+        // String text = evaluation.getRealText("ec407a8c-7d1b-4485-816d-39a1887f84b3");
+        // text = normalizeString(text);
+        // System.out.println(text);
+        //
+        // System.exit(0);
+
+        // ////////////////////////////////////////////////////////////////////////////////
+
+        Map<String, String> dataset = evaluation.readIndexFile();
+        evaluation.setMainContentOnly(true);
+        String result = evaluation.evaluate(dataset);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
+
+        System.exit(0);
+
+        evaluation.setMainContentOnly(false);
+        result = evaluation.evaluate(dataset);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
+    }
+
+    /**
+     * Normalizes the supplied string by stripping new lines, multiple white spaces. Also protected white space
+     * characters are removed, as they cause trouble in conjunction with Simmetrics library.
+     * 
+     * @param input
+     * @return
+     */
+    public static String normalizeString(String input) {
+
+        input = StringHelper.removeProtectedSpace(input);
+        input = input.replace("\n", " ");
+        input = input.replaceAll(" {2,}", " ");
+        return input;
+
+    }
+
     /** Base path with the evaluation data set. */
     private final String datasetPath;
 
@@ -67,44 +112,6 @@ public class ContentExtractionEvaluation {
     }
 
     /**
-     * Reads the index file from the data set, returns Map with data.
-     * 
-     * @return
-     */
-    public Map<String, String> readIndexFile() {
-
-        final Pattern split = Pattern.compile("<urn:uuid:([a-z0-9\\-]*?)>\\s(.*?)");
-        final Map<String, String> data = new HashMap<String, String>();
-
-        FileHelper.performActionOnEveryLine(datasetPath + "/url-mapping.txt", new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                Matcher matcher = split.matcher(line);
-
-                if (matcher.matches() && matcher.groupCount() == 2) {
-                    String uuid = matcher.group(1);
-                    String url = matcher.group(2);
-                    data.put(uuid, url);
-                }
-
-            }
-        });
-
-        return data;
-
-    }
-
-    public boolean isMainContentOnly() {
-        return mainContentOnly;
-    }
-
-    public void setMainContentOnly(boolean mainContentOnly) {
-        this.mainContentOnly = mainContentOnly;
-    }
-
-    /**
      * Do the evaluation for the dataset.
      * Map contains file's UUIDs as keys, real URLs as values.
      * 
@@ -117,7 +124,7 @@ public class ContentExtractionEvaluation {
 
         int count = 0;
         boolean writeHeader = true;
-        
+
         // keep statistics
         Bag<WebPageContentExtractor> wins = new HashBag<WebPageContentExtractor>();
         Bag<WebPageContentExtractor> errors = new HashBag<WebPageContentExtractor>();
@@ -263,49 +270,42 @@ public class ContentExtractionEvaluation {
         return StringHelper.getLevenshteinSim(real, extracted);
     }
 
+    public boolean isMainContentOnly() {
+        return mainContentOnly;
+    }
+
     /**
-     * Normalizes the supplied string by stripping new lines, multiple white spaces. Also protected white space
-     * characters are removed, as they cause trouble in conjunction with Simmetrics library.
+     * Reads the index file from the data set, returns Map with data.
      * 
-     * @param input
      * @return
      */
-    public static String normalizeString(String input) {
+    public Map<String, String> readIndexFile() {
 
-        input = StringHelper.removeProtectedSpace(input);
-        input = input.replace("\n", " ");
-        input = input.replaceAll(" {2,}", " ");
-        return input;
+        final Pattern split = Pattern.compile("<urn:uuid:([a-z0-9\\-]*?)>\\s(.*?)");
+        final Map<String, String> data = new HashMap<String, String>();
+
+        FileHelper.performActionOnEveryLine(datasetPath + "/url-mapping.txt", new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                Matcher matcher = split.matcher(line);
+
+                if (matcher.matches() && matcher.groupCount() == 2) {
+                    String uuid = matcher.group(1);
+                    String url = matcher.group(2);
+                    data.put(uuid, url);
+                }
+
+            }
+        });
+
+        return data;
 
     }
 
-    public static void main(String[] args) {
-
-        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
-        
-        // extractors to evaluate
-        evaluation.addExtractor(new BoilerpipeContentExtractor());
-        evaluation.addExtractor(new ReadabilityContentExtractor());
-        evaluation.addExtractor(new PalladianContentExtractor());
-
-        // String text = evaluation.getRealText("ec407a8c-7d1b-4485-816d-39a1887f84b3");
-        // text = normalizeString(text);
-        // System.out.println(text);
-        //
-        // System.exit(0);
-
-        // ////////////////////////////////////////////////////////////////////////////////
-
-        Map<String, String> dataset = evaluation.readIndexFile();
-        evaluation.setMainContentOnly(true);
-        String result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
-
-        System.exit(0);
-
-        evaluation.setMainContentOnly(false);
-        result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
+    public void setMainContentOnly(boolean mainContentOnly) {
+        this.mainContentOnly = mainContentOnly;
     }
 
 }

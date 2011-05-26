@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -59,7 +60,7 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "/home/alaak/Dokumente/paper/feedpaper2/data/flat";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
@@ -70,34 +71,79 @@ public class FeedReaderEvaluator {
     /** The timestamp we stopped the dataset gathering. 19/10/2010 */
     public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1287504000000L;
 
+    /**
+     * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an
+     * underscore.
+     * 
+     * @param id The id of the feed.
+     * @return The path to the file with the feed post history.
+     */
+    public static String findHistoryFile(String safeFeedName) {
 
-    public FeedReaderEvaluator() {
-        LOGGER.info("load benchmark dataset file list");
-        benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
-    }
+        // read feed history file
+        String historyFilePath = "";
+        if (benchmarkDatasetFiles == null) {
+            LOGGER.info("======================================================================================");
+            benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
+        }
+        for (File file : benchmarkDatasetFiles) {
+            if (file.getName().startsWith(safeFeedName)) {
+                historyFilePath = file.getAbsolutePath();
+                break;
+            }
+        }
 
-    public static int getBenchmarkPolicy() {
-        return benchmarkPolicy;
-    }
-
-    public static void setBenchmarkPolicy(int benchmark) {
-        FeedReaderEvaluator.benchmarkPolicy = benchmark;
+        return historyFilePath;
     }
 
     public static int getBenchmarkMode() {
         return benchmarkMode;
     }
 
-    public static void setBenchmarkMode(int benchmarkMode) {
-        FeedReaderEvaluator.benchmarkMode = benchmarkMode;
-    }
-
     private static String getBenchmarkName() {
         return FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_MIN_DELAY ? "min" : "max";
     }
 
-    public String getBenchmarkDatasetPath() {
-        return BENCHMARK_DATASET_PATH;
+    public static int getBenchmarkPolicy() {
+        return benchmarkPolicy;
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        // FeedReaderEvaluator fre = new FeedReaderEvaluator();
+        // fre.createAllEvaluations(1);
+        // System.exit(0);
+
+        // if -1 => fixed learned
+        int checkInterval = -1;
+
+        UpdateStrategy updateStrategy = new FixUpdateStrategy();
+        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
+        updateStrategy = new MAVUpdateStrategy();
+        updateStrategy = new PostRateUpdateStrategy();
+        // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
+
+        FeedReaderEvaluator.benchmarkSample = 100;
+
+        FeedReader fc = new FeedReader((FeedDatabase) DatabaseManagerFactory.getInstance().create(
+                FeedDatabase.class.getName()));
+        fc.setUpdateStrategy(updateStrategy, true);
+        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
+        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
+        setBenchmarkMode(BENCHMARK_POLL);
+        // setBenchmarkMode(BENCHMARK_TIME);
+        fc.startContinuousReading(-1);
+    }
+
+    public static void setBenchmarkMode(int benchmarkMode) {
+        FeedReaderEvaluator.benchmarkMode = benchmarkMode;
+    }
+
+    public static void setBenchmarkPolicy(int benchmark) {
+        FeedReaderEvaluator.benchmarkPolicy = benchmark;
     }
 
     /**
@@ -148,8 +194,7 @@ public class FeedReaderEvaluator {
         }
 
         String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
-        + getBenchmarkName() + "_"
-        + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
+                + getBenchmarkName() + "_" + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
@@ -220,29 +265,9 @@ public class FeedReaderEvaluator {
 
     }
 
-    /**
-     * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an
-     * underscore.
-     * 
-     * @param id The id of the feed.
-     * @return The path to the file with the feed post history.
-     */
-    public static String findHistoryFile(String safeFeedName) {
-
-        // read feed history file
-        String historyFilePath = "";
-        if (benchmarkDatasetFiles == null) {
-            LOGGER.info("======================================================================================");
-            benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
-        }
-        for (File file : benchmarkDatasetFiles) {
-            if (file.getName().startsWith(safeFeedName)) {
-                historyFilePath = file.getAbsolutePath();
-                break;
-            }
-        }
-
-        return historyFilePath;
+    public FeedReaderEvaluator() {
+        LOGGER.info("load benchmark dataset file list");
+        benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
     }
 
     /**
@@ -260,7 +285,7 @@ public class FeedReaderEvaluator {
         UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
                 new MAVUpdateStrategy(), new PostRateUpdateStrategy() };
 
-        Integer[] policies = {BENCHMARK_MIN_DELAY,BENCHMARK_MAX_COVERAGE};
+        Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
 
         int fixNumber = 0;
@@ -293,13 +318,12 @@ public class FeedReaderEvaluator {
 
                     setBenchmarkMode(mode);
 
-                    FeedReader fc = new FeedReader(new FeedDatabase());
+                    FeedReader fc = new FeedReader((FeedDatabase) DatabaseManagerFactory.getInstance().create(
+                            FeedDatabase.class.getName()));
                     fc.setUpdateStrategy(strategy, false);
 
-
                     LOGGER.info("start evaluation for strategy " + strategy + " (" + checkInterval + "min), policy "
-                            + policy + ", and mode "
-                            + mode);
+                            + policy + ", and mode " + mode);
                     fc.startContinuousReading(-1);
 
                 }
@@ -312,33 +336,8 @@ public class FeedReaderEvaluator {
 
     }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-
-        // FeedReaderEvaluator fre = new FeedReaderEvaluator();
-        // fre.createAllEvaluations(1);
-        // System.exit(0);
-
-        // if -1 => fixed learned
-        int checkInterval = -1;
-
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
-        updateStrategy = new MAVUpdateStrategy();
-        updateStrategy = new PostRateUpdateStrategy();
-        // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
-
-        FeedReaderEvaluator.benchmarkSample = 100;
-
-        FeedReader fc = new FeedReader(new FeedDatabase());
-        fc.setUpdateStrategy(updateStrategy, true);
-        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
-        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
-        setBenchmarkMode(BENCHMARK_POLL);
-        // setBenchmarkMode(BENCHMARK_TIME);
-        fc.startContinuousReading(-1);
+    public String getBenchmarkDatasetPath() {
+        return BENCHMARK_DATASET_PATH;
     }
 
 }

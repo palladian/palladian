@@ -20,8 +20,8 @@ import opennlp.tools.parser.ParserModel;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -103,16 +103,9 @@ public class OpenNLPParser extends AbstractParser {
     public OpenNLPParser() {
         super();
         setName("OpenNLP Parser");
-        PropertiesConfiguration config = null;
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/opennlp/parser/en-parser-chunking.bin";
-            LOGGER.warn("could not load configuration, use default location: " + MODEL);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.parser");
-        }
+        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.parser");
     }
 
     /**

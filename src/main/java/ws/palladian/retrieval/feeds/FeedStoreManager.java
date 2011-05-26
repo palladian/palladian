@@ -6,10 +6,10 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscoveryCallback;
 import ws.palladian.retrieval.feeds.meta.MetaInformationCreator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
-
 
 /**
  * <p>
@@ -53,7 +53,8 @@ public class FeedStoreManager {
         StopWatch sw = new StopWatch();
         LOGGER.info("start importing feeds");
 
-        FeedImporter na = new FeedImporter(new FeedDatabase());
+        FeedImporter na = new FeedImporter((FeedDatabase) DatabaseManagerFactory.getInstance().create(
+                FeedDatabase.class.getName()));
         na.setStoreItems(false);
 
         // add feeds which are not present yet
@@ -73,18 +74,18 @@ public class FeedStoreManager {
         LOGGER.info("meta information for all feeds created in " + sw.getElapsedTimeString());
     }
 
-//    /**
-//     * @param args
-//     * @throws FeedRetrieverException
-//     */
-//    public static void main(String[] args) throws FeedRetrieverException {
-        // Crawler c = new Crawler();
-        // Document document = c.getWebDocument("http://www.newser.com/");
+    // /**
+    // * @param args
+    // * @throws FeedRetrieverException
+    // */
+    // public static void main(String[] args) throws FeedRetrieverException {
+    // Crawler c = new Crawler();
+    // Document document = c.getWebDocument("http://www.newser.com/");
 
-        // NewsAggregator na = new NewsAggregator();
-        // Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");
-        // System.out.println(f.getFormat() + "," + f.getTextType());
+    // NewsAggregator na = new NewsAggregator();
+    // Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");
+    // System.out.println(f.getFormat() + "," + f.getTextType());
 
-//    }
+    // }
 
 }

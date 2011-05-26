@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -21,6 +22,11 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class PostRateUpdateStrategy extends UpdateStrategy {
+
+    @Override
+    public String getName() {
+        return "postrate";
+    }
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
@@ -44,7 +50,8 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
             // in benchmark mode we keep it in memory
             if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                FeedDatabase fd = new FeedDatabase();
+                FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
+                        FeedDatabase.class.getName());
                 postDistribution = fd.getFeedPostDistribution(feed);
             }
 
@@ -91,7 +98,7 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
         // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
         if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-            FeedDatabase fd = new FeedDatabase();
+            FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
             fd.updateFeedPostDistribution(feed, postDistribution);
         }
 
@@ -146,11 +153,6 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
         } else {
             feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
         }
-    }
-
-    @Override
-    public String getName() {
-        return "postrate";
     }
 
 }

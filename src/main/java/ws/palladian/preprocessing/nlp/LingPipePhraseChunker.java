@@ -11,8 +11,8 @@ import java.util.Set;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 
 import com.aliasi.chunk.Chunk;
@@ -195,16 +195,9 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
     public LingPipePhraseChunker() {
         super();
         setName("LingPipe Phrase Chunker");
-        PropertiesConfiguration config = null;
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        config = ConfigHolder.getInstance().getConfig();
-
-        if (config == null) {
-            MODEL = "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel";
-            LOGGER.warn("could not load configuration, use defaults: " + MODEL);
-        } else {
-            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
-        }
+        MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
     }
 
     /**

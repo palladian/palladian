@@ -14,10 +14,15 @@ import ws.palladian.helper.ConfigHolder;
  */
 public class Segment {
 
-    /** Reads the segmenter.config */
-    private PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+    /** The color of this segment */
+    public enum Color {
+        GREEN, LIGHTGREEN, GREENYELLOW, YELLOW, REDYELLOW, LIGHTRED, RED
+    }
 
     // ///////////////////// Attributes of a segment ///////////////////////
+
+    /** Reads the segmenter.config */
+    private final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
     /** The document to which the segment belongs */
     private Document document = null;
@@ -32,12 +37,7 @@ public class Segment {
     private Integer depth = 0;
 
     /** The value of variability of the segment */
-    private Double variability = 0.0;
-
-    /** The color of this segment */
-    public enum Color {
-        GREEN, LIGHTGREEN, GREENYELLOW, YELLOW, REDYELLOW, LIGHTRED, RED
-    };
+    private Double variability = 0.0;;
 
     private Color color = null;
 
@@ -60,26 +60,6 @@ public class Segment {
         this.depth = depth;
         this.variability = significance;
 
-    }
-
-    public Document getDocument() {
-        return this.document;
-    }
-
-    public String getXPath() {
-        return this.xPath;
-    }
-
-    public Node getNode() {
-        return this.node;
-    }
-
-    public Double getVariability() {
-        return this.variability;
-    }
-
-    public Integer getDepth() {
-        return this.depth;
     }
 
     public Color getColor() {
@@ -107,6 +87,26 @@ public class Segment {
         }
 
         return this.color;
+    }
+
+    public Integer getDepth() {
+        return this.depth;
+    }
+
+    public Document getDocument() {
+        return this.document;
+    }
+
+    public Node getNode() {
+        return this.node;
+    }
+
+    public Double getVariability() {
+        return this.variability;
+    }
+
+    public String getXPath() {
+        return this.xPath;
     }
 
 }
