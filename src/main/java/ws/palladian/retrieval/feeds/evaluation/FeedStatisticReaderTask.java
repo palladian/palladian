@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -33,89 +34,27 @@ public class FeedStatisticReaderTask extends Thread {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedStatisticReaderTask.class);
 
-    /**
-     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
-     * strategies to a true strategy pattern.
-     */
-    private final FeedStore feedStore;
+    public static void main(String[] args) {
 
-    /** The {@link Feed} to merge. */
-    private final Feed feed;
+        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        Feed feed = new Feed();
+        feed.setSiteUrl("");
 
-    /** The position of the window size in a column in the csv, starting with 0! */
-    private static final int WINDOW_SIZE_POSIION = 5;
+        // test case with variable window size
+        // feed.setId(1001);
+        // feed.setFeedUrl("http://511virginia.org/rss/Northern/Events.ashx");
 
-    /**
-     * @param feed The {@link Feed} to merge.
-     */
-    public FeedStatisticReaderTask(FeedStore feedStore, Feed feed) {
-        this.feedStore = feedStore;
-        this.feed = feed;
+        // test case with window size 10
+        feed.setId(1);
+        feed.setFeedUrl("http://007fanart.wordpress.com/comments/feed/");
+
+        // test case with variable window size and large csv
+        feed.setId(174749);
+        feed.setFeedUrl("http://www.panoramio.com/userfeed/");
+
+        FeedStatisticReaderTask chart = new FeedStatisticReaderTask(feedStore, feed);
+        chart.run();
     }
-
-    @Override
-    public void run() {
-        try {
-            LOGGER.debug("processing feed " + feed.getId());
-            String dataPath = getRelativePathToFeed();
-            String csvFileName = getCSVFileName();
-
-            // read csv files
-            if (!FileHelper.fileExists(dataPath + csvFileName)) {
-                LOGGER.fatal("No csv base file found for feed id " + feed.getId() + ", tried to read file " + dataPath
-                        + csvFileName + ". Nothing to do for this feed.");
-                return;
-            }
-            if (!FileHelper.fileExists( dataPath + csvFileName)) {
-                LOGGER.fatal("No csv file to merge into base found for feed id " + feed.getId()
-                        + ", tried to read file " + dataPath + csvFileName
-                        + ". Nothing to do for this feed.");
-                return;
-            }
-            // get items from file
-            List<String> items = readCsv(dataPath + csvFileName);
-
-            int windowSize = 0;
-            int itemCounter = 0;
-            int missCounter = 0;
-            
-            for (int currentLineNr = 0; currentLineNr < items.size(); currentLineNr++) {
-
-                String[] currentLine = items.get(currentLineNr).split(";");
-                
-                if (currentLine[WINDOW_SIZE_POSIION].equals("MISS")) {
-                    missCounter++;
-                    continue;
-                }
-
-                itemCounter++;
-                int currentWindowSize = Integer.parseInt(currentLine[WINDOW_SIZE_POSIION]);
-                
-                if (windowSize != 0 && windowSize != currentWindowSize) {
-                    feed.setVariableWindowSize(true);
-                    break;
-                } else {
-                    windowSize = currentWindowSize;
-                }
-            }
-              
-            feed.setWindowSize(windowSize);
-            feed.setNumberOfItemsReceived(itemCounter);
-            feed.setMisses(missCounter);
-            
-            // save the feed back to the database
-            feedStore.updateFeed(feed);
-
-            LOGGER.info("Feed id: " + feed.getId() + ", window size: " + windowSize + ", items: " + itemCounter
-                    + ", misses: " + missCounter);
-
-            // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
-            // killed by the thread pool internals.
-        } catch (Throwable th) {
-            LOGGER.error(th);
-        }
-    }
-
 
     /* package */static List<String> readCsv(String csvPath) {
         // List<String> items = FileHelper.readFileToArray(csvPath);
@@ -147,6 +86,37 @@ public class FeedStatisticReaderTask extends Thread {
     }
 
     /**
+     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
+     * strategies to a true strategy pattern.
+     */
+    private final FeedStore feedStore;
+
+    /** The {@link Feed} to merge. */
+    private final Feed feed;
+
+    /** The position of the window size in a column in the csv, starting with 0! */
+    private static final int WINDOW_SIZE_POSIION = 5;
+
+    /**
+     * @param feed The {@link Feed} to merge.
+     */
+    public FeedStatisticReaderTask(FeedStore feedStore, Feed feed) {
+        this.feedStore = feedStore;
+        this.feed = feed;
+    }
+
+    /**
+     * @return The name of the csv file.
+     */
+    private String getCSVFileName() {
+        String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
+                "www.", ""), 30);
+        String fileName = feed.getId() + "_" + safeFeedName + ".csv";
+        LOGGER.debug("CSV filename: " + fileName);
+        return fileName;
+    }
+
+    /**
      * Relative path to feed data, such as "data/datasets/feedPosts/0/100/" for feed id 100.
      * 
      * @return relative path to feed data.
@@ -159,39 +129,66 @@ public class FeedStatisticReaderTask extends Thread {
         return folderPath;
     }
 
+    @Override
+    public void run() {
+        try {
+            LOGGER.debug("processing feed " + feed.getId());
+            String dataPath = getRelativePathToFeed();
+            String csvFileName = getCSVFileName();
 
-    /**
-     * @return The name of the csv file.
-     */
-    private String getCSVFileName() {
-        String safeFeedName = StringHelper.makeSafeName(
-                feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
-        String fileName = feed.getId() + "_" + safeFeedName + ".csv";
-        LOGGER.debug("CSV filename: " + fileName);
-        return fileName;
-    }
+            // read csv files
+            if (!FileHelper.fileExists(dataPath + csvFileName)) {
+                LOGGER.fatal("No csv base file found for feed id " + feed.getId() + ", tried to read file " + dataPath
+                        + csvFileName + ". Nothing to do for this feed.");
+                return;
+            }
+            if (!FileHelper.fileExists(dataPath + csvFileName)) {
+                LOGGER.fatal("No csv file to merge into base found for feed id " + feed.getId()
+                        + ", tried to read file " + dataPath + csvFileName + ". Nothing to do for this feed.");
+                return;
+            }
+            // get items from file
+            List<String> items = readCsv(dataPath + csvFileName);
 
+            int windowSize = 0;
+            int itemCounter = 0;
+            int missCounter = 0;
 
-    public static void main(String[] args) {
+            for (int currentLineNr = 0; currentLineNr < items.size(); currentLineNr++) {
 
-        FeedStore feedStore = new FeedDatabase();
-        Feed feed = new Feed();
-        feed.setSiteUrl("");
+                String[] currentLine = items.get(currentLineNr).split(";");
 
-        // test case with variable window size
-        // feed.setId(1001);
-        // feed.setFeedUrl("http://511virginia.org/rss/Northern/Events.ashx");
+                if (currentLine[WINDOW_SIZE_POSIION].equals("MISS")) {
+                    missCounter++;
+                    continue;
+                }
 
-        // test case with window size 10
-        feed.setId(1);
-        feed.setFeedUrl("http://007fanart.wordpress.com/comments/feed/");
+                itemCounter++;
+                int currentWindowSize = Integer.parseInt(currentLine[WINDOW_SIZE_POSIION]);
 
-        // test case with variable window size and large csv
-        feed.setId(174749);
-        feed.setFeedUrl("http://www.panoramio.com/userfeed/");
+                if (windowSize != 0 && windowSize != currentWindowSize) {
+                    feed.setVariableWindowSize(true);
+                    break;
+                } else {
+                    windowSize = currentWindowSize;
+                }
+            }
 
-        FeedStatisticReaderTask chart = new FeedStatisticReaderTask(feedStore, feed);
-        chart.run();
+            feed.setWindowSize(windowSize);
+            feed.setNumberOfItemsReceived(itemCounter);
+            feed.setMisses(missCounter);
+
+            // save the feed back to the database
+            feedStore.updateFeed(feed);
+
+            LOGGER.info("Feed id: " + feed.getId() + ", window size: " + windowSize + ", items: " + itemCounter
+                    + ", misses: " + missCounter);
+
+            // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
+            // killed by the thread pool internals.
+        } catch (Throwable th) {
+            LOGGER.error(th);
+        }
     }
 
 }
