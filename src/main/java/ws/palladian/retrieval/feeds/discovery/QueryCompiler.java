@@ -12,9 +12,9 @@ import ws.palladian.helper.LineAction;
 public class QueryCompiler {
 
     public static void main(String[] args) {
-        String dmozCatergoriesFile = "/Users/pk/Desktop/categories.txt";
+        String dmozCatergoriesFile = "/home/pk/Desktop/categories.txt";
         List<String> queries = readQueriesFromDmoz(dmozCatergoriesFile);
-        FileHelper.writeToFile("/Users/pk/Desktop/finalQueries.txt", queries);
+        FileHelper.writeToFile("/home/pk/Desktop/finalQueries2.txt", queries);
     }
 
     /**
@@ -35,10 +35,12 @@ public class QueryCompiler {
 
                 line = line.replace("_", " ");
 
+                // for the second iteration, we do not ignore "World" any longer
+                
                 // ignore items with "World" as a root
-                if (line.startsWith("World")) {
-                    return;
-                }
+                // if (line.startsWith("World")) {
+                // return;
+                // }
 
                 String[] split = line.split("/");
                 for (String item : split) {
@@ -71,6 +73,5 @@ public class QueryCompiler {
         return result;
 
     }
-
 
 }
