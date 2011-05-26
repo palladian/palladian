@@ -2,8 +2,8 @@ package ws.palladian.helper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -41,10 +41,10 @@ public final class ConfigHolder {
     static class SingletonHolder {
         /**
          * <p>
-         * The single instance of the Palladian configuration.
+         * The single INSTANCE of the Palladian configuration.
          * </p>
          */
-        private static ConfigHolder instance = new ConfigHolder();
+        private static final ConfigHolder INSTANCE = new ConfigHolder();
     }
 
     /** The logger for this class. */
@@ -57,8 +57,19 @@ public final class ConfigHolder {
      */
     private static final String CONFIG_NAME = "palladian.properties";
 
-    /** The path under which the Palladian configuration file must lie. */
+    /**
+     * <p>
+     * The path under which the Palladian configuration file must lie.
+     * </p>
+     */
     private static final String CONFIG_PATH = "config/" + CONFIG_NAME;
+
+    /**
+     * <p>
+     * Name of the environment variable denoting the palladian home directory.
+     * </p>
+     */
+    private static final String PALLADIAN_HOME_ENV = "PALLADIAN_HOME";
 
     /**
      * <p>
@@ -66,22 +77,25 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final String VERSION = "3";
-
+    private static final int VERSION = 3;
 
     /**
      * <p>
-     * This method realizes the singleton design pattern by providing the one single instance of the {@code
-     * ConfigHolder} class.
+     * This method realizes the singleton design pattern by providing the one single INSTANCE of the
+     * {@code ConfigHolder} class.
      * </p>
      * 
-     * @return The one instance of {@code ConfigHolder}.
+     * @return The one INSTANCE of {@code ConfigHolder}.
      */
     public static ConfigHolder getInstance() {
-        return SingletonHolder.instance;
+        return SingletonHolder.INSTANCE;
     }
 
-    /** Configs for Palladian are held in the config field. */
+    /**
+     * <p>
+     * Configs for Palladian are held in the config field.
+     * </p>
+     */
     private PropertiesConfiguration config = null;
 
     /**
@@ -92,21 +106,28 @@ public final class ConfigHolder {
     private ConfigHolder() {
         FileInputStream propertiesInput = null;
         try {
-            final List<String> configCandidates = new ArrayList<String>(3);
-            configCandidates.add(System.getenv("PALLADIAN_HOME") + File.separatorChar + CONFIG_PATH);
-            configCandidates.add(ConfigHolder.class.getResource("/" + CONFIG_NAME).getFile());
+            List<String> configCandidates = new ArrayList<String>();
+            String palladianHomeEnvironment = System.getenv(PALLADIAN_HOME_ENV);
+            if (palladianHomeEnvironment != null) {
+                configCandidates.add(palladianHomeEnvironment + File.separatorChar + CONFIG_PATH);
+            }
+            URL configResource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
+            if (configResource != null) {
+                configCandidates.add(configResource.getFile());
+            }
             configCandidates.add(CONFIG_PATH);
-
-            Iterator<String> candidateIter = configCandidates.iterator();
+            
             File configFile = null;
-            do {
-                configFile = new File(candidateIter.next());
-            } while (configFile == null && candidateIter.hasNext());
+            for (String candidate : configCandidates) {
+                configFile = new File(candidate);
+                break;
+            }
+
             if (configFile.exists()) {
                 LOGGER.info("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
             } else {
                 throw new IllegalStateException(
-                        "No Palladian configuration file availabel. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
+                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
             }
 
             final PropertiesConfiguration properties = new PropertiesConfiguration(configFile);
@@ -127,20 +148,21 @@ public final class ConfigHolder {
     }
 
     /**
+     * <p>
      * Prints a warning if the currently loaded version of the properties file is not correct.
+     * </p>
      * 
      * @param properties The properties loaded from the current 'palladian.properties' file.
      */
     private void checkPropertiesVersion(final PropertiesConfiguration properties) {
         if (properties.containsKey("config.version")) {
-            String fileVersion = properties.getString("config.version");
+            int fileVersion = properties.getInt("config.version");
             if (fileVersion != VERSION) {
                 LOGGER.warn("the palladian.properties file is outdated, it is version " + fileVersion
                         + " but the latest version is " + VERSION + ", please consider updating");
             }
         } else {
-            LOGGER
-                    .warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");
+            LOGGER.warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");
         }
     }
 
@@ -166,7 +188,7 @@ public final class ConfigHolder {
 
     /**
      * <p>
-     * Sets the configuration of this instance of the framework to a new value. Old configuration properties are
+     * Sets the configuration of this INSTANCE of the framework to a new value. Old configuration properties are
      * overwritten.
      * </p>
      * 
