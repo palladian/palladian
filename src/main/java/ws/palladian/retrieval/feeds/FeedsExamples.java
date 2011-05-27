@@ -35,8 +35,7 @@ public class FeedsExamples {
         CollectionHelper.print(feedItems);
 
         // initialize the FeedDatabase for storing the data
-        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
-        ;
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
 
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);
