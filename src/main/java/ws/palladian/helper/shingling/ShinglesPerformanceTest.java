@@ -9,8 +9,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class ShinglesPerformanceTest {
 
-    private static FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
-            FeedDatabase.class.getName());
+    private static FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class);
 
     public static void main(String[] args) {
         runTest(new ShinglesIndexJDBM(), 10000);
