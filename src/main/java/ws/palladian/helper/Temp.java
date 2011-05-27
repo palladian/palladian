@@ -76,6 +76,36 @@ public class Temp {
     // }
     // }
 
+    public static void downloadFeedTest() {
+
+        FeedDatabase feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
+        List<Feed> feeds = feedDatabase.getFeeds();
+
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+
+        Set<String> urls = new HashSet<String>();
+        for (Feed feed : feeds) {
+            urls.add(feed.getFeedUrl());
+        }
+        documentRetriever.add(urls);
+
+        documentRetriever.setMaxFails(999999999);
+        documentRetriever.setMaxThreads(200);
+
+        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+
+            @Override
+            public void onFinishRetrieval(Document document) {
+                if (document != null) {
+                    System.out.println("downloaded " + document.getDocumentURI());
+                }
+
+            }
+        };
+
+        documentRetriever.start(retrieverCallback);
+    }
+
     public static void classify() {
 
         // create a classifier mananger object
@@ -156,7 +186,7 @@ public class Temp {
 
     public static void createTrainingData() {
 
-        FeedDatabase fd = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class);
         List<Feed> feeds = fd.getFeeds();
 
         FileWriter fileWriter = null;
@@ -227,37 +257,6 @@ public class Temp {
             Logger.getRootLogger().error(e.getMessage());
         }
 
-    }
-
-    public static void downloadFeedTest() {
-
-        FeedDatabase feedDatabase = (FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                FeedDatabase.class.getName());
-        List<Feed> feeds = feedDatabase.getFeeds();
-
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-
-        Set<String> urls = new HashSet<String>();
-        for (Feed feed : feeds) {
-            urls.add(feed.getFeedUrl());
-        }
-        documentRetriever.add(urls);
-
-        documentRetriever.setMaxFails(999999999);
-        documentRetriever.setMaxThreads(200);
-
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
-
-            @Override
-            public void onFinishRetrieval(Document document) {
-                if (document != null) {
-                    System.out.println("downloaded " + document.getDocumentURI());
-                }
-
-            }
-        };
-
-        documentRetriever.start(retrieverCallback);
     }
 
     public static void imprintExtractor(String imprintURL) {
