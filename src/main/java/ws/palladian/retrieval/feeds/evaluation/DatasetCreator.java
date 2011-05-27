@@ -65,6 +65,10 @@ public class DatasetCreator {
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
 
+    public DatasetCreator() {
+        detectSystemLimitations();
+    }
+
     /**
      * Cleaning up performs the following steps:
      * <ul>
@@ -241,26 +245,6 @@ public class DatasetCreator {
         LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
     }
 
-    /**
-     * Run creation of the feed dataset from all feeds in the database if possible.
-     * 
-     * @param args Command line arguments are ignored.
-     */
-    public static void main(String[] args) {
-
-        // System.out.println(System.getProperty("os.name"));
-        //
-        // System.exit(0);
-
-        DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        // DatasetCreator.renewFileIDs();
-        // DatasetCreator.cleanUp(true);
-        // DatasetCreator.combineFeedHistories();
-        // dc.addFeedMetaInformation();
-
-    }
-
     public static void renewFileIDs() {
 
         String cleanPath = "data/temp/feedPosts/";
@@ -285,16 +269,12 @@ public class DatasetCreator {
 
     }
 
-    public DatasetCreator() {
-        detectSystemLimitations();
-    }
-
     /**
      * Start creating the dataset.
      */
     public void createDataset() {
 
-        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
@@ -542,6 +522,26 @@ public class DatasetCreator {
             LOGGER
                     .info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
         }
+    }
+
+    /**
+     * Run creation of the feed dataset from all feeds in the database if possible.
+     * 
+     * @param args Command line arguments are ignored.
+     */
+    public static void main(String[] args) {
+
+        // System.out.println(System.getProperty("os.name"));
+        //
+        // System.exit(0);
+
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
+        // DatasetCreator.renewFileIDs();
+        // DatasetCreator.cleanUp(true);
+        // DatasetCreator.combineFeedHistories();
+        // dc.addFeedMetaInformation();
+
     }
 
 }
