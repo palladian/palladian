@@ -50,101 +50,6 @@ public final class FeedReader {
     /** Maximum number of feed reading threads at the same time. */
     public static final Integer DEFAULT_THREAD_POOL_SIZE = 200;
 
-    /**
-     * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
-     * checkType=1),
-     * 
-     * @throws FeedRetrieverException
-     */
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) throws FeedRetrieverException {
-
-        FeedReader r = new FeedReader((FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                FeedDatabase.class.getName()));
-        r.setThreadPoolSize(1);
-        r.aggregate(1000 * 60 * 5, false);
-        System.exit(0);
-
-        FeedReader fchecker = new FeedReader((FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                FeedDatabase.class.getName()));
-        fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
-        fchecker.startContinuousReading();
-        System.exit(0);
-
-        FeedReader fch = new FeedReader(new CollectionFeedSource());
-        fch.setUpdateStrategy(new FixUpdateStrategy(), true);
-        Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
-        feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
-
-        FeedRetriever feedRetriever = new FeedRetriever();
-        feedRetriever.updateFeed(feed);
-        // feed.increaseChecks();
-        fch.updateCheckIntervals(feed);
-        System.exit(0);
-
-        Options options = new Options();
-
-        OptionGroup checkApproachOption = new OptionGroup();
-        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
-                "check each feed at a fixed interval").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
-                "check each feed and learn its update times").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
-                .withDescription("check each feed and adapt to its update rate").create());
-        checkApproachOption.setRequired(true);
-        options.addOptionGroup(checkApproachOption);
-        options.addOption("r", "runtime", true,
-                "The runtime of the checker in minutes or -1 if it should run until aborted.");
-        options
-                .addOption("ci", "checkInterval", true,
-                        "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
-        HelpFormatter formatter = new HelpFormatter();
-
-        CommandLineParser parser = new PosixParser();
-        CommandLine cmd = null;
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            LOGGER.debug("Command line arguments could not be parsed!");
-            formatter.printHelp("FeedReader", options);
-        }
-
-        int runtime = -1;
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        int checkInterval = -1;
-
-        if (cmd.hasOption("r")) {
-            runtime = Integer.valueOf(cmd.getOptionValue("r"));
-        } else {
-            formatter.printHelp("FeedReader", options);
-        }
-        if (cmd.hasOption("cf")) {
-            updateStrategy = new FixUpdateStrategy();
-            ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
-        } else if (cmd.hasOption("ca")) {
-            updateStrategy = new MAVUpdateStrategy();
-        } else if (cmd.hasOption("cp")) {
-            updateStrategy = new PostRateUpdateStrategy();
-        }
-        if (cmd.hasOption("ci")) {
-            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
-        }
-
-        FeedReader fc = new FeedReader((FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                FeedDatabase.class.getName()));
-        FeedProcessingAction fpa = new FeedProcessingAction() {
-
-            @Override
-            public void performAction(Feed feed) {
-                LOGGER.info("do stuff with " + feed.getFeedUrl());
-                LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
-            }
-        };
-        fc.setUpdateStrategy(updateStrategy, true);
-        fc.setFeedProcessingAction(fpa);
-        fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
-    }
-
     private Integer threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
 
     /** List of feeds that are read continuous. */
@@ -196,64 +101,6 @@ public final class FeedReader {
         }
     }
 
-    // ================================
-    // === Public interface methods ===
-    // ================================
-
-    /**
-     * Use the {@link FeedReader} for aggregating feed items.
-     * 
-     * @param downloadPages
-     */
-    public void aggregate(boolean downloadPages) {
-        aggregate(-1, downloadPages);
-    }
-
-    /**
-     * Use the {@link FeedReader} for aggregating feed items for the specified duration.
-     * 
-     * @param duration time in milliseconds, -1 for no limit.
-     * @param downloadPages
-     */
-    public void aggregate(long duration, final boolean downloadPages) {
-
-        final FeedRetriever feedRetriever = new FeedRetriever();
-        final Counter newItems = new Counter();
-
-        FeedProcessingAction processingAction = new FeedProcessingAction() {
-
-            @Override
-            public void performAction(Feed feed) {
-
-                List<FeedItem> items = feed.getItems();
-                LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
-
-                // check, which we already have and add the missing ones.
-                List<FeedItem> toAdd = new ArrayList<FeedItem>();
-                for (FeedItem item : items) {
-                    boolean add = feedStore.getFeedItemByRawId(feed.getId(), item.getRawId()) == null;
-                    if (add) {
-                        toAdd.add(item);
-                    }
-                }
-                boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
-                if (fetchPages && !toAdd.isEmpty()) {
-                    feedRetriever.scrapePages(toAdd);
-                    // downloadedPages.increment(toAdd.size());
-                }
-                for (FeedItem feedEntry : toAdd) {
-                    feedStore.addFeedItem(feed, feedEntry);
-                    newItems.increment();
-                }
-
-            }
-        };
-        setFeedProcessingAction(processingAction);
-        startContinuousReading(duration);
-
-        LOGGER.info("# of new entries : " + newItems);
-    }
-
     /**
      * Filter feeds, to read only those that have an update class as in the given set.
      * 
@@ -272,80 +119,9 @@ public final class FeedReader {
         feedCollection = filteredFeedCollection;
     }
 
-    public FeedProcessingAction getFeedProcessingAction() {
-        return feedProcessingAction;
-    }
-
-    public Collection<Feed> getFeeds() {
-        return feedCollection;
-    }
-
-    public FeedStore getFeedStore() {
-        return feedStore;
-    }
-
-    // ======================
-    // === Setter methods ===
-    // ======================
-
-    /**
-     * @return the threadPoolSize
-     */
-    public Integer getThreadPoolSize() {
-        return threadPoolSize;
-    }
-
-    // TODO add multiple feed actions
-
-    public UpdateStrategy getUpdateStrategy() {
-        return updateStrategy;
-    }
-
-    /** Get the human readable name of the chosen check approach. */
-    public String getUpdateStrategyName() {
-        return getUpdateStrategy().getName();
-    }
-
-    public boolean isStopped() {
-        return stopped;
-    }
-
-    public void setFeedProcessingAction(FeedProcessingAction feedProcessingAction) {
-        this.feedProcessingAction = feedProcessingAction;
-    }
-
-    public void setFeedStore(FeedStore feedStore) {
-        this.feedStore = feedStore;
-    }
-
-    public void setStopped(boolean stopped) {
-        this.stopped = stopped;
-    }
-
-    /**
-     * @param threadPoolSize the threadPoolSize to set
-     */
-    public void setThreadPoolSize(Integer threadPoolSize) {
-        this.threadPoolSize = threadPoolSize;
-    }
-
-    /**
-     * Set the approach for checking feeds for news. Once an approach is chosen it cannot be changed (meta information
-     * is saved in the feed store) unless you
-     * reset the learned data.
-     * 
-     * @param updateStrategy The updating strategy for the feed reader.
-     * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
-     *            retrained using the new check approach.
-     */
-    public void setUpdateStrategy(UpdateStrategy updateStrategy, boolean resetLearnedValues) {
-        this.updateStrategy = updateStrategy;
-    }
-
-    /** Start continuous reading without a time limit. */
-    public void startContinuousReading() {
-        startContinuousReading(-1);
-    }
+    // ================================
+    // === Public interface methods ===
+    // ================================
 
     /**
      * Continuously read feeds.
@@ -499,6 +275,11 @@ public final class FeedReader {
         // System.out.println("abc");
     }
 
+    /** Start continuous reading without a time limit. */
+    public void startContinuousReading() {
+        startContinuousReading(-1);
+    }
+
     /**
      * Stop all timers, no reading will be performed after stopping the reader.
      */
@@ -527,8 +308,224 @@ public final class FeedReader {
         feed.increaseChecks();
     }
 
+    /**
+     * Use the {@link FeedReader} for aggregating feed items.
+     * 
+     * @param downloadPages
+     */
+    public void aggregate(boolean downloadPages) {
+        aggregate(-1, downloadPages);
+    }
+
+    /**
+     * Use the {@link FeedReader} for aggregating feed items for the specified duration.
+     * 
+     * @param duration time in milliseconds, -1 for no limit.
+     * @param downloadPages
+     */
+    public void aggregate(long duration, final boolean downloadPages) {
+
+        final FeedRetriever feedRetriever = new FeedRetriever();
+        final Counter newItems = new Counter();
+
+        FeedProcessingAction processingAction = new FeedProcessingAction() {
+
+            @Override
+            public void performAction(Feed feed) {
+
+                List<FeedItem> items = feed.getItems();
+                LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
+
+                // check, which we already have and add the missing ones.
+                List<FeedItem> toAdd = new ArrayList<FeedItem>();
+                for (FeedItem item : items) {
+                    boolean add = feedStore.getFeedItemByRawId(feed.getId(), item.getRawId()) == null;
+                    if (add) {
+                        toAdd.add(item);
+                    }
+                }
+                boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
+                if (fetchPages && !toAdd.isEmpty()) {
+                    feedRetriever.scrapePages(toAdd);
+                    // downloadedPages.increment(toAdd.size());
+                }
+                for (FeedItem feedEntry : toAdd) {
+                    feedStore.addFeedItem(feed, feedEntry);
+                    newItems.increment();
+                }
+
+            }
+        };
+        setFeedProcessingAction(processingAction);
+        startContinuousReading(duration);
+
+        LOGGER.info("# of new entries : " + newItems);
+    }
+
+    // ======================
+    // === Setter methods ===
+    // ======================
+
+    public void setFeedProcessingAction(FeedProcessingAction feedProcessingAction) {
+        this.feedProcessingAction = feedProcessingAction;
+    }
+
+    // TODO add multiple feed actions
+
+    /**
+     * Set the approach for checking feeds for news. Once an approach is chosen it cannot be changed (meta information
+     * is saved in the feed store) unless you
+     * reset the learned data.
+     * 
+     * @param updateStrategy The updating strategy for the feed reader.
+     * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
+     *            retrained using the new check approach.
+     */
+    public void setUpdateStrategy(UpdateStrategy updateStrategy, boolean resetLearnedValues) {
+        this.updateStrategy = updateStrategy;
+    }
+
+    public UpdateStrategy getUpdateStrategy() {
+        return updateStrategy;
+    }
+
+    /** Get the human readable name of the chosen check approach. */
+    public String getUpdateStrategyName() {
+        return getUpdateStrategy().getName();
+    }
+
+    public FeedProcessingAction getFeedProcessingAction() {
+        return feedProcessingAction;
+    }
+
+    public Collection<Feed> getFeeds() {
+        return feedCollection;
+    }
+
+    public void setStopped(boolean stopped) {
+        this.stopped = stopped;
+    }
+
+    public boolean isStopped() {
+        return stopped;
+    }
+
     public boolean updateFeed(Feed feed) {
         return getFeedStore().updateFeed(feed);
+    }
+
+    /**
+     * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
+     * checkType=1),
+     * 
+     * @throws FeedRetrieverException
+     */
+    @SuppressWarnings("static-access")
+    public static void main(String[] args) throws FeedRetrieverException {
+
+        FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        r.setThreadPoolSize(1);
+        r.aggregate(1000 * 60 * 5, false);
+        System.exit(0);
+
+        FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
+        fchecker.startContinuousReading();
+        System.exit(0);
+
+        FeedReader fch = new FeedReader(new CollectionFeedSource());
+        fch.setUpdateStrategy(new FixUpdateStrategy(), true);
+        Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
+        feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
+
+        FeedRetriever feedRetriever = new FeedRetriever();
+        feedRetriever.updateFeed(feed);
+        // feed.increaseChecks();
+        fch.updateCheckIntervals(feed);
+        System.exit(0);
+
+        Options options = new Options();
+
+        OptionGroup checkApproachOption = new OptionGroup();
+        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
+                "check each feed at a fixed interval").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
+                "check each feed and learn its update times").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
+                .withDescription("check each feed and adapt to its update rate").create());
+        checkApproachOption.setRequired(true);
+        options.addOptionGroup(checkApproachOption);
+        options.addOption("r", "runtime", true,
+                "The runtime of the checker in minutes or -1 if it should run until aborted.");
+        options
+                .addOption("ci", "checkInterval", true,
+                        "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+        HelpFormatter formatter = new HelpFormatter();
+
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            LOGGER.debug("Command line arguments could not be parsed!");
+            formatter.printHelp("FeedReader", options);
+        }
+
+        int runtime = -1;
+        UpdateStrategy updateStrategy = new FixUpdateStrategy();
+        int checkInterval = -1;
+
+        if (cmd.hasOption("r")) {
+            runtime = Integer.valueOf(cmd.getOptionValue("r"));
+        } else {
+            formatter.printHelp("FeedReader", options);
+        }
+        if (cmd.hasOption("cf")) {
+            updateStrategy = new FixUpdateStrategy();
+            ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
+        } else if (cmd.hasOption("ca")) {
+            updateStrategy = new MAVUpdateStrategy();
+        } else if (cmd.hasOption("cp")) {
+            updateStrategy = new PostRateUpdateStrategy();
+        }
+        if (cmd.hasOption("ci")) {
+            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
+        }
+
+        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        FeedProcessingAction fpa = new FeedProcessingAction() {
+
+            @Override
+            public void performAction(Feed feed) {
+                LOGGER.info("do stuff with " + feed.getFeedUrl());
+                LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
+            }
+        };
+        fc.setUpdateStrategy(updateStrategy, true);
+        fc.setFeedProcessingAction(fpa);
+        fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
+    }
+
+    public void setFeedStore(FeedStore feedStore) {
+        this.feedStore = feedStore;
+    }
+
+    public FeedStore getFeedStore() {
+        return feedStore;
+    }
+
+    /**
+     * @param threadPoolSize the threadPoolSize to set
+     */
+    public void setThreadPoolSize(Integer threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
+
+    /**
+     * @return the threadPoolSize
+     */
+    public Integer getThreadPoolSize() {
+        return threadPoolSize;
     }
 
 }
