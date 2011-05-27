@@ -29,25 +29,8 @@ public final class MWConfigLoader {
     /** The instance of this class. */
     protected static MWConfigLoader instance = null;
 
-    /**
-     * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
-     * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
-     * Additional calls of have no effect.
-     * 
-     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
-     *            process these pages.
-     */
-    public static void initialize(LinkedBlockingQueue<WikiPage> pageQueue) {
-        if (instance == null) {
-            instance = new MWConfigLoader(pageQueue);
-        } else {
-            LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
-        }
-    };
-
     /** The {@link MediaWikiDatabase} which acts as persistence layer. */
-    protected final MediaWikiDatabase mwDatabase = (MediaWikiDatabase) DatabaseManagerFactory.getInstance().create(
-            MediaWikiDatabase.class.getName());
+    protected final MediaWikiDatabase mwDatabase = DatabaseManagerFactory.create(MediaWikiDatabase.class);
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -67,13 +50,18 @@ public final class MWConfigLoader {
     }
 
     /**
-     * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
+     * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
+     * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
+     * Additional calls of have no effect.
+     * 
+     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
+     *            process these pages.
      */
-    private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
-        for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
-            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
-                    + wikis.getWikiID());
-            mwCrawler.start();
+    public static void initialize(LinkedBlockingQueue<WikiPage> pageQueue) {
+        if (instance == null) {
+            instance = new MWConfigLoader(pageQueue);
+        } else {
+            LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
         }
     }
 
@@ -159,6 +147,17 @@ public final class MWConfigLoader {
         // remove all Wikis in db that are in db but not in config file
         for (WikiDescriptor wikiToDelete : wikisInDB.values()) {
             mwDatabase.removeWiki(wikiToDelete.getWikiID());
+        }
+    }
+
+    /**
+     * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
+     */
+    private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
+        for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
+            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
+                    + wikis.getWikiID());
+            mwCrawler.start();
         }
     }
 
