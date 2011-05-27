@@ -20,11 +20,11 @@ public class TroveTermCorpus extends TermCorpus {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TroveTermCorpus.class);
     
-    private TObjectIntHashMap<String> termMap;
+    private TObjectIntHashMap termMap;
 
     public TroveTermCorpus() {
         super();
-        termMap = new TObjectIntHashMap<String>();
+        termMap = new TObjectIntHashMap();
     }
     
     public TroveTermCorpus(String filePath) {
@@ -39,7 +39,14 @@ public class TroveTermCorpus extends TermCorpus {
     @Override
     public void addTermsFromDocument(Set<String> terms) {
         for (String term : terms) {
-            termMap.adjustOrPutValue(term, 1, 1);
+            //termMap.adjustOrPutValue(term, 1, 1);
+            // TODO untested workaround caused by stupid trove version problems
+        	int termValue = termMap.get(term);
+            if (termValue < 1) {
+            	termMap.put(term, 1);
+            } else {
+            	termMap.adjustValue(term, 1);
+            }
         }
         incrementNumDocs();
     }
@@ -63,13 +70,13 @@ public class TroveTermCorpus extends TermCorpus {
             outputStream = new GZIPOutputStream(new FileOutputStream(fileName));
             printWriter = new PrintWriter(outputStream);
             
-            TObjectIntIterator<String> iterator = termMap.iterator();
+            TObjectIntIterator iterator = termMap.iterator();
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
             
             while (iterator.hasNext()) {
                 iterator.advance();
-                String key = iterator.key();
+                String key = (String) iterator.key();
                 int value = iterator.value();
                 String line = key + SEPARATOR + value;
                 printWriter.println(line);

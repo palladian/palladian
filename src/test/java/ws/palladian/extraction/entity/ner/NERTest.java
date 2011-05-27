@@ -69,10 +69,10 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-        System.out.println(annotations.size());
-        System.out.println(annotations.get(0));
-        System.out.println(annotations.get(500));
-        System.out.println(annotations.get(annotations.size() - 1));
+//        System.out.println(annotations.size());
+//        System.out.println(annotations.get(0));
+//        System.out.println(annotations.get(500));
+//        System.out.println(annotations.get(annotations.size() - 1));
 
         Assert.assertEquals(2241, annotations.size());
         Assert.assertEquals(annotations.get(0).getOffset(), 21);
