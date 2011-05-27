@@ -37,14 +37,6 @@ class FeedStatisticReaderScheduler {
 
     private static final int THREAD_POOL_SIZE = 100;
 
-    public static void main(String[] args) {
-
-        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
-        FeedStatisticReaderScheduler scheduler = new FeedStatisticReaderScheduler(feedStore);
-        scheduler.run();
-
-    }
-
     /**
      * Tasks currently scheduled but not yet checked.
      */
@@ -61,19 +53,6 @@ class FeedStatisticReaderScheduler {
         threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         this.feedStore = feedStore;
         scheduledTasks = new TreeMap<Integer, Future<?>>();
-    }
-
-    /**
-     * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
-     * 
-     * @param feedId The feed to check and remove if the {@link FeedTask} is done.
-     */
-    private void removeFeedTaskIfDone(final Integer feedId) {
-        final Future<?> future = scheduledTasks.get(feedId);
-        if (future != null && future.isDone()) {
-            scheduledTasks.remove(feedId);
-            LOGGER.trace("Removed completed feed from feed task pool: " + feedId);
-        }
     }
 
     public void run() {
@@ -109,6 +88,27 @@ class FeedStatisticReaderScheduler {
         }
         LOGGER.info("All tasks done. Bye.");
         System.exit(0);
+
+    }
+
+    /**
+     * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
+     * 
+     * @param feedId The feed to check and remove if the {@link FeedTask} is done.
+     */
+    private void removeFeedTaskIfDone(final Integer feedId) {
+        final Future<?> future = scheduledTasks.get(feedId);
+        if (future != null && future.isDone()) {
+            scheduledTasks.remove(feedId);
+            LOGGER.trace("Removed completed feed from feed task pool: " + feedId);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedStatisticReaderScheduler scheduler = new FeedStatisticReaderScheduler(feedStore);
+        scheduler.run();
 
     }
 
