@@ -53,8 +53,7 @@ public class FeedStoreManager {
         StopWatch sw = new StopWatch();
         LOGGER.info("start importing feeds");
 
-        FeedImporter na = new FeedImporter((FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                FeedDatabase.class.getName()));
+        FeedImporter na = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class));
         na.setStoreItems(false);
 
         // add feeds which are not present yet
