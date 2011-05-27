@@ -190,6 +190,10 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         return output;
     }
 
+    /**
+     * Load the models for the tagger. The models in the specified folders must start with "openNLP_" and all of them will be loaded.
+     * @param configModelFilePath The path to the folder where the models lie.
+     */
     @Override
     public boolean loadModel(String configModelFilePath) {
 
