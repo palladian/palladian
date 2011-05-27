@@ -38,62 +38,6 @@ public class FeedImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedImporter.class);
 
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-
-        CommandLineParser parser = new BasicParser();
-
-        // CLI usage: FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn]
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
-                "feedUrl").create());
-        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
-                .hasArg().withArgName("file").create());
-        options.addOption(OptionBuilder.withLongOpt("classifyText").withDescription(
-                "classify the text entent of each feed").create());
-        options.addOption(OptionBuilder.withLongOpt("storeItems").withDescription(
-                "also store the items of each added feed to the database").create());
-        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
-                .withArgName("nn").withType(Number.class).create());
-
-        try {
-
-            FeedImporter importer = new FeedImporter((FeedDatabase) DatabaseManagerFactory.getInstance().create(
-                    FeedDatabase.class.getName()));
-
-            CommandLine cmd = parser.parse(options, args);
-
-            if (args.length < 1) {
-                // no arguments given, print usage help in catch clause.
-                throw new ParseException(null);
-            }
-
-            if (cmd.hasOption("classifyText")) {
-                importer.setClassifyTextExtent(true);
-            }
-            if (cmd.hasOption("storeItems")) {
-                importer.setStoreItems(true);
-            }
-            if (cmd.hasOption("threads")) {
-                importer.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
-            }
-            if (cmd.hasOption("add")) {
-                importer.addFeed(cmd.getOptionValue("add"));
-            }
-            if (cmd.hasOption("addFile")) {
-                importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
-            }
-
-            return;
-
-        } catch (ParseException e) {
-            // print usage help
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(FeedImporter.class.getName() + " [options]", options);
-        }
-
-    }
-
     /** Maximum number of simultaneous threads when adding multiple feeds at once. */
     private int numThreads = 10;
 
@@ -112,14 +56,6 @@ public class FeedImporter {
     public FeedImporter(FeedStore store) {
         this.store = store;
         feedRetriever = new FeedRetriever();
-    }
-
-    public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
-        Set<String> feedUrls = new HashSet<String>();
-        for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
-            feedUrls.add(discoveredFeed.getFeedLink());
-        }
-        return addFeeds(feedUrls);
     }
 
     /**
@@ -180,6 +116,14 @@ public class FeedImporter {
 
         LOGGER.trace("<addFeed " + added);
         return added;
+    }
+
+    public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
+        Set<String> feedUrls = new HashSet<String>();
+        for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
+            feedUrls.add(discoveredFeed.getFeedLink());
+        }
+        return addFeeds(feedUrls);
     }
 
     /**
@@ -257,13 +201,12 @@ public class FeedImporter {
     }
 
     /**
-     * Set, whether to classify the text extent of the added feeds. See {@link FeedContentClassifier} for more
-     * information.
+     * Set, whether to store the items of the added feeds.
      * 
-     * @param classifyTextExtent
+     * @param storeItems
      */
-    public void setClassifyTextExtent(boolean classifyTextExtent) {
-        this.classifyTextExtent = classifyTextExtent;
+    public void setStoreItems(boolean storeItems) {
+        this.storeItems = storeItems;
     }
 
     /**
@@ -276,12 +219,68 @@ public class FeedImporter {
     }
 
     /**
-     * Set, whether to store the items of the added feeds.
+     * Set, whether to classify the text extent of the added feeds. See {@link FeedContentClassifier} for more
+     * information.
      * 
-     * @param storeItems
+     * @param classifyTextExtent
      */
-    public void setStoreItems(boolean storeItems) {
-        this.storeItems = storeItems;
+    public void setClassifyTextExtent(boolean classifyTextExtent) {
+        this.classifyTextExtent = classifyTextExtent;
+    }
+
+    @SuppressWarnings("static-access")
+    public static void main(String[] args) {
+
+        CommandLineParser parser = new BasicParser();
+
+        // CLI usage: FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn]
+        Options options = new Options();
+        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
+                "feedUrl").create());
+        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
+                .hasArg().withArgName("file").create());
+        options.addOption(OptionBuilder.withLongOpt("classifyText").withDescription(
+                "classify the text entent of each feed").create());
+        options.addOption(OptionBuilder.withLongOpt("storeItems").withDescription(
+                "also store the items of each added feed to the database").create());
+        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
+                .withArgName("nn").withType(Number.class).create());
+
+        try {
+
+            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class));
+
+            CommandLine cmd = parser.parse(options, args);
+
+            if (args.length < 1) {
+                // no arguments given, print usage help in catch clause.
+                throw new ParseException(null);
+            }
+
+            if (cmd.hasOption("classifyText")) {
+                importer.setClassifyTextExtent(true);
+            }
+            if (cmd.hasOption("storeItems")) {
+                importer.setStoreItems(true);
+            }
+            if (cmd.hasOption("threads")) {
+                importer.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+            }
+            if (cmd.hasOption("add")) {
+                importer.addFeed(cmd.getOptionValue("add"));
+            }
+            if (cmd.hasOption("addFile")) {
+                importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
+            }
+
+            return;
+
+        } catch (ParseException e) {
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(FeedImporter.class.getName() + " [options]", options);
+        }
+
     }
 
 }
