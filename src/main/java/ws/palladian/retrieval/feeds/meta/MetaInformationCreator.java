@@ -67,7 +67,7 @@ public class MetaInformationCreator {
     }
 
     public MetaInformationCreator() {
-        feedDatabase = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
         this.feedIdentifierLowerBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
                 "SELECT MIN(id) FROM feeds");
         this.feedIdentifierUpperBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
@@ -81,12 +81,24 @@ public class MetaInformationCreator {
      * @param string2
      */
     public MetaInformationCreator(Integer feedIdentifierLowerBound, Integer feedIdentifierUpperBound) {
-        feedDatabase = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
+        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
         this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
         this.feedIdentifierLowerBound = feedIdentifierLowerBound;
         this.feedIdentifierUpperBound = feedIdentifierUpperBound;
         loadConfig();
 
+    }
+
+    /**
+     * Load thread pool size from palladian.properties
+     */
+    private void loadConfig() {
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        if (config != null) {
+            THREAD_POOL_SIZE = config.getInteger("metaInformationCreator.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
+        } else {
+            LOGGER.warn("could not load configuration, use defaults");
+        }
     }
 
     public void createMetaInformation() {
@@ -106,18 +118,6 @@ public class MetaInformationCreator {
                     throw new RuntimeException(e);
                 }
             }
-        }
-    }
-
-    /**
-     * Load thread pool size from palladian.properties
-     */
-    private void loadConfig() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        if (config != null) {
-            THREAD_POOL_SIZE = config.getInteger("metaInformationCreator.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
-        } else {
-            LOGGER.warn("could not load configuration, use defaults");
         }
     }
 }
