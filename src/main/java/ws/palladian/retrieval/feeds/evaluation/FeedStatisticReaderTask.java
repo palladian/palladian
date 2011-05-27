@@ -34,57 +34,6 @@ public class FeedStatisticReaderTask extends Thread {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedStatisticReaderTask.class);
 
-    public static void main(String[] args) {
-
-        FeedStore feedStore = (FeedDatabase) DatabaseManagerFactory.getInstance().create(FeedDatabase.class.getName());
-        Feed feed = new Feed();
-        feed.setSiteUrl("");
-
-        // test case with variable window size
-        // feed.setId(1001);
-        // feed.setFeedUrl("http://511virginia.org/rss/Northern/Events.ashx");
-
-        // test case with window size 10
-        feed.setId(1);
-        feed.setFeedUrl("http://007fanart.wordpress.com/comments/feed/");
-
-        // test case with variable window size and large csv
-        feed.setId(174749);
-        feed.setFeedUrl("http://www.panoramio.com/userfeed/");
-
-        FeedStatisticReaderTask chart = new FeedStatisticReaderTask(feedStore, feed);
-        chart.run();
-    }
-
-    /* package */static List<String> readCsv(String csvPath) {
-        // List<String> items = FileHelper.readFileToArray(csvPath);
-        // return items;
-
-        // FileHelper does not set an encoding explicitly, this causes trouble, when our test cases
-        // are run via maven. I suppose the problem has to do with a different default encoding,
-        // although everything seems to be configured correctly at first glance. We should think whether
-        // it makes sense to always explicitly set UTF-8 when reading files. -- Philipp.
-        BufferedReader reader = null;
-        List<String> result = new ArrayList<String>();
-        try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvPath), "UTF-8"));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-            }
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e);
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        } finally {
-            FileHelper.close(reader);
-        }
-        return result;
-
-    }
-
     /**
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
      * strategies to a true strategy pattern.
@@ -103,30 +52,6 @@ public class FeedStatisticReaderTask extends Thread {
     public FeedStatisticReaderTask(FeedStore feedStore, Feed feed) {
         this.feedStore = feedStore;
         this.feed = feed;
-    }
-
-    /**
-     * @return The name of the csv file.
-     */
-    private String getCSVFileName() {
-        String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
-                "www.", ""), 30);
-        String fileName = feed.getId() + "_" + safeFeedName + ".csv";
-        LOGGER.debug("CSV filename: " + fileName);
-        return fileName;
-    }
-
-    /**
-     * Relative path to feed data, such as "data/datasets/feedPosts/0/100/" for feed id 100.
-     * 
-     * @return relative path to feed data.
-     */
-    private String getRelativePathToFeed() {
-
-        int slice = (int) Math.floor(feed.getId() / 1000.0);
-        String folderPath = DatasetCreator.DATASET_PATH + slice + "/" + feed.getId() + "/";
-        LOGGER.debug("Relative Path to feed: " + folderPath);
-        return folderPath;
     }
 
     @Override
@@ -189,6 +114,81 @@ public class FeedStatisticReaderTask extends Thread {
         } catch (Throwable th) {
             LOGGER.error(th);
         }
+    }
+
+    /* package */static List<String> readCsv(String csvPath) {
+        // List<String> items = FileHelper.readFileToArray(csvPath);
+        // return items;
+
+        // FileHelper does not set an encoding explicitly, this causes trouble, when our test cases
+        // are run via maven. I suppose the problem has to do with a different default encoding,
+        // although everything seems to be configured correctly at first glance. We should think whether
+        // it makes sense to always explicitly set UTF-8 when reading files. -- Philipp.
+        BufferedReader reader = null;
+        List<String> result = new ArrayList<String>();
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvPath), "UTF-8"));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                result.add(line);
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            FileHelper.close(reader);
+        }
+        return result;
+
+    }
+
+    /**
+     * Relative path to feed data, such as "data/datasets/feedPosts/0/100/" for feed id 100.
+     * 
+     * @return relative path to feed data.
+     */
+    private String getRelativePathToFeed() {
+
+        int slice = (int) Math.floor(feed.getId() / 1000.0);
+        String folderPath = DatasetCreator.DATASET_PATH + slice + "/" + feed.getId() + "/";
+        LOGGER.debug("Relative Path to feed: " + folderPath);
+        return folderPath;
+    }
+
+    /**
+     * @return The name of the csv file.
+     */
+    private String getCSVFileName() {
+        String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
+                "www.", ""), 30);
+        String fileName = feed.getId() + "_" + safeFeedName + ".csv";
+        LOGGER.debug("CSV filename: " + fileName);
+        return fileName;
+    }
+
+    public static void main(String[] args) {
+
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        Feed feed = new Feed();
+        feed.setSiteUrl("");
+
+        // test case with variable window size
+        // feed.setId(1001);
+        // feed.setFeedUrl("http://511virginia.org/rss/Northern/Events.ashx");
+
+        // test case with window size 10
+        feed.setId(1);
+        feed.setFeedUrl("http://007fanart.wordpress.com/comments/feed/");
+
+        // test case with variable window size and large csv
+        feed.setId(174749);
+        feed.setFeedUrl("http://www.panoramio.com/userfeed/");
+
+        FeedStatisticReaderTask chart = new FeedStatisticReaderTask(feedStore, feed);
+        chart.run();
     }
 
 }
