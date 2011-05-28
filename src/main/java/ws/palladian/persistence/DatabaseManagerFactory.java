@@ -64,7 +64,7 @@ public final class DatabaseManagerFactory {
         String password = config.getString("db.password");
 
         if (driver == null || jdbcUrl == null || username == null) {
-            throw new IllegalStateException("Database properties are missing in Palladian properties.");
+            throw new IllegalStateException("Database properties are missing in the supplied PropertiesConfiguration.");
         }
         if (password == null) {
             password = "";
@@ -73,7 +73,7 @@ public final class DatabaseManagerFactory {
         return create(managerClass, driver, jdbcUrl, username, password);
     }
 
-    public <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
             String jdbcConnectionURL, String username) {
         return create(managerClass, jdbcDriverClassName, jdbcConnectionURL, username, "");
     }
