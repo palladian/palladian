@@ -223,11 +223,11 @@ public class WebSearcher {
         // query yahoo for search engine results
         try {
             searchResult = DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                    + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
-                    + Math.max(50, getResultCount()));
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
+                            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
+                            + Math.max(50, getResultCount()));
             LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
                     + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
                     + "&format=xml&count=" + Math.max(50, getResultCount()));
@@ -326,8 +326,8 @@ public class WebSearcher {
         if (getSource() == WebSearcherManager.GOOGLE) {
 
             String json = crawler
-            .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
-                    + searchQuery);
+                    .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
+                            + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
@@ -336,7 +336,7 @@ public class WebSearcher {
                         && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
                         && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").has("estimatedResultCount")) {
                     hitCount = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor")
-                    .getInt("estimatedResultCount");
+                            .getInt("estimatedResultCount");
                 }
 
             } catch (JSONException e) {
@@ -345,9 +345,8 @@ public class WebSearcher {
 
         } else if (getSource() == WebSearcherManager.BING) {
 
-            String query = "http://api.bing.net/json.aspx?AppId="
-                + WebSearcherManager.getInstance().getBingApiKey()
-                + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
+            String query = "http://api.bing.net/json.aspx?AppId=" + WebSearcherManager.getInstance().getBingApiKey()
+                    + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
             String json = crawler.download(query);
 
             try {
@@ -475,11 +474,11 @@ public class WebSearcher {
         // query yahoo for search engine results
         try {
             searchResult = DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery
-                    + "&results=" + getResultCount());
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
+                            + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
+                            + getResultCount());
             LOGGER.debug("Search Results for " + searchQuery + "\n"
                     + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
                     + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
@@ -587,9 +586,8 @@ public class WebSearcher {
             // construct fix url part for each iteration
             // for avail parameters see ->
             // http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
-            String fixUrl = endpoint + searchQuery + "?appid="
-            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&lang=" + langStr + "&region="
-            + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
+            String fixUrl = endpoint + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
+                    + "&lang=" + langStr + "&region=" + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
 
             // iterate through result responses
             for (int it = 0; it < numIterations; it++) {
@@ -617,9 +615,9 @@ public class WebSearcher {
                     String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
-                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1,
-                            resultUrl, HTMLHelper.stripHTMLTags(title, true, true, true, true),
-                            HTMLHelper.stripHTMLTags(summary, true, true, true, true));
+                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1, resultUrl,
+                            HTMLHelper.stripHTMLTags(title, true, true, true, true), HTMLHelper.stripHTMLTags(summary,
+                                    true, true, true, true));
 
                     LOGGER.debug("yahoo boss retrieved url " + resultUrl);
                     webresults.add(webresult);
@@ -713,8 +711,7 @@ public class WebSearcher {
                         String summary = jsonObject.getString("content");
                         String currentURL = jsonObject.getString("unescapedUrl");
 
-                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title,
-                                summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title, summary);
                         rank++;
 
                         LOGGER.debug("google retrieved url " + currentURL);
@@ -842,19 +839,21 @@ public class WebSearcher {
         int rank = 1;
         int urlsCollected = 0;
         int grabSize = (int) Math.ceil((double) getResultCount() / 25);
-        // System.out.println(grabSize);
         for (int i = 0; i < grabSize; i++) {
 
-            // rsz=large will respond 8 results
-            String json = c.download("http://api.bing.net/json.aspx?AppId="
-                    + WebSearcherManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
-                    + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery);
+            int offset = i * 25 + 1;
+            String urlString = "http://api.bing.net/json.aspx?AppId="
+                    + WebSearcherManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + offset
+                    + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery;
+            String json = c.download(urlString);
 
             try {
+
                 JSONObject jsonOBJ = new JSONObject(json);
                 JSONObject jsonWeb = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web");
-                if (!jsonWeb.has("Results")) {
-                    // query gave no results
+
+                int total = jsonWeb.getInt("Total");
+                if (offset > total) {
                     break;
                 }
 
@@ -889,7 +888,6 @@ public class WebSearcher {
                 }
 
             } catch (JSONException e) {
-                // LOGGER.error(e.getMessage());
                 LOGGER.error(e.getMessage() + "; response was \"" + json + "\"");
             }
 
@@ -924,9 +922,8 @@ public class WebSearcher {
         // query hakia for search engine results
         try {
 
-            String url = endpoint + WebSearcherManager.getInstance().getHakiaApiKey() + "&search.query="
-            + searchQuery
-            + "&search.language=en&search.numberofresult=" + getResultCount();
+            String url = endpoint + WebSearcherManager.getInstance().getHakiaApiKey() + "&search.query=" + searchQuery
+                    + "&search.language=en&search.numberofresult=" + getResultCount();
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
             LOGGER.debug("Search Results for " + searchQuery + ":" + url);
         } catch (SAXException e1) {
@@ -1034,7 +1031,8 @@ public class WebSearcher {
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, title, summary);
+                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, title,
+                                    summary);
                             rank++;
 
                             LOGGER.info("twitter retrieved url " + tweet.getSource());
@@ -1112,7 +1110,8 @@ public class WebSearcher {
                         String summary = currentResult.getString("content");
                         String currentURL = currentResult.getString("postUrl");
 
-                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE_BLOGS, rank, currentURL, title, summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE_BLOGS, rank, currentURL, title,
+                                summary);
                         rank++;
 
                         LOGGER.info("google blogs retrieved url " + currentURL);
@@ -1189,7 +1188,8 @@ public class WebSearcher {
                         // TODO: setSummary(summary);
                         String summary = null;
 
-                        WebResult webresult = new WebResult(WebSearcherManager.TEXTRUNNER, rank, currentURL, title, summary);
+                        WebResult webresult = new WebResult(WebSearcherManager.TEXTRUNNER, rank, currentURL, title,
+                                summary);
                         rank++;
 
                         LOGGER.info("textrunner retrieved url " + currentURL);
@@ -1234,7 +1234,7 @@ public class WebSearcher {
         WebSearcher searcher = new WebSearcher();
 
         // set maximum number of expected results
-        searcher.setResultCount(10);
+        searcher.setResultCount(1000);
 
         // set search result language to english
         searcher.setLanguage(LANGUAGE_ENGLISH);
@@ -1254,15 +1254,15 @@ public class WebSearcher {
         searcher = new WebSearcher();
         searcher.setResultCount(100);
         int[] indices = {
-                // SourceRetrieverManager.YAHOO, // 100
-                // SourceRetrieverManager.GOOGLE, // 64
-                // SourceRetrieverManager.MICROSOFT, // 0
-                // SourceRetrieverManager.HAKIA, // 20
-                // SourceRetrieverManager.YAHOO_BOSS, // 50
-                // SourceRetrieverManager.BING, // 100
-                // SourceRetrieverManager.TWITTER, // 100
-                // SourceRetrieverManager.GOOGLE_BLOGS, // 64
-                WebSearcherManager.TEXTRUNNER, // 0
+        // SourceRetrieverManager.YAHOO, // 100
+        // SourceRetrieverManager.GOOGLE, // 64
+        // SourceRetrieverManager.MICROSOFT, // 0
+        // SourceRetrieverManager.HAKIA, // 20
+        // SourceRetrieverManager.YAHOO_BOSS, // 50
+        // SourceRetrieverManager.BING, // 100
+        // SourceRetrieverManager.TWITTER, // 100
+        // SourceRetrieverManager.GOOGLE_BLOGS, // 64
+        WebSearcherManager.TEXTRUNNER, // 0
         };
 
         HashMap<Integer, String> arl = new HashMap<Integer, String>();
