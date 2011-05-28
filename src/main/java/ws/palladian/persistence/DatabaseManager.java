@@ -17,6 +17,8 @@ import ws.palladian.helper.collection.CollectionHelper;
  * all ugly SQL specific details like {@link SQLException}s and automatically closes resources for you where applicable.
  * If you need to create your own application specific persistence layer, you may create your own subclass.
  * 
+ * Instances of the DatabaseManager or its subclasses are created using the {@link DatabaseManagerFactory}.
+ * 
  * @author David Urbansky
  * @author Philipp Katz
  * @author Klemens Muthmann
@@ -132,7 +134,6 @@ public class DatabaseManager {
             for (int result : batchResult) {
                 int id = -1;
                 if (result > 0 && rs.next()) {
-                    // rs.next();
                     id = rs.getInt(1);
                 }
                 generatedIds.add(id);
