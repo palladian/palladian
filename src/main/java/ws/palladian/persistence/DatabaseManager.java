@@ -27,98 +27,6 @@ public class DatabaseManager {
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
     /**
-     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
-     * resources where applicable and swallow all {@link SQLException}s.
-     * 
-     * @param connection
-     */
-    protected static final void close(Connection connection) {
-        close(connection, null, null);
-    }
-
-    /**
-     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
-     * resources where applicable and swallow all {@link SQLException}s.
-     * 
-     * @param connection
-     * @param resultSet
-     */
-    protected static final void close(Connection connection, ResultSet resultSet) {
-        close(connection, null, resultSet);
-    }
-
-    /**
-     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
-     * resources where applicable and swallow all {@link SQLException}s.
-     * 
-     * @param connection
-     * @param statement
-     */
-    protected static final void close(Connection connection, Statement statement) {
-        close(connection, statement, null);
-    }
-
-    /**
-     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
-     * resources where applicable and swallow all {@link SQLException}s.
-     * 
-     * @param connection
-     * @param statement
-     * @param resultSet
-     */
-    protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                LOGGER.error("error closing ResultSet : " + e.getMessage());
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                LOGGER.error("error closing Statement : " + e.getMessage());
-            }
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                LOGGER.error("error closing Connection : " + e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
-     * 
-     * @param ps
-     * @param args
-     * @throws SQLException
-     */
-    protected static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
-        fillPreparedStatement(ps, args.toArray());
-    }
-
-    /**
-     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
-     * 
-     * @param ps
-     * @param args
-     * @throws SQLException
-     */
-    protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
-
-        // do we need a special treatment for NULL values here?
-        // if you should stumble across this comment while debugging,
-        // the answer is likely: yes, we do!
-        for (int i = 0; i < args.length; i++) {
-            ps.setObject(i + 1, args[i]);
-        }
-    }
-
-    /**
      * The manager handling database connections to the underlying database.
      */
     private ConnectionManager connectionManager;
@@ -144,9 +52,13 @@ public class DatabaseManager {
      * @param username The username to the given database.
      * @param password The password belonging to the username.
      */
-    public void connect(String driver, String jdbcUrl, String username, String password) {
-        connectionManager.connect(driver, jdbcUrl, username, password);
-    }
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // this is done through the DatabaseManagerFactory now, using one of the #create methods.
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    // public void connect(String driver, String jdbcUrl, String username, String password) {
+    // connectionManager.connect(driver, jdbcUrl, username, password);
+    // }
 
     /**
      * Check, whether an item for the specified query exists.
@@ -498,10 +410,6 @@ public class DatabaseManager {
         return result;
     }
 
-    // //////////////////////////////////////////////////////////////////////////////
-    // Helper methods
-    // //////////////////////////////////////////////////////////////////////////////
-
     /**
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
      * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
@@ -648,6 +556,102 @@ public class DatabaseManager {
         }
 
         return affectedRows;
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////
+    // Helper methods
+    // //////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * 
+     * @param connection
+     */
+    protected static final void close(Connection connection) {
+        close(connection, null, null);
+    }
+
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * 
+     * @param connection
+     * @param resultSet
+     */
+    protected static final void close(Connection connection, ResultSet resultSet) {
+        close(connection, null, resultSet);
+    }
+
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * 
+     * @param connection
+     * @param statement
+     */
+    protected static final void close(Connection connection, Statement statement) {
+        close(connection, statement, null);
+    }
+
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * 
+     * @param connection
+     * @param statement
+     * @param resultSet
+     */
+    protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing ResultSet : " + e.getMessage());
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing Statement : " + e.getMessage());
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing Connection : " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * 
+     * @param ps
+     * @param args
+     * @throws SQLException
+     */
+    protected static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
+        fillPreparedStatement(ps, args.toArray());
+    }
+
+    /**
+     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * 
+     * @param ps
+     * @param args
+     * @throws SQLException
+     */
+    protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
+
+        // do we need a special treatment for NULL values here?
+        // if you should stumble across this comment while debugging,
+        // the answer is likely: yes, we do!
+        for (int i = 0; i < args.length; i++) {
+            ps.setObject(i + 1, args[i]);
+        }
     }
 
 }

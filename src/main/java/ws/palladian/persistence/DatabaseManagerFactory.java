@@ -39,20 +39,7 @@ public final class DatabaseManagerFactory {
         // The configuration file can be found under
         // config/palladian.properties.
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        String driver = config.getString("db.driver");
-        String jdbcUrl = config.getString("db.jdbcUrl");
-        String username = config.getString("db.username");
-        String password = config.getString("db.password");
-
-        if (driver == null || jdbcUrl == null || username == null) {
-            throw new IllegalStateException("Database properties are missing in Palladian properties.");
-        }
-        if (password == null) {
-            password = "";
-        }
-
-        return create(managerClass, driver, jdbcUrl, username, password);
+        return create(managerClass, config);
     }
 
     /**

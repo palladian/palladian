@@ -30,7 +30,7 @@ public class ConnectionManager {
     private BoneCP connectionPool;
 
     /** The private constructor. */
-    protected ConnectionManager(final String driver, final String jdbcUrl, final String username, final String password) {
+    /* package */ ConnectionManager(final String driver, final String jdbcUrl, final String username, final String password) {
         super();
         connect(driver, jdbcUrl, username, password);
     }
@@ -44,7 +44,7 @@ public class ConnectionManager {
      * @param username The username to the given database.
      * @param password The password belonging to the username.
      */
-    public void connect(String driver, String jdbcUrl, String username, String password) {
+    private void connect(String driver, String jdbcUrl, String username, String password) {
 
         StopWatch sw = new StopWatch();
 
@@ -87,13 +87,13 @@ public class ConnectionManager {
             };
             boneConfig.setConnectionHook(connectionHook);
 
-            if (connectionPool != null) {
-                LOGGER.info("closing connection pool, total created connections: "
-                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
-                connectionPool.close();
-                LOGGER.info("connection pool closed, total created connections: "
-                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
-            }
+//            if (connectionPool != null) {
+//                LOGGER.info("closing connection pool, total created connections: "
+//                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
+//                connectionPool.close();
+//                LOGGER.info("connection pool closed, total created connections: "
+//                        + connectionPool.getTotalCreatedConnections() + ", free: " + connectionPool.getTotalFree());
+//            }
 
             connectionPool = new BoneCP(boneConfig);
 
