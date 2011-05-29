@@ -288,10 +288,15 @@ public class FeedDiscovery {
                 int totalQueries = queryQueue.size();
                 int currentQuery = 0;
                 while ((query = queryQueue.poll()) != null) {
-                    currentQuery++;
-                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
                     Set<String> foundSites = searchSites(query, numResults);
                     urlQueue.addAll(foundSites);
+                    
+                    currentQuery++;
+                    float percentage = (float) 100 * currentQuery / totalQueries;
+                    float querySpeed = (float) currentQuery / stopWatch.getElapsedTime() * DateHelper.MINUTE_MS;
+                    LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: " + foundSites.size() +
+                            "; progress: " + percentage + " %" + "; query speed: " + querySpeed + " queries/min");
+                    
                 }
                 LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
             }
@@ -323,7 +328,9 @@ public class FeedDiscovery {
                         try {
                             List<DiscoveredFeed> discoveredFeeds = discoverFeeds(url);
                             writeDiscoveredFeeds(discoveredFeeds);
-                            feedCounter.addAndGet(discoveredFeeds.size());
+                            if (discoveredFeeds != null) {
+                                feedCounter.addAndGet(discoveredFeeds.size());
+                            }
 
                             // log the current status each 1000 checked pages
                             if (pageCounter.incrementAndGet() % 1000 == 0) {
