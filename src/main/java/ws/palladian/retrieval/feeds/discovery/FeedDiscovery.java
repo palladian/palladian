@@ -92,9 +92,13 @@ public class FeedDiscovery {
     /** The numver of feeds we discovered. */
     private AtomicInteger feedCounter = new AtomicInteger();
 
-    /** The number of pages we chacked. */
+    /** The number of pages we checked. */
     private AtomicInteger pageCounter = new AtomicInteger();
+    
+    /** The number of errors, i.e. unreachable and unparsable pages. */
+    private AtomicInteger errorCounter = new AtomicInteger();
 
+    /** Track the time of the discovery process. */
     private StopWatch stopWatch;
 
     /** Number of search engine results to retrieve for each query. */
@@ -277,7 +281,7 @@ public class FeedDiscovery {
         stopWatch = new StopWatch();
 
         LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
-                + " results per query = " + numResults * queryQueue.size()
+                + " results per query = max. " + numResults * queryQueue.size()
                 + " URLs to check for feeds; number of threads = " + numThreads);
 
         // do the search
@@ -295,7 +299,7 @@ public class FeedDiscovery {
                     float percentage = (float) 100 * currentQuery / totalQueries;
                     float querySpeed = (float) currentQuery / stopWatch.getElapsedTime() * DateHelper.MINUTE_MS;
                     LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: " + foundSites.size() +
-                            "; progress: " + percentage + " %" + "; query speed: " + querySpeed + " queries/min");
+                            "; progress: " + percentage + "%" + "; query speed: " + querySpeed + " queries/min");
                     
                 }
                 LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
@@ -330,6 +334,8 @@ public class FeedDiscovery {
                             writeDiscoveredFeeds(discoveredFeeds);
                             if (discoveredFeeds != null) {
                                 feedCounter.addAndGet(discoveredFeeds.size());
+                            } else {
+                                errorCounter.incrementAndGet();
                             }
 
                             // log the current status each 1000 checked pages
@@ -339,6 +345,7 @@ public class FeedDiscovery {
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
                                 LOGGER.info("# checked pages: " + pageCounter.intValue() + 
                                         "; # discovered feeds: " + feedCounter.intValue() + 
+                                        "; # errors: " + errorCounter.intValue() +
                                         "; elapsed time: " + stopWatch.getElapsedTimeString() + 
                                         "; throughput: " + pageThroughput + " pages/min" +
                                         "; discovery speed: " + feedThroughput + " feeds/min" +
