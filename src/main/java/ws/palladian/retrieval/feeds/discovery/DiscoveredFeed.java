@@ -6,6 +6,9 @@ package ws.palladian.retrieval.feeds.discovery;
  */
 public class DiscoveredFeed {
     
+    /** The field separator when outputting CSV. */
+    private static final String CSV_SEPARATOR = "$$$";
+    
     public static enum Type {
         RSS, ATOM
     }
@@ -81,8 +84,8 @@ public class DiscoveredFeed {
      */
     public String toCsv() {
         StringBuilder sb = new StringBuilder();
-        sb.append(feedLink).append(";");
-        sb.append(feedType).append(";");
+        sb.append(feedLink).append(CSV_SEPARATOR);
+        sb.append(feedType).append(CSV_SEPARATOR);
         sb.append(pageLink);
         return sb.toString();
     }
