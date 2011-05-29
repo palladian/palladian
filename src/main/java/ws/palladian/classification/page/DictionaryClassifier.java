@@ -42,7 +42,6 @@ public class DictionaryClassifier extends TextClassifier {
     private boolean incrementalTraining = false;
 
     public DictionaryClassifier() {
-        ClassifierManager.log("DictionaryClassifier created");
         setName("DictionaryClassifier");
         dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
     }

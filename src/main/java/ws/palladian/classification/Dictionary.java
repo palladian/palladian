@@ -82,6 +82,11 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     /** Which class type (one category, hierarchical, or tags). */
     private int classType = ClassificationTypeSetting.SINGLE;
 
+    public Dictionary(String name) {
+        super();
+        this.name = name;
+    }
+    
     public Dictionary(String name, int classType) {
         super();
         this.name = name;

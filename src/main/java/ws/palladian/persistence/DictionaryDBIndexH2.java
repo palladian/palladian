@@ -346,7 +346,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private void update1(String word, CategoryEntries categoryEntries) {
 
-        word = word.toLowerCase();
+        //word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
 
@@ -387,7 +387,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private void update3(String word, CategoryEntries categoryEntries) {
 
-        word = word.toLowerCase();
+//        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             update3(word, categoryEntry);
@@ -457,7 +457,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private void write1(String word, CategoryEntries categoryEntries) {
 
-        word = word.toLowerCase();
+//        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             write1(word, categoryEntry);
@@ -488,7 +488,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     public void write3(String word, CategoryEntries categoryEntries) {
 
-        word = word.toLowerCase();
+//        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             write3(word, categoryEntry);

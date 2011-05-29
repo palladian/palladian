@@ -42,6 +42,7 @@ import ws.palladian.extraction.entity.ner.TaggingFormat;
 import ws.palladian.extraction.entity.ner.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.ner.evaluation.EvaluationResult;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.LineAction;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
@@ -99,6 +100,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     private static final long serialVersionUID = -8793232373094322955L;
 
     private Dictionary entityDictionary = null;
+
     private Map<String, Term> entityTermMap = new HashMap<String, Term>();
 
     /** The classifier to use for classifying the annotations. */
@@ -185,7 +187,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-        .setClassificationType(ClassificationTypeSetting.TAG);
+                .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -858,10 +860,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (Annotation annotation : annotations) {
 
                 if (/*
-                 * // if the annotation is at the start of a sentence
-                 * Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                 * &&
-                 */annotation.getEntity().indexOf(" ") == -1) {
+                     * // if the annotation is at the start of a sentence
+                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                     * &&
+                     */annotation.getEntity().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
@@ -957,7 +959,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             for (Annotation annotation : annotations) {
 
-                CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
+                CategoryEntries ces = entityDictionary.get(new Term(annotation.getEntity()));
                 if (ces != null && ces.size() > 0) {
                     annotation.assignCategoryEntries(ces);
                     changed++;
@@ -1531,13 +1534,93 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return trainingMode;
     }
 
+    public Dictionary getEntityDictionary() {
+        return entityDictionary;
+    }
+
+    public void setEntityDictionary(Dictionary entityDictionary) {
+        this.entityDictionary = entityDictionary;
+    }
+
+    // public void addToEntityDictionary(Dictionary entityDictionary) {
+    // for (Entry<Term, CategoryEntries> entry : entityDictionary.entrySet()) {
+    // this.entityDictionary.updateWord(entry.getKey(), entry.getValue().get(0), 1);
+    // }
+    // }
+
+    /**
+     * Create an h2 database dictionary from a dictionary file with the following format:<br>
+     * Entity;Type
+     * 
+     * @param dictionaryPath The path of the dictionary text file.
+     */
+    public void makeDictionary(String dictionaryPath) {
+
+        StopWatch stopWatch = new StopWatch();
+
+        final Dictionary dictionary = new Dictionary("entityDictionary");
+        dictionary.setCaseSensitive(true);
+        dictionary.setIndexPath("data/models/");
+
+        final int totalLines = FileHelper.getNumberOfLines(dictionaryPath);
+
+        LineAction lineAction = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                // if (lineNumber > 20000) {
+                // return;
+                // }
+
+                String[] parts = line.split(";");
+
+                if (parts.length != 2) {
+                    LOGGER.warn("line " + lineNumber + " is not well formatted");
+                    return;
+                }
+
+                String entity = parts[0];
+                String type = parts[1];
+
+                if (entity.length() > 25 || type.length() > 25) {
+                    LOGGER.warn("input too long (max. 25 characters per field): " + entity + "," + type);
+                    return;
+                }
+
+                dictionary.updateWord(new Term(entity), type, 1);
+
+                if (lineNumber % 1000 == 0) {
+                    LOGGER.info("progress: " + MathHelper.round(100 * lineNumber / (double) totalLines, 2) + "%");
+                }
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(dictionaryPath, lineAction);
+
+        FileHelper.serialize(dictionary, "dict.ser.gz");
+        dictionary.serialize("dict.ser", true, true);
+
+        dictionary.useIndex();
+
+        CategoryEntries categoryEntries2 = dictionary.get(new Term("Cape Town"));
+        System.out.println(categoryEntries2);
+
+        LOGGER.info("dictionary creation took " + stopWatch.getTotalElapsedTimeString());
+    }
+
     /**
      * @param args
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
+        LOGGER.setLevel(Level.INFO);
         PalladianNer tagger = new PalladianNer();
+        // tagger.makeDictionary("dbpediaDict.txt");
+
+        // System.exit(0);
 
         if (args.length > 0) {
 
@@ -1564,7 +1647,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -1628,12 +1711,21 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // set type of training set (complete supervised or sparse semi-supervised)
         tagger.setTrainingMode(TrainingMode.Complete);
 
+        // create a dictionary from a dictionary txt file
+        tagger.makeDictionary("dbpediaDict.txt");
+
         // train the tagger on the training file
         // tagger.train(trainingPath, modelPath);
 
         // // using a trained tagger
         // load a trained tagger
         tagger.loadModel(modelPath);
+
+        // load an additional entity dictionary
+        StopWatch sw2 = new StopWatch();
+        Dictionary dict = FileHelper.deserialize("dict.ser.gz");
+        LOGGER.info(sw2.getTotalElapsedTimeString());
+        tagger.setEntityDictionary(dict);
 
         // tag a sentence
         String inputText = "Peter J. Johnson lives in New York City in the U.S.A.";
@@ -1642,9 +1734,17 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // // evaluate a tagger
         String testPath = "data/datasets/ner/conll/test_final.txt";
-        EvaluationResult evr = tagger.evaluate(testPath, modelPath, TaggingFormat.COLUMN);
+        EvaluationResult evr = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         System.out.println(evr.getMUCResultsReadable());
         System.out.println(evr.getExactMatchResultsReadable());
+
+        // without the dictionary
+        // precision MUC: 76.19%, recall MUC: 82.25%, F1 MUC: 79.1%
+        // precision exact: 64.54%, recall exact: 69.67%, F1 exact: 67.01%
+
+        // with the dbpedia dictionary BUT the types of conll and dbpedia do not match therefore a worse result
+        // precision MUC: 57.09%, recall MUC: 62.96%, F1 MUC: 59.88%
+        // precision exact: 30.41%, recall exact: 33.54%, F1 exact: 31.9%
 
         System.exit(0);
 
@@ -1699,9 +1799,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // using a column trainig and testing file
         String trainingFilePath = "data/temp/autoGeneratedDataConll/seedsTest1.txt";
-        trainingFilePath = "data/temp/autoGeneratedDataTUD2/seedsTest1.txt";
-        trainingFilePath = "data/temp/autoGeneratedDataTUD4/seedsTest50.txt";
-        // trainingFilePath = "data/datasets/ner/conll/training_small.txt";
+        // trainingFilePath = "data/temp/autoGeneratedDataTUD2/seedsTest1.txt";
+        // trainingFilePath = "data/temp/autoGeneratedDataTUD4/seedsTest50.txt";
+        trainingFilePath = "data/datasets/ner/conll/training_small.txt";
 
         String testFilePath = "data/datasets/ner/conll/test_final.txt";
         // testFilePath = "data/datasets/ner/tud/tud2011_test.txt";
@@ -1712,45 +1812,44 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         StopWatch stopWatch = new StopWatch();
 
         // /////////////////////// evaluation purposes //////////////////////////
-        StringBuilder evaluationResults = new StringBuilder();
-        Annotations ignoreAnnotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
-        String datasetFolder = "data/temp/autoGeneratedDataTUD4/";
-        datasetFolder = "data/temp/autoGeneratedDataConll/";
-
-        // for (int i = 1; i <= 100; i += 10) {
-        for (int i = 1; i <= 5; i++) {
-
-            int j = i;
-            if (j > 1) {
-                j *= 10;
-            }
-            j = 10;
-            trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
-
-            tagger = new PalladianNer();
-            tagger.setLanguageMode(LanguageMode.English);
-            tagger.setTrainingMode(TrainingMode.Sparse);
-
-            // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
-            // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
-            tagger.train(trainingFilePath, "data/temp/tudner");
-            // tagger.train(annotations, "data/temp/tudner2.model");
-            tagger.loadModel("data/temp/tudner");
-
-            EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
-
-            evaluationResults.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationResult.MUC)).append(";");
-            evaluationResults.append(er.getF1(EvaluationResult.MUC)).append(";");
-
-            evaluationResults.append("\n");
-            FileHelper.writeToFile("resultsConll.txt", evaluationResults);
-        }
-        System.exit(0);
-
+        // StringBuilder evaluationResults = new StringBuilder();
+        // Annotations ignoreAnnotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
+        // String datasetFolder = "data/temp/autoGeneratedDataTUD4/";
+        // datasetFolder = "data/temp/autoGeneratedDataConll/";
+        //
+        // // for (int i = 1; i <= 100; i += 10) {
+        // for (int i = 1; i <= 5; i++) {
+        //
+        // int j = i;
+        // if (j > 1) {
+        // j *= 10;
+        // }
+        // j = 10;
+        // trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
+        //
+        // tagger = new PalladianNer();
+        // tagger.setLanguageMode(LanguageMode.English);
+        // tagger.setTrainingMode(TrainingMode.Sparse);
+        //
+        // // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
+        // // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
+        // tagger.train(trainingFilePath, "data/temp/tudner");
+        // // tagger.train(annotations, "data/temp/tudner2.model");
+        // tagger.loadModel("data/temp/tudner");
+        //
+        // EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
+        //
+        // evaluationResults.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
+        // evaluationResults.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
+        // evaluationResults.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
+        // evaluationResults.append(er.getPrecision(EvaluationResult.MUC)).append(";");
+        // evaluationResults.append(er.getRecall(EvaluationResult.MUC)).append(";");
+        // evaluationResults.append(er.getF1(EvaluationResult.MUC)).append(";");
+        //
+        // evaluationResults.append("\n");
+        // FileHelper.writeToFile("resultsConll.txt", evaluationResults);
+        // }
+        // System.exit(0);
         // 2-8, 4-5, 040: 0.3912314995811226;
         // 2-8, 4-5, 040, seedsText2: 0.40139470013947
         // 2-8, 4-5, 120: 0.39039374476403244;
@@ -1758,7 +1857,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // 2-8, 4-5, 040, leftContext 31 count: 0.41089385474860335
         // 2-8, 4-5, 040: seedsText50, 0.44447560291643295
         // 2-8, 4-5, 040: no seed text, 0.33059735522115824
-
         // //////////////////////////////////////////////////////////////////////
 
         // tagger.setTrainingMode(TrainingMode.Complete);
@@ -1800,5 +1898,4 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
     }
-
 }

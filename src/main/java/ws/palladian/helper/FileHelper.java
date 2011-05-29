@@ -815,7 +815,7 @@ public class FileHelper {
             out = new ObjectOutputStream(new FileOutputStream(filePath));
             out.writeObject(obj);
         } catch (IOException e) {
-            LOGGER.error("could not serialize object, " + e.getMessage());
+            LOGGER.error("could not serialize object, " + e.getMessage()+ ", " + e.getCause());
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
             System.exit(1);
