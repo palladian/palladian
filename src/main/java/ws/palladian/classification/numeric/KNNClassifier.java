@@ -42,7 +42,6 @@ public final class KNNClassifier extends NumericClassifier {
      * The constructor.
      */
     public KNNClassifier() {
-        ClassifierManager.log("KNN Classifier created");
         setName("k-NN");
     }
 

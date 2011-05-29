@@ -339,6 +339,9 @@ public abstract class NamedEntityRecognizer {
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
         return evaluate(testingFilePath, configModelFilePath, format, new Annotations());
     }
+    public EvaluationResult evaluate(String testingFilePath, TaggingFormat format) {
+        return evaluate(testingFilePath, "", format, new Annotations());
+    }
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format,
             Annotations ignoreAnnotations) {
 
