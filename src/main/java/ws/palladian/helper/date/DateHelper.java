@@ -26,6 +26,7 @@ import ws.palladian.preprocessing.normalization.DateNormalizer;
 public class DateHelper {
 
     // shortcuts to the number of milliseconds of certain time spans
+    // TODO there is java.util.concurrent.TimeUnit which provides units and conversion operations
     public static final long SECOND_MS = 1000;
     public static final long MINUTE_MS = 60 * SECOND_MS;
     public static final long HOUR_MS = 60 * MINUTE_MS;
@@ -34,16 +35,13 @@ public class DateHelper {
     public static final long MONTH_MS = 30 * DAY_MS;
     public static final long YEAR_MS = 365 * DAY_MS;
 
-
-
     public static boolean containsDate(String searchString) {
         Pattern pat = null;
         try {
             pat = Pattern.compile(RegExp.DATE_ALL);
         } catch (PatternSyntaxException e) {
             org.apache.log4j.Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp "
- + RegExp.DATE_ALL, e);
+                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.DATE_ALL, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -265,7 +263,8 @@ public class DateHelper {
         System.out.println(getCurrentDatetime());
         System.out.println(getDatetime("dd.MM.yyyy", 1274313600000l));
         /*
-         * long t1 = System.currentTimeMillis(); for (int i = 0; i < 94353; i++) { System.out.println("."); } DateHelper.getRuntime(t1,true);
+         * long t1 = System.currentTimeMillis(); for (int i = 0; i < 94353; i++) { System.out.println("."); }
+         * DateHelper.getRuntime(t1,true);
          */
     }
 

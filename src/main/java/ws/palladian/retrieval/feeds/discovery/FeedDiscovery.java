@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -30,6 +31,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
@@ -67,10 +69,13 @@ public class FeedDiscovery {
     private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
-    private DocumentRetriever documentRetriever = new DocumentRetriever();
+    
+    // DocumentRetriever is *NOT* thread safe at the moment, although the necessary changes would be minimal,
+    // so we have to instantiate the DocumentRetriever in each thread.
+    
+    // private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    // private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
     private int searchEngine = WebSearcherManager.BING;
 
     private int numThreads = DEFAULT_NUM_THREADS;
@@ -84,8 +89,13 @@ public class FeedDiscovery {
     /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
     private BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
 
-    /** Store all discovered feed's URLs. */
-    // private Set<DiscoveredFeed> feeds = new LinkedHashSet<DiscoveredFeed>();
+    /** The numver of feeds we discovered. */
+    private AtomicInteger feedCounter = new AtomicInteger();
+
+    /** The number of pages we chacked. */
+    private AtomicInteger pageCounter = new AtomicInteger();
+
+    private StopWatch stopWatch;
 
     /** Number of search engine results to retrieve for each query. */
     private int numResults = 10;
@@ -150,6 +160,7 @@ public class FeedDiscovery {
 
         try {
 
+            DocumentRetriever documentRetriever = new DocumentRetriever();
             document = documentRetriever.getWebDocument(pageUrl, false);
 
         } catch (Throwable t) {
@@ -222,17 +233,17 @@ public class FeedDiscovery {
             feedUrl = UrlHelper.makeFullURL(pageUrl, baseHref, feedUrl);
 
             // validate URL
-            
+
             // disabled for now; we can validate URLs as postprocessing step;
             // furthermore, Apache's UrlValidator seems to be oversensitive
-            
-//            UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
-//            boolean isValidUrl = urlValidator.isValid(feedUrl);
-//
-//            if (!isValidUrl) {
-//                LOGGER.warn("invalid url : " + feedUrl);
-//                continue;
-//            }
+
+            // UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
+            // boolean isValidUrl = urlValidator.isValid(feedUrl);
+            //
+            // if (!isValidUrl) {
+            // LOGGER.warn("invalid url : " + feedUrl);
+            // continue;
+            // }
 
             feed.setFeedLink(feedUrl);
             feed.setPageLink(pageUrl);
@@ -263,27 +274,26 @@ public class FeedDiscovery {
      */
     public void findFeeds() {
 
-        // StopWatch sw = new StopWatch();
+        stopWatch = new StopWatch();
+
         LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
-                + " results per query = " + numResults * queryQueue.size() + " urlQueue to check for feeds");
+                + " results per query = " + numResults * queryQueue.size()
+                + " URLs to check for feeds; number of threads = " + numThreads);
 
         // do the search
         Thread searchThread = new Thread() {
             @Override
             public void run() {
                 String query;
-                StopWatch sw = new StopWatch();
                 int totalQueries = queryQueue.size();
                 int currentQuery = 0;
                 while ((query = queryQueue.poll()) != null) {
                     currentQuery++;
-                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries
-                            + "; url queue size: " + urlQueue.size());
+                    LOGGER.info("querying for " + query + "; query " + currentQuery + " / " + totalQueries);
                     Set<String> foundSites = searchSites(query, numResults);
                     urlQueue.addAll(foundSites);
                 }
-                LOGGER.info("finished queries in " + sw.getElapsedTimeString() + " ; url queue size: "
-                        + urlQueue.size());
+                LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
             }
         };
         searchThread.start();
@@ -312,7 +322,22 @@ public class FeedDiscovery {
 
                         try {
                             List<DiscoveredFeed> discoveredFeeds = discoverFeeds(url);
-                            addDiscoveredFeeds(discoveredFeeds);
+                            writeDiscoveredFeeds(discoveredFeeds);
+                            feedCounter.addAndGet(discoveredFeeds.size());
+
+                            // log the current status each 1000 checked pages
+                            if (pageCounter.incrementAndGet() % 1000 == 0) {
+                                float elapsedMinutes = (float) stopWatch.getElapsedTime() / DateHelper.MINUTE_MS;
+                                float pageThroughput = pageCounter.get() / elapsedMinutes;
+                                float feedThroughput = feedCounter.get() / elapsedMinutes;
+                                LOGGER.info("# checked pages: " + pageCounter.intValue() + 
+                                        "; # discovered feeds: " + feedCounter.intValue() + 
+                                        "; elapsed time: " + stopWatch.getElapsedTimeString() + 
+                                        "; throughput: " + pageThroughput + " pages/min" +
+                                        "; discovery speed: " + feedThroughput + " feeds/min" +
+                                        "; url queue size: " + urlQueue.size());
+                            }
+
                         } catch (Throwable t) {
                             LOGGER.error(t);
                         }
@@ -334,13 +359,9 @@ public class FeedDiscovery {
 
     }
 
-    private synchronized void addDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
+    private synchronized void writeDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
             for (DiscoveredFeed feed : discoveredFeeds) {
-                // boolean added = feeds.add(feed);
-                // if (added && getResultFilePath() != null) {
-                // FileHelper.appendFile(getResultFilePath(), feed.getFeedLink() + "\n");
-                // }
                 String writeLine = isCsvOutput() ? feed.toCsv() : feed.getFeedLink();
                 FileHelper.appendFile(getResultFilePath(), writeLine + "\n");
             }
@@ -393,15 +414,6 @@ public class FeedDiscovery {
     public Collection<String> getQueryQueue() {
         return queryQueue;
     }
-
-    /**
-     * Returns URLs of discovered feeds.
-     * 
-     * @return
-     */
-    // public List<DiscoveredFeed> getFeeds() {
-    // return new ArrayList<DiscoveredFeed>(feeds);
-    // }
 
     /**
      * Set max number of concurrent autodiscovery requests.
@@ -564,9 +576,6 @@ public class FeedDiscovery {
             }
 
             discovery.findFeeds();
-
-            // Collection<DiscoveredFeed> discoveredFeeds = discovery.getFeeds();
-            // CollectionHelper.print(discoveredFeeds);
 
             if (cmd.hasOption("check")) {
                 List<DiscoveredFeed> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
