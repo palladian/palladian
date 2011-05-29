@@ -48,12 +48,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -401,6 +404,8 @@ public class DocumentRetriever {
         SchemeRegistry schemeRegistry = new SchemeRegistry();
         schemeRegistry.register(
                 new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
+
 
         ClientConnectionManager cm = new ThreadSafeClientConnManager(schemeRegistry);
         ((ThreadSafeClientConnManager) cm).setMaxTotal(100);
@@ -408,6 +413,7 @@ public class DocumentRetriever {
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, getConnectionTimout());
         HttpConnectionParams.setSoTimeout(httpParams, getOverallTimeout());
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         
         DefaultHttpClient defaultHttpClient = new DefaultHttpClient(cm,httpParams);
         defaultHttpClient.addRequestInterceptor(new RequestAcceptEncoding());
