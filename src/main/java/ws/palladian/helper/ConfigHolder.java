@@ -126,14 +126,16 @@ public final class ConfigHolder {
             if (configFile.exists()) {
                 LOGGER.info("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
             } else {
-                throw new IllegalStateException(
-                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
+//                throw new IllegalStateException(
+//                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
+                LOGGER.warn("No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
             }
 
             final PropertiesConfiguration properties = new PropertiesConfiguration(configFile);
             if (properties.isEmpty()) {
-                throw new IllegalStateException("Failed to parse Palladian configuration file at: "
-                        + configFile.getAbsolutePath());
+//                throw new IllegalStateException("Failed to parse Palladian configuration file at: "
+//                        + configFile.getAbsolutePath());
+                LOGGER.warn("Failed to parse Palladian configuration file at: " + configFile.getAbsolutePath());
             }
 
             checkPropertiesVersion(properties);
