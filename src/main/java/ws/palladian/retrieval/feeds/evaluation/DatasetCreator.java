@@ -117,8 +117,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "").replaceAll(
-                                "(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
+                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -336,8 +336,23 @@ public class DatasetCreator {
                         success = false;
                     }
                 }
+
                 // load only the last window from file
-                List<String> fileEntries = FileHelper.tail(filePath, feed.getWindowSize());
+                int recentWindowSize = feed.getWindowSize();
+                if (feed.hasVariableWindowSize()) {
+                    List<String> lastFileEntries = FileHelper.tail(filePath, 1);
+                    int windowSizePosition = 4;
+                    String recentWindow = lastFileEntries.get(0).split(";")[windowSizePosition];
+                    try {
+                        recentWindowSize = Integer.parseInt(recentWindow);
+                    } catch (Throwable th) {
+                        LOGGER.fatal("Could not read window size from position " + windowSizePosition
+                                + " (start with 0) in csv file for feedID " + feed.getId()
+                                + ", using current window size instead.");
+                        recentWindowSize = feed.getWindowSize();
+                    }
+                }
+                List<String> fileEntries = FileHelper.tail(filePath, recentWindowSize);
 
                 List<String> newEntries = new ArrayList<String>();
                 int newItems = 0;
@@ -400,6 +415,8 @@ public class DatasetCreator {
                 if (entryWarnings.length() > 0) {
                     FeedReader.LOGGER.warn(entryWarnings);
                 }
+
+                feed.incrementNumberOfItemsReceived(newItems);
 
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
@@ -569,8 +586,7 @@ public class DatasetCreator {
             // be carful! Windows 7 has no Limit, Win XP SP2 has a limit of concurrent connections, different
             // tools do not work, see (http://www.lvllord.de/), XP SP2 also has a limit of file handles
             // (C:\windows\system32\CONFIG.NT FILES=xx)
-            LOGGER
-                    .info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
+            LOGGER.info("It seems that you are running ths application on a non-linux machine. Make sure you have enough file descriptors :)");
         }
     }
 
