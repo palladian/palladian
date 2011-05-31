@@ -187,7 +187,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -860,10 +860,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (Annotation annotation : annotations) {
 
                 if (/*
-                     * // if the annotation is at the start of a sentence
-                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                     * &&
-                     */annotation.getEntity().indexOf(" ") == -1) {
+                 * // if the annotation is at the start of a sentence
+                 * Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                 * &&
+                 */annotation.getEntity().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
@@ -1620,7 +1620,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         PalladianNer tagger = new PalladianNer();
         // tagger.makeDictionary("dbpediaDict.txt");
 
-        // System.exit(0);
+        System.exit(0);
 
         if (args.length > 0) {
 
@@ -1647,7 +1647,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
