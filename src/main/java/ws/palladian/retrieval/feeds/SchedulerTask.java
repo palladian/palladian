@@ -104,6 +104,7 @@ class SchedulerTask extends TimerTask {
         StringBuffer scheduledFeedIDs = new StringBuffer();
         StringBuffer alreadyScheduledFeedIDs = new StringBuffer();
 
+        // schedule all feeds
         for (Feed feed : feedReader.getFeeds()) {
 
             // remove completed FeedTasks
@@ -126,6 +127,7 @@ class SchedulerTask extends TimerTask {
             }
         }
 
+        // logging
         String wakeupInterval = "first start";
         if (lastWakeUpTime != null) {
             wakeupInterval = DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime);
@@ -143,21 +145,21 @@ class SchedulerTask extends TimerTask {
 
         LOGGER.info(logMsg);
 
-        if (alreadyScheduledFeedCount > 0) {
-            if (LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
+            if (alreadyScheduledFeedCount > 0) {
                 LOGGER.debug("Could not schedule feedIDs that are already in queue: "
                         + alreadyScheduledFeedIDs.toString());
             }
         }
 
+        // error handling
         // FIXME: send email here.
         if ((lastWakeUpTime != null) && (lastWakeUpTime - currentWakeupTime > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
             LOGGER.warn("wakeup Interval was too high: " + DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime));
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
-        }
+        // reset logging
         processedCounter = 0;
         lastWakeUpTime = currentWakeupTime;
         feedResults.clear();
