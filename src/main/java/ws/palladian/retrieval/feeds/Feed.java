@@ -51,8 +51,10 @@ public class Feed {
      */
     private int numberOfItemsReceived = 0;
 
+    public static final int DEFAULT_WINDOW_SIZE = -1;
+
     /** The number of feed entries presented for each request. */
-    private int windowSize = -1;
+    private int windowSize = DEFAULT_WINDOW_SIZE;
 
     /** Set to <code>true</code> if the feed has a variable window size. */
     private boolean variableWindowSize = false;
@@ -739,7 +741,15 @@ public class Feed {
         this.document = document;
     }
 
-    public void setWindowSize(int windowSize) {
+    /**
+     * If the new windowSize is different to the previous size (except default), the variable window size flag is set.
+     * 
+     * @param windowSize
+     */
+    public void setWindowSize(int windowSize) {                
+        if (this.windowSize != DEFAULT_WINDOW_SIZE && this.windowSize != windowSize){
+            setVariableWindowSize(true);
+        }
         this.windowSize = windowSize;
     }
 
@@ -981,9 +991,19 @@ public class Feed {
     public int getNumberOfItemsReceived() {
         return numberOfItemsReceived;
     }
-    
+
+    /**
+     * Increments the {@link #numberOfItemsReceived} so far by the given value.
+     * 
+     * @param numberOfNewItems Number of new items.
+     */
+    public void incrementNumberOfItemsReceived(int numberOfNewItems) {
+        numberOfItemsReceived += numberOfNewItems;
+    }
+
     /**
      * Print feed with content in human readable form.
+     * 
      * @param includeText
      */
     public void print(boolean includeText) {
