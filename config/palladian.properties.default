@@ -1,5 +1,6 @@
-config.version = 3
+config.version = 4
 ### version history:
+### 4: added thread pool size for DocumentRetriever, changed timeouts
 ### 3: added thread pool size for MetadataCreator
 ### 2: added timeouts for DocumentRetriever
 ### 1: initial version
@@ -52,8 +53,6 @@ db.password =
 db.inMemoryMode = true 
 
 ######################## DocumentRetriever ########################
-# maximum number of threads for simultaneous downloads
-documentRetriever.maxThreads = 10
 
 #  number of request before switching to another proxy, default is -1 and means never switch
 documentRetriever.switchProxyRequests = -1
@@ -67,8 +66,10 @@ documentRetriever.numRetries = 0
 
 # timeouts in milliseconds
 documentRetriever.connectionTimeout = 10000
-documentRetriever.overallTimeout = 16000
-documentRetriever.readTimeout = 180000
+documentRetriever.socketTimeout = 180000
+
+# number of connections opened by the connection pool
+documentRetriever.numConnections = 100
 
 # list of proxies to choose from
 # see: http://proxy-list.org/en/index.php

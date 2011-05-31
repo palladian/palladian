@@ -116,6 +116,9 @@ public class DocumentRetriever {
     /** The number of threads for downloading in parallel. */
     public static final int DEFAULT_NUM_THREADS = 10;
 
+    /** The default number of connections in the connection pool. */ 
+    private static final int DEFAULT_NUM_CONNECTIONS = 100;
+
     private static ThreadSafeClientConnManager connectionManager = new ThreadSafeClientConnManager();
 
     private ContentEncodingHttpClient httpClient;
@@ -163,9 +166,9 @@ public class DocumentRetriever {
         // setup the configuration; if no config available, use default values
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         setConnectionTimeout(config.getLong("documentRetriever.connectionTimeout", DEFAULT_CONNECTION_TIMEOUT));
-        setSocketTimeout(config.getLong("documentRetriever.overallTimeout", DEFAULT_SOCKET_TIMEOUT));
+        setSocketTimeout(config.getLong("documentRetriever.socketTimeout", DEFAULT_SOCKET_TIMEOUT));
         setNumRetries(config.getInt("documentRetriever.numRetries", DEFAULT_NUM_RETRIES));
-        setNumThreads(config.getInt("documentRetriever.maxThreads", DEFAULT_NUM_THREADS));
+        setNumConnections(config.getInt("documentRetriever.numConnections", DEFAULT_NUM_CONNECTIONS));
     }
 
     // ////////////////////////////////////////////////////////////////
