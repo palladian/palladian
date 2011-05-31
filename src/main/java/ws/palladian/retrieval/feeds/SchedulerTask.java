@@ -167,7 +167,10 @@ class SchedulerTask extends TimerTask {
 
         if (errorHandling) {
             String hostname = ProcessHelper.runCommand("hostname");
-            String recipient = "sandro.reichert@tu-dresden.de, philipp.katz@tu-dresden.de, david.urbansky@tu-dresden.de, klemens.muthmann@tu-dresden.de";
+            String recipient = "sandro.reichert@tu-dresden.de"; // FIXME: multiple recipients
+                                                                // philipp.katz@tu-dresden.de,
+                                                                // david.urbansky@tu-dresden.de,
+                                                                // klemens.muthmann@tu-dresden.de";
             String subject = "FeedReader " + hostname + " notification "
                     + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
 

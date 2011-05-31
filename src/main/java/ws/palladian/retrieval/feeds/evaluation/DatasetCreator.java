@@ -341,12 +341,12 @@ public class DatasetCreator {
                 int recentWindowSize = feed.getWindowSize();
                 if (feed.hasVariableWindowSize()) {
                     List<String> lastFileEntries = FileHelper.tail(filePath, 1);
-                    int windowSizePosition = 4;
-                    String recentWindow = lastFileEntries.get(0).split(";")[windowSizePosition];
+                    int windowSizePositionInCSV = 4;
+                    String recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
                     try {
                         recentWindowSize = Integer.parseInt(recentWindow);
                     } catch (Throwable th) {
-                        LOGGER.fatal("Could not read window size from position " + windowSizePosition
+                        LOGGER.fatal("Could not read window size from position " + windowSizePositionInCSV
                                 + " (start with 0) in csv file for feedID " + feed.getId()
                                 + ", using current window size instead.");
                         recentWindowSize = feed.getWindowSize();
