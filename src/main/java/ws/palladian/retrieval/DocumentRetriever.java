@@ -296,17 +296,18 @@ public class DocumentRetriever {
 
             try {
                 url = url.replaceAll("\\s", "+");
-                // inputStream = downloadInputStream(url);
-                httpGet(url);
-                br = new BufferedReader(new InputStreamReader(inputStream));
-                String line = "";
-                do {
-                    line = br.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    buffer.append(line).append("\n");
-                } while (line != null);
+                HttpResult httpResult = httpGet(url);
+                if (httpResult.getContent() != null) {
+                    br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(httpResult.getContent())));
+                    String line = "";
+                    do {
+                        line = br.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        buffer.append(line).append("\n");
+                    } while (line != null);
+                }
 
             } catch (FileNotFoundException e) {
                 LOGGER.error(url + ", " + e.getMessage());
