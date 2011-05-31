@@ -11,6 +11,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.SendMail;
 import ws.palladian.helper.date.DateHelper;
 
 /**
@@ -154,9 +156,17 @@ class SchedulerTask extends TimerTask {
         }
 
         // error handling
-        // FIXME: send email here.
-        if ((lastWakeUpTime != null) && (lastWakeUpTime - currentWakeupTime > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
+        if ((lastWakeUpTime != null) && ((currentWakeupTime - lastWakeUpTime) > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
             LOGGER.warn("wakeup Interval was too high: " + DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime));
+
+            SendMail mailer = new SendMail();
+
+            String hostname = ProcessHelper.runCommand("hostname");
+            String recipient = "sandro.reichert@tu-dresden.de, philipp.katz@tu-dresden.de, david.urbansky@tu-dresden.de, klemens.muthmann@tu-dresden.de";
+            String subject = "FeedReader " + hostname + " notification "
+                    + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
+            String text = logMsg;
+            mailer.send("notification@palladian.ws", recipient, subject, text);
         }
 
         // reset logging

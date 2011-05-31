@@ -20,6 +20,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 /**
@@ -38,6 +39,11 @@ public class SendMail {
     private String smtpUser;
     private Authenticator authenticator;
 
+    private static final String DEFAULT_SMTP_HOST = "";
+    private static final int DEFAULT_SMTP_PORT = 25;
+    private static final String DEFAULT_SMTP_USER = "";
+    private static final String DEFAULT_SMTP_PASS = "";
+
     /**
      * Constructor specifying SMTP server and login data.
      * 
@@ -51,6 +57,25 @@ public class SendMail {
         this.smtpHost = smtpHost;
         this.smtpPort = smtpPort;
         this.smtpUser = smtpUser;
+        authenticator = new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(smtpUser, smtpPass);
+            };
+        };
+        LOGGER.info("new SendMail " + smtpHost + ";" + smtpPort + ";" + smtpUser + ";" + smtpPass);
+    }
+
+    /**
+     * Constructor that loads config from properties file
+     */
+    public SendMail() {
+        super();
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        this.smtpHost = config.getString("sendMail.smtpHost", DEFAULT_SMTP_HOST);
+        this.smtpPort = config.getInt("sendMail.smtpPort", DEFAULT_SMTP_PORT);
+        ;
+        this.smtpUser = config.getString("sendMail.smtpUser", DEFAULT_SMTP_USER);
+        final String smtpPass = config.getString("sendMail.smtpPass", DEFAULT_SMTP_PASS);
         authenticator = new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(smtpUser, smtpPass);
