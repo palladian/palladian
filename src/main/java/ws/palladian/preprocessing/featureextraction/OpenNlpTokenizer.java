@@ -59,9 +59,7 @@ public class OpenNlpTokenizer implements PipelineProcessor {
         TokenFeature tokenFeature = new TokenFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
         Span[] spans = tokenizer.tokenizePos(content);
         for (Span span : spans) {
-            Token token = new Token(document);
-            token.setStartPosition(span.getStart());
-            token.setEndPosition(span.getEnd());
+            Token token = new Token(document,span.getStart(),span.getEnd());
             tokenFeature.addToken(token);
         }
         FeatureVector featureVector = document.getFeatureVector();

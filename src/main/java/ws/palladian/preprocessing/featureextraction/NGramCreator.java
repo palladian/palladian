@@ -45,9 +45,7 @@ public class NGramCreator implements PipelineProcessor {
         List<Token> gramTokens = new ArrayList<Token>();
         Token[] tokensArray = tokens.toArray(new Token[tokens.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            Token gramToken = new Token(document);
-            gramToken.setStartPosition(tokensArray[i].getStartPosition());
-            gramToken.setEndPosition(tokensArray[i + length - 1].getEndPosition());
+            Token gramToken = new Token(document,tokensArray[i].getStartPosition(),tokensArray[i + length - 1].getEndPosition());
             gramTokens.add(gramToken);
         }
         return gramTokens;

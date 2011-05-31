@@ -11,79 +11,36 @@ import java.io.InputStream;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.InvalidFormatException;
+import opennlp.tools.util.Span;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.preprocessing.PipelineDocument;
+import ws.palladian.preprocessing.featureextraction.Token;
 
 /**
  * @author Martin Wunderwald
+ * @author Klemens Muthmann
  */
 public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -673731236797308512L;
     /**
      * Logger for this class.
      */
     protected static final Logger LOGGER = Logger.getLogger(OpenNLPSentenceDetector.class);
 
-    /** model path for opennlp sentence detection. */
-    private final transient String MODEL;
-
     /**
      * constructor for this class.
      */
-    public OpenNLPSentenceDetector() {
+    public OpenNLPSentenceDetector(String modelFilePath) {
         super();
         setName("OpenNLP Sentence Detector");
-
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.sentdetect");
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractSentenceDetector#detect(java.lang.String
-     * )
-     */
-    @Override
-    public OpenNLPSentenceDetector detect(String text) {
-        setSentences(((SentenceDetectorME) getModel()).sentDetect(text));
-        return this;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractSentenceDetector#detect(java.lang.String
-     * , java.lang.String)
-     */
-    @Override
-    public OpenNLPSentenceDetector detect(String text, String modelFilePath) {
-        loadModel(modelFilePath);
-        return detect(text);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
-     */
-    @Override
-    public OpenNLPSentenceDetector loadModel() {
-        return loadModel(MODEL);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractSentenceDetector#loadModel(java.lang
-     * .String)
-     */
-    @Override
-    public OpenNLPSentenceDetector loadModel(String modelFilePath) {
 
         SentenceModel sentenceModel = null;
         InputStream modelIn = null;
@@ -127,8 +84,20 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         }
 
         setModel(sdetector);
-
-        return this;
     }
 
+    @Override
+    public OpenNLPSentenceDetector detect(String text) {
+        Span[] sentenceBoundaries = ((SentenceDetectorME) getModel()).sentPosDetect(text);
+        Token[] sentenceAnnotations = new Token[sentenceBoundaries.length];
+        PipelineDocument document = new PipelineDocument(text);
+        for(int i=0;i<sentenceBoundaries.length;i++) {
+            sentenceAnnotations[i] = new Token(
+                    document,
+                    sentenceBoundaries[i].getStart(),
+                    sentenceBoundaries[i].getEnd());
+        }
+        setSentences(sentenceAnnotations);
+        return this;
+    }
 }

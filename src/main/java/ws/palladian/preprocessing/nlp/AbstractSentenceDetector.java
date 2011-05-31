@@ -4,8 +4,15 @@
 package ws.palladian.preprocessing.nlp;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureVector;
+import ws.palladian.preprocessing.PipelineDocument;
+import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.featureextraction.Token;
 
 /**
  * Abstract base class for all sentence detectors. Subclasses of this class provide an implementation to split texts
@@ -30,22 +37,29 @@ import org.apache.log4j.Logger;
  * @author Martin Wunderwald
  * @author Klemens Muthmann
  */
-public abstract class AbstractSentenceDetector {
+public abstract class AbstractSentenceDetector implements PipelineProcessor {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8764960870080954781L;
 
     /** the logger for this class */
     protected static final Logger LOGGER = Logger.getLogger(AbstractSentenceDetector.class);
 
     /** base model path */
     protected static final String MODEL_PATH = "data/models/";
+    
+    public final static String FEATURE_IDENTIFIER ="ws.palladian.features.sentence";
 
     /** holds the model. **/
     protected Object model;
 
     /** holds the name of the chunker. **/
-    protected String name;
+    private String name;
 
     /** holds the sentences. **/
-    protected String[] sentences;
+    protected Token[] sentences;
 
     /**
      * chunks a sentence and writes parts in @see {@link #chunks} and @see {@link #tokens}. Method returns
@@ -57,28 +71,14 @@ public abstract class AbstractSentenceDetector {
      */
     public abstract AbstractSentenceDetector detect(String text);
 
-    /**
-     * Chunks a sentence with given model file path.
-     * Method returns <code>this</code> instance of AbstractSentenceDetector, to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
-     * @param text The text to chunk into sentences.
-     * @param modelFilePath The model file path pointing to the model containing information on how to chunk a text into
-     */
-    public abstract AbstractSentenceDetector detect(String text, String modelFilePath);
-
-    /**
-     * @return
-     */
-    public final Object getModel() {
+    protected final Object getModel() {
         return model;
     }
 
     /**
      * @return
      */
-    public final String getName() {
+    protected final String getName() {
         return name;
     }
 
@@ -88,42 +88,23 @@ public abstract class AbstractSentenceDetector {
      * 
      * @return the extracted sentences.
      */
-    public final String[] getSentences() {
+    public final Token[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
     }
-
-    /**
-     * Loads a default chunker model into the chunker. This method returns <code>this</code> instance of
-     * AbstractSentenceDetector, to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
-     * @return The current sentence detector instance to allow for chaining of methods.
-     */
-    public abstract AbstractSentenceDetector loadModel();
-
-    /**
-     * loads the chunker model into the chunker. Method returns <code>this</code> instance of AbstractSentenceDetector,
-     * to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
-     * @param modelFilePath
-     * @return
-     */
-    public abstract AbstractSentenceDetector loadModel(String modelFilePath);
-
+    
     /**
      * @param model
      */
-    public final void setModel(Object model) {
+    protected final void setModel(Object model) {
         this.model = model;
     }
 
     /**
-     * @param name
+     * Sets the name of this sentence detector. //TODO why does a sentence detector require a name.
+     * 
+     * @param name The new name of this detector.
      */
-    public final void setName(String name) {
+    protected final void setName(String name) {
         this.name = name;
     }
 
@@ -131,8 +112,17 @@ public abstract class AbstractSentenceDetector {
      * @param sentences
      *            the sentences to set
      */
-    public final void setSentences(String[] sentences) {
+    protected final void setSentences(Token[] sentences) {
         this.sentences = Arrays.copyOf(sentences, sentences.length);
+    }
+    
+    public void process(PipelineDocument document) {
+        detect(document.getOriginalContent());
+        Token[] sentences = getSentences();
+        List<Token> sentencesList = Arrays.asList(sentences);
+        Feature<List<Token>> sentencesFeature = new Feature<List<Token>>(FEATURE_IDENTIFIER, sentencesList);
+        FeatureVector featureVector = document.getFeatureVector();
+        featureVector.add(sentencesFeature);
     }
 
 }

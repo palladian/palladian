@@ -6,7 +6,7 @@ import ws.palladian.preprocessing.PipelineDocument;
 /**
  * 
  * @author Philipp Katz
- * 
+ * @author Klemens Muthmann
  */
 public class Token {
 
@@ -15,9 +15,11 @@ public class Token {
     private FeatureVector featureVector;
     private PipelineDocument document;
 
-    public Token(PipelineDocument document) {
+    public Token(PipelineDocument document, int startPosition, int endPosition) {
         featureVector = new FeatureVector();
         this.document = document;
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
     }
 
     /**
@@ -28,24 +30,10 @@ public class Token {
     }
 
     /**
-     * @param startPosition the startPosition to set
-     */
-    public void setStartPosition(int startPosition) {
-        this.startPosition = startPosition;
-    }
-
-    /**
      * @return the endPosition
      */
     public int getEndPosition() {
         return endPosition;
-    }
-
-    /**
-     * @param endPosition the endPosition to set
-     */
-    public void setEndPosition(int endPosition) {
-        this.endPosition = endPosition;
     }
 
     public String getValue() {
@@ -86,12 +74,20 @@ public class Token {
         return featureVector;
     }
 
-    public void setDocument(PipelineDocument document) {
-        this.document = document;
-    }
-
     public PipelineDocument getDocument() {
         return document;
+    }
+    
+    protected void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
+    }
+    
+    protected void setEndPosition(int endPosition) {
+        this.endPosition = endPosition;
+    }
+    
+    void setDocument(PipelineDocument document) {
+        this.document = document;
     }
 
 }
