@@ -981,5 +981,43 @@ public class Feed {
     public int getNumberOfItemsReceived() {
         return numberOfItemsReceived;
     }
+    
+    /**
+     * Print feed with content in human readable form.
+     * @param includeText
+     */
+    public void print(boolean includeText) {
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(getTitle()).append("\n");
+        builder.append("feedUrl : ").append(getFeedUrl()).append("\n");
+        builder.append("siteUrl : ").append(getSiteUrl()).append("\n");
+        builder.append("-----------------------------------").append("\n");
+        List<FeedItem> items = getItems();
+        if (items != null) {
+            for (FeedItem item : items) {
+                builder.append(item.getTitle()).append("\t");
+                if (includeText) {
+                    builder.append(item.getItemDescription()).append("\t");
+                    builder.append(item.getItemText()).append("\t");
+                }
+                builder.append(item.getLink()).append("\t");
+                builder.append(item.getPublished()).append("\t");
+                builder.append(item.getAuthors()).append("\n");
+            }
+            builder.append("-----------------------------------").append("\n");
+            builder.append("# entries: ").append(items.size());
+        }
+
+        System.out.println(builder.toString());
+    }
+    
+    /**
+     * Print feed with content in human readable form.
+     */
+    public void print(Feed feed) {
+        print(false);
+    }
 
 }

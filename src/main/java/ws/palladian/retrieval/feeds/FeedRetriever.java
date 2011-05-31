@@ -35,11 +35,12 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
+ * <p>
  * The FeedRetriever is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for
- * downloading
- * the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for parsing
- * problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items, to fetch
- * additional content.
+ * downloading the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for
+ * parsing problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items,
+ * to fetch additional content.
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -591,42 +592,6 @@ public class FeedRetriever {
             result = dirty;
         }
         return result;
-    }
-
-    /**
-     * Print feed with content in human readable form.
-     * 
-     * @param feed
-     */
-    public static void printFeed(Feed feed, boolean includeText) {
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(feed.getTitle()).append("\n");
-        sb.append("feedUrl : ").append(feed.getFeedUrl()).append("\n");
-        sb.append("siteUrl : ").append(feed.getSiteUrl()).append("\n");
-        sb.append("-----------------------------------").append("\n");
-        List<FeedItem> items = feed.getItems();
-        if (items != null) {
-            for (FeedItem item : items) {
-                sb.append(item.getTitle()).append("\t");
-                if (includeText) {
-                    sb.append(item.getItemDescription()).append("\t");
-                    sb.append(item.getItemText()).append("\t");
-                }
-                sb.append(item.getLink()).append("\t");
-                sb.append(item.getPublished()).append("\t");
-                sb.append(item.getAuthors()).append("\n");
-            }
-            sb.append("-----------------------------------").append("\n");
-            sb.append("# entries: ").append(items.size());
-        }
-
-        System.out.println(sb.toString());
-    }
-
-    public static void printFeed(Feed feed) {
-        printFeed(feed, false);
     }
 
     public static void main(String[] args) throws Exception {
