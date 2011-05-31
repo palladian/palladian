@@ -746,6 +746,11 @@ public class DocumentRetriever {
         sessionDownloadedBytes = 0;
         numberOfDownloadedPages = 0;
     }
+    
+    public static void resetSessionDownloadSizes() {
+        sessionDownloadedBytes = 0;
+        numberOfDownloadedPages = 0;
+    }
 
     // ////////////////////////////////////////////////////////////////
     // Configuration options
