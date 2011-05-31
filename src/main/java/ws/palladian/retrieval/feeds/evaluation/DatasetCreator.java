@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -420,8 +422,9 @@ public class DatasetCreator {
                     }
 
                     DocumentRetriever documentRetriever = new DocumentRetriever();
-                    boolean gzWritten = documentRetriever.downloadAndSave(feed.getFeedUrl(), folderPath + pollTimestamp
-                            + ".gz", true);
+                    String gzPath = folderPath + pollTimestamp + "_"
+                            + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + ".gz";
+                    boolean gzWritten = documentRetriever.downloadAndSave(feed.getFeedUrl(), gzPath, true);
 
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
                     // FileHelper.prependFile(filePath, newEntries.toString());
