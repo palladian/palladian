@@ -272,7 +272,7 @@ public class PageSegmenter {
         // ////////////////////////////////////////////////////////////////////////
         // fix some problems with closing tags and saves it to storeLocation+"_test.html"
         DocumentRetriever c2 = new DocumentRetriever();
-        String webpage = c2.download(storeLocation);
+        String webpage = c2.getTextDocument(storeLocation);
         String newStoreLocation = storeLocation.substring(0, storeLocation.length() - 5) + "_test.html";
 
         String[] tagsToFix = { "SCRIPT", "IFRAME", "TEXTAREA" };
@@ -510,7 +510,6 @@ public class PageSegmenter {
             int limit) throws MalformedURLException, IOException {
         Map<Document, Double> result = new LinkedHashMap<Document, Double>();
 
-        DocumentRetriever c = new DocumentRetriever();
         Document d = document;
 
         // Start of collect URLs (step 1) ////////////////////////////////////////////////////////
@@ -518,6 +517,7 @@ public class PageSegmenter {
         DocumentRetriever urlDownloader = new DocumentRetriever();
 
         Set<String> links = new HashSet<String>();
+        Set<String> toDownload = new HashSet<String>();
         links.addAll(PageAnalyzer.getLinks(d, true, false, ""));
         LOGGER.info("Anzahl Links: " + links.size());
 
@@ -525,7 +525,7 @@ public class PageSegmenter {
         for (String newURL : links) {
             int mod = links.size() / 10;
             if (zaehler % mod == 0) {
-                urlDownloader.add(newURL);
+                toDownload.add(newURL);
                 LOGGER.info("added1: " + newURL);
             }
             zaehler++;
@@ -535,7 +535,7 @@ public class PageSegmenter {
         String newURL2 = document.getDocumentURI();
         Boolean moreSlashs2 = true;
         while (moreSlashs2) {
-            urlDownloader.add(newURL2);
+            toDownload.add(newURL2);
             LOGGER.info("added2: " + newURL2);
             int lastSlash = newURL2.lastIndexOf("/");
             if (!newURL2.substring(lastSlash - 1, lastSlash).equals("/")) {
@@ -545,7 +545,7 @@ public class PageSegmenter {
             }
         }
 
-        Set<Document> documents = urlDownloader.start();
+        Set<Document> documents = urlDownloader.getWebDocuments(toDownload);
 
         for (Document doc : documents) {
             te3.addAll(PageAnalyzer.getLinks(doc, true, false, ""));
@@ -597,11 +597,12 @@ public class PageSegmenter {
         while (it.hasNext()) {
 
             int count = 0;
+            Set<String> toDownload2 = new HashSet<String>();
             while (it.hasNext() && count < 10) {
-                urlDownloader2.add(it.next());
+                toDownload.add(it.next());
                 count++;
             }
-            Set<Document> currentDocuments = urlDownloader2.start();
+            Set<Document> currentDocuments = urlDownloader2.getWebDocuments(toDownload2);
 
             for (Document currentDocument : currentDocuments) {
 

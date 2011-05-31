@@ -34,6 +34,7 @@ import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
+import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
@@ -111,7 +112,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
 
         LOGGER.info("created " + seedFiles.length + " datasets in " + stopWatch.getElapsedTimeString()
-                + ", total traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + "MB");
+                + ", total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
@@ -148,7 +149,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         meta.append("Start Date of Creation: ")
         .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
-        meta.append("Total Generated Traffic: ").append(DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES))
+        meta.append("Total Generated Traffic: ").append(DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES))
         .append("MB\n");
         meta.append("Search Engine used: ").append(WebSearcherManager.getName(getSourceAPI())).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
@@ -274,7 +275,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StopWatch stopWatch = new StopWatch();
 
         DocumentRetriever urlDownloader = new DocumentRetriever();
-        urlDownloader.setUseCompression(true);
         urlDownloader.setDownloadFilter(downloadFilter);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
@@ -305,9 +305,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
             .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity, seedFileName);
-            urlDownloader.add(urls);
 
-            Set<Document> documents = urlDownloader.start();
+            Set<Document> documents = urlDownloader.getWebDocuments(urls);
             LOGGER.info("downloaded " + urls.size() + " URLs for " + seedEntity + " (" + seedFileName + ")");
 
             ec++;

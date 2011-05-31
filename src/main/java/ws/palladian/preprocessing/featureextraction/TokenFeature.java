@@ -42,5 +42,15 @@ public class TokenFeature extends Feature<List<Token>> {
         }
         return sb.toString();
     }
+    
+    public List<Token> getTokens(int startPosition, int endPosition) {
+        List<Token> result = new ArrayList<Token>();
+        for (Token current : getValue()) {
+            if (current.getStartPosition() >= startPosition && current.getEndPosition() <= endPosition) {
+                result.add(current);
+            }
+        }
+        return result;
+    }
 
 }

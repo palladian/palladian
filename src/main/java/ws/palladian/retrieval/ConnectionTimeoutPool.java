@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
  * because Sun's {@link HttpURLConnection} implementation does not offer general timeouts for the case, that a server
  * starts sending data, but stops without sending an end signal.
  * 
+ * @deprecated to be removed.
+ * 
  * For further information concerning this issue, see the attached links.
  * 
  * @see <a href="http://www.twmacinta.com/myjava/ucon_timeout.php">Sun's URLConnection Cannot Be Reliably Timed Out</a>
@@ -25,6 +27,7 @@ import org.apache.log4j.Logger;
  * @author Philipp Katz
  * 
  */
+@Deprecated
 public class ConnectionTimeoutPool implements Runnable {
 
     /** The logger for this class. */

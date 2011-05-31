@@ -1,9 +1,7 @@
 package ws.palladian.retrieval;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -332,14 +330,14 @@ public class Crawler {
 
         // the crawler should automatically use different proxies after every
         // 3rd request (default is no proxy switching)
-        crawler.getDocumentRetriever().setSwitchProxyRequests(3);
-
-        // set a list of proxies to choose from
-        List<String> proxyList = new ArrayList<String>();
-        proxyList.add("83.244.106.73:8080");
-        proxyList.add("83.244.106.73:80");
-        proxyList.add("67.159.31.22:8080");
-        crawler.getDocumentRetriever().setProxyList(proxyList);
+//        crawler.getDocumentRetriever().setSwitchProxyRequests(3);
+//
+//        // set a list of proxies to choose from
+//        List<String> proxyList = new ArrayList<String>();
+//        proxyList.add("83.244.106.73:8080");
+//        proxyList.add("83.244.106.73:80");
+//        proxyList.add("67.159.31.22:8080");
+//        crawler.getDocumentRetriever().setProxyList(proxyList);
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links

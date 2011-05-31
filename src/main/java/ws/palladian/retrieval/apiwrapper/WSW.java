@@ -99,9 +99,7 @@ public class WSW {
         String url = createQueryURL(webServiceID, parameterBindings);
 
         DocumentRetriever c = new DocumentRetriever();
-        String json = c.download(url);
-
-        JSONObject jsonOBJ = new JSONObject(json);
+        JSONObject jsonOBJ = c.getJSONDocument(url);
 
         HashSet<ParameterBinding> outputParameterBindings = new HashSet<ParameterBinding>();
 

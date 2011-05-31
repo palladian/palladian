@@ -3,8 +3,10 @@ package ws.palladian.retrieval.feeds;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -20,8 +22,8 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.HeaderInformation;
 import ws.palladian.retrieval.RetrieverCallback;
+import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.rome.RawDateModule;
 
 import com.sun.syndication.feed.rss.Guid;
@@ -51,16 +53,7 @@ public class FeedRetriever {
     private static final Logger LOGGER = Logger.getLogger(FeedRetriever.class);
 
     /** Used for all downloading purposes. */
-    private DocumentRetriever crawler = new DocumentRetriever();
-
-    /**
-     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
-     * documents.
-     * If enabled, we use the last poll time and the last ETag of the feed as HTTP headers when requesting the URL. This
-     * way we can save bandwidth for feeds that support the HTTP 304 "Not modified" status code (about 83% of all feeds
-     * do support either ETag or LastModifiedSince).
-     */
-    private boolean useBandwidthSavingHTTPHeaders = false;
+    private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
@@ -79,7 +72,7 @@ public class FeedRetriever {
         // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
         // think this over?
-        crawler.getDownloadFilter().setMaxFileSize(5 * DocumentRetriever.SizeUnit.MEGABYTES.getBytes());
+        documentRetriever.getDownloadFilter().setMaxFileSize(SizeUnit.MEGABYTES.toBytes(5));
     }
 
     // ///////////////////////////////////////////////////
@@ -94,32 +87,7 @@ public class FeedRetriever {
      * @throws FeedRetrieverException
      */
     public Feed getFeed(String feedUrl) throws FeedRetrieverException {
-        return getFeed(feedUrl, false, null);
-    }
-
-    /**
-     * Download a feed from the specified URL.
-     * 
-     * @param feedUrl the URL to the RSS or Atom feed.
-     * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
-     *            {@link FeedItem}.
-     * @return
-     * @throws FeedRetrieverException
-     */
-    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedRetrieverException {
-        return getFeed(feedUrl, scrapePages, null);
-    }
-
-    /**
-     * Download a feed from the specified URL.
-     * 
-     * @param feedUrl the URL to the RSS or Atom feed.
-     * @param headerInformation header information containing ETag/lastModifiedSince data
-     * @return
-     * @throws FeedRetrieverException
-     */
-    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedRetrieverException {
-        return getFeed(feedUrl, false, headerInformation);
+        return getFeed(feedUrl, false);
     }
 
     /**
@@ -128,16 +96,14 @@ public class FeedRetriever {
      * @param feedUrl the URL to the RSS or Atom feed.
      * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
      *            {@link FeedItem}.
-     * @param headerInformation header information containing ETag/lastModifiedSince data.
      * @return
      * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
-            throws FeedRetrieverException {
+    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedRetrieverException {
 
         StopWatch sw = new StopWatch();
 
-        Document feedDocument = downloadFeedDocument(feedUrl, headerInformation);
+        Document feedDocument = downloadFeedDocument(feedUrl);
         Feed feed = getFeed(feedDocument);
 
         if (scrapePages) {
@@ -184,9 +150,10 @@ public class FeedRetriever {
         LOGGER.debug("downloading " + feedItems.size() + " pages");
 
         DocumentRetriever downloader = new DocumentRetriever();
-        downloader.setMaxThreads(5);
+        downloader.setNumThreads(5);
 
         final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
+        final Set<String> urls = new HashSet<String>();
 
         for (FeedItem feedEntry : feedItems) {
             String entryLink = feedEntry.getLink();
@@ -202,7 +169,7 @@ public class FeedRetriever {
             if (ignore) {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
-                downloader.add(feedEntry.getLink());
+                urls.add(feedEntry.getLink());
                 entries.put(feedEntry.getLink(), feedEntry);
             }
         }
@@ -222,33 +189,13 @@ public class FeedRetriever {
             }
         };
 
-        downloader.start(retrieverCallback);
+        downloader.getWebDocuments(urls, retrieverCallback);
         LOGGER.debug("finished downloading");
     }
 
     // ///////////////////////////////////////////////////
     // Settings
     // ///////////////////////////////////////////////////
-
-    /**
-     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
-     * documents.
-     * 
-     * @param useBandwidthSavingHTTPHeaders
-     */
-    public void setUseBandwidthSavingHTTPHeaders(boolean useBandwidthSavingHTTPHeaders) {
-        this.useBandwidthSavingHTTPHeaders = useBandwidthSavingHTTPHeaders;
-    }
-
-    /**
-     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
-     * documents.
-     * 
-     * @return
-     */
-    public boolean isUseBandwidthSavingHTTPHeaders() {
-        return useBandwidthSavingHTTPHeaders;
-    }
 
     public void setUseDateRecognition(boolean useDateRecognition) {
         this.useDateRecognition = useDateRecognition;
@@ -581,25 +528,15 @@ public class FeedRetriever {
      * Download a feed document from the web.
      * 
      * @param feedUrl
-     * @param headerInformation
      * @return
      * @throws FeedRetrieverException
      */
-    private Document downloadFeedDocument(String feedUrl, HeaderInformation headerInformation)
-            throws FeedRetrieverException {
+    private Document downloadFeedDocument(String feedUrl) throws FeedRetrieverException {
 
-        Document feedDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
+        Document feedDocument = documentRetriever.getXMLDocument(feedUrl);
         if (feedDocument == null) {
             throw new FeedRetrieverException("could not get document from " + feedUrl);
-            // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-            // // TODO
-            // } else {
-            // // TODO return cached document here (from disk or database)
-            // LOGGER.debug("the feed was not modified: " + feedUrl);
-            // return null;
-            // }
         }
-
         return feedDocument;
     }
 

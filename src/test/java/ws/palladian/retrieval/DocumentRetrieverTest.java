@@ -1,6 +1,9 @@
 package ws.palladian.retrieval;
 
 import junit.framework.TestCase;
+
+import org.w3c.dom.Document;
+
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.html.XPathHelper;
 
@@ -19,13 +22,13 @@ public class DocumentRetrieverTest extends TestCase {
 
     public void testLinkHandling() {
         DocumentRetriever documentRetriever = new DocumentRetriever();
-        documentRetriever.setDocument(DocumentRetrieverTest.class.getResource("/pageContentExtractor/test9.html").getFile());
-        assertEquals("http://www.example.com/test.html",
-                PageAnalyzer.getLinks(documentRetriever.getDocument(), true, true).iterator().next());
+        Document doc = documentRetriever.getWebDocument(DocumentRetrieverTest.class.getResource(
+                "/pageContentExtractor/test9.html").getFile());
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
 
-        documentRetriever.setDocument(DocumentRetrieverTest.class.getResource("/pageContentExtractor/test10.html").getFile());
-        assertEquals("http://www.example.com/test.html",
-                PageAnalyzer.getLinks(documentRetriever.getDocument(), true, true).iterator().next());
+        doc = documentRetriever.getWebDocument(DocumentRetrieverTest.class.getResource(
+                "/pageContentExtractor/test10.html").getFile());
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
     }
 
     public void testNekoBugs() {
@@ -49,23 +52,23 @@ public class DocumentRetrieverTest extends TestCase {
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
-                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource("/webPages/NekoTableTestcase1.html")
-                                .getFile()), "//TABLE/TR[1]/TD").size());
+                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
+                                "/webPages/NekoTableTestcase1.html").getFile()), "//TABLE/TR[1]/TD").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
-                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource("/webPages/NekoTableTestcase2.html")
-                                .getFile()), "//TABLE/TBODY/TR[1]/TD").size());
+                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
+                                "/webPages/NekoTableTestcase2.html").getFile()), "//TABLE/TBODY/TR[1]/TD").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
-                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource("/webPages/NekoTableTestcase3.html")
-                                .getFile()), "//TABLE/TBODY/TR[1]/TD").size());
+                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
+                                "/webPages/NekoTableTestcase3.html").getFile()), "//TABLE/TBODY/TR[1]/TD").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
-                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource("/webPages/NekoTableTestcase4.html")
-                                .getFile()), "//TABLE/TR[1]/TD").size());
+                        crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
+                                "/webPages/NekoTableTestcase4.html").getFile()), "//TABLE/TR[1]/TD").size());
 
     }
 
@@ -74,9 +77,10 @@ public class DocumentRetrieverTest extends TestCase {
         DocumentRetriever crawler = new DocumentRetriever();
 
         // parse errors will yield in a null return
-        assertNotNull(crawler
-                .getXMLDocument(DocumentRetrieverTest.class.getResource("/xmlDocuments/invalid-chars.xml").getFile()));
-        assertNotNull(crawler.getXMLDocument(DocumentRetrieverTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
+        assertNotNull(crawler.getXMLDocument(DocumentRetrieverTest.class.getResource("/xmlDocuments/invalid-chars.xml")
+                .getFile()));
+        assertNotNull(crawler.getXMLDocument(DocumentRetrieverTest.class.getResource("/feeds/sourceforge02.xml")
+                .getFile()));
         assertNotNull(crawler.getXMLDocument(DocumentRetrieverTest.class.getResource("/feeds/feed061.xml").getFile()));
 
     }

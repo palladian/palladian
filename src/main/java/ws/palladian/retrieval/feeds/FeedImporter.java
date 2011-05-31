@@ -21,6 +21,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -178,7 +179,7 @@ public class FeedImporter {
         LOGGER.info("-------------------------------");
         LOGGER.info(" added " + addCounter.get() + " new feeds");
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES)
+        LOGGER.info(" traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
                 + " MB");
         LOGGER.info("-------------------------------");
 

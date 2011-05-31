@@ -26,7 +26,7 @@ public class DownloadFilter {
      * think that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles
      * Muahahahaha.
      */
-    private long maxFileSize = 1000000;
+    private long maxFileSize = SizeUnit.MEGABYTES.toBytes(1);
 
     public Set<String> getIncludeFileTypes() {
         return includeFileTypes;

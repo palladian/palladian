@@ -57,7 +57,7 @@ public class HTMLHelperTest {
                 HTMLHelper.stripHTMLTags(htmlContent, true, true, true, true).trim());
 
         DocumentRetriever crawler = new DocumentRetriever();
-        String content = crawler.download(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
+        String content = crawler.getTextDocument(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
         String result = HTMLHelper.stripHTMLTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
         System.out.println(result);

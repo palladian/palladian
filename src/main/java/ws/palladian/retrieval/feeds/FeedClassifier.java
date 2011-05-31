@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
@@ -73,7 +74,7 @@ public class FeedClassifier {
 
         while (!threadPool.isTerminated()) {
             LOGGER.info(sw.getElapsedTimeString() + ", traffic: "
-                    + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + "MB");
+                    + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
 
             try {
                 Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -85,7 +86,7 @@ public class FeedClassifier {
         }
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + "MB");
+                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
