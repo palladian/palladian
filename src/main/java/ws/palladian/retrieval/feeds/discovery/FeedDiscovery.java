@@ -165,7 +165,7 @@ public class FeedDiscovery {
         try {
 
             DocumentRetriever documentRetriever = new DocumentRetriever();
-            document = documentRetriever.getWebDocument(pageUrl, false);
+            document = documentRetriever.getWebDocument(pageUrl);
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.

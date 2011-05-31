@@ -1,4 +1,4 @@
-package ws.palladian.retrieval;
+package ws.palladian.retrieval.parser;
 
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;

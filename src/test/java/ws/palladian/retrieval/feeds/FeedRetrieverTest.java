@@ -383,7 +383,7 @@ public class FeedRetrieverTest {
 
         for (String line : file) {
             String url = line.split("\t")[1];
-            String download = crawler.download(url);
+            String download = crawler.getTextDocument(url);
             FileHelper.writeToFile("data/temp/feeds/feed" + format.format(++count) + ".xml", download);
         }
     }

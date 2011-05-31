@@ -103,7 +103,6 @@ public class ContentExtractionEvaluation {
     private boolean mainContentOnly = true;
 
     public ContentExtractionEvaluation() {
-        crawler.setFeedAutodiscovery(false);
         datasetPath = ConfigHolder.getInstance().getConfig().getString("datasets.boilerplate");
     }
 

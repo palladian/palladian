@@ -8,14 +8,14 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.retrieval.Crawler;
-import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.RetrieverCallback;
 
 /**
  * This class is used as a callback to automatically detect news feeds on pages which are downloaded with the
- * {@link DocumentRetriever}. Discovered feed URLs are written into a text file. This is singleton as we have potentially multiple
- * Crawler instances, but writing to the list must be coordinated. See feeds.conf for options concerning the discovery.
+ * {@link DocumentRetriever}. Discovered feed URLs are written into a text file. This is singleton as we have
+ * potentially multiple DocumentRetriever instances, but writing to the list must be coordinated. See feeds.conf for
+ * options concerning the discovery.
  * 
  * @author Philipp Katz
  * 
@@ -71,10 +71,10 @@ public class FeedDiscoveryCallback implements RetrieverCallback {
 
     public static void main(String[] args) {
         // FeedDiscoveryCallback.getInstance();
-        Crawler c = new Crawler();
-        c.getDocumentRetriever().setFeedAutodiscovery(true);
-        c.setStopCount(1000000);
-        c.startCrawl("http://www.dmoz.org/", false, true);
+        // Crawler c = new Crawler();
+        // c.getDocumentRetriever().setFeedAutodiscovery(true);
+        // c.setStopCount(1000000);
+        // c.startCrawl("http://www.dmoz.org/", false, true);
     }
 
 }

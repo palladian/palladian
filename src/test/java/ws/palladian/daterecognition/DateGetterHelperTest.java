@@ -619,8 +619,7 @@ public class DateGetterHelperTest {
             String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
 
             DocumentRetriever c = new DocumentRetriever();
-            c.setDocument(url);
-            Document document = c.getDocument();
+            Document document = c.getWebDocument(url);
 
             HeadDateGetter hdg = new HeadDateGetter();
             hdg.setDocument(document);
@@ -644,8 +643,7 @@ public class DateGetterHelperTest {
             compareDates.add(new MetaDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
 
             DocumentRetriever c = new DocumentRetriever();
-            c.setDocument(url);
-            Document document = c.getDocument();
+            Document document = c.getWebDocument(url);
             HeadDateGetter hdg = new HeadDateGetter();
             hdg.setDocument(document);
             ArrayList<MetaDate> headDates = hdg.getDates();

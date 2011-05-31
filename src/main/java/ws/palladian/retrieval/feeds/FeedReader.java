@@ -24,6 +24,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -254,7 +255,7 @@ public final class FeedReader {
             if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
                 LOGGER.debug("current total traffic: "
-                        + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
+                        + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
 
                 try {
                     Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -271,7 +272,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + DocumentRetriever.getSessionDownloadSize(DocumentRetriever.SizeUnit.MEGABYTES) + " MB");
+                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
         // System.out.println("abc");
     }
 

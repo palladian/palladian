@@ -127,7 +127,6 @@ public class InformativenessAssigner {
         }
 
         final PalladianContentExtractor pse = new PalladianContentExtractor();
-        final DocumentRetriever crawler = new DocumentRetriever();
         
         RetrieverCallback callback = new RetrieverCallback() {
             
@@ -139,9 +138,7 @@ public class InformativenessAssigner {
         };
 
         DocumentRetriever ud = new DocumentRetriever();
-        ud.setMaxFails(20000);
-        ud.add(urls);
-        ud.start(callback);
+        ud.getWebDocuments(urls, callback);
         // Set<Document> documents = ud.start();
 
         // for (Document document : documents) {

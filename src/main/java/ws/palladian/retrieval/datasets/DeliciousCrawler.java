@@ -41,7 +41,8 @@ public class DeliciousCrawler {
     public DeliciousCrawler() {
         documentRetriever = new DocumentRetriever();
 
-        documentRetriever.setSwitchProxyRequests(15);
+        // //////////////////////////////////////////////////
+        // documentRetriever.setSwitchProxyRequests(15);
 
         // http://www.proxy-list.org/en/index.php
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("87.106.143.132", 3128));

@@ -20,7 +20,6 @@ public abstract class WebPageContentExtractor {
     
     public WebPageContentExtractor() {
         crawler = new DocumentRetriever();
-        crawler.setFeedAutodiscovery(false);
     }
 
     /**
@@ -57,7 +56,7 @@ public abstract class WebPageContentExtractor {
      */
     public WebPageContentExtractor setDocument(URL url) throws PageContentExtractorException {
         try {
-            return setDocument(crawler.getWebDocument(url));
+            return setDocument(crawler.getWebDocument(url.toExternalForm()));
         } catch (Throwable t) {
             throw new PageContentExtractorException(t);
         }

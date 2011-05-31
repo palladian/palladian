@@ -1,4 +1,4 @@
-package ws.palladian.retrieval;
+package ws.palladian.retrieval.parser;
 
 import java.io.FilterReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import com.sun.org.apache.xerces.internal.util.XMLChar;
  * @see http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
  * 
  */
-public class Xml10FilterReader extends FilterReader {
+class Xml10FilterReader extends FilterReader {
 
     private boolean ignoreCharacter = true;
 

@@ -225,7 +225,7 @@ public class RankingRetriever {
         }
 
         // we use a rather short timeout here, as responses are short.
-        crawler.setOverallTimeout(5000);
+        crawler.setSocketTimeout(5000);
 
         // per default, we want to check all services
         check = Arrays.asList(Service.values());
@@ -761,7 +761,7 @@ public class RankingRetriever {
         JenkinsHash jHash = new JenkinsHash();
         long urlHash = jHash.hash(("info:" + prUrl).getBytes());
 
-        String response = crawler.download("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
+        String response = crawler.getTextDocument("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
                 + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
 
         if (response != null && !response.isEmpty()) {

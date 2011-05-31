@@ -142,12 +142,11 @@ public class WebSearcher {
 
         for (int i = 0; i < grabSize; i++) {
 
-            // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + i * 8
-                    + "&rsz=large&safe=off&lr=lang_en&q=" + searchQuery);
-
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                // rsz=large will respond 8 results
+                JSONObject jsonOBJ = c
+                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + i * 8
+                                + "&rsz=large&safe=off&lr=lang_en&q=" + searchQuery);
 
                 // in the first iteration find the maximum of available pages
                 // and limit the search to those
@@ -325,12 +324,10 @@ public class WebSearcher {
 
         if (getSource() == WebSearcherManager.GOOGLE) {
 
-            String json = crawler
-                    .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
-                            + searchQuery);
-
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = crawler
+                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
+                                + searchQuery);
 
                 if (jsonOBJ.getJSONObject("responseData") != null
                         && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
@@ -347,10 +344,9 @@ public class WebSearcher {
 
             String query = "http://api.bing.net/json.aspx?AppId=" + WebSearcherManager.getInstance().getBingApiKey()
                     + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
-            String json = crawler.download(query);
 
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = crawler.getJSONDocument(query);
 
                 hitCount = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web").getInt("Total");
 
@@ -680,11 +676,10 @@ public class WebSearcher {
         for (int i = 0; i < grabCount; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=" + i * 8
-                    + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
-
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = c
+                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=" + i * 8
+                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
 
                 // System.out.println(jsonOBJ.toString(1));
                 // in the first iteration find the maximum of available pages
@@ -762,11 +757,10 @@ public class WebSearcher {
         for (int i = 0; i < grabCount; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start=" + i * 8
-                    + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
-
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = c
+                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start=" + i * 8
+                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
 
                 // System.out.println(jsonOBJ.toString(1));
                 // in the first iteration find the maximum of available pages
@@ -845,11 +839,10 @@ public class WebSearcher {
             String urlString = "http://api.bing.net/json.aspx?AppId="
                     + WebSearcherManager.getInstance().getBingApiKey() + "&Web.Count=25&Web.Offset=" + offset
                     + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery;
-            String json = c.download(urlString);
 
             try {
 
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = c.getJSONDocument(urlString);
                 JSONObject jsonWeb = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web");
 
                 int total = jsonWeb.getInt("Total");
@@ -888,7 +881,7 @@ public class WebSearcher {
                 }
 
             } catch (JSONException e) {
-                LOGGER.error(e.getMessage() + "; response was \"" + json + "\"");
+                LOGGER.error(e.getMessage());
             }
 
             srManager.addRequest(WebSearcherManager.BING);
@@ -1078,11 +1071,10 @@ public class WebSearcher {
         for (int i = 0; i < grabSize; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + i * 8
-                    + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
-
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                JSONObject jsonOBJ = c
+                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + i * 8
+                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
 
                 // System.out.println(jsonOBJ.toString(1));
                 // in the first iteration find the maximum of available pages
