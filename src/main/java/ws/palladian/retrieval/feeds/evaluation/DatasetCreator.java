@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -316,14 +315,9 @@ public class DatasetCreator {
                     return success;
                 }
 
-                // get the filename of the feed
-                String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
-                        .replaceFirst("www.", ""), 30);
-
-                int slice = (int) Math.floor(feed.getId() / 1000.0);
-
-                String folderPath = DATASET_PATH + slice + "/" + feed.getId() + "/";
-                String filePath = folderPath + feed.getId() + "_" + safeFeedName + ".csv";
+                // get the path of the feed's folder and csv file
+                String folderPath = getFolderPath(feed.getId());
+                String filePath = getCSVFilePath(feed.getId(), getSafeFeedName(feed.getFeedUrl()));
                 LOGGER.debug("saving feed to: " + filePath);
 
                 // get entries from the file
@@ -451,6 +445,42 @@ public class DatasetCreator {
 
         LOGGER.debug("start reading feeds");
         feedChecker.startContinuousReading();
+    }
+
+    /**
+     * @param feed
+     * @param safeFeedName
+     * @param folderPath
+     * @return
+     */
+    public static String getCSVFilePath(int feedID, String safeFeedName) {
+        return getFolderPath(feedID) + feedID + "_" + safeFeedName + ".csv";
+    }
+
+    /**
+     * @param feed
+     * @param slice
+     * @return
+     */
+    public static String getFolderPath(int feedID) {
+        return DATASET_PATH + getSlice(feedID) + System.getProperty("file.separator") + feedID
+                + System.getProperty("file.separator");
+    }
+
+    /**
+     * @param feedID
+     * @return
+     */
+    public static int getSlice(int feedID) {
+        return (int) Math.floor(feedID / 1000.0);
+    }
+
+    /**
+     * @param feed
+     * @return
+     */
+    public static String getSafeFeedName(String feedURL) {
+        return StringHelper.makeSafeName(feedURL.replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
     }
 
     /**
