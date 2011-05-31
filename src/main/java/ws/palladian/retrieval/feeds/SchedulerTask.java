@@ -3,10 +3,12 @@ package ws.palladian.retrieval.feeds;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
@@ -41,7 +43,7 @@ class SchedulerTask extends TimerTask {
     /**
      * Tasks currently scheduled but not yet checked.
      */
-    private transient final Map<Integer, Future<?>> scheduledTasks;
+    private transient final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
     /**
      * The number of times a feed that has never been checked successfully is put into the queue regardless of its
@@ -62,6 +64,20 @@ class SchedulerTask extends TimerTask {
     private static final long MAXIMUM_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
 
     /**
+     * If wake up interval exceeds this time, do some warning.
+     */
+    private static final long SCHEDULER_INTERVAL_WARNING_TIME_MS = 2 * DateHelper.MINUTE_MS;
+
+    /**
+     * Count the number of processed feeds per scheduler iteration.
+     */
+    private int processedCounter = 0;
+
+    private Long lastWakeUpTime = null;
+
+    private HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+
+    /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
      * @param feedReader
@@ -72,7 +88,7 @@ class SchedulerTask extends TimerTask {
         super();
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
-        scheduledTasks = new TreeMap<Integer, Future<?>>();
+        scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
     }
 
     /*
@@ -82,11 +98,14 @@ class SchedulerTask extends TimerTask {
     @Override
     public void run() {
         LOGGER.debug("wake up to check feeds");
+        long currentWakeupTime = System.currentTimeMillis();
         int newlyScheduledFeedsCount = 0;
         int alreadyScheduledFeedCount = 0;
         StringBuffer scheduledFeedIDs = new StringBuffer();
         StringBuffer alreadyScheduledFeedIDs = new StringBuffer();
+
         for (Feed feed : feedReader.getFeeds()) {
+
             // remove completed FeedTasks
             removeFeedTaskIfDone(feed.getId());
             if (needsLookup(feed)) {
@@ -106,18 +125,42 @@ class SchedulerTask extends TimerTask {
                 }
             }
         }
-        LOGGER.info("Scheduled " + newlyScheduledFeedsCount + " feeds for reading");
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
+
+        String wakeupInterval = "first start";
+        if (lastWakeUpTime != null) {
+            wakeupInterval = DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime);
         }
+
+        int success = feedResults.getCount(FeedTaskResult.SUCCESS);
+        int misses = feedResults.getCount(FeedTaskResult.MISS);
+        int unreachable = feedResults.getCount(FeedTaskResult.UNREACHABLE);
+        int errors = feedResults.getCount(FeedTaskResult.ERROR);
+
+        String logMsg = String.format("Scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d"
+                + ", success: %4d, misses: %4d, unreachable: %4d, errors: %4d, wake up interval: %10s",
+                newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter, success,
+                misses, unreachable, errors, wakeupInterval);
+
+        LOGGER.info(logMsg);
+
         if (alreadyScheduledFeedCount > 0) {
-            LOGGER.fatal("Could not schedule " + alreadyScheduledFeedCount + " already scheduled feeds.");
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Could not scheduled feedIDs that are already in queue: "
+                LOGGER.debug("Could not schedule feedIDs that are already in queue: "
                         + alreadyScheduledFeedIDs.toString());
             }
         }
-        LOGGER.info("Queue now contains: " + scheduledTasks.size());
+
+        // FIXME: send email here.
+        if ((lastWakeUpTime != null) && (lastWakeUpTime - currentWakeupTime > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
+            LOGGER.warn("wakeup Interval was too high: " + DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime));
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
+        }
+        processedCounter = 0;
+        lastWakeUpTime = currentWakeupTime;
+        feedResults.clear();
     }
 
     /**
@@ -180,16 +223,25 @@ class SchedulerTask extends TimerTask {
         return ret;
     }
 
-
     /**
      * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
      * 
      * @param feedId The feed to check and remove if the {@link FeedTask} is done.
      */
     private void removeFeedTaskIfDone(final Integer feedId) {
-        final Future<?> future = scheduledTasks.get(feedId);
+        final Future<FeedTaskResult> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);
+            processedCounter++;
+            try {
+                feedResults.add(future.get());
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 

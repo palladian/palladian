@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
@@ -19,10 +20,11 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Sandro Reichert
  * @see FeedReader
  * 
  */
-class FeedTask extends Thread {
+class FeedTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
     private final static Logger LOGGER = Logger.getLogger(FeedTask.class);
@@ -44,21 +46,27 @@ class FeedTask extends Thread {
     public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
 
     /**
+     * The result of this task.
+     */
+    private FeedTaskResult result = FeedTaskResult.OPEN;
+
+    /**
      * Creates a new retrieval task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
      */
     public FeedTask(Feed feed, FeedReader feedChecker) {
-        setName("FeedTask:" + feed.getFeedUrl());
+        // setName("FeedTask:" + feed.getFeedUrl());
         this.feed = feed;
         this.feedReader = feedChecker;
     }
 
     @Override
-    public void run() {
+    public FeedTaskResult call() {
         try {
             StopWatch timer = new StopWatch();
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
+            int recentMisses = feed.getMisses();
 
             // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
             // it can be done in parallel
@@ -73,7 +81,8 @@ class FeedTask extends Thread {
                 feedReader.updateFeed(feed);
                 writeUnparsableFeedToGZ(feed);
                 LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
-                return;
+                result = FeedTaskResult.UNREACHABLE;
+                return result;
             }
 
             // remember the time the feed has been checked
@@ -107,21 +116,32 @@ class FeedTask extends Thread {
             feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
 
             // save the feed back to the database
-            feedReader.updateFeed(feed);
+            boolean dbSuccess = feedReader.updateFeed(feed);
 
             // since the feed is kept in memory we need to remove all items and the document stored in the feed
             feed.freeMemory();
+
             if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
+                result = FeedTaskResult.EXECUTION_TIME_WARNING;
                 LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
+            } else if (recentMisses < feed.getMisses()) {
+                result = FeedTaskResult.MISS;
+            } else {
+                result = FeedTaskResult.SUCCESS;
+            }
+
+            if (!dbSuccess) {
+                result = FeedTaskResult.ERROR;
             }
 
             LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
-
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
             LOGGER.error(th);
+            result = FeedTaskResult.ERROR;
         }
+        return result;
     }
 
     /**

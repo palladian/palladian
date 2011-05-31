@@ -11,5 +11,9 @@ public abstract class FeedProcessingAction {
         arguments = parameters;
     }
 
-    public abstract void performAction(Feed feed);
+    /**
+     * @param feed The {@link Feed} to perform the action for.
+     * @return <code>true</code> if no error occurred, <code>false</code> otherwise.
+     */
+    public abstract boolean performAction(Feed feed);
 }
