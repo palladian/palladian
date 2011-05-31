@@ -364,7 +364,12 @@ public class DatasetCreator {
                                 + StringHelper.removeControlCharacters(item.getTitle()).replaceAll("\"", "'")
                                         .replaceAll(";", "putSemicolonHere") + "\";");
                     }
-                    fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
+
+                    if (item.getLink() == null || item.getLink().length() == 0) {
+                        fileEntryID.append("\"###NO_LINK###\";");
+                    } else {
+                        fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
+                    }
                     fileEntry.append(item.getPublished().getTime()).append(";");
                     fileEntry.append(pollTimestamp).append(";");
                     fileEntry.append(fileEntryID);

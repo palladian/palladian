@@ -137,7 +137,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
-            LOGGER.error("Error processing feed " + feed.getId() + ": " + th);
+            LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
             result = FeedTaskResult.ERROR;
         }
         return result;
