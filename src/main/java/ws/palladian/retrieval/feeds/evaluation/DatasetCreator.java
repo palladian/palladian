@@ -302,14 +302,16 @@ public class DatasetCreator {
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
-            public void performAction(Feed feed) {
+            public boolean performAction(Feed feed) {
+
+                boolean success = true;
 
                 // get all posts in the feed as timestamp;headline;link
                 List<FeedItem> feedEntries = feed.getItems();
 
                 if (feedEntries == null) {
                     LOGGER.warn("no feed entries for " + feed.getFeedUrl());
-                    return;
+                    return success;
                 }
 
                 // get the filename of the feed
@@ -331,9 +333,11 @@ public class DatasetCreator {
                             postEntryFile.createNewFile();
                         } else {
                             LOGGER.error("could not create the directories " + filePath);
+                            success = false;
                         }
                     } catch (IOException e) {
                         LOGGER.error("could not create the file " + filePath);
+                        success = false;
                     }
                 }
                 // load only the last window from file
@@ -416,10 +420,16 @@ public class DatasetCreator {
                     }
 
                     DocumentRetriever documentRetriever = new DocumentRetriever();
-                    documentRetriever.downloadAndSave(feed.getFeedUrl(), folderPath + pollTimestamp + ".gz", true);
+                    boolean gzWritten = documentRetriever.downloadAndSave(feed.getFeedUrl(), folderPath + pollTimestamp
+                            + ".gz", true);
+
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
                     // FileHelper.prependFile(filePath, newEntries.toString());
-                    FileHelper.appendFile(filePath, newEntryBuilder);
+                    boolean fileWritten = FileHelper.appendFile(filePath, newEntryBuilder);
+
+                    if (!gzWritten || !fileWritten) {
+                        success = false;
+                    }
                 }
 
                 // removed by Philipp, 2011-05-11; this is already invoked by the feed task itself, after ;
@@ -429,6 +439,8 @@ public class DatasetCreator {
                 // end remove //
 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
+
+                return success;
             }
         };
 

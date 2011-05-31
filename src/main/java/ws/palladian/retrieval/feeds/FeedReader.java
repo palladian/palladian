@@ -332,7 +332,9 @@ public final class FeedReader {
         FeedProcessingAction processingAction = new FeedProcessingAction() {
 
             @Override
-            public void performAction(Feed feed) {
+            public boolean performAction(Feed feed) {
+
+                boolean success = true;
 
                 List<FeedItem> items = feed.getItems();
                 LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
@@ -354,7 +356,7 @@ public final class FeedReader {
                     feedStore.addFeedItem(feed, feedEntry);
                     newItems.increment();
                 }
-
+                return success;
             }
         };
         setFeedProcessingAction(processingAction);
@@ -497,9 +499,10 @@ public final class FeedReader {
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
-            public void performAction(Feed feed) {
+            public boolean performAction(Feed feed) {
                 LOGGER.info("do stuff with " + feed.getFeedUrl());
                 LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
+                return true;
             }
         };
         fc.setUpdateStrategy(updateStrategy, true);
