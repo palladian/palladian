@@ -145,7 +145,40 @@ class SchedulerTask extends TimerTask {
                 newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter, success,
                 misses, unreachable, errors, wakeupInterval);
 
-        LOGGER.info(logMsg);
+        // error handling
+        boolean errorHandling = false;
+        StringBuilder detectedErrors = new StringBuilder();
+
+        if (errors > 0) {
+            errorHandling = true;
+            detectedErrors.append("Too many feeds with errors. ");
+        }
+
+        if ((lastWakeUpTime != null) && ((currentWakeupTime - lastWakeUpTime) > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
+            errorHandling = true;
+            detectedErrors.append("Wakeup Interval was too high. ");
+        }
+
+        // FIXME: needs to be fine tuned?
+        if (alreadyScheduledFeedCount > 10 && processedCounter < 1000) {
+            errorHandling = true;
+            detectedErrors.append("Throughput too low. ");
+        }
+
+        if (errorHandling) {
+            String hostname = ProcessHelper.runCommand("hostname");
+            String recipient = "sandro.reichert@tu-dresden.de, philipp.katz@tu-dresden.de, david.urbansky@tu-dresden.de, klemens.muthmann@tu-dresden.de";
+            String subject = "FeedReader " + hostname + " notification "
+                    + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
+
+            logMsg += ", detected errors: " + detectedErrors.toString();
+            String text = logMsg;
+
+            SendMail mailer = new SendMail();
+            mailer.send("notification@palladian.ws", recipient, subject, text);
+        } else {
+            LOGGER.info(logMsg);
+        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
@@ -153,20 +186,6 @@ class SchedulerTask extends TimerTask {
                 LOGGER.debug("Could not schedule feedIDs that are already in queue: "
                         + alreadyScheduledFeedIDs.toString());
             }
-        }
-
-        // error handling
-        if ((lastWakeUpTime != null) && ((currentWakeupTime - lastWakeUpTime) > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
-            LOGGER.warn("wakeup Interval was too high: " + DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime));
-
-            SendMail mailer = new SendMail();
-
-            String hostname = ProcessHelper.runCommand("hostname");
-            String recipient = "sandro.reichert@tu-dresden.de, philipp.katz@tu-dresden.de, david.urbansky@tu-dresden.de, klemens.muthmann@tu-dresden.de";
-            String subject = "FeedReader " + hostname + " notification "
-                    + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
-            String text = logMsg;
-            mailer.send("notification@palladian.ws", recipient, subject, text);
         }
 
         // reset logging
