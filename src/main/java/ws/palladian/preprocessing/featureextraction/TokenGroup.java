@@ -11,9 +11,7 @@ public class TokenGroup extends Token {
     private List<Token> tokens = new ArrayList<Token>();
 
     public TokenGroup(PipelineDocument document) {
-        super(document);
-        setStartPosition(-1);
-        setEndPosition(-1);
+        super(document,-1,-1);
     }
 
     public void add(Token token) {
