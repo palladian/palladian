@@ -14,9 +14,10 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
+ * <p>
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
- * the feed is checked and also performs all
- * set {@link FeedProcessingAction}s.
+ * the feed is checked and also performs all set {@link FeedProcessingAction}s.
+ * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -104,7 +105,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                 FeedClassifier.classify(feed);
                 feed.setByteSize(feed.getRawMarkup().getBytes().length);
             }
-
 
             feedReader.updateCheckIntervals(feed);
             feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
