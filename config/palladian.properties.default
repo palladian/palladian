@@ -1,5 +1,6 @@
-config.version = 4
+config.version = 5
 ### version history:
+### 5: added SendMail config
 ### 4: added thread pool size for DocumentRetriever, changed timeouts
 ### 3: added thread pool size for MetadataCreator
 ### 2: added timeouts for DocumentRetriever
@@ -204,3 +205,9 @@ pageSegmentation.step4 = 0.42
 pageSegmentation.step5 = 0.58
 pageSegmentation.step6 = 0.72
 pageSegmentation.step7 = 0.86
+
+######################## Email Notification #######################
+sendMail.smtpHost = 
+sendMail.smtpPort = 
+sendMail.smtpUser = 
+sendMail.smtpPass =
