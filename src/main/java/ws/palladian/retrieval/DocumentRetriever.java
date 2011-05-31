@@ -300,7 +300,7 @@ public class DocumentRetriever {
             try {
                 url = url.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(url);
-                if (httpResult.getContent() != null) {
+                if (httpResult != null && httpResult.getContent() != null) {
                     br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(httpResult.getContent())));
                     String line = "";
                     do {
@@ -477,7 +477,8 @@ public class DocumentRetriever {
             } else {
                 cleanUrl = cleanUrl.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(cleanUrl);
-                if (httpResult.getContent() != null) {
+                // FIXME ugly
+                if (httpResult != null && httpResult.getContent() != null) {
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), isXML, cleanUrl);
                 }
             }
@@ -858,6 +859,11 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
+        
+//        retriever.downloadBinaryFile(urlString, pathWithFileName);
+//        retriever.downloadAndSave(urlString, path);
+        
+        
         HttpResult result = retriever.httpGet("http://www.google.com");
         System.out.println(result);
 
