@@ -15,8 +15,9 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * A scheduler task handles the distribution of feeds to worker threads that check the csv files for the ASCII encoding
- * problem in TUDCS2 dataset.
+ * A scheduler task handles the distribution of feeds to a) worker threads that check the csv files for the ASCII
+ * encoding problem in TUDCS2 dataset or b) worker threads that remove superfluous feed size and item size columns with
+ * "-1" values.
  * This class is based on ws.palladian.retrieval.feeds.SchedulerTask
  * 
  * @author Klemens Muthmann
@@ -70,7 +71,7 @@ class EvaluationScheduler {
             // break;
             // }
 
-            scheduledTasks.put(feed.getId(), threadPool.submit(new EncodingFixer2(feed)));
+            scheduledTasks.put(feed.getId(), threadPool.submit(new CSVCleaner(feed)));
         }
 
         while (!scheduledTasks.isEmpty()) {
