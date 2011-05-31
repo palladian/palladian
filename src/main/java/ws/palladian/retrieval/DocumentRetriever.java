@@ -296,7 +296,8 @@ public class DocumentRetriever {
 
             try {
                 url = url.replaceAll("\\s", "+");
-                inputStream = downloadInputStream(url);
+                // inputStream = downloadInputStream(url);
+                httpGet(url);
                 br = new BufferedReader(new InputStreamReader(inputStream));
                 String line = "";
                 do {
@@ -453,6 +454,7 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////
 
+    // TODO add exceptions, when get fails, do not return null
     private Document internalGetDocument(String url, boolean isXML) {
         
         Document document = null;
@@ -470,8 +472,10 @@ public class DocumentRetriever {
                 document = parse(inputStream, isXML, file.toURI().toString());
             } else {
                 cleanUrl = cleanUrl.replaceAll("\\s", "+");
-                inputStream = downloadInputStream(cleanUrl);
-                document = parse(inputStream, isXML, cleanUrl);
+                HttpResult httpResult = httpGet(cleanUrl);
+                if (httpResult.getContent() != null) {
+                    document = parse(new ByteArrayInputStream(httpResult.getContent()), isXML, cleanUrl);
+                }
             }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
@@ -499,11 +503,6 @@ public class DocumentRetriever {
             isFile = true;
         }
         return isFile;
-    }
-
-    private InputStream downloadInputStream(String url) {
-        HttpResult result = httpGet(url);
-        return new ByteArrayInputStream(result.getContent());
     }
 
     /**
