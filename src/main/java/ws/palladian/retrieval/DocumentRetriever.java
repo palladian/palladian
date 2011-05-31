@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -354,18 +355,22 @@ public class DocumentRetriever {
             HttpResponse response = httpClient.execute(get, context);
             HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
             HttpConnectionMetrics metrics = connection.getMetrics();
+            
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
 
-            in = response.getEntity().getContent();
-            out = new ByteArrayOutputStream();
+                in = entity.getContent();
+                out = new ByteArrayOutputStream();
 
-            byte[] buffer = new byte[1024];
-            int bufferRead;
-            int totallyRead = 0;
-            while ((bufferRead = in.read(buffer, 0, buffer.length)) >= 0) {
-                out.write(buffer, 0, bufferRead);
-                totallyRead += bufferRead;
-                if (totallyRead > downloadFilter.getMaxFileSize()) {
-                    break;
+                byte[] buffer = new byte[1024];
+                int bufferRead;
+                int totallyRead = 0;
+                while ((bufferRead = in.read(buffer, 0, buffer.length)) >= 0) {
+                    out.write(buffer, 0, bufferRead);
+                    totallyRead += bufferRead;
+                    if (totallyRead > downloadFilter.getMaxFileSize()) {
+                        break;
+                    }
                 }
             }
 
