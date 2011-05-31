@@ -2,10 +2,16 @@ package ws.palladian.retrieval;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -21,45 +27,52 @@ public class HTTPPoster {
 
     public HTTPPoster() {
         client = new DefaultHttpClient();
-        
+
         // quickfixx by Philipp
         // we set the retry behavior very aggressively (small timeouts, many retries)
         // was necessary for TagThe.net
-//        HttpClientParams params = client.getParams();
-//        DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(10, false) {
-//            @Override
-//            public boolean retryMethod(HttpMethod method, IOException exception, int executionCount) {
-//                if (exception instanceof InterruptedIOException || exception instanceof ConnectException) {
-//                    // timeout reached, retry
-//                    LOGGER.warn(exception.getMessage() + ", sleep for " + executionCount + " seconds");
-//                    ThreadHelper.sleep(executionCount * 500);
-//                    return true;
-//                }
-//                return super.retryMethod(method, exception, executionCount);
-//            }
-//        };
-//        params.setParameter(HttpMethodParams.RETRY_HANDLER, retryhandler);
-//        params.setParameter(HttpMethodParams.SO_TIMEOUT, 500);
-//        params.setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, 500);
+        //        HttpClientParams params = client.getParams();
+        //        DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(10, false) {
+        //            @Override
+        //            public boolean retryMethod(HttpMethod method, IOException exception, int executionCount) {
+        //                if (exception instanceof InterruptedIOException || exception instanceof ConnectException) {
+        //                    // timeout reached, retry
+        //                    LOGGER.warn(exception.getMessage() + ", sleep for " + executionCount + " seconds");
+        //                    ThreadHelper.sleep(executionCount * 500);
+        //                    return true;
+        //                }
+        //                return super.retryMethod(method, exception, executionCount);
+        //            }
+        //        };
+        //        params.setParameter(HttpMethodParams.RETRY_HANDLER, retryhandler);
+        //        params.setParameter(HttpMethodParams.SO_TIMEOUT, 500);
+        //        params.setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, 500);
 
     }
 
-//    public HttpPost createPostMethod(String url) {
-//        return createPostMethod(url, new HashMap<String, String>(), new NameValuePair[0]);
-//    }
-//
-//    public HttpPost createPostMethod(String url, Map<String, String> headerFields, NameValuePair[] bodyFields) {
-//
-//        HttpPost method = new HttpPost(url);
-//
-//        for (Entry<String, String> headerField : headerFields.entrySet()) {
-//            method.setRequestHeader(headerField.getKey(), headerField.getValue());
-//        }
-//
-//        method.setRequestBody(bodyFields);
-//
-//        return method;
-//    }
+    public HttpPost createPostMethod(String url) {
+        return createPostMethod(url, new HashMap<String, String>(), new NameValuePair[0]);
+    }
+
+    public HttpPost createPostMethod(String url, Map<String, String> headerFields, NameValuePair[] bodyFields) {
+
+        HttpPost method = new HttpPost(url);
+
+        for (Entry<String, String> headerField : headerFields.entrySet()) {
+            method.setHeader(headerField.getKey(), headerField.getValue());
+        }
+
+        UrlEncodedFormEntity urlEncodedFormEntity;
+        try {
+            urlEncodedFormEntity = new UrlEncodedFormEntity(java.util.Arrays.asList(bodyFields));
+            method.setEntity(urlEncodedFormEntity);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        //        method.setRequestBody(bodyFields);
+
+        return method;
+    }
 
     public String handleRequest(HttpPost method) {
 
