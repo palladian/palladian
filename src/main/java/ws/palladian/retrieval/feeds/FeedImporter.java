@@ -69,14 +69,19 @@ public class FeedImporter {
         LOGGER.trace(">addFeed " + feedUrl);
         boolean added = false;
 
-        Feed feed = store.getFeedByUrl(feedUrl);
+        String cleanedURL = feedUrl;
+        if (feedUrl.contains("$$$")) {
+            cleanedURL = feedUrl.substring(0, feedUrl.indexOf("$$$"));
+        }
+
+        Feed feed = store.getFeedByUrl(cleanedURL);
         if (feed == null) {
             try {
 
                 StringBuilder infoMsg = new StringBuilder();
-                infoMsg.append("added feed ").append(feedUrl);
+                infoMsg.append("added feed ").append(cleanedURL);
 
-                feed = feedRetriever.getFeed(feedUrl);
+                feed = feedRetriever.getFeed(cleanedURL);
 
                 // classify feed's text extent
                 if (classifyTextExtent) {
@@ -94,7 +99,7 @@ public class FeedImporter {
                 feed.setWindowSize(feed.getItems().size());
 
                 // set feed and site URL
-                feed.setFeedUrl(feedUrl, true);
+                feed.setFeedUrl(cleanedURL, true);
 
                 // add feed & entries to the store
                 store.addFeed(feed);
@@ -109,10 +114,10 @@ public class FeedImporter {
                 added = true;
 
             } catch (FeedRetrieverException e) {
-                LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
+                LOGGER.error("error adding feed " + cleanedURL + " " + e.getMessage());
             }
         } else {
-            LOGGER.info("i already have feed " + feedUrl);
+            LOGGER.info("i already have feed " + cleanedURL);
         }
 
         LOGGER.trace("<addFeed " + added);
