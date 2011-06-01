@@ -51,7 +51,7 @@ public class Token {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Token [unstemmedValues=");
+        builder.append("Annotation [unstemmedValues=");
         builder.append(unstemmedValue);
         builder.append(", stemmedValue=");
         builder.append(stemmedValue);

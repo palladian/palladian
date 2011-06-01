@@ -2,7 +2,7 @@ package ws.palladian.preprocessing.nlp;
 
 import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
-import ws.palladian.preprocessing.featureextraction.Token;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 /**
  * The NaturalLanguageProcessor holds functionality from the field of natural
@@ -108,12 +108,12 @@ public abstract class AbstractNaturalLanguageProcessor {
      * @param text
      * @return All sentences extracted from {@code text}.
      */
-    public final Token[] getSentences(String text) {
+    public final Annotation[] getSentences(String text) {
         return sentenceDetector.detect(text).getSentences();
     }
     
     public final String[] getSentenceValues(String text) {
-        Token[] sentences = getSentences(text);
+        Annotation[] sentences = getSentences(text);
         String[] ret = new String[sentences.length];
         for(int i=0;i<sentences.length;i++) {
             ret[i] = sentences[i].getValue();

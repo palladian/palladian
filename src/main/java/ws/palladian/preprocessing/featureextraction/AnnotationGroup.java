@@ -5,45 +5,54 @@ import java.util.List;
 
 import ws.palladian.preprocessing.PipelineDocument;
 
-public class TokenGroup extends Token {
+/**
+ * <p>
+ * A group of <code>n</code> Annotations.
+ * </p>
+ * 
+ * @author Philipp Katz
+ * 
+ */
+public class AnnotationGroup extends Annotation {
 
     private static final String TOKEN_SEPARATOR = " ";
-    private List<Token> tokens = new ArrayList<Token>();
+    private List<Annotation> annotations = new ArrayList<Annotation>();
 
-    public TokenGroup(PipelineDocument document) {
-        super(document,-1,-1);
+    public AnnotationGroup(PipelineDocument document) {
+        super(document, -1, -1);
     }
 
-    public void add(Token token) {
-        tokens.add(token);
+    public void add(Annotation annotation) {
+        annotations.add(annotation);
         if (getStartPosition() == -1) {
-            setStartPosition(token.getStartPosition());
+            setStartPosition(annotation.getStartPosition());
         }
-        setEndPosition(token.getEndPosition());
-        
+        setEndPosition(annotation.getEndPosition());
+
     }
 
-    public List<Token> getTokens() {
-        return tokens;
+    public List<Annotation> getTokens() {
+        return annotations;
     }
 
     @Override
     public String getValue() {
         StringBuilder sb = new StringBuilder();
-        for (Token token : tokens) {
-            sb.append(token.getValue()).append(TOKEN_SEPARATOR);
+        for (Annotation annotation : annotations) {
+            sb.append(annotation.getValue()).append(TOKEN_SEPARATOR);
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("TokenGroup [getTokens()=");
+        builder.append("AnnotationGroup [getTokens()=");
         builder.append(getTokens());
         builder.append(", getStartPosition()=");
         builder.append(getStartPosition());
@@ -56,7 +65,5 @@ public class TokenGroup extends Token {
         builder.append("]");
         return builder.toString();
     }
-    
-    
 
 }

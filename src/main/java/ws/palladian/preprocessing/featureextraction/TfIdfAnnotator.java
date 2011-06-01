@@ -14,13 +14,13 @@ public class TfIdfAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokenList = tokenFeature.getValue();
-        for (Token token : tokenList) {
-            FeatureVector tokenFeatureVector = token.getFeatureVector();
+        List<Annotation> tokenList = annotationFeature.getValue();
+        for (Annotation annotation : tokenList) {
+            FeatureVector tokenFeatureVector = annotation.getFeatureVector();
             double tf = ((NumericFeature) tokenFeatureVector.get(FrequencyCalculator.PROVIDED_FEATURE)).getValue();
             double idf = ((NumericFeature) tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE)).getValue();
             NumericFeature tfidfFeature = new NumericFeature(PROVIDED_FEATURE, tf * idf);

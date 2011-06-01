@@ -17,17 +17,17 @@ public class TokenSpreadCalculator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokenList = tokenFeature.getValue();
+        List<Annotation> tokenList = annotationFeature.getValue();
         Map<String, Integer> firstOccurences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurences = new HashMap<String, Integer>();
         int lastPosition = 0;
-        for (Token token : tokenList) {
-            String value = token.getValue();
-            int tokenPosition = token.getStartPosition();
+        for (Annotation annotation : tokenList) {
+            String value = annotation.getValue();
+            int tokenPosition = annotation.getStartPosition();
             Integer firstOccurence = firstOccurences.get(value);
             if (firstOccurence == null) {
                 firstOccurences.put(value, tokenPosition);
@@ -42,11 +42,11 @@ public class TokenSpreadCalculator implements PipelineProcessor {
             }
             lastPosition = Math.max(tokenPosition, lastPosition);
         }
-        for (Token token : tokenList) {
-            String value = token.getValue();
+        for (Annotation annotation : tokenList) {
+            String value = annotation.getValue();
             double spread = (double) (lastOccurences.get(value) - firstOccurences.get(value)) / lastPosition;
             NumericFeature spreadFeature = new NumericFeature(PROVIDED_FEATURE, spread);
-            token.getFeatureVector().add(spreadFeature);
+            annotation.getFeatureVector().add(spreadFeature);
         }
     }
 

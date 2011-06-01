@@ -15,25 +15,25 @@ public class DuplicateTokenRemover implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException("required feature is missing");
         }
-        List<Token> tokens = tokenFeature.getValue();
+        List<Annotation> annotations = annotationFeature.getValue();
         Set<String> tokenValues = new HashSet<String>();
         
-        List<Token> resultTokens = new ArrayList<Token>();
-        for (Iterator<Token> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-            Token token = tokenIterator.next();
-            String tokenValue = token.getValue().toLowerCase();
+        List<Annotation> resultTokens = new ArrayList<Annotation>();
+        for (Iterator<Annotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
+            Annotation annotation = tokenIterator.next();
+            String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
-                resultTokens.add(token);
+                resultTokens.add(annotation);
             }
         }
-        tokenFeature.setValue(resultTokens);
+        annotationFeature.setValue(resultTokens);
         
-//        for (Iterator<Token> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-//            Token token = tokenIterator.next();
+//        for (Iterator<Annotation> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
+//            Annotation token = tokenIterator.next();
 //            String tokenValue = token.getValue().toLowerCase();
 //            if (!tokenValues.add(tokenValue)) {
 //                tokenIterator.remove();

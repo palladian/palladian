@@ -26,17 +26,17 @@ public class StemmerAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokens = tokenFeature.getValue();
-        for (Token token : tokens) {
-            stemmer.setCurrent(token.getValue());
+        List<Annotation> annotations = annotationFeature.getValue();
+        for (Annotation annotation : annotations) {
+            stemmer.setCurrent(annotation.getValue());
             stemmer.stem();
             String stem = stemmer.getCurrent();
             NominalFeature stemFeature = new NominalFeature("stem", stem);
-            token.getFeatureVector().add(stemFeature);
+            annotation.getFeatureVector().add(stemFeature);
         }
     }
 

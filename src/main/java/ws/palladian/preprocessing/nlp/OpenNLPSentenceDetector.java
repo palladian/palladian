@@ -19,7 +19,7 @@ import ws.palladian.helper.Cache;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.featureextraction.Token;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 /**
  * @author Martin Wunderwald
@@ -83,12 +83,12 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
     @Override
     public OpenNLPSentenceDetector detect(String text) {
         Span[] sentenceBoundaries = ((SentenceDetectorME) getModel()).sentPosDetect(text);
-        Token[] sentenceAnnotations = new Token[sentenceBoundaries.length];
+        Annotation[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
         PipelineDocument document = new PipelineDocument(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();
-            sentenceAnnotations[i] = new Token(document, start, end);
+            sentenceAnnotations[i] = new Annotation(document, start, end);
         }
         setSentences(sentenceAnnotations);
         return this;

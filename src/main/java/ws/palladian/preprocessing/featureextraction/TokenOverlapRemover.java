@@ -14,22 +14,22 @@ public class TokenOverlapRemover implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException("required feature is missing");
         }
-        List<Token> tokens = tokenFeature.getValue();
-        Token[] tokensArray = tokens.toArray(new Token[tokens.size()]);
+        List<Annotation> annotations = annotationFeature.getValue();
+        Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length; i++) {
             for (int j = i + 1; j < tokensArray.length; j++) {
-                Token token1 = tokensArray[i];
-                Token token2 = tokensArray[j];
+                Annotation token1 = tokensArray[i];
+                Annotation token2 = tokensArray[j];
                 boolean token2overlaps = 
                     token1.getStartPosition() >= token2.getStartPosition() &&
                     token1.getEndPosition() <= token2.getEndPosition();
                 if (token2overlaps) {
 //                    System.out.println("remove " + token1);
-                    tokens.remove(token1);
+                    annotations.remove(token1);
                 }
             }
         }
@@ -46,10 +46,10 @@ public class TokenOverlapRemover implements PipelineProcessor {
         processingPipeline.add(new TokenOverlapRemover());
         
         processingPipeline.process(d);
-        TokenFeature tokenFeature = (TokenFeature) d.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE);
-        List<Token> tokens = tokenFeature.getValue();
+        AnnotationFeature annotationFeature = (AnnotationFeature) d.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE);
+        List<Annotation> annotations = annotationFeature.getValue();
         
-        CollectionHelper.print(tokens);
+        CollectionHelper.print(annotations);
     }
 
 }

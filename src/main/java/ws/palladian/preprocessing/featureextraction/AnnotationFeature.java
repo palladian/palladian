@@ -6,18 +6,18 @@ import java.util.List;
 import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 
-public class TokenFeature extends Feature<List<Token>> {
+public class AnnotationFeature extends Feature<List<Annotation>> {
 
     private PipelineDocument document;
 
-    public TokenFeature(String name, PipelineDocument document) {
-        super(name, new ArrayList<Token>());
+    public AnnotationFeature(String name, PipelineDocument document) {
+        super(name, new ArrayList<Annotation>());
         this.document = document;
     }
 
-    public void addToken(Token token) {
-        getValue().add(token);
-        token.setDocument(getDocument());
+    public void addToken(Annotation annotation) {
+        getValue().add(annotation);
+        annotation.setDocument(getDocument());
     }
 
     /**
@@ -36,16 +36,16 @@ public class TokenFeature extends Feature<List<Token>> {
 
     public String toStringList() {
         StringBuilder sb = new StringBuilder();
-        List<Token> tokens = getValue();
-        for (Token token : tokens) {
-            sb.append(token).append("\n");
+        List<Annotation> annotations = getValue();
+        for (Annotation annotation : annotations) {
+            sb.append(annotation).append("\n");
         }
         return sb.toString();
     }
     
-    public List<Token> getTokens(int startPosition, int endPosition) {
-        List<Token> result = new ArrayList<Token>();
-        for (Token current : getValue()) {
+    public List<Annotation> getTokens(int startPosition, int endPosition) {
+        List<Annotation> result = new ArrayList<Annotation>();
+        for (Annotation current : getValue()) {
             if (current.getStartPosition() >= startPosition && current.getEndPosition() <= endPosition) {
                 result.add(current);
             }

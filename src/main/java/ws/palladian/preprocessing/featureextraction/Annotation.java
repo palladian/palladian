@@ -8,14 +8,14 @@ import ws.palladian.preprocessing.PipelineDocument;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public class Token {
+public class Annotation {
 
     private int startPosition;
     private int endPosition;
     private FeatureVector featureVector;
     private PipelineDocument document;
 
-    public Token(PipelineDocument document, int startPosition, int endPosition) {
+    public Annotation(PipelineDocument document, int startPosition, int endPosition) {
         featureVector = new FeatureVector();
         this.document = document;
         this.startPosition = startPosition;
@@ -54,7 +54,7 @@ public class Token {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Token [value=");
+        builder.append("Annotation [value=");
         builder.append(getValue());
         builder.append(", startPosition=");
         builder.append(startPosition);

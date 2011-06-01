@@ -17,16 +17,16 @@ public class FrequencyCalculator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokenList = tokenFeature.getValue();
+        List<Annotation> tokenList = annotationFeature.getValue();
         Bag<String> tokenBag = new HashBag<String>();
-        for (Token token : tokenList) {
-            tokenBag.add(token.getValue());
+        for (Annotation annotation : tokenList) {
+            tokenBag.add(annotation.getValue());
         }
-//        for (Token token : tokenList) {
+//        for (Annotation token : tokenList) {
 //            double frequency = (double) tokenBag.getCount(token.getValue()) / tokenBag.size();
 //            NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
 //            token.getFeatureVector().add(frequencyFeature);
@@ -38,10 +38,10 @@ public class FrequencyCalculator implements PipelineProcessor {
             maxCount = Math.max(maxCount, tokenBag.getCount(token));
         }
         
-        for (Token token : tokenList) {
-            double frequency = (double) tokenBag.getCount(token.getValue()) / maxCount;
+        for (Annotation annotation : tokenList) {
+            double frequency = (double) tokenBag.getCount(annotation.getValue()) / maxCount;
             NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
-            token.getFeatureVector().add(frequencyFeature);
+            annotation.getFeatureVector().add(frequencyFeature);
         }
         
     }

@@ -28,24 +28,24 @@ public class NGramCreator2 implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokens = tokenFeature.getValue();
-        List<TokenGroup> gramTokens = new ArrayList<TokenGroup>();
+        List<Annotation> annotations = annotationFeature.getValue();
+        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         for (int i = minLength; i <= maxLength; i++) {
-            List<TokenGroup> nGramTokens = createNGrams(document, tokens, i);
+            List<AnnotationGroup> nGramTokens = createNGrams(document, annotations, i);
             gramTokens.addAll(nGramTokens);
         }
-        tokens.addAll(gramTokens);
+        annotations.addAll(gramTokens);
     }
 
-    private List<TokenGroup> createNGrams(PipelineDocument document, List<Token> tokens, int length) {
-        List<TokenGroup> gramTokens = new ArrayList<TokenGroup>();
-        Token[] tokensArray = tokens.toArray(new Token[tokens.size()]);
+    private List<AnnotationGroup> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
+        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
+        Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            TokenGroup gramToken = new TokenGroup(document);
+            AnnotationGroup gramToken = new AnnotationGroup(document);
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
             }
