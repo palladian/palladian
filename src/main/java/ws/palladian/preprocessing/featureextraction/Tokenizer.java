@@ -20,13 +20,13 @@ public class Tokenizer implements PipelineProcessor {
     public void process(PipelineDocument document) {
         String text = document.getOriginalContent();
         Matcher matcher = TOKENIZE_REGEXP.matcher(text);
-        TokenFeature tokenFeature = new TokenFeature(PROVIDED_FEATURE, document);
+        AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE, document);
         while (matcher.find()) {
-            Token token = new Token(document,matcher.start(),matcher.end());
-            tokenFeature.addToken(token);
+            Annotation annotation = new Annotation(document,matcher.start(),matcher.end());
+            annotationFeature.addToken(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(tokenFeature);
+        featureVector.add(annotationFeature);
     }
 
 }

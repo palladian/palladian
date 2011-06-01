@@ -6,7 +6,7 @@ import java.util.List;
 import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
-import ws.palladian.preprocessing.featureextraction.Token;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 public final class QuestionAnnotator implements PipelineProcessor {
     
@@ -14,9 +14,9 @@ public final class QuestionAnnotator implements PipelineProcessor {
 
     @Override
     public void process(PipelineDocument document) {
-        Feature<List<Token>> sentences = (Feature<List<Token>>)document.getFeatureVector().get(AbstractSentenceDetector.FEATURE_IDENTIFIER);
-        List<Token> questions = new ArrayList<Token>();
-        for (Token sentence : sentences.getValue()) {
+        Feature<List<Annotation>> sentences = (Feature<List<Annotation>>)document.getFeatureVector().get(AbstractSentenceDetector.FEATURE_IDENTIFIER);
+        List<Annotation> questions = new ArrayList<Annotation>();
+        for (Annotation sentence : sentences.getValue()) {
             String coveredText = sentence.getValue();
             if (coveredText.endsWith("?") || coveredText.toLowerCase().startsWith("what")
                     || coveredText.toLowerCase().startsWith("who") || coveredText.toLowerCase().startsWith("where")
@@ -25,12 +25,12 @@ public final class QuestionAnnotator implements PipelineProcessor {
                  questions.add(createQuestion(sentence));
             }
         }
-        Feature<List<Token>> questionsFeature = new Feature<List<Token>>(FEAUTRE_IDENTIFIER, questions);
+        Feature<List<Annotation>> questionsFeature = new Feature<List<Annotation>>(FEAUTRE_IDENTIFIER, questions);
         document.getFeatureVector().add(questionsFeature);
     }
     
-    private Token createQuestion(Token sentence) {
-        Token ret = new Token(sentence.getDocument(),sentence.getStartPosition(),sentence.getEndPosition());
+    private Annotation createQuestion(Annotation sentence) {
+        Annotation ret = new Annotation(sentence.getDocument(),sentence.getStartPosition(),sentence.getEndPosition());
         return ret;
     }
 

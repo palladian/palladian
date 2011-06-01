@@ -56,33 +56,33 @@ public class OpenNlpTokenizer implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         String content = document.getOriginalContent();
-        TokenFeature tokenFeature = new TokenFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
+        AnnotationFeature annotationFeature = new AnnotationFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
         Span[] spans = tokenizer.tokenizePos(content);
         for (Span span : spans) {
-            Token token = new Token(document,span.getStart(),span.getEnd());
-            tokenFeature.addToken(token);
+            Annotation annotation = new Annotation(document,span.getStart(),span.getEnd());
+            annotationFeature.addToken(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(tokenFeature);
+        featureVector.add(annotationFeature);
     }
     
 //    @Override
 //    public void process(PipelineDocument document) {
 //        FeatureVector featureVector = document.getFeatureVector();
-//        TokenFeature sentenceFeature = (TokenFeature) featureVector.get(OpenNlpSentenceDetector.PROVIDED_FEATURE);
-//        TokenFeature tokenFeature = new TokenFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
+//        AnnotationFeature sentenceFeature = (AnnotationFeature) featureVector.get(OpenNlpSentenceDetector.PROVIDED_FEATURE);
+//        AnnotationFeature tokenFeature = new AnnotationFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
 //
-//        List<Token> sentences = sentenceFeature.getValue();
+//        List<Annotation> sentences = sentenceFeature.getValue();
 //        
-//        for (Token sentence : sentences) {
+//        for (Annotation sentence : sentences) {
 //            
 //            Span[] spans = tokenizer.tokenizePos(sentence.getValue());
 //            
 //            int sentenceStart = sentence.getStartPosition();
-//            TokenFeature sentenceTokenFeature = new TokenFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
+//            AnnotationFeature sentenceTokenFeature = new AnnotationFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
 //            
 //            for (Span span : spans) {
-//                Token token = new Token(document);
+//                Annotation token = new Annotation(document);
 //                token.setStartPosition(sentenceStart + span.getStart());
 //                token.setEndPosition(sentenceStart + span.getEnd());
 //                tokenFeature.addToken(token);

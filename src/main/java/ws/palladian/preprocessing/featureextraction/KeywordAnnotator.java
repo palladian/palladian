@@ -31,33 +31,33 @@ public class KeywordAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        List<Token> tokenList = tokenFeature.getValue();
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        List<Annotation> tokenList = annotationFeature.getValue();
         
         Map<String, Double> temp = new HashMap<String, Double>();
         
         int docLenght = document.getOriginalContent().length();
         
-        for (Token token : tokenList) {
+        for (Annotation annotation : tokenList) {
             
-            // if (!(token instanceof TokenGroup)){continue;}
+            // if (!(token instanceof AnnotationGroup)){continue;}
             
 //            System.err.println(token);
-            FeatureVector tokenFeatureVector = token.getFeatureVector();
+            FeatureVector tokenFeatureVector = annotation.getFeatureVector();
             
 //             double tfidf = ((NumericFeature) tokenFeatureVector.get(TfIdfAnnotator.PROVIDED_FEATURE)).getValue();
             double df = ((NumericFeature) tokenFeatureVector.get(FrequencyCalculator.PROVIDED_FEATURE)).getValue();
             double spread = ((NumericFeature) tokenFeatureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE)).getValue();
-            double uppercaseScore = StringHelper.startsUppercase(token.getValue()) ? 1 : 0.5;
-            double positionScore = 1. - (double) token.getStartPosition() / docLenght;
-            double lengthScore = token.getValue().split(" ").length;
+            double uppercaseScore = StringHelper.startsUppercase(annotation.getValue()) ? 1 : 0.5;
+            double positionScore = 1. - (double) annotation.getStartPosition() / docLenght;
+            double lengthScore = annotation.getValue().split(" ").length;
             
 //            double ranking = tfidf * (spread + 1.0) * /*uppercaseScore * */ positionScore;
 //             double ranking = tfidf * (spread + 1.0) * uppercaseScore * positionScore; // * lengthScore; // XXX no length score in german            
             // double ranking = df * (spread + 1.0) * uppercaseScore * positionScore;            
         double ranking = df * /* df **/ (spread + 1.0) * uppercaseScore * positionScore * lengthScore * lengthScore /** lengthScore*/;            
 //        double ranking = df * /* df **/ (spread + 1.0) * uppercaseScore * positionScore; // * lengthScore /** lengthScore*/;            
-            temp.put(token.getValue(), ranking);
+            temp.put(annotation.getValue(), ranking);
         }
         
         

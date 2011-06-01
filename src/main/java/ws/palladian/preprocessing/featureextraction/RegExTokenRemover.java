@@ -15,8 +15,8 @@ public class RegExTokenRemover extends TokenRemover {
     }
     
     @Override
-    protected boolean remove(Token token) {
-        return pattern.matcher(token.getValue()).matches();
+    protected boolean remove(Annotation annotation) {
+        return pattern.matcher(annotation.getValue()).matches();
     }
 
 }

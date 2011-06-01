@@ -28,24 +28,24 @@ public class NGramCreator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokens = tokenFeature.getValue();
-        List<Token> gramTokens = new ArrayList<Token>();
+        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation> gramTokens = new ArrayList<Annotation>();
         for (int i = minLength; i <= maxLength; i++) {
-            List<Token> nGramTokens = createNGrams(document, tokens, i);            
+            List<Annotation> nGramTokens = createNGrams(document, annotations, i);            
             gramTokens.addAll(nGramTokens);
         }
-        tokens.addAll(gramTokens);
+        annotations.addAll(gramTokens);
     }
 
-    private List<Token> createNGrams(PipelineDocument document, List<Token> tokens, int length) {
-        List<Token> gramTokens = new ArrayList<Token>();
-        Token[] tokensArray = tokens.toArray(new Token[tokens.size()]);
+    private List<Annotation> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
+        List<Annotation> gramTokens = new ArrayList<Annotation>();
+        Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            Token gramToken = new Token(document,tokensArray[i].getStartPosition(),tokensArray[i + length - 1].getEndPosition());
+            Annotation gramToken = new Annotation(document,tokensArray[i].getStartPosition(),tokensArray[i + length - 1].getEndPosition());
             gramTokens.add(gramToken);
         }
         return gramTokens;

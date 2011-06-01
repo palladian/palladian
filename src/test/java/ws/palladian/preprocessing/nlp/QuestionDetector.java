@@ -7,7 +7,7 @@ import org.junit.Test;
 import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.featureextraction.Token;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 public class QuestionDetector {
     private String fixture = "Who is the nicest question without question mark. The last was! Or was it? How about no.";
@@ -21,8 +21,8 @@ public class QuestionDetector {
         pipeline.add(objectOfClassUnderTest);
         
         PipelineDocument document = pipeline.process(new PipelineDocument(fixture));
-        Feature<List<Token>> questions = (Feature<List<Token>>)document.getFeatureVector().get(QuestionAnnotator.FEAUTRE_IDENTIFIER);
-        for(Token question:questions.getValue()) {
+        Feature<List<Annotation>> questions = (Feature<List<Annotation>>)document.getFeatureVector().get(QuestionAnnotator.FEAUTRE_IDENTIFIER);
+        for(Annotation question:questions.getValue()) {
             System.out.println(question);
         }
     }

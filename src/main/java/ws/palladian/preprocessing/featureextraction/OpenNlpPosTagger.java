@@ -46,11 +46,11 @@ public class OpenNlpPosTagger implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokenList = tokenFeature.getValue();
+        List<Annotation> tokenList = annotationFeature.getValue();
         String[] tokenValues = new String[tokenList.size()];
         for (int i = 0; i < tokenList.size(); i++) {
             tokenValues[i] = tokenList.get(i).getValue();

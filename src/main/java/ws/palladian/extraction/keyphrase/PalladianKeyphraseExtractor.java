@@ -494,7 +494,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
      * {@link Candidate}s. The creation of the DocumentModel consists of the following steps:
      * 
      * <ol>
-     * <li>Tokenization of the supplied text to create {@link Token}s,</li>
+     * <li>Tokenization of the supplied text to create {@link Annotation}s,</li>
      * <li>Creation of a new DocumentModel which represents the text and consists of the Tokens,</li>
      * <li>Consolidation of the single Tokens to Candidates; this means all Candidates which have identical stemmed
      * values are merged together.</li>
@@ -540,9 +540,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         }
         
         //        Set<String> stopwords = settings.getStopwords();
-        //        ListIterator<Token> lit = tokens.listIterator();
+        //        ListIterator<Annotation> lit = tokens.listIterator();
         //        while (lit.hasNext()) {
-        //            Token current = lit.next();
+        //            Annotation current = lit.next();
         //            if (stopwords.contains(current.getUnstemmedValue())) {
         //                lit.remove();
         //            }
@@ -715,11 +715,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         System.out.println(makeCandidates.toCSV());
         System.exit(0);
 
-        // List<Token> tokens = extractor.tokenize(text, -1);
+        // List<Annotation> tokens = extractor.tokenize(text, -1);
         // System.out.println(tokens);
         // DocumentModel model = extractor.tokenize(text, 2);
         // System.out.println(model);
-        // List<Token> tokenize2 = extractor.tokenize2(text, 3);
+        // List<Annotation> tokenize2 = extractor.tokenize2(text, 3);
         // CollectionHelper.print(tokenize2);
         // DocumentModel c = extractor.makeCandidates(text, 3);
         // System.out.println(c);
@@ -746,7 +746,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         //
         // String text =
         // "the quick brown fox jumps over the lazy dog. the quick brown fox. brownfox. brownfox. brownfox. brownfox. brownfox.";
-        // // List<Token> tokens = extractor.tokenize(text, -1);
+        // // List<Annotation> tokens = extractor.tokenize(text, -1);
         // // System.out.println(tokens);
         // DocumentModel model = extractor.extract(text, 2);
         // System.out.println(model);

@@ -14,30 +14,30 @@ public abstract class TokenRemover implements PipelineProcessor {
         super();
     }
 
-    protected abstract boolean remove(Token token);
+    protected abstract boolean remove(Annotation annotation);
 
     @Override
     public final void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException("required feature is missing");
         }
-        List<Token> tokens = tokenFeature.getValue();
+        List<Annotation> annotations = annotationFeature.getValue();
         
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
-        List<Token> resultTokens = new ArrayList<Token>();
-        for (Iterator<Token> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-            Token token = tokenIterator.next();
-            if (!remove(token)) {
-                resultTokens.add(token);
+        List<Annotation> resultTokens = new ArrayList<Annotation>();
+        for (Iterator<Annotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
+            Annotation annotation = tokenIterator.next();
+            if (!remove(annotation)) {
+                resultTokens.add(annotation);
             }
         }
-        tokenFeature.setValue(resultTokens);
+        annotationFeature.setValue(resultTokens);
         
-//        for (Iterator<Token> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-//            Token token = tokenIterator.next();
+//        for (Iterator<Annotation> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
+//            Annotation token = tokenIterator.next();
 //            String tokenValue = token.getValue();
 //            if (remove(tokenValue)) {
 //                tokenIterator.remove();

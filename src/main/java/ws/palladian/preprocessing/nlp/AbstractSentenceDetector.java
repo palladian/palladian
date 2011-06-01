@@ -12,7 +12,7 @@ import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
-import ws.palladian.preprocessing.featureextraction.Token;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 /**
  * Abstract base class for all sentence detectors. Subclasses of this class provide an implementation to split texts
@@ -59,7 +59,7 @@ public abstract class AbstractSentenceDetector implements PipelineProcessor {
     private String name;
 
     /** holds the sentences. **/
-    protected Token[] sentences;
+    protected Annotation[] sentences;
 
     /**
      * chunks a sentence and writes parts in @see {@link #chunks} and @see {@link #tokens}. Method returns
@@ -88,7 +88,7 @@ public abstract class AbstractSentenceDetector implements PipelineProcessor {
      * 
      * @return the extracted sentences.
      */
-    public final Token[] getSentences() {
+    public final Annotation[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
     }
     
@@ -112,16 +112,16 @@ public abstract class AbstractSentenceDetector implements PipelineProcessor {
      * @param sentences
      *            the sentences to set
      */
-    protected final void setSentences(Token[] sentences) {
+    protected final void setSentences(Annotation[] sentences) {
         this.sentences = Arrays.copyOf(sentences, sentences.length);
     }
     
     @Override
     public void process(PipelineDocument document) {
         detect(document.getOriginalContent());
-        Token[] sentences = getSentences();
-        List<Token> sentencesList = Arrays.asList(sentences);
-        Feature<List<Token>> sentencesFeature = new Feature<List<Token>>(FEATURE_IDENTIFIER, sentencesList);
+        Annotation[] sentences = getSentences();
+        List<Annotation> sentencesList = Arrays.asList(sentences);
+        Feature<List<Annotation>> sentencesFeature = new Feature<List<Annotation>>(FEATURE_IDENTIFIER, sentencesList);
         FeatureVector featureVector = document.getFeatureVector();
         featureVector.add(sentencesFeature);
     }

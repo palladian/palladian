@@ -23,16 +23,16 @@ public class TermCorpusBuilder implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException("required feature is missing");
         }
-        List<Token> tokens = tokenFeature.getValue();
+        List<Annotation> annotations = annotationFeature.getValue();
         
         Set<String> tokenValues = new HashSet<String>();
 
-        for (Token token : tokens) {
-            String tokenValue = token.getValue().toLowerCase();
+        for (Annotation annotation : annotations) {
+            String tokenValue = annotation.getValue().toLowerCase();
             tokenValues.add(tokenValue);
         }
 

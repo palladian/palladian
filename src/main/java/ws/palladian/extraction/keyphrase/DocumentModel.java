@@ -58,7 +58,7 @@ public class DocumentModel extends ArrayList<Candidate> {
     }
 
     /**
-     * Add a {@link Token} to the document model.
+     * Add a {@link Annotation} to the document model.
      * 
      * @param token
      */
@@ -68,7 +68,7 @@ public class DocumentModel extends ArrayList<Candidate> {
     }
 
     /**
-     * Add a List of {@link Token}s to the document model.
+     * Add a List of {@link Annotation}s to the document model.
      * 
      * @param tokens
      */

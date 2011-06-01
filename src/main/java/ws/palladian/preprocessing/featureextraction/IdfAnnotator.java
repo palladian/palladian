@@ -20,15 +20,15 @@ public class IdfAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        TokenFeature tokenFeature = (TokenFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
-        if (tokenFeature == null) {
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        if (annotationFeature == null) {
             throw new RuntimeException();
         }
-        List<Token> tokenList = tokenFeature.getValue();
-        for (Token token : tokenList) {
-            double idf = termCorpus.getDf(token.getValue().toLowerCase());
+        List<Annotation> tokenList = annotationFeature.getValue();
+        for (Annotation annotation : tokenList) {
+            double idf = termCorpus.getDf(annotation.getValue().toLowerCase());
             NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, idf);
-            token.getFeatureVector().add(frequencyFeature);
+            annotation.getFeatureVector().add(frequencyFeature);
         }
     }
 
