@@ -16,6 +16,7 @@ import opennlp.tools.util.Span;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.featureextraction.Token;
@@ -33,7 +34,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
     /**
      * Logger for this class.
      */
-    protected static final Logger LOGGER = Logger.getLogger(OpenNLPSentenceDetector.class);
+    private static final Logger LOGGER = Logger.getLogger(OpenNLPSentenceDetector.class);
 
     /**
      * constructor for this class.
@@ -53,7 +54,6 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         } else {
 
             final StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
 
             try {
 
@@ -73,13 +73,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
             } catch (final IOException e) {
                 LOGGER.error(e);
             } finally {
-                if (modelIn != null) {
-                    try {
-                        modelIn.close();
-                    } catch (final IOException e) {
-                        LOGGER.error(e);
-                    }
-                }
+                FileHelper.close(modelIn);
             }
         }
 
@@ -91,11 +85,10 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         Span[] sentenceBoundaries = ((SentenceDetectorME) getModel()).sentPosDetect(text);
         Token[] sentenceAnnotations = new Token[sentenceBoundaries.length];
         PipelineDocument document = new PipelineDocument(text);
-        for(int i=0;i<sentenceBoundaries.length;i++) {
-            sentenceAnnotations[i] = new Token(
-                    document,
-                    sentenceBoundaries[i].getStart(),
-                    sentenceBoundaries[i].getEnd());
+        for (int i = 0; i < sentenceBoundaries.length; i++) {
+            int start = sentenceBoundaries[i].getStart();
+            int end = sentenceBoundaries[i].getEnd();
+            sentenceAnnotations[i] = new Token(document, start, end);
         }
         setSentences(sentenceAnnotations);
         return this;

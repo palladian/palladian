@@ -1036,7 +1036,7 @@ public class Feed {
     /**
      * Print feed with content in human readable form.
      */
-    public void print(Feed feed) {
+    public void print() {
         print(false);
     }
 
