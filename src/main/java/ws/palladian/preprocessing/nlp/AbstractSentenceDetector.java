@@ -116,6 +116,7 @@ public abstract class AbstractSentenceDetector implements PipelineProcessor {
         this.sentences = Arrays.copyOf(sentences, sentences.length);
     }
     
+    @Override
     public void process(PipelineDocument document) {
         detect(document.getOriginalContent());
         Token[] sentences = getSentences();
