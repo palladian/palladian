@@ -2,16 +2,16 @@ package ws.palladian.retrieval;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -116,7 +116,7 @@ public class DocumentRetriever {
     /** The number of threads for downloading in parallel. */
     public static final int DEFAULT_NUM_THREADS = 10;
 
-    /** The default number of connections in the connection pool. */ 
+    /** The default number of connections in the connection pool. */
     private static final int DEFAULT_NUM_CONNECTIONS = 100;
 
     private static ThreadSafeClientConnManager connectionManager = new ThreadSafeClientConnManager();
@@ -281,50 +281,39 @@ public class DocumentRetriever {
      * Download the contents that are retrieved from the given URL.
      * 
      * @param url The URL of the desired contents.
-     * @return The contents as a string.
+     * @return The contents as a string or {@code null} if contents could no be retrieved. See the error log for
+     *         possible errors.
      */
     public String getTextDocument(String url) {
 
         boolean isFile = isFile(url);
 
-        String contentString = "";
+        String contentString = null;
 
         // read from file with buffered input stream
-        if (isFile) {
-            contentString = FileHelper.readFileToString(url);
-        } else {
-            StringBuilder buffer = new StringBuilder();
-            InputStream inputStream = null;
-            BufferedReader br = null;
-
-            try {
+        Reader reader = null;
+        try {
+            if (isFile) {
+                reader = new FileReader(url);
+                contentString = IOUtils.toString(reader);
+                IOUtils.closeQuietly(reader);
+            } else {
                 url = url.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(url);
                 if (httpResult != null && httpResult.getContent() != null) {
-                    br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(httpResult.getContent())));
-                    String line = "";
-                    do {
-                        line = br.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        buffer.append(line).append("\n");
-                    } while (line != null);
+                    contentString = new String(httpResult.getContent());
                 }
-
-            } catch (FileNotFoundException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (SocketTimeoutException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (MalformedURLException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (IOException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } finally {
-                FileHelper.close(br, inputStream);
             }
-
-            contentString = buffer.toString();
+        } catch (FileNotFoundException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } catch (SocketTimeoutException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } catch (MalformedURLException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(reader);
         }
 
         return contentString;
@@ -360,7 +349,7 @@ public class DocumentRetriever {
             HttpResponse response = httpClient.execute(get, context);
             HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
             HttpConnectionMetrics metrics = connection.getMetrics();
-            
+
             HttpEntity entity = response.getEntity();
             if (entity != null) {
 
@@ -460,14 +449,14 @@ public class DocumentRetriever {
 
     // TODO add exceptions, when get fails, do not return null
     private Document internalGetDocument(String url, boolean isXML) {
-        
+
         Document document = null;
         String cleanUrl = url.trim();
 
         InputStream inputStream = null;
 
         boolean isFile = isFile(cleanUrl);
-        
+
         try {
 
             if (isFile) {
@@ -562,13 +551,13 @@ public class DocumentRetriever {
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpHeaders) {
-        
+
         boolean result = false;
         HttpResult httpResult = httpGet(url);
         StringBuilder content = new StringBuilder();
 
         if (httpResult != null) {
-            
+
             if (includeHttpHeaders) {
 
                 content.append("Status Code").append(":").append(httpResult.getStatusCode());
@@ -630,7 +619,7 @@ public class DocumentRetriever {
      * @param pathWithFileName the path where the file should be saved
      * @return the file
      * @author Martin Werner
-     * TODO check if we can substiture this by {@link #downloadAndSave(String, String)}.
+     *         TODO check if we can substiture this by {@link #downloadAndSave(String, String)}.
      */
     public static File downloadBinaryFile(String urlString, String pathWithFileName) {
         File binFile = null;
@@ -755,7 +744,7 @@ public class DocumentRetriever {
         sessionDownloadedBytes = 0;
         numberOfDownloadedPages = 0;
     }
-    
+
     public static void resetSessionDownloadSizes() {
         sessionDownloadedBytes = 0;
         numberOfDownloadedPages = 0;
@@ -859,11 +848,10 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
-        
-//        retriever.downloadBinaryFile(urlString, pathWithFileName);
-//        retriever.downloadAndSave(urlString, path);
-        
-        
+
+        // retriever.downloadBinaryFile(urlString, pathWithFileName);
+        // retriever.downloadAndSave(urlString, path);
+
         HttpResult result = retriever.httpGet("http://www.google.com");
         System.out.println(result);
 
