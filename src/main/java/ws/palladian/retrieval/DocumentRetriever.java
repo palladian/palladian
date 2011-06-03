@@ -71,17 +71,12 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
- * The DocumentRetriever downloads pages from the web or the hard disk. List of proxies can be found here: <a
- * href="http://www.proxy-list.org/en/index.php">http://www.proxy-list.org/en/index.php</a>.
+ * The DocumentRetriever downloads pages from the web or the hard disk.
  * 
  * TODO switched to Apache HttpComponents; old functionality, which is missing atm:
  * - proxy cycling (should be separated from the DocumentRetriever, anyway.
  * - DownloadFilter for file types
  * - feed discovery
- * - set documetn uri
- * 
- * CHANGES
- * - compression is always used
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -136,9 +131,6 @@ public class DocumentRetriever {
     /** The filter for the retriever. */
     private DownloadFilter downloadFilter = new DownloadFilter();
 
-    /** Whether or not to sanitize the XML code before constructing the Document. */
-    // protected boolean sanitizeXml = true;
-
     /** The maximum number of threads to use. */
     private int numThreads;
 
@@ -179,10 +171,10 @@ public class DocumentRetriever {
     }
 
     /**
-     * Start downloading the supplied URLs.
+     * Get multiple URLs in parallel, for each finished download the supplied callback is invoked.
      * 
-     * @param callback The callback to be called for each finished download. If the callback is null, the method will
-     *            save the downloaded documents and return them when finished.
+     * @param urls the URLs to download.
+     * @param callback the callback to be called for each finished download.
      */
     public void getWebDocuments(Collection<String> urls, RetrieverCallback callback) {
 
@@ -204,6 +196,12 @@ public class DocumentRetriever {
         }
     }
 
+    /**
+     * Get multiple URLs in parallel.
+     * 
+     * @param urls the URLs to download.
+     * @return set with the downloaded documents.
+     */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<Document>();
         getWebDocuments(urls, new RetrieverCallback() {
@@ -237,10 +235,10 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     /**
-     * Get a json object from a URL. The retrieved contents must return a valid json object.
+     * Get a JSON object from a URL. The retrieved contents must return a valid JSON object.
      * 
-     * @param url The url pointing to the json string.
-     * @return The json object.
+     * @param url the URL pointing to the JSON string.
+     * @return the JSON object.
      */
     public JSONObject getJSONDocument(String url) {
         String json = getTextDocument(url);
@@ -274,23 +272,18 @@ public class DocumentRetriever {
      * Download the contents that are retrieved from the given URL.
      * 
      * @param url The URL of the desired contents.
-     * @return The contents as a string or {@code null} if contents could no be retrieved. See the error log for
+     * @return The contents as a string or <code>null</code> if contents could no be retrieved. See the error log for
      *         possible errors.
      */
     public String getTextDocument(String url) {
 
-        boolean isFile = isFile(url);
-
         String contentString = null;
-
-        // read from file with buffered input stream
         Reader reader = null;
         try {
-            if (isFile) {
+            if (isFile(url)) {
                 reader = new FileReader(url);
                 contentString = IOUtils.toString(reader);
             } else {
-                url = url.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(url);
                 contentString = new String(httpResult.getContent());
             }
@@ -416,9 +409,7 @@ public class DocumentRetriever {
      * @return
      */
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
-
         Map<String, List<String>> result = new HashMap<String, List<String>>();
-
         for (Header header : headers) {
             List<String> list = result.get(header.getName());
             if (list == null) {
@@ -427,7 +418,6 @@ public class DocumentRetriever {
             }
             list.add(header.getValue());
         }
-
         return result;
     }
 
@@ -498,32 +488,26 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     // TODO add exceptions, when get fails, do not return null
-    private Document internalGetDocument(String url, boolean isXML) {
+    private Document internalGetDocument(String url, boolean xml) {
 
         Document document = null;
         String cleanUrl = url.trim();
-
         InputStream inputStream = null;
-
-        boolean isFile = isFile(cleanUrl);
 
         try {
 
-            if (isFile) {
+            if (isFile(cleanUrl)) {
                 File file = new File(cleanUrl);
                 inputStream = new BufferedInputStream(new FileInputStream(new File(cleanUrl)));
-                document = parse(inputStream, isXML, file.toURI().toString());
+                document = parse(inputStream, xml);
+                document.setDocumentURI(file.toURI().toString());
             } else {
-                cleanUrl = cleanUrl.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(cleanUrl);
-                document = parse(new ByteArrayInputStream(httpResult.getContent()), isXML, cleanUrl);
+                document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
+                document.setDocumentURI(cleanUrl);
             }
 
-            // only call, if we actually got a Document; so we don't need to check for null within the Callback
-            // implementation itself.
-            if (document != null) {
-                callRetrieverCallback(document);
-            }
+            callRetrieverCallback(document);
 
         } catch (FileNotFoundException e) {
             LOGGER.error(url + ", " + e.getMessage());
@@ -540,7 +524,7 @@ public class DocumentRetriever {
         return document;
     }
 
-    private boolean isFile(String url) {
+    private static boolean isFile(String url) {
         boolean isFile = false;
         if (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) {
             isFile = true;
@@ -549,42 +533,36 @@ public class DocumentRetriever {
     }
 
     /**
-     * <p>
-     * Parses a an input stream to a document.
-     * </p>
+     * Parses a an {@link InputStream} to a {@link Document}.
      * 
-     * @param dataStream The stream to parse.
-     * @param isXML {@code true} if this document is an XML document and {@code false} otherwise.
-     * @param uri The URI the provided stream comes from.
-     * @throws ParserException
+     * @param inputStream the stream to parse.
+     * @param xml <code>true</code> if this document is an XML document, <code>false</code> if HTML document.
+     * @throws ParserException if parsing failed.
      */
-    private Document parse(InputStream dataStream, boolean isXML, String uri) throws ParserException {
-
+    private Document parse(InputStream inputStream, boolean xml) throws ParserException {
         Document document = null;
         DocumentParser parser;
 
-        if (isXML) {
+        if (xml) {
             parser = parserFactory.createXmlParser();
         } else {
             parser = parserFactory.createHtmlParser();
         }
 
-        document = parser.parse(dataStream);
-        document.setDocumentURI(uri);
+        document = parser.parse(inputStream);
         return document;
-
     }
 
-    public void downloadAndSave(HashSet<String> urlSet) {
+    public void downloadAndSave(Collection<String> urls) {
         int number = 1;
-        for (String url : urlSet) {
+        for (String url : urls) {
             downloadAndSave(url, "website" + number + ".html");
             ++number;
         }
     }
 
-    public boolean downloadAndSave(String urlString, String path) {
-        return downloadAndSave(urlString, path, false);
+    public boolean downloadAndSave(String url, String path) {
+        return downloadAndSave(url, path, false);
     }
 
     /**
@@ -707,7 +685,7 @@ public class DocumentRetriever {
     }
 
     public long getLastDownloadSize(SizeUnit unit) {
-        return SizeUnit.BYTES.convert(lastDownloadedBytes, unit);
+        return unit.convert(lastDownloadedBytes, SizeUnit.BYTES);
     }
 
     public long getTotalDownloadSize() {
@@ -715,7 +693,7 @@ public class DocumentRetriever {
     }
 
     public long getTotalDownloadSize(SizeUnit unit) {
-        return SizeUnit.BYTES.convert(totalDownloadedBytes, unit);
+        return unit.convert(totalDownloadedBytes, SizeUnit.BYTES);
     }
 
     public static long getSessionDownloadSize() {
@@ -723,7 +701,7 @@ public class DocumentRetriever {
     }
 
     public static long getSessionDownloadSize(SizeUnit unit) {
-        return SizeUnit.BYTES.convert(sessionDownloadedBytes, unit);
+        return unit.convert(sessionDownloadedBytes, SizeUnit.BYTES);
     }
 
     public static int getNumberOfDownloadedPages() {
@@ -840,7 +818,6 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
-        System.exit(0);
 
         // download and save a web page including their headers in a gzipped file
         retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", true);
