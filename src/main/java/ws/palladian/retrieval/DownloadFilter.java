@@ -1,9 +1,18 @@
 package ws.palladian.retrieval;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import ws.palladian.helper.FileHelper;
+
 public class DownloadFilter {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(DownloadFilter.class);
 
     /** List of binary file extensions. */
     public static final String[] BINARY_FILE_TYPES = { "pdf", "doc", "ppt", "xls", "png", "jpg", "jpeg", "gif", "ai",
@@ -16,38 +25,38 @@ public class DownloadFilter {
      * The file types to include. If this set is empty, all file types are included. If there are entries in the list
      * ONLY those file types are included.
      */
-    private Set<String> includeFileTypes = new HashSet<String>();
+    private Set<String> includeFileTypes;
 
     /** The file types to exclude. If this set is empty, no file types are excluded. */
-    private Set<String> excludeFileTypes = new HashSet<String>();
+    private Set<String> excludeFileTypes;
 
     /**
-     * The maximum file size in bytes which should be downloaded (TODO: only web documents?). -1 means no limit. If you
+     * The maximum file size in bytes which should be downloaded. A value of -1 means no limit. If you
      * think that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles
      * Muahahahaha.
      */
-    private long maxFileSize = SizeUnit.MEGABYTES.toBytes(1);
+    private long maxFileSize;
 
-    public Set<String> getIncludeFileTypes() {
-        return includeFileTypes;
+    public DownloadFilter() {
+        includeFileTypes = new HashSet<String>();
+        excludeFileTypes = new HashSet<String>();
+        maxFileSize = SizeUnit.MEGABYTES.toBytes(1);
     }
 
-    public void setIncludeFileTypes(Set<String> includeFileTypes) {
-        this.includeFileTypes = includeFileTypes;
+    public void setIncludeFileTypes(Collection<String> fileTypes) {
+        includeFileTypes = new HashSet<String>(fileTypes);
     }
 
-    public Set<String> getExcludeFileTypes() {
-        return excludeFileTypes;
+    public void setIncludeFileTypes(String[] fileTypes) {
+        setIncludeFileTypes(Arrays.asList(fileTypes));
     }
 
-    public void setExcludeFileTypes(Set<String> excludeFileTypes) {
-        this.excludeFileTypes = excludeFileTypes;
+    public void setExcludeFileTypes(Collection<String> fileTypes) {
+        excludeFileTypes = new HashSet<String>(fileTypes);
     }
 
     public void setExcludeFileTypes(String[] fileTypes) {
-        for (String fileType : fileTypes) {
-            this.excludeFileTypes.add(fileType);
-        }
+        setExcludeFileTypes(Arrays.asList(fileTypes));
     }
 
     public long getMaxFileSize() {
@@ -56,6 +65,17 @@ public class DownloadFilter {
 
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
+    }
+
+    public boolean isAcceptedFileType(String url) {
+        String fileType = FileHelper.getFileType(url);
+        boolean whiteListed = includeFileTypes.isEmpty() || includeFileTypes.contains(fileType);
+        boolean blackListed = excludeFileTypes.contains(fileType);
+        boolean accepted = whiteListed && !blackListed;
+        if (!accepted) {
+            LOGGER.debug("rejected URL : " + url);
+        }
+        return accepted;
     }
 
 }

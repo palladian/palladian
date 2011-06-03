@@ -77,7 +77,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 5;
+    private static final int VERSION = 6;
 
     /**
      * <p>
@@ -128,7 +128,7 @@ public final class ConfigHolder {
             } else {
 //                throw new IllegalStateException(
 //                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
-                LOGGER.warn("No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
+                LOGGER.warn("No Palladian configuration file available. Please put one named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
             }
 
             final PropertiesConfiguration properties = new PropertiesConfiguration(configFile);

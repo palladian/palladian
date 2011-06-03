@@ -1,5 +1,6 @@
-config.version = 5
+config.version = 6
 ### version history:
+### 6: renamed configuration options for ProxySwitcher
 ### 5: added SendMail config
 ### 4: added thread pool size for DocumentRetriever, changed timeouts
 ### 3: added thread pool size for MetadataCreator
@@ -55,61 +56,31 @@ db.inMemoryMode = true
 
 ######################## DocumentRetriever ########################
 
-#  number of request before switching to another proxy, default is -1 and means never switch
-documentRetriever.switchProxyRequests = -1
-
-# enables feed auto discovery for every parsed page
-# see feeds.conf to configure path to the file.
-documentRetriever.feedAutoDiscovery = false
-
-# maximum number of retries if download request fails, default is 0 and means no retry
-documentRetriever.numRetries = 0
-
 # timeouts in milliseconds
 documentRetriever.connectionTimeout = 10000
 documentRetriever.socketTimeout = 180000
 
+# maximum number of retries if download request fails, default is 0 and means no retry
+documentRetriever.numRetries = 0
+
 # number of connections opened by the connection pool
 documentRetriever.numConnections = 100
 
+# enables feed auto discovery for every parsed page
+# see feeds.conf to configure path to the file.
+# disabled for now.
+# documentRetriever.feedAutoDiscovery = false
+
+######################## ProxySwitcher ########################
+
+#  number of request before switching to another proxy, default is -1 and means never switch
+proxySwitcher.switchRequests = -1
+
 # list of proxies to choose from
 # see: http://proxy-list.org/en/index.php
-documentRetriever.proxyList = 190.128.224.82:8081
-documentRetriever.proxyList = 201.38.16.234:8090
-documentRetriever.proxyList = 201.12.130.211:3128
-documentRetriever.proxyList = 200.96.245.146:3128
-documentRetriever.proxyList = 200.52.66.195:3128
-documentRetriever.proxyList = 195.22.243.134:8080
-documentRetriever.proxyList = 70.83.96.142:9415
-documentRetriever.proxyList = 124.160.27.162:808
-documentRetriever.proxyList = 202.143.146.205:8080
-documentRetriever.proxyList = 118.141.212.161:9415
-documentRetriever.proxyList = 121.237.141.102:9415
-documentRetriever.proxyList = 117.66.178.69:9415
-documentRetriever.proxyList = 123.11.246.144:9415
-documentRetriever.proxyList = 123.232.230.129:9415
-documentRetriever.proxyList = 222.167.58.78:9415
-documentRetriever.proxyList = 125.83.25.109:9415
-documentRetriever.proxyList = 221.131.149.173:9415
-documentRetriever.proxyList = 118.96.143.59:8080
-documentRetriever.proxyList = 122.74.107.67:9415
-documentRetriever.proxyList = 61.31.137.196:9415
-documentRetriever.proxyList = 60.164.128.94:9415
-documentRetriever.proxyList = 222.166.36.99:9415
-documentRetriever.proxyList = 122.157.4.126:9415
-documentRetriever.proxyList = 121.229.158.225:9415
-documentRetriever.proxyList = 222.131.120.19:9415
-documentRetriever.proxyList = 114.243.113.187:9415
-documentRetriever.proxyList = 117.92.177.51:9415
-documentRetriever.proxyList = 60.20.54.230:9415
-documentRetriever.proxyList = 41.234.204.160:3128
-documentRetriever.proxyList = 189.14.47.240:3128
-documentRetriever.proxyList = 110.136.190.157:8080
-documentRetriever.proxyList = 61.244.235.34:3128
-documentRetriever.proxyList = 60.11.219.100:9415
-documentRetriever.proxyList = 200.89.2.218:3128
-documentRetriever.proxyList = 59.90.189.48:8080
-documentRetriever.proxyList = 189.44.54.76:3128
+proxySwitcher.proxyList = 190.128.224.82:8081
+proxySwitcher.proxyList = 201.38.16.234:8090
+proxySwitcher.proxyList = 201.12.130.211:3128
 
 ######################## Classification ########################
 # page classification configurations
