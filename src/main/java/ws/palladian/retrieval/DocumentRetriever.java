@@ -20,9 +20,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -379,6 +379,35 @@ public class DocumentRetriever {
 
     }
     
+    private HttpResult httpHead(String url) throws HttpException {
+        
+        HttpResult result;
+        HttpHead head = new HttpHead(url);
+        head.setHeader("User-Agent", USER_AGENT);
+
+        try {
+
+            // TODO get file transfer size
+            HttpContext context = new BasicHttpContext();
+            HttpResponse response = httpClient.execute(head, context);
+            
+            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            int statusCode = response.getStatusLine().getStatusCode();
+            result = new HttpResult(url, new byte[0], headers, statusCode, -1);
+
+        } catch (ClientProtocolException e) {
+            throw new HttpException(e);
+        } catch (ParseException e) {
+            throw new HttpException(e);
+        } catch (IOException e) {
+            throw new HttpException(e);
+        } finally {
+            head.abort();
+        }
+
+        return result;
+        
+    }
 
     /**
      * Converts the Header type from Apache to a more generic Map.
@@ -403,49 +432,65 @@ public class DocumentRetriever {
     }
 
     /**
-     * Get the HTTP headers for a URL.
+     * Get the HTTP headers for a URL by sending a HEAD request.
      * 
-     * @param url The URL of the page to get the headers from.
+     * @param url the URL of the page to get the headers from.
+     * @return map with the headers, or an empty map if an error occurred.
+     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
      */
+    @Deprecated
     public Map<String, List<String>> getHeaders(String url) {
-
-        HttpHead head = new HttpHead(url);
-        head.setHeader("User-Agent", USER_AGENT);
-
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
-
+        Map<String, List<String>> result;
         try {
-
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(head, context);
-            // FIXME
-            // HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            // HttpConnectionMetrics metrics = connection.getMetrics();
-            Header[] headers = response.getAllHeaders();
-
-            for (Header header : headers) {
-                String headerName = header.getName();
-                List<String> list = result.get(headerName);
-                if (list == null) {
-                    list = new ArrayList<String>();
-                    result.put(headerName, list);
-                }
-                list.add(header.getValue());
-            }
-
-            // addDownloadSize(metrics.getReceivedBytesCount());
-
-        } catch (ClientProtocolException e) {
-            LOGGER.error(e);
-        } catch (ParseException e) {
-            LOGGER.error(e);
+            HttpResult httpResult = httpHead(url);
+            result = httpResult.getHeaders();
+        } catch (HttpException e) {
+            LOGGER.debug(e);
+            result = Collections.emptyMap();
+        }
+        return result;
+    }
+    
+    /**
+     * Get the HTTP response code of the given URL after sending a HEAD request.
+     * 
+     * @param url the URL of the page to check for response code.
+     * @return the HTTP response code, or -1 if an error occurred.
+     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
+     */
+    @Deprecated
+    public int getResponseCode(String url) {
+        int result;
+        try {
+            HttpResult httpResult = httpHead(url);
+            result = httpResult.getStatusCode();
+        } catch (HttpException e) {
+            LOGGER.debug(e);
+            result = -1;
+        }
+        return result;
+    }
+    
+    /**
+     * Gets the redirect URL from the HTTP "Location" header, if such exists.
+     * 
+     * @param url the URL to check for redirect.
+     * @return redirected URL as String, or <code>null</code>.
+     */
+    public String getRedirectUrl(String url) {
+        // TODO should be changed to use HttpComponents
+        String location = null;
+        try {
+            URL urlObject = new URL(url);
+            URLConnection urlCon = urlObject.openConnection();
+            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+            httpUrlCon.setInstanceFollowRedirects(false);
+            location = httpUrlCon.getHeaderField("Location");
         } catch (IOException e) {
             LOGGER.error(e);
-        } finally {
-            head.abort();
         }
 
-        return result;
+        return location;
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -531,10 +576,9 @@ public class DocumentRetriever {
     }
 
     public void downloadAndSave(HashSet<String> urlSet) {
-        Iterator<String> urlSetIterator = urlSet.iterator();
         int number = 1;
-        while (urlSetIterator.hasNext()) {
-            downloadAndSave(urlSetIterator.next(), "website" + number + ".html");
+        for (String url : urlSet) {
+            downloadAndSave(url, "website" + number + ".html");
             ++number;
         }
     }
@@ -591,31 +635,7 @@ public class DocumentRetriever {
 
     }
 
-    /**
-     * Gets the redirect URL, if such exists.
-     * 
-     * @param urlString original URL.
-     * @return redirected URL as String or null;
-     */
-    public String getRedirectUrl(String urlString) {
-        // TODO should be changed to use HttpComponents
-        URL url = null;
-        URLConnection urlCon;
-        HttpURLConnection httpUrlCon;
-        String location = null;
-        try {
-            url = new URL(urlString);
-            urlCon = url.openConnection();
-            httpUrlCon = (HttpURLConnection) urlCon;
-            httpUrlCon.setInstanceFollowRedirects(false);
-            location = httpUrlCon.getHeaderField("Location");
 
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
-
-        return location;
-    }
 
     /**
      * Download a binary file from specified URL to a given path.
@@ -664,39 +684,7 @@ public class DocumentRetriever {
         return binFile;
     }
 
-    /**
-     * Get the response code of the given url after sending a HEAD request. This works only for HTTP connections.
-     * 
-     * @param url
-     * @return The HTTP response code, or -1 if an error occured.
-     */
-    public int getResponseCode(String url) {
 
-        int responseCode = -1;
-
-        HttpHead head = new HttpHead(url);
-        head.setHeader("User-Agent", USER_AGENT);
-
-        try {
-
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(head, context);
-            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            HttpConnectionMetrics metrics = connection.getMetrics();
-
-            responseCode = response.getStatusLine().getStatusCode();
-            addDownload(metrics.getReceivedBytesCount());
-
-        } catch (ClientProtocolException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        } finally {
-            head.abort();
-        }
-
-        return responseCode;
-    }
 
     // ////////////////////////////////////////////////////////////////
     // Traffic count and statistics
@@ -852,8 +840,6 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
-        HttpResult httpResult = retriever.httpGet("http://www.google.com");
-        System.out.println(httpResult);
         System.exit(0);
 
         // download and save a web page including their headers in a gzipped file
