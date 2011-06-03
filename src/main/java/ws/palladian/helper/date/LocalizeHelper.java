@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ws.palladian.helper;
+package ws.palladian.helper.date;
 
 import java.util.Locale;
 import java.util.TimeZone;
