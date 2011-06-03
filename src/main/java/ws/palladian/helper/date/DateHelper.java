@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ws.palladian.helper.LocalizeHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.preprocessing.normalization.DateNormalizer;
 
