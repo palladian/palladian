@@ -157,6 +157,185 @@ public class DocumentRetriever {
     }
 
     // ////////////////////////////////////////////////////////////////
+    // HTTP methods
+    // ////////////////////////////////////////////////////////////////
+
+    public HttpResult httpGet(String url) throws HttpException {
+
+        // // check whether we are allowed to download the file from this URL
+        // String fileType = FileHelper.getFileType(url.toString());
+        // if (!getDownloadFilter().getIncludeFileTypes().contains(fileType)
+        // && getDownloadFilter().getIncludeFileTypes().size() > 0
+        // || getDownloadFilter().getExcludeFileTypes().contains(fileType)) {
+        // LOGGER.debug("filtered URL: " + url);
+        // return null;
+        // }
+
+        HttpResult result;
+        HttpGet get = new HttpGet(url);
+        get.setHeader("User-Agent", USER_AGENT);
+        InputStream in = null;
+
+        try {
+
+            HttpContext context = new BasicHttpContext();
+            HttpResponse response = httpClient.execute(get, context);
+            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+            HttpConnectionMetrics metrics = connection.getMetrics();
+
+            HttpEntity entity = response.getEntity();
+            byte[] content;
+
+            if (entity != null) {
+
+                in = entity.getContent();
+
+                // check for a maximum download size limitation
+                long maxFileSize = downloadFilter.getMaxFileSize();
+                if (maxFileSize != -1) {
+                    in = new BoundedInputStream(in, maxFileSize);
+                }
+
+                content = IOUtils.toByteArray(in);
+
+            } else {
+                content = new byte[0];
+            }
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            long receivedBytes = metrics.getReceivedBytesCount();
+            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            result = new HttpResult(url, content, headers, statusCode, receivedBytes);
+
+            addDownload(metrics.getReceivedBytesCount());
+
+        } catch (ClientProtocolException e) {
+            throw new HttpException(e);
+        } catch (IllegalStateException e) {
+            throw new HttpException(e);
+        } catch (IOException e) {
+            throw new HttpException(e);
+        } finally {
+            IOUtils.closeQuietly(in);
+            get.abort();
+        }
+
+        return result;
+
+    }
+
+    public HttpResult httpHead(String url) throws HttpException {
+
+        HttpResult result;
+        HttpHead head = new HttpHead(url);
+        head.setHeader("User-Agent", USER_AGENT);
+
+        try {
+
+            // TODO get file transfer size
+            HttpContext context = new BasicHttpContext();
+            HttpResponse response = httpClient.execute(head, context);
+
+            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            int statusCode = response.getStatusLine().getStatusCode();
+            result = new HttpResult(url, new byte[0], headers, statusCode, -1);
+
+        } catch (ClientProtocolException e) {
+            throw new HttpException(e);
+        } catch (ParseException e) {
+            throw new HttpException(e);
+        } catch (IOException e) {
+            throw new HttpException(e);
+        } finally {
+            head.abort();
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Converts the Header type from Apache to a more generic Map.
+     * 
+     * @param headers
+     * @return
+     */
+    private static Map<String, List<String>> convertHeaders(Header[] headers) {
+        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        for (Header header : headers) {
+            List<String> list = result.get(header.getName());
+            if (list == null) {
+                list = new ArrayList<String>();
+                result.put(header.getName(), list);
+            }
+            list.add(header.getValue());
+        }
+        return result;
+    }
+
+    /**
+     * Get the HTTP headers for a URL by sending a HEAD request.
+     * 
+     * @param url the URL of the page to get the headers from.
+     * @return map with the headers, or an empty map if an error occurred.
+     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
+     */
+    @Deprecated
+    public Map<String, List<String>> getHeaders(String url) {
+        Map<String, List<String>> result;
+        try {
+            HttpResult httpResult = httpHead(url);
+            result = httpResult.getHeaders();
+        } catch (HttpException e) {
+            LOGGER.debug(e);
+            result = Collections.emptyMap();
+        }
+        return result;
+    }
+
+    /**
+     * Get the HTTP response code of the given URL after sending a HEAD request.
+     * 
+     * @param url the URL of the page to check for response code.
+     * @return the HTTP response code, or -1 if an error occurred.
+     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
+     */
+    @Deprecated
+    public int getResponseCode(String url) {
+        int result;
+        try {
+            HttpResult httpResult = httpHead(url);
+            result = httpResult.getStatusCode();
+        } catch (HttpException e) {
+            LOGGER.debug(e);
+            result = -1;
+        }
+        return result;
+    }
+
+    /**
+     * Gets the redirect URL from the HTTP "Location" header, if such exists.
+     * 
+     * @param url the URL to check for redirect.
+     * @return redirected URL as String, or <code>null</code>.
+     */
+    public String getRedirectUrl(String url) {
+        // TODO should be changed to use HttpComponents
+        String location = null;
+        try {
+            URL urlObject = new URL(url);
+            URLConnection urlCon = urlObject.openConnection();
+            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+            httpUrlCon.setInstanceFollowRedirects(false);
+            location = httpUrlCon.getHeaderField("Location");
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
+
+        return location;
+    }
+
+    // ////////////////////////////////////////////////////////////////
     // methods for retrieving + parsing (X)HTML documents
     // ////////////////////////////////////////////////////////////////
 
@@ -305,185 +484,6 @@ public class DocumentRetriever {
     }
 
     // ////////////////////////////////////////////////////////////////
-    // transfer methods
-    // ////////////////////////////////////////////////////////////////
-
-    private HttpResult httpGet(String url) throws HttpException {
-
-        // // check whether we are allowed to download the file from this URL
-        // String fileType = FileHelper.getFileType(url.toString());
-        // if (!getDownloadFilter().getIncludeFileTypes().contains(fileType)
-        // && getDownloadFilter().getIncludeFileTypes().size() > 0
-        // || getDownloadFilter().getExcludeFileTypes().contains(fileType)) {
-        // LOGGER.debug("filtered URL: " + url);
-        // return null;
-        // }
-
-        HttpResult result;
-        HttpGet get = new HttpGet(url);
-        get.setHeader("User-Agent", USER_AGENT);
-        InputStream in = null;
-
-        try {
-
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(get, context);
-            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            HttpConnectionMetrics metrics = connection.getMetrics();
-
-            HttpEntity entity = response.getEntity();
-            byte[] content;
-            
-            if (entity != null) {
-
-                in = entity.getContent();
-                
-                // check for a maximum download size limitation
-                long maxFileSize = downloadFilter.getMaxFileSize();
-                if (maxFileSize != -1) {
-                    in = new BoundedInputStream(in, maxFileSize);
-                }
-                
-                content = IOUtils.toByteArray(in);
-                
-            } else {
-                content = new byte[0];
-            }
-            
-            int statusCode = response.getStatusLine().getStatusCode();
-            long receivedBytes = metrics.getReceivedBytesCount();
-            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
-            result = new HttpResult(url, content, headers, statusCode, receivedBytes);
-
-            addDownload(metrics.getReceivedBytesCount());
-
-        } catch (ClientProtocolException e) {
-            throw new HttpException(e);
-        } catch (IllegalStateException e) {
-            throw new HttpException(e);
-        } catch (IOException e) {
-            throw new HttpException(e);
-        } finally {
-            IOUtils.closeQuietly(in);
-            get.abort();
-        }
-
-        return result;
-
-    }
-    
-    private HttpResult httpHead(String url) throws HttpException {
-        
-        HttpResult result;
-        HttpHead head = new HttpHead(url);
-        head.setHeader("User-Agent", USER_AGENT);
-
-        try {
-
-            // TODO get file transfer size
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(head, context);
-            
-            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
-            int statusCode = response.getStatusLine().getStatusCode();
-            result = new HttpResult(url, new byte[0], headers, statusCode, -1);
-
-        } catch (ClientProtocolException e) {
-            throw new HttpException(e);
-        } catch (ParseException e) {
-            throw new HttpException(e);
-        } catch (IOException e) {
-            throw new HttpException(e);
-        } finally {
-            head.abort();
-        }
-
-        return result;
-        
-    }
-
-    /**
-     * Converts the Header type from Apache to a more generic Map.
-     * 
-     * @param headers
-     * @return
-     */
-    private static Map<String, List<String>> convertHeaders(Header[] headers) {
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
-        for (Header header : headers) {
-            List<String> list = result.get(header.getName());
-            if (list == null) {
-                list = new ArrayList<String>();
-                result.put(header.getName(), list);
-            }
-            list.add(header.getValue());
-        }
-        return result;
-    }
-
-    /**
-     * Get the HTTP headers for a URL by sending a HEAD request.
-     * 
-     * @param url the URL of the page to get the headers from.
-     * @return map with the headers, or an empty map if an error occurred.
-     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
-     */
-    @Deprecated
-    public Map<String, List<String>> getHeaders(String url) {
-        Map<String, List<String>> result;
-        try {
-            HttpResult httpResult = httpHead(url);
-            result = httpResult.getHeaders();
-        } catch (HttpException e) {
-            LOGGER.debug(e);
-            result = Collections.emptyMap();
-        }
-        return result;
-    }
-    
-    /**
-     * Get the HTTP response code of the given URL after sending a HEAD request.
-     * 
-     * @param url the URL of the page to check for response code.
-     * @return the HTTP response code, or -1 if an error occurred.
-     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
-     */
-    @Deprecated
-    public int getResponseCode(String url) {
-        int result;
-        try {
-            HttpResult httpResult = httpHead(url);
-            result = httpResult.getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.debug(e);
-            result = -1;
-        }
-        return result;
-    }
-    
-    /**
-     * Gets the redirect URL from the HTTP "Location" header, if such exists.
-     * 
-     * @param url the URL to check for redirect.
-     * @return redirected URL as String, or <code>null</code>.
-     */
-    public String getRedirectUrl(String url) {
-        // TODO should be changed to use HttpComponents
-        String location = null;
-        try {
-            URL urlObject = new URL(url);
-            URLConnection urlCon = urlObject.openConnection();
-            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
-            httpUrlCon.setInstanceFollowRedirects(false);
-            location = httpUrlCon.getHeaderField("Location");
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
-
-        return location;
-    }
-
-    // ////////////////////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////////////
 
@@ -553,6 +553,10 @@ public class DocumentRetriever {
         return document;
     }
 
+    // ////////////////////////////////////////////////////////////////
+    // methods for downloading files
+    // ////////////////////////////////////////////////////////////////
+
     public void downloadAndSave(Collection<String> urls) {
         int number = 1;
         for (String url : urls) {
@@ -579,7 +583,7 @@ public class DocumentRetriever {
         StringBuilder content = new StringBuilder();
 
         try {
-            
+
             HttpResult httpResult = httpGet(url);
 
             if (includeHttpHeaders) {
@@ -598,7 +602,7 @@ public class DocumentRetriever {
             }
 
             content.append(new String(httpResult.getContent()));
-            
+
         } catch (HttpException e) {
             LOGGER.error(e);
         }
@@ -612,8 +616,6 @@ public class DocumentRetriever {
         return result;
 
     }
-
-
 
     /**
      * Download a binary file from specified URL to a given path.
@@ -661,8 +663,6 @@ public class DocumentRetriever {
 
         return binFile;
     }
-
-
 
     // ////////////////////////////////////////////////////////////////
     // Traffic count and statistics
