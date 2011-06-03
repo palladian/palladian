@@ -10,12 +10,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -42,7 +42,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -66,17 +65,20 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+// TODO methods for parsing do not belong here and should be removed in the medium term
+// TODO remove deprecated methods, after dependent code has been adapted
+// TODO role of DownloadFilter is unclear, shouldn't the client itself take care about what to download?
+// TODO completely remove all java.net.* stuff
+
 /**
- * The DocumentRetriever downloads pages from the web or the hard disk.
- * 
- * TODO switched to Apache HttpComponents; old functionality, which is missing atm:
- * - proxy cycling (should be separated from the DocumentRetriever, anyway.
- * - DownloadFilter for file types
- * - feed discovery
+ * <p>
+ * The DocumentRetriever allows to download pages from the Web or the hard disk.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -107,11 +109,18 @@ public class DocumentRetriever {
     /** The default number of connections in the connection pool. */
     private static final int DEFAULT_NUM_CONNECTIONS = 100;
 
+    // ///////////// Apache HttpComponents ////////
+
+    /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
     private static ThreadSafeClientConnManager connectionManager = new ThreadSafeClientConnManager();
 
-    private ContentEncodingHttpClient httpClient;
+    /** Implementation of the Apache HttpClient. */
+    private final ContentEncodingHttpClient httpClient;
 
-    private HttpParams httpParams = new BasicHttpParams();
+    /** Various parameters for the Apache HttpClient. */
+    private final HttpParams httpParams = new BasicHttpParams();
+
+    // ///////////// Settings ////////
 
     /** Download size in bytes for this DocumentRetriever instance. */
     private long totalDownloadedBytes = 0;
@@ -125,18 +134,21 @@ public class DocumentRetriever {
     /** Total number of downloaded pages. */
     private static int numberOfDownloadedPages = 0;
 
-    /** Try to use feed auto discovery for every parsed page. */
-    // private boolean feedAutodiscovery = false;
-
     /** The filter for the retriever. */
     private DownloadFilter downloadFilter = new DownloadFilter();
 
     /** The maximum number of threads to use. */
     private int numThreads;
 
-    /** The callback that is called after each crawled page. */
+    // ///////////// Misc. ////////
+
+    /** The callbacks that are called after each parsed page. */
     private List<RetrieverCallback> retrieverCallbacks = new ArrayList<RetrieverCallback>();
 
+    /** Hook for http* methods. */
+    private HttpHook httpHook = new HttpHook.DefaultHttpHook();
+
+    /** Factory for Document parsers. */
     private ParserFactory parserFactory = new ParserFactory();
 
     // ////////////////////////////////////////////////////////////////
@@ -162,19 +174,12 @@ public class DocumentRetriever {
 
     public HttpResult httpGet(String url) throws HttpException {
 
-        // // check whether we are allowed to download the file from this URL
-        // String fileType = FileHelper.getFileType(url.toString());
-        // if (!getDownloadFilter().getIncludeFileTypes().contains(fileType)
-        // && getDownloadFilter().getIncludeFileTypes().size() > 0
-        // || getDownloadFilter().getExcludeFileTypes().contains(fileType)) {
-        // LOGGER.debug("filtered URL: " + url);
-        // return null;
-        // }
-
         HttpResult result;
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", USER_AGENT);
         InputStream in = null;
+
+        httpHook.beforeRequest(url, this);
 
         try {
 
@@ -207,19 +212,18 @@ public class DocumentRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, content, headers, statusCode, receivedBytes);
 
-            addDownload(metrics.getReceivedBytesCount());
+            addDownload(receivedBytes);
 
-        } catch (ClientProtocolException e) {
+        } catch (IOException e) {
             throw new HttpException(e);
         } catch (IllegalStateException e) {
-            throw new HttpException(e);
-        } catch (IOException e) {
             throw new HttpException(e);
         } finally {
             IOUtils.closeQuietly(in);
             get.abort();
         }
 
+        httpHook.afterRequest(result, this);
         return result;
 
     }
@@ -229,6 +233,8 @@ public class DocumentRetriever {
         HttpResult result;
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", USER_AGENT);
+
+        httpHook.beforeRequest(url, this);
 
         try {
 
@@ -240,16 +246,15 @@ public class DocumentRetriever {
             int statusCode = response.getStatusLine().getStatusCode();
             result = new HttpResult(url, new byte[0], headers, statusCode, -1);
 
-        } catch (ClientProtocolException e) {
+        } catch (IOException e) {
             throw new HttpException(e);
         } catch (ParseException e) {
-            throw new HttpException(e);
-        } catch (IOException e) {
             throw new HttpException(e);
         } finally {
             head.abort();
         }
 
+        httpHook.afterRequest(result, this);
         return result;
 
     }
@@ -346,7 +351,7 @@ public class DocumentRetriever {
      * @return The W3C document.
      */
     public Document getWebDocument(String url) {
-        return internalGetDocument(url, false);
+        return getDocument(url, false);
     }
 
     /**
@@ -406,7 +411,7 @@ public class DocumentRetriever {
      * @return The XML document.
      */
     public Document getXMLDocument(String url) {
-        return internalGetDocument(url, true);
+        return getDocument(url, true);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -458,67 +463,73 @@ public class DocumentRetriever {
 
         String contentString = null;
         Reader reader = null;
-        try {
-            if (isFile(url)) {
-                reader = new FileReader(url);
-                contentString = IOUtils.toString(reader);
-            } else {
-                HttpResult httpResult = httpGet(url);
-                contentString = new String(httpResult.getContent());
+
+        if (downloadFilter.isAcceptedFileType(url)) {
+            try {
+                if (isFile(url)) {
+                    reader = new FileReader(url);
+                    contentString = IOUtils.toString(reader);
+                } else {
+                    HttpResult httpResult = httpGet(url);
+                    contentString = new String(httpResult.getContent());
+                }
+            } catch (IOException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            } finally {
+                IOUtils.closeQuietly(reader);
             }
-        } catch (FileNotFoundException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (SocketTimeoutException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (MalformedURLException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(reader);
         }
 
         return contentString;
     }
 
     // ////////////////////////////////////////////////////////////////
-    // ////////////////////////////////////////////////////////////////
+    // internal methods
     // ////////////////////////////////////////////////////////////////
 
-    // TODO add exceptions, when get fails, do not return null
-    private Document internalGetDocument(String url, boolean xml) {
+    /**
+     * Multi-purpose method to get a {@link Document}, either by downloading it from the Web, or by reading it from
+     * disk. The document may be parsed using an XML parser or a dedicated (X)HTML parser.
+     * 
+     * @param url the URL of the document to retriever or the file path.
+     * @param xml indicate whether the document is well-formed XML or needs to be processed using an (X)HTML parser.
+     * @return the parsed document, or <code>null</code> if any kind of error occurred or the document was filtered by
+     *         {@link DownloadFilter}.
+     */
+    private Document getDocument(String url, boolean xml) {
 
         Document document = null;
         String cleanUrl = url.trim();
         InputStream inputStream = null;
 
-        try {
+        if (downloadFilter.isAcceptedFileType(cleanUrl)) {
 
-            if (isFile(cleanUrl)) {
-                File file = new File(cleanUrl);
-                inputStream = new BufferedInputStream(new FileInputStream(new File(cleanUrl)));
-                document = parse(inputStream, xml);
-                document.setDocumentURI(file.toURI().toString());
-            } else {
-                HttpResult httpResult = httpGet(cleanUrl);
-                document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
-                document.setDocumentURI(cleanUrl);
+            try {
+
+                if (isFile(cleanUrl)) {
+                    File file = new File(cleanUrl);
+                    inputStream = new BufferedInputStream(new FileInputStream(new File(cleanUrl)));
+                    document = parse(inputStream, xml);
+                    document.setDocumentURI(file.toURI().toString());
+                } else {
+                    HttpResult httpResult = httpGet(cleanUrl);
+                    document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
+                    document.setDocumentURI(cleanUrl);
+                }
+
+                callRetrieverCallback(document);
+
+            } catch (FileNotFoundException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            } catch (DOMException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            } catch (ParserException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            } catch (HttpException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            } finally {
+                IOUtils.closeQuietly(inputStream);
             }
-
-            callRetrieverCallback(document);
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (DOMException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (ParserException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } finally {
-            FileHelper.close(inputStream);
         }
 
         return document;
@@ -557,60 +568,67 @@ public class DocumentRetriever {
     // methods for downloading files
     // ////////////////////////////////////////////////////////////////
 
-    public void downloadAndSave(Collection<String> urls) {
-        int number = 1;
-        for (String url : urls) {
-            downloadAndSave(url, "website" + number + ".html");
-            ++number;
-        }
-    }
-
-    public boolean downloadAndSave(String url, String path) {
-        return downloadAndSave(url, path, false);
+    /**
+     * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
+     * 
+     * @param url the URL to download from.
+     * @param filePath the path where the downloaded contents should be saved to.
+     * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
+     */
+    public boolean downloadAndSave(String url, String filePath) {
+        return downloadAndSave(url, filePath, false);
     }
 
     /**
-     * Download the content from a given URL and save it to a specified path.
+     * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * 
-     * @param url The URL to download from.
-     * @param path The path where the downloaded contents should be saved to.
-     * @param includeHttpHeaders Whether to prepend the HTTP headers for the request to the saved content.
+     * @param url the URL to download from.
+     * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
+     *            is compressed automatically.
+     * @param includeHttpHeaders whether to prepend the HTTP headers for the request to the saved content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpHeaders) {
 
         boolean result = false;
-        StringBuilder content = new StringBuilder();
+        boolean compress = filePath.endsWith(".gz") || filePath.endsWith(".gzip");
+        OutputStream out = null;
 
         try {
 
             HttpResult httpResult = httpGet(url);
+            out = new BufferedOutputStream(new FileOutputStream(filePath));
+
+            if (compress) {
+                out = new GZIPOutputStream(out);
+            }
 
             if (includeHttpHeaders) {
 
-                content.append("Status Code").append(":").append(httpResult.getStatusCode());
+                StringBuilder headerBuilder = new StringBuilder();
+                headerBuilder.append("Status Code").append(":");
+                headerBuilder.append(httpResult.getStatusCode()).append("\n");
 
                 Map<String, List<String>> headers = httpResult.getHeaders();
 
                 for (Entry<String, List<String>> headerField : headers.entrySet()) {
-                    content.append(headerField.getKey()).append(":");
-                    content.append(StringUtils.join(headerField.getValue(), ","));
-                    content.append("\n");
+                    headerBuilder.append(headerField.getKey()).append(":");
+                    headerBuilder.append(StringUtils.join(headerField.getValue(), ","));
+                    headerBuilder.append("\n");
                 }
 
-                content.append("\n----------------- End Headers -----------------\n\n");
+                headerBuilder.append("\n----------------- End Headers -----------------\n\n");
+                IOUtils.write(headerBuilder, out);
+
             }
 
-            content.append(new String(httpResult.getContent()));
+            IOUtils.write(httpResult.getContent(), out);
+            result = true;
 
-        } catch (HttpException e) {
+        } catch (IOException e) {
             LOGGER.error(e);
-        }
-
-        if (content.length() == 0) {
-            LOGGER.warn(url + " was not found, or contained no content, it is not saved in a file");
-        } else {
-            result = FileHelper.writeToFile(filePath, content.toString());
+        } finally {
+            FileHelper.close(out);
         }
 
         return result;
@@ -620,48 +638,21 @@ public class DocumentRetriever {
     /**
      * Download a binary file from specified URL to a given path.
      * 
-     * @param urlString the urlString
-     * @param pathWithFileName the path where the file should be saved
-     * @return the file
+     * @param url the URL to download from.
+     * @param filePath the path where the downloaded contents should be saved to.
+     * @return the file were the downloaded contents were saved to.
      * @author Martin Werner
-     *         TODO check if we can substiture this by {@link #downloadAndSave(String, String)}.
+     * @deprecated use {@link #downloadAndSave(String, String)} instead.
      */
-    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
-        File binFile = null;
-
-        URL u;
-        binFile = new File(pathWithFileName);
-        BufferedInputStream in = null;
-        BufferedOutputStream out = null;
-        try {
-            u = new URL(urlString);
-            in = new BufferedInputStream(u.openStream());
-            out = new BufferedOutputStream(new FileOutputStream(binFile));
-
-            byte[] buffer = new byte[4096];
-
-            int n = 0;
-            while ((n = in.read(buffer)) != -1) {
-                out.write(buffer, 0, n);
-            }
-
-            int size = (int) binFile.length();
-            sessionDownloadedBytes += size;
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-            binFile = null;
-
-        } catch (Error e) {
-
-            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-            binFile = null;
-        } finally {
-            FileHelper.close(in, out);
+    @Deprecated
+    public static File downloadBinaryFile(String url, String filePath) {
+        File file = null;
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        boolean success = documentRetriever.downloadAndSave(url, filePath);
+        if (success) {
+            file = new File(filePath);
         }
-
-        return binFile;
+        return file;
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -671,7 +662,7 @@ public class DocumentRetriever {
     /**
      * To be called after downloading data from the web.
      * 
-     * @param size The size in bytes that should be added to the download counters.
+     * @param size the size in bytes that should be added to the download counters.
      */
     private synchronized void addDownload(long size) {
         totalDownloadedBytes += size;
@@ -743,7 +734,7 @@ public class DocumentRetriever {
     /**
      * Set the maximum number of simultaneous threads for downloading.
      * 
-     * @param numThreads The number of threads to use.
+     * @param numThreads the number of threads to use.
      */
     public void setNumThreads(int numThreads) {
         this.numThreads = numThreads;
@@ -769,7 +760,7 @@ public class DocumentRetriever {
     /**
      * Sets the current Proxy.
      * 
-     * @param proxy The proxy to use.
+     * @param proxy the proxy to use.
      */
     public void setProxy(Proxy proxy) {
         InetSocketAddress address = (InetSocketAddress) proxy.address();
@@ -781,6 +772,17 @@ public class DocumentRetriever {
     public void setProxy(String hostname, int port) {
         HttpHost proxy = new HttpHost(hostname, port);
         httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        LOGGER.debug("set proxy to " + hostname + ":" + port);
+    }
+
+    public void setProxy(String proxy) {
+        String[] split = proxy.split(":");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("argument must be hostname:port");
+        }
+        String hostname = split[0];
+        int port = Integer.valueOf(split[1]);
+        setProxy(hostname, port);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -803,6 +805,10 @@ public class DocumentRetriever {
 
     public void removeRetrieverCallback(RetrieverCallback retrieverCallback) {
         retrieverCallbacks.remove(retrieverCallback);
+    }
+
+    public void setHttpHook(HttpHook httpHook) {
+        this.httpHook = httpHook;
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -832,35 +838,21 @@ public class DocumentRetriever {
         };
         retriever.addRetrieverCallback(crawlerCallback);
 
+        // give the retriever a list of URLs to download
+        Set<String> urls = new HashSet<String>();
+        urls.add("http://www.cinefreaks.com");
+        urls.add("http://www.imdb.com");
+
         // set the maximum number of threads to 10
         retriever.setNumThreads(10);
 
-        // ////// proxy handling removed for now
-
-        // // the retriever should automatically use different proxies
-        // // after every 3rd request (default is no proxy switching)
-        // retriever.setSwitchProxyRequests(3);
-        //
-        // // set a list of proxies to choose from
-        // List<String> proxyList = new ArrayList<String>();
-        // proxyList.add("83.244.106.73:8080");
-        // proxyList.add("83.244.106.73:80");
-        // proxyList.add("67.159.31.22:8080");
-        // retriever.setProxyList(proxyList);
-
-        // give the retriever a list of URLs to download
-        // Set<String> urls = new HashSet<String>();
-        // urls.add("http://www.cinefreaks.com");
-        // urls.add("http://www.imdb.com");
-        //
-        // // download documents
-        // Set<Document> documents = retriever.getWebDocuments(urls);
-        // CollectionHelper.print(documents);
+        // download documents
+        Set<Document> documents = retriever.getWebDocuments(urls);
+        CollectionHelper.print(documents);
 
         // or just get one document
         Document webPage = retriever.getWebDocument("http://www.cinefreaks.com");
         LOGGER.info(webPage.getDocumentURI());
 
     }
-
 }

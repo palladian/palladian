@@ -1,6 +1,8 @@
 package ws.palladian.retrieval;
 
-public class HttpException extends Exception {
+import java.io.IOException;
+
+public class HttpException extends IOException {
 
     private static final long serialVersionUID = 1L;
 

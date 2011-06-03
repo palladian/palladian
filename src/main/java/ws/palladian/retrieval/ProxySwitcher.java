@@ -1,179 +1,211 @@
 package ws.palladian.retrieval;
 
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 
 /**
- * This is just out-sourced code from the {@link DocumentRetriever} and not yet working!
+ * <p>
+ * This class allows to switch through a list of different proxies when using the {@link DocumentRetriever}. This makes
+ * it possible to harvest pages, which do not want to be harvested :) . A list of proxies can be found in the link
+ * below.
+ * </p>
  * 
+ * @see <a href="http://www.proxy-list.org/en/index.php">Proxy List</a>
+ * @author David Urbansky
  * @author Philipp Katz
- *
  */
-public class ProxySwitcher {
-    
+public class ProxySwitcher implements HttpHook {
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ProxySwitcher.class);
-    
-    // /////////////////////////////////////////////////////////
-    // /////////////////// proxy settings /////////////////////
-    // /////////////////////////////////////////////////////////
 
-
-    /** Number of request before switching to another proxy, -1 means never switch. */
-    private int switchProxyRequests = -1;
+    /** The URL to use for testing the proxies. */
+    private static final String CHECK_URL = "http://www.sourceforge.com";
 
     /** List of proxies to choose from. */
-    private LinkedList<Proxy> proxyList = new LinkedList<Proxy>();
-    
-    private Proxy currentProxy = null;
+    private List<String> proxies;
+
+    /** Number of request before switching to another proxy, -1 means never switch. */
+    private int switchRequests;
 
     /** Number of requests sent with currently used proxy. */
-    private int proxyRequests = 0;
-    
-    private DocumentRetriever dr = null;
+    private int proxyRequests;
 
-    
-    
-    
-    @SuppressWarnings("unchecked")
+    /** Index of the currently selected proxy. */
+    private int proxyIndex;
+
+    /** The DocumentRetriever which is only used for checking the proxies. */
+    private DocumentRetriever testRetriever;
+
     public ProxySwitcher() {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        setSwitchProxyRequests(config.getInt("documentRetriever.switchProxyRequests", switchProxyRequests));
-        setProxyList(config.getList("documentRetriever.proxyList", proxyList));
+        @SuppressWarnings("unchecked")
+        List<String> proxies = config.getList("proxySwitcher.proxyList");
+        int switchRequests = config.getInt("proxySwitcher.switchRequests");
+        setup(proxies, switchRequests);
     }
-    
-    
+
+    public ProxySwitcher(Collection<String> proxies, int switchRequests) {
+        setup(proxies, switchRequests);
+    }
+
+    private void setup(Collection<String> proxies, int switchRequests) {
+        this.proxies = new ArrayList<String>(proxies);
+        this.switchRequests = switchRequests;
+        this.proxyRequests = 0;
+        this.proxyIndex = 0;
+
+        this.testRetriever = new DocumentRetriever();
+
+        // use low timeouts, since we do not want slow proxies
+        testRetriever.setConnectionTimeout(3000);
+        testRetriever.setSocketTimeout(3000);
+    }
+
     /**
-     * Check whether to change the proxy and do it if needed. If a proxy is not working, remove it from the list. If we
-     * have no working proxies left, fall back into normal mode.
+     * Get the next proxy by cycling through the list.
      * 
-     * @param force force the proxy change, no matter if the specified number of request for the switch has already been
-     *            reached.
+     * @return
      */
-    private void checkChangeProxy(boolean force) {
-        if (switchProxyRequests > -1 && (force || proxyRequests == switchProxyRequests /*|| dr.getProxy() == null*/)) {
-            if (force) {
-                LOGGER.debug("force-change proxy");
-            }
-            boolean continueChecking = true;
-            do {
-                changeProxy();
-                if (checkProxy()) {
-                    continueChecking = false;
-                } else {
-
-                    // proxy is not working; remove it from the list
-                    LOGGER.warn("proxy " + currentProxy + " is not working, removing from the list.");
-                    proxyList.remove(currentProxy);
-                    LOGGER.debug("# proxies in list: " + proxyList.size() + " : " + proxyList);
-
-                    // if there are no more proxies left, go to normal mode without proxies.
-                    if (proxyList.isEmpty()) {
-                        LOGGER.error("no more working proxies, falling back to normal mode.");
-                        continueChecking = false;
-                        // dr.setProxy(null);
-                        setSwitchProxyRequests(-1);
-                    }
-                }
-            } while (continueChecking);
-            proxyRequests = 0;
-        }
+    private void nextProxy() {
+        proxyIndex = ++proxyIndex % proxies.size();
     }
-    
+
     /**
-     * Number of requests after the proxy is changed.
+     * Get the currently active proxy.
      * 
-     * @param switchProxyRequests number of requests for proxy change. Must be greater than 1 or -1 which means: change
-     *            never.
+     * @return
      */
-    public void setSwitchProxyRequests(int switchProxyRequests) {
-        if (switchProxyRequests == 0) {
-            throw new IllegalArgumentException();
-        }
-        this.switchProxyRequests = switchProxyRequests;
-    }
-
-    public int getSwitchProxyRequests() {
-        return switchProxyRequests;
+    private String getCurrentProxy() {
+        return proxies.get(proxyIndex);
     }
 
     /**
-     * Add an entry to the proxy list. The entry must be formatted as "HOST:PORT".
+     * Check, whether the supplied proxy is working by performing a test request.
      * 
-     * @param proxyEntry The proxy to add.
+     * @param proxy
+     * @return
      */
-    public void addToProxyList(String proxyEntry) {
-        String[] proxySetting = proxyEntry.split(":");
-        String host = proxySetting[0];
-        int port = Integer.parseInt(proxySetting[1]);
+    private boolean checkProxy(String proxy) {
+        boolean success = false;
 
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
-        if (!proxyList.contains(proxy)) {
-            proxyList.add(proxy);
-        }
-    }
-    
-
-    /**
-     * Set a list of proxies. Each entry must be formatted as "HOST:PORT".
-     * 
-     * @param proxyList The list of proxies.
-     */
-    public void setProxyList(List<String> proxyList) {
-        this.proxyList = new LinkedList<Proxy>();
-        for (String proxy : proxyList) {
-            addToProxyList(proxy);
-        }
-    }
-
-    public List<Proxy> getProxyList() {
-        return proxyList;
-    }
-
-    /**
-     * Cycle the proxies, taking the first item from the queue and adding it to the end.
-     */
-    public void changeProxy() {
-        Proxy selectedProxy = proxyList.poll();
-        if (selectedProxy != null) {
-            dr.setProxy(selectedProxy);
-            proxyList.add(selectedProxy);
-            LOGGER.debug("changed proxy to " + selectedProxy.address());
-        }
-    }
-
-    /**
-     * Check whether the curretly set proxy is working.
-     * 
-     * @return <tt>True</tt>, if proxy returns result, <tt>false</tt> otherwise.
-     */
-    public boolean checkProxy() {
-        boolean result;
-        InputStream is = null;
         try {
-            // try to download from Google, if downloading fails we get IOException
-            //is = dr.downloadInputStream("http://www.sourceforge.com");
-            // TODO check is not working like this
-            dr.getWebDocument("http://www.sourceforge.com");
-            if (currentProxy != null) {
-                LOGGER.debug("proxy " + currentProxy.address() + " is working.");
+            testRetriever.setProxy(proxy);
+            HttpResult result = testRetriever.httpGet(CHECK_URL);
+            if (result.getContent().length > 0) {
+                success = true;
             }
-            result = true;
-        } finally {
-            FileHelper.close(is);
+        } catch (HttpException e) {
+            // yes, we want to ignore this!
         }
-        return result;
+
+        LOGGER.debug("proxy " + proxy + " is working : " + success);
+        return success;
     }
 
+    @Override
+    public void beforeRequest(String url, DocumentRetriever retriever) throws HttpException {
 
+        if (proxyRequests % switchRequests == 0) {
+
+            boolean continueChecking = true;
+            String proxy = null;
+            int checks = 0;
+
+            while (continueChecking) {
+                nextProxy();
+                proxy = getCurrentProxy();
+                continueChecking = !checkProxy(proxy);
+                if (++checks == proxies.size()) {
+                    throw new HttpException("no (more) working proxies");
+                }
+            }
+
+            retriever.setProxy(proxy);
+            proxyRequests = 0;
+
+        }
+    }
+
+    @Override
+    public void afterRequest(HttpResult result, DocumentRetriever documentRetriever) throws HttpException {
+        proxyRequests++;
+    }
+
+    /**
+     * Check all proxies which have been supplied and optionally remove those, which are not working.
+     * 
+     * @param iterations the number of iterations for checking.
+     * @param removeNonWorking <code>true</code>, to remove those proxies which were not working from the list.
+     */
+    public void checkAllProxies(int iterations, boolean removeNonWorking) {
+
+        Set<String> fails = new HashSet<String>();
+
+        for (int i = 0; i < iterations; i++) {
+            LOGGER.info("# iteration : " + i);
+            for (int j = 0; j < proxies.size(); j++) {
+
+                String proxy = getCurrentProxy();
+                boolean working = checkProxy(proxy);
+                if (!working) {
+                    fails.add(proxy);
+                }
+                nextProxy();
+
+            }
+        }
+
+        LOGGER.info("# proxies with failures " + fails.size());
+
+        if (removeNonWorking) {
+            proxies.removeAll(fails);
+            LOGGER.info("removed non-working proxies; " + proxies.size() + " proxies left");
+        }
+    }
+
+    public static void main(String[] args) {
+
+        List<String> proxies = new ArrayList<String>();
+        proxies.add("85.214.149.158:80");
+        proxies.add("193.198.184.5:80");
+        proxies.add("124.193.109.13:80");
+        proxies.add("221.130.162.244:80");
+        proxies.add("119.47.91.6:808");
+        proxies.add("195.145.22.46:80");
+        proxies.add("201.39.174.82:3128");
+        proxies.add("67.184.161.238:8080");
+        proxies.add("200.77.252.162:3128");
+        proxies.add("201.219.17.23:3128");
+        proxies.add("189.214.74.139:80");
+        proxies.add("80.86.254.41:8080");
+        proxies.add("91.121.218.169:8000");
+        proxies.add("95.154.98.152:80");
+        proxies.add("209.97.203.60:8080");
+        proxies.add("220.118.19.148:8000");
+        proxies.add("201.16.64.24:3128");
+        proxies.add("200.119.12.198:3128");
+        proxies.add("62.108.161.141:8080");
+
+        // create a ProxySwitcher which changes the Proxy after every 3rd request
+        ProxySwitcher proxySwitcher = new ProxySwitcher(proxies, 3);
+
+        // check all proxies from the list by sending three requests,
+        // remove proxies which are not working
+        proxySwitcher.checkAllProxies(3, true);
+
+        // use the instance of this DocumentRetriever with cycling proxies
+        DocumentRetriever retriever = new DocumentRetriever();
+        retriever.setHttpHook(proxySwitcher);
+
+    }
 
 }
