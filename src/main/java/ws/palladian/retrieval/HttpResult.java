@@ -1,102 +1,91 @@
 package ws.palladian.retrieval;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a response for an HttpDownload, e.g. GET or HEAD.
+ * 
+ * @author Philipp Katz
+ * 
+ */
 public class HttpResult {
-    
-    private String url;
-    private byte[] content;
-    private Map<String, List<String>> headers;
-    private int statusCode;
-    private long transferedBytes;
-    
-    public HttpResult() {
-        headers = new HashMap<String, List<String>>();
+
+    private final String url;
+    private final byte[] content;
+    private final Map<String, List<String>> headers;
+    private final int statusCode;
+    private final long transferedBytes;
+
+    /**
+     * Instantiate a new {@link HttpResult}.
+     * 
+     * @param url the result's URL.
+     * @param content the content as byte array; empty byte array for response without content (HEAD).
+     * @param headers the HTTP headers.
+     * @param statusCode the HTTP response code.
+     * @param transferedBytes the number of transfered bytes.
+     */
+    public HttpResult(
+            String url, 
+            byte[] content, 
+            Map<String, List<String>> headers, 
+            int statusCode,
+            long transferedBytes) {
+        super();
+        this.url = url;
+        this.content = content;
+        this.headers = headers;
+        this.statusCode = statusCode;
+        this.transferedBytes = transferedBytes;
     }
 
     /**
-     * @return the url
+     * @return the result's URL.
      */
     public String getUrl() {
         return url;
     }
 
     /**
-     * @param url the url to set
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
-     * @return the content
+     * @return the content as byte array; emtpy byte array for response without content (HEAD).
      */
     public byte[] getContent() {
         return content;
     }
 
     /**
-     * @param content the content to set
-     */
-    public void setContent(byte[] content) {
-        this.content = content;
-    }
-
-    /**
-     * @return the headers
+     * @return the HTTP headers.
      */
     public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
     /**
-     * @param headers the headers to set
+     * Get the HTTP header for the specified name.
+     * @param name the name of the HTTP header to get.
+     * @return List of values, or <code>null</code> if no such header name.
      */
-    public void setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
-    }
-    
-    public void putHeader(String name, String value) {
-        List<String> list = headers.get(name);
-        if (list == null) {
-            list = new ArrayList<String>();
-            headers.put(name, list);
-        }
-        list.add(value);
+    public List<String> getHeader(String name) {
+        return headers.get(name);
     }
 
     /**
-     * @return the statusCode
+     * @return the HTTP response code.
      */
     public int getStatusCode() {
         return statusCode;
     }
 
     /**
-     * @param statusCode the statusCode to set
-     */
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    /**
-     * @return the transferedBytes
+     * @return the number of transfered bytes.
      */
     public long getTransferedBytes() {
         return transferedBytes;
     }
 
-    /**
-     * @param transferedBytes the transferedBytes to set
-     */
-    public void setTransferedBytes(long transferedBytes) {
-        this.transferedBytes = transferedBytes;
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -104,8 +93,9 @@ public class HttpResult {
         StringBuilder builder = new StringBuilder();
         builder.append("HttpResult [url=");
         builder.append(url);
-        builder.append(", content[bytes]=");
+        builder.append(", content=");
         builder.append(content.length);
+        builder.append(" bytes");
         builder.append(", headers=");
         builder.append(headers);
         builder.append(", statusCode=");
@@ -115,7 +105,5 @@ public class HttpResult {
         builder.append("]");
         return builder.toString();
     }
-    
-    
 
 }

@@ -3,7 +3,6 @@ package ws.palladian.retrieval;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,10 +31,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
@@ -65,11 +63,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -100,9 +96,6 @@ public class DocumentRetriever {
 
     /** The user agent string that is used by the crawler. */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
-
-    /** The referer that is used by the crawler. */
-    // private static final String REFERER = "";
 
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
@@ -296,13 +289,10 @@ public class DocumentRetriever {
             if (isFile) {
                 reader = new FileReader(url);
                 contentString = IOUtils.toString(reader);
-                IOUtils.closeQuietly(reader);
             } else {
                 url = url.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(url);
-                if (httpResult != null && httpResult.getContent() != null) {
-                    contentString = new String(httpResult.getContent());
-                }
+                contentString = new String(httpResult.getContent());
             }
         } catch (FileNotFoundException e) {
             LOGGER.error(url + ", " + e.getMessage());
@@ -311,6 +301,8 @@ public class DocumentRetriever {
         } catch (MalformedURLException e) {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (IOException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } catch (HttpException e) {
             LOGGER.error(url + ", " + e.getMessage());
         } finally {
             IOUtils.closeQuietly(reader);
@@ -323,7 +315,7 @@ public class DocumentRetriever {
     // transfer methods
     // ////////////////////////////////////////////////////////////////
 
-    private HttpResult httpGet(String url) {
+    private HttpResult httpGet(String url) throws HttpException {
 
         // // check whether we are allowed to download the file from this URL
         // String fileType = FileHelper.getFileType(url.toString());
@@ -334,14 +326,10 @@ public class DocumentRetriever {
         // return null;
         // }
 
-        HttpResult result = null;
-
+        HttpResult result;
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", USER_AGENT);
-        // get.setHeader("Referer", REFERER);
-
         InputStream in = null;
-        ByteArrayOutputStream out = null;
 
         try {
 
@@ -351,42 +339,37 @@ public class DocumentRetriever {
             HttpConnectionMetrics metrics = connection.getMetrics();
 
             HttpEntity entity = response.getEntity();
+            byte[] content;
+            
             if (entity != null) {
 
                 in = entity.getContent();
-                out = new ByteArrayOutputStream();
-
-                byte[] buffer = new byte[1024];
-                int bufferRead;
-                int totallyRead = 0;
-                while ((bufferRead = in.read(buffer, 0, buffer.length)) >= 0) {
-                    out.write(buffer, 0, bufferRead);
-                    totallyRead += bufferRead;
-                    if (totallyRead > downloadFilter.getMaxFileSize()) {
-                        break;
-                    }
+                
+                // check for a maximum download size limitation
+                long maxFileSize = downloadFilter.getMaxFileSize();
+                if (maxFileSize != -1) {
+                    in = new BoundedInputStream(in, maxFileSize);
                 }
+                
+                content = IOUtils.toByteArray(in);
+                
+            } else {
+                content = new byte[0];
             }
+            
+            int statusCode = response.getStatusLine().getStatusCode();
+            long receivedBytes = metrics.getReceivedBytesCount();
+            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            result = new HttpResult(url, content, headers, statusCode, receivedBytes);
 
-            result = new HttpResult();
-            result.setUrl(url);
-            result.setContent(out.toByteArray());
-            result.setTransferedBytes(metrics.getReceivedBytesCount());
-
-            Header[] headers = response.getAllHeaders();
-            for (Header header : headers) {
-                result.putHeader(header.getName(), header.getValue());
-            }
-
-            result.setStatusCode(response.getStatusLine().getStatusCode());
             addDownload(metrics.getReceivedBytesCount());
 
         } catch (ClientProtocolException e) {
-            LOGGER.error(e);
+            throw new HttpException(e);
         } catch (IllegalStateException e) {
-            LOGGER.error(e);
+            throw new HttpException(e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            throw new HttpException(e);
         } finally {
             IOUtils.closeQuietly(in);
             get.abort();
@@ -394,6 +377,29 @@ public class DocumentRetriever {
 
         return result;
 
+    }
+    
+
+    /**
+     * Converts the Header type from Apache to a more generic Map.
+     * 
+     * @param headers
+     * @return
+     */
+    private static Map<String, List<String>> convertHeaders(Header[] headers) {
+
+        Map<String, List<String>> result = new HashMap<String, List<String>>();
+
+        for (Header header : headers) {
+            List<String> list = result.get(header.getName());
+            if (list == null) {
+                list = new ArrayList<String>();
+                result.put(header.getName(), list);
+            }
+            list.add(header.getValue());
+        }
+
+        return result;
     }
 
     /**
@@ -405,7 +411,6 @@ public class DocumentRetriever {
 
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", USER_AGENT);
-        // head.setHeader("Referer", REFERER);
 
         Map<String, List<String>> result = new HashMap<String, List<String>>();
 
@@ -466,15 +471,12 @@ public class DocumentRetriever {
             } else {
                 cleanUrl = cleanUrl.replaceAll("\\s", "+");
                 HttpResult httpResult = httpGet(cleanUrl);
-                // FIXME ugly
-                if (httpResult != null && httpResult.getContent() != null) {
-                    document = parse(new ByteArrayInputStream(httpResult.getContent()), isXML, cleanUrl);
-                }
+                document = parse(new ByteArrayInputStream(httpResult.getContent()), isXML, cleanUrl);
             }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
-            if (/* callback && */document != null) {
+            if (document != null) {
                 callRetrieverCallback(document);
             }
 
@@ -483,6 +485,8 @@ public class DocumentRetriever {
         } catch (DOMException e) {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (ParserException e) {
+            LOGGER.error(url + ", " + e.getMessage());
+        } catch (HttpException e) {
             LOGGER.error(url + ", " + e.getMessage());
         } finally {
             FileHelper.close(inputStream);
@@ -507,9 +511,6 @@ public class DocumentRetriever {
      * @param dataStream The stream to parse.
      * @param isXML {@code true} if this document is an XML document and {@code false} otherwise.
      * @param uri The URI the provided stream comes from.
-     * @throws SAXException
-     * @throws IOException
-     * @throws ParserConfigurationException
      * @throws ParserException
      */
     private Document parse(InputStream dataStream, boolean isXML, String uri) throws ParserException {
@@ -553,10 +554,11 @@ public class DocumentRetriever {
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpHeaders) {
 
         boolean result = false;
-        HttpResult httpResult = httpGet(url);
         StringBuilder content = new StringBuilder();
 
-        if (httpResult != null) {
+        try {
+            
+            HttpResult httpResult = httpGet(url);
 
             if (includeHttpHeaders) {
 
@@ -574,6 +576,9 @@ public class DocumentRetriever {
             }
 
             content.append(new String(httpResult.getContent()));
+            
+        } catch (HttpException e) {
+            LOGGER.error(e);
         }
 
         if (content.length() == 0) {
@@ -671,7 +676,6 @@ public class DocumentRetriever {
 
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", USER_AGENT);
-        // head.setHeader("Referer", REFERER);
 
         try {
 
@@ -848,21 +852,8 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
-
-        // retriever.downloadBinaryFile(urlString, pathWithFileName);
-        // retriever.downloadAndSave(urlString, path);
-
-        HttpResult result = retriever.httpGet("http://www.google.com");
-        System.out.println(result);
-
-        System.exit(0);
-        List<String> urls = new ArrayList<String>();
-        urls.add("http://www.google.com");
-        urls.add("http://www.apple.com");
-        urls.add("http://www.tagesschau.de");
-        Set<Document> documents = retriever.getWebDocuments(urls);
-        CollectionHelper.print(documents);
-        System.out.println("done");
+        HttpResult httpResult = retriever.httpGet("http://www.google.com");
+        System.out.println(httpResult);
         System.exit(0);
 
         // download and save a web page including their headers in a gzipped file
