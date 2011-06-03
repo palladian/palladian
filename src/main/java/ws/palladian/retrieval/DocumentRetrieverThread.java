@@ -46,7 +46,9 @@ class DocumentRetrieverThread implements Runnable {
             }
 
             Document document = documentRetriever.getWebDocument(url);
-            callback.onFinishRetrieval(document);
+            if (document != null) {
+                callback.onFinishRetrieval(document);
+            }
         }
 
     }
