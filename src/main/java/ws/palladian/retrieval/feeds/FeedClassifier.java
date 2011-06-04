@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**

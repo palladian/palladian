@@ -28,13 +28,13 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
-import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 

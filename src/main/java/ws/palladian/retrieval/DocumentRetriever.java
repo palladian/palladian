@@ -66,6 +66,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -138,7 +139,7 @@ public class DocumentRetriever {
     private DownloadFilter downloadFilter = new DownloadFilter();
 
     /** The maximum number of threads to use. */
-    private int numThreads;
+    private int numThreads = DEFAULT_NUM_THREADS;
 
     // ///////////// Misc. ////////
 
@@ -824,6 +825,55 @@ public class DocumentRetriever {
 
         // create the object
         DocumentRetriever retriever = new DocumentRetriever();
+        
+        List<String> list = new ArrayList<String>();
+        list.add("http://www.porsche.com/");
+        list.add("http://www.porsche.com/usa/");
+        list.add("http://www.porsche.com/usa/models/");
+        list.add("http://en.wikipedia.org/wiki/Porsche");
+        list.add("http://www.porsche-design.com/");
+        list.add("http://www.youtube.com/user/Porsche");
+        list.add("http://autos.yahoo.com/porsche/");
+        list.add("http://autos.msn.com/browse/Porsche.aspx");
+        list.add("http://www.facebook.com/porsche");
+        list.add("http://www.motortrend.com/new_cars/01/porsche/index.html");
+        list.add("http://www.lamborghini.com/");
+        list.add("http://www.lamborghini.com/2006/lamboSitenormal.asp?lang=eng");
+        list.add("http://en.wikipedia.org/wiki/Lamborghini");
+        list.add("http://www.lambocars.com/");
+        list.add("http://www.topspeed.com/cars/lamborghini/index53.html");
+        list.add("http://www.lamborghinilasvegas.com/");
+        list.add("http://www.lamborghinihouston.com/");
+        list.add("http://www.netcarshow.com/lamborghini/");
+        list.add("http://autos.yahoo.com/lamborghini/");
+        list.add("http://www.lamborghinistore.com/");
+        list.add("http://www.ferrari.com/");
+        list.add("http://www.ferrari.com/English/Pages/Home.aspx");
+        list.add("http://www.ferrari.com/English/about_ferrari/Ferrari_today/Locations/FNA/Pages/FNA.aspx");
+        list.add("http://www.ferrari.com/English/GT_Sport%20Cars/CurrentRange/458-Italia/Pages/458-Italia.aspx");
+        list.add("http://en.wikipedia.org/wiki/Ferrari");
+        list.add("http://www.topspeed.com/cars/ferrari/index108.html");
+        list.add("http://www.shell.com/home/content/motorsport/ferrari/");
+        list.add("http://www.ferrariclubofamerica.org/");
+        list.add("http://www.motortrend.com/new_cars/01/ferrari/index.html");
+        list.add("http://www.autoblog.com/category/ferrari/");
+        list.add("http://en.wikipedia.org/wiki/Dacia");
+        list.add("http://en.wikipedia.org/wiki/Automobile_Dacia");
+        list.add("http://www.daciagroup.com/");
+        list.add("http://daciacars.com/");
+        list.add("http://www.unrv.com/provinces/dacia.php");
+        list.add("http://www.dacia.com/");
+        list.add("http://www.dacia-sandero.org/");
+        list.add("http://www.youtube.com/watch?v=5tjDrGubZ8E");
+        list.add("http://www.renault-dacia-logan.com/");
+        list.add("http://www.dacia.rs/");
+        Set<Document> docs = retriever.getWebDocuments(list);
+        for (Document doc : docs) {
+            System.out.println(doc.getDocumentURI());
+        }
+        System.exit(0);
+        
+        
 
         // download and save a web page including their headers in a gzipped file
         retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", true);

@@ -19,11 +19,11 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
-import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.rome.RawDateModule;
 
 import com.sun.syndication.feed.rss.Guid;
