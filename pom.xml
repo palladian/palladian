@@ -143,17 +143,19 @@
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j</artifactId>
 			<version>2.1.1</version>
 			<type>pom</type>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>twitter4j</groupId>
 			<artifactId>twitter4j</artifactId>
 			<version>2.0.10</version>
 		</dependency>
+		-->		
 		<dependency>
 			<groupId>com.temesoft</groupId>
 			<artifactId>google-pagerank-api</artifactId>
@@ -190,11 +192,13 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>com.representqueens.lingua.en</groupId>
 			<artifactId>java_fathom</artifactId>
 			<version>1.1.0</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.jyaml</groupId>
 			<artifactId>jyaml</artifactId>
@@ -398,6 +402,7 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
@@ -413,6 +418,7 @@
 			<artifactId>smackx</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>
@@ -435,6 +441,11 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.1.1</version>
 		</dependency>
+		<dependency>
+         <groupId>org.twitter4j</groupId>
+         <artifactId>twitter4j-core</artifactId>
+         <version>[2.1,)</version>
+         </dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -452,6 +463,17 @@
 			<id>weka</id>
 			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
 		</repository>
+		      <repository>
+         <id>twitter4j.org</id>
+         <name>twitter4j.org Repository</name>
+         <url>http://twitter4j.org/maven2</url>
+         <releases>
+            <enabled>true</enabled>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+      </repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>

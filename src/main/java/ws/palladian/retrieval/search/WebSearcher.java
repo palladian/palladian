@@ -34,6 +34,7 @@ import twitter4j.QueryResult;
 import twitter4j.Tweet;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
@@ -983,25 +984,20 @@ public class WebSearcher {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Twitter twitter = new Twitter();
-        Query query = new Query(searchQuery);
+        Twitter twitter = new TwitterFactory().getInstance();
 
-        if (getResultCount() < 100) {
-            query.setRpp(getResultCount());
-        } else {
-            query.setRpp(100);
+        // FIXME dirty; WebSearcher surrounds query string with %22 when in "exact mode" .. 
+        // remove them here, as twitter will give no results ...
+        if (searchQuery.contains("%22")) {
+            searchQuery = searchQuery.replace("%22", "");
         }
+
+        Query query = new Query(searchQuery);
+        query.setRpp(Math.min(getResultCount(), 100));
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil(getResultCount() / 100.0); // divide
-        // by 8
-        // because
-        // 8
-        // results
-        // will
-        // be
-        // responded by each query
+        int grabSize = (int) Math.ceil(getResultCount() / 100.0);
         for (int i = 0; i < grabSize; i++) {
 
             query.setPage(i + 1);
@@ -1237,7 +1233,7 @@ public class WebSearcher {
         searcher.setLanguage(LANGUAGE_ENGLISH);
 
         // set the query source to the Bing search engine
-        searcher.setSource(WebSearcherManager.BING);
+        searcher.setSource(WebSearcherManager.TWITTER);
 
         // search for "Jim Carrey" in exact match mode (second parameter = true)
         List<String> resultURLs = searcher.getURLs("Jim Carrey", true);
