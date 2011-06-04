@@ -1,4 +1,4 @@
-package ws.palladian.retrieval;
+package ws.palladian.helper.math;
 
 
 /**

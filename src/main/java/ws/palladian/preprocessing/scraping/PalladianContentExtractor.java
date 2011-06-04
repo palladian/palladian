@@ -253,6 +253,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Override
     public String getResultTitle() {
         // TODO Needs better implementation.
+        // why not just extract /head/title element?
         String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
         return resultTitle;
     }

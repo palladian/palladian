@@ -2,6 +2,7 @@ package ws.palladian.extraction.entity.ner;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
@@ -13,6 +14,7 @@ import ws.palladian.extraction.entity.ner.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.helper.math.MathHelper;
 
+@Ignore // by Philipp, can not build on Äpple
 public class NERTest {
 
     @Test

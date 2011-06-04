@@ -40,6 +40,11 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
 
+// TODO this class is way to heavy; split this up into subclasses, introduce AbstractWebSearcher
+// TODO remove non-working/obsolete search engines (Yahoo! still necessary, we have Yahoo! Boss)
+// TODO extract all available meta data from search engines
+// TODO parse date results
+
 /**
  * The WebSearcher queries the indices of Yahoo!, Google, Microsoft, and
  * Hakia.

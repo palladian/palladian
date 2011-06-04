@@ -19,9 +19,9 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.SizeUnit;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
