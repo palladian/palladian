@@ -176,8 +176,15 @@ public class DocumentRetriever {
     public HttpResult httpGet(String url) throws HttpException {
 
         HttpResult result;
-        HttpGet get = new HttpGet(url);
-        get.setHeader("User-Agent", USER_AGENT);
+        
+        HttpGet get = null;
+        try {
+            get = new HttpGet(url);
+            get.setHeader("User-Agent", USER_AGENT);
+        } catch (IllegalArgumentException e) {
+            throw new HttpException("invalid URL: " + url, e);
+        }
+        
         InputStream in = null;
 
         httpHook.beforeRequest(url, this);
@@ -232,8 +239,13 @@ public class DocumentRetriever {
     public HttpResult httpHead(String url) throws HttpException {
 
         HttpResult result;
-        HttpHead head = new HttpHead(url);
-        head.setHeader("User-Agent", USER_AGENT);
+        HttpHead head = null;
+        try {
+            head = new HttpHead(url);
+            head.setHeader("User-Agent", USER_AGENT);
+        } catch (Exception e) {
+            throw new HttpException("invalid URL: " + url, e);
+        }
 
         httpHook.beforeRequest(url, this);
 
