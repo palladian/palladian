@@ -45,7 +45,9 @@ public class NGramCreator implements PipelineProcessor {
         List<Annotation> gramTokens = new ArrayList<Annotation>();
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            Annotation gramToken = new Annotation(document,tokensArray[i].getStartPosition(),tokensArray[i + length - 1].getEndPosition());
+            int startPosition = tokensArray[i].getStartPosition();
+            int endPosition = tokensArray[i + length - 1].getEndPosition();
+            Annotation gramToken = new PositionAnnotation(document, startPosition, endPosition);
             gramTokens.add(gramToken);
         }
         return gramTokens;

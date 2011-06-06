@@ -5,6 +5,7 @@ package ws.palladian.preprocessing.nlp;
 
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -40,7 +41,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
         PipelineDocument document = new PipelineDocument(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = new Annotation(document,chunk.start(),chunk.end());
+            sentences[ite] = new PositionAnnotation(document,chunk.start(),chunk.end());
             ite++;
         }
         setSentences(sentences);

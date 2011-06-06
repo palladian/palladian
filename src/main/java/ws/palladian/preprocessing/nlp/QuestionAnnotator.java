@@ -7,6 +7,7 @@ import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
 
 public final class QuestionAnnotator implements PipelineProcessor {
     
@@ -30,7 +31,7 @@ public final class QuestionAnnotator implements PipelineProcessor {
     }
     
     private Annotation createQuestion(Annotation sentence) {
-        Annotation ret = new Annotation(sentence.getDocument(),sentence.getStartPosition(),sentence.getEndPosition());
+        Annotation ret = new PositionAnnotation(sentence.getDocument(),sentence.getStartPosition(),sentence.getEndPosition());
         return ret;
     }
 

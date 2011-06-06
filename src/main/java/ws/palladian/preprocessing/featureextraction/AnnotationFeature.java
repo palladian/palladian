@@ -17,7 +17,7 @@ public class AnnotationFeature extends Feature<List<Annotation>> {
 
     public void addToken(Annotation annotation) {
         getValue().add(annotation);
-        annotation.setDocument(getDocument());
+        // annotation.setDocument(getDocument());
     }
 
     /**

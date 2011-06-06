@@ -19,31 +19,44 @@ public class AnnotationGroup extends Annotation {
     private List<Annotation> annotations = new ArrayList<Annotation>();
 
     public AnnotationGroup(PipelineDocument document) {
-        super(document, -1, -1);
-    }
-
-    public void add(Annotation annotation) {
-        annotations.add(annotation);
-        if (getStartPosition() == -1) {
-            setStartPosition(annotation.getStartPosition());
-        }
-        setEndPosition(annotation.getEndPosition());
-
-    }
-
-    public List<Annotation> getTokens() {
-        return annotations;
+        super(document);
     }
 
     @Override
-    public String getValue() {
-        StringBuilder sb = new StringBuilder();
-        for (Annotation annotation : annotations) {
-            sb.append(annotation.getValue()).append(TOKEN_SEPARATOR);
+    public int getStartPosition() {
+        int startPosition = -1;
+        if (!annotations.isEmpty()) {
+            startPosition = annotations.get(0).getStartPosition();
         }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
+        return startPosition;
     }
+
+    @Override
+    public int getEndPosition() {
+        int endPosition = -1;
+        if (!annotations.isEmpty()) {
+            endPosition = annotations.get(annotations.size() - 1).getEndPosition();
+        }
+        return endPosition;
+    }
+
+  @Override
+  public String getValue() {
+      StringBuilder valueBuilder = new StringBuilder();
+      for (Annotation annotation : annotations) {
+          valueBuilder.append(annotation.getValue()).append(TOKEN_SEPARATOR);
+      }
+      valueBuilder.deleteCharAt(valueBuilder.length() - 1);
+      return valueBuilder.toString();
+  }
+  
+  public void add(Annotation annotation) {
+      annotations.add(annotation);
+  }
+
+  public List<Annotation> getTokens() {
+      return annotations;
+  }
 
     /*
      * (non-Javadoc)
