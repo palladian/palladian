@@ -34,8 +34,8 @@ public class FeedUrlsNearDuplicateEliminator {
     private static final Logger LOGGER = Logger.getLogger(FeedUrlsNearDuplicateEliminator.class);
 
     // be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor
-    private static final String[] ATOM = new String[] { "atom10", "atom" };
-    private static final String[] RSS = new String[] { "rss_2.0", "rss2.0", "rss200", "rss20", "rss2", "rss" };
+    private static final String[] ATOM = new String[] { "atom10", "atom1.0", "atom_1.0", "atom_10", "atom" };
+    private static final String[] RSS = new String[] { "rss_2.0", "rss_200", "rss_20", "rss2.0", "rss200", "rss20", "rss2", "rss" };
 
     /** A format string must not be preceded by a word character [a-zA-Z0-9] */
     private static final String START_PATTERN = "(?<!\\w)";
@@ -104,7 +104,7 @@ public class FeedUrlsNearDuplicateEliminator {
     }
 
     /**
-     * Compiles the pattern. Pattern should look like (?<!\w)(atom10|atom|rss_2.0|rss2.0|rss200|rss20|rss2|rss)(?!\w)
+     * Compiles the pattern. Pattern should look like (?<!\w)(atom10|atom|atom1.0|atom_1.0|atom_10|rss_2.0|rss_200|rss_20|rss2.0|rss200|rss20|rss2|rss)(?!\w)
      */
     private static void compilePattern() {
         StringBuilder formatPatternBuilder = new StringBuilder(); 
@@ -178,7 +178,9 @@ public class FeedUrlsNearDuplicateEliminator {
         }
 
         // remove "overlap", e.g. [ "http://peterdowdall.com/feed/", "http://peterdowdall.com/feed/atom/" ]
-        // is reduced to ""http://peterdowdall.com/feed/atom/", because the whole string is contained in the other
+        // is reduced to "http://peterdowdall.com/feed/atom/", because the whole string is contained in the other
+        // disadvantage: [ "http://riadzany.blogspot.com/feeds/posts/default",
+        // "http://riadzany.blogspot.com/feeds/posts/default?alt=rss"] is erroneous reduced to its RSS version
         ListIterator<String> listIterator = result.listIterator();
         while (listIterator.hasNext()) {
             String current = listIterator.next();
