@@ -137,18 +137,10 @@ public class XPathHelper {
         notNull(node, nodeId);
 
         Node result = null;
-        // try {
         List<Node> idNodes = XPathHelper.getNodes(node, "//*[@id='" + nodeId + "']");
         for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
             result = idNodes.get(i);
         }
-        // } catch (OutOfMemoryError e) {
-        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        // } catch (NullPointerException e) {
-        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        // } catch (Error e) {
-        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        // }
 
         return result;
     }
@@ -204,7 +196,6 @@ public class XPathHelper {
 
         List<Node> children = new ArrayList<Node>();
 
-        // try {
         NodeList childNodes = node.getChildNodes();
         if (childNodes != null) {
             for (int x = 0; x < childNodes.getLength(); x++) {
@@ -213,9 +204,6 @@ public class XPathHelper {
                 }
             }
         }
-        // } catch (Exception e) {
-        // Logger.getRootLogger().error(e.getMessage());
-        // }
 
         return children;
     }
@@ -318,38 +306,6 @@ public class XPathHelper {
         return previousSiblings;
     }
 
-    // /**
-    // * Convert a node and his children to string.
-    // *
-    // * TODO duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
-    // *
-    // * @param node the node
-    // * @return the node as string
-    // */
-    // public static String convertNodeToString(Node node) {
-    // Transformer trans = null;
-    // try {
-    // trans = TransformerFactory.newInstance().newTransformer();
-    // } catch (TransformerConfigurationException e1) {
-    // Logger.getRootLogger().error(e1.getMessage());
-    // } catch (TransformerFactoryConfigurationError e1) {
-    // Logger.getRootLogger().error(e1.getMessage());
-    // }
-    //
-    // final StringWriter sWriter = new StringWriter();
-    // try {
-    // trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    // trans.transform(new DOMSource(node), new StreamResult(sWriter));
-    // } catch (TransformerException e) {
-    // Logger.getRootLogger().error(e.getMessage());
-    // }
-    // String result = sWriter.toString();
-    // result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-    // // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-    //
-    // return result;
-    // }
-
     // //////////////////////////////////////////////////
     // convenience methods for XHTML XPaths
     // TODO auto-uppercase?
@@ -395,8 +351,7 @@ public class XPathHelper {
 
         boolean result = false;
         Node node = null;
-        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null
-                && document.getLastChild().getAttributes() != null) {
+        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null) {
             node = document.getLastChild().getAttributes().getNamedItem("xmlns");
         }
 
