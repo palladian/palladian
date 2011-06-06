@@ -1,13 +1,7 @@
 package ws.palladian.retrieval.ranking;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +27,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpResult;
 
 import com.temesoft.google.pr.JenkinsHash;
 
@@ -201,7 +196,7 @@ public class RankingRetriever {
      * Cache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
      * creating and instance of the RankingRetriever.
      */
-    private RankingCache cache;// = new RankingCacheMemory();
+    // private RankingCache cache;// = new RankingCacheMemory();
 
     /** The services to check. */
     private Collection<Service> check;
@@ -260,17 +255,6 @@ public class RankingRetriever {
 
         final Map<Service, Float> result = Collections.synchronizedMap(new HashMap<Service, Float>());
 
-        // get rankings from the cache
-        final Map<Service, Float> cachedRankings;
-        if (cache != null) {
-            cachedRankings = cache.get(url);
-        } else {
-            cachedRankings = new HashMap<RankingRetriever.Service, Float>();
-        }
-
-        // rankings which we downloaded from the web -- these will be cached
-        final Map<Service, Float> downloadedRankings = Collections.synchronizedMap(new HashMap<Service, Float>());
-
         // keeps all threads
         List<Thread> rankingThreads = new ArrayList<Thread>();
 
@@ -284,18 +268,8 @@ public class RankingRetriever {
 
                     LOGGER.trace("start thread for " + service + " : " + cleanURL);
 
-                    // -1 means : need to get the ranking from web api
-                    float ranking = -1;
 
-                    if (cachedRankings.containsKey(service)) {
-                        ranking = cachedRankings.get(service);
-                    }
-
-                    if (ranking == -1) {
-                        ranking = getRanking(cleanURL, service);
-                        downloadedRankings.put(service, ranking);
-                    }
-
+                        float ranking = getRanking(cleanURL, service);
                     result.put(service, ranking);
 
                     LOGGER.trace("finished thread for " + service + " : " + cleanURL);
@@ -313,11 +287,6 @@ public class RankingRetriever {
             } catch (InterruptedException e) {
                 LOGGER.error(e);
             }
-        }
-
-        // add the downloaded rankings to the cache
-        if (!downloadedRankings.isEmpty() && cache != null) {
-            cache.add(cleanURL, downloadedRankings);
         }
 
         return result;
@@ -541,35 +510,40 @@ public class RankingRetriever {
             if (redditCookie == null) {
                 redditCookie = loginToReddit();
             }
-            // String cookie = loginToReddit();
 
             // Step 2: get the information
-            URLConnection urlCon = null;
-            StringBuilder response = new StringBuilder();
-            try {
-                String encUrl = StringHelper.urlEncode(getUrl());
-                URL infoUrl = new URL("http://www.reddit.com/api/info.json?url=" + encUrl);
-                urlCon = infoUrl.openConnection();
-                urlCon.setDoOutput(true);
-                urlCon.setRequestProperty("Cookie", redditCookie);
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
-                String inputLine;
-                while ((inputLine = reader.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                reader.close();
-            } catch (IOException e) {
-                // they return a 404 when they have no information about the specified URL
-                // this case is not a "real" error, so catch it here.
-                HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
-                if (httpUrlCon.getResponseCode() == 404) {
-                    LOGGER.trace("no data for url " + getUrl());
-                    result = 0;
-                } else {
-                    throw e;
-                }
-            }
+//            URLConnection urlCon = null;
+//            StringBuilder response = new StringBuilder();
+//            try {
+//                String encUrl = StringHelper.urlEncode(getUrl());
+//                URL infoUrl = new URL("http://www.reddit.com/api/info.json?url=" + encUrl);
+//                urlCon = infoUrl.openConnection();
+//                urlCon.setDoOutput(true);
+//                urlCon.setRequestProperty("Cookie", redditCookie);
+//
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
+//                String inputLine;
+//                while ((inputLine = reader.readLine()) != null) {
+//                    response.append(inputLine);
+//                }
+//                reader.close();
+//            } catch (IOException e) {
+//                // they return a 404 when they have no information about the specified URL
+//                // this case is not a "real" error, so catch it here.
+//                HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+//                if (httpUrlCon.getResponseCode() == 404) {
+//                    LOGGER.trace("no data for url " + getUrl());
+//                    result = 0;
+//                } else {
+//                    throw e;
+//                }
+//            }
+            
+            Map<String, String> headerParams = new HashMap<String, String>();
+            headerParams.put("Cookie", redditCookie);
+            String encUrl = StringHelper.urlEncode(getUrl());
+            HttpResult getResult = crawler.httpGet("http://www.reddit.com/api/info.json?url=" + encUrl, headerParams);
+            String response = new String(getResult.getContent());
 
             // Step 3: there might be multiple posts for the same link on reddit,
             // so we loop through all posts and and sum up their scores
@@ -604,25 +578,32 @@ public class RankingRetriever {
     // login to reddit, return the Cookie.
     private String loginToReddit() throws MalformedURLException, IOException {
         // Step 1: authenticate via HTTP POST, save the Cookie
-        URL loginUrl = new URL("http://www.reddit.com/api/login");
-        URLConnection loginCon = loginUrl.openConnection();
-
-        loginCon.setDoOutput(true);
-        OutputStreamWriter out = new OutputStreamWriter(loginCon.getOutputStream());
-        out.write("user=" + redditUsername);
-        out.write("&passwd=" + redditPassword);
-        out.close();
-
-        loginCon.connect();
-
-        String headerName = null;
-        String cookie = null;
-        for (int i = 1; (headerName = loginCon.getHeaderFieldKey(i)) != null; i++) {
-            if (headerName.equals("Set-Cookie")) {
-                cookie = loginCon.getHeaderField(i);
-            }
-        }
-        return cookie;
+//        URL loginUrl = new URL("http://www.reddit.com/api/login");
+//        URLConnection loginCon = loginUrl.openConnection();
+//
+//        loginCon.setDoOutput(true);
+//        OutputStreamWriter out = new OutputStreamWriter(loginCon.getOutputStream());
+//        out.write("user=" + redditUsername);
+//        out.write("&passwd=" + redditPassword);
+//        out.close();
+//
+//        loginCon.connect();
+//
+//        String headerName = null;
+//        String cookie = null;
+//        for (int i = 1; (headerName = loginCon.getHeaderFieldKey(i)) != null; i++) {
+//            if (headerName.equals("Set-Cookie")) {
+//                cookie = loginCon.getHeaderField(i);
+//            }
+//        }
+//        return cookie;
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("user", redditUsername);
+        parameters.put("passwd", redditPassword);
+        HttpResult response = crawler.httpPost("http://www.reddit.com/api/login", parameters);
+        return response.getHeaderString("Set-Cookie");
+        
     }
 
     /**
@@ -915,45 +896,43 @@ public class RankingRetriever {
 
     }
 
-    /**
-     * @param ttlSeconds
-     * @see ws.palladian.retrieval.ranking.RankingCache#setTtlSeconds(int)
-     */
-    public void setCacheTtlSeconds(int ttlSeconds) {
-        if (cache != null) {
-            cache.setTtlSeconds(ttlSeconds);
-        }
-    }
-
-    /**
-     * Set the cache implmentation to be used.
-     * 
-     * @param cache
-     */
-    public void setCache(RankingCache cache) {
-        this.cache = cache;
-    }
-
-    /**
-     * Get the used cache.
-     * 
-     * @return
-     */
-    public RankingCache getCache() {
-        return cache;
-    }
+//    /**
+//     * @param ttlSeconds
+//     * @see ws.palladian.retrieval.ranking.RankingCache#setTtlSeconds(int)
+//     */
+//    public void setCacheTtlSeconds(int ttlSeconds) {
+//        if (cache != null) {
+//            cache.setTtlSeconds(ttlSeconds);
+//        }
+//    }
+//
+//    /**
+//     * Set the cache implmentation to be used.
+//     * 
+//     * @param cache
+//     */
+//    public void setCache(RankingCache cache) {
+//        this.cache = cache;
+//    }
+//
+//    /**
+//     * Get the used cache.
+//     * 
+//     * @return
+//     */
+//    public RankingCache getCache() {
+//        return cache;
+//    }
 
     public static void main(String[] args) throws Exception {
 
-        String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
+        // String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
         // String url = "http://www.tagesschau.de";
         // String url = "http://www.porn.com";
+        String url = "http://letsgoweird.tumblr.com/post/6250451248";
+
 
         RankingRetriever urlRankingServices = new RankingRetriever();
-        // urlRankingServices.setCache(new RankingCacheDB());
-
-        // urlRankingServices.setCacheTtlSeconds(-1);
-        urlRankingServices.setCacheTtlSeconds(5);
 
         StopWatch sw = new StopWatch();
         Map<Service, Float> ranking = urlRankingServices.getRanking(url);
@@ -976,8 +955,6 @@ public class RankingRetriever {
         System.out.println("  WOT Trustworthiness for domain:     " + ranking.get(Service.WOT_TRUSTWORTHINESS));
         System.out.println("-----------------------------------------------------------------");
         System.out.println(sw.getElapsedTimeString());
-
-
 
     }
 

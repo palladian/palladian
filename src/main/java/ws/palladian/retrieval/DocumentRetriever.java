@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -41,19 +42,25 @@ import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.ContentEncodingHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -119,7 +126,7 @@ public class DocumentRetriever {
     private final ContentEncodingHttpClient httpClient;
 
     /** Various parameters for the Apache HttpClient. */
-    private final HttpParams httpParams = new BasicHttpParams();
+    private final HttpParams httpParams = new SyncBasicHttpParams();
 
     // ///////////// Settings ////////
 
@@ -159,6 +166,7 @@ public class DocumentRetriever {
     public DocumentRetriever() {
         // initialize the HttpClient
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
         httpClient = new ContentEncodingHttpClient(connectionManager, httpParams);
 
         // setup the configuration; if no config available, use default values
@@ -181,66 +189,32 @@ public class DocumentRetriever {
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
     public HttpResult httpGet(String url) throws HttpException {
+        Map<String, String> headers = Collections.emptyMap();
+        return httpGet(url, headers);
+    }
 
-        HttpResult result;
+    /**
+     * Performs an HTTP GET operation.
+     * 
+     * @param url the URL for the GET.
+     * @param headers map with key-value pairs of request headers.
+     * @return response for the GET.
+     * @throws HttpException in case the GET fails, or the supplied URL is not valid.
+     */
+    public HttpResult httpGet(String url, Map<String, String> headers) throws HttpException {
 
-        HttpGet get = null;
+        HttpGet get;
         try {
             get = new HttpGet(url);
-            get.setHeader("User-Agent", USER_AGENT);
         } catch (IllegalArgumentException e) {
             throw new HttpException("invalid URL: " + url, e);
         }
 
-        InputStream in = null;
-
-        httpHook.beforeRequest(url, this);
-
-        try {
-
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(get, context);
-            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            HttpConnectionMetrics metrics = connection.getMetrics();
-
-            HttpEntity entity = response.getEntity();
-            byte[] content;
-
-            if (entity != null) {
-
-                in = entity.getContent();
-
-                // check for a maximum download size limitation
-                long maxFileSize = downloadFilter.getMaxFileSize();
-                if (maxFileSize != -1) {
-                    in = new BoundedInputStream(in, maxFileSize);
-                }
-
-                content = IOUtils.toByteArray(in);
-
-            } else {
-                content = new byte[0];
-            }
-
-            int statusCode = response.getStatusLine().getStatusCode();
-            long receivedBytes = metrics.getReceivedBytesCount();
-            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
-            result = new HttpResult(url, content, headers, statusCode, receivedBytes);
-
-            addDownload(receivedBytes);
-
-        } catch (IOException e) {
-            throw new HttpException(e);
-        } catch (IllegalStateException e) {
-            throw new HttpException(e);
-        } finally {
-            IOUtils.closeQuietly(in);
-            get.abort();
+        for (Entry<String, String> header : headers.entrySet()) {
+            get.setHeader(header.getKey(), header.getValue());
         }
-
-        httpHook.afterRequest(result, this);
+        HttpResult result = execute(url, get);
         return result;
-
     }
 
     /**
@@ -256,7 +230,6 @@ public class DocumentRetriever {
         HttpHead head = null;
         try {
             head = new HttpHead(url);
-            head.setHeader("User-Agent", USER_AGENT);
         } catch (Exception e) {
             throw new HttpException("invalid URL: " + url, e);
         }
@@ -285,6 +258,36 @@ public class DocumentRetriever {
         return result;
 
     }
+    
+    /**
+     * Performs an HTTP POST operation with the specified name-value pairs as content.
+     * @param url the URL for the POST.
+     * @param content name-value pairs for the POST.
+     * @return response for the POST.
+     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
+     */
+    public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
+        
+        HttpPost post;
+        try {
+            post = new HttpPost(url);
+        } catch (Exception e) {
+            throw new HttpException("invalid URL: " + url, e);
+        }
+
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        for (Entry<String, String> param : content.entrySet()) {
+            nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+        }
+        try {
+            post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e);
+        }
+
+        HttpResult result = execute(url, post);
+        return result;
+    }
 
     /**
      * Converts the Header type from Apache to a more generic Map.
@@ -301,6 +304,66 @@ public class DocumentRetriever {
                 result.put(header.getName(), list);
             }
             list.add(header.getValue());
+        }
+        return result;
+    }
+
+    /**
+     * Internal method for executing the specified request; content of the result is read and buffered completely, up to
+     * the specified limit in {@link DownloadFilter#getMaxFileSize()}.
+     * 
+     * @param url
+     * @param request
+     * @return
+     * @throws HttpException
+     */
+    private HttpResult execute(String url, HttpUriRequest request) throws HttpException {
+        HttpResult result;
+        InputStream in = null;
+        
+        httpHook.beforeRequest(url, this);
+        
+        try {
+            
+            HttpContext context = new BasicHttpContext();
+            HttpResponse response = httpClient.execute(request, context);
+            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+            HttpConnectionMetrics metrics = connection.getMetrics();
+
+            HttpEntity entity = response.getEntity();
+            byte[] entityContent;
+
+            if (entity != null) {
+
+                in = entity.getContent();
+
+                // check for a maximum download size limitation
+                long maxFileSize = downloadFilter.getMaxFileSize();
+                if (maxFileSize != -1) {
+                    in = new BoundedInputStream(in, maxFileSize);
+                }
+
+                entityContent = IOUtils.toByteArray(in);
+
+            } else {
+                entityContent = new byte[0];
+            }
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            long receivedBytes = metrics.getReceivedBytesCount();
+            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
+            
+            httpHook.afterRequest(result, this);
+            addDownload(receivedBytes);
+            
+        } catch (IllegalStateException e) {
+            throw new HttpException(e);
+        } catch (IOException e) {
+            throw new HttpException(e);
+        } finally {
+            IOUtils.closeQuietly(in);
+            request.abort();
         }
         return result;
     }
