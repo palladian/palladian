@@ -20,6 +20,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
 
 /**
  * @author Martin Wunderwald
@@ -88,7 +89,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();
-            sentenceAnnotations[i] = new Annotation(document, start, end);
+            sentenceAnnotations[i] = new PositionAnnotation(document, start, end);
         }
         setSentences(sentenceAnnotations);
         return this;

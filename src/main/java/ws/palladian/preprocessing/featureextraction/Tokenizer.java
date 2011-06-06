@@ -22,7 +22,9 @@ public class Tokenizer implements PipelineProcessor {
         Matcher matcher = TOKENIZE_REGEXP.matcher(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE, document);
         while (matcher.find()) {
-            Annotation annotation = new Annotation(document,matcher.start(),matcher.end());
+            int startPosition = matcher.start();
+            int endPosition = matcher.end();
+            Annotation annotation = new PositionAnnotation(document,startPosition,endPosition);
             annotationFeature.addToken(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

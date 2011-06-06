@@ -4,90 +4,37 @@ import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
 
 /**
- * 
+ * Abstract super class defining an Annotation.
  * @author Philipp Katz
- * @author Klemens Muthmann
  */
-public class Annotation {
-
-    private int startPosition;
-    private int endPosition;
-    private FeatureVector featureVector;
+public abstract class Annotation {
+    
     private PipelineDocument document;
-
-    public Annotation(PipelineDocument document, int startPosition, int endPosition) {
-        featureVector = new FeatureVector();
+    private FeatureVector featureVector;
+    
+    public Annotation(PipelineDocument document) {
         this.document = document;
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
+        featureVector = new FeatureVector();
+    }
+    
+    public PipelineDocument getDocument() {
+        return document;
     }
 
     /**
      * @return the startPosition
      */
-    public int getStartPosition() {
-        return startPosition;
-    }
+    public abstract int getStartPosition();
 
     /**
      * @return the endPosition
      */
-    public int getEndPosition() {
-        return endPosition;
-    }
+    public abstract int getEndPosition();
 
-    public String getValue() {
-        String text = getDocument().getOriginalContent();
-        // return text.substring(getStartPosition(), getEndPosition());
-        
-        // return a copy of the String, elsewise we will run into memory problems,
-        // as the original String from the document might never get GC'ed, as long 
-        // as we keep its Tokens in memory
-        // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-        return new String(text.substring(getStartPosition(), getEndPosition()));
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Annotation [value=");
-        builder.append(getValue());
-        builder.append(", startPosition=");
-        builder.append(startPosition);
-        builder.append(", endPosition=");
-        builder.append(endPosition);
-        builder.append(", featureVector=");
-        builder.append(featureVector);
-        builder.append("]");
-        return builder.toString();
-    }
-
-    public void setFeatureVector(FeatureVector featureVector) {
-        this.featureVector = featureVector;
-    }
+    public abstract String getValue();
 
     public FeatureVector getFeatureVector() {
         return featureVector;
-    }
-
-    public PipelineDocument getDocument() {
-        return document;
-    }
-    
-    protected void setStartPosition(int startPosition) {
-        this.startPosition = startPosition;
-    }
-    
-    protected void setEndPosition(int endPosition) {
-        this.endPosition = endPosition;
-    }
-    
-    void setDocument(PipelineDocument document) {
-        this.document = document;
     }
 
 }
