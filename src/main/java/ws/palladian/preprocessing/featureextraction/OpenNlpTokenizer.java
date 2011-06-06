@@ -3,7 +3,6 @@ package ws.palladian.preprocessing.featureextraction;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
@@ -56,7 +55,7 @@ public class OpenNlpTokenizer implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         String content = document.getOriginalContent();
-        AnnotationFeature annotationFeature = new AnnotationFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE, document);
+        AnnotationFeature annotationFeature = new AnnotationFeature(ws.palladian.preprocessing.featureextraction.Tokenizer.PROVIDED_FEATURE);
         Span[] spans = tokenizer.tokenizePos(content);
         for (Span span : spans) {
             Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd());
