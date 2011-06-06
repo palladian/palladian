@@ -3,6 +3,8 @@ package ws.palladian.retrieval;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Represents a response for an HttpDownload, e.g. GET or HEAD.
  * 
@@ -11,6 +13,8 @@ import java.util.Map;
  */
 public class HttpResult {
 
+    private static final String HEADER_SEPARATOR = "; ";
+    
     private final String url;
     private final byte[] content;
     private final Map<String, List<String>> headers;
@@ -68,6 +72,15 @@ public class HttpResult {
      */
     public List<String> getHeader(String name) {
         return headers.get(name);
+    }
+    
+    /**
+     * Get the HTTP header for the specified name as String.
+     * @param name the name of the HTTP header to get.
+     * @return header value, or <code>null</code> if no such header name.
+     */
+    public String getHeaderString(String name) {
+        return StringUtils.join(getHeader(name), HEADER_SEPARATOR);
     }
 
     /**
