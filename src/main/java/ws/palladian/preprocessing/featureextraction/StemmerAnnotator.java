@@ -13,6 +13,7 @@ import ws.palladian.preprocessing.PipelineProcessor;
 public class StemmerAnnotator implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
+    public static final String PROVIDED_FEATURE = "ws.palladian.features.stem";
     private SnowballStemmer stemmer;
     
     public StemmerAnnotator() {
@@ -32,12 +33,17 @@ public class StemmerAnnotator implements PipelineProcessor {
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
-            stemmer.setCurrent(annotation.getValue());
-            stemmer.stem();
-            String stem = stemmer.getCurrent();
-            NominalFeature stemFeature = new NominalFeature("stem", stem);
+            String stem = stem(annotation);
+            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE, stem);
             annotation.getFeatureVector().add(stemFeature);
         }
+    }
+
+    private String stem(Annotation annotation) {
+        stemmer.setCurrent(annotation.getValue());
+        stemmer.stem();
+        String stem = stemmer.getCurrent();
+        return stem;
     }
 
 }

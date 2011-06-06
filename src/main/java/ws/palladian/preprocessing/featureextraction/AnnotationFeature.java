@@ -11,7 +11,7 @@ public class AnnotationFeature extends Feature<List<Annotation>> {
         super(name, new ArrayList<Annotation>());
     }
 
-    public void addToken(Annotation annotation) {
+    public void add(Annotation annotation) {
         getValue().add(annotation);
     }
 

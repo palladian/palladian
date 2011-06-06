@@ -25,7 +25,7 @@ public class Tokenizer implements PipelineProcessor {
             int startPosition = matcher.start();
             int endPosition = matcher.end();
             Annotation annotation = new PositionAnnotation(document,startPosition,endPosition);
-            annotationFeature.addToken(annotation);
+            annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();
         featureVector.add(annotationFeature);
