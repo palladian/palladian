@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.wiki.data;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
  * file name.
  * 
  * @author Sandro Reichert
+ * @author Philipp Katz
  */
 public class MWCrawlerConfiguration {
 
@@ -18,8 +19,8 @@ public class MWCrawlerConfiguration {
     /** The instance. */
     public static MWCrawlerConfiguration instance = null;
 
-    /** The array of Wiki descriptors found in the config file. */
-    public WikiDescriptorYAML[] wikiConfigurations;
+    /** The list of Wiki descriptors found in the config file. */
+    public List<WikiDescriptorYAML> wikiConfigurations;
 
     /**
      * Gets the single instance of MWCrawlerConfiguration.
@@ -38,7 +39,7 @@ public class MWCrawlerConfiguration {
      * 
      * @return all Wiki configurations from config file, each Wiki is represented by one {@link WikiDescriptorYAML}.
      */
-    public final WikiDescriptorYAML[] getWikiConfigurations() {
+    public final List<WikiDescriptorYAML> getWikiConfigurations() {
         return wikiConfigurations;
     }
 
@@ -48,7 +49,7 @@ public class MWCrawlerConfiguration {
      */
     @Override
     public String toString() {
-        return "MWCrawlerConfiguration [wikiConfigurations=" + Arrays.toString(wikiConfigurations) + "]";
+        return "MWCrawlerConfiguration [wikiConfigurations=" + wikiConfigurations + "]";
     }
 
 }

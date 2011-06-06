@@ -199,6 +199,7 @@
 			<version>1.1.0</version>
 		</dependency>
 		-->
+		<!--
 		<dependency>
 			<groupId>org.jyaml</groupId>
 			<artifactId>jyaml</artifactId>
@@ -206,6 +207,7 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
@@ -402,12 +404,12 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!--
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.7</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>jivesoftware</groupId>
 			<artifactId>smack</artifactId>

@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.wiki.persistence;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,7 +9,9 @@ import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
-import org.ho.yaml.Yaml;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.MediaWikiCrawler;
@@ -18,6 +20,11 @@ import ws.palladian.retrieval.wiki.data.WikiDescriptor;
 import ws.palladian.retrieval.wiki.data.WikiDescriptorYAML;
 import ws.palladian.retrieval.wiki.data.WikiPage;
 
+/**
+ * @author Sandro Reichert
+ * @author Philipp Katz
+ *
+ */
 public final class MWConfigLoader {
 
     /** The logger for this class. */
@@ -73,10 +80,16 @@ public final class MWConfigLoader {
     private MWCrawlerConfiguration loadConfigurationFromConfigFile() {
         MWCrawlerConfiguration returnValue = null;
         try {
-            final MWCrawlerConfiguration config = Yaml.loadType(new File(CONFIG_FILE_PATH),
-                    MWCrawlerConfiguration.class);
-
-            returnValue = config;
+            
+            // set up the YAML parser and define the class mapping
+            Constructor constructor = new Constructor(MWCrawlerConfiguration.class);
+            TypeDescription wikiConfigDescription = new TypeDescription(MWCrawlerConfiguration.class);
+            wikiConfigDescription.putListPropertyType("wikiConfigurations", WikiDescriptorYAML.class);
+            constructor.addTypeDescription(wikiConfigDescription);
+            Yaml yaml = new Yaml(constructor);
+            
+            returnValue = (MWCrawlerConfiguration) yaml.load(new FileInputStream(CONFIG_FILE_PATH));
+            
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         }
