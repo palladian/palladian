@@ -4,36 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.model.features.Feature;
-import ws.palladian.preprocessing.PipelineDocument;
 
 public class AnnotationFeature extends Feature<List<Annotation>> {
 
-    private PipelineDocument document;
-
-    public AnnotationFeature(String name, PipelineDocument document) {
+    public AnnotationFeature(String name) {
         super(name, new ArrayList<Annotation>());
-        this.document = document;
     }
 
     public void addToken(Annotation annotation) {
         getValue().add(annotation);
-        // annotation.setDocument(getDocument());
     }
 
     /**
-     * @return the document
+     * Return a human-readable list of all contained {@link Annotation}s.
+     * 
+     * @return
      */
-    public PipelineDocument getDocument() {
-        return document;
-    }
-
-    /**
-     * @param document the document to set
-     */
-    public void setDocument(PipelineDocument document) {
-        this.document = document;
-    }
-
     public String toStringList() {
         StringBuilder sb = new StringBuilder();
         List<Annotation> annotations = getValue();
@@ -42,8 +28,15 @@ public class AnnotationFeature extends Feature<List<Annotation>> {
         }
         return sb.toString();
     }
-    
-    public List<Annotation> getTokens(int startPosition, int endPosition) {
+
+    /**
+     * Gives all {@link Annotation}s in the specified range.
+     * 
+     * @param startPosition
+     * @param endPosition
+     * @return
+     */
+    public List<Annotation> getAnnotations(int startPosition, int endPosition) {
         List<Annotation> result = new ArrayList<Annotation>();
         for (Annotation current : getValue()) {
             if (current.getStartPosition() >= startPosition && current.getEndPosition() <= endPosition) {

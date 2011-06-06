@@ -20,7 +20,7 @@ public class Tokenizer implements PipelineProcessor {
     public void process(PipelineDocument document) {
         String text = document.getOriginalContent();
         Matcher matcher = TOKENIZE_REGEXP.matcher(text);
-        AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE, document);
+        AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE);
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();

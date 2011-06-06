@@ -2,7 +2,6 @@ package ws.palladian.preprocessing.featureextraction;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,8 +22,7 @@ public class DuplicateTokenRemover implements PipelineProcessor {
         Set<String> tokenValues = new HashSet<String>();
         
         List<Annotation> resultTokens = new ArrayList<Annotation>();
-        for (Iterator<Annotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
-            Annotation annotation = tokenIterator.next();
+        for (Annotation annotation : annotations) {
             String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
                 resultTokens.add(annotation);
