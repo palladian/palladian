@@ -1,5 +1,6 @@
 package ws.palladian.classification.language;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.EvaluationSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -208,7 +210,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         return palladianClassifier.classify(text, getPossibleClasses()).getAssignedCategoryEntries();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // ///////////////// use the language classifier ///////////////////
         // String languageModelPath = "data/models/palladianLanguageClassifier/LanguageClassifier.gz";
@@ -219,7 +221,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         PalladianLangDetect pld0 = new PalladianLangDetect("data/models/PLC/PLC.gz");
         String language = pld0.classify("This is a sample text in English");
         System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Das ist ein Beispieltext in Deutsch");
+        language = pld0.classify("Das ist ein Beispieltext auf Deutsch");
         System.out.println("The text was classified as: " + language);
         language = pld0.classify("Se trata de un texto de muestra en español");
         System.out.println("The text was classified as: " + language);
@@ -234,12 +236,20 @@ public class PalladianLangDetect extends LanguageClassifier {
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// learn from a given dataset ///////////////////
+        String datasetRootFolder = "C:\\Data\\datasets\\JRCLanguageCorpus\\";
+
+        // create an index over the dataset
+        DatasetManager dsManager = new DatasetManager();
+        String path = dsManager.createIndex(datasetRootFolder, new String[] { "en", "es", "de" });
+
+        // create an excerpt with 1000 instances per class
+        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, 1000);
+
         // specify the dataset that should be used as training data
         Dataset dataset = new Dataset();
 
         // set the path to the dataset, the first field is a link, and columns are separated with a space
-        dataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
-        // dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split1.txt");
+        dataset.setPath(indexExcerpt);
 
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -118,14 +118,14 @@ public class ClassifierManager {
 
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("trainingFile").withDescription(
-                "train a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+        "train a classifier on the data in the given file").hasArg().withArgName("filename").withType(
                 Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("testingFile").withDescription(
-                "test a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+        "test a classifier on the data in the given file").hasArg().withArgName("filename").withType(
                 Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("name").withDescription(
-                "the name under which the classifier is saved").hasArg().withArgName("string").withType(Number.class)
-                .create());
+        "the name under which the classifier is saved").hasArg().withArgName("string").withType(Number.class)
+        .create());
         // options.addOption(OptionBuilder.withLongOpt("save").withDescription("save the trained classifier"))
 
         try {
@@ -331,7 +331,7 @@ public class ClassifierManager {
 
         // create a text classifier by giving a name and a path where it should be saved to
         TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
-                "data/models/palladianLanguageClassifier/");
+        "data/models/palladianLanguageClassifier/");
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
@@ -399,7 +399,7 @@ public class ClassifierManager {
     private int trainingDataPercentage = 20;
 
     /** If true, a preprocessed document will be added to the dictionary right away, that saves memory. */
-    private boolean createDictionaryIteratively = true;
+    private boolean createDictionaryIteratively = false;
 
     // // classification modes
     // /** train model, serialize model and use serialized model for test */
@@ -414,10 +414,10 @@ public class ClassifierManager {
     // int classificationMode = CLASSIFICATION_TRAIN_TEST_SERIALIZE;
 
     /** Decide whether to index the dictionary in lucene or database. */
-    private int dictionaryClassifierIndexType = Dictionary.DB_INDEX_FAST;
+    private int dictionaryClassifierIndexType = Dictionary.DB_INDEX_NORMALIZED;
 
     /** Decide whether to use mysql or h2 if index type is database. */
-    private int dictionaryDatabaseType = Dictionary.DB_MYSQL;
+    private int dictionaryDatabaseType = Dictionary.DB_H2;
 
     /** If true, all n-grams will be searched once before inserting in the db, which saves look up time. */
     private boolean createDictionaryNGramSearchMode = true;
@@ -438,13 +438,19 @@ public class ClassifierManager {
         // try to find the classification configuration, if it is not present use default values
 
         final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        if (config.getInt("classification.page.trainingPercentage") > -1) {
+        if (config.containsKey("classification.page.trainingPercentage")
+                && config.getInt("classification.page.trainingPercentage") > -1) {
             setTrainingDataPercentage(config.getInt("classification.page.trainingPercentage"));
         }
-        createDictionaryIteratively = config.getBoolean("classification.page.createDictionaryIteratively");
-        dictionaryClassifierIndexType = config.getInt("classification.page.dictionaryClassifierIndexType");
-        dictionaryDatabaseType = config.getInt("classification.page.databaseType");
-        createDictionaryNGramSearchMode = config.getBoolean("classification.page.createDictionaryNGramSearchMode");
+
+        try {
+            createDictionaryIteratively = config.getBoolean("classification.page.createDictionaryIteratively");
+            dictionaryClassifierIndexType = config.getInt("classification.page.dictionaryClassifierIndexType");
+            dictionaryDatabaseType = config.getInt("classification.page.databaseType");
+            createDictionaryNGramSearchMode = config.getBoolean("classification.page.createDictionaryNGramSearchMode");
+        } catch (Exception e) {
+            LOGGER.debug("use default settings for ClassifierManager because not all the fields have been set in the palladian.properites file");
+        }
 
     }
 
@@ -531,7 +537,7 @@ public class ClassifierManager {
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanURL(url));
                     String cleanURLName = "webpage" + fileCounter++ + "_"
-                            + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
+                    + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
                     if (crawler.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
@@ -884,7 +890,7 @@ public class ClassifierManager {
                                 && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
                                         categoryName).getParent() == ((DictionaryClassifier) classifier)
                                         .getDictionary().hierarchyRootNode
-                                || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
+                                        || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                             cat.setMainCategory(true);
                         }
                         cat.setClassType((Integer) obj[1]);
@@ -1076,7 +1082,7 @@ public class ClassifierManager {
         if (classifier.getClassificationType() != ClassificationTypeSetting.TAG) {
 
             LOGGER
-                    .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
+            .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
 
             int totalCorrect = 0;
             for (Category category : classifier.getCategories()) {

@@ -3,11 +3,13 @@ package ws.palladian.extraction;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1080,21 +1082,21 @@ public class PageAnalyzer {
     // http://www.cineplex.com/Movies/AllMovies.aspx?sort=2,
     // http://www.expansys.com/n.aspx?c=169)
     public String getSiblingPage(Document document) {
-    
+
         String siblingURL = "";
         String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
-    
+
         String url = StringHelper.urlDecode(document.getDocumentURI());
-    
+
         // remove anchors from url
         url = UrlHelper.removeAnchors(url);
-    
+
         LinkedHashMap<String, Double> similarityMap = new LinkedHashMap<String, Double>();
-    
+
         // PageAnalyzer.printDOM(document.getLastChild(), " ");
         // Crawler c = new Crawler();
         // System.out.println(c.download(url));
-    
+
         // get all links
         List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         if (linkNodes == null) {
@@ -1103,22 +1105,22 @@ public class PageAnalyzer {
         for (int i = 0; i < linkNodes.size(); i++) {
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
-    
+
             // remove anchors from link
             currentLink = UrlHelper.removeAnchors(currentLink);
-    
+
             // normalize relative and absolute links
             currentLink = UrlHelper.makeFullURL(url, currentLink);
-    
+
             if (currentLink.length() == 0) {
                 continue;
             }
-    
+
             currentLink = StringHelper.urlDecode(currentLink);
-    
+
             // calculate similarity to given url
             double similarity = StringHelper.calculateSimilarity(currentLink, url, false);
-    
+
             // file ending must be the same
             int lastPointIndex = url.lastIndexOf(".");
             int fileEndingEndIndex = url.length();
@@ -1130,7 +1132,7 @@ public class PageAnalyzer {
                 // if (!fileEndingURL.equalsIgnoreCase(fileEndingLink) &&
                 // fileEndingURL.length() < 6) continue;
             }
-    
+
             lastPointIndex = currentLink.lastIndexOf(".");
             if (lastPointIndex > domain.length()) {
                 fileEndingEndIndex = currentLink.length();
@@ -1144,19 +1146,19 @@ public class PageAnalyzer {
                     continue;
                 }
             }
-    
+
             // do not return same url
             if (url.equalsIgnoreCase(currentLink)) {
                 continue;
             }
-    
+
             similarityMap.put(currentLink, similarity);
         }
-    
+
         // return url with highest similarity or an empty string if nothing has
         // been found
         similarityMap = CollectionHelper.sortByValue(similarityMap.entrySet(), CollectionHelper.DESCENDING);
-    
+
         if (similarityMap.entrySet().size() > 0) {
             try {
                 siblingURL = URLEncoder.encode(similarityMap.entrySet().iterator().next().getKey(), "UTF-8");
@@ -1165,12 +1167,12 @@ public class PageAnalyzer {
             }
             siblingURL = similarityMap.entrySet().iterator().next().getKey().replace(" ", "%20");
         }
-    
+
         LOGGER.info("sibling url: " + siblingURL);
-    
+
         return siblingURL;
     }
-    
+
     public String getSiblingPage(String url) {
         setDocument(url);
         return getSiblingPage(getDocument());
@@ -1178,52 +1180,52 @@ public class PageAnalyzer {
 
 
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
-    
+
         Set<String> pageLinks = new HashSet<String>();
-    
+
         if (document == null) {
             return pageLinks;
         }
-    
+
         // remove anchors from url
         String url = document.getDocumentURI();
         url = UrlHelper.removeAnchors(url);
         String domain = UrlHelper.getDomain(url, false);
-    
+
         // get value of base element, if present
         Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
         }
-    
+
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//A/@href");
         for (int i = 0; i < linkNodes.size(); i++) {
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
-    
+
             // remove anchors from link
             currentLink = UrlHelper.removeAnchors(currentLink);
-    
+
             // normalize relative and absolute links
             // currentLink = makeFullURL(url, currentLink);
             currentLink = UrlHelper.makeFullURL(url, baseHref, currentLink);
-    
+
             if (currentLink.length() == 0) {
                 continue;
             }
-    
+
             String currentDomain = UrlHelper.getDomain(currentLink, false);
-    
+
             boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
-    
+
             if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
                 pageLinks.add(currentLink);
             }
         }
-    
+
         return pageLinks;
     }
 
@@ -1240,22 +1242,22 @@ public class PageAnalyzer {
 
     public static String extractTitle(Document webPage) {
         String title = "";
-    
+
         List<Node> titleNodes = XPathHelper.getXhtmlNodes(webPage, "//TITLE");
         for (Node node : titleNodes) {
             title = node.getTextContent();
             break;
         }
-    
+
         return title;
     }
 
     public static String extractBodyContent(Document webPage) {
         String bodyContent = "";
-    
+
         // a possible alternative way for extracting the textual body content
         // System.out.println(extractBodyContent(downloadNotBlacklisted(webPage.getBaseURI()), true));
-    
+
         try {
             List<Node> titleNodes = XPathHelper.getNodes(webPage, "//BODY");
             for (Node node : titleNodes) {
@@ -1267,14 +1269,14 @@ public class PageAnalyzer {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-    
+
         return bodyContent;
     }
 
     public static List<String> extractDescription(Document webPage) {
-    
+
         List<String> descriptionWords = new ArrayList<String>();
-    
+
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
             if (metaNode.getAttributes().getNamedItem("name") != null
@@ -1288,14 +1290,45 @@ public class PageAnalyzer {
                 break;
             }
         }
-    
+
         return descriptionWords;
     }
 
+    /**
+     * <p>
+     * Extract name-content pairs of the meta tags of a web page. Note that not all meta tags have name and content
+     * attributes, e.g. there is "http-equiv" for some meta tags. These will not be extracted by this method.
+     * </p>
+     * <p>
+     * For easier use, all attribute names (key in the map) will be lowercased. The content will not be processed by any
+     * means.
+     * </p>
+     * 
+     * @param webPage The web page to process.
+     * @return A map of name-content pairs that were found in the meta tags of the given web page.
+     */
+    public static Map<String, String> extractMetaInformation(Document webPage) {
+        Map<String, String> metaTags = new HashMap<String, String>();
+
+        List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//META");
+        for (Node metaNode : metaNodes) {
+            if (metaNode.getAttributes().getNamedItem("name") != null
+                    && metaNode.getAttributes().getNamedItem("content") != null) {
+
+                String name = metaNode.getAttributes().getNamedItem("name").getTextContent();
+                String content = metaNode.getAttributes().getNamedItem("content").getTextContent();
+                metaTags.put(name.toLowerCase(), content);
+
+            }
+        }
+
+        return metaTags;
+    }
+
     public static List<String> extractKeywords(Document webPage) {
-    
+
         List<String> keywords = new ArrayList<String>();
-    
+
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
             if (metaNode.getAttributes().getNamedItem("name") != null
@@ -1309,7 +1342,7 @@ public class PageAnalyzer {
                 break;
             }
         }
-    
+
         return keywords;
     }
 
@@ -1320,10 +1353,10 @@ public class PageAnalyzer {
      * 
      */
     public static String extractBodyContent(String pageContent, boolean textOnly) {
-    
+
         String bodyContent = "";
         List<String> tempList = HTMLHelper.getConcreteTags(pageContent, "body");
-    
+
         if (tempList.size() > 0) {
             bodyContent = tempList.get(0);
         } else {
@@ -1332,13 +1365,13 @@ public class PageAnalyzer {
             // return "error" to divide between empty string and error
             return "error";
         }
-    
+
         if (textOnly) {
             boolean stripTags = true;
             boolean stripComments = true;
             boolean stripJSAndCSS = true;
             boolean joinTagsAndRemoveNewlines = false;
-    
+
             // Remove all tags, comments, JS and CSS from body
             bodyContent = HTMLHelper.stripHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
@@ -1346,7 +1379,7 @@ public class PageAnalyzer {
             bodyContent = bodyContent.replaceAll("&amp;", "&");
             return bodyContent;
         }
-    
+
         return bodyContent;
     }
 
