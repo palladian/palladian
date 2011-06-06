@@ -47,6 +47,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private String mainContentHTML = "";
     private String mainContentText = "";
 
+    /**
+     * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we
+     * take the following value as a guess of the container size in which the image is located in. Finding the real
+     * width and height of the container would require too much effort and possibly CSS parsing.
+     */
+    private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
+
     private List<WebImage> imageURLs;
 
 
@@ -182,23 +189,37 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 }
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
-                    w = w.replace("px", "");
-                    webImage.setWidth(Integer.parseInt(w));
+                    webImage.setWidth(getImageSize(w));
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
-                    h = h.replace("px", "");
-                    webImage.setHeight(Integer.parseInt(h));
+                    webImage.setHeight(getImageSize(h));
                 }
 
                 imageURLs.add(webImage);
 
             } catch (NullPointerException e) {
-                LOGGER.warn("an image has not all necessary attributes");
+                LOGGER.debug("an image has not all necessary attributes");
             }
         }
 
         return imageURLs;
+    }
+
+    private int getImageSize(String attributeText) {
+
+        int size = -1;
+        attributeText = attributeText.replace(",*", "");
+
+        if (attributeText.indexOf("%") > -1) {
+            attributeText = attributeText.replace("%", "");
+            size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
+        } else {
+            attributeText = attributeText.replace("px", "");
+            size = Integer.parseInt(attributeText);
+        }
+
+        return size;
     }
 
     @Override

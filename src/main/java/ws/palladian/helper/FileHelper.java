@@ -1068,6 +1068,16 @@ public class FileHelper {
     }
 
     /**
+     * Get all files from a certain folder and all files in all subfolders.
+     * 
+     * @param folderPath The path to the folder.
+     * @return An array of files that are in that folder or in any subfolder.
+     */
+    public static File[] getFilesRecursive(String folderPath) {
+        return getFiles(folderPath, "", true);
+    }
+
+    /**
      * Gets the files.
      * 
      * @param folderPath The folder path.
@@ -1075,26 +1085,31 @@ public class FileHelper {
      * @return The files which contain the substring.
      */
     public static File[] getFiles(String folderPath, String substring) {
+        return getFiles(folderPath, substring, false);
+    }
+
+    public static File[] getFiles(String folderPath, String substring, boolean recursive) {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
 
-            if (substring.length() > 0) {
-                ArrayList<File> matchingFiles = new ArrayList<File>();
+            ArrayList<File> matchingFiles = new ArrayList<File>();
 
-                for (File file : files) {
-                    if (file.isDirectory()) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    if (recursive) {
+                        matchingFiles.addAll(Arrays.asList(getFilesRecursive(file.getPath())));
+                    } else {
                         continue;
                     }
-                    if (file.getName().indexOf(substring) > -1) {
-                        matchingFiles.add(file);
-                    }
                 }
-
-                return matchingFiles.toArray(new File[0]);
-            } else {
-                return files;
+                if (file.getName().indexOf(substring) > -1) {
+                    matchingFiles.add(file);
+                }
             }
+
+            return matchingFiles.toArray(new File[0]);
+
         }
 
         return new File[0];

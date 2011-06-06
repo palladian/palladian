@@ -40,7 +40,7 @@ public class DatasetManager {
      * @param includeClasses The class names that should be included in the index.
      * @throws IOException
      */
-    public void createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
+    public String createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -51,7 +51,8 @@ public class DatasetManager {
         if (includeClasses != null) {
             indexName += "_" + Arrays.toString(includeClasses);
         }
-        FileWriter indexFile = new FileWriter(corpusRootFolderPath + indexName + ".txt");
+        indexName += ".txt";
+        FileWriter indexFile = new FileWriter(corpusRootFolderPath + indexName);
 
         // iterate over all classes
         File[] classFolders = FileHelper.getFiles(corpusRootFolderPath);
@@ -85,6 +86,8 @@ public class DatasetManager {
         indexFile.close();
 
         LOGGER.info("index file created in " + sw.getElapsedTimeString());
+
+        return indexName;
     }
 
     /**
@@ -94,11 +97,12 @@ public class DatasetManager {
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
-    public void createIndexExcerpt(String indexFilePath, int instancesPerClass) throws IOException {
+    public String createIndexExcerpt(String indexFilePath, int instancesPerClass) throws IOException {
 
         StopWatch sw = new StopWatch();
 
-        FileWriter indexFile = new FileWriter(FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass));
+        String indexFilename = FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass);
+        FileWriter indexFile = new FileWriter(indexFilename);
 
         final Object[] obj = new Object[3];
         obj[0] = indexFile;
@@ -137,6 +141,8 @@ public class DatasetManager {
         indexFile.close();
 
         LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
+
+        return indexFilename;
     }
 
     /**
@@ -193,7 +199,7 @@ public class DatasetManager {
             }
 
             String trainingFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_training" + fold
-                    + ".txt";
+            + ".txt";
             String testFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_test" + fold + ".txt";
 
             FileHelper.writeToFile(trainingFilePath, trainingData);
