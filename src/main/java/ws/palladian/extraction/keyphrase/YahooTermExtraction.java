@@ -1,21 +1,19 @@
 package ws.palladian.extraction.keyphrase;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 
 /**
  * 
@@ -34,13 +32,12 @@ public class YahooTermExtraction extends KeyphraseExtractor {
         
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        HttpPost postMethod = new HttpPost("http://query.yahooapis.com/v1/public/yql");
-
+        // headers for the request
+        Map<String, String> headers = new HashMap<String, String>();
         // set input content type
-        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
+        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         // set response/output format
-        postMethod.setHeader("Accept", "application/json");
+        headers.put("Accept", "application/json");
 
         // create the YQL query string
         StringBuilder queryBuilder = new StringBuilder();
@@ -48,39 +45,39 @@ public class YahooTermExtraction extends KeyphraseExtractor {
         queryBuilder.append("where context=\"");
         queryBuilder.append(inputText.replace("\"", "\\\""));
         queryBuilder.append("\"");
-        // LOGGER.debug(queryBuilder);
 
         // create the content of the request
-        List<NameValuePair> data = new ArrayList<NameValuePair>();
-        data.add(new BasicNameValuePair("q", queryBuilder.toString()));
-        data.add(new BasicNameValuePair("format", "json"));
+        Map<String, String> content = new HashMap<String, String>();
+        content.put("q", queryBuilder.toString());
+        content.put("format", "json");
         
+        DocumentRetriever retriever = new DocumentRetriever();
+        String response = null;
         try {
-            HttpEntity entity = new UrlEncodedFormEntity(data);
-            postMethod.setEntity(entity);
-        } catch (UnsupportedEncodingException e) {
+            HttpResult postResult = retriever.httpPost("http://query.yahooapis.com/v1/public/yql", headers, content);
+            response = new String(postResult.getContent());
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
+        
+        if (response != null) {
 
-        HTTPPoster poster = new HTTPPoster();
-        String response = poster.handleRequest(postMethod);
-        // LOGGER.debug(response);
+            // parse the JSON response
+            try {
 
-        // parse the JSON response
-        try {
+                JSONObject json = new JSONObject(response);
+                JSONArray resultArray = json.getJSONObject("query").getJSONObject("results").getJSONArray("Result");
+                for (int i = 0; i < resultArray.length(); i++) {
 
-            JSONObject json = new JSONObject(response);
-            JSONArray resultArray = json.getJSONObject("query").getJSONObject("results").getJSONArray("Result");
-            for (int i = 0; i < resultArray.length(); i++) {
+                    String term = resultArray.getString(i);
+                    LOGGER.debug(term);
+                    keyphrases.add(new Keyphrase(term));
 
-                String term = resultArray.getString(i);
-                LOGGER.debug(term);
-                keyphrases.add(new Keyphrase(term));
+                }
 
+            } catch (JSONException e) {
+                LOGGER.error(e);
             }
-
-        } catch (JSONException e) {
-            LOGGER.error(e);
         }
         
         return keyphrases;

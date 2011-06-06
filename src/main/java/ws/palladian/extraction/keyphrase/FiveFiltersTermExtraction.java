@@ -1,20 +1,18 @@
 package ws.palladian.extraction.keyphrase;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 
 public class FiveFiltersTermExtraction extends KeyphraseExtractor {
 
@@ -30,40 +28,38 @@ public class FiveFiltersTermExtraction extends KeyphraseExtractor {
     public List<Keyphrase> extract(String inputText) {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
-
-        HttpPost postMethod = new HttpPost("http://term-extraction.appspot.com/terms");
-
-        // set input content type
-        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        // set response/output format
-        postMethod.setHeader("Accept", "application/json");
-
-        // create the content of the request
+        
+        String response = null;
+        
         try {
-            List<NameValuePair> data = new ArrayList<NameValuePair>();
-            data.add(new BasicNameValuePair("content", inputText));
-            HttpEntity entity = new UrlEncodedFormEntity(data);
-            postMethod.setEntity(entity);
-        } catch (UnsupportedEncodingException e) {
+            
+            DocumentRetriever retriever = new DocumentRetriever();
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("content", inputText);
+            HttpResult postResult = retriever.httpPost("http://term-extraction.appspot.com/terms", params);
+            
+            response = new String(postResult.getContent());
+            
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
+        
+        if (response != null) {
 
-        HTTPPoster poster = new HTTPPoster();
-        String response = poster.handleRequest(postMethod);
+            // parse the JSON response
+            try {
 
-        // parse the JSON response
-        try {
+                JSONArray jsonArray = new JSONArray(response);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String text = jsonArray.getString(i);
+                    LOGGER.trace(text);
+                    keyphrases.add(new Keyphrase(text));
+                }
 
-            JSONArray jsonArray = new JSONArray(response);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                String text = jsonArray.getString(i);
-                LOGGER.trace(text);
-                keyphrases.add(new Keyphrase(text));
+            } catch (JSONException e) {
+                LOGGER.error(e);
             }
 
-        } catch (JSONException e) {
-            LOGGER.error(e);
         }
 
         return keyphrases;

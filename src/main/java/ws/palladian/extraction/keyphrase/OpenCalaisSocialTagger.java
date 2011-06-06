@@ -1,23 +1,21 @@
 package ws.palladian.extraction.keyphrase;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 
 /**
  * 
@@ -59,58 +57,61 @@ public class OpenCalaisSocialTagger extends KeyphraseExtractor {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        HttpPost postMethod = new HttpPost("http://api.opencalais.com/tag/rs/enrich");
+        Map<String, String> header = new HashMap<String, String>();
 
         // set mandatory parameters
-        postMethod.setHeader("x-calais-licenseID", apiKey);
+        header.put("x-calais-licenseID", apiKey);
 
         // set input content type
-        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        header.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        postMethod.setHeader("Accept", "application/json");
+        header.put("Accept", "application/json");
 
         // create the content of the request
+        Map<String, String> content = new HashMap<String, String>();
+        String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:enableMetadataType=\"SocialTags\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\"></c:userDirectives></c:params>";
+        content.put("content", inputText);
+        content.put("paramsXML", paramsXML);
+
+        String response = null;
+        DocumentRetriever retriever = new DocumentRetriever();
         try {
-            String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:enableMetadataType=\"SocialTags\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\"></c:userDirectives></c:params>";
-            List<NameValuePair> data = new ArrayList<NameValuePair>();
-            data.add(new BasicNameValuePair("content", inputText));
-            data.add(new BasicNameValuePair("paramsXML", paramsXML));
-            HttpEntity entity = new UrlEncodedFormEntity(data);
-            postMethod.setEntity(entity);
-        } catch (UnsupportedEncodingException e) {
+            HttpResult postResult = retriever.httpPost("http://api.opencalais.com/tag/rs/enrich", header, content);
+            response = new String(postResult.getContent());
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
 
-        HTTPPoster poster = new HTTPPoster();
-        String response = poster.handleRequest(postMethod);
+        if (response != null) {
+            // parse the JSON response
+            try {
 
-        // parse the JSON response
-        try {
+                JSONObject json = new JSONObject(response);
 
-            JSONObject json = new JSONObject(response);
+                @SuppressWarnings("unchecked")
+                Iterator<String> keys = json.keys();
+                while (keys.hasNext()) {
 
-            @SuppressWarnings("unchecked")
-            Iterator<String> keys = json.keys();
-            while (keys.hasNext()) {
+                    String key = keys.next();
+                    JSONObject jsonObj = json.getJSONObject(key);
 
-                String key = keys.next();
-                JSONObject jsonObj = json.getJSONObject(key);
+                    if (jsonObj.has("_typeGroup") && jsonObj.get("_typeGroup").equals("socialTag")) {
 
-                if (jsonObj.has("_typeGroup") && jsonObj.get("_typeGroup").equals("socialTag")) {
+                        String name = jsonObj.getString("name");
+                        int importance = jsonObj.getInt("importance");
+                        LOGGER.debug(name + " " + importance);
 
-                    String name = jsonObj.getString("name");
-                    int importance = jsonObj.getInt("importance");
-                    LOGGER.debug(name + " " + importance);
+                        keyphrases.add(new Keyphrase(name, importance));
 
-                    keyphrases.add(new Keyphrase(name, importance));
+                    }
 
                 }
 
+            } catch (JSONException e) {
+                LOGGER.error(e);
             }
 
-        } catch (JSONException e) {
-            LOGGER.error(e);
         }
 
         return keyphrases;

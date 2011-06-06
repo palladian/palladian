@@ -1,15 +1,11 @@
 package ws.palladian.extraction.keyphrase;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,7 +13,9 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 
 /**
  * 
@@ -60,49 +58,54 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
     public List<Keyphrase> extract(String inputText) {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
-
-        HttpPost postMethod = new HttpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
+        
+        Map<String, String> headers = new HashMap<String, String>();
 
         // set input content type
-        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        postMethod.setHeader("Accept", "application/json");
+        headers.put("Accept", "application/json");
 
         // create the content of the request
+        Map<String, String> content = new HashMap<String, String>();
+        content.put("text", inputText);
+        content.put("apikey", apiKey);
+        content.put("outputMode", "json");
+        content.put("maxRetrieve", String.valueOf(getKeyphraseCount()));
+        content.put("keywordExtractMode", strictExtractMode ? "strict" : "normal");
+
+        DocumentRetriever retriever = new DocumentRetriever();
+        String response = null;
         try {
-            NameValuePair[] data = { new BasicNameValuePair("text", inputText), new BasicNameValuePair("apikey", apiKey),
-                    new BasicNameValuePair("outputMode", "json"),
-                    new BasicNameValuePair("maxRetrieve", String.valueOf(getKeyphraseCount())),
-                    new BasicNameValuePair("keywordExtractMode", strictExtractMode ? "strict" : "normal") };
-            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(Arrays.asList(data));
-            postMethod.setEntity(entity);
-        } catch (UnsupportedEncodingException e) {
+            HttpResult postResult = retriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords", headers, content);
+            response = new String(postResult.getContent());
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
+        
+        if (response != null) {
 
-        HTTPPoster poster = new HTTPPoster();
-        String response = poster.handleRequest(postMethod);
+            // parse the JSON response
+            try {
 
-        // parse the JSON response
-        try {
+                JSONObject json = new JSONObject(response);
 
-            JSONObject json = new JSONObject(response);
+                JSONArray jsonKeywords = json.getJSONArray("keywords");
+                for (int i = 0; i < jsonKeywords.length(); i++) {
+                    JSONObject jsonObject = jsonKeywords.getJSONObject(i);
 
-            JSONArray jsonKeywords = json.getJSONArray("keywords");
-            for (int i = 0; i < jsonKeywords.length(); i++) {
-                JSONObject jsonObject = jsonKeywords.getJSONObject(i);
+                    String text = jsonObject.getString("text");
+                    double relevance = jsonObject.getDouble("relevance");
 
-                String text = jsonObject.getString("text");
-                double relevance = jsonObject.getDouble("relevance");
+                    LOGGER.trace("text:" + text + " relevance:" + relevance);
+                    keyphrases.add(new Keyphrase(text, relevance));
 
-                LOGGER.trace("text:" + text + " relevance:" + relevance);
-                keyphrases.add(new Keyphrase(text, relevance));
+                }
 
+            } catch (JSONException e) {
+                LOGGER.error(e);
             }
-
-        } catch (JSONException e) {
-            LOGGER.error(e);
         }
 
         return keyphrases;

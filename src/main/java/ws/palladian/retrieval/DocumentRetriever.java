@@ -267,14 +267,32 @@ public class DocumentRetriever {
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
      */
     public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
-        
+        Map<String, String> headers = Collections.emptyMap();
+        return httpPost(url, headers, content);
+    }
+    
+    /**
+     * Performs an HTTP POST operation with the specified name-value pairs as content.
+     * @param url the URL for the POST.
+     * @param headers map with key-value pairs of request headers.
+     * @param content name-value pairs for the POST.
+     * @return response for the POST.
+     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
+     */
+    public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content) throws HttpException {
         HttpPost post;
         try {
             post = new HttpPost(url);
         } catch (Exception e) {
             throw new HttpException("invalid URL: " + url, e);
         }
+        
+        // HTTP headers
+        for (Entry<String, String> header : headers.entrySet()) {
+            post.setHeader(header.getKey(), header.getValue());
+        }
 
+        // content name-value pairs
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         for (Entry<String, String> param : content.entrySet()) {
             nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
