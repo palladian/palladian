@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -133,6 +134,10 @@ public class PalladianLangDetect extends LanguageClassifier {
                 evaluationSetting);
 
         LOGGER.info("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
+    }
+
+    public void train(UniversalInstance instance) {
+        palladianClassifier.train(instance);
     }
 
     /**
