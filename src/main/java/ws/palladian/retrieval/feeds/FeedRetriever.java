@@ -137,8 +137,9 @@ public class FeedRetriever {
     public void updateFeed(Feed feed) throws FeedRetrieverException {
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
-        feed.setWindowSize(feed.getItems().size());
-        feed.setDocument(downloadedFeed.getDocument());
+        feed.setWindowSize(downloadedFeed.getItems().size());
+        feed.setByteSize(downloadedFeed.getByteSize());
+//        feed.setDocument(downloadedFeed.getDocument());
     }
 
     /**
@@ -249,7 +250,7 @@ public class FeedRetriever {
         result.setLanguage(syndFeed.getLanguage());
 
         // store the originating document in the feed
-        result.setDocument(feedDocument);
+//        result.setDocument(feedDocument);
 
         // get Feed items with ROME and assign to feed
         addFeedItems(result, syndFeed);
