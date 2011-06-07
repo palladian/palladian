@@ -93,6 +93,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         configFileContent += "Affixes\t1" + "\n";
         configFileContent += "PreviousTag1\t1" + "\n";
         configFileContent += "PreviousTag2\t1" + "\n";
+        // if BrownClusterPaths = 1, the brown models must be at
+        // data/models/illinoisner/data/BrownHierarchicalWordClusters/brownBllipClusters
         configFileContent += "BrownClusterPaths\t1" + "\n";
         configFileContent += "NEShapeTaggerFeatures\t0" + "\n";
         configFileContent += "aggregateContext\t1" + "\n";
