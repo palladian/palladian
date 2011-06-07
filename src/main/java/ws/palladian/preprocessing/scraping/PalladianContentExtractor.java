@@ -198,6 +198,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
                 imageURLs.add(webImage);
 
+            } catch (NumberFormatException e) {
+                LOGGER.debug(e.getMessage());
             } catch (NullPointerException e) {
                 LOGGER.debug("an image has not all necessary attributes");
             }
@@ -206,16 +208,18 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return imageURLs;
     }
 
-    private int getImageSize(String attributeText) {
+    private int getImageSize(String attributeText) throws NumberFormatException {
 
         int size = -1;
         attributeText = attributeText.replace(",*", "");
 
         if (attributeText.indexOf("%") > -1) {
             attributeText = attributeText.replace("%", "");
+            attributeText = StringHelper.trim(attributeText);
             size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
             attributeText = attributeText.replace("px", "");
+            attributeText = StringHelper.trim(attributeText);
             size = Integer.parseInt(attributeText);
         }
 
