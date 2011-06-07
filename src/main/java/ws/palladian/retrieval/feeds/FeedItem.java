@@ -2,15 +2,7 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import ws.palladian.helper.html.HTMLHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -22,14 +14,14 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class FeedItem {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
+//    /** The logger for this class. */
+//    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
     
-    private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
-    
-    static {
-        NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
-    }
+//    private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
+//    
+//    static {
+//        NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
+//    }
 
     private int id = -1;
 
@@ -204,58 +196,58 @@ public class FeedItem {
         return sb.toString();
     }
 
-    /**
-     * @return The raw XML markup for this feed entry.
-     */
-    public String getRawMarkup() {
-        String rawMarkup = "";
-        Node node = getNode();
-
-        if (node != null) {
-            rawMarkup = HTMLHelper.documentToHTMLString(node);
-        }
-
-        return rawMarkup;
-    }
-
-    /**
-     * <p>
-     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
-     * </p>
-     * 
-     * @return The extracted DOM node representing the provided feed entry.
-     */
-    Node getNode() {
-
-        Node node = null;
-
-        // the feed's document representation
-        Document document = getFeed().getDocument();
-
-        try {
-
-            // for RSS
-            node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
-
-            if (node == null) {
-                node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
-
-                // for Atom
-                if (node == null) {
-                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
-        }
-
-        if (node == null) {
-            LOGGER.error("feed: " + getFeedUrl() + ", node = null");
-        }
-
-        return node;
-    }
+//    /**
+//     * @return The raw XML markup for this feed entry.
+//     */
+//    public String getRawMarkup() {
+//        String rawMarkup = "";
+//        Node node = getNode();
+//
+//        if (node != null) {
+//            rawMarkup = HTMLHelper.documentToHTMLString(node);
+//        }
+//
+//        return rawMarkup;
+//    }
+//
+//    /**
+//     * <p>
+//     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
+//     * </p>
+//     * 
+//     * @return The extracted DOM node representing the provided feed entry.
+//     */
+//    Node getNode() {
+//
+//        Node node = null;
+//
+//        // the feed's document representation
+//        Document document = getFeed().getDocument();
+//
+//        try {
+//
+//            // for RSS
+//            node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
+//
+//            if (node == null) {
+//                node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
+//
+//                // for Atom
+//                if (node == null) {
+//                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
+//        }
+//
+//        if (node == null) {
+//            LOGGER.error("feed: " + getFeedUrl() + ", node = null");
+//        }
+//
+//        return node;
+//    }
 
     public String getFeedUrl() {
         if (getFeed() != null) {

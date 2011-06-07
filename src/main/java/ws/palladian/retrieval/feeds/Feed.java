@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.w3c.dom.Document;
-
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
@@ -140,7 +137,7 @@ public class Feed {
     /**
      * The raw XML markup for this feed.
      */
-    private Document document;
+//    private Document document;
 
     /** Caching the raw xml markup of the document as string. */
     private String rawMarkup;
@@ -284,7 +281,7 @@ public class Feed {
      */
     public void freeMemory() {
         rawMarkup = "";
-        document = null;
+//        document = null;
         setItems(new ArrayList<FeedItem>());
         setNewestItemHash("");
     }
@@ -456,7 +453,7 @@ public class Feed {
                 + pollDataSeries + ", meticulousPostDistribution=" + meticulousPostDistribution
                 + ", oneFullDayOfItemsSeen=" + oneFullDayOfItemsSeen + ", activityPattern=" + activityPattern
                 + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
-                + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize + ", document=" + document
+                + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize /* +  ", document=" + document */
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
                 + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
                 + lastMissTime + ", blocked=" + blocked + ", lastSuccessfulCheckTime=" + lastSuccessfulCheckTime + "]";
@@ -726,20 +723,20 @@ public class Feed {
     /**
      * @return The raw XML markup for this feed.
      */
-    public String getRawMarkup() {
-        if (rawMarkup == null) {
-            rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
-        }
-        return rawMarkup;
-    }
+//    public String getRawMarkup() {
+//        if (rawMarkup == null) {
+//            rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
+//        }
+//        return rawMarkup;
+//    }
 
-    public Document getDocument() {
-        return document;
-    }
+//    public Document getDocument() {
+//        return document;
+//    }
 
-    public void setDocument(Document document) {
-        this.document = document;
-    }
+//    public void setDocument(Document document) {
+//        this.document = document;
+//    }
 
     /**
      * If the new windowSize is different to the previous size (except default), the variable window size flag is set.

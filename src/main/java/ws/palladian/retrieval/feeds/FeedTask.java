@@ -89,8 +89,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             feed.setLastPollTime(new Date());
 
             // classify feed if it has never been classified before, do it once a month for each feed to be informed
-            // about
-            // updates
+            // about updates
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
                 LOGGER.debug("Current time: " + System.currentTimeMillis());
@@ -102,7 +101,9 @@ class FeedTask implements Callable<FeedTaskResult> {
             if (feed.getActivityPattern() == -1
                     || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
                 FeedClassifier.classify(feed);
-                feed.setByteSize(feed.getRawMarkup().getBytes().length);
+                
+                // commented by Philipp; byteSize should already be set by FeedRetriever
+                // feed.setByteSize(feed.getRawMarkup().getBytes().length);
             }
 
             feedReader.updateCheckIntervals(feed);
