@@ -2,6 +2,7 @@ package ws.palladian.extraction.entity.ner;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
@@ -20,35 +21,35 @@ public class NERTest {
 
         // language independent
         PalladianNer tagger = new PalladianNer();
-         tagger.setLanguageMode(LanguageMode.LanguageIndependent);
+        tagger.setLanguageMode(LanguageMode.LanguageIndependent);
         tagger.train(NERTest.class.getResource("/ner/training.txt").getFile(),
                 NERTest.class.getResource("/ner/tudnerLI.model").getFile());
-        
-         // EvaluationResult er = tagger.evaluate(NERTest.class.getResource("/ner/training.txt").getFile(),
+
+        // EvaluationResult er = tagger.evaluate(NERTest.class.getResource("/ner/training.txt").getFile(),
         // NERTest.class.getResource("/ner/tudnerLI.model").getFile(), TaggingFormat.COLUMN);
-         // System.out.println(er.getMUCResultsReadable());
-         // System.out.println(er.getExactMatchResultsReadable());
-        
-         tagger.loadModel(NERTest.class.getResource("/ner/tudnerLI.model").getFile());
-         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText(
-         NERTest.class.getResource("/ner/test.txt").getFile(), TaggingFormat.COLUMN));
-         annotations.removeNestedAnnotations();
-         annotations.sort();
-        
-         // System.out.println(annotations.size());
-         // System.out.println(annotations.get(0));
-         // System.out.println(annotations.get(500));
-         // System.out.println(annotations.get(annotations.size() - 1));
-        
-         Assert.assertEquals(1504, annotations.size());
-         Assert.assertEquals(annotations.get(0).getOffset(), 21);
-         Assert.assertEquals(annotations.get(0).getLength(), 14);
-        
-         Assert.assertEquals(annotations.get(500).getOffset(), 25542);
-         Assert.assertEquals(annotations.get(500).getLength(), 7);
-        
-         Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-         Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+
+        tagger.loadModel(NERTest.class.getResource("/ner/tudnerLI.model").getFile());
+        Annotations annotations = tagger.getAnnotations(FileFormatParser.getText(
+                NERTest.class.getResource("/ner/test.txt").getFile(), TaggingFormat.COLUMN));
+        annotations.removeNestedAnnotations();
+        annotations.sort();
+
+        // System.out.println(annotations.size());
+        // System.out.println(annotations.get(0));
+        // System.out.println(annotations.get(500));
+        // System.out.println(annotations.get(annotations.size() - 1));
+
+        Assert.assertEquals(1504, annotations.size());
+        Assert.assertEquals(annotations.get(0).getOffset(), 21);
+        Assert.assertEquals(annotations.get(0).getLength(), 14);
+
+        Assert.assertEquals(annotations.get(500).getOffset(), 25542);
+        Assert.assertEquals(annotations.get(500).getLength(), 7);
+
+        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
 
         // English
         tagger = new PalladianNer();
@@ -57,10 +58,10 @@ public class NERTest {
         tagger.train(NERTest.class.getResource("/ner/training.txt").getFile(),
                 NERTest.class.getResource("/ner/tudnerEn.model").getFile());
 
-//        EvaluationResult er = tagger.evaluate(NERTest.class.getResource("/ner/training.txt").getFile(),
-//                NERTest.class.getResource("/ner/tudnerEn.model").getFile(), TaggingFormat.COLUMN);
-//        System.out.println(er.getMUCResultsReadable());
-//        System.out.println(er.getExactMatchResultsReadable());
+        //        EvaluationResult er = tagger.evaluate(NERTest.class.getResource("/ner/training.txt").getFile(),
+        //                NERTest.class.getResource("/ner/tudnerEn.model").getFile(), TaggingFormat.COLUMN);
+        //        System.out.println(er.getMUCResultsReadable());
+        //        System.out.println(er.getExactMatchResultsReadable());
 
         tagger.loadModel(NERTest.class.getResource("/ner/tudnerEn.model").getFile());
         annotations = tagger.getAnnotations(FileFormatParser.getText(
@@ -69,10 +70,10 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-//        System.out.println(annotations.size());
-//        System.out.println(annotations.get(0));
-//        System.out.println(annotations.get(500));
-//        System.out.println(annotations.get(annotations.size() - 1));
+        //        System.out.println(annotations.size());
+        //        System.out.println(annotations.get(0));
+        //        System.out.println(annotations.get(500));
+        //        System.out.println(annotations.get(annotations.size() - 1));
 
         Assert.assertEquals(2241, annotations.size());
         Assert.assertEquals(annotations.get(0).getOffset(), 21);
@@ -122,8 +123,11 @@ public class NERTest {
 
     /**
      * For no apparent reason the Illinois NER test is non-deterministic.
+     * To enable this test you must have a valid model at:
+     * data\models\illinoisner\data\BrownHierarchicalWordClusters\brownBllipClusters
      */
     @Test
+    @Ignore
     public void testIllinoisNER() {
         IllinoisLbjNER tagger = new IllinoisLbjNER();
 
@@ -214,10 +218,10 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-//         System.out.println(annotations.size());
-//         System.out.println(annotations.get(0));
-//         System.out.println(annotations.get(500));
-//         System.out.println(annotations.get(annotations.size() - 1));
+        //         System.out.println(annotations.size());
+        //         System.out.println(annotations.get(0));
+        //         System.out.println(annotations.get(500));
+        //         System.out.println(annotations.get(annotations.size() - 1));
 
         Assert.assertEquals(1988, annotations.size());
         Assert.assertEquals(annotations.get(0).getOffset(), 2);
@@ -247,17 +251,17 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-//        System.out.println(annotations.size());
-//        System.out.println(annotations.get(0));
-//        System.out.println(annotations.get(500));
-//        System.out.println(annotations.get(annotations.size() - 1));
+        // System.out.println(annotations.size());
+        // System.out.println(annotations.get(0));
+        // System.out.println(annotations.get(500));
+        // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(2061, annotations.size());
+        Assert.assertEquals(2035, annotations.size());
         Assert.assertEquals(annotations.get(0).getOffset(), 76);
         Assert.assertEquals(annotations.get(0).getLength(), 6);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 16906);
-        Assert.assertEquals(annotations.get(500).getLength(), 10);
+        Assert.assertEquals(annotations.get(500).getOffset(), 17768);
+        Assert.assertEquals(annotations.get(500).getLength(), 7);
 
         Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
         Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
