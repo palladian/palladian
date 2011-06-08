@@ -44,8 +44,8 @@ public class Temp {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Temp.class);
-    
-    
+
+
     public static void performanceCheck() {
 
         Set<String> urls = new HashSet<String>();
@@ -99,16 +99,16 @@ public class Temp {
             LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
         }
     }
-    
+
 
     // public static void threadPoolTest() {
-    //        
+    //
     // ExecutorService threadPool = Executors.newFixedThreadPool(10);
     // FeedDatabase feedDatabase = new FeedDatabase();
     // List<Feed> feeds = feedDatabase.getFeeds();
     // LOGGER.info("# feeds " + feeds.size());
     // final AtomicInteger counter = new AtomicInteger();
-    //        
+    //
     // for (final Feed feed : feeds) {
     // threadPool.submit(new Runnable() {
     // @Override
@@ -121,7 +121,7 @@ public class Temp {
     // }
     // });
     // }
-    //        
+    //
     // while (true) {
     // try {
     // Thread.sleep(1000);
@@ -260,9 +260,9 @@ public class Temp {
                 }
 
                 String safeFeedName = feed.getId()
-                        + "_"
-                        + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
-                                "www.", ""), 30);
+                + "_"
+                + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst(
+                        "www.", ""), 30);
 
                 String fileName = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -402,10 +402,13 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
 
+        System.out.println(System.currentTimeMillis());
+        System.exit(0);
+
         FileHelper.removeDuplicateLines("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml",
-                "data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
+        "data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
         List<String> readFileToArray = FileHelper
-                .readFileToArray("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
+        .readFileToArray("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");
 
         Collections.shuffle(readFileToArray);
         FileHelper.writeToFile("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml", readFileToArray);
