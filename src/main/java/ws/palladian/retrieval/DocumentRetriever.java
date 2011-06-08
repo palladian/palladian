@@ -82,6 +82,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 // TODO remove deprecated methods, after dependent code has been adapted
 // TODO role of DownloadFilter is unclear, shouldn't the client itself take care about what to download?
 // TODO completely remove all java.net.* stuff
+// TODO remove properties configuration via file, dependend clients should set their preferences programmatically
 
 /**
  * <p>
@@ -115,7 +116,7 @@ public class DocumentRetriever {
     public static final int DEFAULT_NUM_THREADS = 10;
 
     /** The default number of connections in the connection pool. */
-    private static final int DEFAULT_NUM_CONNECTIONS = 100;
+    public static final int DEFAULT_NUM_CONNECTIONS = 100;
 
     // ///////////// Apache HttpComponents ////////
 
