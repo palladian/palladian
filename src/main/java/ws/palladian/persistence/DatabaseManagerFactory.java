@@ -12,15 +12,13 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import ws.palladian.helper.ConfigHolder;
 
 /**
- * The central Factory for all {@link DatabaseManager} instances. This is the
- * only way to get valid {@code DatabaseManager} instances. The Factory is
- * initialized as Singleton to get access from everywhere. As always: use the
- * singleton with care to not populate all layers of your application if
- * database access code.
+ * <p>
+ * The central Factory for all {@link DatabaseManager} instances. This is the only way to get valid
+ * {@code DatabaseManager} instances. The Factory is initialized as Singleton to get access from everywhere. As always:
+ * use the singleton with care to not populate all layers of your application with database access code.
+ * </p>
  * 
  * The Factory is able to load new subclasses of {@code DatabaseManager} dynamically if they are on the class path.
- * 
- * FIXME: fill out these fucking empty javadocs
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -34,6 +32,23 @@ public final class DatabaseManagerFactory {
         super();
     }
 
+    /**
+     * <p>
+     * Create a DatabaseManager with the configuration obtained from the Palladian configuration file. See
+     * {@link ConfigHolder} for a documentation about the location of this configuration file. The configuration file
+     * must supply the following fields:
+     * </p>
+     * <ul>
+     * <li>db.driver</li>
+     * <li>db.jdbcUrl</li>
+     * <li>db.username</li>
+     * <li>db.password</li>
+     * </ul>
+     * 
+     * @param <D>
+     * @param managerClass
+     * @return
+     */
     @Deprecated
     public static <D extends DatabaseManager> D create(Class<D> managerClass) {
         // The configuration file can be found under
@@ -43,8 +58,10 @@ public final class DatabaseManagerFactory {
     }
 
     /**
-     * Create a DatabaseManager with configurations from a config file. The
-     * configuration file must at least provide the following fields:
+     * <p>
+     * Create a DatabaseManager with configurations from a {@link PropertiesConfiguration}. The PropertiesConfiguration
+     * must at least provide the following fields:
+     * </p>
      * <ul>
      * <li>db.driver</li>
      * <li>db.jdbcUrl</li>
@@ -53,7 +70,7 @@ public final class DatabaseManagerFactory {
      * </ul>
      * 
      * @param managerClassName The fully qualified name of the DatabaseManager class.
-     * @param config The config file containing the four required fields.
+     * @param config The PropertiesConfiguration containing the four required fields.
      * @return A configured DatabaseManager with access to a connection pool
      */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, PropertiesConfiguration config) {
@@ -73,11 +90,36 @@ public final class DatabaseManagerFactory {
         return create(managerClass, driver, jdbcUrl, username, password);
     }
 
+    /**
+     * <p>
+     * Create a DatabaseManager with the supplied configuration.
+     * </p>
+     * 
+     * @param <D>
+     * @param managerClass The fully qualified name of the DatabaseManager class.
+     * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
+     * @param jdbcConnectionUrl The JDBC connection URL.
+     * @param username The username for accessing the database.
+     * @return A configured DatabaseManager with access to a connection pool
+     */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
             String jdbcConnectionURL, String username) {
         return create(managerClass, jdbcDriverClassName, jdbcConnectionURL, username, "");
     }
 
+    /**
+     * <p>
+     * Create a DatabaseManager with the supplied configuration.
+     * </p>
+     * 
+     * @param <D>
+     * @param managerClass The fully qualified name of the DatabaseManager class.
+     * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
+     * @param jdbcConnectionUrl The JDBC connection URL.
+     * @param username The username for accessing the database.
+     * @param password The password for accessing the database.
+     * @return A configured DatabaseManager with access to a connection pool
+     */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
             String jdbcConnectionUrl, String username, String password) {
         try {
