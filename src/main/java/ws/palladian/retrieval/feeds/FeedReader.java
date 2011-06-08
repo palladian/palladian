@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -18,14 +19,12 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.Counter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
@@ -254,8 +253,8 @@ public final class FeedReader {
 
             if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: "
-                        + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
+                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
+                        + " MB");
 
                 try {
                     Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -311,52 +310,28 @@ public final class FeedReader {
 
     /**
      * Use the {@link FeedReader} for aggregating feed items.
-     * 
-     * @param downloadPages
      */
-    public void aggregate(boolean downloadPages) {
-        aggregate(-1, downloadPages);
+    public void aggregate() {
+        aggregate(-1);
     }
 
     /**
      * Use the {@link FeedReader} for aggregating feed items for the specified duration.
      * 
      * @param duration time in milliseconds, -1 for no limit.
-     * @param downloadPages
      */
-    public void aggregate(long duration, final boolean downloadPages) {
+    public void aggregate(long duration) {
 
-        final FeedRetriever feedRetriever = new FeedRetriever();
-        final Counter newItems = new Counter();
+        final AtomicInteger newItems = new AtomicInteger();
 
         FeedProcessingAction processingAction = new FeedProcessingAction() {
 
             @Override
             public boolean performAction(Feed feed) {
-
-                boolean success = true;
-
                 List<FeedItem> items = feed.getItems();
-                LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
-
-                // check, which we already have and add the missing ones.
-                List<FeedItem> toAdd = new ArrayList<FeedItem>();
-                for (FeedItem item : items) {
-                    boolean add = feedStore.getFeedItemByRawId(feed.getId(), item.getRawId()) == null;
-                    if (add) {
-                        toAdd.add(item);
-                    }
-                }
-                boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
-                if (fetchPages && !toAdd.isEmpty()) {
-                    feedRetriever.scrapePages(toAdd);
-                    // downloadedPages.increment(toAdd.size());
-                }
-                for (FeedItem feedEntry : toAdd) {
-                    feedStore.addFeedItem(feed, feedEntry);
-                    newItems.increment();
-                }
-                return success;
+                int addedItems = feedStore.addFeedItems(feed, items);
+                newItems.addAndGet(addedItems);
+                return true;
             }
         };
         setFeedProcessingAction(processingAction);
@@ -428,7 +403,7 @@ public final class FeedReader {
 
         FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
         r.setThreadPoolSize(1);
-        r.aggregate(1000 * 60 * 5, false);
+        r.aggregate(1000 * 60 * 5);
         System.exit(0);
 
         FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
@@ -450,19 +425,18 @@ public final class FeedReader {
         Options options = new Options();
 
         OptionGroup checkApproachOption = new OptionGroup();
-        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
-                "check each feed at a fixed interval").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
-                "check each feed and learn its update times").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED")
+                .withDescription("check each feed at a fixed interval").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE")
+                .withDescription("check each feed and learn its update times").create());
         checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
                 .withDescription("check each feed and adapt to its update rate").create());
         checkApproachOption.setRequired(true);
         options.addOptionGroup(checkApproachOption);
         options.addOption("r", "runtime", true,
                 "The runtime of the checker in minutes or -1 if it should run until aborted.");
-        options
-                .addOption("ci", "checkInterval", true,
-                        "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+        options.addOption("ci", "checkInterval", true,
+                "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
         HelpFormatter formatter = new HelpFormatter();
 
         CommandLineParser parser = new PosixParser();

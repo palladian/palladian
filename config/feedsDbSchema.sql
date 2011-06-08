@@ -19,16 +19,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Datenbank: `feeds`
 --
 
-CREATE TABLE IF NOT EXISTS `rankingCache` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `service` tinyint(4) NOT NULL,
-  `ranking` float NOT NULL,
-  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `url_service_unique` (`url`,`service`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 -- --------------------------------------------------------
 
 --
@@ -152,7 +142,6 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` text COLLATE utf8_unicode_ci,
   `text` text COLLATE utf8_unicode_ci,
-  `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
   PRIMARY KEY (`id`),
   CONSTRAINT `feed_items_ibfk_1` FOREIGN KEY (`feedId`) REFERENCES `feeds` (`id`) ON DELETE CASCADE,
   UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -55,9 +56,9 @@ public class FeedRetrieverTest {
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed004.xml").getFile());
 
         // The processing instruction target matching "[xX][mM][lL]" is not allowed.
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed009.xml").getFile());
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed085.xml").getFile());
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed086.xml").getFile());
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed009.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed085.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed086.xml").getFile()));
 
         // The reference to entity "L" must end with the ';' delimiter.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed010.xml").getFile());
@@ -71,10 +72,10 @@ public class FeedRetrieverTest {
         // The entity name must immediately follow the '&' in the entity reference.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed035.xml").getFile());
 
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed055.xml").getFile());
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed063.xml").getFile());
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed065.xml").getFile());
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed067.xml").getFile());
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed055.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed063.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed065.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed067.xml").getFile()));
 
         // The reference to entity "M" must end with the ';' delimiter.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed068.xml").getFile());
@@ -82,7 +83,7 @@ public class FeedRetrieverTest {
         // The entity "nbsp" was referenced, but not declared.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed069.xml").getFile());
 
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed070.xml").getFile());
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed070.xml").getFile()));
 
         // The entity name must immediately follow the '&' in the entity reference.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed078.xml").getFile());
@@ -93,16 +94,16 @@ public class FeedRetrieverTest {
         // The entity "eacute" was referenced, but not declared.
         // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed082.xml").getFile());
 
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed084.xml").getFile());
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed084.xml").getFile()));
 
         // Sourceforge feeds; sourceforge02.xml failed because of illegal XML characters
         // An invalid XML character (Unicode: 0x4) was found in the CDATA section.
-        feedRetriever.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile());
-        feedRetriever.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile());
+        feedRetriever.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile()));
+        feedRetriever.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
 
         // UTF-16
         feedRetriever.setCleanStrings(false);
-        feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed102.xml").getFile());
+        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed102.xml").getFile()));
 
     }
 
@@ -123,26 +124,26 @@ public class FeedRetrieverTest {
         // verify, if author information is parsed correctly
 
         // //////////// Atom feeds ////////////
-        Feed feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile());
+        Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile()));
         FeedItem feedItem = feed.getItems().iterator().next();
         // FIXME time offset since Atom bug fixed.
         //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
         //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
-        feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/atomSample2.xml").getFile());
+        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/atomSample2.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
         //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
 
         // //////////// RSS feeds ////////////
-        feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/rss20Sample1.xml").getFile());
+        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/rss20Sample1.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
         Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
 
         // RDF Site Summary 1.0; Content Module
         // http://web.resource.org/rss/1.0/modules/content/
-        feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/rssRdf10.xml").getFile());
+        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/rssRdf10.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getItemText());
 
@@ -162,14 +163,14 @@ public class FeedRetrieverTest {
         feedRetriever.setCleanStrings(false);
 
         // arabic characters
-        Feed feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed100.xml").getFile());
+        Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed100.xml").getFile()));
         FeedItem item = feed.getItems().iterator().next();
         Assert.assertEquals("الجزيرة نت", feed.getTitle());
         Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
         Assert.assertEquals(80, feed.getItems().size());
 
         // japanese characters
-        feed = feedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed101.xml").getFile());
+        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed101.xml").getFile()));
         item = feed.getItems().iterator().next();
         Assert.assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
 
@@ -313,7 +314,7 @@ public class FeedRetrieverTest {
         try {
 
             Date expectedDate = df.parse(expected);
-            Feed feed = feedRetriever.getFeed(FeedRetrieverTest.class.getResource(feedFile).getFile());
+            Feed feed = feedRetriever.getFeed(new File(FeedRetrieverTest.class.getResource(feedFile).getFile()));
 
             // we always test the feed's first entry
             Date itemDate = feed.getItems().iterator().next().getPublished();
@@ -396,19 +397,19 @@ public class FeedRetrieverTest {
 
         FeedRetriever feedRetriever = new FeedRetriever();
         int numIterations = 100;
-        String feedPath = FeedRetriever.class.getResource("/feeds/feed014.xml").getFile();
+        File feed= new File(FeedRetriever.class.getResource("/feeds/feed014.xml").getFile());
 
         StopWatch sw = new StopWatch();
         feedRetriever.setUseDateRecognition(false);
         for (int i = 0; i < numIterations; i++) {
-            feedRetriever.getFeed(feedPath);
+            feedRetriever.getFeed(feed);
         }
         LOGGER.info("without date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
         sw = new StopWatch();
         feedRetriever.setUseDateRecognition(true);
         for (int i = 0; i < numIterations; i++) {
-            feedRetriever.getFeed(feedPath);
+            feedRetriever.getFeed(feed);
         }
         LOGGER.info("with date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 

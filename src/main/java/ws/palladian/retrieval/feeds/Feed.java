@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
 
@@ -32,9 +31,6 @@ public class Feed {
     private String title;
     private Date added;
     private String language;
-
-    /** Store the extent of text in the feed. */
-    private FeedContentType contentType = FeedContentType.UNDETERMINED;
 
     /** The size of the feed in bytes. */
     private long byteSize = 0;
@@ -137,7 +133,7 @@ public class Feed {
     /**
      * The raw XML markup for this feed.
      */
-//    private Document document;
+    // private Document document;
 
     /** Caching the raw xml markup of the document as string. */
     private String rawMarkup;
@@ -174,6 +170,9 @@ public class Feed {
      * need to re-determine if we have a new item, by comparing the last {@link FeedItem}'s hashes each.
      */
     private Boolean newItem = null;
+
+    /** Allows to keep arbitrary, additional information. */
+    private Map<String, Object> additionalData;
 
     public Feed() {
         super();
@@ -246,14 +245,6 @@ public class Feed {
         this.language = language;
     }
 
-    public FeedContentType getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(FeedContentType contentType) {
-        this.contentType = contentType;
-    }
-
     public void setItems(List<FeedItem> items) {
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
@@ -281,7 +272,7 @@ public class Feed {
      */
     public void freeMemory() {
         rawMarkup = "";
-//        document = null;
+        // document = null;
         setItems(new ArrayList<FeedItem>());
         setNewestItemHash("");
     }
@@ -330,7 +321,7 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
-         if (newestItemHash.isEmpty()) {
+        if (newestItemHash.isEmpty()) {
             calculateNewestItemHash();
         }
         return newestItemHash;
@@ -444,7 +435,7 @@ public class Feed {
     @Override
     public String toString() {
         return "Feed [id=" + id + ", feedUrl=" + feedUrl + ", siteUrl=" + siteUrl + ", title=" + title + ", added="
-                + added + ", language=" + language + ", contentType=" + contentType + ", byteSize=" + byteSize
+                + added + ", language=" + language /* + ", contentType=" + contentType */ + ", byteSize=" + byteSize
                 + ", items=" + items + ", windowSize=" + windowSize + ", historyFileCompletelyRead="
                 + historyFileCompletelyRead + ", benchmarkLookupTime=" + benchmarkLookupTime
                 + ", benchmarkLastLookupTime=" + benchmarkLastLookupTime + ", checks=" + checks + ", updateInterval="
@@ -453,7 +444,7 @@ public class Feed {
                 + pollDataSeries + ", meticulousPostDistribution=" + meticulousPostDistribution
                 + ", oneFullDayOfItemsSeen=" + oneFullDayOfItemsSeen + ", activityPattern=" + activityPattern
                 + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
-                + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize /* +  ", document=" + document */
+                + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize /* + ", document=" + document */
                 + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
                 + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
                 + lastMissTime + ", blocked=" + blocked + ", lastSuccessfulCheckTime=" + lastSuccessfulCheckTime + "]";
@@ -544,7 +535,7 @@ public class Feed {
         result = prime * result + (int) (byteSize ^ (byteSize >>> 32));
         result = prime * result + ((cgHeaderSize == null) ? 0 : cgHeaderSize.hashCode());
         result = prime * result + checks;
-        result = prime * result + ((contentType == null) ? 0 : contentType.hashCode());
+        // result = prime * result + ((contentType == null) ? 0 : contentType.hashCode());
         result = prime * result + ((eTagSupport == null) ? 0 : eTagSupport.hashCode());
         result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
         result = prime * result + (historyFileCompletelyRead ? 1231 : 1237);
@@ -611,8 +602,8 @@ public class Feed {
             return false;
         if (checks != other.checks)
             return false;
-        if (contentType != other.contentType)
-            return false;
+        /* if (contentType != other.contentType)
+            return false; */
         if (eTagSupport == null) {
             if (other.eTagSupport != null)
                 return false;
@@ -723,28 +714,28 @@ public class Feed {
     /**
      * @return The raw XML markup for this feed.
      */
-//    public String getRawMarkup() {
-//        if (rawMarkup == null) {
-//            rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
-//        }
-//        return rawMarkup;
-//    }
+    // public String getRawMarkup() {
+    // if (rawMarkup == null) {
+    // rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
+    // }
+    // return rawMarkup;
+    // }
 
-//    public Document getDocument() {
-//        return document;
-//    }
+    // public Document getDocument() {
+    // return document;
+    // }
 
-//    public void setDocument(Document document) {
-//        this.document = document;
-//    }
+    // public void setDocument(Document document) {
+    // this.document = document;
+    // }
 
     /**
      * If the new windowSize is different to the previous size (except default), the variable window size flag is set.
      * 
      * @param windowSize
      */
-    public void setWindowSize(int windowSize) {                
-        if (this.windowSize != DEFAULT_WINDOW_SIZE && this.windowSize != windowSize){
+    public void setWindowSize(int windowSize) {
+        if (this.windowSize != DEFAULT_WINDOW_SIZE && this.windowSize != windowSize) {
             setVariableWindowSize(true);
         }
         this.windowSize = windowSize;
@@ -1029,12 +1020,24 @@ public class Feed {
 
         System.out.println(builder.toString());
     }
-    
+
     /**
      * Print feed with content in human readable form.
      */
     public void print() {
         print(false);
+    }
+
+    public void setAdditionalData(Map<String, Object> additionalData) {
+        this.additionalData = additionalData;
+    }
+
+    public Map<String, Object> getAdditionalData() {
+        return additionalData;
+    }
+
+    public Object getAdditionalData(String key) {
+        return additionalData.get(key);
     }
 
 }

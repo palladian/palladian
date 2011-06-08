@@ -1,13 +1,19 @@
 package ws.palladian.retrieval.feeds;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -15,16 +21,17 @@ import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.SizeUnit;
-import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.RetrieverCallback;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.rome.RawDateModule;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -56,6 +63,9 @@ public class FeedRetriever {
     /** Used for all downloading purposes. */
     private DocumentRetriever documentRetriever = new DocumentRetriever();
 
+    /** Factory for creating Document parsers. */
+    private ParserFactory parserFactory = new ParserFactory();
+
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
 
@@ -81,39 +91,65 @@ public class FeedRetriever {
     // ///////////////////////////////////////////////////
 
     /**
-     * Download a feed from the specified URL.
+     * Retrieve a feed from local file system.
      * 
-     * @param feedUrl the URL to the RSS or Atom feed.
+     * @param file the file with the RSS or Atom feed.
      * @return
      * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl) throws FeedRetrieverException {
-        return getFeed(feedUrl, false);
+    public Feed getFeed(File file) throws FeedRetrieverException {
+        InputStream inputStream = null;
+        try {
+            inputStream = new BufferedInputStream(new FileInputStream(file));
+            SyndFeed syndFeed = getFeed(inputStream);
+            return getFeed(syndFeed, file.toURI().toURL().toString());
+        } catch (FileNotFoundException e) {
+            throw new FeedRetrieverException(e);
+        } catch (IOException e) {
+            throw new FeedRetrieverException(e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     /**
      * Downloads a feed from the specified URL.
      * 
      * @param feedUrl the URL to the RSS or Atom feed.
-     * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
-     *            {@link FeedItem}.
      * @return
      * @throws FeedRetrieverException
      */
-    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedRetrieverException {
-
-        StopWatch sw = new StopWatch();
-
-        Document feedDocument = downloadFeedDocument(feedUrl);
-        Feed feed = getFeed(feedDocument);
-
-        if (scrapePages) {
-            scrapePages(feed.getItems());
+    public Feed getFeed(String feedUrl) throws FeedRetrieverException {
+        try {
+            StopWatch sw = new StopWatch();
+            HttpResult httpResult = documentRetriever.httpGet(feedUrl);
+            Feed feed = getFeed(httpResult);
+            LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
+            return feed;
+        } catch (HttpException e) {
+            throw new FeedRetrieverException(e);
         }
+    }
 
-        LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
-        return feed;
+    /**
+     * Parse a feed from the specified {@link HttpResult}.
+     * 
+     * @param feedUrl
+     * @return
+     * @throws FeedRetrieverException
+     */
+    public Feed getFeed(HttpResult httpResult) throws FeedRetrieverException {
 
+        InputStream inputStream = new ByteArrayInputStream(httpResult.getContent());
+        SyndFeed syndFeed = getFeed(inputStream);
+
+        String feedUrl = httpResult.getUrl();
+        Feed result = getFeed(syndFeed, feedUrl);
+
+        // set the (uncompressed) size of the feed
+        result.setByteSize(httpResult.getContent().length);
+
+        return result;
     }
 
     /**
@@ -124,7 +160,8 @@ public class FeedRetriever {
      * @throws FeedRetrieverException
      */
     public Feed getFeed(Document document) throws FeedRetrieverException {
-        return getFeedWithRome(document);
+        SyndFeed syndFeed = buildSyndFeed(document);
+        return getFeed(syndFeed, document.getDocumentURI());
     }
 
     /**
@@ -139,60 +176,6 @@ public class FeedRetriever {
         feed.setItems(downloadedFeed.getItems());
         feed.setWindowSize(downloadedFeed.getItems().size());
         feed.setByteSize(downloadedFeed.getByteSize());
-//        feed.setDocument(downloadedFeed.getDocument());
-    }
-
-    /**
-     * Fetch associated page content for specified {@link FeedItem}s. Do not download binary files, like PDFs, audio or
-     * video files. Downloading is done concurrently.
-     * 
-     * @param feedItems the FeedItems to scrape.
-     */
-    public void scrapePages(List<FeedItem> feedItems) {
-        LOGGER.debug("downloading " + feedItems.size() + " pages");
-
-        DocumentRetriever downloader = new DocumentRetriever();
-        downloader.setNumThreads(5);
-
-        final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
-        final Set<String> urls = new HashSet<String>();
-
-        for (FeedItem feedEntry : feedItems) {
-            String entryLink = feedEntry.getLink();
-
-            if (entryLink == null) {
-                continue;
-            }
-
-            // check type of linked file; ignore audio, video or pdf files ...
-            String fileType = FileHelper.getFileType(entryLink);
-            boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-                    || fileType.equals("pdf");
-            if (ignore) {
-                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
-            } else {
-                urls.add(feedEntry.getLink());
-                entries.put(feedEntry.getLink(), feedEntry);
-            }
-        }
-
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
-
-            @Override
-            public void onFinishRetrieval(Document document) {
-                try {
-                    ReadabilityContentExtractor extractor = new ReadabilityContentExtractor();
-                    extractor.setDocument(document);
-                    String pageText = extractor.getResultText();
-                    entries.get(document.getDocumentURI()).setPageText(pageText);
-                } catch (PageContentExtractorException e) {
-                    LOGGER.error("PageContentExtractorException " + e);
-                }
-            }
-        };
-
-        downloader.getWebDocuments(urls, retrieverCallback);
-        LOGGER.debug("finished downloading");
     }
 
     // ///////////////////////////////////////////////////
@@ -219,21 +202,30 @@ public class FeedRetriever {
     // private ROME specific methods
     // ///////////////////////////////////////////////////
 
+    private SyndFeed getFeed(InputStream inputStream) throws FeedRetrieverException {
+        try {
+            DocumentParser xmlParser = parserFactory.createXmlParser();
+            Document document = xmlParser.parse(inputStream);
+            SyndFeed syndFeed = buildSyndFeed(document);
+            return syndFeed;
+        } catch (ParserException e) {
+            throw new FeedRetrieverException(e);
+        }
+    }
+
     /**
      * Get feed information about a Atom/RSS feed, using ROME library.
      * 
      * @param feedUrl
      * @return
      * @throws FeedRetrieverException
+     * 
      */
-    private Feed getFeedWithRome(Document feedDocument) throws FeedRetrieverException {
+    private Feed getFeed(SyndFeed syndFeed, String feedUrl) throws FeedRetrieverException {
 
         Feed result = new Feed();
 
-        SyndFeed syndFeed = buildSyndFeed(feedDocument);
-
         // URL of the feed itself
-        String feedUrl = feedDocument.getDocumentURI();
         result.setFeedUrl(feedUrl);
 
         if (syndFeed.getLink() != null) {
@@ -242,23 +234,15 @@ public class FeedRetriever {
 
         if (syndFeed.getTitle() != null && syndFeed.getTitle().length() > 0) {
             result.setTitle(syndFeed.getTitle().trim());
-        } else {
-            // fallback, use feedUrl as title
-            result.setTitle(feedUrl);
         }
 
         result.setLanguage(syndFeed.getLanguage());
 
-        // store the originating document in the feed
-//        result.setDocument(feedDocument);
-
         // get Feed items with ROME and assign to feed
         addFeedItems(result, syndFeed);
 
-        // get the size of the feed
-        if (feedDocument != null) {
-            result.setByteSize(HTMLHelper.documentToHTMLString(feedDocument).getBytes().length);
-        }
+        Map<String, Object> additionalData = getAdditionalData(syndFeed);
+        result.setAdditionalData(additionalData);
 
         return result;
     }
@@ -310,6 +294,9 @@ public class FeedRetriever {
                     dateRetries = 0;
                 }
             }
+
+            Map<String, Object> additionalData = getAdditionalData(syndEntry);
+            item.setAdditionalData(additionalData);
 
         }
     }
@@ -527,20 +514,50 @@ public class FeedRetriever {
     }
 
     /**
-     * Download a feed document from the web.
+     * Possibility for subclasses to retrieve additional data from the {@link SyndEntry}. Override if necessary.
      * 
-     * @param feedUrl
+     * @param syndEntry
      * @return
-     * @throws FeedRetrieverException
      */
-    private Document downloadFeedDocument(String feedUrl) throws FeedRetrieverException {
-
-        Document feedDocument = documentRetriever.getXMLDocument(feedUrl);
-        if (feedDocument == null) {
-            throw new FeedRetrieverException("could not get document from " + feedUrl);
-        }
-        return feedDocument;
+    protected Map<String, Object> getAdditionalData(SyndEntry syndEntry) {
+        return new HashMap<String, Object>();
     }
+
+    /**
+     * Possibility for subclasses to retrieve additional data from the {@link SyndFeed}. Override if necessary.
+     * 
+     * @param syndFeed
+     * @return
+     */
+    protected Map<String, Object> getAdditionalData(SyndFeed syndFeed) {
+        return new HashMap<String, Object>();
+    }
+
+    //
+    // private SyndFeed buildSyndFeed(InputSource inputSource) throws FeedRetrieverException {
+    //
+    // try {
+    //
+    // SyndFeedInput feedInput = new SyndFeedInput();
+    //
+    // // this preserves the "raw" feed data and gives direct access to RSS/Atom specific elements see
+    // // http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
+    // feedInput.setPreserveWireFeed(true);
+    //
+    // SyndFeed syndFeed = feedInput.build(inputSource);
+    // LOGGER.debug("feed type is " + syndFeed.getFeedType());
+    //
+    // return syndFeed;
+    //
+    // } catch (IllegalArgumentException e) {
+    // // LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
+    // throw new FeedRetrieverException(e);
+    // } catch (FeedException e) {
+    // // LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
+    // throw new FeedRetrieverException(e);
+    // }
+    //
+    // }
 
     /**
      * Builds a {@link SyndFeed} with ROME from the supplied {@link Document}.

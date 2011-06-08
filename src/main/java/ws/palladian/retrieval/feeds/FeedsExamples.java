@@ -43,7 +43,7 @@ public class FeedsExamples {
 
         // start aggregating news for the feeds in the database
         FeedReader feedReader = new FeedReader(feedStore);
-        feedReader.aggregate(false);
+        feedReader.aggregate();
 
     }
 
