@@ -1089,6 +1089,18 @@ public class FileHelper {
     }
 
     public static File[] getFiles(String folderPath, String substring, boolean recursive) {
+        return getFiles(folderPath, substring, recursive, false);
+    }
+
+    public static File[] getFilesAndDirectories(String folderPath) {
+        return getFilesAndDirectories(folderPath, "", false);
+    }
+
+    public static File[] getFilesAndDirectories(String folderPath, String substring, boolean recursive) {
+        return getFiles(folderPath, substring, recursive, true);
+    }
+
+    public static File[] getFiles(String folderPath, String substring, boolean recursive, boolean includeDirectories) {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
@@ -1100,7 +1112,9 @@ public class FileHelper {
                     if (recursive) {
                         matchingFiles.addAll(Arrays.asList(getFilesRecursive(file.getPath())));
                     } else {
-                        continue;
+                        if (!includeDirectories) {
+                            continue;
+                        }
                     }
                 }
                 if (file.getName().indexOf(substring) > -1) {

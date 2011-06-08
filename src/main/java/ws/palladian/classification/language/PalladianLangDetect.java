@@ -140,6 +140,10 @@ public class PalladianLangDetect extends LanguageClassifier {
         palladianClassifier.train(instance);
     }
 
+    public ClassifierPerformance evaluate(Dataset dataset) {
+        return palladianClassifier.evaluate(dataset);
+    }
+
     /**
      * Train the language detector on a dataset.
      * 
@@ -148,6 +152,11 @@ public class PalladianLangDetect extends LanguageClassifier {
      * @param classifierPath The path where the classifier should be saved to. For example, <tt>data/models/</tt>
      */
     public static void train(Dataset dataset, String classifierName, String classifierPath) {
+        train(dataset, classifierName, classifierPath, null, null);
+    }
+
+    public static void train(Dataset dataset, String classifierName, String classifierPath,
+            ClassificationTypeSetting cts, FeatureSetting fs) {
 
         // take the time for the learning
         StopWatch stopWatch = new StopWatch();
@@ -163,25 +172,32 @@ public class PalladianLangDetect extends LanguageClassifier {
         // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
 
         // specify the settings for the classification
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        ClassificationTypeSetting classificationTypeSetting = cts;
+        if (classificationTypeSetting == null) {
+            classificationTypeSetting = new ClassificationTypeSetting();
 
-        // we use only a single category per document
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
+            // we use only a single category per document
+            classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
-        // we want the classifier to be serialized in the end
-        classificationTypeSetting.setSerializeClassifier(true);
+            // we want the classifier to be serialized in the end
+            classificationTypeSetting.setSerializeClassifier(true);
+        }
 
         // specify feature settings that should be used by the classifier
-        FeatureSetting featureSetting = new FeatureSetting();
+        FeatureSetting featureSetting = fs;
 
-        // we want to create character-level n-grams
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        if (featureSetting == null) {
+            featureSetting = new FeatureSetting();
 
-        // the minimum length of our n-grams should be 4
-        featureSetting.setMinNGramLength(4);
+            // we want to create character-level n-grams
+            featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
 
-        // the maximum length of our n-grams should be 7
-        featureSetting.setMaxNGramLength(7);
+            // the minimum length of our n-grams should be 4
+            featureSetting.setMinNGramLength(4);
+
+            // the maximum length of our n-grams should be 7
+            featureSetting.setMaxNGramLength(7);
+        }
 
         // we assign the settings to our classifier
         classifier.setClassificationTypeSetting(classificationTypeSetting);

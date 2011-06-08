@@ -654,6 +654,22 @@ public class ClassifierPerformance implements Serializable {
         return classifierPerformanceResult;
     }
 
+    public String toReadableString() {
+
+        ClassifierPerformanceResult cpr = getClassifierPerformanceResult();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Precision: ").append(cpr.getPrecision()).append("\n");
+        builder.append("Recall: ").append(cpr.getRecall()).append("\n");
+        builder.append("F1: ").append(cpr.getF1()).append("\n");
+        builder.append("Sensitivity: ").append(cpr.getSensitivity()).append("\n");
+        builder.append("Specificity: ").append(cpr.getSpecificity()).append("\n");
+        builder.append("Accuracy: ").append(cpr.getAccuracy()).append("\n");
+        builder.append("Correctly Classified: ").append(cpr.getCorrectlyClassified()).append("\n");
+        return builder.toString();
+
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

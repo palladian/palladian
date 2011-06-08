@@ -44,9 +44,8 @@ public class DatasetManager {
 
         StopWatch sw = new StopWatch();
 
-        if (!corpusRootFolderPath.endsWith("/")) {
-            corpusRootFolderPath += "/";
-        }
+        corpusRootFolderPath = FileHelper.addTrailingSlash(corpusRootFolderPath);
+
         String indexName = "index";
         if (includeClasses != null) {
             indexName += "_" + Arrays.toString(includeClasses);
@@ -55,7 +54,7 @@ public class DatasetManager {
         FileWriter indexFile = new FileWriter(corpusRootFolderPath + indexName);
 
         // iterate over all classes
-        File[] classFolders = FileHelper.getFiles(corpusRootFolderPath);
+        File[] classFolders = FileHelper.getFilesAndDirectories(corpusRootFolderPath);
         for (File classFolder : classFolders) {
 
             if (classFolder.isFile()) {
@@ -221,12 +220,15 @@ public class DatasetManager {
      * @param splitPercentage The percentage of the first part. The second part is 100 - splitPercentage.
      * @throws IOException
      */
-    public void splitIndex(String indexFilePath, int splitPercentage) throws IOException {
+    public String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
 
         StopWatch sw = new StopWatch();
 
-        FileWriter splitFile1 = new FileWriter(FileHelper.appendToFileName(indexFilePath, "_split1"));
-        FileWriter splitFile2 = new FileWriter(FileHelper.appendToFileName(indexFilePath, "_split2"));
+        String split1Name = FileHelper.appendToFileName(indexFilePath, "_split1");
+        String split2Name = FileHelper.appendToFileName(indexFilePath, "_split2");
+
+        FileWriter splitFile1 = new FileWriter(split1Name);
+        FileWriter splitFile2 = new FileWriter(split2Name);
 
         // a map holding all file links for each class
         Map<String, Set<String>> classMap = new HashMap<String, Set<String>>();
@@ -276,6 +278,8 @@ public class DatasetManager {
         splitFile2.close();
 
         LOGGER.info("file " + indexFilePath + " splitted in " + sw.getElapsedTimeString());
+
+        return new String[] { split1Name, split2Name };
     }
 
     /**
