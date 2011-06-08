@@ -32,14 +32,14 @@ import ws.palladian.retrieval.HttpResult;
 import com.temesoft.google.pr.JenkinsHash;
 
 /**
+ * <p>
  * This class provides access to external, Web 2.0 typical services with APIs which offer ranking indicators for web
  * pages. Some of them are taken from "SEO for Firefox" extension. API key are configured in "config/apikeys.conf".
+ * </p>
  * 
- * http://tools.seobook.com/firefox/seo-for-firefox.html
- * 
- * TODO specific caching for domains
  * 
  * @author Philipp Katz
+ * @see http://tools.seobook.com/firefox/seo-for-firefox.html
  * 
  */
 public class RankingRetriever {
@@ -192,12 +192,6 @@ public class RankingRetriever {
     /** Crawler for downloading purposes. */
     private DocumentRetriever crawler = new DocumentRetriever();
 
-    /**
-     * Cache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
-     * creating and instance of the RankingRetriever.
-     */
-    // private RankingCache cache;// = new RankingCacheMemory();
-
     /** The services to check. */
     private Collection<Service> check;
 
@@ -265,15 +259,8 @@ public class RankingRetriever {
 
                 @Override
                 public void run() {
-
-                    LOGGER.trace("start thread for " + service + " : " + cleanURL);
-
-
-                        float ranking = getRanking(cleanURL, service);
+                    float ranking = getRanking(cleanURL, service);
                     result.put(service, ranking);
-
-                    LOGGER.trace("finished thread for " + service + " : " + cleanURL);
-
                 }
             };
             rankingThreads.add(rankingThread);
@@ -429,8 +416,8 @@ public class RankingRetriever {
 
             String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler
-            .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
-                    + encUrl);
+                    .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
+                            + encUrl);
             if (json != null) {
                 JSONArray stories = json.getJSONArray("stories");
                 result = 0;
@@ -512,33 +499,6 @@ public class RankingRetriever {
             }
 
             // Step 2: get the information
-//            URLConnection urlCon = null;
-//            StringBuilder response = new StringBuilder();
-//            try {
-//                String encUrl = StringHelper.urlEncode(getUrl());
-//                URL infoUrl = new URL("http://www.reddit.com/api/info.json?url=" + encUrl);
-//                urlCon = infoUrl.openConnection();
-//                urlCon.setDoOutput(true);
-//                urlCon.setRequestProperty("Cookie", redditCookie);
-//
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
-//                String inputLine;
-//                while ((inputLine = reader.readLine()) != null) {
-//                    response.append(inputLine);
-//                }
-//                reader.close();
-//            } catch (IOException e) {
-//                // they return a 404 when they have no information about the specified URL
-//                // this case is not a "real" error, so catch it here.
-//                HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
-//                if (httpUrlCon.getResponseCode() == 404) {
-//                    LOGGER.trace("no data for url " + getUrl());
-//                    result = 0;
-//                } else {
-//                    throw e;
-//                }
-//            }
-            
             Map<String, String> headerParams = new HashMap<String, String>();
             headerParams.put("Cookie", redditCookie);
             String encUrl = StringHelper.urlEncode(getUrl());
@@ -577,33 +537,11 @@ public class RankingRetriever {
 
     // login to reddit, return the Cookie.
     private String loginToReddit() throws MalformedURLException, IOException {
-        // Step 1: authenticate via HTTP POST, save the Cookie
-//        URL loginUrl = new URL("http://www.reddit.com/api/login");
-//        URLConnection loginCon = loginUrl.openConnection();
-//
-//        loginCon.setDoOutput(true);
-//        OutputStreamWriter out = new OutputStreamWriter(loginCon.getOutputStream());
-//        out.write("user=" + redditUsername);
-//        out.write("&passwd=" + redditPassword);
-//        out.close();
-//
-//        loginCon.connect();
-//
-//        String headerName = null;
-//        String cookie = null;
-//        for (int i = 1; (headerName = loginCon.getHeaderFieldKey(i)) != null; i++) {
-//            if (headerName.equals("Set-Cookie")) {
-//                cookie = loginCon.getHeaderField(i);
-//            }
-//        }
-//        return cookie;
-        
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("user", redditUsername);
         parameters.put("passwd", redditPassword);
         HttpResult response = crawler.httpPost("http://www.reddit.com/api/login", parameters);
         return response.getHeaderString("Set-Cookie");
-        
     }
 
     /**
@@ -653,8 +591,8 @@ public class RankingRetriever {
 
         String domain = UrlHelper.getDomain(getUrl(), false);
         Document doc = crawler
-        .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
-                + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
+                .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
+                        + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
 
         if (doc != null) {
             // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
@@ -688,8 +626,8 @@ public class RankingRetriever {
         String domain = UrlHelper.getDomain(getUrl(), false);
 
         Document doc = crawler
-        .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
-                + yahooApikey + "&adult_ok=1&query=link:" + getUrl() + "%20-site:" + domain);
+                .getXMLDocument("http://api.search.yahoo.com/WebSearchService/V1/webSearch?results=1&appid="
+                        + yahooApikey + "&adult_ok=1&query=link:" + getUrl() + "%20-site:" + domain);
 
         if (doc != null) {
             // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
@@ -742,8 +680,9 @@ public class RankingRetriever {
         JenkinsHash jHash = new JenkinsHash();
         long urlHash = jHash.hash(("info:" + prUrl).getBytes());
 
-        String response = crawler.getTextDocument("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
-                + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
+        String response = crawler
+                .getTextDocument("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6"
+                        + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
 
         if (response != null && !response.isEmpty()) {
             if (response.contains(":")) {
@@ -896,41 +835,12 @@ public class RankingRetriever {
 
     }
 
-//    /**
-//     * @param ttlSeconds
-//     * @see ws.palladian.retrieval.ranking.RankingCache#setTtlSeconds(int)
-//     */
-//    public void setCacheTtlSeconds(int ttlSeconds) {
-//        if (cache != null) {
-//            cache.setTtlSeconds(ttlSeconds);
-//        }
-//    }
-//
-//    /**
-//     * Set the cache implmentation to be used.
-//     * 
-//     * @param cache
-//     */
-//    public void setCache(RankingCache cache) {
-//        this.cache = cache;
-//    }
-//
-//    /**
-//     * Get the used cache.
-//     * 
-//     * @return
-//     */
-//    public RankingCache getCache() {
-//        return cache;
-//    }
-
     public static void main(String[] args) throws Exception {
 
         // String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
         // String url = "http://www.tagesschau.de";
         // String url = "http://www.porn.com";
         String url = "http://letsgoweird.tumblr.com/post/6250451248";
-
 
         RankingRetriever urlRankingServices = new RankingRetriever();
 
