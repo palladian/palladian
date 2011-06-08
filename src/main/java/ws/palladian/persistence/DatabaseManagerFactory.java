@@ -18,7 +18,9 @@ import ws.palladian.helper.ConfigHolder;
  * use the singleton with care to not populate all layers of your application with database access code.
  * </p>
  * 
+ * <p>
  * The Factory is able to load new subclasses of {@code DatabaseManager} dynamically if they are on the class path.
+ * </p>
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
