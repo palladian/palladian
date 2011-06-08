@@ -109,7 +109,7 @@ public class DocumentRetriever {
     public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
-    public static final int DEFAULT_NUM_RETRIES = 0;
+    public static final int DEFAULT_NUM_RETRIES = 3;
 
     /** The number of threads for downloading in parallel. */
     public static final int DEFAULT_NUM_THREADS = 10;
