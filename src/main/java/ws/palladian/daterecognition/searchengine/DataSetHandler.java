@@ -91,6 +91,10 @@ public class DataSetHandler{
 	public static void setDB(String db){
 		DB = db;
 	}
+
+	public static String getDB(){
+		return DB;
+	}
 	
 	public static void main(String[] args){
 		/*
@@ -109,9 +113,10 @@ public class DataSetHandler{
 		//downloadUrls("data/webpages/daterecognition/");
 		
 		
-		//String path = "data/evaluation/daterecognition/datasets/headdataset.txt";
-		//createSearchDatesAndDownload("headdateset", path);
-		//setDownloadTo(path, "urlset", 1);
+		String path = "data/evaluation/daterecognition/datasets/finalEvaluation.txt";
+		DB = "evaluation";
+		createSearchDatesAndDownload("alltechniques", path);
+		setDownloadTo(path, "alltechniques", 1);
 		
 		/*
 		String path = "D:/_Uni/_semester16/dataset/";	
@@ -128,9 +133,9 @@ public class DataSetHandler{
 		
 		
 		//googleCheck("data/evaluation/daterecognition/datasets/dataset.txt");
-		String in = "D:/_Uni/_semester16/knime/test4.csv";
-		String outPath = "D:/_Uni/_semester16/knime/wekaout/";
-		splittKnimeCVS(in, outPath);
+//		String in = "D:/_Uni/_semester16/knime/test4.csv";
+//		String outPath = "D:/_Uni/_semester16/knime/wekaout/";
+//		splittKnimeCVS(in, outPath);
 	}
 	
 	
@@ -240,6 +245,7 @@ public class DataSetHandler{
 		
 		
 		for(int i=0; i<set.size(); i++){
+			System.out.println(i + " / " + set.size());
 			DBExport dbExport = set.get(i);
 			String url = dbExport.getUrl();
 			ExtractedDate tempDate;
@@ -318,6 +324,7 @@ public class DataSetHandler{
 					bw.write(write + "\n");
 				}
 			}	
+			bw.flush();
 			bw.close();
 			out.close();
 		} catch(Exception e){
@@ -773,24 +780,24 @@ public class DataSetHandler{
 			
 			
 			
-			int distPosBeforeDate = -1;
-			int distPosAfterDate = -1;
-			long distAgeBeforeDate = -1;
-			long distAgeAfterDate = -1;
-			
-			if(datePosOrderAbsl > 0){
-				distPosBeforeDate = date.get(ContentDate.DATEPOS_IN_DOC) - posOrder.get(datePosOrderAbsl -1).get(ContentDate.DATEPOS_IN_DOC);
-			}
-			if(datePosOrderAbsl < posOrder.size() -1){
-				distPosAfterDate = posOrder.get(datePosOrderAbsl +1).get(ContentDate.DATEPOS_IN_DOC) - date.get(ContentDate.DATEPOS_IN_DOC);
-			}
-			if(dateAgeOrdAbsl > 0){
-				distAgeBeforeDate = Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl - 1), DateComparator.MEASURE_HOUR));
-			}
-			if(dateAgeOrdAbsl < ageOrder.size() -1){
-				distAgeBeforeDate = Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl + 1), DateComparator.MEASURE_HOUR));
-			}
-			
+			long distPosBeforeDate = date.getDistPosBefore();
+			long distPosAfterDate = date.getDistPosAfter();
+			long distAgeBeforeDate = date.getDistAgeBefore();
+			long distAgeAfterDate = date.getDistAgeAfter();
+//			
+//			if(datePosOrderAbsl > 0){
+//				distPosBeforeDate = date.get(ContentDate.DATEPOS_IN_DOC) - posOrder.get(datePosOrderAbsl -1).get(ContentDate.DATEPOS_IN_DOC);
+//			}
+//			if(datePosOrderAbsl < posOrder.size() -1){
+//				distPosAfterDate = posOrder.get(datePosOrderAbsl +1).get(ContentDate.DATEPOS_IN_DOC) - date.get(ContentDate.DATEPOS_IN_DOC);
+//			}
+//			if(dateAgeOrdAbsl > 0){
+//				distAgeBeforeDate = Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl - 1), DateComparator.MEASURE_HOUR));
+//			}
+//			if(dateAgeOrdAbsl < ageOrder.size() -1){
+//				distAgeAfterDate = Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl + 1), DateComparator.MEASURE_HOUR));
+//			}
+//			
 			int keyClass = 0;
 			int keyLoc = 0;
 			double keyDiff = 0;

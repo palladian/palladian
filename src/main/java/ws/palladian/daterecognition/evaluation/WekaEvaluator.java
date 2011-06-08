@@ -18,11 +18,14 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import weka.classifiers.Classifier;
+import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.SerializationHelper;
 import weka.gui.explorer.Explorer;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.daterecognition.evaluation.weka.WekaClassifierEval;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.helper.date.DateComparator;
@@ -46,141 +49,157 @@ public class WekaEvaluator {
 
 		// 0 - load Url and Serializer
 		// 1 - evaluate KNIME Output
-		int work = 0;
+		int work = 1;
 
 		if (work == 2) {
 			Explorer.main(null);
 		}
+		if (work == 3) {
+
+		}
 		if (work == 0) {
-			Classifier classifier = null;
-			String classifierString = "data/wekaClassifier/classifier.model";
-			try {
-				ObjectInputStream ois = new ObjectInputStream(
-						new BufferedInputStream(new FileInputStream(
-								classifierString)));
-				 classifier = (Classifier) ois.readObject();
-
-//				WekaClassifierEval wce = new WekaClassifierEval();
-//				PageDateType classIndex = PageDateType.publish;
-//				String classAttributeName;
-//				Attribute classAttribute = null;
-//				Enumeration<Attribute> attributes;
-//
-//				if (classIndex.equals(PageDateType.publish)) {
-//					classAttributeName = "pub";
-//				} else {
-//					classAttributeName = "mod";
-//				}
-//
-//				BufferedReader reader;
-//				Instances instances = null;
-//				classifier = wce.getAtributeSelectedClassifier();
-//				
-//				// classifier = wce.getThreshold();
-//				try {
-//					reader = new BufferedReader(new FileReader(
-//							"d:/wekaout/datesets/pubtrainee.arff"));
-//					instances = new Instances(reader);
-//					attributes = instances.enumerateAttributes();
-//					while (attributes.hasMoreElements()) {
-//						Attribute attribute = attributes.nextElement();
-//						if (attribute.name().equals(classAttributeName)) {
-//							classAttribute = attribute;
-//							break;
-//						}
-//					}
-//					instances.setClass(classAttribute);
-//					classifier.buildClassifier(instances);
-//					SerializationHelper.write(classifierString, classifier);
-//				} catch (FileNotFoundException e2) {
-//					e2.printStackTrace();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			File file = new File("d:/wekaout/datesets/pubtest.arff");
-			BufferedReader reader;
-			Instances instances = null;
-			ArrayList<Integer> idList = new ArrayList<Integer>();
-			try {
-				reader = new BufferedReader(new FileReader(file));
-				file = new File("d:/wekaout/datesets/pubTestTemp.arff");
-				BufferedWriter writer = new BufferedWriter(new FileWriter(file,
-						false));
-				String line;
-				int i = 1;
-				while ((line = reader.readLine()) != null) {
-					if (i > 32) {
-						idList.add(Integer.valueOf(line.substring(0, 5)));
-						line = line.substring(6);
-					}
-					writer.write(line + "\n");
-					i++;
-				}
-				writer.close();
-				reader.close();
-				reader = new BufferedReader(new FileReader(file));
-				instances = new Instances(reader);
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			instances.setClassIndex(1);
-			Enumeration<Instance> instanceEnum = instances.enumerateInstances();
-			HashMap<Integer, Double> resultMap = new HashMap<Integer, Double>();
-			int i = 0;
-			while (instanceEnum.hasMoreElements()) {
-				Instance instance = instanceEnum.nextElement();
-				int id = Integer.valueOf(instance.toString(0));
-//				 instance.setMissing(0);
-				instance.setClassMissing();
-				try {
-					double[] dbl = classifier.distributionForInstance(instance);
-					resultMap.put(idList.get(i), dbl[1]);
-				} catch (Exception e) {
-					System.out.println(classifier == null);
-					e.printStackTrace();
-				}
-				i++;
-			}
-
-			DataSetHandler.setDB("wekaout");
-			DataSetHandler.openConnection();
-			for (Entry<Integer, Double> entry : resultMap.entrySet()) {
-				String sqlQuery = "INSERT INTO threshold (yesPub, id) VALUES ("
-						+ entry.getValue() + ", " + entry.getKey() + ")";
-				try {
-					DataSetHandler.st.execute(sqlQuery);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-
-			}
-			DataSetHandler.closeConnection();
+			work0();
 		}
 
 		if (work == 1) {
-			// ths.buildClassifier(arg0)
-			// ths.setClassifier()
-			WekaEvaluator we = new WekaEvaluator();
-			PageDateType pageDateType = PageDateType.publish;
-			// PageDateType pageDateType = PageDateType.last_modified;
+			work1();
+		}
+	}
 
-			String factorTable = "contentfactor4";
-			// String table = "weka9";
-			String table = "threshold";
-			String file = "data/evaluation/daterecognition/datasets/trasholdX.txt";
-			String wekaOutDB = "wekaout";
-			double lowBoundaryRelSize = 0;
-			double upBoundRelSize = 1.1;
-			boolean useBounds = true;
-			// 253
-			for (int i = 1; i <= 12; i++) {
+	private static void work0() {
+		Classifier classifier = null;
+		String classifierString = "data/wekaClassifier/classifier.model";
+		try {
+			ObjectInputStream ois = new ObjectInputStream(
+					new BufferedInputStream(new FileInputStream(
+							classifierString)));
+			classifier = (Classifier) ois.readObject();
+
+			WekaClassifierEval wce = new WekaClassifierEval();
+			PageDateType classIndex = PageDateType.publish;
+			String classAttributeName;
+			Attribute classAttribute = null;
+			Enumeration<Attribute> attributes;
+
+			if (classIndex.equals(PageDateType.publish)) {
+				classAttributeName = "pub";
+			} else {
+				classAttributeName = "mod";
+			}
+
+			BufferedReader reader;
+			Instances instances = null;
+			classifier = wce.getAtributeSelectedClassifier();
+
+			// classifier = wce.getThreshold();
+			try {
+				reader = new BufferedReader(new FileReader(
+						"d:/wekaout/datesets/pubtrainee.arff"));
+				instances = new Instances(reader);
+				attributes = instances.enumerateAttributes();
+				while (attributes.hasMoreElements()) {
+					Attribute attribute = attributes.nextElement();
+					if (attribute.name().equals(classAttributeName)) {
+						classAttribute = attribute;
+						break;
+					}
+				}
+				instances.setClass(classAttribute);
+				classifier.buildClassifier(instances);
+				SerializationHelper.write(classifierString, classifier);
+			} catch (FileNotFoundException e2) {
+				e2.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		File file = new File("d:/wekaout/datesets/pubtest.arff");
+		BufferedReader reader;
+		Instances instances = null;
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			file = new File("d:/wekaout/datesets/pubTestTemp.arff");
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file,
+					false));
+			String line;
+			int i = 1;
+			while ((line = reader.readLine()) != null) {
+				if (i > 32) {
+					idList.add(Integer.valueOf(line.substring(0, 5)));
+					line = line.substring(6);
+				}
+				writer.write(line + "\n");
+				i++;
+			}
+			writer.close();
+			reader.close();
+			reader = new BufferedReader(new FileReader(file));
+			instances = new Instances(reader);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		instances.setClassIndex(1);
+		Enumeration<Instance> instanceEnum = instances.enumerateInstances();
+		HashMap<Integer, Double> resultMap = new HashMap<Integer, Double>();
+		int i = 0;
+		while (instanceEnum.hasMoreElements()) {
+			Instance instance = instanceEnum.nextElement();
+			int id = Integer.valueOf(instance.toString(0));
+			// instance.setMissing(0);
+			instance.setClassMissing();
+			try {
+				double[] dbl = classifier.distributionForInstance(instance);
+				resultMap.put(idList.get(i), dbl[1]);
+			} catch (Exception e) {
+				System.out.println(classifier == null);
+				e.printStackTrace();
+			}
+			i++;
+		}
+
+		DataSetHandler.setDB("wekaout");
+		DataSetHandler.openConnection();
+		for (Entry<Integer, Double> entry : resultMap.entrySet()) {
+			String sqlQuery = "INSERT INTO threshold (yesPub, id) VALUES ("
+					+ entry.getValue() + ", " + entry.getKey() + ")";
+			try {
+				DataSetHandler.st.execute(sqlQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+		}
+		DataSetHandler.closeConnection();
+	}
+
+	private static void work1() {
+		// ths.buildClassifier(arg0)
+		// ths.setClassifier()
+		WekaEvaluator we = new WekaEvaluator();
+		PageDateType pageDateType = PageDateType.publish;
+		// PageDateType pageDateType = PageDateType.last_modified;
+
+		String factorTable = "contentfactormaincontent";
+		String table = "xfold";
+		String wekaOutDB = "contentXFold10";
+
+		// table = "weka10";
+		// wekaOutDB = "wekaout";
+
+		String file = "data/evaluation/daterecognition/datasets/trasholdX.txt";
+		double lowBoundaryRelSize = 0;
+		double upBoundRelSize = 1.1;
+		boolean useBounds = false;
+		// 253++
+		for (int j = 1; j <= 10; j++) {
+			for (int i = 1; i <= 1; i++) {
 				System.out.println("Round: " + i);
 				System.out.println();
 				// table = "wekaout" + i;
@@ -288,9 +307,12 @@ public class WekaEvaluator {
 				// }
 
 				try {
-					we.evaluationOut(pageDateType, table, factorTable, file,
-							wekaOutDB, useBounds, lowBoundaryRelSize,
+					we.evaluationOut(pageDateType, table + j, factorTable,
+							file, wekaOutDB, useBounds, lowBoundaryRelSize,
 							upBoundRelSize);
+					// we.evaluationOut(pageDateType, table, factorTable, file,
+					// wekaOutDB, useBounds, lowBoundaryRelSize,
+					// upBoundRelSize);
 
 					System.out.println("lowBoundaryRelSize: "
 							+ lowBoundaryRelSize);

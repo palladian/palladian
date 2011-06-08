@@ -42,8 +42,8 @@ public class ContentEvaluator {
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
 		String pub = "pub6";
 		String mod = "mod6";
-		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
-		evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
+//		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
+//		evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
 		
 		
 		
@@ -64,9 +64,9 @@ public class ContentEvaluator {
 		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
 		System.out.println("ADW: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
 		
-		String contentTable = "contentfactor3";
+		String contentTable = "contentfactorFinal";
 		boolean useWeight = false;
-		//evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
+		evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
 		
 	}
 	

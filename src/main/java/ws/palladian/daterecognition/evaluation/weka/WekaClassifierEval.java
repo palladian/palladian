@@ -1,65 +1,211 @@
 package ws.palladian.daterecognition.evaluation.weka;
 
-import weka.attributeSelection.CfsSubsetEval;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import weka.attributeSelection.ChiSquaredAttributeEval;
-import weka.attributeSelection.GainRatioAttributeEval;
-import weka.attributeSelection.GreedyStepwise;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.classifiers.meta.RandomCommittee;
 import weka.classifiers.meta.ThresholdSelector;
 import weka.classifiers.trees.RandomForest;
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
 import weka.core.SelectedTag;
+import weka.core.SerializationHelper;
+import ws.palladian.daterecognition.searchengine.DataSetHandler;
+import ws.palladian.daterecognition.technique.PageDateType;
 
 public class WekaClassifierEval {
 
-	// public static void main(String[] arg) {
-	// WekaClassifierEval wce = new WekaClassifierEval();
-	// WekaTraineeSetHelper wts = new WekaTraineeSetHelper();
-	// PageDateType classIndex = PageDateType.publish;
-	// String classAttributeName;
-	// Attribute classAttribute = null;
-	// Enumeration<Attribute> attributes;
-	// String[] filter = { "id", "url", "pubDate", "modDate", "date", "year",
-	// "month", "day", "distAgeAfter" };
-	//
-	// if(classIndex.equals(PageDateType.publish)){
-	// classAttributeName = "pub";
-	// }else{
-	// classAttributeName = "mod";
-	// }
-	//		
-	// wts.setFilterColumns(filter);
-	// wts.createInstances("dateset", "contentfactor4", classIndex);
-	// // Instances instances = wts.getTraineeSet(0.3, classIndex, null);
-	// BufferedReader reader;
-	// Instances instances = null;
-	// Classifier classifier = wce.getThreshold();
-	// try {
-	// reader = new BufferedReader(new FileReader(
-	// "d:/wekaout/dateset/pubtrainee.arff"));
-	// instances = new Instances(reader);
-	// attributes = instances.enumerateAttributes();
-	// while(attributes.hasMoreElements()){
-	// Attribute attribute = attributes.nextElement();
-	// if(attribute.name().equals(classAttributeName)){
-	// classAttribute = attribute;
-	// break;
-	// }
-	// }
-	// instances.setClass(classAttribute);
-	// System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!");
-	// classifier.buildClassifier(instances);
-	// } catch (FileNotFoundException e2) {
-	// e2.printStackTrace();
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	//
-	// }
+	public static void main(String[] arg) {
+		WekaClassifierEval wce = new WekaClassifierEval();
+		String arffPathPub = "/wekaClassifier/attributesPub.arff";
+		String arffPathMod = "/wekaClassifier/attributesMod.arff";
+
+		String classifierFilePub = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/pubClassifierFinal.model";
+		String classifierFileMod = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/modClassifierFinal.model";
+
+		Classifier classifierPub = wce.getThreshold();
+		Classifier classifierMod = wce.getThreshold();
+
+		wce.trainClassifier(classifierPub, arffPathPub,
+				PageDateType.publish, 1);
+		wce.saveClassifier(classifierFilePub, classifierPub);
+
+		wce.trainClassifier(classifierMod, arffPathMod,
+				PageDateType.last_modified, 1);
+		wce.saveClassifier(classifierFileMod, classifierMod);
+	}
+
+	private static void testXFold() {
+		WekaClassifierEval wce = new WekaClassifierEval();
+		PageDateType classIndex = PageDateType.publish;
+		String classAttributeName;
+		String notClassAttributeName;
+		int classIndexPos;
+		Attribute classAttribute = null;
+		Enumeration<Attribute> attributes;
+		String path = "/wekaClassifier/allAttributesContent.arff";
+		HashMap<Integer, Double> classifiedMap = new HashMap<Integer, Double>();
+
+		if (classIndex.equals(PageDateType.publish)) {
+			classAttributeName = "pub";
+			notClassAttributeName = "mod";
+			classIndexPos = 0;
+		} else {
+			classAttributeName = "mod";
+			notClassAttributeName = "pub";
+			classIndexPos = 1;
+		}
+
+		// Instances instances = wts.getTraineeSet(0.3, classIndex, null);
+		BufferedReader reader;
+
+		Classifier classifier = wce.getThreshold();
+		// classifier = wce.getMultiLayerPerceptron();
+		for (int i = 0; i < 2; i++) {
+			String xfoldDB = "";
+			int maxFolds = 0;
+			if (i == 0) {
+				xfoldDB = "contentXFold5";
+				maxFolds = 5;
+			} else if (i == 1) {
+				xfoldDB = "contentXFold10";
+				maxFolds = 10;
+			} else {
+				xfoldDB = "";
+				maxFolds = 0;
+			}
+			DataSetHandler.setDB(xfoldDB);
+			DataSetHandler.openConnection();
+
+			Instances[] instances = WekaTraineeSetHelper.getXFoldSets(path,
+					maxFolds);
+			for (int fold = 0; fold < maxFolds; fold++) {
+				System.out.println("Fold: " + fold);
+				try {
+					Instances[] testAndTrainee = WekaTraineeSetHelper
+							.createTraineeAndTestSets(instances, fold);
+					Instances traineeInstances = testAndTrainee[0];
+					Instances testInstances = testAndTrainee[1];
+
+					WekaTraineeSetHelper
+							.removeAttribute(traineeInstances, "id");
+					WekaTraineeSetHelper.removeAttribute(traineeInstances,
+							notClassAttributeName);
+					ArrayList<String> ids = WekaTraineeSetHelper
+							.removeAttribute(testInstances, "id");
+					WekaTraineeSetHelper.removeAttribute(testInstances,
+							notClassAttributeName);
+
+					attributes = traineeInstances.enumerateAttributes();
+					while (attributes.hasMoreElements()) {
+						Attribute attribute = attributes.nextElement();
+						if (attribute.name().equals(classAttributeName)) {
+							classAttribute = attribute;
+							break;
+						}
+					}
+
+					traineeInstances.setClass(classAttribute);
+					testInstances.setClass(classAttribute);
+					classifier.buildClassifier(traineeInstances);
+
+					Enumeration<Instance> testEnum = testInstances
+							.enumerateInstances();
+					int index = 0;
+					while (testEnum.hasMoreElements()) {
+						Instance instance = testEnum.nextElement();
+						instance.setClassMissing();
+						double[] result = classifier
+								.distributionForInstance(instance);
+						// System.out.println(result[1]);
+						classifiedMap.put(Integer.valueOf(ids.get(index)),
+								result[classIndexPos]);
+						index++;
+					}
+
+				} catch (FileNotFoundException e2) {
+					e2.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				int index = 0;
+				for (Entry<Integer, Double> entry : classifiedMap.entrySet()) {
+					String query = "INSERT INTO xfold" + (fold + 1)
+							+ " (id, yesPub) VALUES (" + entry.getKey() + ", "
+							+ entry.getValue()
+							+ ") ON DUPLICATE KEY UPDATE yesPub = "
+							+ entry.getValue();
+					try {
+						DataSetHandler.st.execute(query);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public void trainClassifier(Classifier classifier, String arffPath,
+			PageDateType pageDateType, int dataPartsCount) {
+		String classAttributeName;
+		String notClassAttributeName;
+
+		Instances[] allInstances = WekaTraineeSetHelper.getXFoldSets(arffPath,
+				dataPartsCount);
+		Instances traineeSet = WekaTraineeSetHelper.createTraineeAndTestSets(
+				allInstances, 0)[0];
+
+		if (pageDateType.equals(PageDateType.publish)) {
+			classAttributeName = "pub";
+			notClassAttributeName = "mod";
+		} else {
+			classAttributeName = "mod";
+			notClassAttributeName = "pub";
+		}
+
+		Attribute classAttribute = traineeSet.attribute(0);
+		traineeSet.setClass(classAttribute);
+
+		try {
+			classifier.buildClassifier(traineeSet);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void saveClassifier(String path, Classifier classifier) {
+
+		try {
+			File file = new File(path);
+			OutputStream out = new FileOutputStream(file);
+			SerializationHelper.write(out, classifier);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public Classifier getThreshold() {
 
@@ -92,7 +238,6 @@ public class WekaClassifierEval {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return ths;
 	}
 
@@ -121,5 +266,24 @@ public class WekaClassifierEval {
 		asc.setSearch(ranker);
 
 		return asc;
+	}
+
+	public Classifier getMultiLayerPerceptron() {
+		MultilayerPerceptron mlp = new MultilayerPerceptron();
+		mlp.setGUI(false);
+		mlp.setAutoBuild(true);
+		mlp.setDecay(false);
+		mlp.setHiddenLayers("a");
+		mlp.setLearningRate(0.3);
+		mlp.setMomentum(0.2);
+		mlp.setNominalToBinaryFilter(true);
+		mlp.setNormalizeAttributes(true);
+		mlp.setNormalizeNumericClass(true);
+		mlp.setRandomSeed(0);
+		mlp.setReset(true);
+		mlp.setTrainingTime(1000);
+		mlp.setValidationSetSize(0);
+		mlp.setValidationThreshold(20);
+		return mlp;
 	}
 }
