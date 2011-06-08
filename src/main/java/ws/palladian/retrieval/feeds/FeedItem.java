@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -14,14 +15,14 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class FeedItem {
 
-//    /** The logger for this class. */
-//    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
-    
-//    private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
-//    
-//    static {
-//        NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
-//    }
+    // /** The logger for this class. */
+    // private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
+
+    // private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
+    //
+    // static {
+    // NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
+    // }
 
     private int id = -1;
 
@@ -55,8 +56,8 @@ public class FeedItem {
     /** Text directly from the feed entry */
     private String itemText;
 
-    /** Text which we downloaded from the corresponding web page. */
-    private String pageText;
+    /** Allows to keep arbitrary, additional information. */
+    private Map<String, Object> additionalData;
 
     public int getId() {
         return id;
@@ -151,14 +152,6 @@ public class FeedItem {
         this.itemText = entryText;
     }
 
-    public String getPageText() {
-        return pageText;
-    }
-
-    public void setPageText(String pageText) {
-        this.pageText = pageText;
-    }
-
     /**
      * Get entry's text, either (preferably) from the page or from the feed. Never return <code>null</code>.
      * 
@@ -166,11 +159,7 @@ public class FeedItem {
      */
     public String getText() {
 
-        String text = getPageText();
-
-        if (text == null || text.isEmpty()) {
-            text = getItemText();
-        }
+        String text = getItemText();
 
         if (text == null || text.isEmpty()) {
             text = getItemDescription();
@@ -196,58 +185,58 @@ public class FeedItem {
         return sb.toString();
     }
 
-//    /**
-//     * @return The raw XML markup for this feed entry.
-//     */
-//    public String getRawMarkup() {
-//        String rawMarkup = "";
-//        Node node = getNode();
-//
-//        if (node != null) {
-//            rawMarkup = HTMLHelper.documentToHTMLString(node);
-//        }
-//
-//        return rawMarkup;
-//    }
-//
-//    /**
-//     * <p>
-//     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
-//     * </p>
-//     * 
-//     * @return The extracted DOM node representing the provided feed entry.
-//     */
-//    Node getNode() {
-//
-//        Node node = null;
-//
-//        // the feed's document representation
-//        Document document = getFeed().getDocument();
-//
-//        try {
-//
-//            // for RSS
-//            node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
-//
-//            if (node == null) {
-//                node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
-//
-//                // for Atom
-//                if (node == null) {
-//                    node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
-//        }
-//
-//        if (node == null) {
-//            LOGGER.error("feed: " + getFeedUrl() + ", node = null");
-//        }
-//
-//        return node;
-//    }
+    // /**
+    // * @return The raw XML markup for this feed entry.
+    // */
+    // public String getRawMarkup() {
+    // String rawMarkup = "";
+    // Node node = getNode();
+    //
+    // if (node != null) {
+    // rawMarkup = HTMLHelper.documentToHTMLString(node);
+    // }
+    //
+    // return rawMarkup;
+    // }
+    //
+    // /**
+    // * <p>
+    // * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
+    // * </p>
+    // *
+    // * @return The extracted DOM node representing the provided feed entry.
+    // */
+    // Node getNode() {
+    //
+    // Node node = null;
+    //
+    // // the feed's document representation
+    // Document document = getFeed().getDocument();
+    //
+    // try {
+    //
+    // // for RSS
+    // node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
+    //
+    // if (node == null) {
+    // node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
+    //
+    // // for Atom
+    // if (node == null) {
+    // node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
+    // }
+    // }
+    //
+    // } catch (Exception e) {
+    // LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
+    // }
+    //
+    // if (node == null) {
+    // LOGGER.error("feed: " + getFeedUrl() + ", node = null");
+    // }
+    //
+    // return node;
+    // }
 
     public String getFeedUrl() {
         if (getFeed() != null) {
@@ -267,7 +256,7 @@ public class FeedItem {
     public void setFeedId(int feedId) {
         this.feedId = feedId;
     }
-    
+
     /**
      * Returns a custom hash representation calculated by the item's title, link and raw id.
      * 
@@ -279,6 +268,18 @@ public class FeedItem {
         hash.append(getLink());
         hash.append(getRawId());
         return StringHelper.sha1(hash.toString());
+    }
+
+    public void setAdditionalData(Map<String, Object> additionalData) {
+        this.additionalData = additionalData;
+    }
+
+    public Map<String, Object> getAdditionalData() {
+        return additionalData;
+    }
+
+    public Object getAdditionalData(String key) {
+        return additionalData.get(key);
     }
 
 }

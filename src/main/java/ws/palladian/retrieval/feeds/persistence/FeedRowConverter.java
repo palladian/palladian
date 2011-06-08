@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 
 public class FeedRowConverter implements RowConverter<Feed> {
 
@@ -17,7 +16,6 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setFeedUrl(resultSet.getString("feedUrl"));
         feed.setSiteUrl(resultSet.getString("siteUrl"));
         feed.setTitle(resultSet.getString("title"));
-        feed.setContentType(FeedContentType.getByIdentifier(resultSet.getInt("textType")));
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));
         feed.setChecks(resultSet.getInt("checks"));

@@ -22,7 +22,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.feeds.FeedContentClassifier.FeedContentType;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -50,9 +49,6 @@ public class FeedImporter {
 
     /** Whether to store the items of the added feed, or only the feed data. */
     private boolean storeItems = false;
-
-    /** Whether to classify the text extent of each added feed, see {@link FeedContentClassifier}. */
-    private boolean classifyTextExtent = false;
 
     public FeedImporter(FeedStore store) {
         this.store = store;
@@ -82,14 +78,6 @@ public class FeedImporter {
                 infoMsg.append("added feed ").append(cleanedURL);
 
                 feed = feedRetriever.getFeed(cleanedURL);
-
-                // classify feed's text extent
-                if (classifyTextExtent) {
-                    FeedContentClassifier classifier = new FeedContentClassifier(feedRetriever);
-                    FeedContentType contentType = classifier.determineContentType(feed);
-                    feed.setContentType(contentType);
-                    infoMsg.append(" (contentType:").append(contentType).append(")");
-                }
 
                 // classify the feed's activity pattern
                 int activityPattern = FeedClassifier.classify(feed.getItems());
@@ -224,16 +212,6 @@ public class FeedImporter {
         this.numThreads = maxThreads;
     }
 
-    /**
-     * Set, whether to classify the text extent of the added feeds. See {@link FeedContentClassifier} for more
-     * information.
-     * 
-     * @param classifyTextExtent
-     */
-    public void setClassifyTextExtent(boolean classifyTextExtent) {
-        this.classifyTextExtent = classifyTextExtent;
-    }
-
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
@@ -245,8 +223,6 @@ public class FeedImporter {
                 "feedUrl").create());
         options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
                 .hasArg().withArgName("file").create());
-        options.addOption(OptionBuilder.withLongOpt("classifyText").withDescription(
-                "classify the text entent of each feed").create());
         options.addOption(OptionBuilder.withLongOpt("storeItems").withDescription(
                 "also store the items of each added feed to the database").create());
         options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
@@ -263,9 +239,6 @@ public class FeedImporter {
                 throw new ParseException(null);
             }
 
-            if (cmd.hasOption("classifyText")) {
-                importer.setClassifyTextExtent(true);
-            }
             if (cmd.hasOption("storeItems")) {
                 importer.setStoreItems(true);
             }
