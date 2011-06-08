@@ -52,7 +52,6 @@ public class DateWekaInstanceFactory {
             while ((n = stream.read(buffer)) != -1) {
                 templateStream.write(buffer, 0, n);
             }
-
             template = new StringBuilder(templateStream.toString() + "\n");
 
         } catch (FileNotFoundException e) {
@@ -66,14 +65,16 @@ public class DateWekaInstanceFactory {
 
     public Instance getDateInstanceByArffTemplate(ContentDate date) {
         Instance instance = null;
-        StringBuilder dateInstanceBuffer = this.template;
+        StringBuilder dateInstanceBuffer = new StringBuilder(this.template.toString());
         String dateFeatures = datefeaturesToString(date);
         dateInstanceBuffer.append("0," + dateFeatures + "\n");
 //        System.out.println(dateFeatures);
         BufferedReader reader = new BufferedReader(new StringReader(
                 dateInstanceBuffer.toString()));
         try {
-            instance = new Instances(reader).firstInstance();
+        	Instances instances = new Instances(reader);
+        	instances.setClassIndex(0);
+            instance = instances.firstInstance();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -102,9 +103,9 @@ public class DateWekaInstanceFactory {
         }
         
 
-        String hour = (date.get(ContentDate.HOUR) > -1) ? "1" : "0";
-        String minute = (date.get(ContentDate.HOUR) > -1) ? "1" : "0";
-        String second = (date.get(ContentDate.HOUR) > -1) ? "1" : "0";
+        String hour = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
+        String minute = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
+        String second = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
 
         String relDocPos = String.valueOf(date.getRelDocPos());
         String ordDocPos = String.valueOf(date.getOrdDocPos());
@@ -116,20 +117,21 @@ public class DateWekaInstanceFactory {
         String keyLoc = date.getKeyLoc();
         String keyDiff = String.valueOf(date.getKeyDiff());
 
-        String simpleTag = date.getSimpleTag();
-        String hTag = date.gethTag();
+        String simpleTag = date.getSimpleTag()+ ".0";
+        String hTag = date.gethTag()+ ".0";
         String tagName = tagNameString;
 
-        String hasStructureDate = date.hasStrucutreDate() ? "1" : "0";
-        String inMetaDates = date.isInMetaDates() ? "1" : "0";
-        String inUrl = date.isInUrl() ? "1" : "0";
+        String hasStructureDate = date.hasStrucutreDate() ?"1.0" : "0.0";
+        String inMetaDates = date.isInMetaDates() ? "1.0" : "0.0";
+        String inUrl = date.isInUrl() ? "1.0" : "0.0";
 
         String relCntSame = String.valueOf(date.getRelCntSame());
         String relSize = String.valueOf(date.getRelSize());
 
         String distPosBefore = String.valueOf(date.getDistPosBefore());
         String distPosAfter = String.valueOf(date.getDistPosAfter());
-        String distAgeBefore = String.valueOf(date.getDistAgeAfter());
+        String distAgeBefore = String.valueOf(date.getDistAgeBefore());
+        String distAgeAfter = String.valueOf(date.getDistAgeAfter());
 
         // String distAgeBefore = date.getDistAgeBefore();
         // String distAgeAfter = date.getDistAgeAfter();
@@ -145,12 +147,12 @@ public class DateWekaInstanceFactory {
                 + keywordString + "'" : keywordString;
         String excatness = String.valueOf(date.getExactness());
 
-        String keyLoc201 = date.getKeyLoc201();
-        String keyLoc202 = date.getKeyLoc202();
+        String keyLoc201 = date.getKeyLoc201() + ".0";
+        String keyLoc202 = date.getKeyLoc202() + ".0";
 
-        String isKeyClass1 = date.getIsKeyClass1();
-        String isKeyClass2 = date.getIsKeyClass2();
-        String isKeyClass3 = date.getIsKeyClass3();
+        String isKeyClass1 = date.getIsKeyClass1() + ".0";
+        String isKeyClass2 = date.getIsKeyClass2() + ".0";
+        String isKeyClass3 = date.getIsKeyClass3() + ".0";
 
         String dateString = hour + "," + minute + "," + second + ","
         + relDocPos + "," + ordDocPos + "," + ordAgePos + ","
@@ -158,7 +160,7 @@ public class DateWekaInstanceFactory {
         + simpleTag + "," + hTag + "," + tagName + ","
         + hasStructureDate + "," + inMetaDates + "," + inUrl + ","
         + relCntSame + "," + relSize + "," + distPosBefore + ","
-        + distPosAfter + "," + distAgeBefore + "," + format + ","
+        + distPosAfter + "," + distAgeBefore + "," + distAgeAfter + "," + format + ","
         + keyword + "," + excatness + "," + keyLoc201 + "," + keyLoc202
         + "," + isKeyClass1 + "," + isKeyClass2 + "," + isKeyClass3;
         return dateString;

@@ -210,6 +210,13 @@ public class EvaluationHelper {
 	public static double count(String file, String round, String table, int classifire){
 		return count(file, round, table, -1, classifire, false);
 	}
+	public static double count(String file, String round, String table, String db,  int classifire){
+		String oldDB = DataSetHandler.getDB();
+		DataSetHandler.setDB(db);
+		double dbl = count(file, round, table, -1, classifire, false);
+		DataSetHandler.setDB(oldDB);
+		return dbl;
+	}
 	/**
 	 * Calculates exactness. <br>
 	 * Exactness is defined by relation of correct answers to all answers. <br>

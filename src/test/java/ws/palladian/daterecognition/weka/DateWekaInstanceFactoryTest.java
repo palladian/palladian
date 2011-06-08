@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import weka.core.Attribute;
@@ -23,6 +24,7 @@ public class DateWekaInstanceFactoryTest {
 		assertThat(isNull(instance), is(false));
 	}
 	
+	@Ignore
 	@Test
 	public void testDatefeaturesToString() {
 		ContentDate date = getTestDate();

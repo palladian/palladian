@@ -37,6 +37,8 @@ public class ContentDateGetterTest {
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1294150309844.html"; //java out of memory: Java heap space
 		//String url = "data/evaluation/daterecognition/webpages/webpage_1292928664726.html";
 		String url = "http://chicknet.blogspot.com/2007/05/outerxml-for-java.html"; //Dates in Strucutre
+		url = "http://grain.jouy.inra.fr/ggpages/awn/37/";
+		url="http://www.archive.org/stream/liquidextraction030155mbp/liquidextraction030155mbp_djvu.txt";
 		dg.setDocument(crawler.getWebDocument(url));
 		
 

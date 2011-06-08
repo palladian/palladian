@@ -30,7 +30,9 @@ public class DateEvaluatorTest {
 ////	            System.out.println(ae.getBestRatedDate().getNormalizedDate());
 //            }
             url = "http://www.aegypten-online.de/aegypten-themen/blog/artikel/date/2011/05/03/title/nach-tod-von-osama-bin-laden-aegypten-erhoeht-sicherheit-fuer-touristen-00184.htm";
+//            url= "http://www.lvz-online.de/ratgeber/content/30258214_mldg.html";
 //            System.out.println(url);
+            url= "http://www.drivechicago.com/reviews/review.aspx?review=173";
             ae.setUrl(url);
             ae.evaluate();
             System.out.println(ae.getBestRatedDate());

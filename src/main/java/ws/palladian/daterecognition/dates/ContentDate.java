@@ -71,7 +71,7 @@ public class ContentDate extends AbstractBodyDate {
     private boolean hasStrucutreDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
-
+    private boolean inMainContent = false;
     
     /**
      * 

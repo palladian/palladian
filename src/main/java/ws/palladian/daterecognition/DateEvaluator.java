@@ -1,7 +1,6 @@
 package ws.palladian.daterecognition;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,14 +108,14 @@ public class DateEvaluator {
         ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> urlResult = new HashMap<T, Double>();
         HashMap<T, Double> metaResult = new HashMap<T, Double>();
-        HashMap<T, Double> structResult = new HashMap<T, Double>();
+//        HashMap<T, Double> structResult = new HashMap<T, Double>();
         HashMap<T, Double> contResult = new HashMap<T, Double>();
 
         ArrayList<URLDate> urlDates = (ArrayList<URLDate>) DateArrayHelper.filter(dates, DateType.UrlDate);
 
         ArrayList<MetaDate> metaDates = (ArrayList<MetaDate>) DateArrayHelper.filter(dates,DateType.MetaDate);
 
-        ArrayList<StructureDate> structDates = (ArrayList<StructureDate>) DateArrayHelper.filter(dates,DateType.StructureDate);
+//        ArrayList<StructureDate> structDates = (ArrayList<StructureDate>) DateArrayHelper.filter(dates,DateType.StructureDate);
 
         ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates,DateType.ContentDate);
         ArrayList<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
