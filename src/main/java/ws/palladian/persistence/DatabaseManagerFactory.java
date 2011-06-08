@@ -45,9 +45,10 @@ public final class DatabaseManagerFactory {
      * <li>db.password</li>
      * </ul>
      * 
-     * @param <D>
-     * @param managerClass
-     * @return
+     * @param <D> Type of the DataManager (sub)class to create.
+     * @param managerClass The fully qualified name of the DatabaseManager class.
+     * @return A configured DatabaseManager with access to a connection pool
+     * @deprecated Use one of the create methods which explicitly requires to supply a configuration.
      */
     @Deprecated
     public static <D extends DatabaseManager> D create(Class<D> managerClass) {
@@ -69,6 +70,7 @@ public final class DatabaseManagerFactory {
      * <li>db.password</li>
      * </ul>
      * 
+     * @param <D> Type of the DataManager (sub)class to create.
      * @param managerClassName The fully qualified name of the DatabaseManager class.
      * @param config The PropertiesConfiguration containing the four required fields.
      * @return A configured DatabaseManager with access to a connection pool
@@ -95,7 +97,7 @@ public final class DatabaseManagerFactory {
      * Create a DatabaseManager with the supplied configuration.
      * </p>
      * 
-     * @param <D>
+     * @param <D> Type of the DataManager (sub)class to create.
      * @param managerClass The fully qualified name of the DatabaseManager class.
      * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
      * @param jdbcConnectionUrl The JDBC connection URL.
@@ -112,7 +114,7 @@ public final class DatabaseManagerFactory {
      * Create a DatabaseManager with the supplied configuration.
      * </p>
      * 
-     * @param <D>
+     * @param <D> Type of the DataManager (sub)class to create.
      * @param managerClass The fully qualified name of the DatabaseManager class.
      * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
      * @param jdbcConnectionUrl The JDBC connection URL.
