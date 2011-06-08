@@ -13,11 +13,16 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
+ * <p>
  * The {@link DatabaseManager} provides general database specific functionality. This implementation aims on wrapping
  * all ugly SQL specific details like {@link SQLException}s and automatically closes resources for you where applicable.
  * If you need to create your own application specific persistence layer, you may create your own subclass.
+ * </p>
  * 
- * Instances of the DatabaseManager or its subclasses are created using the {@link DatabaseManagerFactory}.
+ * <p>
+ * Instances of the DatabaseManager or its subclasses are created using the {@link DatabaseManagerFactory}, which takes
+ * care of injecting the {@link ConnectionManager}, which provides pooled database connections.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -34,9 +39,10 @@ public class DatabaseManager {
     private ConnectionManager connectionManager;
 
     /**
+     * <p>
      * Creates a new {@code DatabaseManager} connected to a database over a {@code DatabaseManager}. The constructor is
-     * not exposed since new
-     * objects of this type must be constructed using the {@link DatabaseManagerFactory}.
+     * not exposed since new objects of this type must be constructed using the {@link DatabaseManagerFactory}.
+     * </p>
      * 
      * @param connectionManager The manager handling database connections to the underlying database.
      */
@@ -46,24 +52,23 @@ public class DatabaseManager {
     }
 
     /**
-     * Connect to a database with the given settings.
+     * <p>
+     * Get a {@link Connection} from the {@link ConnectionManager}. If you use this method, e.g. in your subclass, it's
+     * your responsibility to close all database resources after work has been done. This can be done conveniently by
+     * using one of the various close methods offered by this class.
+     * </p>
      * 
-     * @param driver The database driver, for example "com.mysql.jdbc.Driver"
-     * @param jdbcUrl The URL to create the JDBC connection, for example
-     *            "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false"
-     * @param username The username to the given database.
-     * @param password The password belonging to the username.
+     * @return
+     * @throws SQLException
      */
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // this is done through the DatabaseManagerFactory now, using one of the #create methods.
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    // public void connect(String driver, String jdbcUrl, String username, String password) {
-    // connectionManager.connect(driver, jdbcUrl, username, password);
-    // }
+    protected final Connection getConnection() throws SQLException {
+        return connectionManager.getConnection();
+    }
 
     /**
+     * <p>
      * Check, whether an item for the specified query exists.
+     * </p>
      * 
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
@@ -74,7 +79,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Check, whether an item for the specified query exists.
+     * </p>
      * 
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
@@ -85,19 +92,9 @@ public class DatabaseManager {
     }
 
     /**
-     * Get a {@link Connection} from the {@link ConnectionManager}. If you use this method, e.g. in your subclass, it's
-     * your responsibility to close all database resources after work has been done. This can be done conveniently by
-     * using one of the various close methods offered by this class.
-     * 
-     * @return
-     * @throws SQLException
-     */
-    protected final Connection getConnection() throws SQLException {
-        return connectionManager.getConnection();
-    }
-
-    /**
+     * <p>
      * Run a batch insertion and return the generated insert IDs.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param provider A callback, which provides the necessary data for the insertion.
@@ -150,7 +147,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a batch insertion and return the generated insert IDs.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param batchArgs List of arguments for the batch insertion. Arguments are supplied parameter lists.
@@ -228,8 +227,10 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query which only uses exactly one COUNT. The method then returns the value of that count. For example,
      * "SELECT COUNT(*) FROM feeds WHERE id > 342".
+     * </p>
      * 
      * @param countQuery The query string with the COUNT.
      * @return The result of the COUNT query. -1 means that there was nothing to count.
@@ -254,7 +255,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run an insert operation and return the generated insert ID.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
@@ -265,7 +268,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run an insert operation and return the generated insert ID.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
@@ -323,7 +328,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, process the result using a callback.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param callback The callback which is triggered for each result row of the query.
@@ -361,7 +368,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, process the result using a callback.
+     * </p>
      * 
      * @param callback The callback which is triggered for each result row of the query.
      * @param sql Query statement which may contain parameter markers.
@@ -386,7 +395,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, return the result as List.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -412,6 +423,7 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
      * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
@@ -419,6 +431,7 @@ public class DatabaseManager {
      * {@link ResultIterator#close()}. In general, you should prefer using
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -431,6 +444,7 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
      * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
@@ -438,6 +452,7 @@ public class DatabaseManager {
      * {@link ResultIterator#close()}. In general, you should prefer using
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -477,7 +492,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation for a single item in the database.
+     * </p>
      * 
      * @param <T> Type of the processed object.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -490,7 +507,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation for a single item in the database.
+     * </p>
      * 
      * @param <T> Type of the processed object.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -517,7 +536,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run an update operation and return the number of affected rows.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
@@ -528,7 +549,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run an update operation and return the number of affected rows.
+     * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
@@ -564,8 +587,10 @@ public class DatabaseManager {
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
+     * <p>
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
      * 
      * @param connection
      */
@@ -574,8 +599,10 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
      * 
      * @param connection
      * @param resultSet
@@ -585,8 +612,10 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
      * 
      * @param connection
      * @param statement
@@ -596,8 +625,10 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
      * 
      * @param connection
      * @param statement
@@ -628,7 +659,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * </p>
      * 
      * @param ps
      * @param args
@@ -639,7 +672,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * </p>
      * 
      * @param ps
      * @param args
