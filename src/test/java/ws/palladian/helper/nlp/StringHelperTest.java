@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.nlp;
 
 import java.io.File;
 import java.util.List;
@@ -7,6 +7,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**

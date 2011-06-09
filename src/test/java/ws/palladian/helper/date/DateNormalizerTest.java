@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.date;
 
 import junit.framework.TestCase;
 import ws.palladian.preprocessing.normalization.DateNormalizer;

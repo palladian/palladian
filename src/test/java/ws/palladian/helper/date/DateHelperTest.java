@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.date;
 
 import ws.palladian.helper.date.DateHelper;
 import junit.framework.TestCase;
