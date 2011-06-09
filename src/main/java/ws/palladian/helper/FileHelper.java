@@ -377,6 +377,8 @@ public class FileHelper {
 
         try {
             reader = new BufferedReader(new FileReader(contentFile));
+            // TODO test this for UTF-8 support: reader = new BufferedReader(new InputStreamReader(new
+            // FileInputStream(contentFile), "UTF-8"));
 
             String line = "";
             do {
