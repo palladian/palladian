@@ -396,14 +396,124 @@ public class Temp {
 
     }
 
+    public static void train(Dataset dataset, String classifierName, String classifierPath) {
+        train(dataset, classifierName, classifierPath, null, null);
+    }
+
+    public static void train(Dataset dataset, String classifierName, String classifierPath,
+            ClassificationTypeSetting cts, FeatureSetting fs) {
+
+        // take the time for the learning
+        StopWatch stopWatch = new StopWatch();
+
+        // create a classifier mananger object
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(true);
+
+        // create a text classifier by giving a name and a path where it should be saved to
+        TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
+        // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
+
+        // specify the settings for the classification
+        ClassificationTypeSetting classificationTypeSetting = cts;
+        if (classificationTypeSetting == null) {
+            classificationTypeSetting = new ClassificationTypeSetting();
+
+            // we use only a single category per document
+            classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
+
+            // we want the classifier to be serialized in the end
+            classificationTypeSetting.setSerializeClassifier(true);
+        }
+
+        // specify feature settings that should be used by the classifier
+        FeatureSetting featureSetting = fs;
+
+        if (featureSetting == null) {
+            featureSetting = new FeatureSetting();
+
+            // we want to create character-level n-grams
+            featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+
+            // the minimum length of our n-grams should be 4
+            featureSetting.setMinNGramLength(4);
+
+            // the maximum length of our n-grams should be 7
+            featureSetting.setMaxNGramLength(7);
+        }
+
+        // we assign the settings to our classifier
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
+
+        // now we can train the classifier using the given dataset
+        // classifier.train(dataset);
+        // classifier.save(classifierPath);
+        classifierManager.trainClassifier(dataset, classifier);
+
+
+        LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
+    }
+
+    public void topicClassifier() throws IOException {
+
+        String datasetRootFolder = "data/datasets/topic/";
+
+        // /////////////////////// train //////////////////////
+        // create an index over the dataset
+        DatasetManager dsManager = new DatasetManager();
+        String path = "index.txt";
+
+        // create an excerpt with 1000 instances per class
+        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, 100);
+
+        String[] indexSplits = dsManager.splitIndex(indexExcerpt, 50);
+
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset, the first field is a link, and columns are separated with a space
+        dataset.setPath(indexSplits[0]);
+
+        dataset.setFirstFieldLink(true);
+        dataset.setSeparationString(" ");
+
+        // train(dataset, "TopicClassifier", "data/models/");
+        // ////////////////////////////////////////////////////////
+
+        DictionaryClassifier classifier = DictionaryClassifier.load("data/models/TopicClassifier/TopicClassifier.gz");
+
+        // /////////////////////// evaluate //////////////////////
+        Dataset testDataset = new Dataset();
+        //
+        // set the path to the dataset, the first field is a link, and columns are separated with a space
+        testDataset.setPath(indexSplits[1]);
+
+        testDataset.setFirstFieldLink(true);
+        testDataset.setSeparationString(" ");
+
+        System.out.println(classifier.evaluate(testDataset).toReadableString());
+        // ////////////////////////////////////////////////////////
+
+        // /////////////////////// use the classifier //////////////////////
+        // use the classifier
+        TextInstance classifiedInstance = classifier.classify("Microsofts market share increased by ten percent.");
+        System.out.println(classifiedInstance);
+        // ////////////////////////////////////////////////////////
+
+    }
+
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
-        System.out.println(System.currentTimeMillis());
+        new Temp().topicClassifier();
         System.exit(0);
+        System.out.println(System.currentTimeMillis());
 
         FileHelper.removeDuplicateLines("data/datasets/ner/tud/manuallyPickedSeeds/seedList.xml",
         "data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml");

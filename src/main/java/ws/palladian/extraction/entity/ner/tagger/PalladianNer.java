@@ -1618,9 +1618,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         LOGGER.setLevel(Level.INFO);
         PalladianNer tagger = new PalladianNer();
-        // tagger.makeDictionary("dbpediaDict.txt");
-
-        System.exit(0);
 
         if (args.length > 0) {
 
@@ -1702,8 +1699,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // // training the tagger
         // needs to point to a column separated file
-        String trainingPath = "data/datasets/ner/conll/training_small.txt";
-        String modelPath = "data/temp/palladianNer";
+        String trainingPath = "data/datasets/ner/conll/training.txt";
+        String modelPath = "data/temp/palladianNerConll";
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1712,7 +1709,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         tagger.setTrainingMode(TrainingMode.Complete);
 
         // create a dictionary from a dictionary txt file
-        tagger.makeDictionary("dbpediaDict.txt");
+        // tagger.makeDictionary("dbpediaDict.txt");
 
         // train the tagger on the training file
         // tagger.train(trainingPath, modelPath);

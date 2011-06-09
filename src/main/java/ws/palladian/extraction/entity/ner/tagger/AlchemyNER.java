@@ -582,7 +582,9 @@ public class AlchemyNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // System.out.println(tagger.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
+        // System.out
+        // .println(tagger
+        // .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
         // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
         
         // /////////////////////////// test /////////////////////////////
