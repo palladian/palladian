@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.html;
 
 import static org.junit.Assert.assertEquals;
 import junit.framework.Assert;

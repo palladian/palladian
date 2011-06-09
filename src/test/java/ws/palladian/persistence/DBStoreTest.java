@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.persistence;
 
 import ws.palladian.persistence.DBStore;
 import junit.framework.TestCase;

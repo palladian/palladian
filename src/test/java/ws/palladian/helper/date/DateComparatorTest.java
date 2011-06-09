@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.date;
 
 import static org.junit.Assert.assertEquals;
 

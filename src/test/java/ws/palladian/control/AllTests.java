@@ -4,7 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.extraction.PageAnalyzerTest;
-import ws.palladian.helper.DBStoreTest;
+import ws.palladian.persistence.DBStoreTest;
 import ws.palladian.persistence.DictionaryFileIndexTest;
 import ws.palladian.preprocessing.multimedia.ImageHandlerTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
