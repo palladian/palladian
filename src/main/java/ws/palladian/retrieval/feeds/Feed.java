@@ -136,7 +136,7 @@ public class Feed {
     // private Document document;
 
     /** Caching the raw xml markup of the document as string. */
-    private String rawMarkup;
+    // private String rawMarkup;
 
     private double targetPercentageOfNewEntries = -1.0;
 
@@ -271,7 +271,7 @@ public class Feed {
      * and won't let the garbage collector take care of it.
      */
     public void freeMemory() {
-        rawMarkup = "";
+        // rawMarkup = "";
         // document = null;
         setItems(new ArrayList<FeedItem>());
         setNewestItemHash("");
@@ -445,7 +445,7 @@ public class Feed {
                 + ", oneFullDayOfItemsSeen=" + oneFullDayOfItemsSeen + ", activityPattern=" + activityPattern
                 + ", lastETag=" + lastETag + ", lastPollTime=" + lastPollTime + ", eTagSupport=" + eTagSupport
                 + ", lmsSupport=" + lmsSupport + ", cgHeaderSize=" + cgHeaderSize /* + ", document=" + document */
-                + ", rawMarkup=" + rawMarkup + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
+                + ", rawMarkup=" /* + rawMarkup */ + ", targetPercentageOfNewEntries=" + targetPercentageOfNewEntries
                 + ", totalProcessingTimeMS=" + totalProcessingTimeMS + ", misses=" + misses + ", lastMissTime="
                 + lastMissTime + ", blocked=" + blocked + ", lastSuccessfulCheckTime=" + lastSuccessfulCheckTime + "]";
     }
@@ -553,7 +553,7 @@ public class Feed {
         result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
         result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
-        result = prime * result + ((rawMarkup == null) ? 0 : rawMarkup.hashCode());
+        // result = prime * result + ((rawMarkup == null) ? 0 : rawMarkup.hashCode());
         result = prime * result + ((siteUrl == null) ? 0 : siteUrl.hashCode());
         long temp;
         temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
@@ -680,11 +680,11 @@ public class Feed {
                 return false;
         } else if (!pollDataSeries.equals(other.pollDataSeries))
             return false;
-        if (rawMarkup == null) {
+        /* if (rawMarkup == null) {
             if (other.rawMarkup != null)
                 return false;
         } else if (!rawMarkup.equals(other.rawMarkup))
-            return false;
+            return false; */
         if (siteUrl == null) {
             if (other.siteUrl != null)
                 return false;
