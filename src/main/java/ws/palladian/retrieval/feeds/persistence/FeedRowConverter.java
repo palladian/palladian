@@ -19,7 +19,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));
         feed.setChecks(resultSet.getInt("checks"));
-        // feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
+        feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
         feed.setUpdateInterval(resultSet.getInt("maxCheckInterval"));
         feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
@@ -35,10 +35,12 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLastMissTime(resultSet.getTimestamp("lastMissTimestamp"));
         feed.setBlocked(resultSet.getBoolean("blocked"));
         feed.setLastSuccessfulCheckTime(resultSet.getTimestamp("lastSuccessfulCheck"));
-        feed.setWindowSize(resultSet.getInt("windowSize"));
+        // Sorry, can't use getInt() since it returns 0 if database contains NULL, but we need to differentiate
+        // between 0 and NULL --Sandro 10.06.2011
+        feed.setWindowSize((Integer) resultSet.getObject("windowSize"));
         feed.setVariableWindowSize(resultSet.getBoolean("hasVariableWindowSize"));
         feed.setNumberOfItemsReceived(resultSet.getInt("numberOfItems"));
-        feed.setByteSize(resultSet.getInt("byteSize"));
+        feed.setByteSize(resultSet.getLong("byteSize"));
         
         return feed;
 

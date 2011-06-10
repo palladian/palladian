@@ -46,7 +46,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
-    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET supportsLMS = ?, supportsETag = ?, conditionalGetResponseSize = ?, supportsPubSuHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
+    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET supportsLMS = ?, supportsETag = ?, conditionalGetResponseSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
     /**
      * @param connectionManager

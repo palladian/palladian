@@ -147,7 +147,7 @@ public class FeedRetriever {
         Feed result = getFeed(syndFeed, feedUrl);
 
         // set the (uncompressed) size of the feed
-        result.setByteSize(httpResult.getContent().length);
+        result.setByteSize(Long.valueOf(httpResult.getContent().length));
 
         return result;
     }

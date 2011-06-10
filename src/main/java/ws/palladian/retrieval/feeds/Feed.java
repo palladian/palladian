@@ -219,7 +219,9 @@ public class Feed {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        if (title != null) {
+            this.title = title;
+        }
     }
 
     public Date getAdded() {
@@ -277,8 +279,10 @@ public class Feed {
         setNewestItemHash("");
     }
 
-    public void setChecks(int checks) {
-        this.checks = checks;
+    public void setChecks(Integer checks) {
+        if (checks != null) {
+            this.checks = checks;
+        }
     }
 
     public void increaseChecks() {
@@ -301,8 +305,10 @@ public class Feed {
      * 
      * @param minCheckInterval The min check interval in minutes.
      */
-    public void setUpdateInterval(int updateInterval) {
+    public void setUpdateInterval(Integer updateInterval) {
+        if (updateInterval != null) {
         this.updateInterval = updateInterval;
+        }
     }
 
     public int getUpdateInterval() {
@@ -310,7 +316,9 @@ public class Feed {
     }
 
     public void setNewestItemHash(String newestItemHash) {
-        this.newestItemHash = newestItemHash;
+        if (newestItemHash != null) {
+            this.newestItemHash = newestItemHash;
+        }
     }
 
     /**
@@ -334,8 +342,10 @@ public class Feed {
         }
     }
 
-    public void setUnreachableCount(int unreachableCount) {
-        this.unreachableCount = unreachableCount;
+    public void setUnreachableCount(Integer unreachableCount) {
+        if (unreachableCount != null) {
+            this.unreachableCount = unreachableCount;
+        }
     }
 
     public void incrementUnreachableCount() {
@@ -413,8 +423,10 @@ public class Feed {
         return oneFullDayOfItemsSeen;
     }
 
-    public void setActivityPattern(int activityPattern) {
-        this.activityPattern = activityPattern;
+    public void setActivityPattern(Integer activityPattern) {
+        if (activityPattern != null) {
+            this.activityPattern = activityPattern;
+        }
     }
 
     /**
@@ -479,8 +491,10 @@ public class Feed {
         this.lastPollTime = lastPollTime;
     }
 
-    public void setByteSize(long byteSize) {
-        this.byteSize = byteSize;
+    public void setByteSize(Long byteSize) {
+        if (byteSize != null) {
+            this.byteSize = byteSize;
+        }
     }
 
     public long getByteSize() {
@@ -734,11 +748,13 @@ public class Feed {
      * 
      * @param windowSize
      */
-    public void setWindowSize(int windowSize) {
-        if (this.windowSize != DEFAULT_WINDOW_SIZE && this.windowSize != windowSize) {
-            setVariableWindowSize(true);
+    public void setWindowSize(Integer windowSize) {
+        if (windowSize != null) {
+            if (this.windowSize != DEFAULT_WINDOW_SIZE && this.windowSize != windowSize) {
+                setVariableWindowSize(true);
+            }
+            this.windowSize = windowSize;
         }
-        this.windowSize = windowSize;
     }
 
     public int getWindowSize() {
@@ -829,8 +845,8 @@ public class Feed {
      * 
      * @param totalProcessingTimeMS time in milliseconds. Ignored if smaller than zero.
      */
-    public void setTotalProcessingTime(long totalProcessingTimeMS) {
-        if (totalProcessingTimeMS > 0) {
+    public void setTotalProcessingTime(Long totalProcessingTimeMS) {
+        if (totalProcessingTimeMS != null && totalProcessingTimeMS > 0) {
             this.totalProcessingTimeMS = totalProcessingTimeMS;
         }
     }
@@ -880,8 +896,10 @@ public class Feed {
      * 
      * @param misses The number of misses
      */
-    public final void setMisses(int misses) {
-        this.misses = misses;
+    public final void setMisses(Integer misses) {
+        if (misses != null) {
+            this.misses = misses;
+        }
     }
 
     /**
@@ -924,8 +942,10 @@ public class Feed {
      * 
      * @param blocked set to true to block the feed.
      */
-    public final void setBlocked(boolean blocked) {
-        this.blocked = blocked;
+    public final void setBlocked(Boolean blocked) {
+        if (blocked != null) {
+            this.blocked = blocked;
+        }
     }
 
     /**
@@ -951,8 +971,10 @@ public class Feed {
     /**
      * @param variableWindowSize Set to <code>true</code> if the feed has a variable window size.
      */
-    public void setVariableWindowSize(boolean variableWindowSize) {
-        this.variableWindowSize = variableWindowSize;
+    public void setVariableWindowSize(Boolean variableWindowSize) {
+        if (variableWindowSize != null) {
+            this.variableWindowSize = variableWindowSize;
+        }
     }
 
     /**
@@ -968,8 +990,10 @@ public class Feed {
      * 
      * @param numberOfItemsReceived The number of unique items downloaded so far.
      */
-    public void setNumberOfItemsReceived(int numberOfItemsReceived) {
-        this.numberOfItemsReceived = numberOfItemsReceived;
+    public void setNumberOfItemsReceived(Integer numberOfItemsReceived) {
+        if (numberOfItemsReceived != null) {
+            this.numberOfItemsReceived = numberOfItemsReceived;
+        }
     }
 
     /**
