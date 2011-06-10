@@ -151,16 +151,16 @@ public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
         Map<String, PageType> classes = new HashMap<String, PageType>();
 
         // /////////// test a single page /////////////
-        String url = "data/test/pagetype/search/forum/http___groups_google_com_group_de_soc_politik_misc";
-        url = "http://www.openpr.de/news/508966/Hando-stellt-auf-der-Paracelsus-Messe-vom-11-13-02-2011-in-Wiesbaden-aus.html";
-        String targetPath = "data/test/pagetype/content/generic/";
-        documentRetriever.downloadAndSave(url,
-                targetPath + StringHelper.makeSafeName(url.replace("http://www.", "").replace("www.", ""), 50));
-
-        // System.out.println(ncp.classify(new File(url)));
-        System.out.println(ncp.classify(new URL(url)));
-
-        System.exit(0);
+//        String url = "data/test/pagetype/search/forum/http___groups_google_com_group_de_soc_politik_misc";
+//        url = "http://www.openpr.de/news/508966/Hando-stellt-auf-der-Paracelsus-Messe-vom-11-13-02-2011-in-Wiesbaden-aus.html";
+//        String targetPath = "data/test/pagetype/content/generic/";
+//        documentRetriever.downloadAndSave(url,
+//                targetPath + StringHelper.makeSafeName(url.replace("http://www.", "").replace("www.", ""), 50));
+//
+//        // System.out.println(ncp.classify(new File(url)));
+//        System.out.println(ncp.classify(new URL(url)));
+//
+//        System.exit(0);
         // /////////////////////////////////////
 
         Map<String, PageType> typeMap = new HashMap<String, PageType>();
