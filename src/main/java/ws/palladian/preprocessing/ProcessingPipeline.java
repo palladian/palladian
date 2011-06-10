@@ -12,27 +12,81 @@ import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.StopWatch;
 
+/**
+ * <p>
+ * A pipeline handling information processing components implemented by {@link PipelineProcessor}s to process
+ * {@link PipelineDocument}s.
+ * </p>
+ * 
+ * @author David Urbansky
+ * @author Klemens Muthmann
+ * @version 1.0
+ * @since 1.0
+ */
 public class ProcessingPipeline implements Serializable {
 
+    /**
+     * <p>
+     * Unique number used to identify serialized versions of this object. This value change only but each time the
+     * serialized schema of this class changes.
+     * </p>
+     */
     private static final long serialVersionUID = -6173687204106619909L;
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
 
+    /**
+     * <p>
+     * The processors this pipeline will execute as ordered by this list from the first to the last.
+     * </p>
+     */
     private List<PipelineProcessor> pipelineProcessors;
 
+    /**
+     * <p>
+     * Creates a new {@code ProcessingPipeline} without any {@code PipelineProcessor}s. Add processors using
+     * {@link #add(PipelineProcessor)} to get a functional {@code ProcessingPipeline}.
+     * </p>
+     */
     public ProcessingPipeline() {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
     }
 
+    /**
+     * <p>
+     * Adds a new processor for execution to this pipeline. The processor is appended as last step.
+     * </p>
+     * 
+     * @param pipelineProcessor The new processor to add.
+     */
     public void add(PipelineProcessor pipelineProcessor) {
         pipelineProcessors.add(pipelineProcessor);
     }
-    
+
+    /**
+     * <p>
+     * Provides the list of all {@code PipelineProcessor}s currently registered at this pipeline. The list is in the
+     * same order as the processors are executed beginning from the first and ending with the last.
+     * </p>
+     * 
+     * @return The list of registered {@code PipelineProcessor}s.
+     */
     public List<PipelineProcessor> getPipelineProcessors() {
         return pipelineProcessors;
     }
 
+    /**
+     * <p>
+     * Starts processing of the provided document in this pipeline, running it through all currently registered
+     * processors.
+     * </p>
+     * 
+     * @param document The document to process.
+     * @return The processed document is returned. This should be the same instance as provided. However this is not
+     *         guaranteed. The returned document contains all features and modified representations created by the
+     *         pipeline.
+     */
     public PipelineDocument process(PipelineDocument document) {
 
         StopWatch stopWatch = new StopWatch();
@@ -48,6 +102,13 @@ public class ProcessingPipeline implements Serializable {
         return document;
     }
 
+    /**
+     * <p>
+     * Convenience main method showing how the code works.
+     * </p>
+     * 
+     * @param args No arguments are accepted by this main method.
+     */
     public static void main(String[] args) {
 
         // /////////////////// example usage /////////////////////

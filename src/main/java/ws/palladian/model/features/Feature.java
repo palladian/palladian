@@ -91,18 +91,14 @@ public class Feature<T> {
         this.value = value;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-//        builder.append("Feature [name=");
-//        builder.append(name);
-//        builder.append(", value=");
-//        builder.append(value);
-//        builder.append("]");
+        // builder.append("Feature [name=");
+        // builder.append(name);
+        // builder.append(", value=");
+        // builder.append(value);
+        // builder.append("]");
         builder.append(name);
         builder.append("=");
         builder.append(value);
