@@ -112,11 +112,6 @@ public class MetaInformationCreator {
                 Feed feed = feedDatabase.getFeedByID(feedIdentifier);
                 MetaInformationCreationTask command = new MetaInformationCreationTask(feed, feedDatabase);
                 threadPool.execute(command);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }
