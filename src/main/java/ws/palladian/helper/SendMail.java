@@ -1,5 +1,7 @@
 package ws.palladian.helper;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -24,7 +26,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 /**
+ * <p>
  * Send mail via SMTP server.
+ * </p>
  * 
  * @author Philipp Katz
  * 
@@ -39,21 +43,46 @@ public class SendMail {
     private String smtpUser;
     private Authenticator authenticator;
 
-    private static final String DEFAULT_SMTP_HOST = "";
     private static final int DEFAULT_SMTP_PORT = 25;
-    private static final String DEFAULT_SMTP_USER = "";
-    private static final String DEFAULT_SMTP_PASS = "";
 
     /**
+     * <p>
      * Constructor specifying SMTP server and login data.
+     * </p>
      * 
      * @param smtpHost
      * @param smtpPort
      * @param smtpUser
      * @param smtpPass
      */
-    public SendMail(String smtpHost, int smtpPort, final String smtpUser, final String smtpPass) {
+    public SendMail(String smtpHost, int smtpPort, String smtpUser, String smtpPass) {
         super();
+        init(smtpHost, smtpPort, smtpUser, smtpPass);
+    }
+
+    /**
+     * <p>
+     * Constructor that loads config from properties file. The properties file should supply the following options:
+     * </p>
+     * <ul>
+     * <li>sendMail.smtpHost</li>
+     * <li>sendMail.smtpUser</li>
+     * <li>sendMail.smtpPass</li>
+     * <li>sendMail.smtpPort (optional)</li>
+     * </ul>
+     */
+    public SendMail() {
+        super();
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        config.setThrowExceptionOnMissing(true);
+        String smtpHost = config.getString("sendMail.smtpHost");
+        int smtpPort = config.getInt("sendMail.smtpPort", DEFAULT_SMTP_PORT);
+        String smtpUser = config.getString("sendMail.smtpUser");
+        String smtpPass = config.getString("sendMail.smtpPass");
+        init(smtpHost, smtpPort, smtpUser, smtpPass);
+    }
+
+    private void init(String smtpHost, int smtpPort, final String smtpUser, final String smtpPass) {
         this.smtpHost = smtpHost;
         this.smtpPort = smtpPort;
         this.smtpUser = smtpUser;
@@ -66,41 +95,24 @@ public class SendMail {
     }
 
     /**
-     * Constructor that loads config from properties file
-     */
-    public SendMail() {
-        super();
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        this.smtpHost = config.getString("sendMail.smtpHost", DEFAULT_SMTP_HOST);
-        this.smtpPort = config.getInt("sendMail.smtpPort", DEFAULT_SMTP_PORT);
-        ;
-        this.smtpUser = config.getString("sendMail.smtpUser", DEFAULT_SMTP_USER);
-        final String smtpPass = config.getString("sendMail.smtpPass", DEFAULT_SMTP_PASS);
-        authenticator = new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(smtpUser, smtpPass);
-            };
-        };
-        LOGGER.info("new SendMail " + smtpHost + ";" + smtpPort + ";" + smtpUser + ";" + smtpPass);
-    }
-
-    /**
-     * Send a new mail.
+     * <p>
+     * Send a new mail to multiple recipients.
+     * </p>
      * 
-     * @param from
-     * @param to
+     * @param sender
+     * @param recipients
      * @param subject
      * @param text
-     * @return <code>true</code>, if mail was sent successfully.
+     * @return
      */
-    public boolean send(String from, String to, String subject, String text) {
+    public boolean send(String sender, List<String> recipients, String subject, String text) {
 
         Properties props = new Properties();
         props.put("mail.smtp.submitter", smtpUser);
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.host", smtpHost);
         props.put("mail.smtp.port", String.valueOf(smtpPort));
-        
+
         boolean success = false;
 
         Session mailSession = Session.getDefaultInstance(props, authenticator);
@@ -108,17 +120,16 @@ public class SendMail {
 
         try {
 
-            InternetAddress fromAddress = new InternetAddress(from);
-            InternetAddress toAddress = new InternetAddress(to);
-
-            simpleMessage.setFrom(fromAddress);
-            simpleMessage.setRecipient(RecipientType.TO, toAddress);
+            simpleMessage.setFrom(new InternetAddress(sender));
+            for (String recipient : recipients) {
+                simpleMessage.addRecipient(RecipientType.TO, new InternetAddress(recipient));
+            }
             simpleMessage.setSubject(subject);
             simpleMessage.setText(text);
 
             Transport.send(simpleMessage);
 
-            LOGGER.info("successfully sent mail to " + to);
+            LOGGER.info("successfully sent mail to " + recipients);
             success = true;
 
         } catch (AddressException e) {
@@ -126,15 +137,38 @@ public class SendMail {
         } catch (MessagingException e) {
             LOGGER.error(e);
         }
-        
+
         return success;
+
     }
 
     /**
+     * <p>
+     * Send a new mail.
+     * </p>
+     * 
+     * @param sender
+     * @param recipient
+     * @param subject
+     * @param text
+     * @return <code>true</code>, if mail was sent successfully.
+     */
+    public boolean send(String sender, String recipient, String subject, String text) {
+        return send(sender, Arrays.asList(recipient), subject, text);
+    }
+
+    /**
+     * <p>
+     * main method with command line interface.
+     * </p>
+     * 
      * @param args
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
+        
+        new SendMail();
+        System.exit(0);
 
         CommandLineParser parser = new BasicParser();
 
