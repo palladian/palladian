@@ -10,16 +10,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,13 +41,25 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
 /**
+ * <p>
  * The FileHelper helps with file concerning tasks. If you add methods to this class, make sure under all circumstances
- * that all streams are closed correctly. Every time you cause a memory leak, god kills a kitten!
+ * that all streams are closed correctly. Every time you cause a memory leak, god kills a kitten! You can use the
+ * provided convenience method {@link #close(Closeable...)} which closes all objects implementing the {@link Closeable}
+ * interface.
+ * </p>
+ * 
+ * <p>
+ * <b>Note on encoding:</b> All methods assume UTF-8 as encoding when reading or writing text files; the System's
+ * default encoding is ignored.
+ * </p>
+ * 
+ * @see http://www.javapractices.com/topic/TopicAction.do?Id=42
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -57,8 +71,15 @@ public class FileHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
+    /** The encoding used by this class, instead of relying on the System's default encoding. */
+    private static final String DEFAULT_ENCODING = "UTF-8";
+
+    /** Constant for new line character. */
+    private static final String NEWLINE_CHARACTER = "\n";
+
     /** Constant for video file extensions. */
-    private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid");
+    private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx",
+            "mov", "xvid");
 
     /** Constant for audio file extensions. */
     private static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
@@ -80,7 +101,7 @@ public class FileHelper {
 
     /**
      * Checks if is video file.
-     *
+     * 
      * @param fileType the file type
      * @return true, if is video file
      */
@@ -90,7 +111,7 @@ public class FileHelper {
 
     /**
      * Checks if is audio file.
-     *
+     * 
      * @param fileType the file type
      * @return true, if is audio file
      */
@@ -169,7 +190,7 @@ public class FileHelper {
 
     /**
      * Gets the file type.
-     *
+     * 
      * @param path the path
      * @return the file type
      */
@@ -242,22 +263,16 @@ public class FileHelper {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(file));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_ENCODING));
 
-            String line = "";
-            do {
-                line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                contents.append(line).append("\n");
-            } while (line != null);
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                contents.append(line).append(NEWLINE_CHARACTER);
+            }
 
         } catch (FileNotFoundException e) {
             LOGGER.error(file + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
             LOGGER.error(file + ", " + e.getMessage());
         } finally {
             close(reader);
@@ -273,42 +288,19 @@ public class FileHelper {
      * @param numberOfLines The number of lines from the end of the file that should be returned.
      * @return A string with text lines from the specified file.
      */
-    public static List<String> tail(String path, int numberOfLines) {
+    public static List<String> tail(String path, final int numberOfLines) {
 
-        List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<String>();
+        final int totalNumberOfLines = getNumberOfLines(path);
 
-        BufferedReader reader = null;
-
-        int totalNumberOfLines = getNumberOfLines(path);
-
-        try {
-
-            reader = new BufferedReader(new FileReader(path));
-
-            String line = "";
-            int lineCount = 0;
-            do {
-                lineCount++;
-                line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-
-                if (totalNumberOfLines - numberOfLines < lineCount) {
+        performActionOnEveryLine(path, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                if (totalNumberOfLines - numberOfLines < lineNumber) {
                     list.add(line);
                 }
-
-            } while (line != null);
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(path + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(path + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            LOGGER.error(path + ", " + e.getMessage());
-        } finally {
-            close(reader);
-        }
+            }
+        });
 
         return list;
     }
@@ -348,7 +340,7 @@ public class FileHelper {
         try {
             contentFile = new File(fileURL.toURI());
         } catch (URISyntaxException e) {
-            throw new RuntimeException("File: "+fileURL+" was not accessable!");
+            throw new RuntimeException("File: " + fileURL + " was not accessable!");
         }
 
         return readFileToArray(contentFile);
@@ -376,27 +368,16 @@ public class FileHelper {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(contentFile));
-            // TODO test this for UTF-8 support: reader = new BufferedReader(new InputStreamReader(new
-            // FileInputStream(contentFile), "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(contentFile), DEFAULT_ENCODING));
 
-            String line = "";
-            do {
-                line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                // if (numberOfLines != -1 && list.size() == numberOfLines) {
-                // break;
-                // }
+            String line = null;
+            while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
                 list.add(line);
-            } while (line != null && (numberOfLines == -1 || list.size() < numberOfLines));
+            }
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } finally {
             close(reader);
@@ -424,7 +405,7 @@ public class FileHelper {
 
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
-            sb.append(line).append("\n");
+            sb.append(line).append(NEWLINE_CHARACTER);
         }
 
         writeToFile(outputFilePath, sb);
@@ -444,7 +425,7 @@ public class FileHelper {
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
             if (lineSet.add(line) || line.length() == 0) {
-                sb.append(line).append("\n");
+                sb.append(line).append(NEWLINE_CHARACTER);
             }
         }
 
@@ -489,22 +470,14 @@ public class FileHelper {
         try {
             bufferedReader = new BufferedReader(reader);
 
-            String line = "";
-            do {
-                line = bufferedReader.readLine();
-                if (line == null) {
-                    break;
-                }
-
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null && la.looping) {
                 la.performAction(line, lineNumber++);
-
-            } while (line != null && la.looping);
+            }
 
         } catch (FileNotFoundException e) {
             LOGGER.error(reader + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(reader + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
             LOGGER.error(reader + ", " + e.getMessage());
         } finally {
             close(bufferedReader);
@@ -543,17 +516,18 @@ public class FileHelper {
             new File(file.getParent()).mkdirs();
         }
 
-        FileWriter writer = null;
+        Writer writer = null;
 
         try {
-            writer = new FileWriter(file);
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
             for (Object line : lines) {
                 writer.write(line.toString());
-                writer.write(System.getProperty("line.separator"));
+                writer.write(NEWLINE_CHARACTER);
             }
             success = true;
+
         } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error(e.getMessage() + " : " + filePath);
         } finally {
             close(writer);
         }
@@ -582,14 +556,14 @@ public class FileHelper {
             new File(file.getParent()).mkdirs();
         }
 
-        FileWriter writer = null;
+        Writer writer = null;
 
         try {
-            writer = new FileWriter(file);
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
             writer.write(string.toString());
             success = true;
         } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error(e.getMessage() + " : " + filePath);
         } finally {
             close(writer);
         }
@@ -609,10 +583,10 @@ public class FileHelper {
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
 
         boolean success = false;
-        BufferedWriter writer = null;
+        Writer writer = null;
 
         try {
-            writer = new BufferedWriter(new FileWriter(filePath, true));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true)));
             writer.append(stringToAppend);
             success = true;
         } catch (IOException e) {
@@ -650,7 +624,7 @@ public class FileHelper {
         }
 
         if (add[0]) {
-            added = appendFile(filePath, stringToAppend + "\n");
+            added = appendFile(filePath, stringToAppend + NEWLINE_CHARACTER);
         }
 
         return added;
@@ -676,7 +650,7 @@ public class FileHelper {
      * @author Philipp Katz
      * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      */
-    public static boolean prependFile(String filePath, String stringToPrepend)  {
+    public static boolean prependFile(String filePath, String stringToPrepend) {
 
         boolean success = false;
         RandomAccessFile randomAccessFile = null;
@@ -685,7 +659,7 @@ public class FileHelper {
 
             randomAccessFile = new RandomAccessFile(filePath, "rw");
 
-            byte[] writeBuffer = stringToPrepend.getBytes();
+            byte[] writeBuffer = stringToPrepend.getBytes(DEFAULT_ENCODING);
 
             // buffer size must be at least the size of String which we prepend
             int bufferSize = Math.max(4096, writeBuffer.length);
@@ -817,7 +791,7 @@ public class FileHelper {
             out = new ObjectOutputStream(new FileOutputStream(filePath));
             out.writeObject(obj);
         } catch (IOException e) {
-            LOGGER.error("could not serialize object, " + e.getMessage()+ ", " + e.getCause());
+            LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
             System.exit(1);
@@ -903,7 +877,7 @@ public class FileHelper {
 
     /**
      * Copy directory.
-     *
+     * 
      * @param srcPath the src path
      * @param dstPath the dst path
      */
@@ -913,7 +887,7 @@ public class FileHelper {
 
     /**
      * Copy directory.
-     *
+     * 
      * @param srcPath the src path
      * @param dstPath the dst path
      */
@@ -1055,7 +1029,7 @@ public class FileHelper {
     public static void addFileHeader(String folderPath, StringBuilder header) {
         File[] files = getFiles(folderPath);
         for (File file : files) {
-            appendFile(file.getAbsolutePath(), header + "\n");
+            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
         }
     }
 
@@ -1501,6 +1475,14 @@ public class FileHelper {
      */
     public static void main(String[] a) {
 
+        String filePath = "/Users/pk/Uni/feeddataset/gathering_TUDCS5/finalQueries.txt";
+        List<String> tail = tail(filePath, 50000);
+        CollectionHelper.print(tail);
+
+        // List<String> list = readFileToArray(filePath, -1);
+        // CollectionHelper.print(list);
+        System.exit(0);
+
         // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
         // File("/home/pk/Desktop/FeedDiscovery/2011-04-03_foundFeeds_philipp_PRISMA.txt"));
         // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
@@ -1520,7 +1502,6 @@ public class FileHelper {
         // "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt");
 
         // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt"));
-
 
         // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
         // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
