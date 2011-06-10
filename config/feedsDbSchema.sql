@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `siteUrl` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
   `title` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `format` TINYINT(4) NOT NULL,
-  `textType` TINYINT(4) NOT NULL,
   `added` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `language` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `checks` INT(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and successfully parsed',
