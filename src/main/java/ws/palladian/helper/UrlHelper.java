@@ -96,14 +96,12 @@ public class UrlHelper {
     /**
      * Check if an URL is in a valid form and the file-ending is not blacklisted (see Extractor.java for blacklist)
      * 
-     * TODO: remove checkHTTPRespParameter
-     * 
      * @param url the URL
      * @param checkHTTPResp the check http resp
      * @return true, if is a valid URL
      * @author Martin Werner
      */
-    public static boolean isValidURL(String url, boolean checkHTTPResp) {
+    public static boolean isValidURL(String url) {
 
         // URLConnection conn = null;
         // URL url = null;
@@ -176,14 +174,14 @@ public class UrlHelper {
 
         final String modUrlCandidate = urlCandidate.trim();
         if (modUrlCandidate.startsWith("http://")) {
-            if (isValidURL(modUrlCandidate, false)) {
+            if (isValidURL(modUrlCandidate)) {
                 returnValue = modUrlCandidate;
             }
         } else {
 
             if (modUrlCandidate.length() > 2) {
                 final String modifiedURL = makeFullURL(pageURL, modUrlCandidate);
-                if (isValidURL(modifiedURL, false)) {
+                if (isValidURL(modifiedURL)) {
                     returnValue = modifiedURL;
                 }
             }

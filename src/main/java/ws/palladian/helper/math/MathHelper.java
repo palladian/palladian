@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
-import ws.palladian.helper.ListSimilarity;
 
 /**
  * The MathHelper adds mathematical functionality.

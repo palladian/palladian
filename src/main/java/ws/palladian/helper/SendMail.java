@@ -166,9 +166,6 @@ public class SendMail {
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
-        
-        new SendMail();
-        System.exit(0);
 
         CommandLineParser parser = new BasicParser();
 

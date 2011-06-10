@@ -3,13 +3,7 @@
  */
 package ws.palladian.retrieval.feeds.evaluation.encodingFix;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -125,32 +119,8 @@ public class EncodingFixer2 extends Thread {
     }
 
     /* package */ static List<String> readCsv(String csvPath) {
-        //List<String> items = FileHelper.readFileToArray(csvPath);
-        //return items;
-        
-        // FileHelper does not set an encoding explicitly, this causes trouble, when our test cases
-        // are run via maven. I suppose the problem has to do with a different default encoding,
-        // although everything seems to be configured correctly at first glance. We should think whether
-        // it makes sense to always explicitly set UTF-8 when reading files. -- Philipp.
-        BufferedReader reader = null;
-        List<String> result = new ArrayList<String>();
-        try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvPath), "UTF-8"));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-            }
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e);
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        } finally {
-            FileHelper.close(reader);
-        }
-        return result;
-        
+        List<String> items = FileHelper.readFileToArray(csvPath);
+        return items;
     }
 
     /* package */ List<String> deduplicate(List<String> items, String csvPath) {
