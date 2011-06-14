@@ -53,6 +53,9 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
     private PreparedStatement psUpdateTuple2 = null;
     private PreparedStatement psGetWordCategoryTuple2 = null;
 
+    /** The maximum length of a word in the dictionary. */
+    public static final int MAX_WORD_LENGTH = 50;
+
     /** if fastmode = true, only one table will be used to store all information */
     private boolean fastMode = false;
 
@@ -125,7 +128,9 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             PreparedStatement psCreateTable4;
 
             psCreateTable1 = connection
-            .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar(25) NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS dictionary_index (word varchar("
+                            + MAX_WORD_LENGTH
+                            + ") NOT NULL,category varchar(25) NOT NULL,relevance double NOT NULL, PRIMARY KEY (word,category));");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
@@ -387,7 +392,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private void update3(String word, CategoryEntries categoryEntries) {
 
-//        word = word.toLowerCase();
+        //        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             update3(word, categoryEntry);
@@ -457,7 +462,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private void write1(String word, CategoryEntries categoryEntries) {
 
-//        word = word.toLowerCase();
+        //        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             write1(word, categoryEntry);
@@ -488,7 +493,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     public void write3(String word, CategoryEntries categoryEntries) {
 
-//        word = word.toLowerCase();
+        //        word = word.toLowerCase();
 
         for (CategoryEntry categoryEntry : categoryEntries) {
             write3(word, categoryEntry);

@@ -45,11 +45,13 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
+import ws.palladian.persistence.DictionaryDBIndexH2;
 import ws.palladian.preprocessing.nlp.LingPipePOSTagger;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 
@@ -1583,8 +1585,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 String entity = parts[0];
                 String type = parts[1];
 
-                if (entity.length() > 25 || type.length() > 25) {
-                    LOGGER.warn("input too long (max. 25 characters per field): " + entity + "," + type);
+                if (entity.length() > DictionaryDBIndexH2.MAX_WORD_LENGTH || type.length() > 25) {
+                    LOGGER.warn("input too long (max. " + DictionaryDBIndexH2.MAX_WORD_LENGTH
+                            + " characters per field): " + entity + "," + type);
                     return;
                 }
 
@@ -1599,13 +1602,15 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         FileHelper.performActionOnEveryLine(dictionaryPath, lineAction);
 
+        LOGGER.info("serialize dictionary now...");
+
         FileHelper.serialize(dictionary, "dict.ser.gz");
-        dictionary.serialize("dict.ser", true, true);
-
-        dictionary.useIndex();
-
-        CategoryEntries categoryEntries2 = dictionary.get(new Term("Cape Town"));
-        System.out.println(categoryEntries2);
+        /*
+         * dictionary.serialize("dict.ser", true, true);
+         * dictionary.useIndex();
+         * CategoryEntries categoryEntries2 = dictionary.get(new Term("Cape Town"));
+         * System.out.println(categoryEntries2);
+         */
 
         LOGGER.info("dictionary creation took " + stopWatch.getTotalElapsedTimeString());
     }
@@ -1700,7 +1705,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // // training the tagger
         // needs to point to a column separated file
         String trainingPath = "data/datasets/ner/conll/training.txt";
-        String modelPath = "data/temp/palladianNerConll";
+        String modelPath = "data/temp/palladianNer";
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1728,6 +1733,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         String inputText = "Peter J. Johnson lives in New York City in the U.S.A.";
         String taggedText = tagger.tag(inputText);
         System.out.println(taggedText);
+
+        CollectionHelper.print(tagger.getAnnotations(inputText));
 
         // // evaluate a tagger
         String testPath = "data/datasets/ner/conll/test_final.txt";
