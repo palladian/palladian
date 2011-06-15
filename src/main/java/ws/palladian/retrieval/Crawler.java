@@ -12,7 +12,6 @@ import ws.palladian.helper.Callback;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
 
-
 /**
  * A simple web crawler which can crawl web pages within a domain or crawl cross domain.
  * 
@@ -88,9 +87,9 @@ public class Crawler {
      * 
      * @param filename The path where the URLs should be saved to.
      */
-    public void saveUrlDump(String filename) {
+    public final void saveUrlDump(String filename) {
         String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at "
-        + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
+                + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
         urlDumpString += "Number of urls: " + urlDump.size() + "\n\n";
 
         FileHelper.writeToFile(filename, urlDump);
@@ -330,20 +329,19 @@ public class Crawler {
 
         // the crawler should automatically use different proxies after every
         // 3rd request (default is no proxy switching)
-//        crawler.getDocumentRetriever().setSwitchProxyRequests(3);
-//
-//        // set a list of proxies to choose from
-//        List<String> proxyList = new ArrayList<String>();
-//        proxyList.add("83.244.106.73:8080");
-//        proxyList.add("83.244.106.73:80");
-//        proxyList.add("67.159.31.22:8080");
-//        crawler.getDocumentRetriever().setProxyList(proxyList);
+        // crawler.getDocumentRetriever().setSwitchProxyRequests(3);
+        //
+        // // set a list of proxies to choose from
+        // List<String> proxyList = new ArrayList<String>();
+        // proxyList.add("83.244.106.73:8080");
+        // proxyList.add("83.244.106.73:80");
+        // proxyList.add("67.159.31.22:8080");
+        // crawler.getDocumentRetriever().setProxyList(proxyList);
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
         crawler.startCrawl("http://www.dmoz.org/", true, true);
         // //////////////////////////////////////////////////
     }
-
 
 }

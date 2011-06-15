@@ -8,8 +8,8 @@ package ws.palladian.daterecognition.dates;
  */
 public class URLDate extends ExtractedDate {
 
-	private DateType dateType = DateType.UrlDate;
-	
+    private DateType dateType = DateType.UrlDate;
+
     public URLDate() {
         // TODO Auto-generated constructor stub
     }

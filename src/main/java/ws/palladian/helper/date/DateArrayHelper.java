@@ -64,16 +64,16 @@ public class DateArrayHelper {
                     }
                     break;
                 case FILTER_KEYLOC_NO:
-                	tempFilter = -1;
+                    tempFilter = -1;
                 case FILTER_KEYLOC_CONT:
                 case FILTER_KEYLOC_ATTR:
-                	if(((ExtractedDate)date).getType().equals(DateType.ContentDate)){
-                		int keyloc = ((ContentDate) date).get(ContentDate.KEYWORDLOCATION);
-                		if(keyloc == tempFilter){
-                			temp.add(date);
-                		}
-                	}
-                	break;
+                    if (((ExtractedDate) date).getType().equals(DateType.ContentDate)) {
+                        int keyloc = ((ContentDate) date).get(ContentDate.KEYWORDLOCATION);
+                        if (keyloc == tempFilter) {
+                            temp.add(date);
+                        }
+                    }
+                    break;
             }
 
         }
@@ -87,14 +87,13 @@ public class DateArrayHelper {
         Iterator<T> iterator = dates.iterator();
         while (iterator.hasNext()) {
             date = iterator.next();
-        	if (((ExtractedDate) date).getType().equals(filter)) {
-                    temp.add(date);
+            if (((ExtractedDate) date).getType().equals(filter)) {
+                temp.add(date);
             }
         }
         return temp;
     }
-    
-    
+
     /**
      * Filters an array-list.<br>
      * For filters use this static fields.
@@ -123,7 +122,7 @@ public class DateArrayHelper {
         return temp;
 
     }
-    
+
     /**
      * Filters an array-list.<br>
      * For filters use this static fields.
@@ -163,12 +162,14 @@ public class DateArrayHelper {
 
     /**
      * Group equal dates in array lists. <br>
-     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) & (d3&d4). <br>
+     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) &
+     * (d3&d4). <br>
      * Every date can be only in one group.<br>
      * A group is a array list of dates.
      * 
      * @param <T>
-     * @param dates Arraylist of dates.
+     * @param dates
+     *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
     public static <T> ArrayList<ArrayList<T>> arrangeByDate(ArrayList<T> dates, int stopFlag) {
@@ -197,12 +198,14 @@ public class DateArrayHelper {
 
     /**
      * Group equal dates in array lists. <br>
-     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) & (d3&d4). <br>
+     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) &
+     * (d3&d4). <br>
      * Every date can be only in one group.<br>
      * A group is a array list of dates.
      * 
      * @param <T>
-     * @param dates Arraylist of dates.
+     * @param dates
+     *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
     public static <T> ArrayList<ArrayList<T>> arrangeByDate(ArrayList<T> dates) {
@@ -225,7 +228,8 @@ public class DateArrayHelper {
      * 
      * @param <T>
      * @param dates
-     * @param stopFlag At what exactness a comparison should stop. Use {@link DateComparator} static fields.
+     * @param stopFlag
+     *            At what exactness a comparison should stop. Use {@link DateComparator} static fields.
      * @return
      */
     public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates, int stopFlag) {
@@ -269,21 +273,17 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T,V> int countDates(T date, ArrayList<V> dates) {
-        
-    	return countDates(date, dates, -1);
-    	/*int count = 0;
-        DateComparator dc = new DateComparator();
-        for (int i = 0; i < dates.size(); i++) {
-            if (!date.equals(dates.get(i))) {
-                int stopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
-                        .getExactness());
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), stopFlag) == 0) {
-                    count++;
-                }
-            }
-        }
-        return count;*/
+    public static <T, V> int countDates(T date, ArrayList<V> dates) {
+
+        return countDates(date, dates, -1);
+        /*
+         * int count = 0; DateComparator dc = new DateComparator(); for (int i =
+         * 0; i < dates.size(); i++) { if (!date.equals(dates.get(i))) { int
+         * stopFlag = Math.min(((ExtractedDate) date).getExactness(),
+         * ((ExtractedDate) dates.get(i)) .getExactness()); if
+         * (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i),
+         * stopFlag) == 0) { count++; } } } return count;
+         */
     }
 
     /**
@@ -300,15 +300,15 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T,V> int countDates(T date, ArrayList<V> dates, int stopFlag) {
+    public static <T, V> int countDates(T date, ArrayList<V> dates, int stopFlag) {
         int count = 0;
         DateComparator dc = new DateComparator();
         for (int i = 0; i < dates.size(); i++) {
             if (!date.equals(dates.get(i))) {
                 int tempStopFlag = stopFlag;
                 if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
-                            .getExactness());
+                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(),
+                            ((ExtractedDate) dates.get(i)).getExactness());
                 }
                 if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), tempStopFlag) == 0) {
                     count++;
@@ -317,7 +317,7 @@ public class DateArrayHelper {
         }
         return count;
     }
-    
+
     /**
      * Count how often a date is in a list. <br>
      * Not the object, but the exact date.<br>
@@ -342,8 +342,8 @@ public class DateArrayHelper {
             if (!date.equals(e.getKey())) {
                 int tempStopFlag = stopFlag;
                 if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) e.getKey())
-                            .getExactness());
+                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(),
+                            ((ExtractedDate) e.getKey()).getExactness());
                 }
                 if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey(), tempStopFlag) == 0) {
                     count++;
@@ -353,10 +353,9 @@ public class DateArrayHelper {
         return count;
     }
 
-    
-
     /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties. <br>
+     * Same as printeDateArray() with filter of techniques. These are found in
+     * ExtracedDate as static properties. <br>
      * And a format, found as second value of RegExp.
      * 
      * @param <T>
@@ -375,16 +374,17 @@ public class DateArrayHelper {
         while (dateIterator.hasNext()) {
 
             T date = dateIterator.next();
-            if (format == null || format == ((ExtractedDate) date).getFormat()) {
+            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
                 System.out.println(date.toString());
                 System.out
                         .println("------------------------------------------------------------------------------------------------");
             }
         }
     }
-    
+
     /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties. <br>
+     * Same as printeDateArray() with filter of techniques. These are found in
+     * ExtracedDate as static properties. <br>
      * And a format, found as second value of RegExp.
      * 
      * @param <T>
@@ -403,7 +403,7 @@ public class DateArrayHelper {
         while (dateIterator.hasNext()) {
 
             T date = dateIterator.next();
-            if (format == null || format == ((ExtractedDate) date).getFormat()) {
+            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
                 System.out.println(date.toString());
                 System.out
                         .println("------------------------------------------------------------------------------------------------");
@@ -423,7 +423,8 @@ public class DateArrayHelper {
     }
 
     /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties.
+     * Same as printeDateArray() with filter of techniques. These are found in
+     * ExtracedDate as static properties.
      * 
      * @param <T>
      * 
@@ -434,9 +435,9 @@ public class DateArrayHelper {
         printDateArray(dates, filterTechnique, null);
     }
 
-    
     /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties.
+     * Same as printeDateArray() with filter of techniques. These are found in
+     * ExtracedDate as static properties.
      * 
      * @param <T>
      * 
@@ -446,8 +447,7 @@ public class DateArrayHelper {
     public static <T> void printDateArray(ArrayList<T> dates, DateType filterTechnique) {
         printDateArray(dates, filterTechnique, null);
     }
-    
-    
+
     /**
      * Remove dates from the array.
      * 
@@ -477,7 +477,6 @@ public class DateArrayHelper {
         printDateMap(dateMap, null);
     }
 
-    
     /**
      * Prints an entry-array.<br>
      * You got possibility to filter first.
@@ -579,7 +578,8 @@ public class DateArrayHelper {
 
     /**
      * Returns an array of dates, that have the given rate. (include = true) <br>
-     * Returns an array of dates, that have <b>not</b> the given rate. (include = false) <br>
+     * Returns an array of dates, that have <b>not</b> the given rate. (include
+     * = false) <br>
      * 
      * @see DateArrayHelper.getRatedDates
      * @param <T>
@@ -616,7 +616,8 @@ public class DateArrayHelper {
      * @param <T>
      * @param dates
      * @param rate
-     * @param include True for dates with rate. False for dates without rate.
+     * @param include
+     *            True for dates with rate. False for dates without rate.
      * @return
      */
     public static <T> ArrayList<T> getRatedDates(ArrayList<T> dates, double rate, boolean include) {
@@ -644,7 +645,8 @@ public class DateArrayHelper {
 
     /**
      * Returns an array of dates, that have the given rate. (include = true) <br>
-     * Returns an array of dates, that have <b>not</b> the given rate. (include = false) <br>
+     * Returns an array of dates, that have <b>not</b> the given rate. (include
+     * = false) <br>
      * 
      * @see DateArrayHelper.getRatedDates
      * @param <T>
@@ -841,7 +843,8 @@ public class DateArrayHelper {
     }
 
     /**
-     * Returns Hashmap of Dates, where there exactness is equal or greater to given exactness.
+     * Returns Hashmap of Dates, where there exactness is equal or greater to
+     * given exactness.
      * 
      * @param <T>
      * @param dates
@@ -980,17 +983,17 @@ public class DateArrayHelper {
         }
         return result;
     }
-    
-    public static  <T> ArrayList<T> removeNull(ArrayList<T> list){
-    	ArrayList<T> returnList = new ArrayList<T>();
-    	for(int i=0; i<list.size(); i++){
-    		if(list.get(i) != null){
-    			returnList.add(list.get(i));
-    		}
-    	}
-    	return returnList;
+
+    public static <T> ArrayList<T> removeNull(ArrayList<T> list) {
+        ArrayList<T> returnList = new ArrayList<T>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) != null) {
+                returnList.add(list.get(i));
+            }
+        }
+        return returnList;
     }
-    
+
     /**
      * If some rates are greater then one, use this method to normalize them.
      * 
@@ -998,11 +1001,11 @@ public class DateArrayHelper {
      * @param dates
      */
     public static <T> HashMap<T, Double> normalizeRate(HashMap<T, Double> dates) {
-    	HashMap<T, Double> returnDates = dates;
+        HashMap<T, Double> returnDates = dates;
         double highestRate = DateArrayHelper.getHighestRate(returnDates);
         if (highestRate > 1.0) {
             for (Entry<T, Double> e : returnDates.entrySet()) {
-            	returnDates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
+                returnDates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
             }
         }
         return returnDates;

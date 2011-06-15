@@ -28,7 +28,7 @@ public class NEREvaluator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(NEREvaluator.class);
-    
+
     /** A list of NERs that should be evaluated. */
     private List<NamedEntityRecognizer> nerList;
 
@@ -60,11 +60,11 @@ public class NEREvaluator {
     }
 
     public void runEvaluation() {
-        
+
         StopWatch sw = new StopWatch();
 
         LOGGER.info("start evaluating " + nerList.size() + " NERs on " + datasets.size() + " datasets");
-        
+
         for (Dataset dataset : getDatasets()) {
 
             for (NamedEntityRecognizer ner : getNerList()) {
@@ -96,7 +96,7 @@ public class NEREvaluator {
     public List<Dataset> getDatasets() {
         return datasets;
     }
-    
+
     /**
      * @param args
      */
@@ -104,22 +104,22 @@ public class NEREvaluator {
 
         List<NamedEntityRecognizer> nerList = new ArrayList<NamedEntityRecognizer>();
 
-        JulieNER jn = new JulieNER();
+        // JulieNER jn = new JulieNER();
         // nerList.add(jn);
 
-        LingPipeNER ln = new LingPipeNER();
+        // LingPipeNER ln = new LingPipeNER();
         // nerList.add(ln);
 
-        StanfordNER sn = new StanfordNER();
+        // StanfordNER sn = new StanfordNER();
         // nerList.add(sn);
 
-        IllinoisLbjNER in = new IllinoisLbjNER();
+        // IllinoisLbjNER in = new IllinoisLbjNER();
         // nerList.add(in);
 
         OpenNLPNER on = new OpenNLPNER();
         nerList.add(on);
 
-        PalladianNer tn = new PalladianNer();
+        // PalladianNer tn = new PalladianNer();
         // nerList.add(tn);
 
         List<Dataset> datasets = new ArrayList<Dataset>();

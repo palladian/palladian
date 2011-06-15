@@ -28,7 +28,7 @@ import ws.palladian.helper.date.RatedDateComparator;
 import ws.palladian.retrieval.Crawler;
 import ws.palladian.retrieval.RetrieverCallback;
 
-public class testCrawler {
+public class TestCrawler {
 
     /**
      * @param args
@@ -300,7 +300,7 @@ public class testCrawler {
             br.close();
             fr.close();
 
-        }  catch (IOException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -344,8 +344,7 @@ public class testCrawler {
     public static void addAllURLStats(int begin, int end, String input) {
         ArrayList<String> stats = new ArrayList<String>();
         for (int i = begin; i <= end; i++) {
-            File file = new File(
-                    "data/test/webPages/dateExtraction/tests/linkSet/"
+            File file = new File("data/test/webPages/dateExtraction/tests/linkSet/"
                     + input.replaceAll(".txt", i + ".txt"));
             try {
                 FileReader fr = new FileReader(file);
@@ -447,8 +446,7 @@ public class testCrawler {
     }
 
     public static void checkLinkSet() {
-        File file = new File(
-        "data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
+        File file = new File("data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
         HashMap<String, Integer> urlMap = new HashMap<String, Integer>();
         try {
             FileReader fr = new FileReader(file);
@@ -467,9 +465,7 @@ public class testCrawler {
         int count = 1;
         for (Entry<String, Integer> e : urlMap.entrySet()) {
             try {
-                file = new File(
-                        "data/test/webPages/dateExtraction/tests/linkSet/url_einzeln"
-                        + count + ".txt");
+                file = new File("data/test/webPages/dateExtraction/tests/linkSet/url_einzeln" + count + ".txt");
 
                 FileWriter fw = new FileWriter(file, true);
                 BufferedWriter bw = new BufferedWriter(fw);
@@ -516,8 +512,7 @@ public class testCrawler {
                 for (Entry<URLDate, Double> e : dateMap.entrySet()) {
                     if (e.getValue() == 1) {
 
-                        File file = new File(
-                        "data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
+                        File file = new File("data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
                         synchronized (file) {
                             try {
                                 FileWriter fw = new FileWriter(file, true);
@@ -563,9 +558,7 @@ public class testCrawler {
 
     public static void evaluateURLwithDate(String input, String output) {
 
-        File file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/"
-                + input);
+        File file = new File("data/test/webPages/dateExtraction/tests/linkSet/" + input);
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -599,9 +592,7 @@ public class testCrawler {
         String urlFormat;
         int urlFormatInt;
         String outputString;
-        File outfile = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/"
-                + output);
+        File outfile = new File("data/test/webPages/dateExtraction/tests/linkSet/" + output);
         try {
             outfile.delete();
         } catch (Exception ex) {
@@ -735,7 +726,6 @@ public class testCrawler {
 
         DateComparator dc = new DateComparator();
 
-
         ArrayList<String> outputList = new ArrayList<String>();
         String outputString;
 
@@ -749,7 +739,8 @@ public class testCrawler {
                     DateComparator.STOP_DAY);
             AbstractDate sameDate;
 
-            outputString = e.getValue()[0].getNormalizedDateString() + " | " + e.getValue()[1].getNormalizedDateString() + " | ";
+            outputString = e.getValue()[0].getNormalizedDateString() + " | "
+                    + e.getValue()[1].getNormalizedDateString() + " | ";
 
             if (sameDates != null && sameDates.size() > 0) {
                 sameDate = sameDates.get(0);
@@ -887,8 +878,7 @@ public class testCrawler {
     }
 
     public static void merge() {
-        File file = new File(
-        "data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
+        File file = new File("data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -903,8 +893,7 @@ public class testCrawler {
 
         }
 
-        file = new File(
-        "data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
+        file = new File("data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
         ArrayList<String> dates = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -919,8 +908,7 @@ public class testCrawler {
 
         }
 
-        file = new File(
-        "data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
+        file = new File("data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
 
         try {
             FileWriter fr = new FileWriter(file);
@@ -939,9 +927,7 @@ public class testCrawler {
     }
 
     private static void evaluateHTTP(String input, String output) {
-        File file = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/"
-                + input);
+        File file = new File("data/test/webPages/dateExtraction/tests/linkSet/" + input);
 
         HashMap<String, Integer> urls = new HashMap<String, Integer>();
         try {
@@ -989,9 +975,7 @@ public class testCrawler {
             System.out.println(countAll + " - " + countHTTP);
         }
 
-        File outputfile = new File(
-                "data/test/webPages/dateExtraction/tests/linkSet/"
-                + output);
+        File outputfile = new File("data/test/webPages/dateExtraction/tests/linkSet/" + output);
 
         try {
             FileWriter fw = new FileWriter(outputfile);

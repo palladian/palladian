@@ -8,8 +8,8 @@ package ws.palladian.daterecognition.dates;
  */
 public class ReferenceDate extends ExtractedDate {
 
-	private DateType dateType = DateType.ReferenceDate;
-	
+    private DateType dateType = DateType.ReferenceDate;
+
     public ReferenceDate() {
         // TODO Auto-generated constructor stub
     }

@@ -204,7 +204,6 @@ public class FileFormatParser {
                     return;
                 }
 
-
                 if (parts.length > 0
                         && parts[0].length() > 0
                         && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
@@ -448,10 +447,11 @@ public class FileFormatParser {
     }
 
     public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator) {
-        columnToSlash(columnFilePath,slashFilePath,columnSeparator);
+        columnToSlash(columnFilePath, slashFilePath, columnSeparator, "|");
     }
 
-    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator, String slashSign) {
+    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator,
+            String slashSign) {
         StringBuilder slashFile = new StringBuilder();
 
         final Object[] obj = new Object[3];
@@ -603,8 +603,7 @@ public class FileFormatParser {
 
             // get the left and right context of the annotation
             String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(
-                    Math.max(0, matcher.start() - windowSize),
-                    matcher.start()));
+                    Math.max(0, matcher.start() - windowSize), matcher.start()));
             String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
                     Math.min(taggedText.length(), matcher.end() + windowSize)));
 

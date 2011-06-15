@@ -8,5 +8,5 @@ package ws.palladian.daterecognition.dates;
  */
 public class ArchiveDate extends ExtractedDate {
 
-	private DateType dateType = DateType.ArchiveDate;
+    private DateType dateType = DateType.ArchiveDate;
 }

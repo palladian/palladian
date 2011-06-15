@@ -19,7 +19,10 @@ public class Category implements Serializable {
     /** The name of the category. */
     private String name = "";
 
-    /** The frequency of documents belonging to this category, it will be used to calculate the prior. */
+    /**
+     * The frequency of documents belonging to this category, it will be used to
+     * calculate the prior.
+     */
     private int frequency = 0;
 
     /** the total number of weights for all terms in this category */
@@ -28,13 +31,19 @@ public class Category implements Serializable {
     /** the prior probability of this category */
     private double prior = 0.0;
 
-    /** weight of the category in test set (used for evaluation purposes), -1 means no weight calculated yet */
+    /**
+     * weight of the category in test set (used for evaluation purposes), -1
+     * means no weight calculated yet
+     */
     private double testSetWeight = -1.0;
 
     /** in hierarchical mode a category can be a root category */
     private boolean mainCategory = false;
 
-    /** what classification type does the category belong to? (simple, hiearchy or tag) */
+    /**
+     * what classification type does the category belong to? (simple, hiearchy
+     * or tag)
+     */
     private int classType = ClassificationTypeSetting.SINGLE;
 
     public Category(String name) {
@@ -95,7 +104,8 @@ public class Category implements Serializable {
     }
 
     /**
-     * The prior can be indexed and read from the index. Instead of calculating it via Categories.calculatePriors(), it can be set using this method.
+     * The prior can be indexed and read from the index. Instead of calculating
+     * it via Categories.calculatePriors(), it can be set using this method.
      * 
      * @param prior
      */
@@ -105,10 +115,12 @@ public class Category implements Serializable {
 
     /**
      * <p>
-     * Calculates the prior for this category, which is the ratio between this categories frequency to all documents in the corpus.
+     * Calculates the prior for this category, which is the ratio between this categories frequency to all documents in
+     * the corpus.
      * </p>
      * 
-     * @param totalDocuments The count of total documents on this corpus.
+     * @param totalDocuments
+     *            The count of total documents on this corpus.
      */
     public void calculatePrior(int totalDocuments) {
         setPrior((double) frequency / (double) totalDocuments);
