@@ -30,121 +30,126 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentEvaluator {
 
-	
+    public static void main(String[] args) {
 
-	
-	public static void main(String[] args){
-		
-		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
-		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater_old(PageDateType.publish);
-		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater_old(PageDateType.last_modified);
-		
-		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		String pub = "pub6";
-		String mod = "mod6";
-//		evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
-//		evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
-		
-		
-		
-		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
-		
-		System.out.println(pub);
-		System.out.println("AFR: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
-		System.out.println("ADR: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
-		System.out.println("AFW: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
-		System.out.println("ANF: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
-		System.out.println("ADW: " + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
-				
-		
-		System.out.println(mod);
-		System.out.println("AFR: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
-		System.out.println("ADR: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
-		System.out.println("AFW: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
-		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
-		System.out.println("ADW: " + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
-		
-		String contentTable = "contentfactorFinal";
-		boolean useWeight = false;
-		evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable, useWeight);
-		
-	}
-	
-	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<ContentDate> dg, TechniqueDateRater<ContentDate> dr, String file){
-		Evaluator.evaluate(EvaluationHelper.CONTENTEVAL, round, pub_mod, dg, dr,file);
-	}
-	
-	private static void evluateFacotors(ContentDateGetter cdg,MetaDateGetter mdg, URLDateGetter udg, String file, String contentTable, boolean useWeight){
-		HashMap<String, DBExport> map = EvaluationHelper.readFile(file);
-		StopWatch allTimer = new StopWatch();
-		int i=0;
-		
-		DataSetHandler.openConnection();
-		String sqlString ="Select * From " + contentTable;
-		
-		HashMap<String, Boolean> alreadyAnalysed = new HashMap<String, Boolean>();
-		
-		try{
-			ResultSet rs = DataSetHandler.st.executeQuery(sqlString);
-			while(rs.next()){
-				alreadyAnalysed.put(rs.getString("url"),true);
-			}
-		}catch (SQLException e){
-			
-		}
+        TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
+        TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater_old(PageDateType.publish);
+        TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater_old(PageDateType.last_modified);
 
-		DataSetHandler.closeConnection();
-		
-		
-		for(Entry<String, DBExport>e : map.entrySet()){
-			
-			
-			StopWatch timer = new StopWatch();
-			DocumentRetriever crawler = new DocumentRetriever();
-			Document document = crawler.getWebDocument(e.getValue().get(DBExport.PATH));
-			String url = e.getValue().get(DBExport.URL);
-			if(alreadyAnalysed.get(url) != null){
-				continue;
-			}
-			
-			System.out.println(url);
-			
-			cdg.reset();
-			
-			cdg.setDocument(document);
-			mdg.setDocument(document);
-			mdg.setUrl(url);
-			udg.setUrl(url);
-			
-			ArrayList<ContentDate> contDates = cdg.getDates();
-			
-			contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_IS_IN_RANGE);
-			contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_FULL_DATE);
-			
-			ArrayList<MetaDate> metaDates = DateArrayHelper.removeNull(mdg.getDates());
-			ArrayList<URLDate> urlDates = DateArrayHelper.removeNull(udg.getDates());
-			
-			for(ContentDate date : contDates){
-				if(metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateComparator.STOP_DAY) > 0){
-					date.setInMetaDates(true);
-				}
-				if(urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateComparator.STOP_DAY) > 0){
-					date.setInUrl(true);
-				}
-			}
-			DataSetHandler.writeDateFactors(contDates, url, cdg.getDoc(), contentTable, useWeight);
-			timer.stop();
-			System.out.print(i++ + ": ");
-			timer.getElapsedTimeString(true);
-			allTimer.getElapsedTimeString(true);
-			
-		}
-		allTimer.stop();
-		allTimer.getElapsedTimeString(true);
-		
-	}
-	
-	private static HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
+        String file = "data/evaluation/daterecognition/datasets/dataset.txt";
+        String pub = "pub6";
+        String mod = "mod6";
+        // evaluate(pub, DBExport.PUB_DATE, dg, pub_dr, file);
+        // evaluate(mod, DBExport.MOD_DATE, dg, mod_dr, file);
+
+        // EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
+
+        System.out.println(pub);
+        System.out.println("AFR: "
+                + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+        System.out.println("ADR: "
+                + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+        System.out.println("AFW: "
+                + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+        System.out.println("ANF: "
+                + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+        System.out.println("ADW: "
+                + EvaluationHelper.count(file, pub, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
+
+        System.out.println(mod);
+        System.out.println("AFR: "
+                + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFR));
+        System.out.println("ADR: "
+                + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ARD));
+        System.out.println("AFW: "
+                + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AFW));
+        System.out.println("ANF: "
+                + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.ANF));
+        System.out.println("ADW: "
+                + EvaluationHelper.count(file, mod, EvaluationHelper.CONTENTEVAL, DataSetHandler.AWD));
+
+        String contentTable = "contentfactorFinal";
+        boolean useWeight = false;
+        evluateFacotors((ContentDateGetter) dg, new MetaDateGetter(), new URLDateGetter(), file, contentTable,
+                useWeight);
+
+    }
+
+    public static void evaluate(String round, int pub_mod, TechniqueDateGetter<ContentDate> dg,
+            TechniqueDateRater<ContentDate> dr, String file) {
+        Evaluator.evaluate(EvaluationHelper.CONTENTEVAL, round, pub_mod, dg, dr, file);
+    }
+
+    private static void evluateFacotors(ContentDateGetter cdg, MetaDateGetter mdg, URLDateGetter udg, String file,
+            String contentTable, boolean useWeight) {
+        HashMap<String, DBExport> map = EvaluationHelper.readFile(file);
+        StopWatch allTimer = new StopWatch();
+        int i = 0;
+
+        DataSetHandler.openConnection();
+        String sqlString = "Select * From " + contentTable;
+
+        HashMap<String, Boolean> alreadyAnalysed = new HashMap<String, Boolean>();
+
+        try {
+            ResultSet rs = DataSetHandler.st.executeQuery(sqlString);
+            while (rs.next()) {
+                alreadyAnalysed.put(rs.getString("url"), true);
+            }
+        } catch (SQLException e) {
+
+        }
+
+        DataSetHandler.closeConnection();
+
+        for (Entry<String, DBExport> e : map.entrySet()) {
+
+            StopWatch timer = new StopWatch();
+            DocumentRetriever crawler = new DocumentRetriever();
+            Document document = crawler.getWebDocument(e.getValue().get(DBExport.PATH));
+            String url = e.getValue().get(DBExport.URL);
+            if (alreadyAnalysed.get(url) != null) {
+                continue;
+            }
+
+            System.out.println(url);
+
+            cdg.reset();
+
+            cdg.setDocument(document);
+            mdg.setDocument(document);
+            mdg.setUrl(url);
+            udg.setUrl(url);
+
+            ArrayList<ContentDate> contDates = cdg.getDates();
+
+            contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+            contDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_FULL_DATE);
+
+            ArrayList<MetaDate> metaDates = DateArrayHelper.removeNull(mdg.getDates());
+            ArrayList<URLDate> urlDates = DateArrayHelper.removeNull(udg.getDates());
+
+            for (ContentDate date : contDates) {
+                if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateComparator.STOP_DAY) > 0) {
+                    date.setInMetaDates(true);
+                }
+                if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateComparator.STOP_DAY) > 0) {
+                    date.setInUrl(true);
+                }
+            }
+            DataSetHandler.writeDateFactors(contDates, url, cdg.getDoc(), contentTable, useWeight);
+            timer.stop();
+            System.out.print(i++ + ": ");
+            timer.getElapsedTimeString(true);
+            allTimer.getElapsedTimeString(true);
+
+        }
+        allTimer.stop();
+        allTimer.getElapsedTimeString(true);
+
+    }
+
+    private static HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
         HashMap<ContentDate, Double> result = dates;
         if (result.size() > 0) {
             ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
@@ -185,8 +190,8 @@ public class ContentEvaluator {
         normalizeRate(result);
         return result;
     }
-	
-	 /**
+
+    /**
      * If some rates are greater then one, use this method to normalize them.
      * 
      * @param <T>

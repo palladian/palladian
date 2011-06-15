@@ -28,7 +28,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
     private static final Logger LOGGER = Logger.getLogger(ContentTypeClassifier.class);
 
     private static final String[] SEARCH_TRIGGERS = { "suchergebnis", "suchergebnisse", "search result",
-    "search results" };
+            "search results" };
 
     public ContentType classify(Document document) {
         extractFeatures(document);
@@ -79,7 +79,6 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
                 return ContentType.OVERVIEW;
             }
         }
-
 
         if (getPaginationLinks().size() > 3) {
             return ContentType.OVERVIEW;
@@ -142,7 +141,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         Document document = c.getWebDocument(url.toString());
 
         System.out.println(HTMLHelper.documentToHTMLString(document));
-        
+
         return classify(document);
     }
 
@@ -191,7 +190,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
 
         StopWatch sw = new StopWatch();
 
-        DocumentRetriever documentRetriever = new DocumentRetriever();
+        // DocumentRetriever documentRetriever = new DocumentRetriever();
 
         ContentTypeClassifier ncp = new ContentTypeClassifier();
 
@@ -202,7 +201,6 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         System.out.println(ncp.classify(new URL(url)));
         System.exit(0);
         // /////////////////////////////////////
-
 
         Map<String, ContentType> typeMap = new HashMap<String, ContentType>();
         typeMap.put("data/test/pagetype/overview/", ContentType.OVERVIEW);

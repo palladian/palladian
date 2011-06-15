@@ -10,10 +10,12 @@ import ws.palladian.helper.LineAction;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
- * List of stopwords. Use the enumeration {@link Predefined} for initialization with predefined stopword lists. You can
- * also use your own stopword list via constructor {@link #Stopwords(String)} or {@link #addFromFile(String)}. The file
- * must be newline separated, each line containing one stopword. Lines prefixed with # are treated as comments and are
- * therefore ignored. The list is case insensitive.
+ * List of stopwords. Use the enumeration {@link Predefined} for initialization
+ * with predefined stopword lists. You can also use your own stopword list via
+ * constructor {@link #Stopwords(String)} or {@link #addFromFile(String)}. The
+ * file must be newline separated, each line containing one stopword. Lines
+ * prefixed with # are treated as comments and are therefore ignored. The list
+ * is case insensitive.
  * 
  * @author Philipp Katz
  * 
@@ -22,7 +24,10 @@ public class Stopwords extends HashSet<String> {
 
     private static final long serialVersionUID = 8764752921113362657L;
 
-    /** Available predefined stopword lists. Those are included with the toolkit as resource files. */
+    /**
+     * Available predefined stopword lists. Those are included with the toolkit
+     * as resource files.
+     */
     public static enum Predefined {
 
         // you can add your own stopword lists here ...
@@ -66,7 +71,8 @@ public class Stopwords extends HashSet<String> {
     }
 
     /**
-     * Add stopwords from file. One word each line, lines with # are treated as comments.
+     * Add stopwords from file. One word each line, lines with # are treated as
+     * comments.
      * 
      * @param filePath
      */
@@ -79,7 +85,7 @@ public class Stopwords extends HashSet<String> {
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         FileHelper.performActionOnEveryLine(br, readLineAction);
     }
-    
+
     public boolean isStopword(String string) {
         return contains(string);
     }
@@ -105,12 +111,11 @@ public class Stopwords extends HashSet<String> {
     }
 
     public static void main(String[] args) {
-        
+
         Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
         System.out.println(stopwords.contains("and"));
         System.out.println(stopwords.contains("edurdo"));
-        
-        
+
         // Stopwords stopwords = new Stopwords();
         // System.out.println(stopwords.contains("The"));
         // System.out.println(stopwords);

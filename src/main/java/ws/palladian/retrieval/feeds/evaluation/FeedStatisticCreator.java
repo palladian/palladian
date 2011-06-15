@@ -50,7 +50,8 @@ public class FeedStatisticCreator {
     private static final Logger LOGGER = Logger.getLogger(FeedStatisticCreator.class);
 
     /**
-     * A feed must have this many polls with new items to be used for the delay chart.
+     * A feed must have this many polls with new items to be used for the delay
+     * chart.
      */
     private static int pollsWithNewItems = 300;
 
@@ -134,8 +135,8 @@ public class FeedStatisticCreator {
                 double traffic = resultSet.getDouble("traffic");
 
                 // build csv
-                csv.append("\"================= Average Performance (").append(avgStyleExplanationF).append(
-                        ", regardless of feed activity pattern) =================\"\n");
+                csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
+                        .append(", regardless of feed activity pattern) =================\"\n");
                 csv.append("Coverage:;" + format.format(coverage)).append("\n");
                 csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
                 csv.append("Missed:;" + format.format(missed)).append("\n");
@@ -156,8 +157,8 @@ public class FeedStatisticCreator {
             }
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-                    .append(" (").append(avgStyleExplanation).append(
-                            ", only feeds matching the feed activity pattern) =================\"\n");
+                    .append(" (").append(avgStyleExplanation)
+                    .append(", only feeds matching the feed activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
                     + activityPatternID);
@@ -310,15 +311,14 @@ public class FeedStatisticCreator {
 
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
-                csv.append("\"================= Average Performance (").append(avgStyleExplanationF).append(
-                        ", regardless of feed activity pattern) =================\"\n");
+                csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
+                        .append(", regardless of feed activity pattern) =================\"\n");
                 csv.append("Timeliness:;" + format.format(resultSet.getDouble("timeliness"))).append("\n");
                 csv.append("Timeliness Late:;" + format.format(resultSet.getDouble("timelinessLate"))).append("\n");
-                csv
-                        .append(
-                                "Average Delay:;"
-                                        + DateHelper.getTimeString(1000L * ((Double) resultSet.getDouble("delay"))
-                                                .longValue())).append("\n");
+                csv.append(
+                        "Average Delay:;"
+                                + DateHelper.getTimeString(1000L * ((Double) resultSet.getDouble("delay")).longValue()))
+                        .append("\n");
                 csv.append("Avg. Missed Items:;" + format.format(resultSet.getDouble("missedItems"))).append("\n");
             }
         };
@@ -356,9 +356,11 @@ public class FeedStatisticCreator {
         // score = avgDelay / 1000 * pollsPerNewItem;
         // csv.append("Score:;" + format.format(score)).append("\n");
         // score *= 1 + missedItems;
-        // csv.append("Score (with misses):;" + format.format(score)).append("\n\n");
+        // csv.append("Score (with misses):;" +
+        // format.format(score)).append("\n\n");
 
-        // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
+        // csv.append("Traffic Per New Item (conditional get):;" +
+        // trafficPerNewItemCG).append("\n\n");
 
         // create statistics by activity pattern
         Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
@@ -370,8 +372,8 @@ public class FeedStatisticCreator {
             }
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-                    .append(" (").append(avgStyleExplanation).append(
-                            ", only feeds matching the activity pattern) =================\"\n");
+                    .append(" (").append(avgStyleExplanation)
+                    .append(", only feeds matching the activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("timeliness IS NOT NULL", "timeliness IS NOT NULL AND activityPattern = "
                     + activityPatternID);
@@ -421,10 +423,12 @@ public class FeedStatisticCreator {
     }
 
     /**
-     * Creates a temporary table required to generate the delay charts, uses FeedStatisticCreator.pollsWithNewItems to
-     * restrict the feeds to feeds that have at least that many polls with at least one new item.
+     * Creates a temporary table required to generate the delay charts, uses
+     * FeedStatisticCreator.pollsWithNewItems to restrict the feeds to feeds
+     * that have at least that many polls with at least one new item.
      * 
-     * @param tempTableName The table's name.
+     * @param tempTableName
+     *            The table's name.
      */
     private static void createTempTablePollsX(final String tempTableName) {
         DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
@@ -452,7 +456,8 @@ public class FeedStatisticCreator {
         // +
         // "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
         // + POLLS_WITH_NEW_ITEMS
-        // + ") e WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID AND d.feedID = e.feedID";
+        // +
+        // ") e WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID AND d.feedID = e.feedID";
 
         // ignore table 1440
         final String sql = "CREATE TABLE "
@@ -478,7 +483,8 @@ public class FeedStatisticCreator {
     /**
      * Drops the given table.
      * 
-     * @param tempTableName Table to drop.
+     * @param tempTableName
+     *            Table to drop.
      */
     private static void dropTempTable(final String tempTableName) {
         final String sql = "DROP TABLE " + tempTableName;
@@ -525,14 +531,13 @@ public class FeedStatisticCreator {
             }
         };
 
-        dbm
-                .runQuery(
-                        callback3,
-                        "SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM "
-                                + tableName
-                                + " fep,"
-                                + tempTableName
-                                + " temp WHERE fep.feedID = temp.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
+        dbm.runQuery(
+                callback3,
+                "SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM "
+                        + tableName
+                        + " fep,"
+                        + tempTableName
+                        + " temp WHERE fep.feedID = temp.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
 
         csv.append("new item number discovery;average delday;number of feeds\n");
         for (Entry<Integer, Double[]> dataEntry : delayChartData.entrySet()) {
@@ -605,8 +610,10 @@ public class FeedStatisticCreator {
      * Generate a csv containing the following information:<br>
      * feedID;activityPattern;avgEntriesPerDay;medianPostGap;averagePostGap
      * 
-     * @param feedStore The store where the feeds are held.
-     * @param statisticOutputPath The path where the output should be written to.
+     * @param feedStore
+     *            The store where the feeds are held.
+     * @param statisticOutputPath
+     *            The path where the output should be written to.
      * @throws IOException
      */
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
@@ -653,8 +660,8 @@ public class FeedStatisticCreator {
     }
 
     /**
-     * Creates the temporary table "tempTableMin" that contains all feedIDs that are contained in all
-     * five "_min_time" tables.
+     * Creates the temporary table "tempTableMin" that contains all feedIDs that
+     * are contained in all five "_min_time" tables.
      */
     @SuppressWarnings("unused")
     private static void createTempTableMin() {
@@ -679,7 +686,8 @@ public class FeedStatisticCreator {
     /**
      * Checks whether a feed is contained in tempTableMin.
      * 
-     * @param feed The feed to check
+     * @param feed
+     *            The feed to check
      * @return true if feed is contained in tempTableMin, otherwise {@code false}.
      * @see #createTempTableMin()
      */
@@ -695,11 +703,14 @@ public class FeedStatisticCreator {
 
     /**
      * Generate a csv file containing the following information:<br>
-     * feedID;realAverageUpdateInterval;averageIntervalFix1d;averageIntervalFix1h;averageIntervalFixLearned;
+     * feedID;realAverageUpdateInterval;averageIntervalFix1d;
+     * averageIntervalFix1h;averageIntervalFixLearned;
      * averageIntervalPostRate;averageIntervalMAV
      * 
-     * @param feedStore The store where the feeds are held.
-     * @param statisticOutputPath The path where the output should be written to.
+     * @param feedStore
+     *            The store where the feeds are held.
+     * @param statisticOutputPath
+     *            The path where the output should be written to.
      * @throws IOException
      * @throws SQLException
      */
@@ -763,7 +774,8 @@ public class FeedStatisticCreator {
 
                 // skip items with same timestamp to count updates
                 if (oldestItemTime == itemTimeLastStep) {
-                    // LOGGER.info("Feed " + feed.getId() + " skip item with timestamp " + oldestItemTime);
+                    // LOGGER.info("Feed " + feed.getId() +
+                    // " skip item with timestamp " + oldestItemTime);
                     numberOfItemsDuringExperiment++;
                     continue;
                 }
@@ -786,14 +798,13 @@ public class FeedStatisticCreator {
             }
 
             double realAverageUpdateInterval = MathHelper.round(
-                    (totalTime / ((double) numberOfUpdatesDuringExperiment - 1)), 2)
-                    / DateHelper.MINUTE_MS;
+                    (totalTime / ((double) numberOfUpdatesDuringExperiment - 1)), 2) / DateHelper.MINUTE_MS;
 
             double realAverageItemInterval = MathHelper.round(
-                    (totalTime / ((double) numberOfItemsDuringExperiment - 1)), 2)
-                    / DateHelper.MINUTE_MS;
+                    (totalTime / ((double) numberOfItemsDuringExperiment - 1)), 2) / DateHelper.MINUTE_MS;
 
-            // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
+            // limit feeds to a maximum real average update interval of 31 days
+            // = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("feed had real update interval of "
@@ -809,7 +820,8 @@ public class FeedStatisticCreator {
             temp.append(String.valueOf(realAverageUpdateInterval) + ";");
             temp.append(String.valueOf(realAverageItemInterval) + ";");
 
-            // get the number of polls for the feed from the database for the update strategies
+            // get the number of polls for the feed from the database for the
+            // update strategies
             temp.append("1440;");
             temp.append("60;");
 
@@ -898,7 +910,8 @@ public class FeedStatisticCreator {
         List<Feed> feeds = feedStore.getFeeds();
         for (Feed feed : feeds) {
 
-            // int updateClassCount = (Integer) updateClassCounts.get(feed.getUpdateClass());
+            // int updateClassCount = (Integer)
+            // updateClassCounts.get(feed.getUpdateClass());
             // updateClassCount++;
             // updateClassCounts.put(feed.getUpdateClass(), updateClassCount);
 
@@ -925,9 +938,9 @@ public class FeedStatisticCreator {
         chartDataLabels = chartDataLabels.substring(0, chartDataLabels.length() - 1);
         chartColors = chartColors.substring(0, chartColors.length() - 1);
 
-        stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=").append(
-                chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size()).append(
-                "&cht=p&chd=t:").append(chartData).append("\n");
+        stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=")
+                .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
+                .append("&cht=p&chd=t:").append(chartData).append("\n");
 
         FileHelper.writeToFile(statisticOutputPath, stats);
 
@@ -939,7 +952,8 @@ public class FeedStatisticCreator {
      * @throws SQLException
      */
     public static void main(String[] args) throws IOException, SQLException {
-        // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
+        // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(),
+        // "data/temp/feedstats_combined.txt");
         FeedStatisticCreator.createFeedUpdateIntervalDistribution(DatabaseManagerFactory.create(FeedDatabase.class),
                 "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
@@ -949,7 +963,8 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
         // FeedStatisticCreator.createTempTableMin();
-        // FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
+        // FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(),
+        // "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.pollsWithNewItems = 500;
         // delayChart();
 

@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * 
  * @deprecated to be removed.
  * 
- * For further information concerning this issue, see the attached links.
+ *             For further information concerning this issue, see the attached links.
  * 
  * @see <a href="http://www.twmacinta.com/myjava/ucon_timeout.php">Sun's URLConnection Cannot Be Reliably Timed Out</a>
  *      (note the box on the right!)

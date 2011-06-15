@@ -18,7 +18,8 @@ import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
- * The preprocessor reads the terms for a given resource and weights them according to their relevance.
+ * The preprocessor reads the terms for a given resource and weights them
+ * according to their relevance.
  * 
  * 2010-06-09, Philipp, added {@link #preProcessText(String)} and {@link #preProcessText(String, TextInstance)}
  * 
@@ -30,7 +31,9 @@ public final class Preprocessor implements Serializable {
     /** The serialize version ID. */
     private static final long serialVersionUID = -7623884004056059738L;
 
-    /** The weights for the terms that appear in different areas of the resource. */
+    /**
+     * The weights for the terms that appear in different areas of the resource.
+     */
     public static final double WEIGHT_DOMAIN_TERM = 8.0;
     public static final double WEIGHT_TITLE_TERM = 7.0;
     public static final double WEIGHT_KEYWORD_TERM = 6.0;
@@ -41,17 +44,20 @@ public final class Preprocessor implements Serializable {
     private transient DocumentRetriever crawler = null;
 
     /**
-     * the classifier that this preprocessor belongs to, the classifier holds the feature settings which are needed here
+     * the classifier that this preprocessor belongs to, the classifier holds
+     * the feature settings which are needed here
      */
     private TextClassifier classifier;
 
     /**
-     * Global map of terms, all documents that are processed by this preprocessor share this term map, this will save
-     * memory since strings do not have to be copied but references to the terms will be kept.
-     * XXX this does NOT save memory when the classifier is used many times since the map will store all possible terms
-     * and use large amounts of memory.
+     * Global map of terms, all documents that are processed by this
+     * preprocessor share this term map, this will save memory since strings do
+     * not have to be copied but references to the terms will be kept. XXX this
+     * does NOT save memory when the classifier is used many times since the map
+     * will store all possible terms and use large amounts of memory.
      */
-    // private transient Map<String, Term> termMap = new HashMap<String, Term>();
+    // private transient Map<String, Term> termMap = new HashMap<String,
+    // Term>();
 
     /** The term x weight map. */
     private transient Map<Term, Double> map;
@@ -62,9 +68,11 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Extract terms from keywords of a web page, given in the meta tag "keywords".
+     * Extract terms from keywords of a web page, given in the meta tag
+     * "keywords".
      * 
-     * @param pageString The website contents.
+     * @param pageString
+     *            The website contents.
      */
     private void extractKeywords(org.w3c.dom.Document webPage) {
         List<String> keywords = PageAnalyzer.extractKeywords(webPage);
@@ -77,9 +85,11 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Extract terms from the meta description of a web page, given in the meta tag "description".
+     * Extract terms from the meta description of a web page, given in the meta
+     * tag "description".
      * 
-     * @param pageString The website contents.
+     * @param pageString
+     *            The website contents.
      */
     private void extractMetaDescription(org.w3c.dom.Document webPage) {
         List<String> keywords = PageAnalyzer.extractDescription(webPage);
@@ -91,7 +101,8 @@ public final class Preprocessor implements Serializable {
     /**
      * Extract terms from the title of a web page, given in the title tag.
      * 
-     * @param pageString The website contents.
+     * @param pageString
+     *            The website contents.
      */
     private void extractTitle(org.w3c.dom.Document webPage) {
         String title = PageAnalyzer.extractTitle(webPage);
@@ -104,16 +115,18 @@ public final class Preprocessor implements Serializable {
     /**
      * Add a term to the term x weight map. Terms will all be made lowercase.
      * 
-     * @param termString The sequence of chars for the term.
-     * @param weight The weight of the term.
+     * @param termString
+     *            The sequence of chars for the term.
+     * @param weight
+     *            The weight of the term.
      */
     private void addToTermMap(String termString, double weight) {
 
         if (getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS
-                && getFeatureSetting().getMaxNGramLength() == 1 && (termString.length() < getFeatureSetting()
-                        .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength())
-                        || map.size() >= getFeatureSetting().getMaxTerms()
-                        || isStopWord(termString)) {
+                && getFeatureSetting().getMaxNGramLength() == 1
+                && (termString.length() < getFeatureSetting().getMinimumTermLength() || termString.length() > getFeatureSetting()
+                        .getMaximumTermLength()) || map.size() >= getFeatureSetting().getMaxTerms()
+                || isStopWord(termString)) {
             return;
         }
 
@@ -141,12 +154,14 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Pre-process a string (such as a URL) and create a classification document. A map of n-grams is created for the
-     * document and added to it. If a n-gram term
-     * exists, it will be taken from the n-gram index.
+     * Pre-process a string (such as a URL) and create a classification
+     * document. A map of n-grams is created for the document and added to it.
+     * If a n-gram term exists, it will be taken from the n-gram index.
      * 
-     * @param inputString The input string.
-     * @param classificationDocument The classification document.
+     * @param inputString
+     *            The input string.
+     * @param classificationDocument
+     *            The classification document.
      * @return The classification document with the n-gram map.
      */
     public TextInstance preProcessDocument(String inputString, TextInstance classificationDocument) {
@@ -179,7 +194,8 @@ public final class Preprocessor implements Serializable {
         // build the map
         for (String ngram : ngrams) {
 
-            // TODO, change that => do not add ngrams with some special chars or if it is only numbers
+            // TODO, change that => do not add ngrams with some special chars or
+            // if it is only numbers
             if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
                     || StringHelper.isNumber(ngram)) {
                 continue;
@@ -198,14 +214,16 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Preprocess a string (such as a URL) and create a classification document. A map of n-grams is created for the
-     * document and added to it. If a n-gram term
-     * exists, it will be taken from the n-gram index.
+     * Preprocess a string (such as a URL) and create a classification document.
+     * A map of n-grams is created for the document and added to it. If a n-gram
+     * term exists, it will be taken from the n-gram index.
      * 
      * @deprecated consider using preprocess document
      * 
-     * @param inputString The input string.
-     * @param classificationDocument The classification document.
+     * @param inputString
+     *            The input string.
+     * @param classificationDocument
+     *            The classification document.
      * @return The classification document with the n-gram map.
      */
     @Deprecated
@@ -223,8 +241,10 @@ public final class Preprocessor implements Serializable {
         // build the map
         for (String ngram : ngrams) {
 
-            // do not add ngrams with some special chars or if it is only numbers
-            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1 || StringHelper.isNumber(ngram)) {
+            // do not add ngrams with some special chars or if it is only
+            // numbers
+            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
+                    || StringHelper.isNumber(ngram)) {
                 continue;
             }
 
@@ -241,14 +261,16 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Preprocess a web page and create a classification document. A map of terms is created for the document and added
-     * to it. If a term exists, it will be
-     * taken from the term index.
+     * Preprocess a web page and create a classification document. A map of
+     * terms is created for the document and added to it. If a term exists, it
+     * will be taken from the term index.
      * 
      * @deprecated consider using preprocess document
      * 
-     * @param url The URL of the web page.
-     * @param classificationDocument The classification document.
+     * @param url
+     *            The URL of the web page.
+     * @param classificationDocument
+     *            The classification document.
      * @return The classification document with the n-gram map.
      */
     @Deprecated
@@ -299,17 +321,18 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * Preprocesses a long string of text similar to {@link #preProcessPage(String, TextInstance)}, but the
-     * text content is not downloaded from the
-     * web but passed via the url parameter. XXX This is a quick and dirty hack to allow classification of text content
-     * and should be refactored somehow in the
-     * future.
+     * Preprocesses a long string of text similar to {@link #preProcessPage(String, TextInstance)}, but the text content
+     * is
+     * not downloaded from the web but passed via the url parameter. XXX This is
+     * a quick and dirty hack to allow classification of text content and should
+     * be refactored somehow in the future.
      * 
      * @deprecated consider using preprocess document
      * 
      * @author Philipp Katz
      * 
-     * @param text the text to be preProcessed
+     * @param text
+     *            the text to be preProcessed
      * @param classificationDocument
      * @return
      */
@@ -351,8 +374,10 @@ public final class Preprocessor implements Serializable {
      * @return a clean term string without illegal characters
      */
     /*
-     * private String removeIllegalCharacters(String term) { // remove all terms that don't have normal characters term = term.replaceAll("^[^a-zA-Z]*$", "");
-     * for (int j = 0; j < illegalTermCharacters.length; ++j) { term = term.replaceAll(illegalTermCharacters[j], ""); } return term; }
+     * private String removeIllegalCharacters(String term) { // remove all terms
+     * that don't have normal characters term = term.replaceAll("^[^a-zA-Z]*$",
+     * ""); for (int j = 0; j < illegalTermCharacters.length; ++j) { term =
+     * term.replaceAll(illegalTermCharacters[j], ""); } return term; }
      */
 
     /**

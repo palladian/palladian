@@ -12,6 +12,13 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.Tensor;
 
+/**
+ * A simple implementation of the Bayes Classifier. This classifier supports
+ * nominal and numeric input. The output is nominal.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class BayesClassifier extends Classifier<UniversalInstance> {
 
     /** The serialize version ID. */
@@ -22,7 +29,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
     /**
      * A table holding the learned probabilities for each feature and class:<br>
-     * Integer (feature index) | class1 (value1,value2,...,valueN), class2, ... , classN<br>
+     * Integer (feature index) | class1 (value1,value2,...,valueN), class2, ...
+     * , classN<br>
      * 1 | 0.3 (...), 0.6, ... , 0.1<br>
      * x = featureIndex<br>
      * y = classValue<br>
@@ -33,11 +41,12 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
     /**
      * Build the bayesProbabilityMap for nominal and numeric features.
      */
-    public void train() {
+    public final void train() {
 
         bayesProbabilityTensor = new Tensor();
 
-        // this is the index of the first numeric attribute, we need this to distinguish between the calculation of
+        // this is the index of the first numeric attribute, we need this to
+        // distinguish between the calculation of
         // nominal probabilities and numeric density functions
         int firstNumericFeatureIndex = Integer.MAX_VALUE;
 
@@ -47,7 +56,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             int featureIndex = 0;
             Category classValue = instance.getInstanceCategory();
 
-            // add the counts of the values of the nominal features to the tensor
+            // add the counts of the values of the nominal features to the
+            // tensor
             List<String> nominalFeatures = instance.getNominalFeatures();
 
             for (String nominalFeatureValue : nominalFeatures) {
@@ -64,7 +74,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                 featureIndex++;
             }
 
-            // add the counts of the values of the numeric features to the tensor
+            // add the counts of the values of the numeric features to the
+            // tensor
             List<Double> numericFeatures = instance.getNumericFeatures();
 
             for (Double numericFeatureValue : numericFeatures) {
@@ -84,7 +95,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
         }
 
-        // now we can transform the counts to actual probabilities for nominal values or density functions for numeric features
+        // now we can transform the counts to actual probabilities for nominal
+        // values or density functions for numeric features
         for (Entry<Object, Map<Object, Map<Object, Object>>> featureAxis : bayesProbabilityTensor.getTensor()
                 .entrySet()) {
 
@@ -93,23 +105,28 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                 if ((Integer) featureAxis.getKey() < firstNumericFeatureIndex) {
                     // use probability calculation for nominal attributes
 
-                    // count total number of values for current feature - class combination
+                    // count total number of values for current feature - class
+                    // combination
                     int total = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         total += (Double) valueAxis.getValue();
                     }
 
-                    // replace each count with the real probability for the featureValue - class combination:
+                    // replace each count with the real probability for the
+                    // featureValue - class combination:
                     // p(value|Class)
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         valueAxis.setValue((Double) valueAxis.getValue() / (double) total);
                     }
 
                 } else {
-                    // use density function calculation for numeric attributes, we need the sampleMean and the
-                    // standardDeviation to calculate the density function f(x) = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
+                    // use density function calculation for numeric attributes,
+                    // we need the sampleMean and the
+                    // standardDeviation to calculate the density function f(x)
+                    // = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
 
-                    // count total number of values for current feature - class combination
+                    // count total number of values for current feature - class
+                    // combination
                     int totalCount = 0;
                     int totalValues = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
@@ -127,13 +144,14 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
                     double standardDeviation = squaredSum / (totalCount - 1);
 
-                    // replace each count with the density function for the featureValue - class combination:
+                    // replace each count with the density function for the
+                    // featureValue - class combination:
                     // f(x) = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         double densityFunctionValue = 1
-                        / (Math.sqrt(2 * Math.PI) * standardDeviation)
-                        * Math.pow(Math.E, -(Math.pow((Double) valueAxis.getValue() - mean, 2) / (2 * Math.pow(
-                                standardDeviation, 2))));
+                                / (Math.sqrt(2 * Math.PI) * standardDeviation)
+                                * Math.pow(Math.E, -(Math.pow((Double) valueAxis.getValue() - mean, 2) / (2 * Math.pow(
+                                        standardDeviation, 2))));
                         valueAxis.setValue(densityFunctionValue);
                     }
 
@@ -149,7 +167,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
     // return trainingInstances;
     // }
     //
-    // public void setTrainingInstances(Instances<UniversalInstance> trainingInstances) {
+    // public void setTrainingInstances(Instances<UniversalInstance>
+    // trainingInstances) {
     // this.trainingInstances = trainingInstances;
     // }
     //
@@ -157,23 +176,28 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
     // return testInstances;
     // }
     //
-    // public void setTestInstances(Instances<UniversalInstance> testInstances) {
+    // public void setTestInstances(Instances<UniversalInstance> testInstances)
+    // {
     // this.testInstances = testInstances;
     // }
 
     /**
-     * Fill the vector space with known instances. The instances must be given in a CSV file in the following format:<br>
+     * Fill the vector space with known instances. The instances must be given
+     * in a CSV file in the following format:<br>
      * feature1;..;featureN;NominalClass<br>
-     * All features must be real values and the class must be nominal. Each line is one training instance.
+     * All features must be real values and the class must be nominal. Each line
+     * is one training instance.
      */
-    public void trainFromCSV(String trainingFilePath) {
+    public final void trainFromCSV(String trainingFilePath) {
         setTrainingInstances(createInstances(trainingFilePath));
     }
 
     /**
-     * Create instances from a file. The instances must be given in a CSV file in the following format:<br>
+     * Create instances from a file. The instances must be given in a CSV file
+     * in the following format:<br>
      * feature1;..;featureN;NominalClass<br>
-     * All features must be nominal values and the class must be nominal. Each line is one training instance.
+     * All features must be nominal values and the class must be nominal. Each
+     * line is one training instance.
      */
     private Instances<UniversalInstance> createInstances(String filePath) {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
@@ -201,7 +225,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
         return instances;
     }
 
-    public void classify(UniversalInstance instance) {
+    public final void classify(UniversalInstance instance) {
 
         StopWatch sw = new StopWatch();
 
@@ -230,8 +254,9 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
             for (Category category : categories) {
                 Double prob = (Double) bayesProbabilityTensor
-                .get(featureIndex, category.getName(), nominalFeatureValue);
-                // ignore if there was nothing learned for the featureValue class combination
+                        .get(featureIndex, category.getName(), nominalFeatureValue);
+                // ignore if there was nothing learned for the featureValue
+                // class combination
                 if (prob == null) {
                     continue;
                 }
@@ -255,7 +280,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
     }
 
     @Override
-    public void save(String classifierPath) {
+    public final void save(String classifierPath) {
         FileHelper.serialize(this, classifierPath + getName() + ".gz");
     }
 

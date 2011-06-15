@@ -101,8 +101,8 @@ public class DictionaryClassifier extends TextClassifier {
 
             // get the first category only
             if (classType == ClassificationTypeSetting.SINGLE) {
-                dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(), entry
-                        .getValue());
+                dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(),
+                        entry.getValue());
             }
 
             // get all categories for hierarchical and tag mode
@@ -138,8 +138,8 @@ public class DictionaryClassifier extends TextClassifier {
         // empty the training documents term map to save memory
         trainingDocument.getWeightedTerms().clear();
 
-        LOGGER.debug("added to dictionary in " + DateHelper.getRuntime(t1) + " ("
-                + DateHelper.getRuntime(initTime) + "), " + dictionary.getNumberOfDocuments() + " documents processed");
+        LOGGER.debug("added to dictionary in " + DateHelper.getRuntime(t1) + " (" + DateHelper.getRuntime(initTime)
+                + "), " + dictionary.getNumberOfDocuments() + " documents processed");
     }
 
     /**
@@ -306,6 +306,7 @@ public class DictionaryClassifier extends TextClassifier {
         setTrainingInstances(trainingInstances);
         train();
     }
+
     public void train() {
 
         categories = new Categories();
@@ -336,12 +337,12 @@ public class DictionaryClassifier extends TextClassifier {
     public TextInstance classify(TextInstance document, Set<String> possibleClasses) {
         return classify(document, false, possibleClasses);
     }
+
     public TextInstance classify(TextInstance document, boolean loadDictionary) {
         return classify(document, loadDictionary, null);
     }
 
-    private TextInstance classify(TextInstance document, boolean loadDictionary,
-            Set<String> possibleClasses) {
+    private TextInstance classify(TextInstance document, boolean loadDictionary, Set<String> possibleClasses) {
 
         int classType = getClassificationType();
 
@@ -554,7 +555,7 @@ public class DictionaryClassifier extends TextClassifier {
             } catch (Exception e) {
                 Logger.getRootLogger().error(
                         "class " + mc + " was not learned and could not be found in hierarchy tree: "
-                        + document.getMainCategoryEntry().getCategory().getName(), e);
+                                + document.getMainCategoryEntry().getCategory().getName(), e);
                 document.limitCategories(5, 5, 0.0);
             }
         }
@@ -563,7 +564,7 @@ public class DictionaryClassifier extends TextClassifier {
         else if (classType == ClassificationTypeSetting.TAG) {
             document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
                     classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
@@ -593,8 +594,8 @@ public class DictionaryClassifier extends TextClassifier {
 
         document.setClassifiedAs(classType);
 
-        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " "
-                + " (" + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
+        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
+                + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
 
         return document;
     }

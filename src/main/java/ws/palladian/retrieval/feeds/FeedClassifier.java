@@ -234,9 +234,8 @@ public class FeedClassifier {
 
         // System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.news-journalonline.com/atom.xml")));
 
-        FeedClassifier fc = new FeedClassifier();
-
-        final String className = fc.getClassName(fc.classify("http://absolutebailbond.com/feed/atom"));
+        final String className = FeedClassifier.getClassName(FeedClassifier
+                .classify("http://absolutebailbond.com/feed/atom"));
         System.out.println(className);
 
         // final String className = fc.getClassName(fc.classify("http://feeds.gawker.com/lifehacker/full"));

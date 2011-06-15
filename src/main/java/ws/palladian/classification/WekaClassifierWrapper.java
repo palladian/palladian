@@ -668,7 +668,7 @@ public class WekaClassifierWrapper {
         // Double[] features = {16.0,2.0,0.0,0.0,1.0,1.0,30.0,0.0};
         String[] featureNames = { "a", "b", "c" };
 
-        FeatureObject fo = new FeatureObject(features, featureNames);
+        // FeatureObject fo = new FeatureObject(features, featureNames);
         // boolean c = bc.classifyBinary(fo, true);
         // if (c) {
         // System.out.println("object is classified as positive");
