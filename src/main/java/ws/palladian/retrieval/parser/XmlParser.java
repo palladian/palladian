@@ -11,10 +11,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 import com.sun.syndication.io.XmlReader;
 
-public class XmlParser implements DocumentParser {
+public class XmlParser extends BaseDocumentParser implements DocumentParser {
     
 
     @Override
