@@ -12,7 +12,7 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 
-public class NekoHtmlParser implements DocumentParser {
+public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser {
 
     @Override
     public Document parse(InputSource inputSource) throws ParserException {
