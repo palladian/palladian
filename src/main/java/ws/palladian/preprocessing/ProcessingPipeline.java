@@ -60,7 +60,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public void add(PipelineProcessor pipelineProcessor) {
+    public final void add(PipelineProcessor pipelineProcessor) {
         pipelineProcessors.add(pipelineProcessor);
     }
 
@@ -72,7 +72,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @return The list of registered {@code PipelineProcessor}s.
      */
-    public List<PipelineProcessor> getPipelineProcessors() {
+    public final List<PipelineProcessor> getPipelineProcessors() {
         return pipelineProcessors;
     }
 
@@ -135,6 +135,6 @@ public class ProcessingPipeline implements Serializable {
         instance.setInstanceCategory("English");
         classifier.train(instance);
 
-        System.out.println(classifier.classify("This is a sample text, whether you believe it or not."));
+        LOGGER.info(classifier.classify("This is a sample text, whether you believe it or not."));
     }
 }

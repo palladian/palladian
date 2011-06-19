@@ -1,5 +1,9 @@
 package ws.palladian.preprocessing;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import ws.palladian.model.features.FeatureVector;
 
 /**
@@ -17,7 +21,7 @@ import ws.palladian.model.features.FeatureVector;
  * @version 1.0
  * @since 1.0
  */
-public class PipelineDocument {
+public final class PipelineDocument {
 
     /**
      * <p>
@@ -28,17 +32,12 @@ public class PipelineDocument {
 
     /**
      * <p>
-     * The unmodified original content representing the document.
+     * A map storing different views on the content of a document. By default this map contains an entry for the
+     * documents original content as well as modified content. Modified content is initialized to be the same as the
+     * original content but might be changed to represent a cleaned or extended representation.
      * </p>
      */
-    private String originalContent;
-
-    /**
-     * <p>
-     * The content of this document modified by some {@link PipelineProcessor}.
-     * </p>
-     */
-    private String modifiedContent;
+    private final Map<String, byte[]> views;
 
     /**
      * <p>
@@ -49,8 +48,10 @@ public class PipelineDocument {
      * @param originalContent The content of this {@code PipelineDocument}.
      */
     public PipelineDocument(String originalContent) {
-        this.originalContent = originalContent;
-        this.modifiedContent = originalContent;
+        super();
+        this.views = new HashMap<String, byte[]>();
+        this.views.put("originalContent", originalContent.getBytes());
+        this.views.put("modifiedContent", originalContent.getBytes());
         this.featureVector = new FeatureVector();
     }
 
@@ -85,7 +86,7 @@ public class PipelineDocument {
      * @return The unmodified original content representing the document.
      */
     public String getOriginalContent() {
-        return originalContent;
+        return new String(this.views.get("originalContent"));
     }
 
     /**
@@ -96,7 +97,7 @@ public class PipelineDocument {
      * @param originalContent The new unmodified original content representing the document.
      */
     public void setOriginalContent(String originalContent) {
-        this.originalContent = originalContent;
+        this.views.put("originalContent", originalContent.getBytes());
     }
 
     /**
@@ -108,7 +109,7 @@ public class PipelineDocument {
      * @return The modified content of the document or {@code null} if no modified content is available yet.
      */
     public String getModifiedContent() {
-        return modifiedContent;
+        return new String(this.views.get("modifiedContent"));
     }
 
     /**
@@ -119,7 +120,7 @@ public class PipelineDocument {
      * @param modifiedContent The content of this document modified by some {@link PipelineProcessor}.
      */
     public void setModifiedContent(String modifiedContent) {
-        this.modifiedContent = modifiedContent;
+        this.views.put("modifiedContent", modifiedContent.getBytes());
     }
 
     @Override
@@ -128,11 +129,57 @@ public class PipelineDocument {
         builder.append("PipelineDocument [featureVector=");
         builder.append(featureVector);
         builder.append(", originalContent=");
-        builder.append(originalContent);
+        builder.append(getOriginalContent());
         builder.append(", modifiedContent=");
-        builder.append(modifiedContent);
+        builder.append(getModifiedContent());
         builder.append("]");
         return builder.toString();
     }
 
+    /**
+     * <p>
+     * Resets and overrides the content of a named view.
+     * </p>
+     * 
+     * @param viewName The name of the view.
+     * @param content The text content as the new view of the document.
+     */
+    public void putView(String viewName, String content) {
+        this.views.put(viewName, content.getBytes());
+    }
+
+    /**
+     * <p>
+     * Provides the content of a named view.
+     * </p>
+     * 
+     * @param viewName The name of the view, providing the requested content.
+     * @return The views content or {@code null} if there is no such view available.
+     */
+    public String getView(String viewName) {
+        return new String(this.views.get(viewName));
+    }
+
+    /**
+     * <p>
+     * Checks wether this document provides a view with the provided name.
+     * </p>
+     * 
+     * @param inputViewName The name of the requested view.
+     * @return {@code true} if the document provides the requested view; {@code false} otherwise.
+     */
+    public boolean providesView(String inputViewName) {
+        return this.views.containsKey(inputViewName);
+    }
+
+    /**
+     * <p>
+     * Returns a set of the names of all views this document provides currently on its content.
+     * </p>
+     * 
+     * @return The set of all provided view names.
+     */
+    public Set<String> getProvidedViewNames() {
+        return this.views.keySet();
+    }
 }
