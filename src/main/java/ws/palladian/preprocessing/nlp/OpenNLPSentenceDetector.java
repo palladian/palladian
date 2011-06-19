@@ -23,13 +23,22 @@ import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
 
 /**
+ * <p>
+ * A sentence detector using an implementation from the <a
+ * href="http://incubator.apache.org/opennlp/index.html">OpenNLP</a> framework.
+ * </p>
+ * 
  * @author Martin Wunderwald
  * @author Klemens Muthmann
+ * @since 0.8
+ * @version 1.0
  */
-public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
+public final class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
     /**
-     * 
+     * <p>
+     * Unique identifier to serialize and deserialize objects of this type to and from a file.
+     * </p>
      */
     private static final long serialVersionUID = -673731236797308512L;
     /**
@@ -38,11 +47,15 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
     private static final Logger LOGGER = Logger.getLogger(OpenNLPSentenceDetector.class);
 
     /**
-     * constructor for this class.
+     * <p>
+     * Creates a new completely initialized sentence detector.
+     * </p>
+     * 
+     * @param modelFilePath A path on the local file system to a model file as expected by an <a
+     *            href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP</a> sentence detector.
      */
     public OpenNLPSentenceDetector(String modelFilePath) {
         super();
-        setName("OpenNLP Sentence Detector");
 
         SentenceModel sentenceModel = null;
         InputStream modelIn = null;
@@ -50,7 +63,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         if (Cache.getInstance().containsDataObject(modelFilePath)) {
 
-            sdetector = (SentenceDetectorME) Cache.getInstance().getDataObject(modelFilePath);
+            sdetector = (SentenceDetectorME)Cache.getInstance().getDataObject(modelFilePath);
 
         } else {
 
@@ -64,7 +77,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
                 sdetector = new SentenceDetectorME(sentenceModel);
                 Cache.getInstance().putDataObject(modelFilePath, sdetector);
-                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
+                LOGGER.info("Reading OpenNLP Sentence Detector from file " + modelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
             } catch (final InvalidFormatException e) {
@@ -83,7 +96,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
     @Override
     public OpenNLPSentenceDetector detect(String text) {
-        Span[] sentenceBoundaries = ((SentenceDetectorME) getModel()).sentPosDetect(text);
+        Span[] sentenceBoundaries = ((SentenceDetectorME)getModel()).sentPosDetect(text);
         Annotation[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
         PipelineDocument document = new PipelineDocument(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
