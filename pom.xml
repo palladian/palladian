@@ -85,7 +85,7 @@
 				<version>2.5</version>
 				<configuration>
 					<rulesets>
-						<ruleset>dev/pmd_ruleset</ruleset>
+						<ruleset>${basedir}/dev/pmd_ruleset</ruleset>
 					</rulesets>
 					<targetJdk>1.6</targetJdk>
 				</configuration>
