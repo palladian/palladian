@@ -199,6 +199,9 @@ public class DictionaryClassifier extends TextClassifier {
         DictionaryClassifier classifier;
 
         classifier = (DictionaryClassifier) FileHelper.deserialize(classifierPath);
+        if (classifier == null) {
+        	throw new ClassifierNotFoundException("No classifier was found at path: " + classifierPath);
+        }
         classifier.reset();
 
         if (classifier.getDictionary().isUseIndex()) {
