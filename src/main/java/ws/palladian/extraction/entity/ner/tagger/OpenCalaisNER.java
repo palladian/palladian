@@ -252,8 +252,6 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
         annotations.sort();
         CollectionHelper.print(annotations);
 
-        FileHelper.writeToFile("data/test/ner/openCalaisOutput.txt", tagText(inputText, annotations));
-
         return annotations;
     }
 
