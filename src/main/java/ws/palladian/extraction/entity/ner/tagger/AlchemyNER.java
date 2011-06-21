@@ -522,8 +522,6 @@ public class AlchemyNER extends NamedEntityRecognizer {
         annotations.sort();
         CollectionHelper.print(annotations);
 
-        FileHelper.writeToFile("data/test/ner/alchemyOutput.txt", tagText(inputText, annotations));
-
         return annotations;
     }
 
