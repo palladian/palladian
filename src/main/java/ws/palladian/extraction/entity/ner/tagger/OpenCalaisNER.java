@@ -100,15 +100,30 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     /** The maximum number of characters allowed to send per request (actually 100,000). */
     private final int MAXIMUM_TEXT_LENGTH = 90000;
 
+    /**
+     * Constructor. Uses the API key from the configuration, at place
+     * "api.opencalais.key"
+     */
     public OpenCalaisNER() {
+        this("");
+    }
+
+    /**
+     * This constructor should be used to specify an explicit API key.
+     * 
+     * @param apiKey API key to use for connecting with OpenCalais
+     */
+    public OpenCalaisNER(String apiKey) {
         setName("OpenCalais NER");
 
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-        if (config != null) {
-            apiKey = config.getString("api.opencalais.key");
+        if (!apiKey.equals("")) {
+            this.apiKey = apiKey;
+        } else if (config != null) {
+            this.apiKey = config.getString("api.opencalais.key");
         } else {
-            apiKey = "";
+            this.apiKey = "";
         }
     }
 
