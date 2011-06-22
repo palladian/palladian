@@ -3,7 +3,7 @@ package ws.palladian.classification.page;
 /**
  * A classifier not found exception, thrown when a classifier cannot be loaded from disk.
  *
- * @author Sebastian Kurfürst
+ * @author Sebastian Kurf√ºrst
  */
 public class ClassifierNotFoundException extends RuntimeException {
     public ClassifierNotFoundException(String message) {
