@@ -115,6 +115,8 @@ public class FeedClassifier {
             // same time
             if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
                 if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
+                    // TODO Sandro: getTimeDifferenceToNewestPost() should be replaced by using the date element from
+                    // HTTP header, otherwise classification only works when done at same time the feed is fetched.
                     feedClass = CLASS_ON_THE_FLY;
                 } else {
                     feedClass = CLASS_CHUNKED;
