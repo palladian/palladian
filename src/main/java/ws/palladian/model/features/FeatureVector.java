@@ -77,4 +77,28 @@ public final class FeatureVector {
     public String toString() {
         return features.values().toString();
     }
+
+    /**
+     * <p>
+     * Converts this {@code FeatureVector} into an array of {@code Feature}s.
+     * </p>
+     * 
+     * @return The vector as array.
+     */
+    public Feature<?>[] toValueArray() {
+        Feature<?>[] ret = new Feature[features.size()];
+        ret = features.values().toArray(ret);
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Counts the dimensions, i.e. how many entries the vector has.
+     * </p>
+     * 
+     * @return The dimensions of this {@code FeatureVector}.
+     */
+    public int countDimensions() {
+        return this.features.size();
+    }
 }
