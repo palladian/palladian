@@ -1031,8 +1031,8 @@ public class Feed {
             for (FeedItem item : items) {
                 builder.append(item.getTitle()).append("\t");
                 if (includeText) {
-                    builder.append(item.getItemDescription()).append("\t");
-                    builder.append(item.getItemText()).append("\t");
+                    builder.append(item.getDescription()).append("\t");
+                    builder.append(item.getText()).append("\t");
                 }
                 builder.append(item.getLink()).append("\t");
                 builder.append(item.getPublished()).append("\t");
