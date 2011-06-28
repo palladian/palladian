@@ -145,7 +145,7 @@ public class FeedRetrieverTest {
         // http://web.resource.org/rss/1.0/modules/content/
         feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/rssRdf10.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
-        Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getItemText());
+        Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
 
     }
 

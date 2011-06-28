@@ -273,10 +273,10 @@ public class FeedRetriever {
             item.setLink(entryLink);
 
             String entryDescription = getEntryDescription(syndEntry);
-            item.setItemDescription(entryDescription);
+            item.setDescription(entryDescription);
 
             String entryText = getEntryText(syndEntry);
-            item.setItemText(entryText);
+            item.setText(entryText);
 
             String rawId = getEntryRawId(syndEntry);
             item.setRawId(rawId);

@@ -9,20 +9,10 @@ import ws.palladian.helper.nlp.StringHelper;
 /**
  * Represents a news item within a feed ({@link Feed}).
  * 
- * 
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class FeedItem {
-
-    // /** The logger for this class. */
-    // private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
-
-    // private static final Map<String, String> NAMESPACE_MAP = new HashMap<String, String>();
-    //
-    // static {
-    // NAMESPACE_MAP.put("atom", "http://www.w3.org/2005/Atom");
-    // }
 
     private int id = -1;
 
@@ -51,10 +41,10 @@ public class FeedItem {
     private String authors;
 
     /** Description text of feed entry */
-    private String itemDescription;
+    private String description;
 
     /** Text directly from the feed entry */
-    private String itemText;
+    private String text;
 
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData;
@@ -136,40 +126,20 @@ public class FeedItem {
         this.authors = authors;
     }
 
-    public String getItemDescription() {
-        return itemDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setItemDescription(String itemDescription) {
-        this.itemDescription = itemDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getItemText() {
-        return itemText;
-    }
-
-    public void setItemText(String entryText) {
-        this.itemText = entryText;
-    }
-
-    /**
-     * Get entry's text, either (preferably) from the page or from the feed. Never return <code>null</code>.
-     * 
-     * @return
-     */
     public String getText() {
-
-        String text = getItemText();
-
-        if (text == null || text.isEmpty()) {
-            text = getItemDescription();
-        }
-
-        if (text == null) {
-            text = "";
-        }
-
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -184,59 +154,6 @@ public class FeedItem {
         // sb.append(" entryText:").append(entryText);
         return sb.toString();
     }
-
-    // /**
-    // * @return The raw XML markup for this feed entry.
-    // */
-    // public String getRawMarkup() {
-    // String rawMarkup = "";
-    // Node node = getNode();
-    //
-    // if (node != null) {
-    // rawMarkup = HTMLHelper.documentToHTMLString(node);
-    // }
-    //
-    // return rawMarkup;
-    // }
-    //
-    // /**
-    // * <p>
-    // * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
-    // * </p>
-    // *
-    // * @return The extracted DOM node representing the provided feed entry.
-    // */
-    // Node getNode() {
-    //
-    // Node node = null;
-    //
-    // // the feed's document representation
-    // Document document = getFeed().getDocument();
-    //
-    // try {
-    //
-    // // for RSS
-    // node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
-    //
-    // if (node == null) {
-    // node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
-    //
-    // // for Atom
-    // if (node == null) {
-    // node = XPathHelper.getNode(document, "//atom:entry[atom:id=\"" + getRawId() + "\"]", NAMESPACE_MAP);
-    // }
-    // }
-    //
-    // } catch (Exception e) {
-    // LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
-    // }
-    //
-    // if (node == null) {
-    // LOGGER.error("feed: " + getFeedUrl() + ", node = null");
-    // }
-    //
-    // return node;
-    // }
 
     public String getFeedUrl() {
         if (getFeed() != null) {
