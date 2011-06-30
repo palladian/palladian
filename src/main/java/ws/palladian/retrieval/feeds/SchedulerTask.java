@@ -79,6 +79,9 @@ class SchedulerTask extends TimerTask {
 
     private HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
 
+    /** If true, send error reports via email */
+    private boolean errorMailNotification = false;
+
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
@@ -91,6 +94,19 @@ class SchedulerTask extends TimerTask {
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+    }
+
+    /**
+     * Creates a new {@code SchedulerTask} for a feed reader.
+     * 
+     * @param feedReader
+     *            The feed reader containing settings and providing the
+     *            collection of feeds to check.
+     * @param errorMailNotification If set to true, error messages will be sent via mail.
+     */
+    public SchedulerTask(final FeedReader feedReader, boolean errorMailNotification) {
+        this(feedReader);
+        this.errorMailNotification = errorMailNotification;
     }
 
     /*
@@ -146,39 +162,41 @@ class SchedulerTask extends TimerTask {
                 misses, unreachable, errors, wakeupInterval);
 
         // error handling
-        boolean errorHandling = false;
+        boolean errorOccurred = false;
         StringBuilder detectedErrors = new StringBuilder();
 
         if (errors > 0) {
-            errorHandling = true;
+            errorOccurred = true;
             detectedErrors.append("Too many feeds with errors. ");
         }
 
         if ((lastWakeUpTime != null) && ((currentWakeupTime - lastWakeUpTime) > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
-            errorHandling = true;
+            errorOccurred = true;
             detectedErrors.append("Wakeup Interval was too high. ");
         }
 
         // FIXME: needs to be fine tuned?
         if (alreadyScheduledFeedCount > 10 && processedCounter < 1000) {
-            errorHandling = true;
+            errorOccurred = true;
             detectedErrors.append("Throughput too low. ");
         }
 
-        if (errorHandling) {
-            String hostname = ProcessHelper.runCommand("hostname");
-            String recipient = "sandro.reichert@tu-dresden.de"; // FIXME: multiple recipients
-                                                                // philipp.katz@tu-dresden.de,
-                                                                // david.urbansky@tu-dresden.de,
-                                                                // klemens.muthmann@tu-dresden.de";
-            String subject = "FeedReader " + hostname + " notification "
-                    + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
-
+        if (errorOccurred) {
             logMsg += ", detected errors: " + detectedErrors.toString();
-            String text = logMsg;
+            LOGGER.error(logMsg);
 
-            SendMail mailer = new SendMail();
-            mailer.send("notification@palladian.ws", recipient, subject, text);
+            if(errorMailNotification){
+                String hostname = ProcessHelper.runCommand("hostname");
+                String recipient = "sandro.reichert@tu-dresden.de"; // FIXME: multiple recipients
+                                                                    // philipp.katz@tu-dresden.de,
+                                                                    // david.urbansky@tu-dresden.de,
+                                                                    // klemens.muthmann@tu-dresden.de";
+                String subject = "FeedReader " + hostname + " notification "
+                        + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
+
+                SendMail mailer = new SendMail();
+                mailer.send("notification@palladian.ws", recipient, subject, logMsg);
+            }
         } else {
             LOGGER.info(logMsg);
         }
