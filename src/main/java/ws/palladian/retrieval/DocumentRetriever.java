@@ -685,7 +685,7 @@ public class DocumentRetriever {
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath) {
-        return downloadAndSave(url, filePath, false);
+        return downloadAndSave(url, filePath, new HashMap<String, String>(), false);
     }
 
     /**
@@ -694,25 +694,49 @@ public class DocumentRetriever {
      * @param url the URL to download from.
      * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
      *            is compressed automatically.
-     * @param includeHttpHeaders whether to prepend the HTTP headers for the request to the saved content.
+     * @param requestHeaders The headers to include in the request.
+     * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
+     *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    public boolean downloadAndSave(String url, String filePath, boolean includeHttpHeaders) {
+    public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
+            boolean includeHttpResponseHeaders) {
+
+        boolean result = false;
+        try {
+            HttpResult httpResult = httpGet(url, requestHeaders);
+            result = saveToFile(httpResult, filePath, includeHttpResponseHeaders);
+        } catch (HttpException e) {
+            LOGGER.error(e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
+     * 
+     * @param httpResult The httpResult to save.
+     * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
+     *            is compressed automatically.
+     * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
+     *            content.
+     * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
+     */
+    public boolean saveToFile(HttpResult httpResult, String filePath, boolean includeHttpResponseHeaders) {
 
         boolean result = false;
         boolean compress = filePath.endsWith(".gz") || filePath.endsWith(".gzip");
         OutputStream out = null;
 
         try {
-
-            HttpResult httpResult = httpGet(url);
             out = new BufferedOutputStream(new FileOutputStream(filePath));
 
             if (compress) {
                 out = new GZIPOutputStream(out);
             }
 
-            if (includeHttpHeaders) {
+            if (includeHttpResponseHeaders) {
 
                 StringBuilder headerBuilder = new StringBuilder();
                 headerBuilder.append("Status Code").append(":");
@@ -935,7 +959,8 @@ public class DocumentRetriever {
         DocumentRetriever retriever = new DocumentRetriever();
 
         // download and save a web page including their headers in a gzipped file
-        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", true);
+        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", new HashMap<String, String>(),
+                true);
 
         // create a retriever that is triggered for every retrieved page
         RetrieverCallback crawlerCallback = new RetrieverCallback() {

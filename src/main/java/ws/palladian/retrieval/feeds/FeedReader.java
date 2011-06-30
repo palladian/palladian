@@ -25,6 +25,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.evaluation.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
@@ -327,7 +328,7 @@ public final class FeedReader {
         FeedProcessingAction processingAction = new FeedProcessingAction() {
 
             @Override
-            public boolean performAction(Feed feed) {
+            public boolean performAction(Feed feed, HttpResult httpResult) {
                 List<FeedItem> items = feed.getItems();
                 int addedItems = feedStore.addFeedItems(feed, items);
                 newItems.addAndGet(addedItems);
@@ -335,7 +336,7 @@ public final class FeedReader {
             }
 
             @Override
-            public boolean performActionOnError(Feed feed) {
+            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return true;
             }
@@ -423,7 +424,7 @@ public final class FeedReader {
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
 
         FeedRetriever feedRetriever = new FeedRetriever();
-        feedRetriever.updateFeed(feed);
+        // feedRetriever.updateFeed(feed);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);
         System.exit(0);
@@ -479,14 +480,14 @@ public final class FeedReader {
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
-            public boolean performAction(Feed feed) {
+            public boolean performAction(Feed feed, HttpResult httpResult) {
                 LOGGER.info("do stuff with " + feed.getFeedUrl());
                 LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
                 return true;
             }
 
             @Override
-            public boolean performActionOnError(Feed feed) {
+            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return true;
             }

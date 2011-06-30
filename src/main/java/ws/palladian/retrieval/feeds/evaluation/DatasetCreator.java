@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,10 +25,12 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
@@ -66,8 +70,23 @@ public class DatasetCreator {
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
 
+    private static Map<String, String> requestHeaders = new HashMap<String, String>();
+
     public DatasetCreator() {
         detectSystemLimitations();
+        createRequestHeaders();
+    }
+
+    /**
+     * Set cache-control: no-cache to prevent getting cached results.
+     */
+    private void createRequestHeaders() {
+        requestHeaders.put("cache-control", "no-cache");
+
+    }
+
+    public static Map<String, String> getRequestHeaders() {
+        return requestHeaders;
     }
 
     /**
@@ -304,7 +323,7 @@ public class DatasetCreator {
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
-            public boolean performAction(Feed feed) {
+            public boolean performAction(Feed feed, HttpResult httpResult) {
 
                 boolean success = true;
 
@@ -321,7 +340,7 @@ public class DatasetCreator {
                 String filePath = getCSVFilePath(feed.getId(), getSafeFeedName(feed.getFeedUrl()));
                 LOGGER.debug("saving feed to: " + filePath);
 
-                success = DatasetCreator.createCSV(feed);
+                success = DatasetCreator.createDirectoriesAndCSV(feed);
 
                 // load only the last window from file
                 int recentWindowSize = feed.getWindowSize();
@@ -426,7 +445,7 @@ public class DatasetCreator {
                     DocumentRetriever documentRetriever = new DocumentRetriever();
                     String gzPath = folderPath + pollTimestamp + "_"
                             + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + ".gz";
-                    boolean gzWritten = documentRetriever.downloadAndSave(feed.getFeedUrl(), gzPath, true);
+                    boolean gzWritten = documentRetriever.saveToFile(httpResult, gzPath, true);
 
                     LOGGER.debug("Saving new file content: " + newEntries.toString());
                     // FileHelper.prependFile(filePath, newEntries.toString());
@@ -437,26 +456,25 @@ public class DatasetCreator {
                     }
                 }
 
-                // removed by Philipp, 2011-05-11; this is already invoked by the feed task itself, after ;
-                // freeing the memory at this point will cause undesired behaviour, for example missing
-                // item hashes, shouldn't make a difference, memory-wise
-                // feed.freeMemory();
-                // end remove //
+                processPollMetadata(feed, httpResult, newItems);
 
+                
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
                 return success;
             }
 
             /**
-             * Quickndirty: write everything that we cant parse to a gz
+             * Write everything that we can't parse to a gz file.
+             * All data written to gz file is taken from httpResult, the Feed is taken to determine the path and
+             * filename.
              */
             @Override
-            public boolean performActionOnError(Feed feed) {
+            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
 
                 long pollTimestamp = System.currentTimeMillis();
                 boolean success = false;
-                boolean folderCreated = DatasetCreator.createCSV(feed);
+                boolean folderCreated = DatasetCreator.createDirectoriesAndCSV(feed);
 
                 if (folderCreated) {
                     String folderPath = DatasetCreator.getFolderPath(feed.getId());
@@ -464,7 +482,7 @@ public class DatasetCreator {
                             + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + "_unparsable.gz";
 
                     DocumentRetriever documentRetriever = new DocumentRetriever();
-                    success = documentRetriever.downloadAndSave(feed.getFeedUrl(), gzPath, true);
+                    success = documentRetriever.saveToFile(httpResult, gzPath, true);
                     if (success) {
                         LOGGER.debug("Saved unparsable feed to: " + gzPath);
                     } else {
@@ -472,7 +490,39 @@ public class DatasetCreator {
                     }
                 }
 
+                processPollMetadata(feed, httpResult, null);
+
                 return success;
+            }
+
+
+            /**
+             * FIXME put all Data to PollMetaInformation, write to database.
+             * 
+             * @param feed
+             * @param httpResult
+             * @param newItems
+             */
+            private void processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
+                // write poll metadata
+
+                PollMetaInformation pollMetaInfo = new PollMetaInformation();
+
+                pollMetaInfo.setFeedID(feed.getId());
+                pollMetaInfo.setPollTimestamp(feed.getLastPollTime());
+                pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
+
+                StringBuilder metadata = new StringBuilder();
+
+                metadata.append("httpDate=").append(httpResult.getHeaderString("Date"));
+                metadata.append("httpLastModified=").append(httpResult.getHeaderString("Last-Modified"));
+                metadata.append("httpExpires=").append(httpResult.getHeaderString("Expires"));
+                metadata.append("httpTTL=").append(httpResult.getHeaderString("TTL"));
+                metadata.append("newestItemTimestamp=").append(feed.getLastFeedEntry()); // FIXME
+                metadata.append("numberNewItems=").append(newItems);
+                metadata.append("windowSize=").append(feed.getWindowSize());
+
+                LOGGER.info(metadata);
             }
 
         };
@@ -523,7 +573,7 @@ public class DatasetCreator {
      * @param feed The feed to create the directories and the csv file for.
      * @return <code>true</code> if folders and file were created or already existed, false on every error.
      */
-    public static boolean createCSV(Feed feed) {
+    public static boolean createDirectoriesAndCSV(Feed feed) {
 
         boolean success = true;
         // get the path of the feed's folder and csv file
