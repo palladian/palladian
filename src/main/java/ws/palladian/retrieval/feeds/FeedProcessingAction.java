@@ -16,4 +16,12 @@ public abstract class FeedProcessingAction {
      * @return <code>true</code> if no error occurred, <code>false</code> otherwise.
      */
     public abstract boolean performAction(Feed feed);
+
+    /**
+     * A second hook to perform an error handling.
+     * 
+     * @param feed The {@link Feed} to perform the action for.
+     * @return <code>true</code> if no error occurred, <code>false</code> otherwise.
+     */
+    public abstract boolean performActionOnError(Feed feed);
 }

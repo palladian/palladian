@@ -276,7 +276,8 @@ public class Feed {
         // rawMarkup = "";
         // document = null;
         setItems(new ArrayList<FeedItem>());
-        setNewestItemHash("");
+        // We need the last newestItemHash to find out whether we have new items or not. - Sandro
+        // setNewestItemHash("");
     }
 
     public void setChecks(Integer checks) {

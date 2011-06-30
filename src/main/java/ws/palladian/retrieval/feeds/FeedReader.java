@@ -333,6 +333,12 @@ public final class FeedReader {
                 newItems.addAndGet(addedItems);
                 return true;
             }
+
+            @Override
+            public boolean performActionOnError(Feed feed) {
+                // TODO Auto-generated method stub
+                return true;
+            }
         };
         setFeedProcessingAction(processingAction);
         startContinuousReading(duration);
@@ -476,6 +482,12 @@ public final class FeedReader {
             public boolean performAction(Feed feed) {
                 LOGGER.info("do stuff with " + feed.getFeedUrl());
                 LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
+                return true;
+            }
+
+            @Override
+            public boolean performActionOnError(Feed feed) {
+                // TODO Auto-generated method stub
                 return true;
             }
         };

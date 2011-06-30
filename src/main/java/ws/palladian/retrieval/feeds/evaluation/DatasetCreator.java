@@ -285,6 +285,7 @@ public class DatasetCreator {
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
         MAVStrategyDatasetCreation updateStrategy = new MAVStrategyDatasetCreation();
+
         updateStrategy.setHighestUpdateInterval(360); // 6hrs
         updateStrategy.setLowestUpdateInterval(5);
         feedChecker.setUpdateStrategy(updateStrategy, true);
@@ -320,22 +321,7 @@ public class DatasetCreator {
                 String filePath = getCSVFilePath(feed.getId(), getSafeFeedName(feed.getFeedUrl()));
                 LOGGER.debug("saving feed to: " + filePath);
 
-                // get entries from the file
-                File postEntryFile = new File(filePath);
-                if (!postEntryFile.exists()) {
-                    boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
-                    try {
-                        if (directoriesCreated) {
-                            postEntryFile.createNewFile();
-                        } else {
-                            LOGGER.error("could not create the directories " + filePath);
-                            success = false;
-                        }
-                    } catch (IOException e) {
-                        LOGGER.error("could not create the file " + filePath);
-                        success = false;
-                    }
-                }
+                success = DatasetCreator.createCSV(feed);
 
                 // load only the last window from file
                 int recentWindowSize = feed.getWindowSize();
@@ -461,6 +447,34 @@ public class DatasetCreator {
 
                 return success;
             }
+
+            /**
+             * Quickndirty: write everything that we cant parse to a gz
+             */
+            @Override
+            public boolean performActionOnError(Feed feed) {
+
+                long pollTimestamp = System.currentTimeMillis();
+                boolean success = false;
+                boolean folderCreated = DatasetCreator.createCSV(feed);
+
+                if (folderCreated) {
+                    String folderPath = DatasetCreator.getFolderPath(feed.getId());
+                    String gzPath = folderPath + pollTimestamp + "_"
+                            + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + "_unparsable.gz";
+
+                    DocumentRetriever documentRetriever = new DocumentRetriever();
+                    success = documentRetriever.downloadAndSave(feed.getFeedUrl(), gzPath, true);
+                    if (success) {
+                        LOGGER.debug("Saved unparsable feed to: " + gzPath);
+                    } else {
+                        LOGGER.error("Could not save unparsable feed to: " + gzPath);
+                    }
+                }
+
+                return success;
+            }
+
         };
 
         feedChecker.setFeedProcessingAction(fpa);
@@ -470,9 +484,8 @@ public class DatasetCreator {
     }
 
     /**
-     * @param feed
+     * @param feedID
      * @param safeFeedName
-     * @param folderPath
      * @return
      */
     public static String getCSVFilePath(int feedID, String safeFeedName) {
@@ -480,8 +493,7 @@ public class DatasetCreator {
     }
 
     /**
-     * @param feed
-     * @param slice
+     * @param feedID
      * @return
      */
     public static String getFolderPath(int feedID) {
@@ -503,6 +515,38 @@ public class DatasetCreator {
      */
     public static String getSafeFeedName(String feedURL) {
         return StringHelper.makeSafeName(feedURL.replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
+    }
+
+    /**
+     * Create the directories and the csv file for that feed if they do not exist.
+     * 
+     * @param feed The feed to create the directories and the csv file for.
+     * @return <code>true</code> if folders and file were created or already existed, false on every error.
+     */
+    public static boolean createCSV(Feed feed) {
+
+        boolean success = true;
+        // get the path of the feed's folder and csv file
+
+        String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(),
+                DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
+
+        File postEntryFile = new File(csvFilePath);
+        if (!postEntryFile.exists()) {
+            boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
+            try {
+                if (directoriesCreated) {
+                    success = postEntryFile.createNewFile();
+                } else {
+                    LOGGER.error("could not create the directories " + csvFilePath);
+                    success = false;
+                }
+            } catch (IOException e) {
+                LOGGER.error("could not create the file " + csvFilePath);
+                success = false;
+            }
+        }
+        return success;
     }
 
     /**

@@ -184,6 +184,10 @@ public class FeedItem {
         hash.append(getTitle());
         hash.append(getLink());
         hash.append(getRawId());
+        // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
+        // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
+        // hash.append(getPublished().toString());
+        // }
         return StringHelper.sha1(hash.toString());
     }
 
