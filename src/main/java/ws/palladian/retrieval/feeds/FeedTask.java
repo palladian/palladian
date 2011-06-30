@@ -7,6 +7,10 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
  * <p>
@@ -64,26 +68,42 @@ class FeedTask implements Callable<FeedTaskResult> {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
-            // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
-            // it can be done in parallel
             FeedRetriever feedRetriever = new FeedRetriever();
+            DocumentRetriever documentRetriever = new DocumentRetriever();
+            HttpResult httpResult = null;
+
             try {
-                feedRetriever.updateFeed(feed);
-            } catch (FeedRetrieverException e) {
-                LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+                // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
+                httpResult = documentRetriever.httpGet(feed.getFeedUrl(), DatasetCreator.getRequestHeaders()); // FIXME
+            } catch (HttpException e) {
+                LOGGER.error("Could not get Document from, " + e.getMessage());
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
-                feedReader.getFeedProcessingAction().performActionOnError(feed);
-
                 LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
                 result = FeedTaskResult.UNREACHABLE;
                 return result;
             }
 
-            // remember the time the feed has been checked
-            feed.setLastPollTime(new Date());
+            try {
+                // parse the feed and get all its entries, do that here since that takes some time and this is a thread
+                // so it can be done in parallel
+                Feed downloadedFeed = feedRetriever.getFeed(httpResult);
+                feed.setItems(downloadedFeed.getItems());
+                feed.setWindowSize(downloadedFeed.getItems().size());
+                feed.setByteSize(downloadedFeed.getByteSize());
+            } catch (FeedRetrieverException e) {
+                LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+                feed.incrementUnreachableCount();
+                feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+                feedReader.updateFeed(feed);
+                feedReader.getFeedProcessingAction().performActionOnError(feed, httpResult);
+
+                LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
+                result = FeedTaskResult.UNPARSABLE;
+                return result;
+            }
 
             // classify feed if it has never been classified before, do it once a month for each feed to be informed
             // about updates
@@ -99,8 +119,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                     || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
                 FeedClassifier.classify(feed);
                 
-                // commented by Philipp; byteSize should already be set by FeedRetriever
-                // feed.setByteSize(feed.getRawMarkup().getBytes().length);
             }
 
             feedReader.updateCheckIntervals(feed);
@@ -108,7 +126,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
             // perform actions on this feeds entries
             LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
-            feedReader.getFeedProcessingAction().performAction(feed);
+            feedReader.getFeedProcessingAction().performAction(feed, httpResult);
 
             feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
 

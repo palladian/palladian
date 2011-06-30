@@ -1,5 +1,6 @@
-config.version = 6
+config.version = 7
 ### version history:
+### 7: errorMailNotification in SchedulerTask
 ### 6: renamed configuration options for ProxySwitcher
 ### 5: added SendMail config
 ### 4: added thread pool size for DocumentRetriever, changed timeouts
@@ -150,6 +151,8 @@ metaInformationCreator.threadPoolSize = 500
 # if false, do not check system limitations like number of available file descriptors 
 feedReader.checkSystemLimitations=true
 
+# if true, detected errors will be send by mail 
+schedulerTask.errorMailNotification=false 
 ######################## Page Segmentation ########################
 
 # length of q-grams

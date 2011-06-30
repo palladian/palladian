@@ -171,12 +171,12 @@ public class FeedRetriever {
      * @param feed
      * @throws FeedRetrieverException
      */
-    public void updateFeed(Feed feed) throws FeedRetrieverException {
-        Feed downloadedFeed = getFeed(feed.getFeedUrl());
-        feed.setItems(downloadedFeed.getItems());
-        feed.setWindowSize(downloadedFeed.getItems().size());
-        feed.setByteSize(downloadedFeed.getByteSize());
-    }
+    // public void updateFeed(Feed feed) throws FeedRetrieverException {
+    // Feed downloadedFeed = getFeed(feed.getFeedUrl());
+    // feed.setItems(downloadedFeed.getItems());
+    // feed.setWindowSize(downloadedFeed.getItems().size());
+    // feed.setByteSize(downloadedFeed.getByteSize());
+    // }
 
     // ///////////////////////////////////////////////////
     // Settings

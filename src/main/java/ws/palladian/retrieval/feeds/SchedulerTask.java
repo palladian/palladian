@@ -9,8 +9,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections15.bag.HashBag;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.SendMail;
 import ws.palladian.helper.date.DateHelper;
@@ -79,8 +81,17 @@ class SchedulerTask extends TimerTask {
 
     private HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
 
+    /** By default, do not send error reports via email */
+    private static final boolean ERROR_MAIL_NOTIFICATION_DEFAULT = false;
+
     /** If true, send error reports via email */
-    private boolean errorMailNotification = false;
+    private static boolean errorMailNotification;
+
+    /** The receipient of email notifications. */
+    private static String emailRecipient;
+
+    /** The receipient of email notifications. */
+    private static final String EMAIL_RECEIPIENT_DEFAULT = "user@example.org";
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
@@ -94,19 +105,16 @@ class SchedulerTask extends TimerTask {
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
-    }
 
-    /**
-     * Creates a new {@code SchedulerTask} for a feed reader.
-     * 
-     * @param feedReader
-     *            The feed reader containing settings and providing the
-     *            collection of feeds to check.
-     * @param errorMailNotification If set to true, error messages will be sent via mail.
-     */
-    public SchedulerTask(final FeedReader feedReader, boolean errorMailNotification) {
-        this(feedReader);
-        this.errorMailNotification = errorMailNotification;
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        errorMailNotification = ERROR_MAIL_NOTIFICATION_DEFAULT;
+        if (config != null) {
+            errorMailNotification = config.getBoolean("schedulerTask.errorMailNotification",
+                    ERROR_MAIL_NOTIFICATION_DEFAULT);
+            emailRecipient = config.getString("schedulerTask.emailRecipient", EMAIL_RECEIPIENT_DEFAULT);
+
+        }
+
     }
 
     /*
@@ -154,12 +162,13 @@ class SchedulerTask extends TimerTask {
         int success = feedResults.getCount(FeedTaskResult.SUCCESS);
         int misses = feedResults.getCount(FeedTaskResult.MISS);
         int unreachable = feedResults.getCount(FeedTaskResult.UNREACHABLE);
+        int unparsable = feedResults.getCount(FeedTaskResult.UNPARSABLE);
         int errors = feedResults.getCount(FeedTaskResult.ERROR);
 
         String logMsg = String.format("Scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d"
-                + ", success: %4d, misses: %4d, unreachable: %4d, errors: %4d, wake up interval: %10s",
-                newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter, success,
-                misses, unreachable, errors, wakeupInterval);
+                        + ", success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, errors: %4d, wake up interval: %10s",
+                        newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter,
+                        success, misses, unreachable, unparsable, errors, wakeupInterval);
 
         // error handling
         boolean errorOccurred = false;

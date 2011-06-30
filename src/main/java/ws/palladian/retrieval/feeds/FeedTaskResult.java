@@ -24,9 +24,14 @@ public enum FeedTaskResult {
     MISS,
 
     /**
-     * The {@link FeedTask} has been completed, but the feed was unreachable (unparsable).
+     * The {@link FeedTask} has been completed, but the feed was unreachable.
      */
     UNREACHABLE,
+
+    /**
+     * The {@link FeedTask} has been completed, but the feed was unparsable.
+     */
+    UNPARSABLE,
 
     /**
      * An Error occurred processing this {@link FeedTask}.
