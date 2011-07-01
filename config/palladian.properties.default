@@ -1,5 +1,6 @@
-config.version = 7
+config.version = 8
 ### version history:
+### 8: model path to English and German wiktionary DB
 ### 7: errorMailNotification in SchedulerTask
 ### 6: renamed configuration options for ProxySwitcher
 ### 5: added SendMail config
@@ -32,6 +33,9 @@ models.lingpipe.en.ner = lingpipe/ne-en-news-muc6.AbstractCharLmRescoringChunker
 models.palladian.en.event.who = palladian/event/who.model
 models.palladian.en.event.where = palladian/event/where.model
 models.palladian.mio = palladian/mio/MIOClassifierLinearRegression.model
+
+models.palladian.language.wiktionary_en = palladian/language/wiktionary_en/
+models.palladian.language.wiktionary_de = palladian/language/wiktionary_de/
 
 ######################## Dataset Paths ########################
 

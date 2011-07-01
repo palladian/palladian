@@ -17,7 +17,7 @@ import ws.palladian.helper.math.MathHelper;
 public class NERTest {
 
     @Test
-    public void testTUDNER() {
+    public void testPalladianNer() {
 
         // language independent
         PalladianNer tagger = new PalladianNer();

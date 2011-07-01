@@ -36,16 +36,16 @@ public class WordDB {
 
     // //////////////////database paramenters ////////////////////
     private Connection connection = null;
-    private String dbType = "h2";
-    private String dbDriver = "org.h2.Driver";
+    private final String dbType = "h2";
+    private final String dbDriver = "org.h2.Driver";
     private String dbName = "wordDB";
-    private String dbUsername = "root";
-    private String dbPassword = "";
+    private final String dbUsername = "root";
+    private final String dbPassword = "";
     private String databasePath = "";
 
     private boolean inMemoryMode = false;
 
-    private static final int MAX_WORD_LENGTH = 30;
+    public static final int MAX_WORD_LENGTH = 30;
 
     private PreparedStatement psGetWord = null;
     private PreparedStatement psGetWordById = null;
@@ -80,6 +80,9 @@ public class WordDB {
         if (isInMemoryMode()) {
             url = "jdbc:" + dbType + ":mem:" + databasePath + dbName + ";DB_CLOSE_DELAY=-1";
         } else {
+            if (!new File(databasePath).exists()) {
+                throw new IllegalArgumentException("Path to word db does not exist: " + databasePath);
+            }
             url = "jdbc:" + dbType + ":" + databasePath + dbName;
         }
 
@@ -103,9 +106,11 @@ public class WordDB {
             PreparedStatement psCreateTable3;
 
             psCreateTable1 = connection
-            .prepareStatement("CREATE TABLE IF NOT EXISTS words (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,`word` varchar("
-                    + MAX_WORD_LENGTH
-                    + ") NOT NULL,`type` varchar(25) NOT NULL,`language` varchar(20) NOT NULL);CREATE INDEX IF NOT EXISTS iw ON words(word);");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS words (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,`word` varchar("
+                            + MAX_WORD_LENGTH
+                            + ") NOT NULL, `plural` varchar("
+                            + MAX_WORD_LENGTH
+                            + ") NOT NULL,`type` varchar(25) NOT NULL,`language` varchar(20) NOT NULL);CREATE INDEX IF NOT EXISTS iw ON words(word);");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
@@ -126,14 +131,15 @@ public class WordDB {
     private void prepareStatements() {
         try {
             psGetWord = connection
-            .prepareStatement("SELECT id, `word`, `type`, `language` FROM words WHERE `word` = ?");
+                    .prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE `word` = ? OR `plural` = ?");
 
             psGetWordById = connection
-            .prepareStatement("SELECT id, `word`, `type`, `language` FROM words WHERE id = ?");
+                    .prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE id = ?");
 
-            psAddWord = connection.prepareStatement("INSERT INTO words VALUES(DEFAULT,?,?,?)");
+            psAddWord = connection.prepareStatement("INSERT INTO words VALUES(DEFAULT,?,?,?,?)");
 
-            psUpdateWord = connection.prepareStatement("UPDATE words SET `type` = ?, `language`= ? WHERE id = ?");
+            psUpdateWord = connection
+                    .prepareStatement("UPDATE words SET `plural` = ?, `type` = ?, `language`= ? WHERE id = ?");
 
             psAddSynonym = connection.prepareStatement("MERGE INTO synonyms KEY(wordId1,wordId2) VALUES(?,?,?)");
             psAddHypernym = connection.prepareStatement("MERGE INTO hypernyms KEY(wordId1,wordId2) VALUES(?,?,?)");
@@ -300,6 +306,7 @@ public class WordDB {
 
         try {
             psGetWord.setString(1, word);
+            psGetWord.setString(2, word);
         } catch (SQLException e1) {
             e1.printStackTrace();
             return wordObject;
@@ -309,7 +316,7 @@ public class WordDB {
 
         try {
             if (rs.next()) {
-                wordObject = new Word(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                wordObject = new Word(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
@@ -328,7 +335,7 @@ public class WordDB {
 
         try {
             if (rs.next()) {
-                wordObject = new Word(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                wordObject = new Word(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
@@ -343,8 +350,9 @@ public class WordDB {
         }
 
         psAddWord.setString(1, word.getWord());
-        psAddWord.setString(2, word.getType());
-        psAddWord.setString(3, word.getLanguage());
+        psAddWord.setString(2, word.getPlural());
+        psAddWord.setString(3, word.getType());
+        psAddWord.setString(4, word.getLanguage());
 
         return runUpdate(psAddWord);
     }
@@ -354,9 +362,10 @@ public class WordDB {
             return false;
         }
 
-        psUpdateWord.setString(1, word.getType());
-        psUpdateWord.setString(2, word.getLanguage());
-        psUpdateWord.setInt(3, word.getId());
+        psUpdateWord.setString(1, word.getPlural());
+        psUpdateWord.setString(2, word.getType());
+        psUpdateWord.setString(3, word.getLanguage());
+        psUpdateWord.setInt(4, word.getId());
 
         return runUpdate(psUpdateWord);
     }
@@ -370,7 +379,7 @@ public class WordDB {
 
             Word synonymWord = getWord(synonym);
             if (synonymWord == null) {
-                addWord(new Word(-1, synonym, word.getType(), ""));
+                addWord(new Word(-1, synonym, "", word.getType(), ""));
                 synonymWord = getWord(synonym);
             }
 
@@ -383,7 +392,7 @@ public class WordDB {
 
                 Word synonymWord2 = getWord(synonym2);
                 if (synonymWord2 == null) {
-                    addWord(new Word(-1, synonym2, word.getType(), ""));
+                    addWord(new Word(-1, synonym2, "", word.getType(), ""));
                     synonymWord2 = getWord(synonym);
                 }
 
@@ -415,7 +424,7 @@ public class WordDB {
 
             Word hypernymWord = getWord(hypernym);
             if (hypernymWord == null) {
-                addWord(new Word(-1, hypernym, word.getType(), ""));
+                addWord(new Word(-1, hypernym, "", word.getType(), ""));
                 hypernymWord = getWord(hypernym);
             }
 
@@ -442,6 +451,46 @@ public class WordDB {
             }
         }
 
+
+    }
+
+    public void addHyponyms(Word word, List<String> hyponyms) throws SQLException {
+
+        // get all synonyms for the given word
+        aggregateInformation(word);
+        Set<Word> synonyms = word.getSynonyms();
+
+        for (int i = 0; i < hyponyms.size(); i++) {
+            String hyponym = hyponyms.get(i);
+
+            Word hyponymWord = getWord(hyponym);
+            if (hyponymWord == null) {
+                addWord(new Word(-1, hyponym, "", word.getType(), ""));
+                hyponymWord = getWord(hyponym);
+            }
+
+            if (hyponymWord == null) {
+                continue;
+            }
+
+            // add the hypernym for the given word
+            psAddHypernym.setInt(1, hyponymWord.getId());
+            psAddHypernym.setInt(2, word.getId());
+            psAddHypernym.setDouble(3, 0.5);
+
+            runUpdate(psAddHypernym);
+
+            // add the hypernym for every synonym of the word
+            for (Word synoynm : synonyms) {
+
+                psAddHypernym.setInt(1, hyponymWord.getId());
+                psAddHypernym.setInt(2, synoynm.getId());
+                psAddHypernym.setDouble(3, 0.5);
+
+                runUpdate(psAddHypernym);
+
+            }
+        }
 
     }
 
@@ -598,8 +647,8 @@ public class WordDB {
         StopWatch sw = new StopWatch();
 
         // load a word DB
-        WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
-        // WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman/");
+        // WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman/");
 
         // you can load the database into the memory for faster read access (requires lots of RAM)
         // wordDB.loadDbToMemory();
@@ -610,10 +659,15 @@ public class WordDB {
         // Word word = wordDB.getWord("Freiheit");
         LOGGER.info(word);
 
-        word = wordDB.getWord("Notebook");
+        word = wordDB.getWord("Strand");
+        wordDB.aggregateInformation(word);
         LOGGER.info(word);
 
-        // find synonmys and hypernyms for the word
+        word = wordDB.getWord("Fliege");
+        wordDB.aggregateInformation(word);
+        LOGGER.info(word);
+
+        word = wordDB.getWord("Kleider");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);
 

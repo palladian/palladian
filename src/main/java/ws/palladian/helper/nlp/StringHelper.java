@@ -123,7 +123,12 @@ public class StringHelper {
     }
 
     /**
-     * Transform a name to a camel case variable name. For example: car_speed => carSpeed or CarSpeed
+     * <p>
+     * Transform a name to a camel case variable name. For example: car_speed => carSpeed or CarSpeed.
+     * </p>
+     * <p>
+     * <em>Note: This works for English only!</em>
+     * </p>
      * 
      * @param name The name.
      * @param uppercaseFirst If true, the first letter will be uppercase.
@@ -138,7 +143,7 @@ public class StringHelper {
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i == parts.length - 1 && toSingular) {
-                part = WordTransformer.wordToSingular(part);
+                part = WordTransformer.wordToSingular(part, "en");
             }
             camelCasedName += upperCaseFirstLetter(part);
         }
@@ -304,7 +309,8 @@ public class StringHelper {
     }
 
     /**
-     * Removes the brackets.
+     * Remove brackets and everything in between the brackets. "()[]{}" will be removed.
+     * For example "This is a text (just a sample)." becomes "This is a text ."
      * 
      * @param bracketString the bracket string
      * @return the string

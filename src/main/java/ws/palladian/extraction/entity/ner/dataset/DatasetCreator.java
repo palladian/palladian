@@ -74,7 +74,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private Map<String, List<String>> conceptSeeds;
 
     /** The filter for the crawler. We are not interested in binary files. */
-    private DownloadFilter downloadFilter;
+    private final DownloadFilter downloadFilter;
 
     public DatasetCreator(String datasetName) {
         this.datasetName = datasetName;
@@ -261,7 +261,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @return The name of the concept.
      */
     private static String getConceptNameFromFileName(String fileName) {
-        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""));
+        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""), "en");
     }
 
     /**
@@ -591,7 +591,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
 
-            String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName), true);
+            String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName, "en"), true);
 
             if (seedFileName.length() == 0) {
                 continue;

@@ -3,8 +3,13 @@ package ws.palladian.helper.nlp;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.semantics.Word;
+import ws.palladian.retrieval.semantics.WordDB;
 
 /**
  * The WordTransformer transforms an input word.
@@ -14,13 +19,29 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  * 
  */
+/**
+ * @author David
+ * 
+ */
+/**
+ * @author David
+ * 
+ */
+/**
+ * @author David
+ * 
+ */
+/**
+ * @author David
+ * 
+ */
 public class WordTransformer {
 
     /** The Constant IRREGULAR_NOUNS <singular, plural>. */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
-    
+
     static {
-        
+
         IRREGULAR_NOUNS.put("addendum", "addenda");
         IRREGULAR_NOUNS.put("alga", "algae");
         IRREGULAR_NOUNS.put("alumna", "alumnae");
@@ -136,15 +157,34 @@ public class WordTransformer {
     }
 
     /**
+     * <p>
+     * Transform an English or German plural word to its singular form.
+     * </p>
+     * 
+     * @param pluralForm The plural form of the word.
+     * @param language The language (either "en" for English or "de" for German)
+     * @return The singular form of the word.
+     */
+    public static String wordToSingular(String pluralForm, String language) {
+        if (language.equalsIgnoreCase("en")) {
+            return wordToSingularEnglish(pluralForm);
+        } else if (language.equalsIgnoreCase("de")) {
+            return wordToSingularGerman(pluralForm);
+        }
+
+        throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+    }
+
+    /**
+     * <p>
      * Transform an English plural word to its singular form.<br>
-     * Rules:
-     * http://www.englisch-hilfen.de/en/grammar/plural.htm,
-     * http://en.wikipedia.org/wiki/English_plural
+     * Rules: http://www.englisch-hilfen.de/en/grammar/plural.htm, http://en.wikipedia.org/wiki/English_plural
+     * </p>
      * 
      * @param pluralForm The plural form of the word.
      * @return The singular form of the word.
      */
-    public static String wordToSingular(String pluralForm) {
+    public static String wordToSingularEnglish(String pluralForm) {
 
         String plural = pluralForm;
 
@@ -209,13 +249,62 @@ public class WordTransformer {
     }
 
     /**
+     * <p>
+     * Transform a German plural word to its singular form using the wiktionary DB.
+     * </p>
+     * 
+     * @param pluralForm The plural form of the word.
+     * @return The singular form of the word.
+     */
+    public static String wordToSingularGerman(String pluralForm) {
+
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+
+        WordDB wordDB = new WordDB(path);
+        Word word = wordDB.getWord(pluralForm);
+
+        if (word != null) {
+            return word.getWord();
+        }
+
+        return pluralForm;
+    }
+
+    /**
+     * <p>
      * Transform an English singular word to its plural form. rules:
      * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
+     * </p>
+     * 
+     * <p>
+     * Transform a German singular word to its plural form using the wiktionary DB.
+     * </p>
+     * 
+     * @param singular The singular.
+     * @param language The language (either "en" for English of "de" for German).
+     * @return The plural.
+     */
+    public static String wordToPlural(String singular, String language) {
+        if (language.equalsIgnoreCase("en")) {
+            return wordToPluralEnglish(singular);
+        } else if (language.equalsIgnoreCase("de")) {
+            return wordToPluralGerman(singular);
+        }
+
+        throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+    }
+
+    /**
+     * <p>
+     * Transform an English singular word to its plural form. rules:
+     * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
+     * </p>
      * 
      * @param singular The singular.
      * @return The plural.
      */
-    public static String wordToPlural(String singular) {
+    public static String wordToPluralEnglish(String singular) {
 
         if (singular == null) {
             return "";
@@ -275,18 +364,55 @@ public class WordTransformer {
         // if no other rule applied just add an s
         return singular + "s";
     }
-    
+
+    /**
+     * <p>
+     * Transform a German singular word to its plural form using the wiktionary DB.
+     * </p>
+     * 
+     * @param singularForm The singular form of the word.
+     * @return The plural form of the word.
+     */
+    public static String wordToPluralGerman(String singularForm) {
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+
+        WordDB wordDB = new WordDB(path);
+        Word word = wordDB.getWord(singularForm);
+
+        if (word != null && !word.getPlural().isEmpty()) {
+            return word.getPlural();
+        }
+
+        return singularForm;
+    }
+
     public static void main(String[] args) {
-        
+
         // 335ms
-        
+
         StopWatch sw = new StopWatch();
-        System.out.println(WordTransformer.wordToSingular("women"));
-        System.out.println(WordTransformer.wordToSingular("services")); // wrong
-        System.out.println(WordTransformer.wordToSingular("series"));
-        System.out.println(WordTransformer.wordToSingular("species"));
-        System.out.println(WordTransformer.wordToSingular("automata")); // wrong
-        System.out.println(WordTransformer.wordToSingular("archives")); // wrong
+        System.out.println(WordTransformer.wordToSingular("women", "en"));
+        System.out.println(WordTransformer.wordToSingular("services", "en")); // wrong
+        System.out.println(WordTransformer.wordToSingular("series", "en"));
+        System.out.println(WordTransformer.wordToSingular("species", "en"));
+        System.out.println(WordTransformer.wordToSingular("automata", "en")); // wrong
+        System.out.println(WordTransformer.wordToSingular("archives", "en")); // wrong
+
+        // de (requires db)
+        System.out.println(WordTransformer.wordToSingular("Kleider", "de"));
+        System.out.println(WordTransformer.wordToSingular("Getränke", "de"));
+        System.out.println(WordTransformer.wordToSingular("Hüte", "de"));
+        System.out.println(WordTransformer.wordToSingular("Häuser", "de"));
+        System.out.println(WordTransformer.wordToSingular("Autos", "de"));
+        System.out.println(WordTransformer.wordToSingular("Oktober", "de"));
+
+        System.out.println(WordTransformer.wordToPlural("Kleid", "de"));
+        System.out.println(WordTransformer.wordToPlural("Getränk", "de"));
+        System.out.println(WordTransformer.wordToPlural("Hut", "de"));
+        System.out.println(WordTransformer.wordToPlural("Haus", "de"));
+        System.out.println(WordTransformer.wordToPlural("Auto", "de"));
+        System.out.println(WordTransformer.wordToPlural("Oktober", "de"));
         System.out.println(sw.getElapsedTimeString());
     }
 
