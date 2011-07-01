@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.feeds;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -10,7 +12,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
  * <p>
@@ -51,6 +52,11 @@ class FeedTask implements Callable<FeedTaskResult> {
     private FeedTaskResult result = FeedTaskResult.OPEN;
 
     /**
+     * Additional header elements used in HTTP requests.
+     */
+    private Map<String, String> requestHeaders = new HashMap<String, String>();
+
+    /**
      * Creates a new retrieval task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
@@ -59,6 +65,34 @@ class FeedTask implements Callable<FeedTaskResult> {
         // setName("FeedTask:" + feed.getFeedUrl());
         this.feed = feed;
         this.feedReader = feedChecker;
+        createBasicRequestHeaders();
+    }
+
+    /**
+     * Create basic request headers.
+     * Set cache-control: no-cache to prevent getting cached results.
+     */
+    private void createBasicRequestHeaders() {
+        requestHeaders.put("cache-control", "no-cache");
+
+    }
+
+    /**
+     * Replace the request headers by the given ones.
+     * 
+     * @param requestHeaders New request headers to set.
+     */
+    private void setRequestHeaders(Map<String, String> requestHeaders) {
+        this.requestHeaders = requestHeaders;
+    }
+
+    /**
+     * Get the headers to use in a HTTP request.
+     * 
+     * @return The headers to use in a HTTP request.
+     */
+    private Map<String, String> getRequestHeaders() {
+        return requestHeaders;
     }
 
     @Override
@@ -75,7 +109,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             try {
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
-                httpResult = documentRetriever.httpGet(feed.getFeedUrl(), DatasetCreator.getRequestHeaders()); // FIXME
+                httpResult = documentRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document from, " + e.getMessage());
                 feed.incrementUnreachableCount();

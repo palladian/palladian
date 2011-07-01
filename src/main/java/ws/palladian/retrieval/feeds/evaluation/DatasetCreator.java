@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -70,24 +68,11 @@ public class DatasetCreator {
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
 
-    private static Map<String, String> requestHeaders = new HashMap<String, String>();
-
     public DatasetCreator() {
         detectSystemLimitations();
-        createRequestHeaders();
     }
 
-    /**
-     * Set cache-control: no-cache to prevent getting cached results.
-     */
-    private void createRequestHeaders() {
-        requestHeaders.put("cache-control", "no-cache");
 
-    }
-
-    public static Map<String, String> getRequestHeaders() {
-        return requestHeaders;
-    }
 
     /**
      * Cleaning up performs the following steps:
