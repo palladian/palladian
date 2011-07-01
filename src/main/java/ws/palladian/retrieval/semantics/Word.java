@@ -17,6 +17,9 @@ public class Word {
     /** The actual word. */
     private String word = "";
 
+    /** The word's plural if it's a noun. */
+    private String plural = "";
+
     /** The type of the word, e.g. "noun" or "adjective". */
     private String type = "";
 
@@ -29,10 +32,11 @@ public class Word {
     /** A set of hypernyms for this word. */
     private Set<Word> hypernyms = new LinkedHashSet<Word>();
 
-    public Word(int id, String word, String type, String language) {
+    public Word(int id, String word, String plural, String type, String language) {
         super();
         this.id = id;
         this.word = word;
+        this.plural = plural;
         this.type = type;
         this.language = language;
     }
@@ -51,6 +55,14 @@ public class Word {
 
     public void setWord(String word) {
         this.word = word;
+    }
+
+    public void setPlural(String plural) {
+        this.plural = plural;
+    }
+
+    public String getPlural() {
+        return plural;
     }
 
     public String getType() {
@@ -126,6 +138,8 @@ public class Word {
         builder.append(id);
         builder.append(", word=");
         builder.append(word);
+        builder.append(", plural=");
+        builder.append(plural);
         builder.append(", type=");
         builder.append(type);
         builder.append(", language=");
@@ -153,4 +167,5 @@ public class Word {
         builder.append("]");
         return builder.toString();
     }
+
 }

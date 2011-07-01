@@ -22,7 +22,15 @@ import ws.palladian.helper.nlp.StringHelper;
  * <p>
  * This class is a parser for the Wiktionary project dump files. The parser works for the German and English dumps which
  * can be found at <a href="http://dumps.wikimedia.org/dewiktionary/">German dumps</a> and <a
- * href="http://dumps.wikimedia.org/enwiktionary/">English dumps</a>.
+ * href="http://dumps.wikimedia.org/enwiktionary/">English dumps</a>. Use pages-articles.xml.bz2.
+ * </p>
+ * 
+ * <p>
+ * The German Word DB can be extended with data from openthesaurus.de. We need to download the SQL database
+ * (http://www.openthesaurus.de/about/download) query the hypernyms (SELECT t1.word,t2.word FROM term t1, term t2,
+ * synset s1, synset s2, synset_link sl WHERE t1.synset_id = s1.id AND t2.synset_id = s2.id AND sl.synset_id = s1.id AND
+ * sl.target_synset_id = s2.id AND sl.link_type_id=1;), export this data to a csv file (word;hypernym), and tell the
+ * parser to use this file for additional hypernyms.
  * </p>
  * 
  * @author David Urbansky
@@ -34,7 +42,7 @@ public class WiktionaryParser {
     private static final Logger LOGGER = Logger.getLogger(WiktionaryParser.class);
 
     /** The database where the dictionary is stored. */
-    private WordDB wordDB;
+    private final WordDB wordDB;
 
     /** The supported languages which the parser can handle. */
     public enum Language {
@@ -42,7 +50,13 @@ public class WiktionaryParser {
     };
 
     /** The language to use for the parsing. */
-    private Language corpusLanguage;
+    private final Language corpusLanguage;
+
+    /**
+     * The path to an additional hypernym file which should be used for parsing. The file has to have one
+     * hyponym;hypernym tuple per line.
+     */
+    private String additionalHypernymFile = "";
 
     public WiktionaryParser(String targetPath, Language language) {
         targetPath = FileHelper.addTrailingSlash(targetPath);
@@ -61,25 +75,24 @@ public class WiktionaryParser {
         final long bytesToProcess = new File(wiktionaryXmlFilePath).length();
 
         try {
-
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
 
             DefaultHandler handler = new DefaultHandler() {
 
-                long bytesProcessed = 0;
-                int elementsParsed = 0;
-                boolean isTitle = false;
-                boolean considerText = false;
-                boolean isText = false;
+                private long bytesProcessed = 0;
+                private int elementsParsed = 0;
+                private boolean isTitle = false;
+                private boolean considerText = false;
+                private boolean isText = false;
 
-                String currentWord = "";
-                StringBuilder text = new StringBuilder();
-                StopWatch sw = new StopWatch();
+                private String currentWord = "";
+                private StringBuilder text = new StringBuilder();
+                private final StopWatch sw = new StopWatch();
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                throws SAXException {
+                        throws SAXException {
 
                     // System.out.println("Start Element :" + qName);
 
@@ -100,10 +113,17 @@ public class WiktionaryParser {
                     if (word.equalsIgnoreCase("ewusersonly")) {
                         return;
                     }
+
+                    // if (word.equalsIgnoreCase("April")) {
+                    // System.out.println("haus");
+                    // }
+
+                    String plural = "";
                     String language = "";
                     String wordType = "";
                     List<String> synonyms = new ArrayList<String>();
                     List<String> hypernyms = new ArrayList<String>();
+                    List<String> hyponyms = new ArrayList<String>();
 
                     String textString = text.toString();
 
@@ -141,10 +161,44 @@ public class WiktionaryParser {
                         }
                     }
 
+                    // get the plural if noun
+                    if (corpusLanguage.equals(Language.GERMAN) && wordType.equalsIgnoreCase("substantiv")) {
+                        plural = StringHelper.getSubstringBetween(textString, "{{Silbentrennung}}\n", "\n");
+
+                        if (plural.length() == 0) {
+                            plural = StringHelper.getSubstringBetween(textString, "{{Silbentrennung}} \n", "\n");
+                        }
+
+                        int index = plural.indexOf("{{Pl.}}");
+                        if (index > -1) {
+                            plural = plural.substring(plural.indexOf("{{Pl.}}") + 7);
+                        } else {
+                            index = plural.indexOf("{{Pl.1}}");
+                            if (index > -1) {
+                                plural = plural.substring(plural.indexOf("{{Pl.1}}") + 8);
+                                index = plural.indexOf(",");
+                                if (index > -1) {
+                                    plural = plural.substring(0, index);
+                                } else {
+                                    plural = "";
+                                }
+                            }
+                        }
+                        plural = StringHelper.trim(plural.replace("\n", "").replace("·", "").replaceAll("''.*?''", ""));
+                    }
+                    if (plural.length() > WordDB.MAX_WORD_LENGTH) {
+                        plural = "";
+                    }
+
                     String synonymString = "";
 
                     if (corpusLanguage.equals(Language.GERMAN)) {
                         synonymString = StringHelper.getSubstringBetween(textString, "{{Synonyme}}", "{{");
+
+                        // take only the line starting with [1] because it is the most relevant, the others are too far
+                        // off
+                        synonymString = StringHelper.getSubstringBetween(synonymString, ":[1]", "\n");
+
                         synonyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", synonymString);
                     } else if (corpusLanguage.equals(Language.ENGLISH)) {
                         synonymString = StringHelper.getSubstringBetween(textString, "====Synonyms====", "===");
@@ -154,17 +208,27 @@ public class WiktionaryParser {
                     // hypernyms are only available in German, strange though...
                     if (corpusLanguage.equals(Language.GERMAN)) {
                         String hypernymString = StringHelper.getSubstringBetween(textString, "{{Oberbegriffe}}", "{{");
+                        hypernymString = StringHelper.getSubstringBetween(hypernymString, ":[1]", "\n");
                         hypernyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", hypernymString);
                     }
+
+                    // get descending words (words from which the current one is the hypernym)
+                    if (corpusLanguage.equals(Language.GERMAN)) {
+                        String hyponymString = StringHelper.getSubstringBetween(textString, "{{Unterbegriffe}}", "{{");
+                        hyponymString = StringHelper.getSubstringBetween(hyponymString, ":[1]", "\n");
+                        hyponyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", hyponymString);
+                    }
+
                     Word wordObject = wordDB.getWord(word);
                     if (wordObject == null) {
-                        wordObject = new Word(-1, word, wordType, language);
+                        wordObject = new Word(-1, word, plural, wordType, language);
                         wordDB.addWord(wordObject);
 
                         // get it from the db again to get the correct id
                         wordObject = wordDB.getWord(word);
 
                     } else {
+                        wordObject.setPlural(plural);
                         wordObject.setType(wordType);
                         wordObject.setLanguage(language);
                         wordDB.updateWord(wordObject);
@@ -173,6 +237,7 @@ public class WiktionaryParser {
                     if (wordObject != null) {
                         wordDB.addSynonyms(wordObject, synonyms);
                         wordDB.addHypernyms(wordObject, hypernyms);
+                        wordDB.addHyponyms(wordObject, hyponyms);
                     }
 
                     if (elementsParsed++ % 100 == 0) {
@@ -192,7 +257,6 @@ public class WiktionaryParser {
                             try {
                                 postProcess(currentWord, text);
                             } catch (SQLException e) {
-                                // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                         }
@@ -231,11 +295,63 @@ public class WiktionaryParser {
 
             saxParser.parse(wiktionaryXmlFilePath, handler);
 
+            // if we have an additional hypernym file, parse it
+            if (getAdditionalHypernymFile().length() > 0) {
+                List<String> hypernymArray = FileHelper.readFileToArray(getAdditionalHypernymFile());
+
+                String lastHyponym = "";
+                List<String> hypernyms = new ArrayList<String>();
+
+                int c = 0;
+                for (String wordPair : hypernymArray) {
+
+                    String[] words = wordPair.split(";");
+
+                    if (words.length < 2) {
+                        continue;
+                    }
+
+                    String hyponym = StringHelper.trim(StringHelper.removeBrackets(words[0]));
+                    String hypernym = StringHelper.trim(StringHelper.removeBrackets(words[1]));
+
+                    if (!hyponym.equals(lastHyponym)) {
+
+                        if (lastHyponym.length() > 0) {
+                            Word wordObject = wordDB.getWord(lastHyponym);
+                            if (wordObject != null) {
+                                wordDB.addHypernyms(wordObject, hypernyms);
+                            }
+                            hypernyms = new ArrayList<String>();
+                            hypernyms.add(hypernym);
+                        } else {
+                            hypernyms.add(hypernym);
+                        }
+                        lastHyponym = hyponym;
+                    } else {
+                        hypernyms.add(hypernym);
+                    }
+
+                    if (c++ % 100 == 0) {
+                        LOGGER.info(MathHelper.round(100 * c / hypernymArray.size(), 2)
+                                + "% of additional hypernyms processed");
+                    }
+
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         wordDB.writeToDisk();
+    }
+
+    public String getAdditionalHypernymFile() {
+        return additionalHypernymFile;
+    }
+
+    public void setAdditionalHypernymFile(String additionalHypernymFile) {
+        this.additionalHypernymFile = additionalHypernymFile;
     }
 
     /**
@@ -248,11 +364,14 @@ public class WiktionaryParser {
 
         // German
         WiktionaryParser wpG = new WiktionaryParser("data/temp/wordDatabaseGerman/", Language.GERMAN);
-        wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
+        // wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
+        wpG.setAdditionalHypernymFile("data/temp/openthesaurusHypernyms.csv");
+        wpG.parseAndCreateDB("data/temp/dewiktionary-20110620-pages-articles.xml");
+        // wpG.parseAndCreateDB("data/temp/disk1.xml");
 
         // English
-        WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
-        wpE.parseAndCreateDB("data/temp/enwiktionary-20110402-pages-meta-current.xml");
+        // WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
+        // wpE.parseAndCreateDB("data/temp/enwiktionary-20110402-pages-meta-current.xml");
 
         LOGGER.info("created wiktionary DB in " + sw.getElapsedTimeString());
     }
