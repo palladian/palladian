@@ -69,8 +69,14 @@ public class DatasetCreator {
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
 
-    /** Used if item has no time stamp to write as default value. */
+    /** Used as default value in csv file if item has no time stamp. */
     public static final String NO_TIMESTAMP = "0000000000000";
+
+    /** Used as default value in csv file if item has no title. */
+    public static final String NO_TITLE_REPLACEMENT = "\"###NO_TITLE###\"";
+
+    /** Used as default value in csv file if item has no link. */
+    private static final String NO_LINK_REPLACEMENT = "\"###NO_LINK###\"";
 
     public DatasetCreator() {
         detectSystemLimitations();
@@ -342,7 +348,7 @@ public class DatasetCreator {
                         recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
                         recentWindowSize = Integer.parseInt(recentWindow);
                     } catch (Throwable th) {
-                        LOGGER.fatal("Could not read window size from position " + windowSizePositionInCSV
+                        LOGGER.error("Could not read window size from position " + windowSizePositionInCSV
                                 + " (start with 0) in csv file for feedID " + feed.getId()
                                 + ", using current window size instead.");
                     }
@@ -354,69 +360,68 @@ public class DatasetCreator {
 
                 long pollTimestamp = feed.getLastPollTime().getTime();
 
-                StringBuilder entryWarnings = new StringBuilder();
+                // get all hashes from items stored to file
+                HashSet<String> savedFileEntryHashes = new HashSet<String>();
+                for (String savedFileEntry : fileEntries) {
+                    savedFileEntryHashes.add(savedFileEntry.split(";")[2]);
+                }
+
+                // StringBuilder entryWarnings = new StringBuilder();
 
                 LOGGER.debug("Feed entries: " + feedEntries.size());
                 for (FeedItem item : feedEntries) {
 
+                    String itemHash = item.getHash();
+                    if (savedFileEntryHashes.contains(itemHash)) {
+                        // this item is already known, do nothing with it.
+                        continue;
+                    }
+
+                    // build csv line for new entry
                     StringBuilder fileEntry = new StringBuilder();
-                    StringBuilder fileEntryID = new StringBuilder();
 
-                    // title
-                    if (item.getTitle() == null || item.getTitle().length() == 0) {
-                        fileEntryID.append("\"###NO_TITLE###\";");
-                    } else {
-                        fileEntryID.append("\""
-                                + StringHelper.removeControlCharacters(item.getTitle()).replaceAll("\"", "'")
-                                        .replaceAll(";", "putSemicolonHere") + "\";");
-                    }
-
-                    // link
-                    if (item.getLink() == null || item.getLink().length() == 0) {
-                        fileEntryID.append("\"###NO_LINK###\";");
-                    } else {
-                        fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
-                    }
-
-                    // publish or updated date
+                    // item publish or updated date
                     if (item.getPublished() == null) {
-                        entryWarnings.append("entry has no published date, setting default value for item: ")
-                                .append(item).append("; ");
                         fileEntry.append(NO_TIMESTAMP).append(";");
                     } else {
                         fileEntry.append(item.getPublished().getTime()).append(";");
                     }
 
+                    // poll timestamp
                     fileEntry.append(pollTimestamp).append(";");
-                    fileEntry.append(item.getHash()).append(";");
-                    fileEntry.append(fileEntryID);
+
+                    // item hash
+                    fileEntry.append(itemHash).append(";");
+
+                    // item title
+                    if (item.getTitle() == null || item.getTitle().length() == 0) {
+                        fileEntry.append(NO_TITLE_REPLACEMENT).append(";");
+                    } else {
+                        fileEntry.append("\"");
+                        fileEntry.append(StringHelper.cleanStringToCsv(item.getTitle()));
+                        fileEntry.append("\";");
+                    }
+
+                    // item link
+                    if (item.getLink() == null || item.getLink().length() == 0) {
+                        fileEntry.append(NO_LINK_REPLACEMENT).append(";");
+                    } else {
+                        fileEntry.append("\"");
+                        fileEntry.append(StringHelper.cleanStringToCsv(item.getLink()));
+                        fileEntry.append("\";");
+                    }
+
+                    // window size
                     fileEntry.append(feed.getWindowSize()).append(";");
-                    // ignore entry size, we can get it later from *.gz
 
-                    // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
-                    // Why not also using publish timestamp? We currently ignore on-the-fly generated timestamps, is
-                    // this what we want? -- Sandro
-                    boolean contains = false;
-                    for (String savedFileEntry : fileEntries) {
-                        // ignore first+second timestamp
-                        if (savedFileEntry.substring(savedFileEntry.indexOf(";", savedFileEntry.indexOf(";") + 1) + 1)
-                                .startsWith(fileEntryID.toString())) {
-                            contains = true;
-                            break;
-
-                        }
-                    }
-
-                    if (!contains) {
-                        newEntries.add(fileEntry.toString());
-                        newItems++;
-                    }
+                    newEntries.add(fileEntry.toString());
+                    newItems++;
 
                 }
 
-                if (entryWarnings.length() > 0) {
-                    FeedReader.LOGGER.warn(entryWarnings);
-                }
+                // if (entryWarnings.length() > 0) {
+                // FeedReader.LOGGER.warn(entryWarnings);
+                // }
 
                 feed.incrementNumberOfItemsReceived(newItems);
 
@@ -424,7 +429,7 @@ public class DatasetCreator {
                 // special line
                 if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
                     feed.increaseMisses();
-                    newEntries.add("MISS;;;;;");
+                    newEntries.add("MISS;;;;;;");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                             + feed.getChecks() + ", misses: " + feed.getMisses());
                 }
@@ -530,6 +535,7 @@ public class DatasetCreator {
         LOGGER.debug("start reading feeds");
         feedChecker.startContinuousReading();
     }
+
 
     /**
      * @param feedID
