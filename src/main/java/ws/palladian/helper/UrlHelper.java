@@ -39,10 +39,12 @@ public class UrlHelper {
             // let's java.net.URL do all the conversion work from relative to absolute
             URL resultUrl = null;
             // create URL object from the supplied pageUrl
-            try {
-                resultUrl = new URL(pageUrl);
-            } catch (MalformedURLException e) {
-                LOGGER.error("makeFullURL: pageUrl: " + e.getMessage());
+            if (pageUrl != null) {
+                try {
+                    resultUrl = new URL(pageUrl);
+                } catch (MalformedURLException e) {
+                    LOGGER.error("makeFullURL: pageUrl: " + e.getMessage());
+                }
             }
             // create URL object considering baseUrl, relative to pageUrl
             try {
