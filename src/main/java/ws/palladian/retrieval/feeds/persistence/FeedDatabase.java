@@ -22,6 +22,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Sandro Reichert
  * 
  */
 public class FeedDatabase extends DatabaseManager implements FeedStore {
@@ -55,6 +56,24 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
+     * Truncate a string to 255 chars to store it as varchar(255). In case the string is truncated, a message is written
+     * to error log.
+     * 
+     * @param input The string to truncate.
+     * @param name The name of the input like "title" or "feedUrl", required to write meaningful log message.
+     * @param feed Something to identify the feed. Use id or feedUrl. Required to write meaningful log message.
+     * @return The input string, truncated to 255 chars if longer. <code>null</code> if input was <code>null</code>.
+     */
+    private String truncateToVarchar255(String input, String name, String feed) {
+        String output = input;
+        if (input != null && input.length() > 255) {
+            output = input.substring(0, 254);
+            LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
+        }
+        return output;
+    }
+
+    /**
      * @return <code>true</code> if feed and meta information have been added, <code>false</code> if at least one of
      *         feed or meta information have not been added.
      */
@@ -63,7 +82,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         boolean added = false;
 
         List<Object> parameters = new ArrayList<Object>();
-        parameters.add(feed.getFeedUrl());
+        parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getFeedUrl()));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getNewestItemHash());
@@ -72,7 +91,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getLastPollTimeSQLTimestamp());
-        parameters.add(feed.getLastETag());
+        parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
@@ -253,14 +272,14 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         boolean updated = false;
 
         List<Object> parameters = new ArrayList<Object>();
-        parameters.add(feed.getFeedUrl());
+        parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getId() + ""));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntry());
-        parameters.add(feed.getLastETag());
+        parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getId() + ""));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
         parameters.add(feed.getLastPollTime());
         parameters.add(feed.getActivityPattern());
@@ -303,10 +322,12 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public boolean updateMetaInformation(Feed feed) {
         List<Object> parameters = new ArrayList<Object>();
 
-        parameters.add(feed.getMetaInformation().getSiteUrl());
+        // truncateToVarchar255(, "feedUrl", feed.getId()+"")
+
+        parameters.add(truncateToVarchar255(feed.getMetaInformation().getSiteUrl(), "siteUrl", feed.getId() + ""));
         parameters.add(feed.getMetaInformation().getAddedSQLTimestamp());
-        parameters.add(feed.getMetaInformation().getTitle());
-        parameters.add(feed.getMetaInformation().getLanguage());
+        parameters.add(truncateToVarchar255(feed.getMetaInformation().getTitle(), "title", feed.getId() + ""));
+        parameters.add(truncateToVarchar255(feed.getMetaInformation().getLanguage(), "language", feed.getId() + ""));
         parameters.add(feed.getMetaInformation().getByteSize());
         parameters.add(feed.getMetaInformation().getCgHeaderSize());
         parameters.add(feed.getMetaInformation().isSupportsPubSubHubBub());
