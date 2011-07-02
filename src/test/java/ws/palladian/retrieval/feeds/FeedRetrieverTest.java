@@ -165,7 +165,7 @@ public class FeedRetrieverTest {
         // arabic characters
         Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed100.xml").getFile()));
         FeedItem item = feed.getItems().iterator().next();
-        Assert.assertEquals("الجزيرة نت", feed.getTitle());
+        Assert.assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
         Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
         Assert.assertEquals(80, feed.getItems().size());
 
