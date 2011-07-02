@@ -399,6 +399,10 @@ public final class FeedReader {
         return getFeedStore().updateFeed(feed);
     }
 
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
+        return getFeedStore().updateFeed(feed, updateMetaInformation);
+    }
+
     /**
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),

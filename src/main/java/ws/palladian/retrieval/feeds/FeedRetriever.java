@@ -147,7 +147,7 @@ public class FeedRetriever {
         Feed result = getFeed(syndFeed, feedUrl);
 
         // set the (uncompressed) size of the feed
-        result.setByteSize(Long.valueOf(httpResult.getContent().length));
+        result.getMetaInformation().setByteSize(Long.valueOf(httpResult.getContent().length));
 
         return result;
     }
@@ -229,14 +229,14 @@ public class FeedRetriever {
         result.setFeedUrl(feedUrl);
 
         if (syndFeed.getLink() != null) {
-            result.setSiteUrl(syndFeed.getLink().trim());
+            result.getMetaInformation().setSiteUrl(syndFeed.getLink().trim());
         }
 
         if (syndFeed.getTitle() != null && syndFeed.getTitle().length() > 0) {
-            result.setTitle(syndFeed.getTitle().trim());
+            result.getMetaInformation().setTitle(syndFeed.getTitle().trim());
         }
 
-        result.setLanguage(syndFeed.getLanguage());
+        result.getMetaInformation().setLanguage(syndFeed.getLanguage());
 
         // get Feed items with ROME and assign to feed
         addFeedItems(result, syndFeed);

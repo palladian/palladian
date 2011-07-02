@@ -13,7 +13,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
- * 
+ * @author Sandro Reichert
  */
 public class CollectionFeedSource implements FeedStore {
 
@@ -93,6 +93,18 @@ public class CollectionFeedSource implements FeedStore {
     public int addFeedItems(Feed feed, List<FeedItem> items) {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    @Override
+    public boolean updateMetaInformation(Feed feed) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

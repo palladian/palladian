@@ -87,7 +87,7 @@ public class FeedImporter {
                 feed.setWindowSize(feed.getItems().size());
 
                 // set feed and site URL
-                feed.setFeedUrl(cleanedURL, true);
+                feed.setFeedUrl(cleanedURL);
 
                 // add feed & entries to the store
                 store.addFeed(feed);

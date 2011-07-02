@@ -166,8 +166,8 @@ public class FeedReaderEvaluator {
                     csv.append(numberOfPoll).append(separator);
                     csv.append(feed.getActivityPattern()).append(separator);
 
-                    if (feed.getCgHeaderSize() != null) {
-                        csv.append(feed.getCgHeaderSize()).append(separator);
+                    if (feed.getMetaInformation().getCgHeaderSize() != null) {
+                        csv.append(feed.getMetaInformation().getCgHeaderSize()).append(separator);
                     } else {
                         csv.append("\\N").append(separator);
                     }

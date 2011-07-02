@@ -2,6 +2,13 @@ package ws.palladian.retrieval.feeds.meta;
 
 import java.util.Date;
 
+/**
+ * Store meta information for a single poll.
+ * 
+ * 
+ * @author Sandro Reichert
+ * 
+ */
 public class PollMetaInformation {
 
     private int feedID = -1;
@@ -254,10 +261,29 @@ public class PollMetaInformation {
      */
     @Override
     public String toString() {
-        return "PollMetaInformation [feedID=" + feedID + ", pollTimestamp=" + pollTimestamp + ", httpETag=" + httpETag
-                + ", httpDate=" + httpDate + ", httpLastModified=" + httpLastModified + ", httpExpires=" + httpExpires
-                + ", httpTTL=" + httpTTL + ", newestItemTimestamp=" + newestItemTimestamp + ", numberNewItems="
-                + numberNewItems + ", windowSize=" + windowSize + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("PollMetaInformation [feedID=");
+        builder.append(feedID);
+        builder.append(", pollTimestamp=");
+        builder.append(pollTimestamp);
+        builder.append(", httpETag=");
+        builder.append(httpETag);
+        builder.append(", httpDate=");
+        builder.append(httpDate);
+        builder.append(", httpLastModified=");
+        builder.append(httpLastModified);
+        builder.append(", httpExpires=");
+        builder.append(httpExpires);
+        builder.append(", httpTTL=");
+        builder.append(httpTTL);
+        builder.append(", newestItemTimestamp=");
+        builder.append(newestItemTimestamp);
+        builder.append(", numberNewItems=");
+        builder.append(numberNewItems);
+        builder.append(", windowSize=");
+        builder.append(windowSize);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

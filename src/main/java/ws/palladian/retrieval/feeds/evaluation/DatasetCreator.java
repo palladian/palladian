@@ -329,7 +329,8 @@ public class DatasetCreator {
 
                 // load only the last window from file
                 int recentWindowSize = feed.getWindowSize();
-                if (feed.hasVariableWindowSize()) {
+
+                if (feed.hasVariableWindowSize() != null && feed.hasVariableWindowSize()) {
                     List<String> lastFileEntries = FileHelper.tail(filePath, 1);
                     int windowSizePositionInCSV = 4;
                     String recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
@@ -443,6 +444,7 @@ public class DatasetCreator {
 
                 processPollMetadata(feed, httpResult, newItems);
 
+
                 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
@@ -507,7 +509,7 @@ public class DatasetCreator {
                 metadata.append("numberNewItems=").append(newItems);
                 metadata.append("windowSize=").append(feed.getWindowSize());
 
-                LOGGER.info(metadata);
+                // LOGGER.info(metadata);
             }
 
         };
