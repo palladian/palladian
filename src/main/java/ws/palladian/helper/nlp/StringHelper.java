@@ -35,6 +35,12 @@ public class StringHelper {
     /** The Constant BRACKETS. A list of bracket types. */
     private static final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
 
+    /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
+    private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
+
+    /** Used to replace a double quote " in a string to store it in csv file that uses double quotes to enclose fields. */
+    private static final String DOUBLE_QUOTES_REPLACEMENT = "###putDoubleQuotesHere###";
+
     /**
      * In ontologies names can not have certain characters so they have to be changed.
      * 
@@ -1374,6 +1380,32 @@ public class StringHelper {
         caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
 
         return caseSignature;
+    }
+
+    /**
+     * Remove all evil characters from the string that prevent the string from being written into a single line of a csv
+     * file. Removes all control characters, replaces double quotes " by {@link #DOUBLE_QUOTES_REPLACEMENT} and replaces
+     * semicolons by {@link #SEMICOLON_REPLACEMENT}
+     * 
+     * @param text The string to be cleaned.
+     * @return The cleaned string.
+     * @see #recoverStringFromCsv(String)
+     */
+    public static String cleanStringToCsv(String text) {
+        return StringHelper.removeControlCharacters(text).replaceAll("\"", DOUBLE_QUOTES_REPLACEMENT)
+                .replaceAll(";", SEMICOLON_REPLACEMENT);
+    }
+
+    /**
+     * Restore double quotes " and semicolon in a string that is read from a csv file and has initially been processed
+     * by {@link #cleanStringToCsv(String)}.
+     * 
+     * @param csvText The text to recover.
+     * @return The partly reconstructed string. Removed control characters are not recovered.
+     * @see #cleanStringToCsv(String)
+     */
+    public static String recoverStringFromCsv(String csvText) {
+        return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
 
     /**
