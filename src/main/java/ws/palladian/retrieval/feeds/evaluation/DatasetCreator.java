@@ -333,8 +333,9 @@ public class DatasetCreator {
                 if (feed.hasVariableWindowSize() != null && feed.hasVariableWindowSize()) {
                     List<String> lastFileEntries = FileHelper.tail(filePath, 1);
                     int windowSizePositionInCSV = 4;
-                    String recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
+                    String recentWindow = null;
                     try {
+                        recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
                         recentWindowSize = Integer.parseInt(recentWindow);
                     } catch (Throwable th) {
                         LOGGER.fatal("Could not read window size from position " + windowSizePositionInCSV
@@ -348,7 +349,7 @@ public class DatasetCreator {
                 List<String> newEntries = new ArrayList<String>();
                 int newItems = 0;
 
-                long pollTimestamp = System.currentTimeMillis();
+                long pollTimestamp = feed.getLastPollTime().getTime();
 
                 StringBuilder entryWarnings = new StringBuilder();
 
