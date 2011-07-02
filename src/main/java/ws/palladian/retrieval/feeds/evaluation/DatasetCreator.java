@@ -42,7 +42,7 @@ import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * <pre>
- * ITEM_TIMESTAMP;POLL_TIMESTAMP;"TITLE";"LINK";WINDOWSIZE;
+ * ITEM_TIMESTAMP;POLL_TIMESTAMP;HASH;"TITLE";"LINK";WINDOWSIZE;
  * </pre>
  * <p>
  * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
@@ -56,6 +56,7 @@ import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
  */
 public class DatasetCreator {
 
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
@@ -67,6 +68,9 @@ public class DatasetCreator {
     public static final int FILE_HANDLES_PER_TASK = 20;
 
     public static final boolean CHECK_SYSTEM_LIMITATIONS_DEFAULT = true;
+
+    /** Used if item has no time stamp to write as default value. */
+    public static final String NO_TIMESTAMP = "0000000000000";
 
     public DatasetCreator() {
         detectSystemLimitations();
@@ -332,7 +336,7 @@ public class DatasetCreator {
 
                 if (feed.hasVariableWindowSize() != null && feed.hasVariableWindowSize()) {
                     List<String> lastFileEntries = FileHelper.tail(filePath, 1);
-                    int windowSizePositionInCSV = 4;
+                    int windowSizePositionInCSV = 5;
                     String recentWindow = null;
                     try {
                         recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
@@ -341,7 +345,6 @@ public class DatasetCreator {
                         LOGGER.fatal("Could not read window size from position " + windowSizePositionInCSV
                                 + " (start with 0) in csv file for feedID " + feed.getId()
                                 + ", using current window size instead.");
-                        recentWindowSize = feed.getWindowSize();
                     }
                 }
                 List<String> fileEntries = FileHelper.tail(filePath, recentWindowSize);
@@ -356,14 +359,10 @@ public class DatasetCreator {
                 LOGGER.debug("Feed entries: " + feedEntries.size());
                 for (FeedItem item : feedEntries) {
 
-                    if (item == null || item.getPublished() == null) {
-                        entryWarnings.append("entry has no published date, ignore it: ").append(item).append("; ");
-                        continue;
-                    }
-
                     StringBuilder fileEntry = new StringBuilder();
                     StringBuilder fileEntryID = new StringBuilder();
 
+                    // title
                     if (item.getTitle() == null || item.getTitle().length() == 0) {
                         fileEntryID.append("\"###NO_TITLE###\";");
                     } else {
@@ -372,13 +371,24 @@ public class DatasetCreator {
                                         .replaceAll(";", "putSemicolonHere") + "\";");
                     }
 
+                    // link
                     if (item.getLink() == null || item.getLink().length() == 0) {
                         fileEntryID.append("\"###NO_LINK###\";");
                     } else {
                         fileEntryID.append("\"" + StringHelper.trim(item.getLink()) + "\";");
                     }
-                    fileEntry.append(item.getPublished().getTime()).append(";");
+
+                    // publish or updated date
+                    if (item.getPublished() == null) {
+                        entryWarnings.append("entry has no published date, setting default value for item: ")
+                                .append(item).append("; ");
+                        fileEntry.append(NO_TIMESTAMP).append(";");
+                    } else {
+                        fileEntry.append(item.getPublished().getTime()).append(";");
+                    }
+
                     fileEntry.append(pollTimestamp).append(";");
+                    fileEntry.append(item.getHash()).append(";");
                     fileEntry.append(fileEntryID);
                     fileEntry.append(feed.getWindowSize()).append(";");
                     // ignore entry size, we can get it later from *.gz
