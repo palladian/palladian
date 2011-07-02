@@ -110,8 +110,8 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     @Override
     public FeedTaskResult call() {
+        StopWatch timer = new StopWatch();
         try {
-            StopWatch timer = new StopWatch();
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
@@ -137,8 +137,8 @@ class FeedTask implements Callable<FeedTaskResult> {
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
-                LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
                 result = FeedTaskResult.UNREACHABLE;
+                doFinalLogging(timer);
                 return result;
             }
 
@@ -170,22 +170,21 @@ class FeedTask implements Callable<FeedTaskResult> {
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
                 feedReader.getFeedProcessingAction().performActionOnError(feed, httpResult);
-
-                LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
                 result = FeedTaskResult.UNPARSABLE;
+                doFinalLogging(timer);
                 return result;
             }
 
             feed.setWindowSize(downloadedFeed.getItems().size());
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
-                LOGGER.debug("Current time: " + System.currentTimeMillis());
-                LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
-                LOGGER.debug("Current time - last poll time: "
-                        + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-                LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
-            }
+            // if (LOGGER.isDebugEnabled()) {
+            // LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
+            // LOGGER.debug("Current time: " + System.currentTimeMillis());
+            // LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
+            // LOGGER.debug("Current time - last poll time: "
+            // + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+            // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
+            // }
 
             // classify feed if it has never been classified before, do it once a month for each feed to be informed
             // about updates
@@ -230,14 +229,26 @@ class FeedTask implements Callable<FeedTaskResult> {
                 result = FeedTaskResult.ERROR;
             }
 
-            LOGGER.debug("Finished processing of feed id " + feed.getId() + " took " + timer.getElapsedTimeString());
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
             LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
             result = FeedTaskResult.ERROR;
         }
+        doFinalLogging(timer);
         return result;
+    }
+
+    /**
+     * Do final logging of result.
+     * 
+     * @param timer the {@link StopWatch} started when started processing the feed.
+     */
+    private void doFinalLogging(StopWatch timer) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Finished processing of feed id " + feed.getId() + ". Result: " + result
+                    + ". Processing took " + timer.getElapsedTimeString());
+        }
     }
 
 
