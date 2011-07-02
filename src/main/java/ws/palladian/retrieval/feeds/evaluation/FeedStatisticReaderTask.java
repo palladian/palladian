@@ -173,7 +173,7 @@ public class FeedStatisticReaderTask extends Thread {
 
         FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
         Feed feed = new Feed();
-        feed.setSiteUrl("");
+        feed.getMetaInformation().setSiteUrl("");
 
         // test case with variable window size
         // feed.setId(1001);

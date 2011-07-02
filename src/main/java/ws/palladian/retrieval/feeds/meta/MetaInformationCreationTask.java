@@ -39,18 +39,19 @@ import com.sun.syndication.io.SyndFeedInput;
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Sandro Reichert
  * @version 1.0
  * @since 1.0
- * 
+ * @deprecated Code refactored and moved to {@link MetaInformationExtractor} which is periodically called by
+ *             {@link FeedTask}.
  */
+@Deprecated
 public final class MetaInformationCreationTask implements Runnable {
 
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
     private final Feed feed;
     
-    private final FeedMetaInformation metaInformation;
-
     private final FeedDatabase feedDatabase;
 
     private static final Pattern[] VALID_FEED_PATTERNS = new Pattern[] { Pattern.compile("<rss"),
@@ -61,7 +62,6 @@ public final class MetaInformationCreationTask implements Runnable {
     public MetaInformationCreationTask(Feed feed, FeedDatabase dbManager) {
         this.feed = feed;
         this.feedDatabase = dbManager;
-        metaInformation = new FeedMetaInformation(feed);
     }
 
     private String getContent(URL feedURL) throws IOException {
@@ -101,25 +101,6 @@ public final class MetaInformationCreationTask implements Runnable {
         return ret;
     }
 
-    /**
-     * Checks if a web feeds server does support condition gets.
-     * 
-     * @param feed
-     *            The feed to check.
-     * @param responseSize
-     *            Contains the size of the returned message with HTTP Status
-     *            code 304 or -1 if conditional get is not supported.
-     * @return {@code true} if the feed supports conditional gets, {@code false} otherwise.
-     * @throws IOException
-     */
-    private boolean getFeedSupports304(final HttpURLConnection connection) throws IOException {
-        boolean ret = false;
-
-        if (HttpURLConnection.HTTP_NOT_MODIFIED == connection.getResponseCode()) {
-            ret = true;
-        }
-        return ret;
-    }
 
     private boolean getFeedSupportsPubSubHubBub(final URLConnection connection) throws IOException {
         if (currentFeedContent != null && currentFeedContent.contains("rel=\"hub\"")) {
@@ -146,11 +127,6 @@ public final class MetaInformationCreationTask implements Runnable {
         return feed;
     }
 
-    private boolean getSupportsETag(final URLConnection connection) {
-        boolean ret = false;
-        ret = connection.getHeaderField("Etag") == null;
-        return ret;
-    }
 
     private boolean isAccessibleFeed(HttpURLConnection connection) throws IOException {
         if (HttpURLConnection.HTTP_NOT_FOUND == connection.getResponseCode()
@@ -203,30 +179,16 @@ public final class MetaInformationCreationTask implements Runnable {
 
         try {
             boolean isAccessibleFeed = isAccessibleFeed(connection);
-            metaInformation.setAccessible(isAccessibleFeed);
+            feed.getMetaInformation().setAccessible(isAccessibleFeed);
         } catch (IOException e) {
             LOGGER.error("Unable to check if feed at URL " + feed.getFeedUrl() + " is accessible.");
         }
 
-        boolean supports304 = false;
-        try {
-            supports304 = getFeedSupports304(connection);
-            metaInformation.setSupports304(supports304);
-        } catch (IOException e) {
-            LOGGER.error("Could not get HTTP header information for feed with id: " + feed.getId() + ".");
-        }
-
-        boolean supportsETag = getSupportsETag(connection);
-        metaInformation.setSupportsETag(supportsETag);
         
-        if (supports304) {
-            int responseSize = getFeedResponseSize(connection);
-            metaInformation.setResponseSize(responseSize);
-        }
 
         try {
             boolean supportsPubSubHubBub = getFeedSupportsPubSubHubBub(connection);
-            metaInformation.setSupportsPubSubHubBub(supportsPubSubHubBub);
+            feed.getMetaInformation().setSupportsPubSubHubBub(supportsPubSubHubBub);
         } catch (IOException e1) {
             LOGGER.error("Could not get Content with information about PubSubHubBub information for feed with id: "
                     + feed.getId() + ".");
@@ -237,7 +199,7 @@ public final class MetaInformationCreationTask implements Runnable {
         try {
             syndFeed = getSyndFeed();
             feedVersion = getFeedVersion(syndFeed);
-            metaInformation.setFeedFormat(feedVersion);
+            feed.getMetaInformation().setFeedFormat(feedVersion);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Unable to determine feed version.", e);
         } catch (FeedException e) {
@@ -251,14 +213,14 @@ public final class MetaInformationCreationTask implements Runnable {
         
         if (feedVersion != null) {
             if (feedVersion.toLowerCase().contains("rss")) {
-                determineRssMetaInformation(syndFeed, metaInformation);
+                determineRssMetaInformation(syndFeed, feed);
             } else if (feedVersion.toLowerCase().contains("atom")) {
-                determineAtomMetaInformation(syndFeed, metaInformation);
+                determineAtomMetaInformation(syndFeed, feed);
             }
         }
 
         try {
-            boolean success = feedDatabase.updateMetaInformation(feed, metaInformation);
+            boolean success = feedDatabase.updateMetaInformation(feed);
             if (!success) {
                 throw new RuntimeException("Unable to store results to Database.");
             }
@@ -282,16 +244,16 @@ public final class MetaInformationCreationTask implements Runnable {
      * @param syndFeed
      * @param metaInformation
      */
-    private void determineAtomMetaInformation(SyndFeed syndFeed, FeedMetaInformation metaInformation) {
+    private void determineAtomMetaInformation(SyndFeed syndFeed, Feed feed) {
         Iterator<?> it = syndFeed.getEntries().iterator();
         if (it.hasNext()) {
             SyndEntry syndEntry = (SyndEntry) it.next();
             com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) syndEntry.getWireEntry();
             String rawId = atomEntry.getId();
 
-            metaInformation.setHasItemIds(rawId != null && !rawId.isEmpty());
-            metaInformation.setHasUpdated(atomEntry.getUpdated() != null);
-            metaInformation.setHasPublished(atomEntry.getPublished() != null);
+            feed.getMetaInformation().setHasItemIds(rawId != null && !rawId.isEmpty());
+            feed.getMetaInformation().setHasUpdated(atomEntry.getUpdated() != null);
+            feed.getMetaInformation().setHasPublished(atomEntry.getPublished() != null);
         }
     }
 
@@ -300,7 +262,7 @@ public final class MetaInformationCreationTask implements Runnable {
      * @param syndFeed
      * @param metaInformation
      */
-    private void determineRssMetaInformation(SyndFeed syndFeed, FeedMetaInformation metaInformation) {
+    private void determineRssMetaInformation(SyndFeed syndFeed, Feed feed) {
         Iterator<?> it = syndFeed.getEntries().iterator();
         if (it.hasNext()) {
             SyndEntry syndEntry = (SyndEntry) it.next();
@@ -309,12 +271,12 @@ public final class MetaInformationCreationTask implements Runnable {
             com.sun.syndication.feed.rss.Channel channel = (com.sun.syndication.feed.rss.Channel) syndFeed.originalWireFeed();
             Guid guid = rssItem.getGuid();
 
-            metaInformation.setHasItemIds(guid != null && !guid.getValue().isEmpty());
-            metaInformation.setHasPubDate(rssItem.getPubDate() != null);
-            metaInformation.setHasCloud(channel.getCloud() != null);
-            metaInformation.setTtl(channel.getTtl());
-            metaInformation.setHasSkipDays(!channel.getSkipDays().isEmpty());
-            metaInformation.setHasSkipHours(!channel.getSkipHours().isEmpty());
+            feed.getMetaInformation().setHasItemIds(guid != null && !guid.getValue().isEmpty());
+            feed.getMetaInformation().setHasPubDate(rssItem.getPubDate() != null);
+            feed.getMetaInformation().setHasCloud(channel.getCloud() != null);
+            feed.getMetaInformation().setTtl(channel.getTtl());
+            feed.getMetaInformation().setHasSkipDays(!channel.getSkipDays().isEmpty());
+            feed.getMetaInformation().setHasSkipHours(!channel.getSkipHours().isEmpty());
         }
     }
 

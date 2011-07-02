@@ -15,7 +15,6 @@ import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
@@ -32,8 +31,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?";
-    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?, supportsLMS = ?, supportsETag = ?, lastPollTime = ?, lastETag = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ?, byteSize = ?";
-    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, newestItemHash = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, numberOfItems = ?, byteSize = ? WHERE id = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds ORDER BY id ASC";
@@ -46,7 +45,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
-    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET supportsLMS = ?, supportsETag = ?, conditionalGetResponseSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
+    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
     /**
      * @param connectionManager
@@ -55,26 +54,26 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         super(connectionManager);
     }
 
+    /**
+     * @return <code>true</code> if feed and meta information have been added, <code>false</code> if at least one of
+     *         feed or meta information have not been added.
+     */
     @Override
     public boolean addFeed(Feed feed) {
         boolean added = false;
 
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(feed.getFeedUrl());
-        parameters.add(feed.getSiteUrl());
-        parameters.add(feed.getTitle());
-        parameters.add(feed.getLanguage());
         parameters.add(feed.getChecks());
-        parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
+        parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
-        parameters.add(feed.getLMSSupport());
-        parameters.add(feed.getETagSupport());
         parameters.add(feed.getLastPollTimeSQLTimestamp());
         parameters.add(feed.getLastETag());
+        parameters.add(feed.getHttpLastModifiedSQLTimestamp());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
@@ -83,12 +82,18 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getWindowSize());
         parameters.add(feed.hasVariableWindowSize());
         parameters.add(feed.getNumberOfItemsReceived());
-        parameters.add(feed.getByteSize());
 
         int result = runInsertReturnId(ADD_FEED, parameters);
         if (result > 0) {
             feed.setId(result);
             added = true;
+        }
+
+        if (added) {
+            added = updateMetaInformation(feed);
+            if (!added) {
+                LOGGER.error("Feed id " + feed.getId() + " has been added but meta information could not be written!");
+            }
         }
 
         return added;
@@ -238,8 +243,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return parameters;
     }
 
-    @Override
-    public boolean updateFeed(Feed feed) {
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
 
         if (feed.getId() == -1) {
             LOGGER.debug("feed does not exist and is added therefore");
@@ -250,16 +254,14 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(feed.getFeedUrl());
-        parameters.add(feed.getSiteUrl());
-        parameters.add(feed.getTitle());
-        parameters.add(feed.getLanguage());
         parameters.add(feed.getChecks());
-        parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getUpdateInterval());
         parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
+        parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntry());
         parameters.add(feed.getLastETag());
+        parameters.add(feed.getHttpLastModifiedSQLTimestamp());
         parameters.add(feed.getLastPollTime());
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getTotalProcessingTime());
@@ -270,15 +272,21 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getWindowSize());
         parameters.add(feed.hasVariableWindowSize());
         parameters.add(feed.getNumberOfItemsReceived());
-        parameters.add(feed.getByteSize());
         parameters.add(feed.getId());
 
-        int result = runUpdate(UPDATE_FEED, parameters);
-        if (result == 1) {
-            updated = true;
+        updated = runUpdate(UPDATE_FEED, parameters) != -1;
+
+        if (updated && updateMetaInformation) {
+            updated = updateMetaInformation(feed);
         }
 
         return updated;
+    }
+
+
+    @Override
+    public boolean updateFeed(Feed feed) {
+        return updateFeed(feed, true);
     }
 
     public void updateFeedPostDistribution(Feed feed, Map<Integer, int[]> postDistribution) {
@@ -292,24 +300,27 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
     }
 
-    public boolean updateMetaInformation(Feed feed, FeedMetaInformation metaInformation) {
+    public boolean updateMetaInformation(Feed feed) {
         List<Object> parameters = new ArrayList<Object>();
 
-        parameters.add(metaInformation.isSupports304());
-        parameters.add(metaInformation.isSupportsETag());
-        parameters.add(metaInformation.getResponseSize());
-        parameters.add(metaInformation.isSupportsPubSubHubBub());
-        parameters.add(metaInformation.isAccessible());
-        parameters.add(metaInformation.getFeedFormat());
-        parameters.add(metaInformation.hasItemIds());
-        parameters.add(metaInformation.hasPubDate());
-        parameters.add(metaInformation.hasCloud());
-        parameters.add(metaInformation.getTtl());
-        parameters.add(metaInformation.hasSkipHours());
-        parameters.add(metaInformation.hasSkipDays());
-        parameters.add(metaInformation.hasUpdated());
-        parameters.add(metaInformation.hasPublished());
-
+        parameters.add(feed.getMetaInformation().getSiteUrl());
+        parameters.add(feed.getMetaInformation().getAddedSQLTimestamp());
+        parameters.add(feed.getMetaInformation().getTitle());
+        parameters.add(feed.getMetaInformation().getLanguage());
+        parameters.add(feed.getMetaInformation().getByteSize());
+        parameters.add(feed.getMetaInformation().getCgHeaderSize());
+        parameters.add(feed.getMetaInformation().isSupportsPubSubHubBub());
+        parameters.add(feed.getMetaInformation().isAccessible());
+        parameters.add(feed.getMetaInformation().getFeedFormat());
+        parameters.add(feed.getMetaInformation().hasItemIds());
+        parameters.add(feed.getMetaInformation().hasPubDate());
+        parameters.add(feed.getMetaInformation().hasCloud());
+        parameters.add(feed.getMetaInformation().getRssTtl());
+        parameters.add(feed.getMetaInformation().hasSkipHours());
+        parameters.add(feed.getMetaInformation().hasSkipDays());
+        parameters.add(feed.getMetaInformation().hasUpdated());
+        parameters.add(feed.getMetaInformation().hasPublished());
+        
         parameters.add(feed.getId());
         return runUpdate(UPDATE_FEED_META_INFORMATION, parameters) != -1;
     }

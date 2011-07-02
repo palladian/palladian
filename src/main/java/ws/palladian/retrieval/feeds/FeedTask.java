@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.http.impl.cookie.DateParseException;
+import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
@@ -12,6 +14,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
 
 /**
  * <p>
@@ -77,13 +80,23 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     }
 
+    // /**
+    // * Replace the request headers by the given ones.
+    // *
+    // * @param requestHeaders New request headers to set.
+    // */
+    // private void setRequestHeaders(Map<String, String> requestHeaders) {
+    // this.requestHeaders = requestHeaders;
+    // }
+
     /**
-     * Replace the request headers by the given ones.
+     * Add a key value pair to request headers.
      * 
-     * @param requestHeaders New request headers to set.
+     * @param key The name of the header.
+     * @param value The header's value.
      */
-    private void setRequestHeaders(Map<String, String> requestHeaders) {
-        this.requestHeaders = requestHeaders;
+    private void addRequestHeader(String key, String value) {
+        this.requestHeaders.put(key, value);
     }
 
     /**
@@ -102,16 +115,25 @@ class FeedTask implements Callable<FeedTaskResult> {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
-            FeedRetriever feedRetriever = new FeedRetriever();
+            // update http request headers
+            // FIXME: use headers as soon as #261 is resolved.
+            // if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
+            // addRequestHeader("If-None-Match", feed.getLastETag());
+            // }
+            // if (feed.getHttpLastModified() != null) {
+            // addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+            // }
+
             DocumentRetriever documentRetriever = new DocumentRetriever();
             HttpResult httpResult = null;
 
+            // remember the time the feed has been checked
+            feed.setLastPollTime(new Date());
+
             try {
-                // remember the time the feed has been checked
-                feed.setLastPollTime(new Date());
                 httpResult = documentRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
             } catch (HttpException e) {
-                LOGGER.error("Could not get Document from, " + e.getMessage());
+                LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
@@ -120,15 +142,30 @@ class FeedTask implements Callable<FeedTaskResult> {
                 return result;
             }
 
+            // extract and store http header information
+            feed.setLastETag(httpResult.getHeaderString("ETag"));
+
+            String lastModified = httpResult.getHeaderString("Last-Modified");
+            Date lastModifiedDate = null;
+            if (lastModified != null && !lastModified.isEmpty()) {
+                try {
+                    lastModifiedDate = DateUtils.parseDate(lastModified);
+                } catch (DateParseException e) {
+                    LOGGER.error("Could nor parse http header value for last-modified: \"" + lastModified + "\". "
+                            + e.getMessage());
+                }
+            }
+            feed.setHttpLastModified(lastModifiedDate);
+
+            FeedRetriever feedRetriever = new FeedRetriever();
+            Feed downloadedFeed = null;
             try {
                 // parse the feed and get all its entries, do that here since that takes some time and this is a thread
                 // so it can be done in parallel
-                Feed downloadedFeed = feedRetriever.getFeed(httpResult);
+                downloadedFeed = feedRetriever.getFeed(httpResult);
                 feed.setItems(downloadedFeed.getItems());
-                feed.setWindowSize(downloadedFeed.getItems().size());
-                feed.setByteSize(downloadedFeed.getByteSize());
             } catch (FeedRetrieverException e) {
-                LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+                LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
                 feed.incrementUnreachableCount();
                 feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
                 feedReader.updateFeed(feed);
@@ -139,20 +176,30 @@ class FeedTask implements Callable<FeedTaskResult> {
                 return result;
             }
 
-            // classify feed if it has never been classified before, do it once a month for each feed to be informed
-            // about updates
+            feed.setWindowSize(downloadedFeed.getItems().size());
+
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
                 LOGGER.debug("Current time: " + System.currentTimeMillis());
                 LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
                 LOGGER.debug("Current time - last poll time: "
                         + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-                LOGGER.debug("Milliseconds in a mont: " + DateHelper.MONTH_MS);
+                LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
             }
-            if (feed.getActivityPattern() == -1
-                    || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
+
+            // classify feed if it has never been classified before, do it once a month for each feed to be informed
+            // about updates
+            boolean storeMetadata = false;
+            if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
+                    && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
+
+                storeMetadata = true;
                 FeedClassifier.classify(feed);
-                
+                MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
+                metaInfExt.updateGeneralMetaInformation(feed);
+                feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
+                feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
+                feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
             }
 
             feedReader.updateCheckIntervals(feed);
@@ -165,7 +212,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
 
             // save the feed back to the database
-            boolean dbSuccess = feedReader.updateFeed(feed);
+            boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata);
 
             // since the feed is kept in memory we need to remove all items and the document stored in the feed
             feed.freeMemory();

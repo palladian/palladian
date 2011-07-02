@@ -955,8 +955,18 @@ public class DocumentRetriever {
      */
     public static void main(String[] args) throws Exception {
 
-        // create the object
+        // #261 example code
         DocumentRetriever retriever = new DocumentRetriever();
+        String url = "http://www.ard.de/export/rss20/ratgeber/-/id=1874/format=rss20/6jw58y/index.xml";
+
+        HttpResult result = retriever.httpGet(url);
+        String eTag = result.getHeaderString("Last-Modified");
+        Map<String, String> header = new HashMap<String, String>();
+        header.put("If-Modified-Since", eTag);
+
+        retriever.httpGet(url, header);
+        System.exit(0);
+
 
         // download and save a web page including their headers in a gzipped file
         retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", new HashMap<String, String>(),
