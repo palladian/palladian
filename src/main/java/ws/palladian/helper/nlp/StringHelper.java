@@ -88,6 +88,26 @@ public class StringHelper {
     }
 
     /**
+     * This function wraps the string to long conversion in order to prevent the exception catching in other
+     * functions.
+     * 
+     * @param text The text that is a number.
+     * @return The long presentation of the text or <code>null</code> if there is no number or text was
+     *         <code>null</code>
+     */
+    public static Long toLong(String text) {
+        Long number = null;
+        if (text != null) {
+            try {
+                number = Long.valueOf(text.trim());
+            } catch (Exception e) {
+                Logger.getRootLogger().error("could not parse string to long, " + e.getMessage());
+            }
+        }
+        return number;
+    }
+
+    /**
      * Search for the indices of a search string in a text.<br>
      * For example given the text "This is a text" and the searchString " ", we would get [4,7,9], the indices of the
      * white spaces.
