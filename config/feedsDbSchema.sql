@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `hasPublished` TINYINT(1) DEFAULT NULL COMMENT 'Does the feed support the published element (Atom specific). Updated when metadata is updated. Do not change to unsigned!',
   `supportsPubSubHubBub` TINYINT(1) DEFAULT NULL COMMENT 'Does the feed support the PubSubHubBub element. Updated when metadata is updated. Do not change to unsigned!',
   `httpHeaderSize` INT(11) DEFAULT NULL COMMENT 'The size of a conditional GET response. Updated when metadata is updated. Do not change to unsigned!',
-    PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -146,5 +146,30 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
 
 --
 -- Daten für Tabelle `feed_items`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_polls`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_polls` (
+  `id` INT(10) NOT NULL,
+  `pollTimestamp` DATETIME NOT NULL,
+  `httpETag` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The ETag element from the HTTP header. ',
+  `httpDate` DATETIME DEFAULT NULL COMMENT 'The date element from the HTTP header. ',
+  `httpLastModified` DATETIME DEFAULT NULL COMMENT 'The lastModified element from the HTTP header. ',
+  `httpExpires` DATETIME DEFAULT NULL COMMENT 'The expires element from the HTTP header.',
+  `httpTTL` DOUBLE DEFAULT NULL COMMENT 'The ttl element from the HTTP header.',
+  `newestItemTimestamp` DATETIME DEFAULT NULL COMMENT 'The newest timestamp of the newest item (one item might have two timestamps).',
+  `numberNewItems` INT(10) DEFAULT NULL COMMENT 'The number of new items.',
+  `windowSize` INT(10) DEFAULT NULL COMMENT 'The current window size.',
+  `httpStatusCode` INT(10) NOT NULL COMMENT 'The http status code returned.'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+
+--
+-- Daten für Tabelle `feed_polls
 --
 
