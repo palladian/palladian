@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashSet;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -25,8 +24,9 @@ import javax.persistence.TemporalType;
 @Entity
 public class Author {
     /**
-     * The absolute count of items this author has published. This value might or might not be the same as {@code
-     * items.size()}. This depends on whether the count of items was extracted from a user profile page and if the
+     * The absolute count of items this author has published. This value might or might not be the same as
+     * {@code items.size()}. This depends on whether the count of items was extracted from a user profile page and if
+     * the
      * extractor for items missed some items during extraction. Missing items may happen if the stream was started
      * before extraction began and if old items are lost after some time. Web feed for example show such a behaviour.
      */
@@ -46,12 +46,12 @@ public class Author {
      * sources.
      */
     @Id
-    @GeneratedValue
+    // @GeneratedValue
     private String identifier;
     /**
      * The items created by this author.
      */
-    @OneToMany
+    @OneToMany(mappedBy = "author")
     private Collection<Item> items;
     /**
      * The date and time the author was created.
@@ -62,6 +62,7 @@ public class Author {
      * The authors username identifying the author within a stream source.
      */
     private String username;
+
     /**
      * The source of streams this {@code Author} creates {@link Item}s for, such as <a
      * href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web Forum or
@@ -73,7 +74,7 @@ public class Author {
      * Creates a new author with no initial values. Call this new objects setters before using the author and set all
      * properties to apropriate values.
      */
-    public Author() {
+    protected Author() {
         super();
         this.items = new HashSet<Item>();
     }
@@ -83,8 +84,8 @@ public class Author {
      * 
      * @param username The authors username identifying the author within a stream source.
      * @param countOfItems The absolute count of items this author has published. This value might or might not be the
-     *            same as {@code
-     *            items.size()}. This depends on whether the count of items was extracted from a user profile page and
+     *            same as {@code items.size()}. This depends on whether the count of items was extracted from a user
+     *            profile page and
      *            if the
      *            extractor for items missed some items during extraction. Missing items may happen if the stream was
      *            started
@@ -98,9 +99,10 @@ public class Author {
      *            Forum or
      *            other kind of source the authors username is unique in.
      */
-    public Author(String username, Integer countOfItems, Integer countOfStreamsStarted, Integer authorRating,
-            Date registeredSince, String streamSource) {
+    public Author(String identifier, String username, Integer countOfItems, Integer countOfStreamsStarted,
+            Integer authorRating, Date registeredSince, String streamSource) {
         this();
+        this.identifier = identifier;
         this.countOfItems = countOfItems;
         this.countOfStreamsStarted = countOfStreamsStarted;
         this.authorRating = authorRating;
@@ -129,19 +131,12 @@ public class Author {
         if (getClass() != author.getClass()) {
             return false;
         }
-        Author other = (Author) author;
-        if (streamSource == null) {
-            if (other.streamSource != null) {
+        Author other = (Author)author;
+        if (identifier == null) {
+            if (other.identifier != null) {
                 return false;
             }
-        } else if (!streamSource.equals(other.streamSource)) {
-            return false;
-        }
-        if (username == null) {
-            if (other.username != null) {
-                return false;
-            }
-        } else if (!username.equals(other.username)) {
+        } else if (!identifier.equals(other.identifier)) {
             return false;
         }
         return true;
@@ -160,8 +155,8 @@ public class Author {
      * The amount of items published by this author.
      * 
      * @return The absolute count of items this author has published. This value might or might not be the same as
-     *         {@code
-     *         items.size()}. This depends on whether the count of items was extracted from a user profile page and if
+     *         {@code items.size()}. This depends on whether the count of items was extracted from a user profile page
+     *         and if
      *         the
      *         extractor for items missed some items during extraction. Missing items may happen if the stream was
      *         started
@@ -239,8 +234,7 @@ public class Author {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((streamSource == null) ? 0 : streamSource.hashCode());
-        result = prime * result + ((username == null) ? 0 : username.hashCode());
+        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
         return result;
     }
 
@@ -325,5 +319,12 @@ public class Author {
      */
     public final void setUsername(String username) {
         this.username = username;
+    }
+
+    /**
+     * @param item
+     */
+    public void addItem(Item item) {
+        items.add(item);
     }
 }

@@ -9,7 +9,6 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -36,7 +35,6 @@ public class Item implements Serializable {
      * itself.
      */
     @Id
-    @GeneratedValue
     private String identifier;
 
     /**
@@ -46,11 +44,11 @@ public class Item implements Serializable {
      */
     private String streamSourceInternalIdentifier;
 
-    /**
-     * The item stream that produced this item.
-     */
-    @ManyToOne
-    private ItemStream parent;
+    // /**
+    // * The item stream that produced this item.
+    // */
+    // @ManyToOne
+    // private ItemStream parent;
 
     /**
      * The user profile of the author, who created this item.
@@ -99,7 +97,7 @@ public class Item implements Serializable {
     /**
      * Creates a new {@code Item} with no values. Call all setters to initialize this {@code Item}.
      */
-    public Item() {
+    protected Item() {
         super();
     }
 
@@ -123,11 +121,12 @@ public class Item implements Serializable {
      * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
      *            an answer or something completely different.
      */
-    public Item(String forumInternalIdentifier, ItemStream parent, Author author, String link, String title,
+    public Item(String identifier, String forumInternalIdentifier, Author author, String link, String title,
             Date publicationDate, Date updateDate, String text, Item predecessor, ItemType type) {
         this();
+        this.identifier = identifier;
         this.streamSourceInternalIdentifier = forumInternalIdentifier;
-        this.parent = parent;
+        // this.parent = parent;
         this.author = author;
         this.link = link;
         this.title = title;
@@ -136,11 +135,12 @@ public class Item implements Serializable {
         this.text = text;
         this.predecessor = predecessor;
         this.type = type;
+        // this.author.addItem(this);
     }
 
     /**
-     * Checks whether this {@code Item} and another one are equal. This is the case if they share the same {@code
-     * parent} item stream and the same {@code streamSourceInternalIdentifier}.
+     * Checks whether this {@code Item} and another one are equal. This is the case if they share the same
+     * {@code parent} item stream and the same {@code streamSourceInternalIdentifier}.
      * 
      * @see java.lang.Object#equals(java.lang.Object)
      * @see #getParent()
@@ -157,19 +157,12 @@ public class Item implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Item other = (Item) obj;
-        if (streamSourceInternalIdentifier == null) {
-            if (other.streamSourceInternalIdentifier != null) {
+        Item other = (Item)obj;
+        if (identifier == null) {
+            if (other.identifier != null) {
                 return false;
             }
-        } else if (!streamSourceInternalIdentifier.equals(other.streamSourceInternalIdentifier)) {
-            return false;
-        }
-        if (parent == null) {
-            if (other.parent != null) {
-                return false;
-            }
-        } else if (!parent.equals(other.parent)) {
+        } else if (!identifier.equals(other.identifier)) {
             return false;
         }
         return true;
@@ -187,9 +180,9 @@ public class Item implements Serializable {
         return link;
     }
 
-    public ItemStream getParent() {
-        return parent;
-    }
+    // public ItemStream getParent() {
+    // return parent;
+    // }
 
     public Item getPredecessor() {
         return predecessor;
@@ -223,13 +216,12 @@ public class Item implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
-                + ((streamSourceInternalIdentifier == null) ? 0 : streamSourceInternalIdentifier.hashCode());
-        result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
         return result;
     }
 
     public void setAuthor(Author author) {
+        // this.author.addItem(this);
         this.author = author;
     }
 

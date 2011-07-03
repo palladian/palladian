@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -33,7 +32,6 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      * implementation.
      */
     @Id
-    @GeneratedValue
     private String identifier;
 
     /**
@@ -91,6 +89,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      */
     public ItemStream(String streamIdentifier, String streamSource, String sourceAddress, String channelName) {
         this();
+        this.identifier = streamIdentifier + "@" + streamSource;
         this.streamIdentifier = streamIdentifier;
         this.streamSource = streamSource;
         this.sourceAddress = sourceAddress;
@@ -127,7 +126,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         if (getClass() != itemStream.getClass()) {
             return false;
         }
-        ItemStream other = (ItemStream) itemStream;
+        ItemStream other = (ItemStream)itemStream;
         if (streamSource == null) {
             if (other.streamSource != null) {
                 return false;
