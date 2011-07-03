@@ -44,7 +44,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -131,6 +130,9 @@ public class DocumentRetriever {
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
 
+    /** Identifier for Connection Metrics; see comment in constructor. */
+    private final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
+
     // ///////////// Settings ////////
 
     /** Download size in bytes for this DocumentRetriever instance. */
@@ -178,6 +180,24 @@ public class DocumentRetriever {
         setSocketTimeout(config.getLong("documentRetriever.socketTimeout", DEFAULT_SOCKET_TIMEOUT));
         setNumRetries(config.getInt("documentRetriever.numRetries", DEFAULT_NUM_RETRIES));
         setNumConnections(config.getInt("documentRetriever.numConnections", DEFAULT_NUM_CONNECTIONS));
+
+        /*
+         * fix #261 to get connection metrics for head requests, see also discussion at
+         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
+         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
+         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
+         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
+         */
+        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnectionMetrics metrics = conn.getMetrics();
+                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+            }
+        };
+
+        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
+        // end edit
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -228,42 +248,19 @@ public class DocumentRetriever {
      * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
      */
     public HttpResult httpHead(String url) throws HttpException {
-
-        HttpResult result;
-        HttpHead head = null;
+        HttpHead head;
         try {
             head = new HttpHead(url);
         } catch (Exception e) {
             throw new HttpException("invalid URL: " + url, e);
         }
-
-        httpHook.beforeRequest(url, this);
-
-        try {
-
-            // TODO get file transfer size
-            HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(head, context);
-
-            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
-            int statusCode = response.getStatusLine().getStatusCode();
-            result = new HttpResult(url, new byte[0], headers, statusCode, -1);
-
-        } catch (IOException e) {
-            throw new HttpException(e);
-        } catch (ParseException e) {
-            throw new HttpException(e);
-        } finally {
-            head.abort();
-        }
-
-        httpHook.afterRequest(result, this);
+        HttpResult result = execute(url, head);
         return result;
-
     }
-    
+
     /**
      * Performs an HTTP POST operation with the specified name-value pairs as content.
+     * 
      * @param url the URL for the POST.
      * @param content name-value pairs for the POST.
      * @return response for the POST.
@@ -273,23 +270,25 @@ public class DocumentRetriever {
         Map<String, String> headers = Collections.emptyMap();
         return httpPost(url, headers, content);
     }
-    
+
     /**
      * Performs an HTTP POST operation with the specified name-value pairs as content.
+     * 
      * @param url the URL for the POST.
      * @param headers map with key-value pairs of request headers.
      * @param content name-value pairs for the POST.
      * @return response for the POST.
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
      */
-    public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content) throws HttpException {
+    public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content)
+            throws HttpException {
         HttpPost post;
         try {
             post = new HttpPost(url);
         } catch (Exception e) {
             throw new HttpException("invalid URL: " + url, e);
         }
-        
+
         // HTTP headers
         for (Entry<String, String> header : headers.entrySet()) {
             post.setHeader(header.getKey(), header.getValue());
@@ -342,35 +341,15 @@ public class DocumentRetriever {
         HttpResult result;
         InputStream in = null;
 
-        /*
-         * fix #261 to get connection metrics for head requests, see also discussion at
-         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
-         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
-         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
-         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
-         */
-        final String contextMetrics = "jmeter_metrics";
-
-        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
-            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = conn.getMetrics();
-                context.setAttribute(contextMetrics, metrics);
-            }
-        };
-
-        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
-        // end edit
-
         httpHook.beforeRequest(url, this);
-        
+
         try {
-            
+
             HttpContext context = new BasicHttpContext();
             HttpResponse response = httpClient.execute(request, context);
             // HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
             // HttpConnectionMetrics metrics = connection.getMetrics();
-            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(contextMetrics);
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
@@ -395,10 +374,10 @@ public class DocumentRetriever {
             long receivedBytes = metrics.getReceivedBytesCount();
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
-            
+
             httpHook.afterRequest(result, this);
             addDownload(receivedBytes);
-            
+
         } catch (IllegalStateException e) {
             throw new HttpException(e);
         } catch (IOException e) {
@@ -980,16 +959,22 @@ public class DocumentRetriever {
 
         // #261 example code
         DocumentRetriever retriever = new DocumentRetriever();
+
         String url = "http://www.ard.de/export/rss20/ratgeber/-/id=1874/format=rss20/6jw58y/index.xml";
+        System.out.println(retriever.httpHead(url));
+        
+        System.exit(0);
+        
+        
 
         HttpResult result = retriever.httpGet(url);
         String eTag = result.getHeaderString("Last-Modified");
+
         Map<String, String> header = new HashMap<String, String>();
         header.put("If-Modified-Since", eTag);
 
         retriever.httpGet(url, header);
         System.exit(0);
-
 
         // download and save a web page including their headers in a gzipped file
         retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", new HashMap<String, String>(),
