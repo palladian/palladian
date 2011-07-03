@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
+import sun.net.www.protocol.http.HttpURLConnection;
+import ws.palladian.helper.HTTPHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -114,15 +115,15 @@ class FeedTask implements Callable<FeedTaskResult> {
         try {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
+            boolean storeMetadata = false;
 
-            // update http request headers
-            // FIXME: use headers as soon as #261 is resolved.
-            // if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
-            // addRequestHeader("If-None-Match", feed.getLastETag());
-            // }
-            // if (feed.getHttpLastModified() != null) {
-            // addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
-            // }
+            // update http request headers to use conditional requests (head requests)
+            if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
+                addRequestHeader("If-None-Match", feed.getLastETag());
+            }
+            if (feed.getHttpLastModified() != null) {
+                addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+            }
 
             DocumentRetriever documentRetriever = new DocumentRetriever();
             HttpResult httpResult = null;
@@ -142,72 +143,83 @@ class FeedTask implements Callable<FeedTaskResult> {
                 return result;
             }
 
-            // extract and store http header information
-            feed.setLastETag(httpResult.getHeaderString("ETag"));
-
-            String lastModified = httpResult.getHeaderString("Last-Modified");
-            Date lastModifiedDate = null;
-            if (lastModified != null && !lastModified.isEmpty()) {
-                try {
-                    lastModifiedDate = DateUtils.parseDate(lastModified);
-                } catch (DateParseException e) {
-                    LOGGER.error("Could nor parse http header value for last-modified: \"" + lastModified + "\". "
-                            + e.getMessage());
-                }
-            }
-            feed.setHttpLastModified(lastModifiedDate);
-
-            FeedRetriever feedRetriever = new FeedRetriever();
-            Feed downloadedFeed = null;
-            try {
-                // parse the feed and get all its entries, do that here since that takes some time and this is a thread
-                // so it can be done in parallel
-                downloadedFeed = feedRetriever.getFeed(httpResult);
-                feed.setItems(downloadedFeed.getItems());
-            } catch (FeedRetrieverException e) {
-                LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
+            if (httpResult.getStatusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+                LOGGER.error("Could not get Document for feed id " + feed.getId()
+                        + ". Server returned HTTP status code " + httpResult.getStatusCode());
                 feed.incrementUnreachableCount();
-                feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
-                feedReader.updateFeed(feed);
-                feedReader.getFeedProcessingAction().performActionOnError(feed, httpResult);
-                result = FeedTaskResult.UNPARSABLE;
-                doFinalLogging(timer);
-                return result;
+                result = FeedTaskResult.UNREACHABLE;
+            } else
+
+                feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
+
+            if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+
+                // TODO feedReader.updateCheckIntervals(feed); requires the old item timestamps and window size
+
+                feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed, httpResult);
+
+            } else {
+
+                // process and store http header information
+                feed.setLastETag(httpResult.getHeaderString("ETag"));
+                feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified"));
+
+                FeedRetriever feedRetriever = new FeedRetriever();
+                Feed downloadedFeed = null;
+                try {
+                    // parse the feed and get all its entries, do that here since that takes some time and this is a
+                    // thread
+                    // so it can be done in parallel
+                    downloadedFeed = feedRetriever.getFeed(httpResult);
+                    feed.setItems(downloadedFeed.getItems());
+                } catch (FeedRetrieverException e) {
+                    LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
+                    feed.incrementUnreachableCount();
+                    feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+                    feedReader.updateFeed(feed);
+                    LOGGER.debug("Performing action on error on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
+                    feedReader.getFeedProcessingAction().performActionOnException(feed, httpResult);
+                    result = FeedTaskResult.UNPARSABLE;
+                    doFinalLogging(timer);
+                    return result;
+                }
+
+                feed.setWindowSize(downloadedFeed.getItems().size());
+
+                // if (LOGGER.isDebugEnabled()) {
+                // LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
+                // LOGGER.debug("Current time: " + System.currentTimeMillis());
+                // LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
+                // LOGGER.debug("Current time - last poll time: "
+                // + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+                // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
+                // }
+
+                // classify feed if it has never been classified before, do it once a month for each feed to be informed
+                // about updates
+                if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
+                        && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
+
+                    storeMetadata = true;
+                    FeedClassifier.classify(feed);
+                    MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
+                    metaInfExt.updateGeneralMetaInformation(feed);
+                    feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
+                    feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
+                    feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
+                }
+
+                feedReader.updateCheckIntervals(feed);
+
+
+                // perform actions on this feeds entries
+                LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
+                feedReader.getFeedProcessingAction().performAction(feed, httpResult);
             }
 
-            feed.setWindowSize(downloadedFeed.getItems().size());
-
-            // if (LOGGER.isDebugEnabled()) {
-            // LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
-            // LOGGER.debug("Current time: " + System.currentTimeMillis());
-            // LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
-            // LOGGER.debug("Current time - last poll time: "
-            // + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-            // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
-            // }
-
-            // classify feed if it has never been classified before, do it once a month for each feed to be informed
-            // about updates
-            boolean storeMetadata = false;
-            if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
-                    && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
-
-                storeMetadata = true;
-                FeedClassifier.classify(feed);
-                MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
-                metaInfExt.updateGeneralMetaInformation(feed);
-                feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
-                feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
-                feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
-            }
-
-            feedReader.updateCheckIntervals(feed);
-            feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
-
-            // perform actions on this feeds entries
-            LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
-            feedReader.getFeedProcessingAction().performAction(feed, httpResult);
-
+            // /////////////////////////////////
+            // final stuff to do in all cases //
+            // /////////////////////////////////
             feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
 
             // save the feed back to the database

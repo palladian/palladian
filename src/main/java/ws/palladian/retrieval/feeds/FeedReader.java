@@ -336,9 +336,15 @@ public final class FeedReader {
             }
 
             @Override
-            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
+            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return true;
+            }
+
+            @Override
+            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+                // TODO Auto-generated method stub
+                return false;
             }
         };
         setFeedProcessingAction(processingAction);
@@ -491,9 +497,15 @@ public final class FeedReader {
             }
 
             @Override
-            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
+            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return true;
+            }
+
+            @Override
+            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+                // TODO Auto-generated method stub
+                return false;
             }
         };
         fc.setUpdateStrategy(updateStrategy, true);
