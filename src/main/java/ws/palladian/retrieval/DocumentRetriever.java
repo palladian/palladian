@@ -42,6 +42,7 @@ import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -53,6 +54,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.ContentEncodingHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -339,15 +341,36 @@ public class DocumentRetriever {
     private HttpResult execute(String url, HttpUriRequest request) throws HttpException {
         HttpResult result;
         InputStream in = null;
-        
+
+        /*
+         * fix #261 to get connection metrics for head requests, see also discussion at
+         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
+         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
+         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
+         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
+         */
+        final String contextMetrics = "jmeter_metrics";
+
+        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnectionMetrics metrics = conn.getMetrics();
+                context.setAttribute(contextMetrics, metrics);
+            }
+        };
+
+        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
+        // end edit
+
         httpHook.beforeRequest(url, this);
         
         try {
             
             HttpContext context = new BasicHttpContext();
             HttpResponse response = httpClient.execute(request, context);
-            HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            HttpConnectionMetrics metrics = connection.getMetrics();
+            // HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+            // HttpConnectionMetrics metrics = connection.getMetrics();
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(contextMetrics);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
