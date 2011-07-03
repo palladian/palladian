@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.HTTPHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -289,7 +290,7 @@ public class DatasetCreator {
      */
     public void createDataset() {
 
-        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
@@ -459,12 +460,19 @@ public class DatasetCreator {
                 }
 
                 processPollMetadata(feed, httpResult, newItems);
-
-
                 
                 LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
                 return success;
+            }
+
+            /**
+             * Write poll meta information to db.
+             */
+            @Override
+            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+
+                return processPollMetadata(feed, httpResult, null);
             }
 
             /**
@@ -473,9 +481,9 @@ public class DatasetCreator {
              * filename.
              */
             @Override
-            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
+            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
 
-                long pollTimestamp = System.currentTimeMillis();
+                long pollTimestamp = feed.getLastPollTime().getTime();
                 boolean success = false;
                 boolean folderCreated = DatasetCreator.createDirectoriesAndCSV(feed);
 
@@ -498,34 +506,31 @@ public class DatasetCreator {
                 return success;
             }
 
-
             /**
-             * FIXME put all Data to PollMetaInformation, write to database.
+             * Put data to PollMetaInformation, write to database.
              * 
              * @param feed
              * @param httpResult
              * @param newItems
+             * @return
              */
-            private void processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
-                // write poll metadata
+            private boolean processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
 
                 PollMetaInformation pollMetaInfo = new PollMetaInformation();
 
                 pollMetaInfo.setFeedID(feed.getId());
                 pollMetaInfo.setPollTimestamp(feed.getLastPollTime());
                 pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
+                pollMetaInfo.setHttpDate(HTTPHelper.getDateFromHeader(httpResult, "Date"));
+                pollMetaInfo.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified"));
+                pollMetaInfo.setHttpExpires(HTTPHelper.getDateFromHeader(httpResult, "Expires"));
+                pollMetaInfo.setHttpTTL(StringHelper.toLong(httpResult.getHeaderString("TTL")));
+                pollMetaInfo.setNewestItemTimestamp(feed.getLastFeedEntry());
+                pollMetaInfo.setNumberNewItems(newItems);
+                pollMetaInfo.setWindowSize(feed.getWindowSize());
+                pollMetaInfo.setHttpStatusCode(httpResult.getStatusCode());
 
-                StringBuilder metadata = new StringBuilder();
-
-                metadata.append("httpDate=").append(httpResult.getHeaderString("Date"));
-                metadata.append("httpLastModified=").append(httpResult.getHeaderString("Last-Modified"));
-                metadata.append("httpExpires=").append(httpResult.getHeaderString("Expires"));
-                metadata.append("httpTTL=").append(httpResult.getHeaderString("TTL"));
-                metadata.append("newestItemTimestamp=").append(feed.getLastFeedEntry()); // FIXME
-                metadata.append("numberNewItems=").append(newItems);
-                metadata.append("windowSize=").append(feed.getWindowSize());
-
-                // LOGGER.info(metadata);
+                return feedStore.addFeedPoll(pollMetaInfo);
             }
 
         };

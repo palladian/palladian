@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.meta;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -31,6 +32,8 @@ public class PollMetaInformation {
 
     private Integer windowSize = null;
 
+    private int httpStatusCode = -1;
+
     /**
      * @return the feedID
      */
@@ -50,6 +53,13 @@ public class PollMetaInformation {
      */
     public final Date getPollTimestamp() {
         return pollTimestamp;
+    }
+
+    public Timestamp getPollSQLTimestamp() {
+        if (pollTimestamp != null) {
+            return new Timestamp(pollTimestamp.getTime());
+        }
+        return null;
     }
 
     /**
@@ -80,6 +90,13 @@ public class PollMetaInformation {
         return httpDate;
     }
 
+    public Timestamp getHttpDateSQLTimestamp() {
+        if (httpDate != null) {
+            return new Timestamp(httpDate.getTime());
+        }
+        return null;
+    }
+
     /**
      * @param httpDate the httpDate to set
      */
@@ -95,6 +112,16 @@ public class PollMetaInformation {
     }
 
     /**
+     * @return httpLastModified as sql time stamp
+     */
+    public Timestamp getHttpLastModifiedSQLTimestamp() {
+        if (httpLastModified != null) {
+            return new Timestamp(httpLastModified.getTime());
+        }
+        return null;
+    }
+
+    /**
      * @param httpLastModified the httpLastModified to set
      */
     public final void setHttpLastModified(Date httpLastModified) {
@@ -106,6 +133,16 @@ public class PollMetaInformation {
      */
     public final Date getHttpExpires() {
         return httpExpires;
+    }
+
+    /**
+     * @return httpExpires as sql time stamp
+     */
+    public Timestamp getHttpExpiresSQLTimestamp() {
+        if (httpExpires != null) {
+            return new Timestamp(httpExpires.getTime());
+        }
+        return null;
     }
 
     /**
@@ -134,6 +171,16 @@ public class PollMetaInformation {
      */
     public final Date getNewestItemTimestamp() {
         return newestItemTimestamp;
+    }
+
+    /**
+     * @return newestItemTimestamp as sql time stamp
+     */
+    public Timestamp getNewestItemSQLTimestamp() {
+        if (newestItemTimestamp != null) {
+            return new Timestamp(newestItemTimestamp.getTime());
+        }
+        return null;
     }
 
     /**
@@ -171,6 +218,20 @@ public class PollMetaInformation {
         this.windowSize = windowSize;
     }
 
+    /**
+     * @return the httpStatusCode
+     */
+    public final int getHttpStatusCode() {
+        return httpStatusCode;
+    }
+
+    /**
+     * @param httpStatusCode the httpStatusCode to set
+     */
+    public final void setHttpStatusCode(int httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#hashCode()
@@ -184,6 +245,7 @@ public class PollMetaInformation {
         result = prime * result + ((httpETag == null) ? 0 : httpETag.hashCode());
         result = prime * result + ((httpExpires == null) ? 0 : httpExpires.hashCode());
         result = prime * result + ((httpLastModified == null) ? 0 : httpLastModified.hashCode());
+        result = prime * result + httpStatusCode;
         result = prime * result + ((httpTTL == null) ? 0 : httpTTL.hashCode());
         result = prime * result + ((newestItemTimestamp == null) ? 0 : newestItemTimestamp.hashCode());
         result = prime * result + ((numberNewItems == null) ? 0 : numberNewItems.hashCode());
@@ -226,6 +288,8 @@ public class PollMetaInformation {
             if (other.httpLastModified != null)
                 return false;
         } else if (!httpLastModified.equals(other.httpLastModified))
+            return false;
+        if (httpStatusCode != other.httpStatusCode)
             return false;
         if (httpTTL == null) {
             if (other.httpTTL != null)
@@ -282,6 +346,8 @@ public class PollMetaInformation {
         builder.append(numberNewItems);
         builder.append(", windowSize=");
         builder.append(windowSize);
+        builder.append(", httpStatusCode=");
+        builder.append(httpStatusCode);
         builder.append("]");
         return builder.toString();
     }

@@ -15,6 +15,7 @@ import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
@@ -47,6 +48,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
+    private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, httpTTL = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
 
     /**
      * @param connectionManager
@@ -67,7 +69,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private String truncateToVarchar255(String input, String name, String feed) {
         String output = input;
         if (input != null && input.length() > 255) {
-            output = input.substring(0, 254);
+            output = input.substring(0, 255);
             LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
         }
         return output;
@@ -344,6 +346,27 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         
         parameters.add(feed.getId());
         return runUpdate(UPDATE_FEED_META_INFORMATION, parameters) != -1;
+    }
+
+    /**
+     * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
+     */
+    public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
+
+        List<Object> parameters = new ArrayList<Object>();
+        parameters.add(pollMetaInfo.getFeedID());
+        parameters.add(pollMetaInfo.getPollSQLTimestamp());
+        parameters.add(truncateToVarchar255(pollMetaInfo.getHttpETag(), "lastETag", pollMetaInfo.getFeedID() + ""));
+        parameters.add(pollMetaInfo.getHttpDateSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpLastModifiedSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpExpiresSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpTTL());
+        parameters.add(pollMetaInfo.getNewestItemSQLTimestamp());
+        parameters.add(pollMetaInfo.getNumberNewItems());
+        parameters.add(pollMetaInfo.getWindowSize());
+        parameters.add(pollMetaInfo.getHttpStatusCode());
+
+        return runInsertReturnId(ADD_FEED_POLL, parameters) != -1;
     }
 
 }

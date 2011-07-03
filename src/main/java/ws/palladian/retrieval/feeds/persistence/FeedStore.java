@@ -4,12 +4,14 @@ import java.util.List;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
  * The FeedStore is an interface for feed stores such as databases or file indices.
  * 
  * @author Philipp Katz
  * @author David Urbansky
+ * @author Sandro Reichert
  */
 public interface FeedStore {
 
@@ -98,5 +100,12 @@ public interface FeedStore {
      */
     List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery);
 
+    /**
+     * Add information related to a poll.
+     * 
+     * @param pollMetaInfo The poll meta information to insert.
+     * @return <code>true</code> if information was inserted, <code>false</code> otherwise.
+     */
+    boolean addFeedPoll(PollMetaInformation pollMetaInfo);
 
 }

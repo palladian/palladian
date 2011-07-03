@@ -6,6 +6,7 @@ import java.util.List;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
  * A feed source providing feeds from a static collection. The collection is provided to an object of this class upon
@@ -103,6 +104,12 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
         // TODO Auto-generated method stub
         return false;
     }
