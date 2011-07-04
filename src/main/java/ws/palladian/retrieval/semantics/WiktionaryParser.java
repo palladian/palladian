@@ -15,6 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -114,9 +115,9 @@ public class WiktionaryParser {
                         return;
                     }
 
-                    // if (word.equalsIgnoreCase("April")) {
-                    // System.out.println("haus");
-                    // }
+                     if (word.equalsIgnoreCase("Bier")) {
+                     System.out.println("haus");
+                     }
 
                     String plural = "";
                     String language = "";
@@ -190,33 +191,38 @@ public class WiktionaryParser {
                         plural = "";
                     }
 
+                    String tagGrabRegexp = "(?<=(^ |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,))";
+                    
                     String synonymString = "";
 
                     if (corpusLanguage.equals(Language.GERMAN)) {
-                        synonymString = StringHelper.getSubstringBetween(textString, "{{Synonyme}}", "{{");
+                        synonymString = StringHelper.getSubstringBetween(textString, "{{Synonyme}}", "}}\n");
 
                         // take only the line starting with [1] because it is the most relevant, the others are too far
                         // off
                         synonymString = StringHelper.getSubstringBetween(synonymString, ":[1]", "\n");
-
-                        synonyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", synonymString);
+                        synonymString = synonymString.replaceAll("''.*?''", "");
+                        
+                        synonyms = StringHelper.getRegexpMatches(tagGrabRegexp, synonymString);
                     } else if (corpusLanguage.equals(Language.ENGLISH)) {
                         synonymString = StringHelper.getSubstringBetween(textString, "====Synonyms====", "===");
-                        synonyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", synonymString);
+                        synonyms = StringHelper.getRegexpMatches(tagGrabRegexp, synonymString);
                     }
 
                     // hypernyms are only available in German, strange though...
                     if (corpusLanguage.equals(Language.GERMAN)) {
-                        String hypernymString = StringHelper.getSubstringBetween(textString, "{{Oberbegriffe}}", "{{");
+                        String hypernymString = StringHelper.getSubstringBetween(textString, "{{Oberbegriffe}}", "}}\n");
                         hypernymString = StringHelper.getSubstringBetween(hypernymString, ":[1]", "\n");
-                        hypernyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", hypernymString);
+                        hypernymString = hypernymString.replaceAll("''.*?''", "");
+                        hypernyms = StringHelper.getRegexpMatches(tagGrabRegexp, hypernymString);
                     }
 
                     // get descending words (words from which the current one is the hypernym)
                     if (corpusLanguage.equals(Language.GERMAN)) {
-                        String hyponymString = StringHelper.getSubstringBetween(textString, "{{Unterbegriffe}}", "{{");
+                        String hyponymString = StringHelper.getSubstringBetween(textString, "{{Unterbegriffe}}", "}}\n");
                         hyponymString = StringHelper.getSubstringBetween(hyponymString, ":[1]", "\n");
-                        hyponyms = StringHelper.getRegexpMatches("(?<=\\[\\[)(.+?)(?=\\]\\])", hyponymString);
+                        hyponymString = hyponymString.replaceAll("''.*?''", "");
+                        hyponyms = StringHelper.getRegexpMatches(tagGrabRegexp, hyponymString);
                     }
 
                     Word wordObject = wordDB.getWord(word);
@@ -239,6 +245,9 @@ public class WiktionaryParser {
                         wordDB.addHypernyms(wordObject, hypernyms);
                         wordDB.addHyponyms(wordObject, hyponyms);
                     }
+                    
+//                    wordObject = wordDB.getWord(word);
+//                    wordDB.aggregateInformation(wordObject);                    
 
                     if (elementsParsed++ % 100 == 0) {
                         System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
@@ -362,6 +371,14 @@ public class WiktionaryParser {
     public static void main(String[] args) {
         StopWatch sw = new StopWatch();
 
+//        String text = " [[alkoholisch]]es [[Getränk]], [[Getränk]] [[Bier]], [[Lebensmittel]]";
+//        //text = " [[alkoholisch]]es [[Getränk]]";
+//        //text = " [[Lebensmittel]]";
+//        text = " [[Getränk]], [[Lebensmittel]]";
+//        List<String> syns = StringHelper.getRegexpMatches("(?<=(^ |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,))", text);
+//        CollectionHelper.print(syns);
+//        System.exit(0);
+        
         // German
         WiktionaryParser wpG = new WiktionaryParser("data/temp/wordDatabaseGerman/", Language.GERMAN);
         // wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
