@@ -114,11 +114,11 @@ public class WordDB {
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection
-            .prepareStatement("CREATE TABLE IF NOT EXISTS hypernyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS hypernyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
             runUpdate(psCreateTable2);
 
             psCreateTable3 = connection
-            .prepareStatement("CREATE TABLE IF NOT EXISTS synonyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS synonyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
             runUpdate(psCreateTable3);
 
             prepareStatements();
@@ -130,6 +130,14 @@ public class WordDB {
 
     private void prepareStatements() {
         try {
+
+            /**
+             * For H2 check:
+             * SELECT * from words where word = 'Bier';
+             * SELECT wordId1,words.word FROM synonyms,words WHERE wordId2 = 5037 AND words.id = wordId1;
+             * SELECT wordId2,words.word FROM synonyms,words WHERE wordId1 = 5037 AND words.id = wordId2;
+             */
+
             psGetWord = connection
                     .prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE `word` = ? OR `plural` = ?");
 
@@ -269,6 +277,7 @@ public class WordDB {
         }
         return runUpdate(stmt);
     }
+
     private boolean runUpdate(PreparedStatement preparedStatement) {
         boolean success = false;
 
@@ -450,7 +459,6 @@ public class WordDB {
 
             }
         }
-
 
     }
 
@@ -670,11 +678,11 @@ public class WordDB {
         word = wordDB.getWord("Kleider");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);
-        
+
         word = wordDB.getWord("Bier");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);
-        
+
         word = wordDB.getWord("Notebook");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);

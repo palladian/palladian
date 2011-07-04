@@ -115,7 +115,7 @@ public class WiktionaryParser {
                         return;
                     }
 
-                     if (word.equalsIgnoreCase("Bier")) {
+                     if (word.equalsIgnoreCase("Kleid")) {
                      System.out.println("haus");
                      }
 
@@ -191,7 +191,7 @@ public class WiktionaryParser {
                         plural = "";
                     }
 
-                    String tagGrabRegexp = "(?<=(^ |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,))";
+                    String tagGrabRegexp = "(?<=(^ |  |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,|;))";
                     
                     String synonymString = "";
 
