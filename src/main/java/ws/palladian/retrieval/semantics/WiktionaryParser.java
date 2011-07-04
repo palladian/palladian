@@ -15,7 +15,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -191,7 +190,8 @@ public class WiktionaryParser {
                         plural = "";
                     }
 
-                    String tagGrabRegexp = "(?<=(^ |  |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,|;))";
+                    // String tagGrabRegexp = "(?<=\\[\\[)([^\\]]+?)(?=\\]\\])";
+                    String tagGrabRegexp = "(?<=(^ |  |, )\\[\\[)([^\\]]{1,30}?)(?=\\]\\]($|,|;))";
                     
                     String synonymString = "";
 
@@ -234,10 +234,22 @@ public class WiktionaryParser {
                         wordObject = wordDB.getWord(word);
 
                     } else {
-                        wordObject.setPlural(plural);
-                        wordObject.setType(wordType);
-                        wordObject.setLanguage(language);
-                        wordDB.updateWord(wordObject);
+                        boolean changed = false;
+                        if (wordObject.getPlural().isEmpty()) {
+                            wordObject.setPlural(plural);
+                            changed = true;
+                        }
+                        if (wordObject.getType().isEmpty()) {
+                            wordObject.setType(wordType);
+                            changed = true;
+                        }
+                        if (wordObject.getLanguage().isEmpty()) {
+                            wordObject.setLanguage(language);
+                            changed = true;
+                        }
+                        if (changed) {
+                            wordDB.updateWord(wordObject);
+                        }
                     }
 
                     if (wordObject != null) {
