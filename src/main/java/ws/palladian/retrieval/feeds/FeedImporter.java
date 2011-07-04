@@ -58,16 +58,25 @@ public class FeedImporter {
     /**
      * Adds a new feed for aggregation.
      * 
-     * @param feedUrl The url of the feed.
+     * @param feedInformation Usually, this is the feedUrl but it may contain additional information like format and
+     *            sizeURL, separated by $$$.
      * @return true, if feed was added.
      */
-    public boolean addFeed(String feedUrl) {
-        LOGGER.trace(">addFeed " + feedUrl);
+    public boolean addFeed(String feedInformation) {
+        LOGGER.trace(">addFeed " + feedInformation);
         boolean added = false;
 
-        String cleanedURL = feedUrl;
-        if (feedUrl.contains("$$$")) {
-            cleanedURL = feedUrl.substring(0, feedUrl.indexOf("$$$"));
+
+        String cleanedURL = feedInformation;
+        String siteURL = null;
+        if (feedInformation.contains("$$$")) {
+            String[] feedLine = feedInformation.split("\\$\\$\\$");
+            if (feedLine.length != 3) {
+                LOGGER.error("Skipping illeagal feedInformation: " + feedInformation);
+                return false;
+            }
+            cleanedURL = feedLine[0];
+            siteURL = feedLine[2];
         }
 
         Feed feed = store.getFeedByUrl(cleanedURL);
@@ -86,8 +95,11 @@ public class FeedImporter {
 
                 feed.setWindowSize(feed.getItems().size());
 
-                // set feed and site URL
-                feed.setFeedUrl(cleanedURL);
+                // set feed URL
+                feed.setFeedUrl(cleanedURL, false);
+
+                // set site URL
+                feed.getMetaInformation().setSiteUrl(siteURL);
 
                 // add feed & entries to the store
                 store.addFeed(feed);

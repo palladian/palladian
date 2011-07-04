@@ -68,7 +68,7 @@ public class Feed {
      */
     private long benchmarkLastLookupTime = Long.MIN_VALUE;
 
-    /** number of times the feed has been retrieved and successfully read */
+    /** Number of times the feed has been retrieved and successfully read or polled and has not been modified. */
     private int checks = 0;
 
     /**
@@ -210,7 +210,7 @@ public class Feed {
      */
     public void setFeedUrl(String feedUrl, boolean setSiteUrl) {
         this.feedUrl = feedUrl;
-        if (getMetaInformation().getSiteUrl() == null) {
+        if (setSiteUrl && getMetaInformation().getSiteUrl() == null) {
             String siteURL = UrlHelper.getDomain(feedUrl);
             if (!siteURL.isEmpty()) {
                 getMetaInformation().setSiteUrl(siteURL);
@@ -258,6 +258,10 @@ public class Feed {
         }
     }
 
+    /**
+     * Increase the number of times the feed has been retrieved and successfully read or polled and has not been
+     * modified.
+     */
     public void increaseChecks() {
         // set back the target percentage to -1, which means we need to recalculate it
         targetPercentageOfNewEntries = -1;
@@ -269,6 +273,11 @@ public class Feed {
         this.checks++;
     }
 
+    /**
+     * Number of times the feed has been retrieved and successfully read or polled and has not been modified.
+     * 
+     * @return Number of times the feed has been retrieved and successfully read or polled and has not been modified.
+     */
     public int getChecks() {
         return checks;
     }
