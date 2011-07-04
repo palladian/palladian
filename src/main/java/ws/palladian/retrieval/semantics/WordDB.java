@@ -648,7 +648,7 @@ public class WordDB {
 
         // load a word DB
         // WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
-        WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman/");
+        WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
 
         // you can load the database into the memory for faster read access (requires lots of RAM)
         // wordDB.loadDbToMemory();
@@ -668,6 +668,14 @@ public class WordDB {
         LOGGER.info(word);
 
         word = wordDB.getWord("Kleider");
+        wordDB.aggregateInformation(word);
+        LOGGER.info(word);
+        
+        word = wordDB.getWord("Bier");
+        wordDB.aggregateInformation(word);
+        LOGGER.info(word);
+        
+        word = wordDB.getWord("Notebook");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);
 
