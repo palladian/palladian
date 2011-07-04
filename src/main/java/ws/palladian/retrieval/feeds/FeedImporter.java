@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.feeds;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +52,9 @@ public class FeedImporter {
     /** Whether to store the items of the added feed, or only the feed data. */
     private boolean storeItems = false;
 
+    /** If <code>true</code>, download feed, if <code>false</code>, just import it into database */
+    private boolean downloadFeeds = true;
+
     public FeedImporter(FeedStore store) {
         this.store = store;
         feedRetriever = new FeedRetriever();
@@ -59,7 +64,7 @@ public class FeedImporter {
      * Adds a new feed for aggregation.
      * 
      * @param feedInformation Usually, this is the feedUrl but it may contain additional information like format and
-     *            sizeURL, separated by $$$.
+     *            sizeURL, separated by $$$. *
      * @return true, if feed was added.
      */
     public boolean addFeed(String feedInformation) {
@@ -73,6 +78,7 @@ public class FeedImporter {
             String[] feedLine = feedInformation.split("\\$\\$\\$");
             if (feedLine.length != 3) {
                 LOGGER.error("Skipping illeagal feedInformation: " + feedInformation);
+                LOGGER.trace("<addFeed " + added);
                 return false;
             }
             cleanedURL = feedLine[0];
@@ -81,41 +87,64 @@ public class FeedImporter {
 
         Feed feed = store.getFeedByUrl(cleanedURL);
         if (feed == null) {
-            try {
+            StringBuilder infoMsg = new StringBuilder();
+            infoMsg.append("added feed ").append(cleanedURL);
 
-                StringBuilder infoMsg = new StringBuilder();
-                infoMsg.append("added feed ").append(cleanedURL);
+            boolean errorFree = true;
+            if (isDownloadFeeds()) {
+                try {
+                    feed = feedRetriever.getFeed(cleanedURL);
 
-                feed = feedRetriever.getFeed(cleanedURL);
+                    // classify the feed's activity pattern
+                    int activityPattern = FeedClassifier.classify(feed.getItems());
+                    feed.setActivityPattern(activityPattern);
+                    infoMsg.append(" (activityPattern:").append(activityPattern).append(")");
 
-                // classify the feed's activity pattern
-                int activityPattern = FeedClassifier.classify(feed.getItems());
-                feed.setActivityPattern(activityPattern);
-                infoMsg.append(" (activityPattern:").append(activityPattern).append(")");
+                    feed.setWindowSize(feed.getItems().size());
 
-                feed.setWindowSize(feed.getItems().size());
-
-                // set feed URL
-                feed.setFeedUrl(cleanedURL, false);
-
-                // set site URL
-                feed.getMetaInformation().setSiteUrl(siteURL);
-
-                // add feed & entries to the store
-                store.addFeed(feed);
-
-                if (storeItems) {
-                    for (FeedItem feedEntry : feed.getItems()) {
-                        store.addFeedItem(feed, feedEntry);
-                    }
+                } catch (FeedRetrieverException e) {
+                    LOGGER.error("error adding feed " + cleanedURL + " " + e.getMessage());
+                    errorFree = false;
                 }
-
-                LOGGER.info(infoMsg);
-                added = true;
-
-            } catch (FeedRetrieverException e) {
-                LOGGER.error("error adding feed " + cleanedURL + " " + e.getMessage());
+            } else {
+                feed = new Feed();
             }
+
+            if (errorFree) {
+                // check for valid URLs
+                try {
+                    new URL(cleanedURL);
+                    if (siteURL != null) {
+                        new URL(siteURL);
+                    }
+
+                    // set feed URL
+                    feed.setFeedUrl(cleanedURL, false);
+
+                    // set site URL
+                    feed.getMetaInformation().setSiteUrl(siteURL);
+
+                    // add feed & entries to the store
+                    added = store.addFeed(feed);
+
+                    if (added && storeItems) {
+                        for (FeedItem feedEntry : feed.getItems()) {
+                            added = store.addFeedItem(feed, feedEntry);
+                        }
+                    }
+
+                    if (added) {
+                        LOGGER.info(infoMsg);
+                    } else {
+                        LOGGER.error("database error while adding feed " + cleanedURL);
+                    }
+
+                } catch (MalformedURLException e) {
+                    LOGGER.error("error adding feed " + cleanedURL + " " + e.getMessage());
+                    added = false;
+                }
+            }
+
         } else {
             LOGGER.info("i already have feed " + cleanedURL);
         }
@@ -224,12 +253,27 @@ public class FeedImporter {
         this.numThreads = maxThreads;
     }
 
+    /**
+     * @return the downloadFeeds
+     */
+    public final boolean isDownloadFeeds() {
+        return downloadFeeds;
+    }
+
+    /**
+     * @param downloadFeeds the downloadFeeds to set
+     */
+    public final void setDownloadFeeds(boolean downloadFeeds) {
+        this.downloadFeeds = downloadFeeds;
+    }
+
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
         CommandLineParser parser = new BasicParser();
 
-        // CLI usage: FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn]
+        // CLI usage:
+        // FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn] [-noDownload]
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
                 "feedUrl").create());
@@ -239,6 +283,11 @@ public class FeedImporter {
                 "also store the items of each added feed to the database").create());
         options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
                 .withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder
+                .withLongOpt("noDownload")
+                .withDescription(
+                        "do not poll and downlaod feed, just add it to database. Must not be combined with -storeItems and -classifyText")
+                .create());
 
         try {
 
@@ -250,7 +299,9 @@ public class FeedImporter {
                 // no arguments given, print usage help in catch clause.
                 throw new ParseException(null);
             }
-
+            if (cmd.hasOption("noDownload")) {
+                importer.setDownloadFeeds(false);
+            }
             if (cmd.hasOption("storeItems")) {
                 importer.setStoreItems(true);
             }
@@ -263,6 +314,7 @@ public class FeedImporter {
             if (cmd.hasOption("addFile")) {
                 importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
             }
+
 
             return;
 
