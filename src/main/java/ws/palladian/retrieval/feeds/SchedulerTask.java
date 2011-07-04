@@ -163,12 +163,13 @@ class SchedulerTask extends TimerTask {
         int misses = feedResults.getCount(FeedTaskResult.MISS);
         int unreachable = feedResults.getCount(FeedTaskResult.UNREACHABLE);
         int unparsable = feedResults.getCount(FeedTaskResult.UNPARSABLE);
+        int slow = feedResults.getCount(FeedTaskResult.EXECUTION_TIME_WARNING);
         int errors = feedResults.getCount(FeedTaskResult.ERROR);
 
         String logMsg = String.format("Scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d"
-                        + ", success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, errors: %4d, wake up interval: %10s",
+                        + ", success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, wake up interval: %10s",
                         newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter,
-                        success, misses, unreachable, unparsable, errors, wakeupInterval);
+                        success, misses, unreachable, unparsable, slow, errors, wakeupInterval);
 
         // error handling
         boolean errorOccurred = false;
@@ -182,6 +183,11 @@ class SchedulerTask extends TimerTask {
         if ((lastWakeUpTime != null) && ((currentWakeupTime - lastWakeUpTime) > SCHEDULER_INTERVAL_WARNING_TIME_MS)) {
             errorOccurred = true;
             detectedErrors.append("Wakeup Interval was too high. ");
+        }
+
+        if (slow > 0) {
+            errorOccurred = true;
+            detectedErrors.append("Too many feeds with long processing time. ");
         }
 
         // FIXME: needs to be fine tuned?

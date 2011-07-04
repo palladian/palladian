@@ -196,6 +196,15 @@ class DatasetProcessingAction extends FeedProcessingAction {
     }
 
     /**
+     * Write poll meta information to db.
+     */
+    @Override
+    public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
+
+        return processPollMetadata(feed, httpResult, null);
+    }
+
+    /**
      * Write everything that we can't parse to a gz file.
      * All data written to gz file is taken from httpResult, the Feed is taken to determine the path and
      * filename.
