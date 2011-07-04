@@ -179,7 +179,7 @@ public class Feed {
 
     public Feed(String feedUrl) {
         this();
-        this.feedUrl = feedUrl;
+        setFeedUrl(feedUrl, true);
     }
 
     public int getId() {
