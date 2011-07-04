@@ -346,6 +346,12 @@ public final class FeedReader {
                 // TODO Auto-generated method stub
                 return false;
             }
+
+            @Override
+            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
+                // TODO Auto-generated method stub
+                return false;
+            }
         };
         setFeedProcessingAction(processingAction);
         startContinuousReading(duration);
@@ -504,6 +510,12 @@ public final class FeedReader {
 
             @Override
             public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            @Override
+            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return false;
             }
