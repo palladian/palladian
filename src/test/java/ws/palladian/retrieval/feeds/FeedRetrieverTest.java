@@ -102,7 +102,7 @@ public class FeedRetrieverTest {
         feedRetriever.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
 
         // UTF-16
-        feedRetriever.setCleanStrings(false);
+        // feedRetriever.setCleanStrings(false);
         feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed102.xml").getFile()));
 
     }
@@ -119,7 +119,7 @@ public class FeedRetrieverTest {
     public void testFeedParsing2() throws FeedRetrieverException, ParseException {
 
         FeedRetriever feedRetriever = new FeedRetriever();
-        feedRetriever.setCleanStrings(false);
+        // feedRetriever.setCleanStrings(false);
 
         // verify, if author information is parsed correctly
 
@@ -160,7 +160,7 @@ public class FeedRetrieverTest {
         FeedRetriever feedRetriever = new FeedRetriever();
 
         // TODO cleaning destroys the content
-        feedRetriever.setCleanStrings(false);
+        // feedRetriever.setCleanStrings(false);
 
         // arabic characters
         Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed100.xml").getFile()));
