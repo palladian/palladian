@@ -586,7 +586,7 @@ public class FileHelper {
         Writer writer = null;
 
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true)));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
             writer.append(stringToAppend);
             success = true;
         } catch (IOException e) {

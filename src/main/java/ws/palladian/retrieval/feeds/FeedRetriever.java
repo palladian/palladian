@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -23,7 +22,6 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
@@ -76,7 +74,7 @@ public class FeedRetriever {
      * Whether to clean strings like text and title from feed's items; this means strip out HTML tags and entities. If
      * disabled, the raw content from the feed is aggregated without further treatment.
      */
-    private boolean cleanStrings = true;
+//    private boolean cleanStrings = true;
 
     public FeedRetriever() {
         // suXXX that I have to set this explicitly;
@@ -190,13 +188,13 @@ public class FeedRetriever {
         return useDateRecognition;
     }
 
-    public void setCleanStrings(boolean cleanStrings) {
-        this.cleanStrings = cleanStrings;
-    }
-
-    public boolean isCleanStrings() {
-        return cleanStrings;
-    }
+//    public void setCleanStrings(boolean cleanStrings) {
+//        this.cleanStrings = cleanStrings;
+//    }
+//
+//    public boolean isCleanStrings() {
+//        return cleanStrings;
+//    }
 
     // ///////////////////////////////////////////////////
     // private ROME specific methods
@@ -598,18 +596,19 @@ public class FeedRetriever {
      * @return
      */
     private String cleanup(String dirty) {
-        String result = null;
-        if (cleanStrings) {
-            if (dirty != null) {
-                // TODO this causes trouble with special and foreign characters
-                result = HTMLHelper.documentToReadableText(dirty, false);
-                result = StringEscapeUtils.unescapeHtml(result);
-                result = result.trim();
-            }
-        } else {
-            result = dirty;
-        }
-        return result;
+//        String result = null;
+//        if (cleanStrings) {
+//            if (dirty != null) {
+//                // TODO this causes trouble with special and foreign characters
+//                result = HTMLHelper.documentToReadableText(dirty, false);
+//                result = StringEscapeUtils.unescapeHtml(result);
+//                result = result.trim();
+//            }
+//        } else {
+//            result = dirty;
+//        }
+//        return result;
+        return dirty;
     }
 
     public static void main(String[] args) throws Exception {
@@ -624,8 +623,11 @@ public class FeedRetriever {
         // System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
-        downloader.setCleanStrings(false);
+        // downloader.setCleanStrings(false);
         downloader.setUseDateRecognition(true);
+        Feed feed = downloader.getFeed("http://www.d3p.co.jp/rss/mobile.rdf");
+        feed.print();
+        
         // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
         // StopWatch sw = new StopWatch();
         // Feed feed = downloader.getFeed("http://808chiangmai.com/?feed=atom");
