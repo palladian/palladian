@@ -38,6 +38,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
+        feed.setLastFeedTaskResult(resultSet.getString("lastResult"));
         feed.setActivityPattern((Integer) resultSet.getObject("activityPattern"));
         feed.getMetaInformation().setFeedFormat(resultSet.getString("feedFormat"));
         feed.getMetaInformation().setByteSize(resultSet.getLong("feedSize"));

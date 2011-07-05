@@ -33,8 +33,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?";
-    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
-    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds ORDER BY id ASC";
@@ -95,6 +95,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastPollTimeSQLTimestamp());
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
+        parameters.add(feed.getLastFeedTaskResult());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
@@ -283,6 +284,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastFeedEntry());
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getId() + ""));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
+        parameters.add(feed.getLastFeedTaskResult().toString());
         parameters.add(feed.getLastPollTime());
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getTotalProcessingTime());

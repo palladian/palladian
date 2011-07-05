@@ -2,7 +2,9 @@ package ws.palladian.retrieval.feeds;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.http.impl.cookie.DateUtils;
@@ -51,11 +53,6 @@ class FeedTask implements Callable<FeedTaskResult> {
     public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
 
     /**
-     * The result of this task.
-     */
-    private FeedTaskResult result = FeedTaskResult.OPEN;
-
-    /**
      * Additional header elements used in HTTP requests.
      */
     private Map<String, String> requestHeaders = new HashMap<String, String>();
@@ -81,15 +78,6 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     }
 
-    // /**
-    // * Replace the request headers by the given ones.
-    // *
-    // * @param requestHeaders New request headers to set.
-    // */
-    // private void setRequestHeaders(Map<String, String> requestHeaders) {
-    // this.requestHeaders = requestHeaders;
-    // }
-
     /**
      * Add a key value pair to request headers.
      * 
@@ -109,7 +97,9 @@ class FeedTask implements Callable<FeedTaskResult> {
         return requestHeaders;
     }
 
-    // TODO very long method, break into pieces.
+    private Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
+
+
     @Override
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
@@ -118,49 +108,40 @@ class FeedTask implements Callable<FeedTaskResult> {
             int recentMisses = feed.getMisses();
             boolean storeMetadata = false;
 
-            // update http request headers to use conditional requests (head requests)
-            if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
-                addRequestHeader("If-None-Match", feed.getLastETag());
-            }
-            if (feed.getHttpLastModified() != null) {
-                addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
-            }
-
-            DocumentRetriever documentRetriever = new DocumentRetriever();
+            buildConditionalGetHeader();
             HttpResult httpResult = null;
-
-            // remember the time the feed has been checked
-            feed.setLastPollTime(new Date());
-
             try {
+                DocumentRetriever documentRetriever = new DocumentRetriever();
+                // remember the time the feed has been checked
+                feed.setLastPollTime(new Date());
+                // download the document (not necessarily a feed)
                 httpResult = documentRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
                 feed.incrementUnreachableCount();
-                feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
-                boolean dbSuccess = feedReader.updateFeed(feed);
-                if (dbSuccess && result == FeedTaskResult.OPEN) {
-                    result = FeedTaskResult.UNREACHABLE;
-                } else {
-                    result = FeedTaskResult.ERROR;
-                }
-                doFinalLogging(timer);
-                return result;
+                resultSet.add(FeedTaskResult.UNREACHABLE);
+
+                doFinalStuff(timer, storeMetadata);
+                return getResult();
             }
 
+            // process the returned header first
+            // case 1: client or server error, statuscode >= 400
             if (httpResult.getStatusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId()
                         + ". Server returned HTTP status code " + httpResult.getStatusCode());
                 feed.incrementUnreachableCount();
+                resultSet.add(FeedTaskResult.UNREACHABLE);
+
                 boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnHighHttpStatusCode(feed,
                         httpResult);
-                if (actionSuccess && result == FeedTaskResult.OPEN) {
-                    result = FeedTaskResult.UNREACHABLE;
-                } else {
-                    result = FeedTaskResult.ERROR;
+                if (!actionSuccess) {
+                    resultSet.add(FeedTaskResult.ERROR);
                 }
+
             } else {
 
+                // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
                     // TODO feedReader.updateCheckIntervals(feed); requires the old item timestamps and window size
@@ -169,12 +150,13 @@ class FeedTask implements Callable<FeedTaskResult> {
                     boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed,
                             httpResult);
                     if (!actionSuccess) {
-                        result = FeedTaskResult.ERROR;
+                        resultSet.add(FeedTaskResult.ERROR);
                     }
 
+                    // case 3: default case, try to process the feed.
                 } else {
 
-                    // process and store http header information
+                    // store http header information
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
                     feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified"));
 
@@ -187,20 +169,18 @@ class FeedTask implements Callable<FeedTaskResult> {
                         feed.setItems(downloadedFeed.getItems());
                     } catch (FeedRetrieverException e) {
                         LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
-                        feed.incrementUnreachableCount();
-                        feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
-                        feedReader.updateFeed(feed);
-                        LOGGER.debug("Performing action on error on feed: " + feed.getId() + "(" + feed.getFeedUrl()
-                                + ")");
+                        feed.incrementUnparsableCount();
+                        resultSet.add(FeedTaskResult.UNPARSABLE);
+                        LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "("
+                                + feed.getFeedUrl() + ")");
                         boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnException(feed,
                                 httpResult);
-                        if (actionSuccess && result == FeedTaskResult.OPEN) {
-                            result = FeedTaskResult.UNREACHABLE;
-                        } else {
-                            result = FeedTaskResult.ERROR;
+                        if (!actionSuccess) {
+                            resultSet.add(FeedTaskResult.ERROR);
                         }
-                        doFinalLogging(timer);
-                        return result;
+
+                        doFinalStuff(timer, storeMetadata);
+                        return getResult();
                     }
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     feed.setWindowSize(downloadedFeed.getItems().size());
@@ -214,82 +194,159 @@ class FeedTask implements Callable<FeedTaskResult> {
                     // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
                     // }
 
-                    // classify feed if it has never been classified before, do it once a month for each feed to be
-                    // informed
-                    // about updates
-                    if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
-                            && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
-
-                        storeMetadata = true;
-                        FeedClassifier.classify(feed);
-                        MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
-                        metaInfExt.updateGeneralMetaInformation(feed);
-                        feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
-                        feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
-                        feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
-                    }
+                    storeMetadata = generateMetaInformation(httpResult, downloadedFeed);
 
                     feedReader.updateCheckIntervals(feed);
 
-                    // perform actions on this feeds entries
+                    // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
                     boolean actionSuccess = feedReader.getFeedProcessingAction().performAction(feed, httpResult);
                     if (!actionSuccess) {
-                        result = FeedTaskResult.ERROR;
+                        resultSet.add(FeedTaskResult.ERROR);
                     }
                 }
-            }
 
-            // /////////////////////////////////
-            // final stuff to do in all cases //
-            // /////////////////////////////////
-            feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
-
-            // save the feed back to the database
-            boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata);
-            if (!dbSuccess) {
-                result = FeedTaskResult.ERROR;
-            }
-
-            // since the feed is kept in memory we need to remove all items and the document stored in the feed
-            feed.freeMemory();
-
-            if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
-                LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
-            }
-            
-            if(result == FeedTaskResult.OPEN){
-                if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
-                    result = FeedTaskResult.EXECUTION_TIME_WARNING;
-                } else if (recentMisses < feed.getMisses()) {
-                    result = FeedTaskResult.MISS;
+                if (recentMisses < feed.getMisses()) {
+                    resultSet.add(FeedTaskResult.MISS);
                 } else {
                     // finally, if no other status has been assigned, the task seems to bee successful
-                    result = FeedTaskResult.SUCCESS;
+                    resultSet.add(FeedTaskResult.SUCCESS);
                 }
             }
 
+            doFinalStuff(timer, storeMetadata);
+            return getResult();
+
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
-            // killed by the thread pool internals.
+            // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
             LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
-            result = FeedTaskResult.ERROR;
+            resultSet.add(FeedTaskResult.ERROR);
+            doFinalLogging(timer);
+            return getResult();
         }
+    }
+
+    /**
+     * 
+     * Classify feed and process general meta data like feed title, language, size, format.
+     * Everything in this method is done only if it has never been done before or once every month.
+     * 
+     * @param httpResult
+     * @param downloadedFeed
+     * @return
+     */
+    private boolean generateMetaInformation(HttpResult httpResult, Feed downloadedFeed) {
+        boolean metadataCreated = false;
+
+        if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
+                && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
+
+            metadataCreated = true;
+            FeedClassifier.classify(feed);
+            MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
+            metaInfExt.updateGeneralMetaInformation(feed);
+            feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
+            feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
+            feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
+        }
+        return metadataCreated;
+    }
+
+    /**
+     * Sets the feed task result and processing time of this task, saves the feed to database, does the final logging
+     * and frees the feed's memory.
+     * 
+     * @param timer The {@link StopWatch} to estimate processing time
+     * @param storeMetadata Specify whether metadata should be updated in database.
+     */
+    private void doFinalStuff(StopWatch timer, boolean storeMetadata) {
+        if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
+            LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
+            resultSet.add(FeedTaskResult.EXECUTION_TIME_WARNING);
+        }
+
+        // Caution. The result written to db may be wrong since we can't write a db-error to db that occurs while
+        // updating the database. This has no effect as long as we do not restart the FeedReader in this case.
+        feed.setLastFeedTaskResult(getResult());
+        feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+        updateFeed(storeMetadata);
+
+        // since the feed is kept in memory we need to remove all items and the document stored in the feed
+        feed.freeMemory();
         doFinalLogging(timer);
+    }
+
+    /**
+     * Update http request headers to use conditional requests (head requests). This is done only in case the last
+     * FeedTaskResult was success, miss or execution time warning. In all other cases, no conditional header is build.
+     */
+    private void buildConditionalGetHeader() {
+
+        if (feed.getLastFeedTaskResult() == FeedTaskResult.SUCCESS
+                || feed.getLastFeedTaskResult() == FeedTaskResult.MISS
+                || feed.getLastFeedTaskResult() == FeedTaskResult.EXECUTION_TIME_WARNING)
+        if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
+            addRequestHeader("If-None-Match", feed.getLastETag());
+        }
+        if (feed.getHttpLastModified() != null) {
+            addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+        }
+    }
+
+    /**
+     * Decide the status of this FeedTask. This is done here to have a fixed ranking on the values.
+     * 
+     * @return The (current) result of the feed task.
+     */
+    private FeedTaskResult getResult() {
+        FeedTaskResult result = null;
+        if (resultSet.contains(FeedTaskResult.ERROR)) {
+            result = FeedTaskResult.ERROR;
+        } else if (resultSet.contains(FeedTaskResult.UNREACHABLE)) {
+            result = FeedTaskResult.UNREACHABLE;
+        } else if (resultSet.contains(FeedTaskResult.UNPARSABLE)) {
+            result = FeedTaskResult.UNPARSABLE;
+        } else if (resultSet.contains(FeedTaskResult.EXECUTION_TIME_WARNING)) {
+            result = FeedTaskResult.EXECUTION_TIME_WARNING;
+        } else if (resultSet.contains(FeedTaskResult.MISS)) {
+            result = FeedTaskResult.MISS;
+        } else if (resultSet.contains(FeedTaskResult.SUCCESS)) {
+            result = FeedTaskResult.SUCCESS;
+        } else {
+            result = FeedTaskResult.OPEN;
+        }
+
         return result;
     }
 
     /**
-     * Do final logging of result.
+     * Do final logging of result to error or debug log, depending on the FeedTaskResult.
      * 
      * @param timer the {@link StopWatch} started when started processing the feed.
      */
     private void doFinalLogging(StopWatch timer) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Finished processing of feed id " + feed.getId() + ". Result: " + result
-                    + ". Processing took " + timer.getElapsedTimeString());
+        FeedTaskResult result = getResult();
+        String msg = "Finished processing of feed id " + feed.getId() + ". Result: " + result + ". Processing took "
+                + timer.getElapsedTimeString();
+        if (result == FeedTaskResult.ERROR) {
+            LOGGER.error(msg);
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(msg);
         }
     }
 
+
+    /**
+     * Save the feed back to the database. In case of database errors, add error to {@link #resultSet}.
+     * 
+     * @param storeMetadata
+     */
+    private void updateFeed(boolean storeMetadata) {
+        boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata);
+        if (!dbSuccess) {
+            resultSet.add(FeedTaskResult.ERROR);
+        }
+    }
 
 }

@@ -70,9 +70,6 @@ public class MetaInformationExtractor {
      * <li>hasSkipDays</li>
      * <li>hasSkipHours</li>
      * <li>conditionalGetResponseSize</li>
-     * <li></li>
-     * <li></li>
-     * <li></li>
      * </ul>
      * 
      * @param feed The {@link Feed} to update.
