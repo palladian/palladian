@@ -14,7 +14,7 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
 import ws.palladian.daterecognition.searchengine.DataSetHandler;
-import ws.palladian.helper.collection.ArrayHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateComparator;
 
 public class EvaluationHelper {
@@ -197,7 +197,7 @@ public class EvaluationHelper {
 		return count(null, round, table, numberUrls, classifire, random);
 	}
 	public static double count(String file, String round, String table, int numberUrls, int classifire, boolean random){
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(numberUrls, random, file));
+		ArrayList<String> urls = CollectionHelper.toArrayList(readFile(numberUrls, random, file));
 		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
 		return count(valuedUrls, classifire);
 	}
@@ -261,7 +261,7 @@ public class EvaluationHelper {
 	public static double calculateSampleSize(String round, String table,String file){
 		double zSqr = 1.96 * 1.96;
 		double ciSqr = 0.05 * 0.05;
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(-1, false, file));
+		ArrayList<String> urls = CollectionHelper.toArrayList(readFile(-1, false, file));
 		double p = calculateExactness(round, table, urls);
 		double n = ((zSqr * p * (1-p))/ciSqr)+1.0;
 		return n;

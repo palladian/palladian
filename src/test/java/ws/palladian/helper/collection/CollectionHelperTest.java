@@ -41,5 +41,31 @@ public class CollectionHelperTest {
         assertEquals(1, CollectionHelper.getElementsByType(String.class, list).size());
         assertEquals(0, CollectionHelper.getElementsByType(List.class, list).size());
     }
+    
+    @Test
+    public void removeNullElementsTest() {
+        ArrayList<String> array = new ArrayList<String>();
+        String temp = null;
+        array.add(temp);
+        temp = "1";
+        array.add(temp);
+        temp = "2";
+        array.add(temp);
+        temp = null;
+        array.add(temp);
+        temp = "3";
+        array.add(temp);
+        temp = null;
+        array.add(temp);
+        temp = "4";
+        array.add(temp);
+        temp = null;
+        array.add(temp);
+        array = CollectionHelper.removeNullElements(array);
+        assertEquals(4, array.size());
+        for (int i = 0; i < array.size(); i++) {
+            assertEquals(i + 1, Integer.parseInt(array.get(i)));
+        }
+    }
 
 }
