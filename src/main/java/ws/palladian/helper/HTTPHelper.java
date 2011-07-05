@@ -20,7 +20,8 @@ public class HTTPHelper {
     public static final Logger LOGGER = Logger.getLogger(HTTPHelper.class);
 
     /**
-     * Get a date from http header.
+     * Get a date from http header. We use {@link DateUtils}, so only dates in RFC 1123, RFC 1036 or ANSI C asctime()
+     * format will be detected. We do not use palladians date recognition here.
      * 
      * @param httpResult The {@link HttpResult} to get the date from.
      * @param headerName The name of the header field to get.
@@ -33,7 +34,7 @@ public class HTTPHelper {
             try {
                 date = DateUtils.parseDate(dateString);
             } catch (DateParseException e) {
-                LOGGER.error("Could nor parse http header value for " + headerName + ": \"" + dateString + "\". "
+                LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString + "\". "
                         + e.getMessage());
             }
         }
