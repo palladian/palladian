@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.helper.EnumHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
@@ -172,6 +173,9 @@ public class Feed {
 
     /** The feed's meta information. */
     private FeedMetaInformation feedMetaInfo = new FeedMetaInformation();
+
+    /** The result of the most recent feed task. */
+    private FeedTaskResult lastFeedTaskResult = null;
 
     public Feed() {
         super();
@@ -1125,6 +1129,30 @@ public class Feed {
      */
     public FeedMetaInformation getMetaInformation() {
         return feedMetaInfo;
+    }
+
+    /**
+     * @return the FeedTaskResult of the most recent FeedTask. <code>null</code> if the FeedTask has never been run on
+     *         this feed.
+     */
+    public final FeedTaskResult getLastFeedTaskResult() {
+        return lastFeedTaskResult;
+    }
+
+    /**
+     * @param lastFeedTaskResult the recentFeedTaskResult to set
+     */
+    public final void setLastFeedTaskResult(FeedTaskResult lastFeedTaskResult) {
+        this.lastFeedTaskResult = lastFeedTaskResult;
+    }
+
+    /**
+     * Set enum from String.
+     * 
+     * @param lastFeedTaskResult the recentFeedTaskResult to set
+     */
+    public final void setLastFeedTaskResult(String lastFeedTaskResult) {
+        this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
     }
 
 }
