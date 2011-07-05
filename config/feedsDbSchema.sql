@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `newestItemHash` CHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The sha1-hash of the first item (in xml) of the last poll. Updated at every poll. Do not change to unsigned!',
   `lastETag` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The last ETag we received in the http header. Updated at every poll. Do not change to unsigned!',
   `lastModified` DATETIME DEFAULT NULL COMMENT 'The most recent value of the last-modidied element in the http header. Updated at every poll. Do not change to unsigned!',
+  `lastResult` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The result of the most recent FeedTask. Updated at every poll.',
   `activityPattern` INT(11) DEFAULT NULL COMMENT 'Update class of the feed. Updated when metadata is updated. Do not change to unsigned!',
   `feedFormat` CHAR(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Contains the version of the feed such as RSS/0.9 or ATOM/1.0. Updated when metadata is updated. Do not change to unsigned!',
   `feedSize` DOUBLE DEFAULT '0' COMMENT 'The size of the raw feed. Updated when metadata is updated. Do not change to unsigned!',
