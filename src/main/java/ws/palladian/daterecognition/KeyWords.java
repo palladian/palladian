@@ -2,7 +2,7 @@ package ws.palladian.daterecognition;
 
 import java.util.HashSet;
 
-import ws.palladian.helper.collection.ArrayHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * 
@@ -74,8 +74,8 @@ public final class KeyWords {
 			"date-header" };
 
 	/** All keywords. */
-	public static final String[] ALL_KEYWORDS = ArrayHelper.concat(
-			FIRST_PRIORITY_KEYWORDS, ArrayHelper.concat(
+	public static final String[] ALL_KEYWORDS = CollectionHelper.concat(
+			FIRST_PRIORITY_KEYWORDS, CollectionHelper.concat(
 					SECOND_PRIORITY_KEYWORDS, THIRD_PRIORITY_KEYWORDS));
 
 	/**

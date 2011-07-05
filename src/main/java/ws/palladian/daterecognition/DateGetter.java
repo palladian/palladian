@@ -15,7 +15,7 @@ import ws.palladian.daterecognition.technique.MetaDateGetter;
 import ws.palladian.daterecognition.technique.ReferenceDateGetter;
 import ws.palladian.daterecognition.technique.StructureDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
-import ws.palladian.helper.collection.ArrayHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -141,7 +141,7 @@ public class DateGetter {
                 }
             }
         }
-        dates = ArrayHelper.removeNullElements(dates);
+        dates = CollectionHelper.removeNullElements(dates);
         return dates;
 
     }
