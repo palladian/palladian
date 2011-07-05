@@ -36,6 +36,8 @@ public class XmlParser extends BaseDocumentParser implements DocumentParser {
             throw new ParserException(e);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ParserException(e);
+        } catch (Throwable th) {
+            throw new ParserException(th);
         }
     }
 
