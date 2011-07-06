@@ -157,7 +157,7 @@ public class Item implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Item other = (Item)obj;
+        Item other = (Item) obj;
         if (identifier == null) {
             if (other.identifier != null) {
                 return false;
@@ -225,40 +225,40 @@ public class Item implements Serializable {
         this.author = author;
     }
 
-    public void setForumInternalIdentifier(String forumInternalIdentifier) {
-        this.streamSourceInternalIdentifier = forumInternalIdentifier;
-    }
+    // public void setForumInternalIdentifier(String forumInternalIdentifier) {
+    // this.streamSourceInternalIdentifier = forumInternalIdentifier;
+    // }
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
+    // public void setLink(String link) {
+    // this.link = link;
+    // }
 
-    public void setPredecessor(Item predecessor) {
-        this.predecessor = predecessor;
-    }
+    // public void setPredecessor(Item predecessor) {
+    // this.predecessor = predecessor;
+    // }
 
-    public void setPublicationDate(Date publicationDate) {
-        this.publicationDate = publicationDate;
-    }
+    // public void setPublicationDate(Date publicationDate) {
+    // this.publicationDate = publicationDate;
+    // }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+    // public void setText(String text) {
+    // this.text = text;
+    // }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    // public void setTitle(String title) {
+    // this.title = title;
+    // }
 
-    public final void setType(ItemType type) {
-        this.type = type;
-    }
+    // public final void setType(ItemType type) {
+    // this.type = type;
+    // }
 
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-    }
+    // public void setUpdateDate(Date updateDate) {
+    // this.updateDate = updateDate;
+    // }
 
 }

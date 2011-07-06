@@ -24,6 +24,7 @@ import ws.palladian.iirmodel.ItemType;
 
 /**
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * 
  */
 public class PersistenceLayerTest {
@@ -57,8 +58,7 @@ public class PersistenceLayerTest {
     @Test
     public final void testSaveItemStream() {
         try {
-            ItemStream stream = new ItemStream("testStream", "testSource", "http://testSource.de/testStream",
-                    "testChannel");
+            ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
             persistenceLayer.saveItemStream(stream);
         } catch (Exception e) {
             fail("Unable to save new ItemStream due to: " + e.getStackTrace());
@@ -67,7 +67,7 @@ public class PersistenceLayerTest {
 
     @Test
     public final void testSaveComplexItemStream() {
-        ItemStream stream = new ItemStream("testStream", "testSource", "http://testSource.de/testStream", "testChannel");
+        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
         Author author1 = new Author("a1@testSource", "a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1@" + stream.getIdentifier(), "i1", author1, "http://testSource.de/testStream/i1",
                 "i1", new Date(), new Date(), "i1text", null, ItemType.QUESTION);
@@ -78,13 +78,13 @@ public class PersistenceLayerTest {
         stream.addItem(item2);
 
         persistenceLayer.saveItemStream(stream);
-        ItemStream result = persistenceLayer.loadItemStream(stream.getStreamIdentifier(), stream.getStreamSource());
+        ItemStream result = persistenceLayer.loadItemStreamBySourceAddress(stream.getSourceAddress());
         assertEquals(stream, result);
     }
 
     @Test
     public void testSaveChangeItemStream() throws Exception {
-        ItemStream stream = new ItemStream("testStream", "testSource", "http://testSource.de/testStream", "testChannel");
+        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
         Author author1 = new Author("a1@testSource", "a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1@" + stream.getIdentifier(), "i1", author1, "http://testSource.de/testStream/i1",
                 "i1", new Date(), new Date(), "i1text", null, ItemType.QUESTION);
@@ -97,7 +97,7 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveItemStream(stream);
 
-        ItemStream changedStream = new ItemStream("testStream", "testSource", "http://testSource.de/testStream",
+        ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream",
                 "testChannel");
 
         Author changedAuthor1 = new Author("a2@testSource", "a2", 11, 3, 5, author2RegistrationDate, "testSource");
@@ -113,7 +113,7 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveItemStream(changedStream);
 
-        ItemStream loadedStream = persistenceLayer.loadItemStream("testStream", "testSource");
+        ItemStream loadedStream = persistenceLayer.loadItemStreamBySourceAddress("http://testSource.de/testStream");
         Item deletedItem = persistenceLayer.loadItem("i1@" + loadedStream.getIdentifier());
         assertNull(deletedItem);
         assertEquals(2, loadedStream.getItems().size());

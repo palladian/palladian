@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -36,6 +35,7 @@ import ws.palladian.iirmodel.RelationType;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  * 
@@ -119,7 +119,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public final void saveItemStream(final ItemStream stream) {
         Boolean openedTransaction = openTransaction();
-        ItemStream existingStream = loadItemStream(stream.getStreamIdentifier(), stream.getStreamSource());
+        ItemStream existingStream = loadItemStream(stream.getSourceAddress());
         updateAuthors(stream.getItems());
 
         if (existingStream == null) {
@@ -184,40 +184,40 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         }
     }
 
-    /**
-     * <p>
-     * Removes all {@code Item}s from an existing stream, that are not also present in a new stream.
-     * </p>
-     * 
-     * @param existingStream The original stream that should be adapted to the current state in {@code newStream}.
-     * @param newStream The {@code ItemStream} representing the new content.
-     */
-    private void removeNonExistingItems(final ItemStream existingStream, final ItemStream newStream) {
-        for (Item item : existingStream.getItems()) {
-            if (!newStream.getItems().contains(item)) {
-                // List<Item> successorItems = getSuccessorItems(newStream, item);
-                // for (Item successorItem : successorItems) {
-                // successorItem.setPredecessor(null);
-                // }
-                removeItem(item);
-            }
-        }
-    }
+//    /**
+//     * <p>
+//     * Removes all {@code Item}s from an existing stream, that are not also present in a new stream.
+//     * </p>
+//     * 
+//     * @param existingStream The original stream that should be adapted to the current state in {@code newStream}.
+//     * @param newStream The {@code ItemStream} representing the new content.
+//     */
+//    private void removeNonExistingItems(final ItemStream existingStream, final ItemStream newStream) {
+//        for (Item item : existingStream.getItems()) {
+//            if (!newStream.getItems().contains(item)) {
+//                // List<Item> successorItems = getSuccessorItems(newStream, item);
+//                // for (Item successorItem : successorItems) {
+//                // successorItem.setPredecessor(null);
+//                // }
+//                removeItem(item);
+//            }
+//        }
+//    }
 
-    /**
-     * @param newStream
-     * @param item
-     * @return
-     */
-    private List<Item> getSuccessorItems(ItemStream newStream, Item item) {
-        List<Item> ret = new LinkedList<Item>();
-        for (Item streamItem : newStream.getItems()) {
-            if (item.equals(streamItem.getPredecessor())) {
-                ret.add(streamItem);
-            }
-        }
-        return ret;
-    }
+//    /**
+//     * @param newStream
+//     * @param item
+//     * @return
+//     */
+//    private List<Item> getSuccessorItems(ItemStream newStream, Item item) {
+//        List<Item> ret = new LinkedList<Item>();
+//        for (Item streamItem : newStream.getItems()) {
+//            if (item.equals(streamItem.getPredecessor())) {
+//                ret.add(streamItem);
+//            }
+//        }
+//        return ret;
+//    }
 
     /**
      * <p>
@@ -232,15 +232,15 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
     }
 
-    /**
-     * @param existingThread
-     * @param thread
-     */
-    private void addNewItems(final ItemStream existingThread, final ItemStream thread) {
-        for (Item newEntry : thread.getItems()) {
-            saveItem(newEntry);
-        }
-    }
+//    /**
+//     * @param existingThread
+//     * @param thread
+//     */
+//    private void addNewItems(final ItemStream existingThread, final ItemStream thread) {
+//        for (Item newEntry : thread.getItems()) {
+//            saveItem(newEntry);
+//        }
+//    }
 
     /**
      * @param newEntry
@@ -644,14 +644,18 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
         return ret;
     }
-
-    @SuppressWarnings("unchecked")
-    public ItemStream loadItemStream(String threadIdentifier, String forumType) {
+    
+    /**
+     * Load and {@link ItemStream} by its source address.
+     * @param sourceAddress
+     * @return
+     */
+    public ItemStream loadItemStreamBySourceAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
         Query query = getManager().createQuery(
-                "select t from ItemStream t where t.streamIdentifier=:threadIdentifier and t.streamSource=:forumType");
-        query.setParameter("threadIdentifier", threadIdentifier);
-        query.setParameter("forumType", forumType);
+                "select t from ItemStream t where t.sourceAddress=:sourceAddress");
+        query.setParameter("sourceAddress", sourceAddress);
+        @SuppressWarnings("unchecked")
         List<ItemStream> ret = query.getResultList();
         commitTransaction(openedTransaction);
         if (ret.isEmpty()) {
