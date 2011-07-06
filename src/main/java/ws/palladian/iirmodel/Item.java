@@ -53,10 +53,12 @@ public class Item implements Serializable {
      * while reading on the stream.
      * </p>
      */
-    private String streamSourceInternalIdentifier;
+    private String sourceInternalIdentifier;
 
     /**
+     * <p>
      * The item stream that produced this item.
+     * </p>
      */
     @ManyToOne
     private ItemStream parent;
@@ -68,12 +70,14 @@ public class Item implements Serializable {
      */
     @ManyToOne(cascade = CascadeType.ALL)
     private Author author;
+
     /**
      * <p>
      * The URL used to access this item.
      * </p>
      */
     private String link;
+
     /**
      * <p>
      * The title of this item.
@@ -88,6 +92,7 @@ public class Item implements Serializable {
      */
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date publicationDate;
+
     /**
      * <p>
      * The date on which this item was last updated.
@@ -95,6 +100,7 @@ public class Item implements Serializable {
      */
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date updateDate;
+
     /**
      * <p>
      * The main body text forming the content of this item.
@@ -110,7 +116,6 @@ public class Item implements Serializable {
      * stream is not linear but forms a tree structure.
      * </p>
      */
-    // @OneToMany
     @ManyToOne(cascade = CascadeType.ALL)
     private Item predecessor;
 
@@ -125,7 +130,7 @@ public class Item implements Serializable {
 
     /**
      * <p>
-     * Creates a new {@code Item} with no values. Call all setters to initialize this {@code Item}.
+     * Creates a new {@code Item} with no values. This is used by the ORM.
      * </p>
      */
     protected Item() {
@@ -134,10 +139,10 @@ public class Item implements Serializable {
 
     /**
      * <p>
-     * Creates a new completely initialized item.
+     * Creates a new completely initialized {@link Item}.
      * </p>
      * 
-     * @param streamSourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
+     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
      *            not be
      *            world wide unique and only servers as identifier within the stream. This identifier is usually
      *            assigned by the item stream and
@@ -154,12 +159,13 @@ public class Item implements Serializable {
      *            other items. This happens if a stream is not linear but forms a tree structure.
      * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
      *            an answer or something completely different.
+     * @param parent The parent of this item {@link ItemStream} of this item.
      */
     public Item(String streamSourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
             Date updateDate, String text, Item predecessor, ItemType type, ItemStream parent) {
         this();
-        this.streamSourceInternalIdentifier = streamSourceInternalIdentifier;
-        this.parent = parent; // XXX
+        this.sourceInternalIdentifier = streamSourceInternalIdentifier;
+        this.parent = parent;
         this.author = author;
         this.link = link;
         this.title = title;
@@ -168,7 +174,6 @@ public class Item implements Serializable {
         this.text = text;
         this.predecessor = predecessor;
         this.type = type;
-        // this.author.addItem(this);
     }
 
     public Author getAuthor() {
@@ -196,7 +201,7 @@ public class Item implements Serializable {
     }
 
     public String getStreamSourceInternalIdentifier() {
-        return streamSourceInternalIdentifier;
+        return sourceInternalIdentifier;
     }
 
     public String getText() {
@@ -218,7 +223,7 @@ public class Item implements Serializable {
     /**
      * <p>
      * Checks whether this {@code Item} and another one are equal. This is the case if they share the same
-     * {@link #parent} item stream and the same {@link #streamSourceInternalIdentifier}.
+     * {@link #parent} item stream and the same {@link #sourceInternalIdentifier}.
      * </p>
      * 
      * @see java.lang.Object#equals(java.lang.Object)
@@ -245,10 +250,10 @@ public class Item implements Serializable {
         }
 
         // check equality by fields
-        if (streamSourceInternalIdentifier == null) {
-            if (other.streamSourceInternalIdentifier != null)
+        if (sourceInternalIdentifier == null) {
+            if (other.sourceInternalIdentifier != null)
                 return false;
-        } else if (!streamSourceInternalIdentifier.equals(otherIdentifier)) {
+        } else if (!sourceInternalIdentifier.equals(otherIdentifier)) {
             return false;
         }
         if (parent == null) {
@@ -264,17 +269,17 @@ public class Item implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+        result = prime * result + ((sourceInternalIdentifier == null) ? 0 : sourceInternalIdentifier.hashCode());
+        result = prime * result + ((parent == null) ? 0 : parent.hashCode());
         return result;
     }
 
     public void setAuthor(Author author) {
-        // this.author.addItem(this);
         this.author = author;
     }
 
-    public void setForumInternalIdentifier(String forumInternalIdentifier) {
-        this.streamSourceInternalIdentifier = forumInternalIdentifier;
+    public void setSourceInternalIdentifier(String sourceInternalIdentifier) {
+        this.sourceInternalIdentifier = sourceInternalIdentifier;
     }
 
     public void setIdentifier(Integer identifier) {
@@ -314,8 +319,8 @@ public class Item implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("Item [identifier=");
         builder.append(identifier);
-        builder.append(", streamSourceInternalIdentifier=");
-        builder.append(streamSourceInternalIdentifier);
+        builder.append(", sourceInternalIdentifier=");
+        builder.append(sourceInternalIdentifier);
         builder.append(", author=");
         builder.append(author);
         builder.append(", link=");

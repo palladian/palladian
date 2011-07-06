@@ -32,7 +32,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"))
 public class ItemStream implements Comparable<ItemStream>, Serializable {
-    
+
     /**
      * <p>
      * Used for serializing this object to a file via java API.
@@ -113,7 +113,6 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      */
     public ItemStream(String streamSource, String sourceAddress, String channelName) {
         this();
-        // this.identifier = streamIdentifier + "@" + streamSource;
         this.streamSource = streamSource;
         this.sourceAddress = sourceAddress;
         this.channelName = channelName;
@@ -158,7 +157,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
 
     /**
      * <p>
-     * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
+     * The stream source is a unique name identifying the source. It might be its name as long as no other source with
      * the same name exists or the URL of the forum.
      * </p>
      * 
@@ -179,7 +178,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         if (getClass() != itemStream.getClass()) {
             return false;
         }
-        
+
         ItemStream other = (ItemStream) itemStream;
         if (sourceAddress == null) {
             if (other.sourceAddress != null) {
@@ -195,7 +194,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((streamSource == null) ? 0 : streamSource.hashCode());
+        result = prime * result + ((sourceAddress == null) ? 0 : sourceAddress.hashCode());
         return result;
     }
 
