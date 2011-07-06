@@ -18,8 +18,8 @@ import ws.palladian.helper.SendMail;
 import ws.palladian.helper.date.DateHelper;
 
 /**
- * A scheduler task handles the distribution of feeds to worker threads that
- * read these feeds.
+ * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
+ * It has an integrated monitoring component that logs and sends error notifications via email.
  * 
  * @author Klemens Muthmann
  * @author Sandro Reichert
@@ -65,7 +65,10 @@ class SchedulerTask extends TimerTask {
      * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the
      * future.
      */
-    private static final long MAXIMUM_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
+    private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
+
+
+    // //////////// Monitoring constants \\\\\\\\\\\\\\\\\
 
     /**
      * If wake up interval exceeds this time, do some warning.
@@ -76,6 +79,9 @@ class SchedulerTask extends TimerTask {
      * Count the number of processed feeds per scheduler iteration.
      */
     private int processedCounter = 0;
+
+    /** Count consecutive delay warnings. */
+    private int consecutiveDelays = 0;
 
     private Long lastWakeUpTime = null;
 
@@ -93,6 +99,27 @@ class SchedulerTask extends TimerTask {
     /** The receipient of email notifications. */
     private static final String EMAIL_RECEIPIENT_DEFAULT = "user@example.org";
 
+    /** Number of Feeds that are expected to be processed per minute */
+    private static int HIGH_LOAD_THROUGHPUT = 0;
+
+    /**
+     * Number of feeds that are allowed to be processed slow. If more than this number of {@link FeedTask}s exceeds the
+     * execution time warning level, it is expected that something is wrong.
+     */
+    private static int SLOW_WARNING_SIZE;
+
+    /**
+     * Number of feeds that are allowed to be unreachable. If more than this number of {@link FeedTask}s is unreachable,
+     * it is expected that something is wrong.
+     */
+    private static int UNREACHABLE_WARNING_SIZE;
+
+    /**
+     * Number of feeds that are allowed to be unparsable. If more than this number of {@link FeedTask}s is unparsable,
+     * it is expected that something is wrong.
+     */
+    private int UNPARSABLE_WARNING_SIZE;
+
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
@@ -106,6 +133,8 @@ class SchedulerTask extends TimerTask {
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
 
+        // configure monitoring and logging
+
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         errorMailNotification = ERROR_MAIL_NOTIFICATION_DEFAULT;
         if (config != null) {
@@ -115,6 +144,17 @@ class SchedulerTask extends TimerTask {
 
         }
 
+        // max 10% of the threads, but at least 10 feeds are allowed to be slow
+        SLOW_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 10);
+
+        // on average, one thread should process at least 3 feeds per minute
+        HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
+
+        // max 1% of the threads, but at least 10 feeds are allowed to be unreachable
+        UNREACHABLE_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 100);
+
+        // max 1% of the threads, but at least 10 feeds are allowed to be unparsable
+        UNPARSABLE_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 100);
     }
 
     /*
@@ -153,7 +193,7 @@ class SchedulerTask extends TimerTask {
             }
         }
 
-        // logging
+        // monitoring and logging
         String wakeupInterval = "first start";
         if (lastWakeUpTime != null) {
             wakeupInterval = DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime);
@@ -166,10 +206,11 @@ class SchedulerTask extends TimerTask {
         int slow = feedResults.getCount(FeedTaskResult.EXECUTION_TIME_WARNING);
         int errors = feedResults.getCount(FeedTaskResult.ERROR);
 
-        String logMsg = String.format("Scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d"
-                        + ", success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, wake up interval: %10s",
-                        newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter,
-                        success, misses, unreachable, unparsable, slow, errors, wakeupInterval);
+        String logMsg = String.format("Newly scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d, "
+                + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, "
+                + "wake up interval: %10s",
+                newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter, 
+                success, misses, unreachable, unparsable, slow, errors, wakeupInterval);
 
         // error handling
         boolean errorOccurred = false;
@@ -185,15 +226,31 @@ class SchedulerTask extends TimerTask {
             detectedErrors.append("Wakeup Interval was too high. ");
         }
 
-        if (slow > 0) {
+        if (slow > SLOW_WARNING_SIZE) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds with long processing time. ");
         }
 
-        // FIXME: needs to be fine tuned?
-        if (alreadyScheduledFeedCount > 10 && processedCounter < 1000) {
+        if (unreachable > UNREACHABLE_WARNING_SIZE) {
             errorOccurred = true;
-            detectedErrors.append("Throughput too low. ");
+            detectedErrors.append("Too many feeds are unreachable. ");
+        }
+
+        if (unparsable > UNPARSABLE_WARNING_SIZE) {
+            errorOccurred = true;
+            detectedErrors.append("Too many feeds are unparsable. ");
+        }
+
+        // FIXME: needs to be fine tuned?
+        if (alreadyScheduledFeedCount > 10 && (processedCounter < HIGH_LOAD_THROUGHPUT)) {
+            consecutiveDelays++;
+            if (consecutiveDelays >= 3) {
+                errorOccurred = true;
+                detectedErrors.append("Throughput too low -> Too many delayed feeds. ");
+                consecutiveDelays = 0;
+            }
+        } else {
+            consecutiveDelays = 0;
         }
 
         if (errorOccurred) {
@@ -202,10 +259,10 @@ class SchedulerTask extends TimerTask {
 
             if(errorMailNotification){
                 String hostname = ProcessHelper.runCommand("hostname");
-                String recipient = "sandro.reichert@tu-dresden.de"; // FIXME: multiple recipients
-                                                                    // philipp.katz@tu-dresden.de,
-                                                                    // david.urbansky@tu-dresden.de,
-                                                                    // klemens.muthmann@tu-dresden.de";
+                String recipient = emailRecipient; // FIXME: multiple recipients
+                                                   // philipp.katz@tu-dresden.de,
+                                                   // david.urbansky@tu-dresden.de,
+                                                   // klemens.muthmann@tu-dresden.de";
                 String subject = "FeedReader " + hostname + " notification "
                         + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
 
@@ -213,7 +270,7 @@ class SchedulerTask extends TimerTask {
                 mailer.send("notification@palladian.ws", recipient, subject, logMsg);
             }
         } else {
-            LOGGER.info(logMsg);
+            LOGGER.info(" " + logMsg); // whitespace required to align lines in log file.
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -258,7 +315,7 @@ class SchedulerTask extends TimerTask {
 
         // check whether the feed needs to be blocked
         if (!feed.isBlocked()) {
-            if (feed.getAverageProcessingTime() >= MAXIMUM_PROCESSING_TIME_MS) {
+            if (feed.getAverageProcessingTime() >= MAXIMUM_AVERAGE_PROCESSING_TIME_MS) {
                 LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
@@ -267,8 +324,8 @@ class SchedulerTask extends TimerTask {
             }
 
             if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
-                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + "has been unreachable too often and is therefore blocked (never scheduled again)!"
+                LOGGER.fatal("Feed id " + feed.getId() + " " + feed.getFeedUrl()
+                        + " has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);

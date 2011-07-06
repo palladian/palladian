@@ -547,4 +547,12 @@ public final class FeedReader {
         return threadPoolSize;
     }
 
+    /**
+     * @return The time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds
+     *         should be read.
+     */
+    public final long getWakeUpInterval() {
+        return wakeUpInterval;
+    }
+
 }
