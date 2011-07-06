@@ -119,7 +119,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public final void saveItemStream(final ItemStream stream) {
         Boolean openedTransaction = openTransaction();
-        ItemStream existingStream = loadItemStream(stream.getSourceAddress());
+        ItemStream existingStream = loadItemStreamBySourceAddress(stream.getSourceAddress());
         updateAuthors(stream.getItems());
 
         if (existingStream == null) {
