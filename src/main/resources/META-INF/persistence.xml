@@ -9,7 +9,7 @@
 		<class>ws.palladian.iirmodel.RelationType</class>
 		<properties>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:MyDB"/>
+			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:temp/testdb"/>
 			<property name="javax.persistence.jdbc.user" value="sa"/>
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>
 			<property name="eclipselink.weaving.lazy" value="false"/>
