@@ -181,6 +181,14 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         Assert.assertEquals(1, deDup.size());
         Assert.assertEquals(true, deDup.contains("http://awoundedwarriorssecondchance.org/feed/atom/"));
 
+        // contains several formats each as single words (not contained in word like ...worrieRSSecond...)
+        urls = new ArrayList<String>();
+        // conatins rss + atom
+        urls.add("http://www.alghad.com/index.php/rss/section/0.atom");
+        deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        Assert.assertEquals(1, deDup.size());
+        Assert.assertEquals(true, deDup.contains("http://www.alghad.com/index.php/rss/section/0.atom"));
+
         // ignore feeds which contain session ids
         urls = new ArrayList<String>();
         urls.add("http://fgsd.des.schoolfusion.us/modules/cms/announceRss.phtml?sessionid=c4e953bd5ed6802d8220af0b25c6645d");

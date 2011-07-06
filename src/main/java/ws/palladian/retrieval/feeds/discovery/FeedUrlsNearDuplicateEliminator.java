@@ -66,8 +66,10 @@ public class FeedUrlsNearDuplicateEliminator {
 
         // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
         // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
-        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
-        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
+//        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
+//        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
+        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\in.txt";
+        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\out.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
@@ -153,16 +155,15 @@ public class FeedUrlsNearDuplicateEliminator {
             }
             matcher.reset();
             
-            if (numMatches == 1) {
+            if (numMatches > 1) {
+                LOGGER.fatal("Found too many feed formats in : " + link + " - can't deduplicate.");
+            } else if (numMatches == 1) {
                 while (matcher.find()) {
                     format = matcher.group();
                     LOGGER.debug("   format : " + format);
                     link = link.replaceAll(formatPattern.toString(), FORMAT_PLACEHOLDER);
-                    numMatches++;
                 }
-            } else {
-                LOGGER.fatal("found too many feed formats in : " + link);
-            }
+            } 
 
             if (format != null) {
                 temp.put(link, format);
