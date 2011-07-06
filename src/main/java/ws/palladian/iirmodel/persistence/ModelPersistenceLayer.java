@@ -125,7 +125,6 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
         if (existingStream == null) {
             getManager().persist(stream);
-            System.err.println("----> " + stream.getItems().size());
         } else {
             stream.setIdentifier(existingStream.getIdentifier());
             // addNewItems(existingStream, stream);

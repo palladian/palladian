@@ -179,12 +179,13 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         if (getClass() != itemStream.getClass()) {
             return false;
         }
+        
         ItemStream other = (ItemStream) itemStream;
-        if (streamSource == null) {
-            if (other.streamSource != null) {
+        if (sourceAddress == null) {
+            if (other.sourceAddress != null) {
                 return false;
             }
-        } else if (!streamSource.equals(other.streamSource)) {
+        } else if (!sourceAddress.equals(other.sourceAddress)) {
             return false;
         }
         return true;

@@ -55,11 +55,11 @@ public class Item implements Serializable {
      */
     private String streamSourceInternalIdentifier;
 
-    // /**
-    // * The item stream that produced this item.
-    // */
-    // @ManyToOne
-    // private ItemStream parent;
+    /**
+     * The item stream that produced this item.
+     */
+    @ManyToOne
+    private ItemStream parent;
 
     /**
      * <p>
@@ -110,7 +110,7 @@ public class Item implements Serializable {
      * stream is not linear but forms a tree structure.
      * </p>
      */
-    //@OneToMany
+    // @OneToMany
     @ManyToOne(cascade = CascadeType.ALL)
     private Item predecessor;
 
@@ -156,10 +156,10 @@ public class Item implements Serializable {
      *            an answer or something completely different.
      */
     public Item(String streamSourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
-            Date updateDate, String text, Item predecessor, ItemType type) {
+            Date updateDate, String text, Item predecessor, ItemType type, ItemStream parent) {
         this();
         this.streamSourceInternalIdentifier = streamSourceInternalIdentifier;
-        // this.parent = parent;
+        this.parent = parent; // XXX
         this.author = author;
         this.link = link;
         this.title = title;
@@ -183,9 +183,9 @@ public class Item implements Serializable {
         return link;
     }
 
-    // public ItemStream getParent() {
-    // return parent;
-    // }
+    public ItemStream getParent() {
+        return parent;
+    }
 
     public Item getPredecessor() {
         return predecessor;
@@ -218,7 +218,7 @@ public class Item implements Serializable {
     /**
      * <p>
      * Checks whether this {@code Item} and another one are equal. This is the case if they share the same
-     * {@code parent} item stream and the same {@code streamSourceInternalIdentifier}.
+     * {@link #parent} item stream and the same {@link #streamSourceInternalIdentifier}.
      * </p>
      * 
      * @see java.lang.Object#equals(java.lang.Object)
@@ -237,16 +237,24 @@ public class Item implements Serializable {
             return false;
         }
         Item other = (Item) obj;
-        
-        // FIXME using the identifier does not work if Object was not persisted;
-        // can we implement this using the fields as described in JavaDoc comment
-        // or might this cause problems with ORM?
-        
-        if (identifier == null) {
-            if (other.identifier != null) {
+
+        // try to check equality by Pk
+        Integer otherIdentifier = other.identifier;
+        if (identifier != null && otherIdentifier != null) {
+            return identifier.equals(otherIdentifier);
+        }
+
+        // check equality by fields
+        if (streamSourceInternalIdentifier == null) {
+            if (other.streamSourceInternalIdentifier != null)
                 return false;
-            }
-        } else if (!identifier.equals(other.identifier)) {
+        } else if (!streamSourceInternalIdentifier.equals(otherIdentifier)) {
+            return false;
+        }
+        if (parent == null) {
+            if (other.parent != null)
+                return false;
+        } else if (!parent.equals(other.parent)) {
             return false;
         }
         return true;
