@@ -144,15 +144,24 @@ public class FeedUrlsNearDuplicateEliminator {
             LOGGER.debug("link : " + link);
 
             Matcher matcher = formatPattern.matcher(link);
+            
+            // check number of matches first, only proceed if one match was found,
+            // else wise format cannot be determined correctly.
+            int numMatches = 0;
             while (matcher.find()) {
-                if (matcher.groupCount() == 1) {
-                    format = matcher.group(1);
+                numMatches++;
+            }
+            matcher.reset();
+            
+            if (numMatches == 1) {
+                while (matcher.find()) {
+                    format = matcher.group();
                     LOGGER.debug("   format : " + format);
                     link = link.replaceAll(formatPattern.toString(), FORMAT_PLACEHOLDER);
-                    break;
-                } else if (matcher.groupCount() > 1) {
-                    LOGGER.fatal("found too many feed formats in : " + link);
+                    numMatches++;
                 }
+            } else {
+                LOGGER.fatal("found too many feed formats in : " + link);
             }
 
             if (format != null) {
