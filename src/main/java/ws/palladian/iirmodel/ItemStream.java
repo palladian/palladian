@@ -65,7 +65,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      * The items available within this item stream.
      * </p>
      */
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent")
     @OrderBy("publicationDate ASC")
     private List<Item> items;
 
