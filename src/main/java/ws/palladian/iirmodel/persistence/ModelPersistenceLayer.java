@@ -27,7 +27,7 @@ import ws.palladian.iirmodel.RelationType;
 
 /**
  * <p>
- * Instances of this class represent the interface between an application and the Effingo IIR model.
+ * Instances of this class represent the interface between an application and the Palladian IIR model.
  * </p>
  * <p>
  * Object of this class are not thread safe. Create them inside each thread on the fly if you need to load or persist
@@ -41,6 +41,7 @@ import ws.palladian.iirmodel.RelationType;
  * 
  */
 public class ModelPersistenceLayer extends AbstractPersistenceLayer {
+
     /**
      * <p>
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
@@ -124,6 +125,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
         if (existingStream == null) {
             getManager().persist(stream);
+            System.err.println("----> " + stream.getItems().size());
         } else {
             stream.setIdentifier(existingStream.getIdentifier());
             // addNewItems(existingStream, stream);
@@ -184,40 +186,40 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         }
     }
 
-//    /**
-//     * <p>
-//     * Removes all {@code Item}s from an existing stream, that are not also present in a new stream.
-//     * </p>
-//     * 
-//     * @param existingStream The original stream that should be adapted to the current state in {@code newStream}.
-//     * @param newStream The {@code ItemStream} representing the new content.
-//     */
-//    private void removeNonExistingItems(final ItemStream existingStream, final ItemStream newStream) {
-//        for (Item item : existingStream.getItems()) {
-//            if (!newStream.getItems().contains(item)) {
-//                // List<Item> successorItems = getSuccessorItems(newStream, item);
-//                // for (Item successorItem : successorItems) {
-//                // successorItem.setPredecessor(null);
-//                // }
-//                removeItem(item);
-//            }
-//        }
-//    }
+    // /**
+    // * <p>
+    // * Removes all {@code Item}s from an existing stream, that are not also present in a new stream.
+    // * </p>
+    // *
+    // * @param existingStream The original stream that should be adapted to the current state in {@code newStream}.
+    // * @param newStream The {@code ItemStream} representing the new content.
+    // */
+    // private void removeNonExistingItems(final ItemStream existingStream, final ItemStream newStream) {
+    // for (Item item : existingStream.getItems()) {
+    // if (!newStream.getItems().contains(item)) {
+    // // List<Item> successorItems = getSuccessorItems(newStream, item);
+    // // for (Item successorItem : successorItems) {
+    // // successorItem.setPredecessor(null);
+    // // }
+    // removeItem(item);
+    // }
+    // }
+    // }
 
-//    /**
-//     * @param newStream
-//     * @param item
-//     * @return
-//     */
-//    private List<Item> getSuccessorItems(ItemStream newStream, Item item) {
-//        List<Item> ret = new LinkedList<Item>();
-//        for (Item streamItem : newStream.getItems()) {
-//            if (item.equals(streamItem.getPredecessor())) {
-//                ret.add(streamItem);
-//            }
-//        }
-//        return ret;
-//    }
+    // /**
+    // * @param newStream
+    // * @param item
+    // * @return
+    // */
+    // private List<Item> getSuccessorItems(ItemStream newStream, Item item) {
+    // List<Item> ret = new LinkedList<Item>();
+    // for (Item streamItem : newStream.getItems()) {
+    // if (item.equals(streamItem.getPredecessor())) {
+    // ret.add(streamItem);
+    // }
+    // }
+    // return ret;
+    // }
 
     /**
      * <p>
@@ -232,15 +234,15 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
     }
 
-//    /**
-//     * @param existingThread
-//     * @param thread
-//     */
-//    private void addNewItems(final ItemStream existingThread, final ItemStream thread) {
-//        for (Item newEntry : thread.getItems()) {
-//            saveItem(newEntry);
-//        }
-//    }
+    // /**
+    // * @param existingThread
+    // * @param thread
+    // */
+    // private void addNewItems(final ItemStream existingThread, final ItemStream thread) {
+    // for (Item newEntry : thread.getItems()) {
+    // saveItem(newEntry);
+    // }
+    // }
 
     /**
      * @param newEntry
@@ -266,16 +268,18 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @param author The {@code Author} to save.
      */
-    public Author saveAuthor(final Author user) {
-        final Author existingUser = loadAuthor(user.getIdentifier());
+    public Author saveAuthor(final Author author) {
+        // final Author existingUser = loadAuthor(author.getIdentifier());
+        final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
+
         Author ret = null;
         final Boolean openedTransaction = openTransaction();
         if (existingUser == null) {
-            getManager().persist(user);
-            ret = user;
+            getManager().persist(author);
+            ret = author;
         } else {
-            user.setIdentifier(existingUser.getIdentifier());
-            ret = getManager().merge(user);
+            author.setIdentifier(existingUser.getIdentifier());
+            ret = getManager().merge(author);
         }
         commitTransaction(openedTransaction);
         return ret;
@@ -286,29 +290,45 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param streamSource
      * @return
      */
-    public Author loadAuthor(String identifier) {
-        final Boolean openedTransaction = openTransaction();
-        Author ret = getManager().find(Author.class, identifier);
+    public Author loadAuthor(String username, String streamSource) {
+        Query authorQuery = getManager().createQuery(
+                "SELECT a FROM Author a WHERE a.username=:username AND a.streamSource=:streamSource");
+        authorQuery.setParameter("username", username);
+        authorQuery.setParameter("streamSource", streamSource);
+
+        Boolean openedTransaction = openTransaction();
+        // EntityTransaction tx = getManager().getTransaction();
+
+        // tx.begin();
+        @SuppressWarnings("unchecked")
+        List<Author> authors = authorQuery.getResultList();
+        Author ret = null;
+        if (authors.isEmpty()) {
+            ret = null;
+        } else {
+            ret = authors.get(0);
+        }
+
+        // tx.commit();
         commitTransaction(openedTransaction);
         return ret;
     }
 
     @SuppressWarnings("unchecked")
-    public ItemRelation createItemRelation(Item forumEntry1, Item forumEntry2, RelationType duplicateType,
-            String comment) {
+    public ItemRelation createItemRelation(Item item1, Item item2, RelationType relationType, String comment) {
         Query checkIfRelationExistsQuery = getManager().createQuery(
                 "SELECT r FROM ForumEntryRelation r WHERE r.firstEntry=:firstEntry AND r.secondEntry=:secondEntry");
-        checkIfRelationExistsQuery.setParameter("firstEntry", forumEntry1);
-        checkIfRelationExistsQuery.setParameter("secondEntry", forumEntry2);
+        checkIfRelationExistsQuery.setParameter("firstEntry", item1);
+        checkIfRelationExistsQuery.setParameter("secondEntry", item2);
         getManager().getTransaction().begin();
         List<ItemRelation> relations = checkIfRelationExistsQuery.getResultList();
         ItemRelation ret = null;
         if (relations.isEmpty()) {
-            ret = new ItemRelation(forumEntry1, forumEntry2, duplicateType, comment);
+            ret = new ItemRelation(item1, item2, relationType, comment);
             getManager().persist(ret);
         } else {
             ret = relations.get(0);
-            ret.setType(duplicateType);
+            ret.setType(relationType);
             ret.setComment(comment);
         }
         getManager().getTransaction().commit();
@@ -484,9 +504,10 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (!results.isEmpty()) {
             final Random randomIndexGenerator = new Random();
             int randomIndex = randomIndexGenerator.nextInt(results.size());
-            final Object[] idPair = (Object[])results.get(randomIndex);
-            Item firstEntry = loadItem((String)idPair[0]);
-            Item secondEntry = loadItem((String)idPair[1]);
+            final Object[] idPair = (Object[]) results.get(randomIndex);
+            // changed from (String) to (Integer); untested
+            Item firstEntry = loadItem((Integer) idPair[0]);
+            Item secondEntry = loadItem((Integer) idPair[1]);
             return createItemRelation(firstEntry, secondEntry, null, "");
         } else {
             return null;
@@ -527,15 +548,14 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     }
 
     /**
-     * @param contributionIdentifier
-     *            A unique identifier (primary key) for a contribution.
-     * @return The contribution matching the provided identifier form the
-     *         database or null if no matching contribution exists.
+     * @param identifier
+     *            A unique identifier (primary key) for an item.
+     * @return The item matching the provided identifier form the database or null if no matching contribution exists.
      */
-    public final Item loadItem(final String contributionIdentifier) {
-        if (contributionIdentifier != null) {
+    public final Item loadItem(final Integer identifier) {
+        if (identifier != null) {
             Boolean openedTransaction = openTransaction();
-            Item ret = getManager().find(Item.class, contributionIdentifier);
+            Item ret = getManager().find(Item.class, identifier);
             commitTransaction(openedTransaction);
             return ret;
         } else {
@@ -644,16 +664,16 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
         return ret;
     }
-    
+
     /**
      * Load and {@link ItemStream} by its source address.
+     * 
      * @param sourceAddress
      * @return
      */
     public ItemStream loadItemStreamBySourceAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
-        Query query = getManager().createQuery(
-                "select t from ItemStream t where t.sourceAddress=:sourceAddress");
+        Query query = getManager().createQuery("select t from ItemStream t where t.sourceAddress=:sourceAddress");
         query.setParameter("sourceAddress", sourceAddress);
         @SuppressWarnings("unchecked")
         List<ItemStream> ret = query.getResultList();
@@ -665,29 +685,31 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         }
     }
 
-    /**
-     * <p>
-     * Loads an {@code Author} from the database.
-     * </p>
-     * 
-     * @param author The {@code Author} to fetch from the database.
-     * @return The {@code Author} from the database or {@code null} if no such {@code Author} was saved.
-     */
-    public Author loadAuthor(Author author) {
-        final Boolean openedTransaction = openTransaction();
-        Query query = getManager().createQuery("SELECT a FROM Author a WHERE username=:username");
-        // "select a from Author a where a.username=:username and a.streamSource=:streamSource");
-        query.setParameter("username", author.getUsername());
-        // query.setParameter("streamSource", author.getStreamSource());
-        @SuppressWarnings("unchecked")
-        List<Author> ret = query.getResultList();
-        commitTransaction(openedTransaction);
-        if (ret.isEmpty()) {
-            return null;
-        } else {
-            return ret.get(0);
-        }
-    }
+    // /**
+    // * <p>
+    // * Loads an {@code Author} from the database.
+    // * </p>
+    // *
+    // * FIXME : author name is not unique!
+    // *
+    // * @param author The {@code Author} to fetch from the database.
+    // * @return The {@code Author} from the database or {@code null} if no such {@code Author} was saved.
+    // */
+    // public Author loadAuthor(Author author) {
+    // final Boolean openedTransaction = openTransaction();
+    // Query query = getManager().createQuery("SELECT a FROM Author a WHERE username=:username");
+    // // "select a from Author a where a.username=:username and a.streamSource=:streamSource");
+    // query.setParameter("username", author.getUsername());
+    // // query.setParameter("streamSource", author.getStreamSource());
+    // @SuppressWarnings("unchecked")
+    // List<Author> ret = query.getResultList();
+    // commitTransaction(openedTransaction);
+    // if (ret.isEmpty()) {
+    // return null;
+    // } else {
+    // return ret.get(0);
+    // }
+    // }
 
     public Collection<Author> loadAuthors() {
         Query loadUsersQuery = getManager().createQuery("SELECT u FROM Author u");

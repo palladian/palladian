@@ -32,6 +32,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"))
 public class ItemStream implements Comparable<ItemStream>, Serializable {
+    
     /**
      * <p>
      * Used for serializing this object to a file via java API.
@@ -47,7 +48,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      */
     @Id
     @GeneratedValue
-    private String identifier;
+    private Integer identifier;
 
     /**
      * <p>
@@ -87,11 +88,11 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
 
     /**
      * <p>
-     * Creates a new {@code ItemStream} with no initial values. Only used by the ORM implementation, therefore
-     * protected.
+     * Creates a new {@code ItemStream} with no initial values. Use the provided setter methods to initialize the
+     * instance.
      * </p>
      */
-    protected ItemStream() {
+    public ItemStream() {
         super();
         this.items = new LinkedList<Item>();
     }
@@ -143,7 +144,7 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         return channelName;
     }
 
-    public String getIdentifier() {
+    public Integer getIdentifier() {
         return identifier;
     }
 
@@ -214,30 +215,30 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         return builder.toString();
     }
 
-    // public final void setChannelName(String channelName) {
-    // this.channelName = channelName;
-    // }
+    public final void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
 
-    public void setIdentifier(String identifier) {
+    public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
     }
 
-    // public void setItems(List<Item> items) {
-    // this.items = items;
-    // }
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
 
-    // public void setSourceAddress(String sourceAddress) {
-    // this.sourceAddress = sourceAddress;
-    // }
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
 
-    // /**
-    // * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
-    // * the same name exists or the URL of the forum.
-    // *
-    // * @param streamSource
-    // * the unique forum type
-    // */
-    // public void setStreamSource(String streamSource) {
-    // this.streamSource = streamSource;
-    // }
+    /**
+     * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
+     * the same name exists or the URL of the forum.
+     * 
+     * @param streamSource
+     *            the unique forum type
+     */
+    public void setStreamSource(String streamSource) {
+        this.streamSource = streamSource;
+    }
 }

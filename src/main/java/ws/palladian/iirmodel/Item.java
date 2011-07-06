@@ -6,9 +6,11 @@ package ws.palladian.iirmodel;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -16,31 +18,40 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 /**
+ * <p>
  * One entry in an item stream. Items are RSS messages, forum posts, twitter updates or E-Mails.
+ * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @since 1.0
  * @version 2.0
- * 
  */
 @Entity
 public class Item implements Serializable {
+
     /**
+     * <p>
      * Used to serialize and deserialize objects of this class.
+     * </p>
      */
     private static final long serialVersionUID = -7680493016832753262L;
 
     /**
-     * A worldwide unique identifier for this message stream item. This identifier is usually created by the database
-     * itself.
+     * <p>
+     * A worldwide unique identifier for this {@link Item}. This identifier is usually created by the database itself.
+     * </p>
      */
     @Id
-    private String identifier;
+    @GeneratedValue
+    private Integer identifier;
 
     /**
+     * <p>
      * The identifier used to identify the item inside the item stream. It might not be world wide unique and only
      * servers as identifier within the stream. This identifier is usually assigned by the item stream and extracted
      * while reading on the stream.
+     * </p>
      */
     private String streamSourceInternalIdentifier;
 
@@ -51,60 +62,83 @@ public class Item implements Serializable {
     // private ItemStream parent;
 
     /**
+     * <p>
      * The user profile of the author, who created this item.
+     * </p>
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Author author;
     /**
+     * <p>
      * The URL used to access this item.
+     * </p>
      */
     private String link;
     /**
+     * <p>
      * The title of this item.
+     * </p>
      */
     private String title;
 
     /**
+     * <p>
      * The date on which this item was initially published.
+     * </p>
      */
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date publicationDate;
     /**
+     * <p>
      * The date on which this item was last updated.
+     * </p>
      */
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date updateDate;
     /**
+     * <p>
      * The main body text forming the content of this item.
+     * </p>
      */
     @Lob
     private String text;
 
     /**
+     * <p>
      * The item occurring as a parent or direct predecessor of this item. This might be {@code null} if this is the
      * first item in a stream. In some cases an item might be the predecessor of multiple other items. This happens if a
      * stream is not linear but forms a tree structure.
+     * </p>
      */
+    //@OneToMany
+    @ManyToOne(cascade = CascadeType.ALL)
     private Item predecessor;
 
     /**
-     * A type giving the semantics of this items content. It defines for example if the entry is a question an
-     * answer or something completely different.
+     * <p>
+     * A type giving the semantics of this items content. It defines for example if the entry is a question an answer or
+     * something completely different.
+     * </p>
      */
     @Enumerated(EnumType.STRING)
     private ItemType type;
 
     /**
+     * <p>
      * Creates a new {@code Item} with no values. Call all setters to initialize this {@code Item}.
+     * </p>
      */
     protected Item() {
         super();
     }
 
     /**
+     * <p>
      * Creates a new completely initialized item.
+     * </p>
      * 
-     * @param forumInternalIdentifier The identifier used to identify the item inside the item stream. It might not be
+     * @param streamSourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
+     *            not be
      *            world wide unique and only servers as identifier within the stream. This identifier is usually
      *            assigned by the item stream and
      *            extracted while reading on the stream.
@@ -121,11 +155,10 @@ public class Item implements Serializable {
      * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
      *            an answer or something completely different.
      */
-    public Item(String identifier, String forumInternalIdentifier, Author author, String link, String title,
-            Date publicationDate, Date updateDate, String text, Item predecessor, ItemType type) {
+    public Item(String streamSourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
+            Date updateDate, String text, Item predecessor, ItemType type) {
         this();
-        this.identifier = identifier;
-        this.streamSourceInternalIdentifier = forumInternalIdentifier;
+        this.streamSourceInternalIdentifier = streamSourceInternalIdentifier;
         // this.parent = parent;
         this.author = author;
         this.link = link;
@@ -138,41 +171,11 @@ public class Item implements Serializable {
         // this.author.addItem(this);
     }
 
-    /**
-     * Checks whether this {@code Item} and another one are equal. This is the case if they share the same
-     * {@code parent} item stream and the same {@code streamSourceInternalIdentifier}.
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     * @see #getParent()
-     * @see #getStreamSourceInternalIdentifier()
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Item other = (Item) obj;
-        if (identifier == null) {
-            if (other.identifier != null) {
-                return false;
-            }
-        } else if (!identifier.equals(other.identifier)) {
-            return false;
-        }
-        return true;
-    }
-
     public Author getAuthor() {
         return author;
     }
 
-    public String getIdentifier() {
+    public Integer getIdentifier() {
         return identifier;
     }
 
@@ -212,6 +215,43 @@ public class Item implements Serializable {
         return updateDate;
     }
 
+    /**
+     * <p>
+     * Checks whether this {@code Item} and another one are equal. This is the case if they share the same
+     * {@code parent} item stream and the same {@code streamSourceInternalIdentifier}.
+     * </p>
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     * @see #getParent()
+     * @see #getStreamSourceInternalIdentifier()
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Item other = (Item) obj;
+        
+        // FIXME using the identifier does not work if Object was not persisted;
+        // can we implement this using the fields as described in JavaDoc comment
+        // or might this cause problems with ORM?
+        
+        if (identifier == null) {
+            if (other.identifier != null) {
+                return false;
+            }
+        } else if (!identifier.equals(other.identifier)) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -225,40 +265,67 @@ public class Item implements Serializable {
         this.author = author;
     }
 
-    // public void setForumInternalIdentifier(String forumInternalIdentifier) {
-    // this.streamSourceInternalIdentifier = forumInternalIdentifier;
-    // }
+    public void setForumInternalIdentifier(String forumInternalIdentifier) {
+        this.streamSourceInternalIdentifier = forumInternalIdentifier;
+    }
 
-    public void setIdentifier(String identifier) {
+    public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
     }
 
-    // public void setLink(String link) {
-    // this.link = link;
-    // }
+    public void setLink(String link) {
+        this.link = link;
+    }
 
-    // public void setPredecessor(Item predecessor) {
-    // this.predecessor = predecessor;
-    // }
+    public void setPredecessor(Item predecessor) {
+        this.predecessor = predecessor;
+    }
 
-    // public void setPublicationDate(Date publicationDate) {
-    // this.publicationDate = publicationDate;
-    // }
+    public void setPublicationDate(Date publicationDate) {
+        this.publicationDate = publicationDate;
+    }
 
-    // public void setText(String text) {
-    // this.text = text;
-    // }
+    public void setText(String text) {
+        this.text = text;
+    }
 
-    // public void setTitle(String title) {
-    // this.title = title;
-    // }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    // public final void setType(ItemType type) {
-    // this.type = type;
-    // }
+    public final void setType(ItemType type) {
+        this.type = type;
+    }
 
-    // public void setUpdateDate(Date updateDate) {
-    // this.updateDate = updateDate;
-    // }
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Item [identifier=");
+        builder.append(identifier);
+        builder.append(", streamSourceInternalIdentifier=");
+        builder.append(streamSourceInternalIdentifier);
+        builder.append(", author=");
+        builder.append(author);
+        builder.append(", link=");
+        builder.append(link);
+        builder.append(", title=");
+        builder.append(title);
+        builder.append(", publicationDate=");
+        builder.append(publicationDate);
+        builder.append(", updateDate=");
+        builder.append(updateDate);
+        builder.append(", text=");
+        builder.append(text);
+        builder.append(", predecessor=");
+        builder.append(predecessor);
+        builder.append(", type=");
+        builder.append(type);
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

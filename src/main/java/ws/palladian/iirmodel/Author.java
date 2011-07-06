@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -15,9 +16,11 @@ import javax.persistence.TemporalType;
 
 /**
  * Represents the author of an item stream. Authors publish items to item streams. They usually are unique for an item
- * source but two author with the same username are not necessarily unique cross-item stream.
+ * source but two author with the same username are not necessarily unique cross-item stream. E. g. an author can be
+ * identified uniquely by his username <b>and</b> stream source.
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 2.0
  * @since 2.0
  */
@@ -46,8 +49,8 @@ public class Author {
      * sources.
      */
     @Id
-    // @GeneratedValue
-    private String identifier;
+    @GeneratedValue
+    private Integer identifier;
     /**
      * The items created by this author.
      */
@@ -99,10 +102,10 @@ public class Author {
      *            Forum or
      *            other kind of source the authors username is unique in.
      */
-    public Author(String identifier, String username, Integer countOfItems, Integer countOfStreamsStarted,
+    public Author(/*String identifier,*/ String username, Integer countOfItems, Integer countOfStreamsStarted,
             Integer authorRating, Date registeredSince, String streamSource) {
         this();
-        this.identifier = identifier;
+        // this.identifier = identifier;
         this.countOfItems = countOfItems;
         this.countOfStreamsStarted = countOfStreamsStarted;
         this.authorRating = authorRating;
@@ -186,7 +189,7 @@ public class Author {
      *         different stream
      *         sources.
      */
-    public final String getIdentifier() {
+    public final Integer getIdentifier() {
         return this.identifier;
     }
 
@@ -278,7 +281,7 @@ public class Author {
      *            always the same as its username. Usernames are ambiguous since the same username might occur for
      *            different users in different stream sources.
      */
-    public final void setIdentifier(String identifier) {
+    public final void setIdentifier(Integer identifier) {
         this.identifier = identifier;
     }
 
@@ -327,4 +330,29 @@ public class Author {
     public void addItem(Item item) {
         items.add(item);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Author [countOfItems=");
+        builder.append(countOfItems);
+        builder.append(", countOfStreamsStarted=");
+        builder.append(countOfStreamsStarted);
+        builder.append(", authorRating=");
+        builder.append(authorRating);
+        builder.append(", identifier=");
+        builder.append(identifier);
+        builder.append(", items=");
+        builder.append(items);
+        builder.append(", registeredSince=");
+        builder.append(registeredSince);
+        builder.append(", username=");
+        builder.append(username);
+        builder.append(", streamSource=");
+        builder.append(streamSource);
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
 }
