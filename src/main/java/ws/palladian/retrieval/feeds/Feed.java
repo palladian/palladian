@@ -27,9 +27,11 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
  */
 public class Feed {
 
+    /** Internal database identifier. */
     private int id = -1;
-    private String feedUrl = null;
 
+    /** The URL of this feed. */
+    private String feedUrl = null;
 
     /** The items of this feed. */
     private List<FeedItem> items = new ArrayList<FeedItem>();
@@ -39,8 +41,6 @@ public class Feed {
      * {@link #items} may have been reseted by calling {@link #freeMemory()}.
      */
     private int numberOfItemsReceived = 0;
-
-
 
     /** The number of feed entries presented for each request, <code>null</code> if feed has never been parsed. */
     private Integer windowSize = null;
@@ -125,15 +125,6 @@ public class Feed {
      * The date this feed was checked for updates the last time. This can be used to send last modified since requests.
      */
     private Date lastPollTime;
-
-
-    /**
-     * The raw XML markup for this feed.
-     */
-    // private Document document;
-
-    /** Caching the raw xml markup of the document as string. */
-    // private String rawMarkup;
 
     private double targetPercentageOfNewEntries = -1.0;
 
@@ -222,7 +213,6 @@ public class Feed {
         }
     }
 
-
     public void setItems(List<FeedItem> items) {
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
@@ -249,11 +239,7 @@ public class Feed {
      * and won't let the garbage collector take care of it.
      */
     public void freeMemory() {
-        // rawMarkup = "";
-        // document = null;
         setItems(new ArrayList<FeedItem>());
-        // We need the last newestItemHash to find out whether we have new items or not. - Sandro
-        // setNewestItemHash("");
     }
 
     public void setChecks(Integer checks) {
@@ -293,7 +279,7 @@ public class Feed {
      */
     public void setUpdateInterval(Integer updateInterval) {
         if (updateInterval != null) {
-        this.updateInterval = updateInterval;
+            this.updateInterval = updateInterval;
         }
     }
 
@@ -583,24 +569,6 @@ public class Feed {
     }
 
     public Boolean hasNewItem() {
-        // boolean newItem = false;
-        //
-        // if (items.size() > 0) {
-        // FeedItem feedItem = items.get(0);
-        // String hash = "";
-        // hash += feedItem.getTitle();
-        // hash += feedItem.getLink();
-        // hash += feedItem.getRawId();
-        // hash = StringHelper.sha1(hash);
-        //
-        // if (!hash.equals(getNewestItemHash())) {
-        // newItem = true;
-        // // who added this? setNewestItemHash(hash);
-        // }
-        // }
-        //
-        // return newItem;
-
         if (newItem == null) {
             String oldNewestItemHash = getNewestItemHash();
             calculateNewestItemHash();
@@ -788,25 +756,7 @@ public class Feed {
     }
 
     /**
-     * @return The raw XML markup for this feed.
-     */
-    // public String getRawMarkup() {
-    // if (rawMarkup == null) {
-    // rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
-    // }
-    // return rawMarkup;
-    // }
-
-    // public Document getDocument() {
-    // return document;
-    // }
-
-    // public void setDocument(Document document) {
-    // this.document = document;
-    // }
-
-    /**
-     * If the new windowSize is different to the previous size (exept the previous was null), the variable window size
+     * If the new windowSize is different to the previous size (except the previous was null), the variable window size
      * flag is set.
      * 
      * @param windowSize
@@ -879,7 +829,6 @@ public class Feed {
     public long getBenchmarkLastLookupTime() {
         return benchmarkLastLookupTime;
     }
-
 
     public void setUpdateMode(int updateMode) {
         this.updateMode = updateMode;
