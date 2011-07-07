@@ -13,7 +13,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 /**
- * A generic relation between two {@link Item}s.
+ * A generic relation between two {@link Item}s. This relation is an unordered pair of items, see
+ * {@link #equals(Object)} and {@link #hashCode()}.
+ * 
+ * FIXME At the moment, relations are undirected, which is fine for relation types like "duplicate", but does not work
+ * for ordered relations like "caused-by".
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -92,6 +96,9 @@ public class ItemRelation implements Serializable {
         this.type = type;
     }
 
+    /*
+     * ATTENTION: custom implementation, do not overwrite/generate!
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -118,16 +125,27 @@ public class ItemRelation implements Serializable {
         } else if (!(secondItem.equals(other.secondItem) || secondItem.equals(other.firstItem))) {
             return false;
         }
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type)) {
+            return false;
+        }
 
         return true;
     }
 
+    /*
+     * ATTENTION: custom implementation, do not overwrite/generate!
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((firstItem == null) ? 0 : firstItem.hashCode());
-        result = prime * result + ((secondItem == null) ? 0 : secondItem.hashCode());
+        result = result + ((secondItem == null) ? 0 : secondItem.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+
         return result;
     }
 

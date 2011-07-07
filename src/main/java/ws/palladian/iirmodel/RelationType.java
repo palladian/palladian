@@ -54,7 +54,6 @@ public final class RelationType implements Serializable {
         this.identifier = identifier;
     }
 
-    // FIXME
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -77,7 +76,6 @@ public final class RelationType implements Serializable {
         return true;
     }
 
-    // FIXME
     @Override
     public int hashCode() {
         final int prime = 31;
