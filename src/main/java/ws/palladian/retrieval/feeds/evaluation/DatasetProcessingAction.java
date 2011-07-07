@@ -253,7 +253,6 @@ class DatasetProcessingAction extends FeedProcessingAction {
         pollMetaInfo.setHttpDate(HTTPHelper.getDateFromHeader(httpResult, "Date"));
         pollMetaInfo.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified"));
         pollMetaInfo.setHttpExpires(HTTPHelper.getDateFromHeader(httpResult, "Expires"));
-        pollMetaInfo.setHttpTTL(StringHelper.toLong(httpResult.getHeaderString("TTL")));
         pollMetaInfo.setNewestItemTimestamp(feed.getLastFeedEntry());
         pollMetaInfo.setNumberNewItems(newItems);
         pollMetaInfo.setWindowSize(feed.getWindowSize());

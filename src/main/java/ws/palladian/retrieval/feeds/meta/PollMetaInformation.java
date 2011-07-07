@@ -24,8 +24,6 @@ public class PollMetaInformation {
 
     private Date httpExpires = null;
 
-    private Long httpTTL = null;
-
     private Date newestItemTimestamp = null;
 
     private Integer numberNewItems = null;
@@ -152,19 +150,6 @@ public class PollMetaInformation {
         this.httpExpires = httpExpires;
     }
 
-    /**
-     * @return the httpTTL
-     */
-    public final Long getHttpTTL() {
-        return httpTTL;
-    }
-
-    /**
-     * @param httpTTL the httpTTL to set
-     */
-    public final void setHttpTTL(Long httpTTL) {
-        this.httpTTL = httpTTL;
-    }
 
     /**
      * @return the newestItemTimestamp
@@ -246,7 +231,6 @@ public class PollMetaInformation {
         result = prime * result + ((httpExpires == null) ? 0 : httpExpires.hashCode());
         result = prime * result + ((httpLastModified == null) ? 0 : httpLastModified.hashCode());
         result = prime * result + httpStatusCode;
-        result = prime * result + ((httpTTL == null) ? 0 : httpTTL.hashCode());
         result = prime * result + ((newestItemTimestamp == null) ? 0 : newestItemTimestamp.hashCode());
         result = prime * result + ((numberNewItems == null) ? 0 : numberNewItems.hashCode());
         result = prime * result + ((pollTimestamp == null) ? 0 : pollTimestamp.hashCode());
@@ -291,11 +275,6 @@ public class PollMetaInformation {
             return false;
         if (httpStatusCode != other.httpStatusCode)
             return false;
-        if (httpTTL == null) {
-            if (other.httpTTL != null)
-                return false;
-        } else if (!httpTTL.equals(other.httpTTL))
-            return false;
         if (newestItemTimestamp == null) {
             if (other.newestItemTimestamp != null)
                 return false;
@@ -338,8 +317,6 @@ public class PollMetaInformation {
         builder.append(httpLastModified);
         builder.append(", httpExpires=");
         builder.append(httpExpires);
-        builder.append(", httpTTL=");
-        builder.append(httpTTL);
         builder.append(", newestItemTimestamp=");
         builder.append(newestItemTimestamp);
         builder.append(", numberNewItems=");

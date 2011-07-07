@@ -48,7 +48,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
-    private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, httpTTL = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
+    private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
 
     /**
      * @param connectionManager
@@ -362,7 +362,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(pollMetaInfo.getHttpDateSQLTimestamp());
         parameters.add(pollMetaInfo.getHttpLastModifiedSQLTimestamp());
         parameters.add(pollMetaInfo.getHttpExpiresSQLTimestamp());
-        parameters.add(pollMetaInfo.getHttpTTL());
         parameters.add(pollMetaInfo.getNewestItemSQLTimestamp());
         parameters.add(pollMetaInfo.getNumberNewItems());
         parameters.add(pollMetaInfo.getWindowSize());
