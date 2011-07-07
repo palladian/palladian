@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -37,11 +38,16 @@ public class Feed {
     private List<FeedItem> items = new ArrayList<FeedItem>();
 
     /**
-     * A backup of the items' timestamps that is not deleted when {@link #freeMemory()} is called. It can be used as a
-     * cache and read to update the checkInterval in case we did a conditional get request and the feed has not been
-     * changed since the last request.
+     * A backup of the items' hashes and timestamps from the most recent window that is not deleted when
+     * {@link #freeMemory()} is called. It can be used as a cache and read to update the checkInterval in case we did a
+     * conditional get request and the feed has not been changed since the last request.
      */
-    private List<Date> itemTimestamps = new ArrayList<Date>();
+    private Map<String, Date> itemCache = new HashMap<String, Date>();
+
+    /**
+     * The items that were new in the most recent poll.
+     */
+    private List<FeedItem> newItems = new ArrayList<FeedItem>();
 
     /**
      * The total number of unique items downloaded so far. This value may differ from {@link #items}.size() since
@@ -160,11 +166,12 @@ public class Feed {
      */
     private Date lastSuccessfulCheckTime = null;
 
-    /**
-     * Flag, to indicate if this feed contains a new item since the last update. If this value is <code>null</code>, we
-     * need to re-determine if we have a new item, by comparing the last {@link FeedItem}'s hashes each.
-     */
-    private Boolean newItem = null;
+    // /**
+    // * Flag, to indicate if this feed contains a new item since the last update. If this value is <code>null</code>,
+    // we
+    // * need to re-determine if we have a new item, by comparing the last {@link FeedItem}'s hashes each.
+    // */
+    // private Boolean newItem = null;
 
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData;
@@ -220,12 +227,32 @@ public class Feed {
         }
     }
 
+    /**
+     * Replace the feed's items with the provided items.
+     * 
+     * @param items
+     */
     public void setItems(List<FeedItem> items) {
+
+        List<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
+        Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
+        
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
+            String hash = feedItem.getHash();
+            if (isNewItem(hash)){
+                itemCacheTemp.put(hash, getCorrectedTimestamp(feedItem));
+                newItemsTemp.add(feedItem);
+            } else {
+                itemCacheTemp.put(hash, getCachedItemTimestamp(hash));
+            }
+            
+            
         }
+        setCachedItems(itemCacheTemp);
+        setNewItems(newItemsTemp);
         this.items = items;
-        setNewItem(null);
+        // setNewItem(null);
     }
 
     public void addItem(FeedItem item) {
@@ -234,11 +261,172 @@ public class Feed {
         }
         items.add(item);
         item.setFeed(this);
-        setNewItem(null);
+        // setNewItem(null);
+
+        String hash = item.getHash();
+        if (isNewItem(hash)) {
+            addCacheItem(hash, getCorrectedTimestamp(item));
+            addNewItem(item);
+        } else {
+            addCacheItem(hash, getCachedItemTimestamp(hash));
+        }
+
     }
 
     public List<FeedItem> getItems() {
         return items;
+    }
+
+    // /**
+    // * Get the item's timestamps and store them locally. Already stored timestamps are reseted. In case an item has no
+    // * timestamp or its timestamp is in the future, the poll timestamp is used instead.
+    // *
+    // * @param items
+    // */
+    // private void setCorrectedItemTimestamps(List<FeedItem> items) {
+    // ArrayList<Date> timestamps = new ArrayList<Date>();
+    //
+    // for (FeedItem entry : items) {
+    // timestamps.add(getCorrectedTimestamp(entry));
+    // }
+    // this.itemTimestamps = timestamps;
+    // }
+
+    /**
+     * Get the publish date from the entry. In case an entry has no timestamp or its timestamp is in the future, the
+     * poll timestamp is used instead.
+     * 
+     * @param entry The entry to get the date from.
+     * @return the corrected publish date.
+     */
+    private Date getCorrectedTimestamp(FeedItem entry) {
+        StringBuilder warnings = new StringBuilder();
+
+        // get poll timestamp, if not present, use current time as estimation.
+        long pollTime = 0;
+        String timestampUsed = "";
+        if (getLastPollTime() != null) {
+            pollTime = getLastPollTime().getTime();
+            timestampUsed = ". Setting poll timestamp instead.";
+        } else {
+            pollTime = System.currentTimeMillis();
+            timestampUsed = ". Setting current system timestamp instead.";
+        }
+
+        // Is the pubDate provided by feed? Check for 'illegal' date in future.
+        // Future publish dates are allowed in RSS 2.0 but are useless for predicting updates.
+        Date pubDate = entry.getPublished();
+        if (pubDate != null) {
+            if (pubDate.getTime() > pollTime) {
+                pubDate = new Date(pollTime);
+                warnings.append("Entry has a pub date in the future, feed entry : ").append(entry)
+                        .append(timestampUsed);
+            }
+
+            // no pubDate provided, use poll timestamp
+        } else {
+            warnings.append("Entry does not have pub date, feed entry : ").append(entry).append(timestampUsed);
+            pubDate = new Date(pollTime);
+        }
+        if (warnings.length() > 0) {
+            FeedReader.LOGGER.warn(warnings);
+        }
+
+        return pubDate;
+    }
+
+    /**
+     * TODO update doc
+     * Locally store the item timestamp. Make sure that this date is not newer than the feed's poll timestamp.
+     * 
+     * @param pubDate a item timestamp.
+     */
+    private void addCacheItem(String hash, Date pubDate) {
+        this.itemCache.put(hash, pubDate);
+
+    }
+
+    /**
+     * Replaces the current item cache with the given one.
+     * 
+     * @param toCache The new item cache to set. 
+     */
+    private void setCachedItems(Map<String, Date> toCache) {
+        this.itemCache = toCache;
+    }
+
+    /**
+     * Get all cached item hashes and their associated publish dates.
+     * 
+     * @return all cached item hashes and their associated publish dates.
+     */
+    private Map<String, Date> getCachedItems() {
+        return itemCache;
+    }
+
+    /**
+     * Get the cached, (corrected) publish date that is associated to the provided item hash.
+     * 
+     * @param hash The {@link FeedItem}'s hash to get the publish date for.
+     * @return the cached, (corrected) publish date that is associated to the provided item hash or <code>null</code> if
+     *         the hash is unknown.
+     */
+    private Date getCachedItemTimestamp(String hash){
+        return itemCache.get(hash);
+    }
+
+    /**
+     * Checks whether the provided item hash is already in the cache. If so, the item is already known.
+     * 
+     * @param hash The item's hash to check.
+     * @return <code>true</code> if the hash is already in {@link #itemCache}, <code>false</code> else wise.
+     */
+    private boolean isNewItem(String hash) {
+        return !itemCache.containsKey(hash);
+    }
+
+    /**
+     * Get the item's corrected timestamps of the most recent poll. Usually, these are the same timestamps as
+     * iterating over {@link #getItems()} an get their pubDate. In case #getItems() returns an empty list, it may have
+     * been reset by {@link #freeMemory()}, the timestamps provided by this method will not be removed. They are
+     * replaced as soon as the feed is downloaded the next time.
+     * <p>
+     * Since some feeds do not provide timestamps for some or all of their items and publish dates may be in the future,
+     * missing and future timestamps are replaced by the feed's poll timestamp.
+     * </p>
+     * 
+     * @return Corrected item timestamps.
+     */
+    public Collection<Date> getItemTimestamps() {
+        return itemCache.values();
+    }
+
+    /**
+     * Get all items that were new in the most recent poll.
+     * 
+     * @return the newItems, never <code>null</code>.
+     */
+    public List<FeedItem> getNewItems() {
+        return newItems;
+    }
+
+    /**
+     * @param newItems the newItems to set
+     */
+    private void setNewItems(List<FeedItem> newItems) {
+        if (newItems != null) {
+            this.newItems = newItems;
+        }
+    }
+
+    /**
+     * Add the item to the list of items that are known to be new (not contained in the previous poll of this feed). If
+     * you want to add an item to this feed, use {@link #addItem(FeedItem)} instead.
+     * 
+     * @param newItem A item that is known to be new.
+     */
+    private void addNewItem(FeedItem newItem) {
+        this.newItems.add(newItem);
     }
 
     /**
@@ -246,7 +434,8 @@ public class Feed {
      * and won't let the garbage collector take care of it.
      */
     public void freeMemory() {
-        setItems(new ArrayList<FeedItem>());
+        this.items = new ArrayList<FeedItem>();
+        this.newItems = new ArrayList<FeedItem>();
     }
 
     public void setChecks(Integer checks) {
@@ -526,8 +715,8 @@ public class Feed {
         builder.append(blocked);
         builder.append(", lastSuccessfulCheckTime=");
         builder.append(lastSuccessfulCheckTime);
-        builder.append(", newItem=");
-        builder.append(newItem);
+        // builder.append(", newItem=");
+        // builder.append(newItem);
         builder.append(", additionalData=");
         builder.append(additionalData);
         builder.append(", feedMetaInfo=");
@@ -571,18 +760,20 @@ public class Feed {
         this.lastPollTime = lastPollTime;
     }
 
-    public void setNewItem(Boolean newItem) {
-        this.newItem = newItem;
-    }
+    //
+    // public void setNewItem(Boolean newItem) {
+    // this.newItem = newItem;
+    // }
 
     public Boolean hasNewItem() {
-        if (newItem == null) {
-            String oldNewestItemHash = getNewestItemHash();
-            calculateNewestItemHash();
-            newItem = !oldNewestItemHash.equals(getNewestItemHash());
-        }
-
-        return newItem;
+        // if (newItem == null) {
+        // String oldNewestItemHash = getNewestItemHash();
+        // calculateNewestItemHash();
+        // newItem = !oldNewestItemHash.equals(getNewestItemHash());
+        // }
+        //
+        // return newItem;
+        return getNewItems().size() > 0;
     }
 
     /*
@@ -612,7 +803,7 @@ public class Feed {
         result = prime * result + ((lastSuccessfulCheckTime == null) ? 0 : lastSuccessfulCheckTime.hashCode());
         result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + misses;
-        result = prime * result + ((newItem == null) ? 0 : newItem.hashCode());
+        // result = prime * result + ((newItem == null) ? 0 : newItem.hashCode());
         result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + numberOfItemsReceived;
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
@@ -714,11 +905,11 @@ public class Feed {
             return false;
         if (misses != other.misses)
             return false;
-        if (newItem == null) {
-            if (other.newItem != null)
-                return false;
-        } else if (!newItem.equals(other.newItem))
-            return false;
+        // if (newItem == null) {
+        // if (other.newItem != null)
+        // return false;
+        // } else if (!newItem.equals(other.newItem))
+        // return false;
         if (newestItemHash == null) {
             if (other.newestItemHash != null)
                 return false;
@@ -1110,5 +1301,7 @@ public class Feed {
     public final void setLastFeedTaskResult(String lastFeedTaskResult) {
         this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
     }
+
+
 
 }

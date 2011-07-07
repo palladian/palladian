@@ -144,8 +144,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
-                    // TODO feedReader.updateCheckIntervals(feed); requires the old item timestamps and window size
-
+                    feedReader.updateCheckIntervals(feed);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed,
                             httpResult);

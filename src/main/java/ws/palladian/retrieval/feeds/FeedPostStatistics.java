@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -72,7 +73,7 @@ public class FeedPostStatistics {
 
     private final void calculateStatistics(Feed feed) {
 
-        List<FeedItem> feedEntries = feed.getItems();
+        Collection<Date> feedPubdates = feed.getItemTimestamps();
 
         long timeOldestEntry = Long.MAX_VALUE;
         long timeNewestEntry = 0;
@@ -82,25 +83,20 @@ public class FeedPostStatistics {
         List<Long> timeList = new ArrayList<Long>();
         List<Long> timeList2 = new ArrayList<Long>();
 
-        if (feedEntries == null) {
+        if (feedPubdates == null) {
             return;
         }
 
         StringBuilder warnings = new StringBuilder();
         int c = 0;
-        for (FeedItem entry : feedEntries) {
+        for (Date correctedPubDate : feedPubdates) {
             c++;
 
-            if (c <= feedEntries.size() - 5) {
+            if (c <= feedPubdates.size() - 5) {
                 // continue;
             }
 
-            Date pubDate = entry.getPublished();
-            if (pubDate == null) {
-                warnings.append("Entry does not have pub date, feed entry ").append(entry).append(". ");
-                continue;
-            }
-            long pubTime = pubDate.getTime();
+            long pubTime = correctedPubDate.getTime();
             if (pubTime > timeNewestEntry) {
                 timeSecondNewestEntry = timeNewestEntry;
                 timeNewestEntry = pubTime;
@@ -154,7 +150,13 @@ public class FeedPostStatistics {
         if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
             setDelayToNewestPost(feed.getBenchmarkLookupTime() - timeNewestEntry);
         } else {
-            setDelayToNewestPost(System.currentTimeMillis() - timeNewestEntry);
+            long pollTime = 0;
+            if (feed.getLastPollTime() != null) {
+                pollTime = feed.getLastPollTime().getTime();
+            } else {
+                pollTime = System.currentTimeMillis();
+            }
+            setDelayToNewestPost(pollTime - timeNewestEntry);
         }
 
         setLastInterval(timeNewestEntry - timeSecondNewestEntry);
@@ -164,14 +166,14 @@ public class FeedPostStatistics {
         if (timeList.size() > 1) {
             setMedianPostGap(MathHelper.getMedianDifference(timeList));
             setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
-            setAveragePostGap(getTimeRange() / ((double) feedEntries.size() - 1));
+            setAveragePostGap(getTimeRange() / ((double) feedPubdates.size() - 1));
             setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
             setLongestPostGap(MathHelper.getLongestGap(CollectionHelper.toTreeSet(timeList)));
             setValidStatistics(true);
         }
 
         double avgEntriesPerDay = -1;
-        avgEntriesPerDay = (double) feedEntries.size() / (double) getTimeRangeInDays();
+        avgEntriesPerDay = (double) feedPubdates.size() / (double) getTimeRangeInDays();
         setAvgEntriesPerDay(avgEntriesPerDay);
     }
 

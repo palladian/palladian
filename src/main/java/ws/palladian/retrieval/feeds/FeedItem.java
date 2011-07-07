@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -11,8 +13,12 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author Philipp Katz
  * @author David Urbansky
+ * @author Sandro Reichert
  */
 public class FeedItem {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
 
     private int id = -1;
 
@@ -46,8 +52,15 @@ public class FeedItem {
     /** Text directly from the feed entry */
     private String text;
 
+    /** The item's hash. */
+    private String itemHash = null;
+
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData;
+
+    public FeedItem() {
+
+    }
 
     public int getId() {
         return id;
@@ -175,11 +188,15 @@ public class FeedItem {
     }
 
     /**
-     * Returns a custom hash representation calculated by the item's title, link and raw id.
+     * Returns a custom hash representation calculated by the item's title, link and raw id or <code>null</code> if it
+     * is impossible to calculate a meaningful hash because title, link and raw id are all <code>null</code> or the
+     * empty string.
      * 
      * @return
      */
     public String getHash() {
+        String newHash = null;
+
         StringBuilder hash = new StringBuilder();
         hash.append(getTitle());
         hash.append(getLink());
@@ -188,7 +205,14 @@ public class FeedItem {
         // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
         // hash.append(getPublished().toString());
         // }
-        return StringHelper.sha1(hash.toString());
+        if (getTitle() != null && getLink() != null && getRawId() != null && hash.length() > 0) {
+            newHash = StringHelper.sha1(hash.toString());
+
+        } else {
+            LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id " + feed.getId());
+        }
+
+        return newHash;
     }
 
     public void setAdditionalData(Map<String, Object> additionalData) {
