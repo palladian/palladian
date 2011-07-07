@@ -10,7 +10,11 @@ public abstract class BaseDocumentParser implements DocumentParser {
 
     @Override
     public Document parse(HttpResult httpResult) throws ParserException {
-        Document document = parse(new ByteArrayInputStream(httpResult.getContent()));
+        byte[] content = httpResult.getContent();
+        if (content.length == 0) {
+            throw new ParserException("HttpResult has no content");
+        }
+        Document document = parse(new ByteArrayInputStream(content));
         document.setDocumentURI(httpResult.getUrl());
         return document;
     }
