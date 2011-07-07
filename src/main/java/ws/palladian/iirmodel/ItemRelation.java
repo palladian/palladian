@@ -13,9 +13,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 /**
- * A generic relation between two forum entries.
+ * A generic relation between two {@link Item}s.
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  */
@@ -26,16 +27,16 @@ public class ItemRelation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private Integer id;
 
     @ManyToOne
     private RelationType type;
 
     @OneToOne
-    private Item firstEntry;
+    private Item firstItem;
 
     @OneToOne
-    private Item secondEntry;
+    private Item secondItem;
 
     private String comment;
 
@@ -45,10 +46,50 @@ public class ItemRelation implements Serializable {
 
     public ItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment) {
         this();
-        this.firstEntry = firstEntry;
-        this.secondEntry = secondEntry;
+        this.firstItem = firstEntry;
+        this.secondItem = secondEntry;
         this.type = type;
         this.comment = comment;
+    }
+
+    public final String getComment() {
+        return comment;
+    }
+
+    public final void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Item getFirstItem() {
+        return firstItem;
+    }
+
+    public void setFirstItem(Item firstItem) {
+        this.firstItem = firstItem;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Item getSecondItem() {
+        return secondItem;
+    }
+
+    public void setSecondItem(Item secondItem) {
+        this.secondItem = secondItem;
+    }
+
+    public RelationType getType() {
+        return type;
+    }
+
+    public void setType(RelationType type) {
+        this.type = type;
     }
 
     @Override
@@ -62,72 +103,53 @@ public class ItemRelation implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ItemRelation other = (ItemRelation)obj;
-        if (firstEntry == null) {
-            if (other.firstEntry != null && other.secondEntry != null) {
+        ItemRelation other = (ItemRelation) obj;
+        if (firstItem == null) {
+            if (other.firstItem != null && other.secondItem != null) {
                 return false;
             }
-        } else if (!(firstEntry.equals(other.firstEntry) || firstEntry.equals(other.secondEntry))) {
+        } else if (!(firstItem.equals(other.firstItem) || firstItem.equals(other.secondItem))) {
             return false;
         }
-        if (secondEntry == null) {
-            if (other.secondEntry != null && firstEntry != null) {
+        if (secondItem == null) {
+            if (other.secondItem != null && firstItem != null) {
                 return false;
             }
-        } else if (!(secondEntry.equals(other.secondEntry) || secondEntry.equals(other.firstEntry))) {
+        } else if (!(secondItem.equals(other.secondItem) || secondItem.equals(other.firstItem))) {
             return false;
         }
 
         return true;
     }
 
-    public final String getComment() {
-        return comment;
-    }
-
-    public Item getFirstItem() {
-        return firstEntry;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public Item getSecondItem() {
-        return secondEntry;
-    }
-
-    public RelationType getType() {
-        return type;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((firstEntry == null) ? 0 : firstEntry.hashCode());
-        result = prime * result + ((secondEntry == null) ? 0 : secondEntry.hashCode());
+        result = prime * result + ((firstItem == null) ? 0 : firstItem.hashCode());
+        result = prime * result + ((secondItem == null) ? 0 : secondItem.hashCode());
         return result;
     }
 
-    public final void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public void setFirstEntry(Item firstEntry) {
-        this.firstEntry = firstEntry;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setSecondEntry(Item secondEntry) {
-        this.secondEntry = secondEntry;
-    }
-
-    public void setType(RelationType type) {
-        this.type = type;
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ItemRelation [id=");
+        builder.append(id);
+        builder.append(", type=");
+        builder.append(type);
+        builder.append(", firstItem=");
+        builder.append(firstItem);
+        builder.append(", secondItem=");
+        builder.append(secondItem);
+        builder.append(", comment=");
+        builder.append(comment);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

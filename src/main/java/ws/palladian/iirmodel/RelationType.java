@@ -30,6 +30,14 @@ public final class RelationType implements Serializable {
         this.name = name;
     }
 
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -52,10 +60,6 @@ public final class RelationType implements Serializable {
         return true;
     }
 
-    public final String getName() {
-        return name;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -64,7 +68,4 @@ public final class RelationType implements Serializable {
         return result;
     }
 
-    protected final void setName(String name) {
-        this.name = name;
-    }
 }
