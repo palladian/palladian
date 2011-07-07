@@ -315,7 +315,8 @@ class SchedulerTask extends TimerTask {
 
         // check whether the feed needs to be blocked
         if (!feed.isBlocked()) {
-            if (feed.getAverageProcessingTime() >= MAXIMUM_AVERAGE_PROCESSING_TIME_MS) {
+            if (feed.getChecks() + feed.getUnreachableCount() + feed.getUnparsableCount() >= 3
+                    && feed.getAverageProcessingTime() >= MAXIMUM_AVERAGE_PROCESSING_TIME_MS) {
                 LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
@@ -324,8 +325,8 @@ class SchedulerTask extends TimerTask {
             }
 
             if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
-                LOGGER.fatal("Feed id " + feed.getId() + " " + feed.getFeedUrl()
-                        + " has been unreachable too often and is therefore blocked (never scheduled again)!"
+                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
