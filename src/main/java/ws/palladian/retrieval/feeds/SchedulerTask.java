@@ -149,12 +149,6 @@ class SchedulerTask extends TimerTask {
 
         // on average, one thread should process at least 3 feeds per minute
         HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
-
-        // max 1% of the feeds, but at least 10 feeds are allowed to be unreachable
-        UNREACHABLE_WARNING_SIZE = Math.max(10, HIGH_LOAD_THROUGHPUT / 100);
-
-        // max 1% of the feeds, but at least 10 feeds are allowed to be unparsable
-        UNPARSABLE_WARNING_SIZE = Math.max(10, HIGH_LOAD_THROUGHPUT / 100);
     }
 
     /*
@@ -226,17 +220,20 @@ class SchedulerTask extends TimerTask {
             detectedErrors.append("Wakeup Interval was too high. ");
         }
 
-        if (slow > SLOW_WARNING_SIZE) {
+        // max 10% of the feeds, but at least 10 feeds are allowed to be slow
+        if (slow > Math.max(10, processedCounter / 10)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds with long processing time. ");
         }
 
-        if (unreachable > UNREACHABLE_WARNING_SIZE) {
+        // max 1% of the feeds, but at least 10 feeds are allowed to be unreachable
+        if (unreachable > Math.max(10, processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds are unreachable. ");
         }
 
-        if (unparsable > UNPARSABLE_WARNING_SIZE) {
+        // max 1% of the feeds, but at least 10 feeds are allowed to be unparsable
+        if (unparsable > Math.max(10, processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds are unparsable. ");
         }
