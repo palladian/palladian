@@ -241,7 +241,7 @@ public class Feed {
             feedItem.setFeed(this);
             String hash = feedItem.getHash();
             if (isNewItem(hash)){
-                itemCacheTemp.put(hash, getCorrectedTimestamp(feedItem));
+                itemCacheTemp.put(hash, getCorrectedTimestamp(feedItem, false));
                 newItemsTemp.add(feedItem);
             } else {
                 itemCacheTemp.put(hash, getCachedItemTimestamp(hash));
@@ -265,7 +265,7 @@ public class Feed {
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
-            addCacheItem(hash, getCorrectedTimestamp(item));
+            addCacheItem(hash, getCorrectedTimestamp(item, false));
             addNewItem(item);
         } else {
             addCacheItem(hash, getCachedItemTimestamp(hash));
@@ -293,13 +293,17 @@ public class Feed {
     // }
 
     /**
+     * TODO remove param logWarnings, put to config file and set to true by default.
+     * 
      * Get the publish date from the entry. In case an entry has no timestamp or its timestamp is in the future, the
      * poll timestamp is used instead.
      * 
      * @param entry The entry to get the date from.
+     * @param logWarnings If <code>true</code>, warnings are logged in case the entry has no or an illegal timestamp.
+     *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
-    private Date getCorrectedTimestamp(FeedItem entry) {
+    private Date getCorrectedTimestamp(FeedItem entry, boolean logWarnings) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
@@ -325,10 +329,10 @@ public class Feed {
 
             // no pubDate provided, use poll timestamp
         } else {
-            warnings.append("Entry does not have pub date, feed entry : ").append(entry).append(timestampUsed);
+            warnings.append("Entry has no pub date, feed entry : ").append(entry).append(timestampUsed);
             pubDate = new Date(pollTime);
         }
-        if (warnings.length() > 0) {
+        if (logWarnings && warnings.length() > 0) {
             FeedReader.LOGGER.warn(warnings);
         }
 
@@ -336,7 +340,6 @@ public class Feed {
     }
 
     /**
-     * TODO update doc
      * Locally store the item timestamp. Make sure that this date is not newer than the feed's poll timestamp.
      * 
      * @param pubDate a item timestamp.
