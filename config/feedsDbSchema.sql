@@ -163,7 +163,6 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
   `httpDate` DATETIME DEFAULT NULL COMMENT 'The date element from the HTTP header. ',
   `httpLastModified` DATETIME DEFAULT NULL COMMENT 'The lastModified element from the HTTP header. ',
   `httpExpires` DATETIME DEFAULT NULL COMMENT 'The expires element from the HTTP header.',
-  `httpTTL` DOUBLE DEFAULT NULL COMMENT 'The ttl element from the HTTP header.',
   `newestItemTimestamp` DATETIME DEFAULT NULL COMMENT 'The newest timestamp of the newest item (one item might have two timestamps).',
   `numberNewItems` INT(10) DEFAULT NULL COMMENT 'The number of new items.',
   `windowSize` INT(10) DEFAULT NULL COMMENT 'The current window size.',
