@@ -285,12 +285,13 @@ class FeedTask implements Callable<FeedTaskResult> {
 
         if (feed.getLastFeedTaskResult() == FeedTaskResult.SUCCESS
                 || feed.getLastFeedTaskResult() == FeedTaskResult.MISS
-                || feed.getLastFeedTaskResult() == FeedTaskResult.EXECUTION_TIME_WARNING)
-        if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
-            addRequestHeader("If-None-Match", feed.getLastETag());
-        }
-        if (feed.getHttpLastModified() != null) {
-            addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+                || feed.getLastFeedTaskResult() == FeedTaskResult.EXECUTION_TIME_WARNING) {
+            if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
+                addRequestHeader("If-None-Match", feed.getLastETag());
+            }
+            if (feed.getHttpLastModified() != null) {
+                addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+            }
         }
     }
 
