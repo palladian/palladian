@@ -19,8 +19,10 @@ import org.junit.Test;
 
 import ws.palladian.iirmodel.Author;
 import ws.palladian.iirmodel.Item;
+import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.ItemType;
+import ws.palladian.iirmodel.RelationType;
 
 /**
  * @author Klemens Muthmann
@@ -165,5 +167,22 @@ public class PersistenceLayerTest {
                 new Date(), "testItemText", null, ItemType.OTHER);
 
         persistenceLayer.saveItem(testItem);
+    }
+    
+    @Test
+    public void testSaveRelationType() throws Exception {
+        RelationType relationType = new RelationType("duplicate");
+        persistenceLayer.saveRelationType(relationType);
+        
+        Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), "testSource");
+        Item testItem1 = new Item("testItem1", testAuthor, "http://testSource.de/testItem", "testItem", new Date(), new Date(), "testItemText");
+        Item testItem2 = new Item("testItem2", testAuthor, "http://testSource.de/testItem2", "testItem2", new Date(), new Date(), "testItemText");
+        persistenceLayer.saveItem(testItem1);
+        persistenceLayer.saveItem(testItem2);
+        
+        // persistenceLayer.createItemRelation(testItem1, testItem2, relationType, "duplicates");
+        ItemRelation itemRelation = new ItemRelation(testItem1, testItem2, relationType, "duplicates");
+        persistenceLayer.saveItemRelation(itemRelation);
+
     }
 }

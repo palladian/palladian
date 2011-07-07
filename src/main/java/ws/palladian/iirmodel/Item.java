@@ -154,6 +154,29 @@ public class Item implements Serializable {
      * @param publicationDate The date on which this item was initially published.
      * @param updateDate The date on which this item was last updated.
      * @param text The main body text forming the content of this item.
+     */
+    public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
+            Date updateDate, String text) {
+        this(sourceInternalIdentifier, author, link, title, publicationDate, updateDate, text, null, null);
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized {@link Item} with an {@link ItemType} and a predecessor {@link Item}.
+     * </p>
+     * 
+     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
+     *            not be
+     *            world wide unique and only servers as identifier within the stream. This identifier is usually
+     *            assigned by the item stream and
+     *            extracted while reading on the stream.
+     * @param parent The item stream that produced this item.
+     * @param author The user profile of the author, who created this item.
+     * @param link The URL used to access this item.
+     * @param title The title of this item.
+     * @param publicationDate The date on which this item was initially published.
+     * @param updateDate The date on which this item was last updated.
+     * @param text The main body text forming the content of this item.
      * @param predecessor The item occurring as a parent or direct predecessor of this item. This might be {@code null}
      *            if this is the first item in a stream. In some cases an item might be the predecessor of multiple
      *            other items. This happens if a stream is not linear but forms a tree structure.
@@ -201,7 +224,7 @@ public class Item implements Serializable {
     public ItemStream getParent() {
         return parent;
     }
-    
+
     public void setParent(ItemStream parent) {
         this.parent = parent;
     }

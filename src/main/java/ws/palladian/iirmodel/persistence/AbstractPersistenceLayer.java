@@ -19,7 +19,9 @@ import javax.persistence.EntityManager;
  * @since 1.0
  */
 public abstract class AbstractPersistenceLayer {
+
     public static final String MYSQL_PERSISTENCE_UNIT_NAME = "de.effingo.persistence";
+
     /**
      * <p>
      * 
@@ -37,7 +39,7 @@ public abstract class AbstractPersistenceLayer {
 
     /**
      * <p>
-     * Shuts the persistence layer down. Call this method when you are ready using an instance of this class.
+     * Shuts the persistence layer down. Call this method when you are done using an instance of this class.
      * </p>
      * 
      */
@@ -133,4 +135,18 @@ public abstract class AbstractPersistenceLayer {
     // pl.commitTransaction(openedTransaction);
     // return ret;
     // }
+
+    /**
+     * Return the first object in a list, or <code>null</code>, if list is empty.
+     * 
+     * @param list
+     * @return
+     */
+    protected <T> T getFirst(List<T> list) {
+        if (list.isEmpty()) {
+            return null;
+        } else {
+            return list.get(0);
+        }
+    }
 }

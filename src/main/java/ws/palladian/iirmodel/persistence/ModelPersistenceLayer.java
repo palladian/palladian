@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
@@ -301,24 +302,28 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         // tx.begin();
         @SuppressWarnings("unchecked")
         List<Author> authors = authorQuery.getResultList();
-        Author ret = null;
-        if (authors.isEmpty()) {
-            ret = null;
-        } else {
-            ret = authors.get(0);
-        }
-
-        // tx.commit();
+        Author ret = getFirst(authors);
         commitTransaction(openedTransaction);
         return ret;
     }
 
+    /**
+     * 
+     * @param item1
+     * @param item2
+     * @param relationType
+     * @param comment
+     * @return
+     * @deprecated Create the {@link ItemRelation} with its constructor and use {@link #saveItemRelation(ItemRelation)}
+     *             to store them.
+     */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public ItemRelation createItemRelation(Item item1, Item item2, RelationType relationType, String comment) {
         Query checkIfRelationExistsQuery = getManager().createQuery(
-                "SELECT r FROM ForumEntryRelation r WHERE r.firstEntry=:firstEntry AND r.secondEntry=:secondEntry");
-        checkIfRelationExistsQuery.setParameter("firstEntry", item1);
-        checkIfRelationExistsQuery.setParameter("secondEntry", item2);
+                "SELECT r FROM ItemRelation r WHERE r.firstItem=:firstItem AND r.secondItem=:secondItem");
+        checkIfRelationExistsQuery.setParameter("firstItem", item1);
+        checkIfRelationExistsQuery.setParameter("secondItem", item2);
         getManager().getTransaction().begin();
         List<ItemRelation> relations = checkIfRelationExistsQuery.getResultList();
         ItemRelation ret = null;
@@ -333,6 +338,28 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         getManager().getTransaction().commit();
 
         return ret;
+    }
+
+    public void saveItemRelation(ItemRelation itemRelation) {
+        Query relationExistsQuery = getManager().createQuery(
+                "SELECT r FROM ItemRelation r WHERE (r.firstItem=:firstItem AND r.secondItem=:secondItem) "
+                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) "
+                        + "AND r.type=:type");
+        relationExistsQuery.setParameter("firstItem", itemRelation.getFirstItem());
+        relationExistsQuery.setParameter("secondItem", itemRelation.getSecondItem());
+        relationExistsQuery.setParameter("type", itemRelation.getType());
+        EntityTransaction tx = getManager().getTransaction();
+        tx.begin();
+        @SuppressWarnings("unchecked")
+        List<ItemRelation> relations = relationExistsQuery.getResultList();
+        if (relations.isEmpty()) {
+            getManager().persist(itemRelation);
+        } else {
+            ItemRelation existingRelation = relations.get(0);
+            existingRelation.setType(itemRelation.getType());
+            existingRelation.setComment(itemRelation.getComment());
+        }
+        tx.commit();
     }
 
     /**
@@ -357,15 +384,34 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return query.toString();
     }
 
-    public RelationType createRelationType(String type) {
-        RelationType ret = loadRelationType(type);
+    /**
+     * 
+     * @param name
+     * @return
+     * @deprecated Create the {@link RelationType} with its constructor and use {@link #saveRelationType(RelationType)}.
+     */
+    @Deprecated
+    public RelationType createRelationType(String name) {
+        RelationType ret = loadRelationType(name);
         if (ret == null) {
-            ret = new RelationType(type);
+            ret = new RelationType(name);
             getManager().getTransaction().begin();
             getManager().persist(ret);
             getManager().getTransaction().commit();
         }
         return ret;
+    }
+
+    public void saveRelationType(RelationType relationType) {
+        RelationType existingRelationType = loadRelationType(relationType.getName());
+        final Boolean openedTransaction = openTransaction();
+        if (existingRelationType == null) {
+            getManager().persist(relationType);
+        } else {
+            relationType.setIdentifier(relationType.getIdentifier());
+            getManager().merge(relationType);
+        }
+        commitTransaction(openedTransaction);
     }
 
     /**
@@ -620,8 +666,16 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return ret;
     }
 
-    private RelationType loadRelationType(String type) {
-        return getManager().find(RelationType.class, type);
+    private RelationType loadRelationType(String name) {
+        // return getManager().find(RelationType.class, type);
+        EntityManager em = getManager();
+        Query query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name");
+        query.setParameter("name", name);
+        em.getTransaction().begin();
+        @SuppressWarnings("unchecked")
+        List<RelationType> resultList = query.getResultList();
+        em.getTransaction().commit();
+        return getFirst(resultList);
     }
 
     /**
@@ -669,11 +723,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         @SuppressWarnings("unchecked")
         List<ItemStream> ret = query.getResultList();
         commitTransaction(openedTransaction);
-        if (ret.isEmpty()) {
-            return null;
-        } else {
-            return ret.get(0);
-        }
+        return getFirst(ret);
     }
 
     // /**
