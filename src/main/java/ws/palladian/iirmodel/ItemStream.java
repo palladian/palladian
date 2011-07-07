@@ -169,7 +169,7 @@ public class ItemStream implements Serializable {
     /**
      * <p>
      * The stream source is a unique name identifying the source. It might be its name as long as no other source with
-     * the same name exists or the URL of the forum.
+     * the same name exists or the URL of the source.
      * </p>
      * 
      * @return the unique forum type.
@@ -179,11 +179,13 @@ public class ItemStream implements Serializable {
     }
 
     /**
-     * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
-     * the same name exists or the URL of the forum.
+     * <p>
+     * The type of a source is a unique name used for identifcation. It might be its name as long as no other source
+     * with the same name exists or the URL of the source.
+     * </p>
      * 
      * @param streamSource
-     *            the unique forum type
+     *            the unique source type
      */
     public void setStreamSource(String streamSource) {
         this.streamSource = streamSource;
