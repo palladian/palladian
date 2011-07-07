@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultIterator;
@@ -58,8 +59,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
-     * Truncate a string to 255 chars to store it as varchar(255). In case the string is truncated, a message is written
-     * to error log.
+     * Truncate a string to 255 chars to store it as varchar(255). Additionally, control characters are removed.
+     * In case the string is truncated, a message is written to error log.
      * 
      * @param input The string to truncate.
      * @param name The name of the input like "title" or "feedUrl", required to write meaningful log message.
@@ -68,9 +69,13 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     private String truncateToVarchar255(String input, String name, String feed) {
         String output = input;
-        if (input != null && input.length() > 255) {
-            output = input.substring(0, 255);
-            LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
+        if (input != null) {
+            output = StringHelper.removeControlCharacters(output);
+            if (output.length() > 255) {
+                output = output.substring(0, 255);
+                LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: "
+                        + input);
+            }
         }
         return output;
     }
