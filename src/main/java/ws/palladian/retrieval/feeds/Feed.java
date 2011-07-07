@@ -37,6 +37,13 @@ public class Feed {
     private List<FeedItem> items = new ArrayList<FeedItem>();
 
     /**
+     * A backup of the items' timestamps that is not deleted when {@link #freeMemory()} is called. It can be used as a
+     * cache and read to update the checkInterval in case we did a conditional get request and the feed has not been
+     * changed since the last request.
+     */
+    private List<Date> itemTimestamps = new ArrayList<Date>();
+
+    /**
      * The total number of unique items downloaded so far. This value may differ from {@link #items}.size() since
      * {@link #items} may have been reseted by calling {@link #freeMemory()}.
      */
@@ -335,7 +342,7 @@ public class Feed {
     }
 
     public void incrementUnparsableCount() {
-        unreachableCount++;
+        unparsableCount++;
     }
 
     public int getUnparsableCount() {
