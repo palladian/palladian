@@ -150,11 +150,11 @@ class SchedulerTask extends TimerTask {
         // on average, one thread should process at least 3 feeds per minute
         HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
 
-        // max 1% of the threads, but at least 10 feeds are allowed to be unreachable
-        UNREACHABLE_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 100);
+        // max 1% of the feeds, but at least 10 feeds are allowed to be unreachable
+        UNREACHABLE_WARNING_SIZE = Math.max(10, HIGH_LOAD_THROUGHPUT / 100);
 
-        // max 1% of the threads, but at least 10 feeds are allowed to be unparsable
-        UNPARSABLE_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 100);
+        // max 1% of the feeds, but at least 10 feeds are allowed to be unparsable
+        UNPARSABLE_WARNING_SIZE = Math.max(10, HIGH_LOAD_THROUGHPUT / 100);
     }
 
     /*
