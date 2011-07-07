@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.evaluation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -37,79 +36,32 @@ class DatasetProcessingAction extends FeedProcessingAction {
 
         boolean success = true;
 
-        // get all posts in the feed as timestamp;headline;link
-        List<FeedItem> feedEntries = feed.getItems();
-
-        if (feedEntries == null) {
-            LOGGER.warn("no feed entries for " + feed.getFeedUrl());
-            return success;
-        }
+        List<FeedItem> newFeedEntries = feed.getNewItems();
 
         // get the path of the feed's folder and csv file
         String folderPath = DatasetCreator.getFolderPath(feed.getId());
         String filePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
-        LOGGER.debug("saving feed to: " + filePath);
-
+        // LOGGER.debug("saving feed to: " + filePath);
         success = DatasetCreator.createDirectoriesAndCSV(feed);
 
-        // load only the last window from file
-        int recentWindowSize = feed.getWindowSize();
-
-        if (feed.hasVariableWindowSize() != null && feed.hasVariableWindowSize()) {
-            List<String> lastFileEntries = FileHelper.tail(filePath, 1);
-            int windowSizePositionInCSV = 5;
-            String recentWindow = null;
-            try {
-                recentWindow = lastFileEntries.get(0).split(";")[windowSizePositionInCSV];
-                recentWindowSize = Integer.parseInt(recentWindow);
-            } catch (Throwable th) {
-                LOGGER.error("Could not read window size from position " + windowSizePositionInCSV
-                        + " (start with 0) in csv file for feedID " + feed.getId()
-                        + ", using current window size instead.");
-            }
-        }
-        List<String> fileEntries = FileHelper.tail(filePath, recentWindowSize);
-
-        List<String> newEntries = new ArrayList<String>();
-        int newItems = 0;
-
+        List<String> newEntriesToWrite = new ArrayList<String>();
+        int newItems = newFeedEntries.size();
         long pollTimestamp = feed.getLastPollTime().getTime();
 
-        // get all hashes from items stored to file
-        HashSet<String> savedFileEntryHashes = new HashSet<String>();
-        for (String savedFileEntry : fileEntries) {
-            savedFileEntryHashes.add(savedFileEntry.split(";")[2]);
-        }
-
-        // StringBuilder entryWarnings = new StringBuilder();
-
-        LOGGER.debug("Feed entries: " + feedEntries.size());
-        for (FeedItem item : feedEntries) {
-
-            String itemHash = item.getHash();
-            if (savedFileEntryHashes.contains(itemHash)) {
-                // this item is already known, do nothing with it.
-                continue;
-            }
+        // LOGGER.debug("Feed entries: " + newFeedEntries.size());
+        for (FeedItem item : newFeedEntries) {
 
             String fileEntry = buildCsvLine(item);
-
-            newEntries.add(fileEntry);
-            newItems++;
-
+            newEntriesToWrite.add(fileEntry);
         }
 
-        // if (entryWarnings.length() > 0) {
-        // FeedReader.LOGGER.warn(entryWarnings);
-        // }
-
-        feed.incrementNumberOfItemsReceived(newItems);
+        feed.incrementNumberOfItemsReceived(newFeedEntries.size());
 
         // if all entries are new, we might have checked to late and missed some entries, we mark that by a
         // special line
-        if (newItems == feedEntries.size() && feed.getChecks() > 1 && newItems > 0) {
+        if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {
             feed.increaseMisses();
-            newEntries.add("MISS;;;;;;");
+            newEntriesToWrite.add("MISS;;;;;;");
             LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                     + feed.getChecks() + ", misses: " + feed.getMisses());
         }
@@ -117,10 +69,10 @@ class DatasetProcessingAction extends FeedProcessingAction {
         // save the complete feed gzipped in the folder if we found at least one new item
         if (newItems > 0) {
 
-            Collections.reverse(newEntries);
+            Collections.reverse(newEntriesToWrite);
 
             StringBuilder newEntryBuilder = new StringBuilder();
-            for (String string : newEntries) {
+            for (String string : newEntriesToWrite) {
                 newEntryBuilder.append(string).append("\n");
             }
 
@@ -129,8 +81,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
                     + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + ".gz";
             boolean gzWritten = documentRetriever.saveToFile(httpResult, gzPath, true);
 
-            LOGGER.debug("Saving new file content: " + newEntries.toString());
-            // FileHelper.prependFile(filePath, newEntries.toString());
+            LOGGER.debug("Saving new file content: " + newEntriesToWrite.toString());
             boolean fileWritten = FileHelper.appendFile(filePath, newEntryBuilder);
 
             if (!gzWritten || !fileWritten) {
@@ -138,7 +89,10 @@ class DatasetProcessingAction extends FeedProcessingAction {
             }
         }
 
-        processPollMetadata(feed, httpResult, newItems);
+        boolean metadata = processPollMetadata(feed, httpResult, newItems);
+        if (!metadata) {
+            success = false;
+        }
         
         LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
