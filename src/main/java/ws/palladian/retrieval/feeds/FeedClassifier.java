@@ -51,7 +51,7 @@ public class FeedClassifier {
     /** all posts in the feed are updated together at a certain time */
     public static final int CLASS_CHUNKED = 8;
 
-    /** all post entries are generated at request time */
+    /** All post entries are generated at request time (have publish timestamps) */
     public static final int CLASS_ON_THE_FLY = 9;
 
     public static Integer[] getActivityPatternIDs() {
