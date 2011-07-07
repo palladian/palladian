@@ -134,7 +134,7 @@ public class FeedImporter {
                     }
 
                     if (added) {
-                        LOGGER.info(infoMsg);
+                        LOGGER.debug(infoMsg);
                     } else {
                         LOGGER.error("database error while adding feed " + cleanedURL);
                     }
@@ -146,7 +146,7 @@ public class FeedImporter {
             }
 
         } else {
-            LOGGER.info("i already have feed " + cleanedURL);
+            LOGGER.debug("i already have feed " + cleanedURL);
         }
 
         LOGGER.trace("<addFeed " + added);
@@ -155,7 +155,12 @@ public class FeedImporter {
 
     public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
         Set<String> feedUrls = new HashSet<String>();
+        int counter = 0;
         for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
+            counter++;
+            if (counter % 10000 == 0) {
+                LOGGER.info("processed " + counter + " feeds.");
+            }
             feedUrls.add(discoveredFeed.getFeedLink());
         }
         return addFeeds(feedUrls);

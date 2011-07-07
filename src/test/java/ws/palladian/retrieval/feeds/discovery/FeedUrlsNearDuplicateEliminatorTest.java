@@ -189,6 +189,16 @@ public class FeedUrlsNearDuplicateEliminatorTest {
         Assert.assertEquals(1, deDup.size());
         Assert.assertEquals(true, deDup.contains("http://www.alghad.com/index.php/rss/section/0.atom"));
 
+        // TODO: we currently cannot detect feeds contains several formats each as single words
+        // urls = new ArrayList<String>();
+        // // contains rss + RSS
+        // urls.add("http://66.147.244.199/~monaromo/rss.php?action=newblogs&type=atom");
+        // urls.add("http://66.147.244.199/~monaromo/rss.php?action=newblogs&type=rss");
+        // deDup = FeedUrlsNearDuplicateEliminator.deDuplicate(urls);
+        // Assert.assertEquals(1, deDup.size());
+        // Assert.assertEquals(true,
+        // deDup.contains("http://66.147.244.199/~monaromo/rss.php?action=newblogs&type=atom"));
+
         // ignore feeds which contain session ids
         urls = new ArrayList<String>();
         urls.add("http://fgsd.des.schoolfusion.us/modules/cms/announceRss.phtml?sessionid=c4e953bd5ed6802d8220af0b25c6645d");
