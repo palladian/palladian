@@ -1,5 +1,9 @@
 package ws.palladian.retrieval.feeds;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -109,24 +113,6 @@ class SchedulerTask extends TimerTask {
     private static int HIGH_LOAD_THROUGHPUT = 0;
 
     /**
-     * Number of feeds that are allowed to be processed slow. If more than this number of {@link FeedTask}s exceeds the
-     * execution time warning level, it is expected that something is wrong.
-     */
-    private static int SLOW_WARNING_SIZE;
-
-    /**
-     * Number of feeds that are allowed to be unreachable. If more than this number of {@link FeedTask}s is unreachable,
-     * it is expected that something is wrong.
-     */
-    private static int UNREACHABLE_WARNING_SIZE;
-
-    /**
-     * Number of feeds that are allowed to be unparsable. If more than this number of {@link FeedTask}s is unparsable,
-     * it is expected that something is wrong.
-     */
-    private int UNPARSABLE_WARNING_SIZE;
-
-    /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
      * @param feedReader
@@ -150,9 +136,6 @@ class SchedulerTask extends TimerTask {
 
         }
 
-        // max 10% of the threads, but at least 10 feeds are allowed to be slow
-        SLOW_WARNING_SIZE = Math.max(10, feedReader.getThreadPoolSize() / 10);
-
         // on average, one thread should process at least 3 feeds per minute
         HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
     }
@@ -171,7 +154,7 @@ class SchedulerTask extends TimerTask {
         StringBuffer alreadyScheduledFeedIDs = new StringBuffer();
 
         // schedule all feeds
-        for (Feed feed : feedReader.getFeeds()) {
+        for (Feed feed : getFeeds()) {
 
             // remove completed FeedTasks
             removeFeedTaskIfDone(feed.getId());
@@ -288,6 +271,28 @@ class SchedulerTask extends TimerTask {
         processedCounter = 0;
         lastWakeUpTime = currentWakeupTime;
         feedResults.clear();
+    }
+
+    /**
+     * Get all feeds from database. When called the first time, the feeds are shuffled randomly, on all subsequent
+     * calls, the ordering received from database is preserved.
+     * <p>
+     * Background: In some feed lists, there are several hundred feeds hosted by the same provider like feedburner. The
+     * shuffle is required to avoid polling one provider with several hundred threads in parallel since some providers
+     * tend to block those parallel requests.
+     * </p>
+     * 
+     * @return
+     */
+    private Collection<Feed> getFeeds() {
+        if (lastWakeUpTime == null) {
+            List<Feed> feedList = new ArrayList<Feed>();
+            feedList.addAll(feedReader.getFeeds());
+            Collections.shuffle(feedList);
+            return feedList;
+        } else {
+            return feedReader.getFeeds();
+        }
     }
 
     /**
