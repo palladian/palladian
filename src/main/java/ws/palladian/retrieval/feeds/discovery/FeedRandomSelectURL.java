@@ -13,8 +13,8 @@ public class FeedRandomSelectURL {
     public static void main(String[] args) {
 //        String input = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
 //        String finalFeeds = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicatesRandomSampling.txt";
-        String input = "Z:/in_out/feedDatasetPaper/foundFeedsDeduplicatedSortedRemovedNearDuplicates.txt";
-        String finalFeeds = "Z:/in_out/feedDatasetPaper/foundFeedsDeduplicatedSortedRemovedNearDuplicatesRandomSampling.txt";
+        String input = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
+        String finalFeeds = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicatesRandomSampling.txt";
         String temp = "data/datasets/feedURLs/temp.txt";
         double targetNumberOfFeeds = 200000D;
 
