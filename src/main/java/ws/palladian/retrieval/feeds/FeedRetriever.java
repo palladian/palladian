@@ -262,7 +262,6 @@ public class FeedRetriever {
         for (SyndEntry syndEntry : syndEntries) {
 
             FeedItem item = new FeedItem();
-            feed.addItem(item);
 
             String title = getEntryTitle(syndEntry);
             item.setTitle(title);
@@ -296,6 +295,7 @@ public class FeedRetriever {
             Map<String, Object> additionalData = getAdditionalData(syndEntry);
             item.setAdditionalData(additionalData);
 
+            feed.addItem(item);
         }
     }
 
