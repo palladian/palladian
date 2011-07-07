@@ -51,9 +51,11 @@ public class ItemStream implements Serializable {
     /**
      * <p>
      * The stream source is a system wide unique name identifying the source for a set of generated item streams. It
-     * might be the sources name as long as no other stream with the same name exists or the sources URL otherwise. For
-     * web forum threads this might be the forum name. For <a href="http://www.facebook.com">Facebook</a> it might be
-     * "facebook" or "http://facebook.com".
+     * might be the source's name as long as no other stream with the same name exists or the source's URL otherwise.
+     * For web forum threads this might be the forum name. For <a href="http://www.facebook.com">Facebook</a> it might
+     * be "facebook" or "http://facebook.com". When a service with multiple sources is considered, e. g. <a
+     * href="http://sourceforge.net/">SourceForge.net</a>, each source must have its own name, like "phpMyAdmin forum",
+     * "phpMyAdmin mailing list", etc.
      * </p>
      */
     private String streamSource;
@@ -116,11 +118,11 @@ public class ItemStream implements Serializable {
         this.channelName = channelName;
     }
 
-    public  String getChannelName() {
+    public String getChannelName() {
         return channelName;
     }
 
-    public  void setChannelName(String channelName) {
+    public void setChannelName(String channelName) {
         this.channelName = channelName;
     }
 

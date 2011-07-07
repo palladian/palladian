@@ -4,7 +4,7 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>iirmodel</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>IIR - Model</name>
+	<name>Palladian IIR Model</name>
 	<description>An aggregated model for internet information retrieval tasks</description>
 	<build>
 		<plugins>
