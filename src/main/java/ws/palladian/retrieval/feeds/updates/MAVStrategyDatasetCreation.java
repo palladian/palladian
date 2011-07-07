@@ -64,13 +64,6 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         // feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
         // }
 
-        // in case only one entry has been found use the default check time
-        // we subtract a random offset to the default check time to avoid a peak in the number of feeds that have
-        // exactly the same update interval (in our experiments, more than 10.000 feeds got the default check time)
-        if (entries.size() <= 1) {
-            int randomTime = getHighestUpdateInterval() - getRandomOffset(getHighestUpdateInterval() / 2);
-            feed.setUpdateInterval(getAllowedUpdateInterval(randomTime));
-        }
     }
 
     /**
