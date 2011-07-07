@@ -142,11 +142,9 @@ public class Item implements Serializable {
      * Creates a new completely initialized {@link Item}.
      * </p>
      * 
-     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
-     *            not be
+     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might not be
      *            world wide unique and only servers as identifier within the stream. This identifier is usually
-     *            assigned by the item stream and
-     *            extracted while reading on the stream.
+     *            assigned by the item stream and extracted while reading on the stream.
      * @param parent The item stream that produced this item.
      * @param author The user profile of the author, who created this item.
      * @param link The URL used to access this item.
@@ -165,11 +163,9 @@ public class Item implements Serializable {
      * Creates a new completely initialized {@link Item} with an {@link ItemType} and a predecessor {@link Item}.
      * </p>
      * 
-     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might
-     *            not be
+     * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might not be
      *            world wide unique and only servers as identifier within the stream. This identifier is usually
-     *            assigned by the item stream and
-     *            extracted while reading on the stream.
+     *            assigned by the item stream and extracted while reading on the stream.
      * @param parent The item stream that produced this item.
      * @param author The user profile of the author, who created this item.
      * @param link The URL used to access this item.

@@ -5,6 +5,7 @@ package ws.palladian.iirmodel;
  */
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -144,8 +145,8 @@ public class ItemStream implements Serializable {
 
     /**
      * <p>
-     * Adds a new {@link Item} to the end of this {@code ItemStream}s list of items. If same item already exists, the
-     * existing item is removed.
+     * Adds a new {@link Item} to the end of this {@code ItemStream}s list of items. If same item already exists, it is
+     * overwritten by the new one.
      * </p>
      * 
      * @param item The new item to add.
@@ -156,6 +157,20 @@ public class ItemStream implements Serializable {
         }
         items.add(item);
         item.setParent(this);
+    }
+
+    /**
+     * <p>
+     * Adds a {@link Collection} of items to the end of this {@link ItemStream}'s list of items. If some item already
+     * exists, it is overwritten by the new one.
+     * </p>
+     * 
+     * @param items
+     */
+    public void addItems(Collection<Item> items) {
+        for (Item item : items) {
+            addItem(item);
+        }
     }
 
     public String getSourceAddress() {
