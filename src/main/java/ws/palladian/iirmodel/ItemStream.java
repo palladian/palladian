@@ -152,7 +152,8 @@ public class ItemStream implements Serializable {
         if (items.contains(item)) {
             items.remove(item);
         }
-        this.items.add(item);
+        items.add(item);
+        item.setParent(this);
     }
 
     public String getSourceAddress() {

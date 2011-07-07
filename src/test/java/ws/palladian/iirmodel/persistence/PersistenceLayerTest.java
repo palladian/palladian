@@ -76,11 +76,11 @@ public class PersistenceLayerTest {
         ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
-                "i1text", null, ItemType.QUESTION, stream);
+                "i1text", null, ItemType.QUESTION);
         stream.addItem(item1);
         Author author2 = new Author("a2", 4, 0, 3, new Date(), "testSource");
         Item item2 = new Item("i2", author2, "http://testSource.de/testStream/i2", "i2", new Date(), new Date(),
-                "i2text", item1, ItemType.OTHER, stream);
+                "i2text", item1, ItemType.OTHER);
         stream.addItem(item2);
 
         persistenceLayer.saveItemStream(stream);
@@ -95,12 +95,12 @@ public class PersistenceLayerTest {
         ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
-                "i1text", null, ItemType.QUESTION, stream);
+                "i1text", null, ItemType.QUESTION);
         stream.addItem(item1);
         Author author2 = new Author("a2", 4, 0, 3, new Date(), "testSource");
         Date author2RegistrationDate = new Date();
         Item item2 = new Item("i2", author2, "http://testSource.de/testStream/i2", "i2", author2RegistrationDate,
-                new Date(), "i2text", item1, ItemType.OTHER, stream);
+                new Date(), "i2text", item1, ItemType.OTHER);
         stream.addItem(item2);
 
         persistenceLayer.saveItemStream(stream);
@@ -110,11 +110,11 @@ public class PersistenceLayerTest {
 
         Author changedAuthor1 = new Author("a2", 11, 3, 5, author2RegistrationDate, "testSource");
         Item changedItem1 = new Item("i2", changedAuthor1, "http://testSource.de/testStream/i2", "i2",
-                item2.getPublicationDate(), item2.getUpdateDate(), "i2text", null, ItemType.OTHER, stream);
+                item2.getPublicationDate(), item2.getUpdateDate(), "i2text", null, ItemType.OTHER);
         changedStream.addItem(changedItem1);
         Author changedAuthor2 = new Author("a3", 11, 3, 5, new Date(), "testSource");
         Item changedItem2 = new Item("i3", changedAuthor2, "http://testSource.de/testStream/i3", "i3", new Date(),
-                new Date(), "i3text", changedItem1, ItemType.OTHER, stream);
+                new Date(), "i3text", changedItem1, ItemType.OTHER);
         changedStream.addItem(changedItem2);
 
         persistenceLayer.saveItemStream(changedStream);
@@ -162,7 +162,7 @@ public class PersistenceLayerTest {
     public void testSaveItem() throws Exception {
         Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), "testSource");
         Item testItem = new Item("testItem", testAuthor, "http://testSource.de/testItem", "testItem", new Date(),
-                new Date(), "testItemText", null, ItemType.OTHER, null);
+                new Date(), "testItemText", null, ItemType.OTHER);
 
         persistenceLayer.saveItem(testItem);
     }

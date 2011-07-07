@@ -159,13 +159,11 @@ public class Item implements Serializable {
      *            other items. This happens if a stream is not linear but forms a tree structure.
      * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
      *            an answer or something completely different.
-     * @param parent The parent of this item {@link ItemStream} of this item.
      */
     public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
-            Date updateDate, String text, Item predecessor, ItemType type, ItemStream parent) {
+            Date updateDate, String text, Item predecessor, ItemType type) {
         this();
         this.sourceInternalIdentifier = sourceInternalIdentifier;
-        this.parent = parent;
         this.author = author;
         this.link = link;
         this.title = title;
@@ -202,6 +200,10 @@ public class Item implements Serializable {
 
     public ItemStream getParent() {
         return parent;
+    }
+    
+    public void setParent(ItemStream parent) {
+        this.parent = parent;
     }
 
     public Item getPredecessor() {
