@@ -66,10 +66,8 @@ public class FeedUrlsNearDuplicateEliminator {
 
         // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
         // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
-//        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
-//        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
-        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\in.txt";
-        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\out.txt";
+        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
+        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
 
         /** Collect links for each domain. */
         final Queue<String> linkQueue = new LinkedList<String>();
