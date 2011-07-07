@@ -17,8 +17,6 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-// TODO role of Comparable unclear. Comparison is done based on # of items in the Stream.
-
 /**
  * <p>
  * Represents a thread from a web forum or discussion board.
@@ -31,7 +29,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"))
-public class ItemStream implements Comparable<ItemStream>, Serializable {
+public class ItemStream implements Serializable {
 
     /**
      * <p>
@@ -118,12 +116,37 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         this.channelName = channelName;
     }
 
+    public  String getChannelName() {
+        return channelName;
+    }
+
+    public  void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
+    public Integer getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(Integer identifier) {
+        this.identifier = identifier;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
     /**
      * <p>
-     * Adds a new item to the end of this {@code ItemStream}s list of items.
+     * Adds a new {@link Item} to the end of this {@code ItemStream}s list of items. If same item already exists, the
+     * existing item is removed.
      * </p>
      * 
-     * @param contribution The new contribution to add.
+     * @param item The new item to add.
      */
     public void addItem(Item item) {
         if (items.contains(item)) {
@@ -132,27 +155,12 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         this.items.add(item);
     }
 
-    public int compareTo(ItemStream itemStream) {
-        if (itemStream == null) {
-            throw new IllegalArgumentException("Object to compare to was null.");
-        }
-        return this.items.size() - itemStream.items.size();
-    }
-
-    public final String getChannelName() {
-        return channelName;
-    }
-
-    public Integer getIdentifier() {
-        return identifier;
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
     public String getSourceAddress() {
         return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
     }
 
     /**
@@ -165,6 +173,17 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
      */
     public String getStreamSource() {
         return streamSource;
+    }
+
+    /**
+     * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
+     * the same name exists or the URL of the forum.
+     * 
+     * @param streamSource
+     *            the unique forum type
+     */
+    public void setStreamSource(String streamSource) {
+        this.streamSource = streamSource;
     }
 
     @Override
@@ -215,30 +234,4 @@ public class ItemStream implements Comparable<ItemStream>, Serializable {
         return builder.toString();
     }
 
-    public final void setChannelName(String channelName) {
-        this.channelName = channelName;
-    }
-
-    public void setIdentifier(Integer identifier) {
-        this.identifier = identifier;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-
-    public void setSourceAddress(String sourceAddress) {
-        this.sourceAddress = sourceAddress;
-    }
-
-    /**
-     * The type of a forum is a unique name identifying the forum. It might be its name as long as no other forum with
-     * the same name exists or the URL of the forum.
-     * 
-     * @param streamSource
-     *            the unique forum type
-     */
-    public void setStreamSource(String streamSource) {
-        this.streamSource = streamSource;
-    }
 }

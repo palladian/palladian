@@ -161,10 +161,10 @@ public class Item implements Serializable {
      *            an answer or something completely different.
      * @param parent The parent of this item {@link ItemStream} of this item.
      */
-    public Item(String streamSourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
+    public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
             Date updateDate, String text, Item predecessor, ItemType type, ItemStream parent) {
         this();
-        this.sourceInternalIdentifier = streamSourceInternalIdentifier;
+        this.sourceInternalIdentifier = sourceInternalIdentifier;
         this.parent = parent;
         this.author = author;
         this.link = link;
@@ -180,12 +180,24 @@ public class Item implements Serializable {
         return author;
     }
 
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
     public Integer getIdentifier() {
         return identifier;
     }
 
+    public void setIdentifier(Integer identifier) {
+        this.identifier = identifier;
+    }
+
     public String getLink() {
         return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public ItemStream getParent() {
@@ -196,28 +208,56 @@ public class Item implements Serializable {
         return predecessor;
     }
 
+    public void setPredecessor(Item predecessor) {
+        this.predecessor = predecessor;
+    }
+
     public Date getPublicationDate() {
         return publicationDate;
     }
 
-    public String getStreamSourceInternalIdentifier() {
+    public void setPublicationDate(Date publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
+    public String getSourceInternalIdentifier() {
         return sourceInternalIdentifier;
+    }
+
+    public void setSourceInternalIdentifier(String sourceInternalIdentifier) {
+        this.sourceInternalIdentifier = sourceInternalIdentifier;
     }
 
     public String getText() {
         return text;
     }
 
+    public void setText(String text) {
+        this.text = text;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    public final ItemType getType() {
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public ItemType getType() {
         return type;
+    }
+
+    public void setType(ItemType type) {
+        this.type = type;
     }
 
     public Date getUpdateDate() {
         return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 
     /**
@@ -272,46 +312,6 @@ public class Item implements Serializable {
         result = prime * result + ((sourceInternalIdentifier == null) ? 0 : sourceInternalIdentifier.hashCode());
         result = prime * result + ((parent == null) ? 0 : parent.hashCode());
         return result;
-    }
-
-    public void setAuthor(Author author) {
-        this.author = author;
-    }
-
-    public void setSourceInternalIdentifier(String sourceInternalIdentifier) {
-        this.sourceInternalIdentifier = sourceInternalIdentifier;
-    }
-
-    public void setIdentifier(Integer identifier) {
-        this.identifier = identifier;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public void setPredecessor(Item predecessor) {
-        this.predecessor = predecessor;
-    }
-
-    public void setPublicationDate(Date publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public final void setType(ItemType type) {
-        this.type = type;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
     }
 
     @Override

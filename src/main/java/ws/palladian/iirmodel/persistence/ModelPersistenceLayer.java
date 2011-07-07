@@ -347,17 +347,9 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param restrictedOnFieldsWithValues
      *            Restricts query to a specific set of values
      * @return The complete query as a string.
-     * @throws IOException
-     *             If the underlying index for the free text query was not
-     *             readable.
-     * @throws ParseException
-     *             If the free text query was not parseable.
-     * @throws URISyntaxException
-     *             If the Location of the underlying index was not valid.
      */
     private String createQueryForRandomNonAnnotatedRelations(final String baseQuery,
-            final Map<String, String[]> restrictedOnFieldsWithValues) throws IOException, ParseException,
-            URISyntaxException {
+            final Map<String, String[]> restrictedOnFieldsWithValues) {
         StringBuffer query = new StringBuffer(baseQuery);
         if (restrictedOnFieldsWithValues != null && !restrictedOnFieldsWithValues.isEmpty()) {
             query.append(createRestriction(restrictedOnFieldsWithValues));
