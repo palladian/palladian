@@ -491,7 +491,7 @@ public class ListDiscoverer {
         // pa.printDOM(document.getLastChild()," ");
 
         for (String currentXPath : listElements) {
-            List<Node> results = XPathHelper.getNodes(document, currentXPath);
+            List<Node> results = XPathHelper.getXhtmlNodes(document, currentXPath);
             if (results == null) {
                 continue;
             }
@@ -574,7 +574,7 @@ public class ListDiscoverer {
         // if (entityXPath.indexOf("LI") == -1 && entityXPath.indexOf("TABLE") == -1) return "";
 
         // uniformity check
-        List<Node> listNodes = XPathHelper.getNodes(document, entityXPath);
+        List<Node> listNodes = XPathHelper.getXhtmlNodes(document, entityXPath);
         ArrayList<String> entityCandidateList = new ArrayList<String>();
         for (int j = 0; j < listNodes.size(); j++) {
             entityCandidateList.add(listNodes.get(j).getTextContent());
@@ -755,7 +755,7 @@ public class ListDiscoverer {
      * @param entries
      * @return True if the list entries are uniform, else false.
      */
-    public static boolean entriesUniform(ArrayList<String> entries, boolean tableDuplicateCheck) {
+    public static boolean entriesUniform(List<String> entries, boolean tableDuplicateCheck) {
         // if (entries.size() == 0) return false;
 
         Iterator<String> entryIterator = entries.iterator();
