@@ -215,8 +215,8 @@ class SchedulerTask extends TimerTask {
             detectedErrors.append("Too many feeds with long processing time. ");
         }
 
-        // max 1% of the feeds, but at least 10 feeds are allowed to be unreachable
-        if (unreachable > Math.max(10, processedCounter / 100)) {
+        // max 2% of the feeds, but at least 10 feeds are allowed to be unreachable
+        if (unreachable > Math.max(10, 2 * processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds are unreachable. ");
         }
