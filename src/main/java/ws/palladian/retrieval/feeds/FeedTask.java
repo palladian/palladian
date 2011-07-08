@@ -271,9 +271,9 @@ class FeedTask implements Callable<FeedTaskResult> {
         feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
         updateFeed(storeMetadata);
 
+        doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
         feed.freeMemory();
-        doFinalLogging(timer);
     }
 
     /**
@@ -343,7 +343,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @param storeMetadata
      */
     private void updateFeed(boolean storeMetadata) {
-        boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata);
+        boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata, feed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }

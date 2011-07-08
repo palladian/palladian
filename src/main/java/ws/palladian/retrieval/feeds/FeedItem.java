@@ -205,7 +205,7 @@ public class FeedItem {
         // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
         // hash.append(getPublished().toString());
         // }
-        if (getTitle() != null && getLink() != null && getRawId() != null && hash.length() > 0) {
+        if (getTitle() != null || getLink() != null || getRawId() != null) {
             newHash = StringHelper.sha1(hash.toString());
 
         } else {

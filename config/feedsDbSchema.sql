@@ -173,3 +173,19 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
 -- Daten für Tabelle `feed_polls
 --
 
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_item_cache`
+--
+CREATE TABLE IF NOT EXISTS `feed_item_cache` (
+  `id` INT(10) UNSIGNED NOT NULL COMMENT 'The feeds internal identifier.',
+  `itemHash` CHAR(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of a item (in xml) of the last poll.',
+  `correctedPollTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='table to serialize the item cache'
+
+--
+-- Daten für Tabelle `feed_item_cache
+--
+

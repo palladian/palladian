@@ -103,13 +103,13 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
+    public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
         // TODO Auto-generated method stub
         return false;
     }
