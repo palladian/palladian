@@ -34,8 +34,11 @@ public class HTTPHelper {
             try {
                 date = DateUtils.parseDate(dateString);
             } catch (DateParseException e) {
-                LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString + "\". "
-                        + e.getMessage());
+                // ignore 0 and -1 values as they are commonly used as Expires and not worth mentioning.
+                if (!dateString.equalsIgnoreCase("0") && !dateString.equalsIgnoreCase("-1")) {
+                    LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString + "\". "
+                            + e.getMessage());
+                }
             }
         }
         return date;

@@ -411,8 +411,16 @@ public final class FeedReader {
         return getFeedStore().updateFeed(feed);
     }
 
-    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
-        return getFeedStore().updateFeed(feed, updateMetaInformation);
+    /**
+     * Update feed in database.
+     * 
+     * @param feed The feed to update
+     * @param updateMetaInformation If <code>true</code>, the feed'd meta information are updated.
+     * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
+     * @return <code>true</code> if (all) update(s) successful.
+     */
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
+        return getFeedStore().updateFeed(feed, updateMetaInformation, replaceCachedItems);
     }
 
     /**

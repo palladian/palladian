@@ -97,7 +97,7 @@ public class Feed {
     private int updateMode = Feed.MIN_DELAY;
 
     /** Our internal hash of the most recent item */
-    private String newestItemHash = "";
+    private String newestItemHash = null;
 
     /** number of times the feed was checked but could not be found. */
     private int unreachableCount = 0;
@@ -236,6 +236,7 @@ public class Feed {
 
         List<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
+        setNewestItemHash(null);
         
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
@@ -252,16 +253,16 @@ public class Feed {
         setCachedItems(itemCacheTemp);
         setNewItems(newItemsTemp);
         this.items = items;
-        // setNewItem(null);
     }
 
     public void addItem(FeedItem item) {
         if (items == null) {
             items = new ArrayList<FeedItem>();
         }
+        setNewestItemHash(null);
         items.add(item);
         item.setFeed(this);
-        // setNewItem(null);
+
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
@@ -350,20 +351,21 @@ public class Feed {
     }
 
     /**
-     * Replaces the current item cache with the given one.
+     * Replaces the current item cache with the given one. Don't never ever ever ever use this. This is meant to be used
+     * only by the persistence layer and administrative authorities. And Chuck Norris.
      * 
-     * @param toCache The new item cache to set. 
+     * @param toCache The new item cache to set.
      */
-    private void setCachedItems(Map<String, Date> toCache) {
+    public void setCachedItems(Map<String, Date> toCache) {
         this.itemCache = toCache;
     }
 
     /**
-     * Get all cached item hashes and their associated publish dates.
+     * Get all cached item hashes and their associated corrected publish dates.
      * 
      * @return all cached item hashes and their associated publish dates.
      */
-    private Map<String, Date> getCachedItems() {
+    public Map<String, Date> getCachedItems() {
         return itemCache;
     }
 
@@ -487,9 +489,7 @@ public class Feed {
     }
 
     public void setNewestItemHash(String newestItemHash) {
-        if (newestItemHash != null) {
-            this.newestItemHash = newestItemHash;
-        }
+        this.newestItemHash = newestItemHash;
     }
 
     /**
@@ -500,17 +500,26 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
-        if (newestItemHash.isEmpty()) {
+        String newestHash = newestItemHash;
+        if (newestItemHash == null) {
             calculateNewestItemHash();
         }
         return newestItemHash;
     }
 
+
     private void calculateNewestItemHash() {
-        if (items.size() > 0) {
-            FeedItem feedItem = items.get(0);
-            newestItemHash = feedItem.getHash();
+        Map<String, Date> cache = getCachedItems();
+        String tempHash = null;
+        Date tempDate = null;
+
+        for(String hash : cache.keySet()){
+            if (tempDate == null || tempDate.getTime() < cache.get(hash).getTime()) {
+                tempDate = cache.get(hash);
+                tempHash = hash;
+            }
         }
+        newestItemHash = tempHash;
     }
 
     public void setUnreachableCount(Integer unreachableCount) {

@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
+    private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
+    private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
+    private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
 
     /**
      * @param connectionManager
@@ -81,6 +85,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
+     * Adds a feed and its meta information. The item cache is <b>not</b> not serialized!
+     * 
      * @return <code>true</code> if feed and meta information have been added, <code>false</code> if at least one of
      *         feed or meta information have not been added.
      */
@@ -254,7 +260,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Override
     public List<Feed> getFeeds() {
-        return runQuery(new FeedRowConverter(), GET_FEEDS);
+        List<Feed> feeds = runQuery(new FeedRowConverter(), GET_FEEDS);
+        for (Feed feed : feeds) {
+            feed.setCachedItems(getCachedItemsById(feed.getId()));
+        }
+        return feeds;
     }
 
     private List<Object> getItemParameters(Feed feed, FeedItem entry) {
@@ -270,7 +280,15 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return parameters;
     }
 
-    public boolean updateFeed(Feed feed, boolean updateMetaInformation) {
+    /**
+     * Update feed in database.
+     * 
+     * @param feed The feed to update
+     * @param updateMetaInformation If <code>true</code>, the feed'd meta information are updated.
+     * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
+     * @return <code>true</code> if (all) update(s) successful.
+     */
+    public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
 
         if (feed.getId() == -1) {
             LOGGER.debug("feed does not exist and is added therefore");
@@ -306,6 +324,25 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         if (updated && updateMetaInformation) {
             updated = updateMetaInformation(feed);
+            if (!updated) {
+                LOGGER.error("Updating meta information for feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + ") failed.");
+            }
+        }
+
+        if (updated && replaceCachedItems) {
+            updated = deleteCachedItemById(feed.getId());
+            if (!updated) {
+                LOGGER.error("Deleting cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + ") failed.");
+            }
+            if (updated) {
+                updated = addCacheItems(feed);
+                if (!updated) {
+                    LOGGER.error("Adding new cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                            + ") failed.");
+                }
+            }
         }
 
         return updated;
@@ -314,7 +351,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Override
     public boolean updateFeed(Feed feed) {
-        return updateFeed(feed, true);
+        return updateFeed(feed, true, true);
     }
 
     public void updateFeedPostDistribution(Feed feed, Map<Integer, int[]> postDistribution) {
@@ -374,5 +411,56 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         return runInsertReturnId(ADD_FEED_POLL, parameters) != -1;
     }
+
+    /**
+     * Add the feed's cached items (item hash and corrected publish date) to database.
+     * 
+     * @param feed
+     * @return true if all items have been added.
+     */
+    private boolean addCacheItems(Feed feed) {
+
+        List<List<Object>> batchArgs = new ArrayList<List<Object>>();
+        Map<String, Date > cachedItems = feed.getCachedItems();
+        for (String hash : cachedItems.keySet()) {
+            List<Object> parameters = new ArrayList<Object>();
+            parameters.add(feed.getId());
+            parameters.add(hash);
+            parameters.add(cachedItems.get(hash));
+            batchArgs.add(parameters);
+        }
+
+        int[] result = runBatchInsertReturnIds(ADD_CACHE_ITEMS, batchArgs);
+
+        return (result.length == cachedItems.size());
+    }
+
+    /**
+     * Get all cached items (hash, publish date) from this feed.
+     * 
+     * @param id The feed id.
+     * @return All cached items (hash, publish date) or empty map if no item is cached. Never <code>null</code>.
+     */
+    private Map<String, Date> getCachedItemsById(int id) {
+        Map<String, Date> cachedItems = new HashMap<String, Date>();
+
+        List<CachedItem> itemList = runQuery(new FeedCacheItemRowConverter(), GET_CACHE_ITEMS_BY_ID, id);
+        for(CachedItem item : itemList){
+            cachedItems.put(item.getHash(), item.getCorrectedPublishDate());
+        }
+
+        return cachedItems;
+    }
+
+    /**
+     * Deletes the feed's cached items (item hash and corrected publish date)
+     * 
+     * @param id the feed whose items are to delete
+     * @return <code>true</code> if items were deleted, <code>false</code> in case of an error.
+     */
+    private boolean deleteCachedItemById(int id) {
+        return runUpdate(DELETE_CACHE_ITEMS_BY_ID, id) >= 0;
+    }
+
 
 }
