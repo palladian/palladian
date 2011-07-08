@@ -33,7 +33,7 @@ public class FeedUrlsNearDuplicateEliminator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedUrlsNearDuplicateEliminator.class);
 
-    // be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor
+    /** Be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor. */
     private static final String[] ATOM = new String[] { "atom10", "atom1.0", "atom_1.0", "atom_10", "atom" };
     private static final String[] RSS = new String[] { "rss_2.0", "rss_200", "rss_20", "rss2.0", "rss200", "rss20", "rss2", "rss" };
 
@@ -61,48 +61,7 @@ public class FeedUrlsNearDuplicateEliminator {
     static {
         compilePattern();
     }
-
-    public static void main(String[] args) {
-
-        // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
-        // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
-        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
-        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
-
-        /** Collect links for each domain. */
-        final Queue<String> linkQueue = new LinkedList<String>();
-
-        LineAction lineAction = new LineAction() {
-
-            String domain = null;
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                if (lineNumber % 10000 == 0) {
-                    LOGGER.info(lineNumber + " lines processed.");
-                }
-                String currentDomain = UrlHelper.getDomain(line);
-                // the current Domain differs from the previous iteration;
-                // do the de-duplication on the URLs in the queue and write them out
-                boolean nextDomain = !currentDomain.equalsIgnoreCase(domain) && domain != null;
-                if (nextDomain) {
-                    List<String> deDuplicated = deDuplicate(linkQueue);
-                    appendFile(outputFile, deDuplicated);
-                    linkQueue.clear();
-                }
-                linkQueue.add(line);
-                domain = currentDomain;
-            }
-        };
-        FileHelper.delete(outputFile);
-        FileHelper.performActionOnEveryLine(inputFile, lineAction);
-
-        // write the rest of the URLs in the queue
-        List<String> deDuplicated = deDuplicate(linkQueue);
-        appendFile(outputFile, deDuplicated);
-
-    }
-
+    
     /**
      * Compiles the pattern. Pattern should look like (?<!\w)(atom10|atom|atom1.0|atom_1.0|atom_10|rss_2.0|rss_200|rss_20|rss2.0|rss200|rss20|rss2|rss)(?!\w)
      */
@@ -231,4 +190,44 @@ public class FeedUrlsNearDuplicateEliminator {
         FileHelper.appendFile(filePath, sb.toString());
     }
 
+    public static void main(String[] args) {
+
+        // final String inputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicatedSorted.txt";
+        // final String outputFile = "/home/pk/Desktop/FeedDiscovery/foundFeedsRemovedNearDuplicates.txt";
+        final String inputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedReachable.txt";
+        final String outputFile = "F:\\Konferenzen und Meetings\\papers_(eigene)\\2011_feedDatasetPaper\\gathering_TUDCS6\\foundFeedsDeduplicatedSortedRemovedUnreachableAndNearDuplicates.txt";
+
+        /** Collect links for each domain. */
+        final Queue<String> linkQueue = new LinkedList<String>();
+
+        LineAction lineAction = new LineAction() {
+
+            String domain = null;
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                if (lineNumber % 10000 == 0) {
+                    LOGGER.info(lineNumber + " lines processed.");
+                }
+                String currentDomain = UrlHelper.getDomain(line);
+                // the current Domain differs from the previous iteration;
+                // do the de-duplication on the URLs in the queue and write them out
+                boolean nextDomain = !currentDomain.equalsIgnoreCase(domain) && domain != null;
+                if (nextDomain) {
+                    List<String> deDuplicated = deDuplicate(linkQueue);
+                    appendFile(outputFile, deDuplicated);
+                    linkQueue.clear();
+                }
+                linkQueue.add(line);
+                domain = currentDomain;
+            }
+        };
+        FileHelper.delete(outputFile);
+        FileHelper.performActionOnEveryLine(inputFile, lineAction);
+
+        // write the rest of the URLs in the queue
+        List<String> deDuplicated = deDuplicate(linkQueue);
+        appendFile(outputFile, deDuplicated);
+
+    }
 }
