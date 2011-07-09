@@ -500,7 +500,6 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
-        String newestHash = newestItemHash;
         if (newestItemHash == null) {
             calculateNewestItemHash();
         }
@@ -510,7 +509,7 @@ public class Feed {
 
     private void calculateNewestItemHash() {
         Map<String, Date> cache = getCachedItems();
-        String tempHash = null;
+        String tempHash = "";
         Date tempDate = null;
 
         for(String hash : cache.keySet()){
