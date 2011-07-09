@@ -949,7 +949,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
 
             }
-            LOGGER.info("changed " + MathHelper.round(100 * changed / annotations.size(), 2)
+            LOGGER.info("changed " + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
                     + "% of the entities using patterns in " + stopWatch.getElapsedTimeString());
 
         }
@@ -1714,10 +1714,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         tagger.setTrainingMode(TrainingMode.Complete);
 
         // create a dictionary from a dictionary txt file
-        // tagger.makeDictionary("dbpediaDict.txt");
+        // tagger.makeDictionary("mergedDictComplete.csv");
 
         // train the tagger on the training file
-        // tagger.train(trainingPath, modelPath);
+        tagger.train(trainingPath, modelPath);
 
         // // using a trained tagger
         // load a trained tagger
@@ -1725,9 +1725,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // load an additional entity dictionary
         StopWatch sw2 = new StopWatch();
-        Dictionary dict = FileHelper.deserialize("dict.ser.gz");
-        LOGGER.info(sw2.getTotalElapsedTimeString());
-        tagger.setEntityDictionary(dict);
+        // Dictionary dict = FileHelper.deserialize("dict.ser.gz");
+        // LOGGER.info(sw2.getTotalElapsedTimeString());
+        // tagger.setEntityDictionary(dict);
 
         // tag a sentence
         String inputText = "Peter J. Johnson lives in New York City in the U.S.A.";

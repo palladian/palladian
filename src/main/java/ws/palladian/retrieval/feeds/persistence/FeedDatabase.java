@@ -288,6 +288,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return <code>true</code> if (all) update(s) successful.
      */
+    @Override
     public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
 
         if (feed.getId() == -1) {
@@ -365,6 +366,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
     }
 
+    @Override
     public boolean updateMetaInformation(Feed feed) {
         List<Object> parameters = new ArrayList<Object>();
 
@@ -395,6 +397,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /**
      * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
      */
+    @Override
     public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
 
         List<Object> parameters = new ArrayList<Object>();

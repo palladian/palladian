@@ -95,7 +95,7 @@ class SchedulerTask extends TimerTask {
 
     private Long lastWakeUpTime = null;
 
-    private HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+    private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
 
     /** By default, do not send error reports via email */
     private static final boolean ERROR_MAIL_NOTIFICATION_DEFAULT = false;
@@ -150,8 +150,8 @@ class SchedulerTask extends TimerTask {
         long currentWakeupTime = System.currentTimeMillis();
         int newlyScheduledFeedsCount = 0;
         int alreadyScheduledFeedCount = 0;
-        StringBuffer scheduledFeedIDs = new StringBuffer();
-        StringBuffer alreadyScheduledFeedIDs = new StringBuffer();
+        StringBuilder scheduledFeedIDs = new StringBuilder();
+        StringBuilder alreadyScheduledFeedIDs = new StringBuilder();
 
         // schedule all feeds
         for (Feed feed : getFeeds()) {
