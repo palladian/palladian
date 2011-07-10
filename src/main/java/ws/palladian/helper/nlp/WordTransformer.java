@@ -310,19 +310,36 @@ public class WordTransformer {
             return "";
         }
 
+        // for composite terms we transform the last word, e.g. "computer mouse" => "computer mice"
+        String prefix = "";
+        String[] parts = singular.split(" ");
+        if (parts.length > 1) {
+            singular = parts[parts.length - 1];
+            if (parts.length > 1) {
+                for (int i = 0; i < parts.length - 1; i++) {
+                    prefix = parts[i] + " ";
+                }
+            }
+        }
+
+
         String plural = singular;
+
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsKey(singular)) {
-            plural = getIrregularNouns().get(singular);
+            String pluralWord = getIrregularNouns().get(singular);
 
             if (StringHelper.startsUppercase(singular)) {
-                plural = StringHelper.upperCaseFirstLetter(plural);
+                pluralWord = StringHelper.upperCaseFirstLetter(pluralWord);
             }
+
+            plural = prefix + pluralWord;
+
             return plural;
         }
 
-        // word must be at least two characters long
+        // word must be at least three characters long
         if (singular.length() < 3) {
             return singular;
         }
@@ -336,24 +353,24 @@ public class WordTransformer {
         if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey")
                 || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
                 || lastTwoLetters.equalsIgnoreCase("uy")) {
-            return singular + "s";
+            return prefix + singular + "s";
         }
 
         // if word ends in a consonant plus -y, change the -y into -ie and add
         // an -s
         if (lastLetter.equalsIgnoreCase("y")) {
-            return singular.substring(0, singular.length() - 1) + "ies";
+            return prefix + singular.substring(0, singular.length() - 1) + "ies";
         }
 
         // if words that end in -is, change the -is to -es
         if (lastTwoLetters.equalsIgnoreCase("is")) {
-            return singular.substring(0, singular.length() - 2) + "es";
+            return prefix + singular.substring(0, singular.length() - 2) + "es";
         }
 
         // if word ends on -s, -z, -x, -ch or -sh end add an -es
         if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x")
                 || lastTwoLetters.equalsIgnoreCase("ch") || lastTwoLetters.equalsIgnoreCase("sh")) {
-            return singular + "es";
+            return prefix + singular + "es";
         }
 
         // some words that end in -f or -fe have plurals that end in -ves
@@ -362,7 +379,7 @@ public class WordTransformer {
         // }
 
         // if no other rule applied just add an s
-        return singular + "s";
+        return prefix + singular + "s";
     }
 
     /**

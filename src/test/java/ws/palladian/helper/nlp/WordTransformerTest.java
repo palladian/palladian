@@ -58,6 +58,8 @@ public class WordTransformerTest extends TestCase {
         assertEquals("vertices", WordTransformer.wordToPlural("vertex", "en"));
         assertEquals("movies", WordTransformer.wordToPlural("movie", "en"));
         assertEquals("status", WordTransformer.wordToPlural("status", "en"));
+        assertEquals("computer mice", WordTransformer.wordToPlural("computer mouse", "en"));
+        assertEquals("computer keys", WordTransformer.wordToPlural("computer key", "en"));
 
         // http://www.esldesk.com/vocabulary/irregular-nouns
         assertEquals("addenda", WordTransformer.wordToPlural("addendum", "en"));
