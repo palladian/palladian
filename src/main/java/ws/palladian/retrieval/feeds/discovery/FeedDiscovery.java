@@ -62,18 +62,14 @@ public class FeedDiscovery {
     /**
      * XPath to get Atom and RSS links; this is relatively complicated to conform to the Atom autodiscovery "standard".
      */
-    private static final String FEED_XPATH = "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
+    private static final String FEED_XPATH = "//link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
             + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
             + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]";
 
     private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
-    
-    // DocumentRetriever is *NOT* thread safe at the moment, although the necessary changes would be minimal,
-    // so we have to instantiate the DocumentRetriever in each thread.
-    
-    // private DocumentRetriever documentRetriever = new DocumentRetriever();
+    private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
     private int searchEngine = WebSearcherManager.BING;
@@ -164,7 +160,6 @@ public class FeedDiscovery {
 
         try {
 
-            DocumentRetriever documentRetriever = new DocumentRetriever();
             document = documentRetriever.getWebDocument(pageUrl);
 
         } catch (Throwable t) {
@@ -197,7 +192,7 @@ public class FeedDiscovery {
             pageUrl = "file:" + pageUrl;
         }
 
-        Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();

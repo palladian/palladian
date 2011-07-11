@@ -67,7 +67,7 @@ public class PageAnalyzer {
     public String getTitle() {
         String title = "";
 
-        String xPath = "//TITLE";
+        String xPath = "//title";
         try {
             xPath = XPathHelper.addXhtmlNsToXPath(document, xPath);
 
@@ -114,9 +114,9 @@ public class PageAnalyzer {
         // check whether there is one more xPath that ends on "th" instead of "td" with the same count
         if (tableParameters[0].length() > 0) {
             int thCount = xPaths
-            .getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "H");
+            .getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h");
             if (thCount == xPaths.getCountOfXPath(tableParameters[0])) {
-                tableParameters[0] = tableParameters[0].substring(0, tableParameters[0].length() - 1) + "H";
+                tableParameters[0] = tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h";
 
                 // if th is found each xPath count points to one row
                 tableParameters[2] = String.valueOf(xPaths.getCountOfXPath(tableParameters[0]));
@@ -136,7 +136,7 @@ public class PageAnalyzer {
      * @return A set of xPaths.
      */
     private XPathSet getXPathSet() {
-        String[] listElements = { "//TD", "//TH" };
+        String[] listElements = { "//td", "//th" };
         XPathSet xPathSet = new XPathSet();
 
         for (String currentXPath : listElements) {
@@ -146,7 +146,7 @@ public class PageAnalyzer {
                 continue;
             }
             for (Node currentNode : results) {
-                String[] rcElements = { "TABLE" };
+                String[] rcElements = { "table" };
                 String xPath = removeXPathIndicesNot(constructXPath(currentNode), rcElements);
                 // System.out.println(pa.constructXPath(currentNode)+" / "+xPath);
                 xPathSet.add(xPath);
@@ -1193,7 +1193,7 @@ public class PageAnalyzer {
         String domain = UrlHelper.getDomain(url, false);
 
         // get value of base element, if present
-        Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
@@ -1201,7 +1201,7 @@ public class PageAnalyzer {
 
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//A/@href");
+        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
         for (int i = 0; i < linkNodes.size(); i++) {
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
@@ -1243,7 +1243,7 @@ public class PageAnalyzer {
     public static String extractTitle(Document webPage) {
         String title = "";
 
-        List<Node> titleNodes = XPathHelper.getXhtmlNodes(webPage, "//TITLE");
+        List<Node> titleNodes = XPathHelper.getXhtmlNodes(webPage, "//title");
         for (Node node : titleNodes) {
             title = node.getTextContent();
             break;
@@ -1259,7 +1259,7 @@ public class PageAnalyzer {
         // System.out.println(extractBodyContent(downloadNotBlacklisted(webPage.getBaseURI()), true));
 
         try {
-            List<Node> titleNodes = XPathHelper.getNodes(webPage, "//BODY");
+            List<Node> titleNodes = XPathHelper.getNodes(webPage, "//body");
             for (Node node : titleNodes) {
                 bodyContent = node.getTextContent();
                 break;
@@ -1277,7 +1277,7 @@ public class PageAnalyzer {
 
         List<String> descriptionWords = new ArrayList<String>();
 
-        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
+        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
             if (metaNode.getAttributes().getNamedItem("name") != null
                     && metaNode.getAttributes().getNamedItem("content") != null
@@ -1310,7 +1310,7 @@ public class PageAnalyzer {
     public static Map<String, String> extractMetaInformation(Document webPage) {
         Map<String, String> metaTags = new HashMap<String, String>();
 
-        List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//META");
+        List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
             if (metaNode.getAttributes().getNamedItem("name") != null
                     && metaNode.getAttributes().getNamedItem("content") != null) {
@@ -1329,7 +1329,7 @@ public class PageAnalyzer {
 
         List<String> keywords = new ArrayList<String>();
 
-        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
+        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
             if (metaNode.getAttributes().getNamedItem("name") != null
                     && metaNode.getAttributes().getNamedItem("content") != null

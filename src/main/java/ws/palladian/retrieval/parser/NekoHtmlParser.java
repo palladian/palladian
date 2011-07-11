@@ -2,8 +2,9 @@ package ws.palladian.retrieval.parser;
 
 import java.io.IOException;
 
+import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.xni.parser.XMLDocumentFilter;
-import org.cyberneko.html.parsers.DOMParser;
+import org.cyberneko.html.HTMLConfiguration;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -23,9 +24,13 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
     @Override
     public Document parse(InputSource inputSource) throws ParserException {
 
-        DOMParser parser = new DOMParser();
+        // DOMParser parser = new DOMParser();
+        // http://nekohtml.sourceforge.net/faq.html#uppercase
+        DOMParser parser = new DOMParser(new HTMLConfiguration());
 
         try {
+
+            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
 
             // experimental fix for http://redmine.effingo.de/issues/5
             // also see: tud.iir.web.CrawlerTest.testNekoWorkarounds()
@@ -39,10 +44,6 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
             parser.setProperty("http://cyberneko.org/html/properties/filters",
                     new XMLDocumentFilter[] { new TBODYFix() });
             // end fix.
-
-            // TODO
-            // http://nekohtml.sourceforge.net/faq.html#uppercase
-            // parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower")
 
             parser.parse(inputSource);
 
