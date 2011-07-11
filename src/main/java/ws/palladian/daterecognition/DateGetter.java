@@ -117,10 +117,6 @@ public class DateGetter {
                 }
                 if (document != null) {
                     if (tech_Meta) {
-                    	mdg.setLookHttpDates(!externHttpDates);
-                    	if(externHttpDates){
-                    		dates.addAll((Collection<? extends T>) httpDates);
-                    	}
                     	mdg.setUrl(url);
                         mdg.setDocument(document);
                         dates.addAll((Collection<? extends T>) mdg.getDates());

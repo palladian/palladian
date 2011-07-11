@@ -72,6 +72,7 @@ public class DateWekaInstanceFactory {
         BufferedReader reader = new BufferedReader(new StringReader(
                 dateInstanceBuffer.toString()));
         try {
+//        	System.out.println(dateInstanceBuffer.toString());
         	Instances instances = new Instances(reader);
         	instances.setClassIndex(0);
             instance = instances.firstInstance();
@@ -87,7 +88,7 @@ public class DateWekaInstanceFactory {
             formatString = changeFormat(formatString);
         }
 
-        String tagNameString = date.getTag();
+        String tagNameString = date.getTag().toUpperCase();
         if (!isNormalTag(tagNameString)) {
             tagNameString = "A";
         }
