@@ -40,7 +40,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
 
         // get the path of the feed's folder and csv file
         String folderPath = DatasetCreator.getFolderPath(feed.getId());
-        String filePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
+        String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
         // LOGGER.debug("saving feed to: " + filePath);
         success = DatasetCreator.createDirectoriesAndCSV(feed);
 
@@ -76,17 +76,19 @@ class DatasetProcessingAction extends FeedProcessingAction {
                 newEntryBuilder.append(string).append("\n");
             }
 
-            DocumentRetriever documentRetriever = new DocumentRetriever();
-            String gzPath = folderPath + pollTimestamp + "_"
-                    + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + ".gz";
-            boolean gzWritten = documentRetriever.saveToFile(httpResult, gzPath, true);
+            boolean gzWritten = writeGZ(httpResult, folderPath, pollTimestamp, "");
 
             LOGGER.debug("Saving new file content: " + newEntriesToWrite.toString());
-            boolean fileWritten = FileHelper.appendFile(filePath, newEntryBuilder);
+            boolean fileWritten = FileHelper.appendFile(csvFilePath, newEntryBuilder);
 
             if (!gzWritten || !fileWritten) {
                 success = false;
             }
+
+            // there is sometimes a weird behavior of some feeds that suddenly seem to change their window size to zero.
+            // In this case, we store the received content for debugging. -- Sandro 11.07.11
+        } else if (feed.hasVariableWindowSize()) {
+            success = writeGZ(httpResult, folderPath, pollTimestamp, "_debug");
         }
 
         boolean metadata = processPollMetadata(feed, httpResult, newItems);
@@ -94,7 +96,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
             success = false;
         }
         
-        LOGGER.debug("added " + newItems + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
+        LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
 
         return success;
     }
@@ -167,28 +169,41 @@ class DatasetProcessingAction extends FeedProcessingAction {
     public boolean performActionOnException(Feed feed, HttpResult httpResult) {
 
         long pollTimestamp = feed.getLastPollTime().getTime();
-        boolean success = false;
         boolean folderCreated = DatasetCreator.createDirectoriesAndCSV(feed);
-
+        boolean gzWritten = false;
         if (folderCreated) {
             String folderPath = DatasetCreator.getFolderPath(feed.getId());
-            String gzPath = folderPath + pollTimestamp + "_"
-                    + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + "_unparsable.gz";
+            gzWritten = writeGZ(httpResult, folderPath, pollTimestamp, "_unparsable");
 
-            DocumentRetriever documentRetriever = new DocumentRetriever();
-            success = documentRetriever.saveToFile(httpResult, gzPath, true);
-            if (success) {
-                LOGGER.debug("Saved unparsable feed to: " + gzPath);
-            } else {
-                LOGGER.error("Could not save unparsable feed to: " + gzPath);
-            }
         }
 
-        processPollMetadata(feed, httpResult, null);
+        boolean metadata = processPollMetadata(feed, httpResult, null);
 
-        return success;
+        return (gzWritten && metadata);
     }
 
+    /**
+     * Write a {@link HttpResult} to compressed file.
+     * 
+     * @param httpResult Result to write.
+     * @param folderPath Path to write file to.
+     * @param pollTimestamp The timestamp the data has been requested.
+     * @param special Optional label to mark poll as unparsable, etc. Set to empty string if not required.
+     * @return <code>true</code> if file has been written.
+     */
+    private boolean writeGZ(HttpResult httpResult, String folderPath, long pollTimestamp, String special) {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        String gzPath = folderPath + pollTimestamp + "_" + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp)
+                + special + ".gz";
+        boolean gzWritten = documentRetriever.saveToFile(httpResult, gzPath, true);
+        if (gzWritten) {
+            LOGGER.debug("Saved " + special + " feed to: " + gzPath);
+        } else {
+            LOGGER.error("Could not save " + special + " feed to: " + gzPath);
+        }
+        return gzWritten;
+    }
+    
     /**
      * Put data to PollMetaInformation, write to database.
      * 
@@ -215,6 +230,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
         return feedStore.addFeedPoll(pollMetaInfo);
     }
     
+
     public static void main(String[] args) throws Exception {
         FeedRetriever fr = new FeedRetriever();
         Feed feed = fr.getFeed("http://www.d3p.co.jp/rss/mobile.rdf");
