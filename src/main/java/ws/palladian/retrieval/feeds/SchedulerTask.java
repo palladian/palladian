@@ -85,10 +85,11 @@ class SchedulerTask extends TimerTask {
      */
     private static final long SCHEDULER_INTERVAL_WARNING_TIME_MS = 2 * DateHelper.MINUTE_MS;
 
-    /**
-     * Count the number of processed feeds per scheduler iteration.
-     */
+    /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
+
+    /** Count the number of feeds that have been blocked during the current scheduler iteration. */
+    private int blockedCounter = 0;
 
     /** Count consecutive delay warnings. */
     private int consecutiveDelays = 0;
@@ -191,9 +192,9 @@ class SchedulerTask extends TimerTask {
 
         String logMsg = String.format("Newly scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d, "
                 + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, "
-                + "wake up interval: %10s",
+                + "blocked: %4d, wake up interval: %10s",
                 newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(), processedCounter, 
-                success, misses, unreachable, unparsable, slow, errors, wakeupInterval);
+                success, misses, unreachable, unparsable, slow, errors, blockedCounter, wakeupInterval);
 
         // error handling
         boolean errorOccurred = false;
@@ -269,6 +270,7 @@ class SchedulerTask extends TimerTask {
 
         // reset logging
         processedCounter = 0;
+        blockedCounter = 0;
         lastWakeUpTime = currentWakeupTime;
         feedResults.clear();
     }
@@ -330,18 +332,21 @@ class SchedulerTask extends TimerTask {
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
+                blockedCounter++;
             } else if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
                 LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
+                blockedCounter++;
             } else if (feed.getChecks() < feed.getUnparsableCount() / CHECKS_TO_UNPARSABLE_RATIO) {
                 LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") has been unparsabls too often and is therefore blocked (never scheduled again)!"
+                        + ") has been unparsable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unparsableCount = " + feed.getUnparsableCount());
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
+                blockedCounter++;
             }
         }
 
