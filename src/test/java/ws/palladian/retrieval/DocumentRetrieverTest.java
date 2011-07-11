@@ -53,22 +53,22 @@ public class DocumentRetrieverTest extends TestCase {
                 3,
                 XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
-                                "/webPages/NekoTableTestcase1.html").getFile()), "//TABLE/TR[1]/TD").size());
+                                "/webPages/NekoTableTestcase1.html").getFile()), "//table/tr[1]/td").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
-                                "/webPages/NekoTableTestcase2.html").getFile()), "//TABLE/TBODY/TR[1]/TD").size());
+                                "/webPages/NekoTableTestcase2.html").getFile()), "//table/tbody/tr[1]/td").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
-                                "/webPages/NekoTableTestcase3.html").getFile()), "//TABLE/TBODY/TR[1]/TD").size());
+                                "/webPages/NekoTableTestcase3.html").getFile()), "//table/tbody/tr[1]/td").size());
         assertEquals(
                 3,
                 XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(DocumentRetrieverTest.class.getResource(
-                                "/webPages/NekoTableTestcase4.html").getFile()), "//TABLE/TR[1]/TD").size());
+                                "/webPages/NekoTableTestcase4.html").getFile()), "//table/tr[1]/td").size());
 
     }
 

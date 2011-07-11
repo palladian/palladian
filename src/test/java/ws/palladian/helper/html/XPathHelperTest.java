@@ -35,13 +35,13 @@ public class XPathHelperTest {
         Document doc = crawler.getWebDocument(XPathHelperTest.class.getResource("/webPages/NekoTableTestcase1.html")
                 .getFile());
 
-        List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//TABLE/TR");
+        List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//table/tr");
         assertEquals(3, rows.size());
 
         for (Node row : rows) {
 
             // iterate over TDs
-            List<Node> cells = XPathHelper.getXhtmlChildNodes(row, "//TD"); // does not work EDIT: now it does
+            List<Node> cells = XPathHelper.getXhtmlChildNodes(row, "//td"); // does not work EDIT: now it does
             assertEquals(3, cells.size());
 
             cells = XPathHelper.getXhtmlChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.

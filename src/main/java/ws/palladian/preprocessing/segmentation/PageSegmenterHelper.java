@@ -22,54 +22,6 @@ import ws.palladian.helper.UrlHelper;
 public class PageSegmenterHelper {
 
     /**
-     * Sorts a map by its double values.
-     * 
-     * @param map A map of documents combined with their respective quantities as values.
-     * @return A map sorted by its values.
-     */
-//    public static Map<Document, Double> sortMapByDoubleValues(final Map<Document, Double> map) {
-//        Comparator<Document> valueComparator = new Comparator<Document>() {
-//            @Override
-//            public int compare(Document k1, Document k2) {
-//                int compare = map.get(k2).compareTo(map.get(k1));
-//                if (compare == 0) {
-//                    return 1;
-//                } else {
-//                    return compare;
-//                }
-//            }
-//        };
-//
-//        Map<Document, Double> sortedByValues = new TreeMap<Document, Double>(valueComparator);
-//        sortedByValues.putAll(map);
-//        return sortedByValues;
-//    }
-
-    /**
-     * Sorts a map by its integer values.
-     * 
-     * @param map A map of keys combined with their respective quantities as values.
-     * @return A map sorted by its values.
-     */
-//    public static Map<String, Integer> sortMapByIntegerValues(final Map<String, Integer> map) {
-//        Comparator<String> valueComparator = new Comparator<String>() {
-//            @Override
-//            public int compare(String k1, String k2) {
-//                int compare = map.get(k2).compareTo(map.get(k1));
-//                if (compare == 0) {
-//                    return 1;
-//                } else {
-//                    return compare;
-//                }
-//            }
-//        };
-//
-//        Map<String, Integer> sortedByValues = new TreeMap<String, Integer>(valueComparator);
-//        sortedByValues.putAll(map);
-//        return sortedByValues;
-//    }
-
-    /**
      * Limits a map in size.
      * 
      * @param map The map to limit.
@@ -128,21 +80,6 @@ public class PageSegmenterHelper {
 
         return doc;
     }
-
-    /**
-     * Help function to get the source code of an URL as string.
-     * 
-     * @param URL The URL to get the source code from.
-     * @return The source code of the URL as string.
-     */
-//    public static String getContentOfURL(String URL) {
-//        Crawler c = new Crawler();
-//        Document d = c.getWebDocument(URL);
-//
-//        String dText = Crawler.documentToString(d);
-//
-//        return dText;
-//    }
 
     /**
      * Gets the label of an URL. The label is assumed as the first separate string after the

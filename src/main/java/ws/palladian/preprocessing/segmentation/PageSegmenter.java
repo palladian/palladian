@@ -275,7 +275,7 @@ public class PageSegmenter {
         String webpage = c2.getTextDocument(storeLocation);
         String newStoreLocation = storeLocation.substring(0, storeLocation.length() - 5) + "_test.html";
 
-        String[] tagsToFix = { "SCRIPT", "IFRAME", "TEXTAREA" };
+        String[] tagsToFix = { "script", "iframe", "textarea" };
         for (String tag : tagsToFix) {
             int start = 0;
             while (start < webpage.length()) {
@@ -803,8 +803,8 @@ public class PageSegmenter {
 
             String xp = mutual;
             LOGGER.info(xp.substring(xp.lastIndexOf("/") + 1, xp.length()));
-            if (xp.substring(xp.lastIndexOf("/") + 1, xp.length()).equals("TR")) {
-                xp = xp + "/TD";
+            if (xp.substring(xp.lastIndexOf("/") + 1, xp.length()).equals("tr")) {
+                xp = xp + "/td";
             }
             List<Node> list = XPathHelper.getXhtmlNodes(document, xp);
             LOGGER.info("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
@@ -876,7 +876,7 @@ public class PageSegmenter {
 
             // returns a list of xpaths of all conflict and a second of all non-conflict nodes of the actual compare
             List[] allNodes = compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(), maxDepth,
-                    "/HTML/BODY");
+                    "/html/body");
 
             LOGGER.info(allNodes[0].size() + "-" + conflictNodes.size() + "="
                     + (allNodes[0].size() - conflictNodes.size()) + " zu " + conflictNodes.size() * 50 / 100);
