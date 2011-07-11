@@ -96,7 +96,7 @@ public class Feed {
     /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
     private int updateMode = Feed.MIN_DELAY;
 
-    /** Our internal hash of the most recent item */
+    /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
     private String newestItemHash = null;
 
     /** number of times the feed was checked but could not be found. */
@@ -506,10 +506,13 @@ public class Feed {
         return newestItemHash;
     }
 
-
+    /**
+     * Calculates and sets the hash of the newest item. In case we haven't seen any items so far, there is no hash so we
+     * set <code>null</code>.
+     */
     private void calculateNewestItemHash() {
         Map<String, Date> cache = getCachedItems();
-        String tempHash = "";
+        String tempHash = null;
         Date tempDate = null;
 
         for(String hash : cache.keySet()){
