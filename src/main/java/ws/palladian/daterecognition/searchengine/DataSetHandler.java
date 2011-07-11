@@ -594,9 +594,20 @@ public class DataSetHandler{
 		return classificationMap;
 	}
 	
-	public static void writeInDB(String table, String url, int compare, String round){
+	public static void writeInDB(String table, String url, double compare, String round){
     	DataSetHandler.openConnection();
     	String sqlQuery ="INSERT INTO " + table + " (url, " + round + ") VALUES ('"+ url + "','" + compare + "') ON DUPLICATE KEY UPDATE " + round + "='" + compare + "'";
+    	try {
+			DataSetHandler.st.executeUpdate(sqlQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	DataSetHandler.closeConnection();
+    }
+	
+	public static void writeInDB(String table, String url, double rate, String edDate, String wpDate){
+    	DataSetHandler.openConnection();
+    	String sqlQuery ="INSERT INTO " + table + " (url, wpDate, edDate, rate) VALUES ('"+ url + "','" + wpDate + "','" + edDate  + "','" + rate + "')";
     	try {
 			DataSetHandler.st.executeUpdate(sqlQuery);
 		} catch (SQLException e) {

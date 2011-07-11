@@ -537,7 +537,6 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
     @Test
     public void testGetContentDates2() {
         final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
@@ -591,8 +590,8 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void testGetReferenceDates() {
         String url = "http://www.spiegel.de/index.html";
         // String url = "data/test/webPages/dateExtraction/kullin.htm";
@@ -667,8 +666,8 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void testFindRelativeDate() {
         String text = "5 days ago";
         ExtractedDate relDate = DateGetterHelper.findRelativeDate(text);

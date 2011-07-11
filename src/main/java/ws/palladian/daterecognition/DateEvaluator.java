@@ -21,6 +21,7 @@ import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.ReferenceDateRater;
 import ws.palladian.daterecognition.technique.StructureDateRater;
 import ws.palladian.daterecognition.technique.UrlDateRater;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.DateComparator;
@@ -82,6 +83,7 @@ public class DateEvaluator {
         setPubMod(pub_mod);
     }
 
+
     private void setPubMod(PageDateType pub_mod) {
         mdr = new MetaDateRater(pub_mod);
         udr = new UrlDateRater(pub_mod);
@@ -101,8 +103,7 @@ public class DateEvaluator {
      * techniques.
      * 
      * @param <T>
-     * @param extractedDates
-     *            ArrayList of ExtractedDates.
+     * @param extractedDates ArrayList of ExtractedDates.
      * @return HashMap of dates, with rate as value.
      */
     @SuppressWarnings("unchecked")

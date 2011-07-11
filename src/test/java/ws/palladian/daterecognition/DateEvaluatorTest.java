@@ -7,6 +7,7 @@ import org.junit.Test;
 import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;
 
 public class DateEvaluatorTest {
@@ -33,9 +34,13 @@ public class DateEvaluatorTest {
 //            url= "http://www.lvz-online.de/ratgeber/content/30258214_mldg.html";
 //            System.out.println(url);
             url= "http://www.drivechicago.com/reviews/review.aspx?review=173";
+            url= "http://www.bbv-net.de/lokales/muenster/nachrichten/1541662_Dschihad_heisst_nicht_Terror.html";
+            url="http://www.journal-frankfurt.de/?src=journal_news_einzel&rubrik=10&id=13070";
+//            url="http://www.aegypten-online.de/aegypten-themen/blog/artikel/date/2011/05/03/title/nach-tod-von-osama-bin-laden-aegypten-erhoeht-sicherheit-fuer-touristen-00184.htm";
             ae.setUrl(url);
             ae.evaluate();
             System.out.println(ae.getBestRatedDate());
+//            System.out.println(ae.getAllDates());
         }
     }
 

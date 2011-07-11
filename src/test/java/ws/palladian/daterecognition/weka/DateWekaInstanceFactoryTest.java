@@ -24,7 +24,6 @@ public class DateWekaInstanceFactoryTest {
 		assertThat(isNull(instance), is(false));
 	}
 	
-	@Ignore
 	@Test
 	public void testDatefeaturesToString() {
 		ContentDate date = getTestDate();
@@ -57,7 +56,7 @@ public class DateWekaInstanceFactoryTest {
 
 		assertThat(
 				dateString,
-				is("0,0,0,0.375,0.75,0.5,1,0,0.8,0,0,P,0,0,0,0.25,0.01,4840,6042,14113,'MMMM DD, YYYY',create,3,0,1,1,0,0"));
+				is("0.0,0.0,0.0,0.375,0.75,0.5,1,0,0.8,0.0,0.0,P,0.0,0.0,0.0,0.25,0.01,4840,6042,-1,14113,'MMMM DD, YYYY',create,3,0.0,1.0,1.0,0.0,0.0"));
 	}
 
 	private boolean isNull(Object obj){

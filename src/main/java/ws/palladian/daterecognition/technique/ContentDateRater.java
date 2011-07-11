@@ -10,6 +10,7 @@ import weka.core.SerializationHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 /**
@@ -77,11 +78,9 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 		}
 		
 		for (ContentDate date : list) {
-//			if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
-//				returnDates.put(date, 1.0);
-//			} else if(date.isInMetaDates()){
-//				returnDates.put(date, 0.99);
-//			} else{
+			if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
+				returnDates.put(date, 1.0);
+			} else{
 				Instance instance = dwif.getDateInstanceByArffTemplate(date);
 				try {
 					double[] dbl = this.classifier
@@ -94,7 +93,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 				}
 			}
 
-//		}
+		}
 		return returnDates;
 	}
 }

@@ -17,7 +17,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentDateGetterTest {
 
-	@Ignore
 	@Test
 	public void testSplit(){
 		String text = "a d";
@@ -91,7 +90,6 @@ public class ContentDateGetterTest {
 		
 	}
 	
-	@Ignore
 	@Test
 	public void testGetFindAllDatesTime(){
 		String text = "";

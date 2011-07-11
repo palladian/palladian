@@ -21,7 +21,7 @@ import ws.palladian.daterecognition.dates.ExtractedDate;
  * @param <T>
  */
 public class RatedDateComparator<T> implements Comparator<T> {
-
+	
     @Override
     public int compare(T date1, T date2) {
         int result = compareRate((ExtractedDate) date1, (ExtractedDate) date2);

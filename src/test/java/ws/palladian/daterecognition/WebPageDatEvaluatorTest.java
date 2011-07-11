@@ -20,12 +20,12 @@ import ws.palladian.control.AllTests;
 public class WebPageDatEvaluatorTest {
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluator#getBestRatedDate()}.
+     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getBestRatedDate()}.
      */
 
     @Test
     public void testGetBestRatedDate() {
-        if (AllTests.ALL_TESTS) {
+    if (AllTests.ALL_TESTS) {
             String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
             WebPageDateEvaluator wpde = new WebPageDateEvaluator();
             wpde.setUrl(url);
@@ -45,10 +45,9 @@ public class WebPageDatEvaluatorTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluator#getAllBestRatedDate()}.
+     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getAllBestRatedDate()}.
      */
     @Test
-    @Ignore
     public void testGetAllBestRatedDate() {
         String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
@@ -69,10 +68,9 @@ public class WebPageDatEvaluatorTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluator#getAllDates()}.
+     * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getAllDates()}.
      */
     @Test
-    @Ignore
     public void testGetAllDates() {
         String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
