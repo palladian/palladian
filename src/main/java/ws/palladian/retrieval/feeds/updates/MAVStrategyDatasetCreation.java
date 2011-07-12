@@ -35,8 +35,17 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
 
         double averagePostGap = fps.getAveragePostGap();
         if (averagePostGap <= 0D) {
-            // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
-            minCheckInterval = getHighestUpdateInterval();
+
+            // There is sometimes a weird behavior of some feeds that suddenly change their window size to zero.
+            // In this case, we double the checkInterval that was used in the last check. We add one since the interval
+            // may be zero.
+            if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
+                minCheckInterval = 2 * feed.getUpdateInterval() + 1;
+
+                // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
+            } else {
+                minCheckInterval = getHighestUpdateInterval();
+            }
         } else if (hasNewItem) {
             minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
             // maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);

@@ -87,7 +87,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
 
             // there is sometimes a weird behavior of some feeds that suddenly seem to change their window size to zero.
             // In this case, we store the received content for debugging. -- Sandro 11.07.11
-        } else if (feed.hasVariableWindowSize()) {
+        } else if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
             success = writeGZ(httpResult, folderPath, pollTimestamp, "_debug");
         }
 
