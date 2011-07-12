@@ -2,6 +2,8 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -19,6 +21,9 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
  * 
  */
 public class MAVStrategyDatasetCreation extends UpdateStrategy {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(MAVStrategyDatasetCreation.class);
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
@@ -41,6 +46,8 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
             // may be zero.
             if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
                 minCheckInterval = 2 * feed.getUpdateInterval() + 1;
+                LOGGER.warn("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                        + ") changed its windowSize to 0. Try to double checkInterval.");
 
                 // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
             } else {
