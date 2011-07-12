@@ -1,7 +1,5 @@
 package ws.palladian.daterecognition;
 
-import java.util.HashSet;
-
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -24,8 +22,8 @@ public final class KeyWords {
 	public static final byte MODIFIED_KEYWORD = 2;
 	public static final byte OTHER_KEYWORD = 3;
 
-	/** Keyowrds found in HTTP-header. */
-	public static final String[] HTPP_KEYWORDS = { "date", "Date", "DATE",
+    /** Keywords found in HTTP-header. */
+	public static final String[] HTTP_KEYWORDS = { "date", "Date", "DATE",
 			"last-modified", "Last-Modified", "Last-modified", "LAST-MODIFIED" };
 
 	/** Keywords found in HTTP header of connections. */

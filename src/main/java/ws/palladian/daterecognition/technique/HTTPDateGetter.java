@@ -35,7 +35,7 @@ public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
 
     /**
      * Extracts date form HTTP-header.<br>
-     * Look up only in tags with keywords of {@link KeyWords#HTPP_KEYWORDS}.
+     * Look up only in tags with keywords of {@link KeyWords#HTTP_KEYWORDS}.
      * 
      * @param url
      * @return The extracted Date.
@@ -47,7 +47,7 @@ public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
         if(url.indexOf("http") != -1){
         	headers = crawler.getHeaders(url);
         }
-        String[] keywords = KeyWords.HTPP_KEYWORDS;
+        String[] keywords = KeyWords.HTTP_KEYWORDS;
         for (int i = 0; i < keywords.length; i++) {
             ArrayList<MetaDate> temp = checkHttpTags(keywords[i], headers);
             if (temp != null) {
