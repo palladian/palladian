@@ -687,6 +687,10 @@ public class WordDB {
         word = wordDB.getWord("Notebook");
         wordDB.aggregateInformation(word);
         LOGGER.info(word);
+        
+        word = wordDB.getWord("Walkman");
+        wordDB.aggregateInformation(word);
+        LOGGER.info(word);
 
         LOGGER.info(sw.getElapsedTimeString());
         LOGGER.info(sw.getTotalElapsedTimeString());
