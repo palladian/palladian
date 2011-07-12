@@ -157,7 +157,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
                     // store http header information
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
-                    feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified"));
+                    feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified", false));
 
                     FeedRetriever feedRetriever = new FeedRetriever();
                     Feed downloadedFeed = null;
