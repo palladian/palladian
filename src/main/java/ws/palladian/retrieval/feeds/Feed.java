@@ -237,6 +237,7 @@ public class Feed {
         List<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
         setNewestItemHash(null);
+        setLastFeedEntry(null);
         
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
@@ -260,6 +261,7 @@ public class Feed {
             items = new ArrayList<FeedItem>();
         }
         setNewestItemHash(null);
+        setLastFeedEntry(null);
         items.add(item);
         item.setFeed(this);
 
@@ -501,16 +503,16 @@ public class Feed {
      */
     public String getNewestItemHash() {
         if (newestItemHash == null) {
-            calculateNewestItemHash();
+            calculateNewestItemHashAndDate();
         }
         return newestItemHash;
     }
 
     /**
-     * Calculates and sets the hash of the newest item. In case we haven't seen any items so far, there is no hash so we
-     * set <code>null</code>.
+     * Calculates and sets the hash of the newest item and its corrected publish date. In case we haven't seen any items
+     * so far, there is no hash or date so we set them to <code>null</code>.
      */
-    private void calculateNewestItemHash() {
+    private void calculateNewestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
         String tempHash = null;
         Date tempDate = null;
@@ -521,6 +523,7 @@ public class Feed {
                 tempHash = hash;
             }
         }
+        lastFeedEntry = tempDate;
         newestItemHash = tempHash;
     }
 
@@ -570,10 +573,17 @@ public class Feed {
     }
 
     public Date getLastFeedEntry() {
+        if (lastFeedEntry == null) {
+            calculateNewestItemHashAndDate();
+        }
         return lastFeedEntry;
     }
 
     public Timestamp getLastFeedEntrySQLTimestamp() {
+        if (lastFeedEntry == null) {
+            calculateNewestItemHashAndDate();
+        }
+
         if (lastFeedEntry != null) {
             return new Timestamp(lastFeedEntry.getTime());
         }
