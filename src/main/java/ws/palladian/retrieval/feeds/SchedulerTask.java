@@ -113,6 +113,24 @@ class SchedulerTask extends TimerTask {
     /** Number of Feeds that are expected to be processed per minute */
     private static int HIGH_LOAD_THROUGHPUT = 0;
 
+    /** 2 percent of the feeds processed per interval are allowed to be unreachable */
+    private static final int MAX_UNREACHABLE_PERCENTAGE_DEFAULT = 2;
+
+    /** This many percent of the feeds processed per interval are allowed to be unreachable */
+    private static int maxUnreachablePercentage = MAX_UNREACHABLE_PERCENTAGE_DEFAULT;
+
+    /** 2 percent of the feeds processed per interval are allowed to be unparsable. */
+    private static final int MAX_UNPARSABLE_PERCENTAGE_DEFAULT = 2;
+
+    /** This many percent of the feeds processed per interval are allowed to be unparsable. */
+    private static int maxUnparsablePercentage = MAX_UNREACHABLE_PERCENTAGE_DEFAULT;
+
+    /** 10 percent of the feeds processed per interval are allowed to be slow. */
+    private static final int MAX_SLOW_PERCENTAGE_DEFAULT = 10;
+
+    /** This many percent of the feeds processed per interval are allowed to be slow. */
+    private static int maxSlowPercentage = MAX_SLOW_PERCENTAGE_DEFAULT;
+
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
@@ -134,6 +152,11 @@ class SchedulerTask extends TimerTask {
             errorMailNotification = config.getBoolean("schedulerTask.errorMailNotification",
                     ERROR_MAIL_NOTIFICATION_DEFAULT);
             emailRecipient = config.getString("schedulerTask.emailRecipient", EMAIL_RECEIPIENT_DEFAULT);
+            maxSlowPercentage = config.getInt("schedulerTask.maxSlowPercentage", MAX_SLOW_PERCENTAGE_DEFAULT);
+            maxUnreachablePercentage = config.getInt("schedulerTask.maxUnreachablePercentage",
+                    MAX_UNREACHABLE_PERCENTAGE_DEFAULT);
+            maxUnparsablePercentage = config.getInt("schedulerTask.maxUnparsablePercentage",
+                    MAX_UNPARSABLE_PERCENTAGE_DEFAULT);
 
         }
 
@@ -211,19 +234,19 @@ class SchedulerTask extends TimerTask {
         }
 
         // max 10% of the feeds, but at least 10 feeds are allowed to be slow
-        if (slow > Math.max(10, processedCounter / 10)) {
+        if (slow > Math.max(10, maxSlowPercentage * processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds with long processing time. ");
         }
 
-        // max 2% of the feeds, but at least 10 feeds are allowed to be unreachable
-        if (unreachable > Math.max(10, 2 * processedCounter / 100)) {
+        // max 3% of the feeds, but at least 10 feeds are allowed to be unreachable
+        if (unreachable > Math.max(10, maxUnreachablePercentage * processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds are unreachable. ");
         }
 
-        // max 1% of the feeds, but at least 10 feeds are allowed to be unparsable
-        if (unparsable > Math.max(10, processedCounter / 100)) {
+        // max 3% of the feeds, but at least 10 feeds are allowed to be unparsable
+        if (unparsable > Math.max(10, maxUnparsablePercentage * processedCounter / 100)) {
             errorOccurred = true;
             detectedErrors.append("Too many feeds are unparsable. ");
         }

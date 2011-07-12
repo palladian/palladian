@@ -1,5 +1,6 @@
-config.version = 8
+config.version = 9
 ### version history:
+### 9: SchedulerTask fine tuning monitoring 
 ### 8: model path to English and German wiktionary DB
 ### 7: errorMailNotification in SchedulerTask
 ### 6: renamed configuration options for ProxySwitcher
@@ -157,6 +158,19 @@ feedReader.checkSystemLimitations=true
 
 # if true, detected errors will be send by mail 
 schedulerTask.errorMailNotification=false 
+
+# The receipient of email notifications.
+#schedulerTask.emailRecipient
+
+# This many percent of the feeds processed per interval are allowed to be slow.
+schedulerTask.maxSlowPercentage = 10
+
+# This many percent of the feeds processed per interval are allowed to be unparsable.
+schedulerTask.maxUnparsablePercentage = 2
+
+# This many percent of the feeds processed per interval are allowed to be unreachable.
+schedulerTask.maxUnreachablePercentage = 2
+
 ######################## Page Segmentation ########################
 
 # length of q-grams
