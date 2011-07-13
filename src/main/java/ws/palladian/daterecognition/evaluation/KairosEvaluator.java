@@ -318,8 +318,6 @@ public class KairosEvaluator {
 			wpde.setUrl(url);
 			wpde.setDocument(c.getWebDocument(entry.getValue().getFilePath()));
 			wpde.setPubMod(pageDateType);
-			wpde.setHttpDates(getHttpDates(entry.getValue()));
-			wpde.setActualDate(getDownloadedDate(entry.getValue()));
 			wpde.evaluate();
 			ExtractedDate bestDate = wpde.getBestRatedDate();
 
@@ -359,7 +357,6 @@ public class KairosEvaluator {
 				// System.out.println(sqlQuery);
 				DataSetHandler.st.executeUpdate(sqlQuery);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			DataSetHandler.closeConnection();
@@ -440,8 +437,6 @@ public class KairosEvaluator {
 			wp.setUrl(url);
 			wp.setDocument(document);
 			wp.setPubMod(pub_mod);
-			wp.setHttpDates(getHttpDates(e.getValue()));
-			wp.setActualDate(getDownloadedDate(e.getValue()));
 			wp.evaluate();
 			bestDate = (T) wp.getBestRatedDate();
 			time += timer.getElapsedTime();
@@ -563,7 +558,6 @@ public class KairosEvaluator {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		DataSetHandler.closeConnection();

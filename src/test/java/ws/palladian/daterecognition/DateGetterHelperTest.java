@@ -13,8 +13,10 @@ import ws.palladian.control.AllTests;
 import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.MetaDate;
+import ws.palladian.daterecognition.dates.StructureDate;
 import ws.palladian.daterecognition.technique.HTTPDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
+import ws.palladian.daterecognition.technique.StructureDateGetter;
 import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -471,10 +473,9 @@ public class DateGetterHelperTest {
             // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
-            DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
-            dateGetter.setTechHTMLStruct(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            StructureDateGetter dateGetter = new StructureDateGetter();
+            dateGetter.setUrl(url);
+            ArrayList<StructureDate> dates = dateGetter.getDates();
             date.addAll(dates);
             Iterator<ExtractedDate> dateIterator = date.iterator();
             int index = 0;
@@ -496,10 +497,9 @@ public class DateGetterHelperTest {
 
             if (!AllTests.ALL_TESTS) {
                 ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-                DateGetter dateGetter = new DateGetter(url);
-                dateGetter.setAllFalse();
-                dateGetter.setTechHTMLStruct(true);
-                ArrayList<ExtractedDate> dates = dateGetter.getDate();
+                StructureDateGetter dateGetter = new StructureDateGetter();
+                dateGetter.setUrl(url);
+                ArrayList<StructureDate> dates = dateGetter.getDates();
                 date.addAll(dates);
                 DateArrayHelper.printDateArray(date);
             }
@@ -527,7 +527,6 @@ public class DateGetterHelperTest {
                 // date.addAll(DateGetterHelper
                 // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
                 DateGetter dateGetter = new DateGetter(url);
-                dateGetter.setAllFalse();
                 dateGetter.setTechHTMLContent(true);
                 ArrayList<ExtractedDate> dates = dateGetter.getDate();
                 date.addAll(dates);
@@ -547,7 +546,6 @@ public class DateGetterHelperTest {
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
@@ -563,9 +561,6 @@ public class DateGetterHelperTest {
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllTrue();
-            dateGetter.setTechReference(false);
-            dateGetter.setTechArchive(false);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             DateArrayHelper.printDateArray(date, DateType.ContentDate);
@@ -579,10 +574,7 @@ public class DateGetterHelperTest {
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
-            dateGetter.setTechHTMLStruct(false);
-            dateGetter.setTechReference(false);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             DateArrayHelper.printDateArray(date);
@@ -590,27 +582,6 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Test
-    @Ignore
-    public void testGetReferenceDates() {
-        String url = "http://www.spiegel.de/index.html";
-        // String url = "data/test/webPages/dateExtraction/kullin.htm";
-
-        if (AllTests.ALL_TESTS) {
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            // date.addAll(DateGetterHelper
-            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
-            // date.addAll(DateGetterHelper
-            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
-            DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
-            dateGetter.setTechReference(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
-            date.addAll(dates);
-            DateArrayHelper.printDateArray(date);
-
-        }
-    }
 
     @Test
     public void testGetHeadDates2() {
@@ -654,17 +625,6 @@ public class DateGetterHelperTest {
 
     }
 
-    @Test
-    public void testArchiveDate() {
-        if (AllTests.ALL_TESTS) {
-            String url = "http://www.spiegel.de";
-            DateGetter dg = new DateGetter(url);
-            dg.setAllFalse();
-            dg.setTechArchive(true);
-            ArrayList<ExtractedDate> dates = dg.getDate();
-            DateArrayHelper.printDateArray(dates);
-        }
-    }
 
     @Test
     @Ignore
