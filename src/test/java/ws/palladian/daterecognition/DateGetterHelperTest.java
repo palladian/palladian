@@ -536,6 +536,7 @@ public class DateGetterHelperTest {
         }
     }
 
+    @Ignore
     @Test
     public void testGetContentDates2() {
         final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
