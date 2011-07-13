@@ -89,7 +89,7 @@ public class ClassifierEvaluator {
 
                 ClassifierPerformanceResult averagedPerformance = averageClassifierPerformances(performances);
 
-                evaluationMatrix.set(dataset.getName(), classifier.toString(), averagedPerformance);
+                evaluationMatrix.set(dataset.getName(), classifier.getName(), averagedPerformance);
             }
 
             // free memory by resetting the classifier (training and test documents will be deleted)
