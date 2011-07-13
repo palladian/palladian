@@ -2,7 +2,6 @@ package ws.palladian.daterecognition;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.logging.MemoryHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

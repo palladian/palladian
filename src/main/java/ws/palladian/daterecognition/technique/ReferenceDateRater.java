@@ -51,8 +51,6 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      */
     private HashMap<ReferenceDate, Double> getRefDates() {
         DateGetter dg = new DateGetter(url);
-        dg.setAllFalse();
-        dg.setTechReference(true);
 
         ReferenceDateGetter rdg = new ReferenceDateGetter();
         rdg.setUrl(url);

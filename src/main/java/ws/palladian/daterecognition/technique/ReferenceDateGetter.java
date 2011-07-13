@@ -59,8 +59,6 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
         if (document != null) {
             Iterator<String> linksTo = PageAnalyzer.getLinks(document, true, true).iterator();
             DateGetter dateGetter = new DateGetter();
-            dateGetter.setTechReference(false);
-            dateGetter.setTechArchive(false);
 
             DateComparator dc = new DateComparator();
             DateEvaluator de = new DateEvaluator(PageDateType.publish);

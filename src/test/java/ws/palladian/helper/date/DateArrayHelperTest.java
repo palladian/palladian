@@ -22,9 +22,7 @@ public class DateArrayHelperTest {
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllTrue();
-            dateGetter.setTechArchive(false);
-            dateGetter.setTechReference(false);
+            
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
@@ -86,9 +84,7 @@ public class DateArrayHelperTest {
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllTrue();
-            dateGetter.setTechArchive(false);
-            dateGetter.setTechReference(false);
+
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             ArrayList<ArrayList<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date);

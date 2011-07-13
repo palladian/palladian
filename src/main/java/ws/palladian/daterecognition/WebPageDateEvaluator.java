@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.daterecognition.dates.DateType;
 import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.technique.PageDateType;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.helper.date.RatedDateComparator;
 
@@ -33,16 +34,6 @@ public class WebPageDateEvaluator {
 
 	private String url;
 	private Document document;
-	private boolean reference = false;
-	private boolean archive = false;
-
-	private ArrayList<MetaDate> httpDates;
-
-	private ExtractedDate actualDate;
-
-	public void setHttpDates(ArrayList<MetaDate> httpDates) {
-		this.httpDates = httpDates;
-	}
 
 	public void setPubMod(PageDateType pub_mod) {
 		this.dr = new DateEvaluator(pub_mod);
@@ -75,9 +66,11 @@ public class WebPageDateEvaluator {
 
 	/**
 	 * Look up for all dates of webpage and rate them.<br>
-	 * Writes results in list, get it by getter-methods.
+	 * Writes results in list, get it by getter-methods.<br><br>
+	 * Uses url of document. <br>
+	 * If you like to use different urls and documents use setters.
 	 * 
-	 * @param url
+	 * @param doc
 	 *            for webpage.
 	 */
 	public void evaluate(Document doc) {
@@ -98,23 +91,10 @@ public class WebPageDateEvaluator {
 				dg.setDocument(document);
 			}
 			dg.setURL(url);
-			dg.setTechReference(reference);
-			dg.setTechArchive(archive);
-			
-			if(httpDates != null){
-				dg.setHttpDates(httpDates);
-			}
 			ArrayList<ExtractedDate> dates = dg.getDate();
-			if (actualDate != null) {
-				dr.setActualDate(actualDate);
-			}
 			HashMap<ExtractedDate, Double> ratedDates = dr.rate(dates);
 			this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
 		}
-	}
-
-	public void setActualDate(ExtractedDate actualDate) {
-		this.actualDate = actualDate;
 	}
 
 	/**
@@ -131,6 +111,13 @@ public class WebPageDateEvaluator {
 		return getBestRatedDate(-1);
 	}
 
+	/**
+	 * Returns the best rated date that is over a limit.
+	 * @param limit Minimum confidence of best rated date. <br>
+	 * Use '-1' for a fix set limits, depending on number of dates of a webpage.
+	 * @return The best rated date. <br>
+	 *  Returns <b>null</b> if there is no date or rate of best date is below the limit.
+	 */
 	public ExtractedDate getBestRatedDate(double limit) {
 		ExtractedDate result = null;
 		if (list != null && list.size() > 0) {
@@ -138,27 +125,28 @@ public class WebPageDateEvaluator {
 			Collections.sort(orderedList,
 					new RatedDateComparator<ExtractedDate>());
 			ExtractedDate date = orderedList.get(0);
-			// NEW
 			if (limit < 0) {
 				DateType dateType = date.getType();
 				if (dateType.equals(DateType.ContentDate)) {
+					ConfigHolder configHolder = ConfigHolder.getInstance();
+					PropertiesConfiguration config = configHolder.getConfig();
 					double size = 1 / ((ContentDate) date).getRelSize();
 					if (0 < size && size <= 1) {
-						limit = 0.15;
+						limit = config.getDouble("threshold.group1");
 					} else if (1 < size && size <= 2) {
-						limit = 0.24;
+						limit = config.getDouble("threshold.group2");
 					} else if (2 < size && size <= 3) {
-						limit = 0.18;
+						limit = config.getDouble("threshold.group3");
 					} else if (3 < size && size <= 5) {
-						limit = 0.16;
+						limit = config.getDouble("threshold.group4");
 					} else if (5 < size && size <= 10) {
-						limit = 0.14;
+						limit = config.getDouble("threshold.group5");
 					} else if (10 < size && size <= 20) {
-						limit = 0.13;
+						limit = config.getDouble("threshold.group6");
 					} else if (20 < size && size <= 50) {
-						limit = 0.17;
+						limit = config.getDouble("threshold.group7");
 					} else if (50 < size) {
-						limit = 0.26;
+						limit = config.getDouble("threshold.group8");
 					}
 				} else {
 					limit = 0;
@@ -169,132 +157,6 @@ public class WebPageDateEvaluator {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param externalSearch
-	 * @return
-	 */
-	public static ExtractedDate getBestRatedDate(String url,
-			boolean externalSearch) {
-		return getBestRatedDate(url, externalSearch, PageDateType.publish);
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param externalSearch
-	 * @return
-	 */
-	public static ExtractedDate getBestRatedDate(String url,
-			boolean externalSearch, PageDateType pub_mod) {
-		return getBestRatedDate(url, externalSearch, pub_mod, -1);
-	}
-
-	public static ExtractedDate getBestRatedDate(String url,
-			boolean externalSearch, PageDateType pub_mod, double limit) {
-		ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
-		DateGetter dg = new DateGetter();
-		DateEvaluator dr = new DateEvaluator(pub_mod);
-		if (url != null) {
-			ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-			HashMap<ExtractedDate, Double> ratedDates;
-
-			dg.setURL(url);
-			dg.setTechReference(externalSearch);
-			dg.setTechArchive(externalSearch);
-			dates = dg.getDate();
-
-			ratedDates = dr.rate(dates);
-			list = DateArrayHelper.hashMapToArrayList(ratedDates);
-		}
-
-		ExtractedDate date = new ExtractedDate();
-
-		if (list != null && list.size() > 0) {
-			ArrayList<ExtractedDate> orderedList = list;
-			Collections.sort(orderedList,
-					new RatedDateComparator<ExtractedDate>());
-			date = orderedList.get(0);
-
-			// NEW
-			if (limit < 0) {
-				DateType dateType = date.getType();
-				if (dateType.equals(DateType.ContentDate)) {
-					double size = 1 / ((ContentDate) date).getRelSize();
-					if (0 < size && size <= 1) {
-						limit = 0.15;
-					} else if (1 < size && size <= 2) {
-						limit = 0.24;
-					} else if (2 < size && size <= 3) {
-						limit = 0.18;
-					} else if (3 < size && size <= 5) {
-						limit = 0.16;
-					} else if (5 < size && size <= 10) {
-						limit = 0.14;
-					} else if (10 < size && size <= 20) {
-						limit = 0.13;
-					} else if (20 < size && size <= 50) {
-						limit = 0.17;
-					} else if (50 < size) {
-						limit = 0.26;
-					}
-				} else {
-					limit = 0;
-				}
-			}
-			if (date.getRate() < limit) {
-				date = null;
-			}
-		}
-		return date;
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param externalSearch
-	 * @return
-	 */
-	public static ExtractedDate getBestRatedDate(Document document,
-			boolean externalSearch, PageDateType pub_mod) {
-		ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
-		DateGetter dg = new DateGetter();
-		DateEvaluator dr = new DateEvaluator(pub_mod);
-		if (document != null) {
-			ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-			HashMap<ExtractedDate, Double> ratedDates;
-
-			dg.setDocument(document);
-			dg.setURL(document.getDocumentURI());
-			dg.setTechReference(externalSearch);
-			dg.setTechArchive(externalSearch);
-			dates = dg.getDate();
-
-			ratedDates = dr.rate(dates);
-			list = DateArrayHelper.hashMapToArrayList(ratedDates);
-		}
-		ExtractedDate date = new ExtractedDate();
-		if (list != null && list.size() > 0) {
-			ArrayList<ExtractedDate> orderedList = list;
-			Collections.sort(orderedList,
-					new RatedDateComparator<ExtractedDate>());
-			date = orderedList.get(0);
-		}
-		return date;
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param externalSearch
-	 * @return
-	 */
-	public static ExtractedDate getBestRatedDate(Document document,
-			boolean externalSearch) {
-		return getBestRatedDate(document, externalSearch, PageDateType.publish);
 	}
 
 	/**
@@ -335,21 +197,5 @@ public class WebPageDateEvaluator {
 		ArrayList<ExtractedDate> sorted = list;
 		Collections.sort(sorted, new RatedDateComparator<ExtractedDate>());
 		return sorted;
-	}
-
-	/**
-	 * By default the technique reference is turned off. <br>
-	 * Use this to active it.
-	 */
-	public void activateReference() {
-		this.reference = true;
-	}
-
-	/**
-	 * By default the technique archive is turned off. <br>
-	 * Use this to active it.
-	 */
-	public void activateArchive() {
-		this.archive = true;
 	}
 }

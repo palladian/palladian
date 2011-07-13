@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dom4j.rule.pattern.NodeTypePattern;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,8 +30,6 @@ import ws.palladian.helper.date.DateComparator;
 import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
-import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 
 /**
  * This class extracts all dates out of the content of webpages. <br>
@@ -168,16 +164,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 	private ArrayList<ContentDate> getContentDates(Document document) {
 		List<Node> nodeList;
 		ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-		//		
-		// PalladianContentExtractor pce = new PalladianContentExtractor();
-		// pce.setDocument(document);
-		// Node mainNode = pce.getResultNode();
-		// if (mainNode == null) {
-		// nodeList = XPathHelper.getNodes(document, "//text()");
-		// } else {
-		// System.out.println("Main Node");
-		// nodeList = XPathHelper.getNodes(mainNode, "//text()");
-		// }
 
 		nodeList = XPathHelper.getNodes(document, "//text()");
 
@@ -222,39 +208,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		return dates;
 	}
 
-	private void checkVisiblityOfAllNodes(Node node) {
-		boolean visible = acceptNode(node);
-		if (!visible) {
-			addAllChildrenToInvisible(node);
-		} else {
-			this.visibleNodeMap.put(node, true);
-			NodeList nodeList = node.getChildNodes();
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				checkVisiblityOfAllNodes(nodeList.item(i));
-			}
-		}
-	}
-
-	private void addAllChildrenToInvisible(Node node) {
-		this.visibleNodeMap.put(node, false);
-		System.out.println(node.getNodeValue());
-		NodeList nodeChildren = node.getChildNodes();
-		for (int i = 0; i < nodeChildren.getLength(); i++) {
-			addAllChildrenToInvisible(nodeChildren.item(i));
-		}
-	}
-
-	private boolean acceptNode(Node thisNode) {
-		if (thisNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element e = (Element) thisNode;
-			if (e.getAttribute("style").indexOf("display:none") != -1) {
-				System.out.println(e.getAttribute("style"));
-				System.out.println(thisNode.getNodeName());
-				return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * Find a date in text of node.<br>
@@ -411,6 +364,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		}
 	}
 
+	/**
+	 * Finds the keyword closest to the date.
+	 * @param date
+	 */
 	private void setClosestKeyword(ContentDate date) {
 		String keyword = null;
 		String keywordBefore;
@@ -459,6 +416,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		}
 	}
 
+	/**
+	 * Returns a keyword if there is one in the node, otherwise returns null. <br>
+	 * The node will be stored in a map connected to the keyword. <br>
+	 * (For a node without a keyword the stored string will be the empty string "".)
+	 * @param node
+	 * @return
+	 */
 	private String getNodeKeyword(Node node) {
 		String keyword = this.keyAttrMap.get(node);
 		if (keyword == null) {
@@ -471,6 +435,11 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		return keyword;
 	}
 
+	/**
+	 * Checks a node for possible keywords.
+	 * @param node
+	 * @return null for no keyword found.
+	 */
 	private String findNodeKeyword(Node node) {
 		String returnValue = null;
 		Node tempNode = node.cloneNode(false);
@@ -488,6 +457,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 	}
 
 	@Override
+	/**
+	 * Clears all maps for a new use, if the ContentDateGetter will not be initialized for another turn. <br>
+	 * Use this to avoid OutOfMemeryErrors!
+	 */
 	public void reset() {
 		this.doc = null;
 		this.document = null;
@@ -499,6 +472,14 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		this.visibleNodeMap = new HashMap<Node, Boolean>();
 	}
 
+	/**
+	 * Returns a StructureDate out of a node. <br>
+	 * Stores visited nodes and its dates in maps.
+	 * @param node
+	 * @param matcher
+	 * @param regExps
+	 * @return
+	 */
 	private StructureDate getStructureDate(Node node, Matcher[] matcher,
 			Object[] regExps) {
 		Boolean hasDate = lookedUpNodeMap.get(node);
@@ -515,6 +496,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		return date;
 	}
 
+	/**
+	 * Find StructureDates in nodes.
+	 * @param node
+	 * @param matcher
+	 * @param regExps
+	 * @return
+	 */
 	private StructureDate findStructureDate(Node node, Matcher[] matcher,
 			Object[] regExps) {
 		StructureDate structDate = null;
@@ -544,17 +532,5 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
 	public String getDoc() {
 		return this.doc;
-	}
-
-	public HashMap<Node, Boolean> getLookUpNodeMap() {
-		return this.lookedUpNodeMap;
-	}
-
-	public HashMap<Node, StructureDate> getStructDateMap() {
-		return this.structDateMap;
-	}
-
-	public HashMap<Node, String> getKeyAttrMap() {
-		return this.keyAttrMap;
 	}
 }
