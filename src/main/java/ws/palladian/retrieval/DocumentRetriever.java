@@ -66,6 +66,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
@@ -541,22 +542,56 @@ public class DocumentRetriever {
         // delicous feeds return the whole JSON object wrapped in [square brackets],
         // altough this seems to be valid, our parser doesn't like this, so we remove
         // those brackets before parsing -- Philipp, 2010-07-04
-        json = json.trim();
-        if (json.startsWith("[") && json.endsWith("]")) {
-            json = json.substring(1, json.length() - 1);
+        if(json != null) {
+	        json = json.trim();
+	        if (json.startsWith("[") && json.endsWith("]")) {
+	            json = json.substring(1, json.length() - 1);
+	        }
+	
+	        JSONObject jsonOBJ = null;
+	
+	        if (json.length() > 0) {
+	            try {
+	                jsonOBJ = new JSONObject(json);
+	            } catch (JSONException e) {
+	                LOGGER.error(url + ", " + e.getMessage());
+	            }
+	        }
+	
+	        return jsonOBJ;
         }
+        return null;
+    }
+    
+    /**
+     * Get a JSON array from a URL. The retrieved contents must return a valid JSON array.
+     * 
+     * @param url the URL pointing to the JSON string.
+     * @return the JSON array.
+     */
+    public JSONArray getJSONArray(String url) {
+        String json = getTextDocument(url);
 
-        JSONObject jsonOBJ = null;
+        // since we know this string should be an JSON array, 
+        // we will directly parse it
+        if(json != null) {
+        	json = json.trim();
+        	
+        	JSONArray jsonAR = null;
 
-        if (json.length() > 0) {
-            try {
-                jsonOBJ = new JSONObject(json);
-            } catch (JSONException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+            if (json.length() > 0) {
+                try {
+                    jsonAR = new JSONArray(json);
+                } catch (JSONException e) {
+                    LOGGER.error(url + ", " + e.getMessage());
+                }
             }
-        }
 
-        return jsonOBJ;
+            return jsonAR;
+        	
+        }
+        return null;
+        
     }
 
     // ////////////////////////////////////////////////////////////////
