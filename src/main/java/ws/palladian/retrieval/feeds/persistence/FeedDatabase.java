@@ -39,7 +39,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
-    private static final String GET_FEEDS = "SELECT * FROM feeds ORDER BY id ASC";
+    private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
