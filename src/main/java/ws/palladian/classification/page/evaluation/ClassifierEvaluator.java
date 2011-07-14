@@ -25,6 +25,9 @@ public class ClassifierEvaluator {
 
     /** The list of dataset to use for evaluation. */
     private List<Dataset> datasets = new ArrayList<Dataset>();
+    
+    /** The number of instances per dataset to use for evaluation. This number must be lower or equals the number of instances in the smallest dataset. -1 means that all instances should be considered. */
+    private int numberOfInstances = -1;
 
     public void addClassifier(TextClassifier classifier) {
         classifiers.add(classifier);
@@ -44,6 +47,9 @@ public class ClassifierEvaluator {
         // loop through all classifiers
         for (TextClassifier classifier : classifiers) {
 
+            // we need to copy the classifier since we reset it for evaluation which makes the original classifier useless
+            TextClassifier evalClassifier = classifier.copy();
+            
             for (Dataset dataset : datasets) {
 
                 // collect the classifier performance for each fold, merge them in the end
@@ -56,7 +62,7 @@ public class ClassifierEvaluator {
                 for (String[] filePaths : fileSplits) {
 
                     // we need to reset the classifier to avoid keeping training data from the last round
-                    classifier.reset();
+                    evalClassifier.reset();
 
                     // System.out.println(classifier.getTrainingDocuments().size());
                     // System.out.println(classifier.getTrainingInstances().size());
@@ -76,10 +82,10 @@ public class ClassifierEvaluator {
                     testDataset.setFirstFieldLink(dataset.isFirstFieldLink());
                     testDataset.setSeparationString(dataset.getSeparationString());
                     testDataset.setPath(filePaths[1]);
+                    
+                    evalClassifier.train(trainingDataset, getNumberOfInstances());
 
-                    classifier.train(trainingDataset);
-
-                    ClassifierPerformanceResult performance = classifier.evaluate(testDataset)
+                    ClassifierPerformanceResult performance = evalClassifier.evaluate(testDataset)
                     .getClassifierPerformanceResult();
 
                     // System.out.println(performance);
@@ -89,11 +95,11 @@ public class ClassifierEvaluator {
 
                 ClassifierPerformanceResult averagedPerformance = averageClassifierPerformances(performances);
 
-                evaluationMatrix.set(dataset.getName(), classifier.getName(), averagedPerformance);
+                evaluationMatrix.set(dataset.getName(), evalClassifier.getName(), averagedPerformance);
             }
 
             // free memory by resetting the classifier (training and test documents will be deleted)
-            classifier.reset();
+            evalClassifier.reset();
         }
 
         // write results
@@ -180,6 +186,14 @@ public class ClassifierEvaluator {
         this.crossValidation = crossValidation;
     }
 
+    public void setNumberOfInstances(int numberOfInstances) {
+        this.numberOfInstances = numberOfInstances;
+    }
+
+    public int getNumberOfInstances() {
+        return numberOfInstances;
+    }
+    
     /**
      * @param args
      */
