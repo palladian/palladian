@@ -39,7 +39,7 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
         // ######################### simple moving average ##############################
 
         double averagePostGap = fps.getAveragePostGap();
-        if (averagePostGap <= 0D) {
+        if (averagePostGap <= 0D || !fps.isValidStatistics()) {
 
             // There is sometimes a weird behavior of some feeds that suddenly change their window size to zero.
             // In this case, we double the checkInterval that was used in the last check. We add one since the interval
@@ -47,7 +47,7 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
             if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
                 minCheckInterval = 2 * feed.getUpdateInterval() + 1;
                 LOGGER.warn("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") changed its windowSize to 0. Try to double checkInterval.");
+                        + ") changed its windowSize to 0. Try to double checkInterval to ." + minCheckInterval);
 
                 // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
             } else {

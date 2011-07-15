@@ -16,9 +16,11 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
- * Capture some statistics about the posts of a feed.
+ * Capture some statistics about the posts of a feed. When reading the statistics, make sure
+ * {@link #isValidStatistics()} returns <code>true</code>!
  * 
  * @author David Urbansky
+ * @author Sandro Reichert
  * 
  */
 public class FeedPostStatistics {
@@ -129,47 +131,53 @@ public class FeedPostStatistics {
             intervals.add(timeList.get(i + 1) - timeList.get(i));
         }
 
-        // in case no pub date was found correctly, we set the newest entry time to now so we know next time which entries are newer
-        if (timeNewestEntry == 0) {
-            timeNewestEntry = System.currentTimeMillis();
-            warnings.append("\nDid not find a valid timestamp, setting timeNewestEntry to current timestamp. Feed id: "
-                    + feed.getId());
-        }
-        // in case no pub date was found correctly, we set the oldest entry time one week in the past
-        if (timeOldestEntry == Long.MAX_VALUE) {
-            timeOldestEntry = System.currentTimeMillis() - DateHelper.WEEK_MS;
-            warnings.append("\nDid not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: "
-                    + feed.getId());
-        }
-
-        if (warnings.length() > 0) {
-            FeedReader.LOGGER.warn(warnings);
-        }
-
-        // in benchmark mode we simulate the lookup time, otherwise it's the current time
-        if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
-            setDelayToNewestPost(feed.getBenchmarkLookupTime() - timeNewestEntry);
-        } else {
-            long pollTime = 0;
-            if (feed.getLastPollTime() != null) {
-                pollTime = feed.getLastPollTime().getTime();
-            } else {
-                pollTime = System.currentTimeMillis();
+        // FIXME: do we really need to set these fake values? In case the feed has an empty window, we set two fake
+        // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we
+        // ignored empty and single item feeds. -- Sandro 15.07.2011
+        if (timeList.size() > 0) {
+            // in case no pub date was found correctly, we set the newest entry time to now so we know next time which
+            // entries are newer
+            if (timeNewestEntry == 0) {
+                timeNewestEntry = System.currentTimeMillis();
+                warnings.append("\nDid not find a valid timestamp, setting timeNewestEntry to current timestamp. Feed id: "
+                        + feed.getId());
             }
-            setDelayToNewestPost(pollTime - timeNewestEntry);
-        }
+            // in case no pub date was found correctly, we set the oldest entry time one week in the past
+            if (timeOldestEntry == Long.MAX_VALUE) {
+                timeOldestEntry = System.currentTimeMillis() - DateHelper.WEEK_MS;
+                warnings.append("\nDid not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: "
+                        + feed.getId());
+            }
 
-        setLastInterval(timeNewestEntry - timeSecondNewestEntry);
-        setTimeNewestPost(timeNewestEntry);
-        setTimeOldestPost(timeOldestEntry);
+            if (warnings.length() > 0) {
+                FeedReader.LOGGER.warn(warnings);
+            }
 
-        if (timeList.size() > 1) {
-            setMedianPostGap(MathHelper.getMedianDifference(timeList));
-            setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
-            setAveragePostGap(getTimeRange() / ((double) feedPubdates.size() - 1));
-            setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
-            setLongestPostGap(MathHelper.getLongestGap(CollectionHelper.toTreeSet(timeList)));
-            setValidStatistics(true);
+            // in benchmark mode we simulate the lookup time, otherwise it's the current time
+            if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
+                setDelayToNewestPost(feed.getBenchmarkLookupTime() - timeNewestEntry);
+            } else {
+                long pollTime = 0;
+                if (feed.getLastPollTime() != null) {
+                    pollTime = feed.getLastPollTime().getTime();
+                } else {
+                    pollTime = System.currentTimeMillis();
+                }
+                setDelayToNewestPost(pollTime - timeNewestEntry);
+            }
+
+            setLastInterval(timeNewestEntry - timeSecondNewestEntry);
+            setTimeNewestPost(timeNewestEntry);
+            setTimeOldestPost(timeOldestEntry);
+
+            if (timeList.size() > 1) {
+                setMedianPostGap(MathHelper.getMedianDifference(timeList));
+                setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
+                setAveragePostGap(getTimeRange() / ((double) feedPubdates.size() - 1));
+                setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
+                setLongestPostGap(MathHelper.getLongestGap(CollectionHelper.toTreeSet(timeList)));
+                setValidStatistics(true);
+            }
         }
 
         double avgEntriesPerDay = -1;
