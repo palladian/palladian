@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -305,7 +304,8 @@ public final class FeedReader {
 
         updateStrategy.update(feed, fps);
 
-        feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
+        // don't do this here, fps might be invalid. The Feed does this himself
+        // feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
     }
 
