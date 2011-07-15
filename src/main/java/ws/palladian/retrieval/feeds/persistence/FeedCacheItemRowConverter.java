@@ -16,7 +16,7 @@ public class FeedCacheItemRowConverter implements RowConverter<CachedItem> {
         CachedItem cachedItem = new CachedItem();
         cachedItem.setId(resultSet.getInt("id"));
         cachedItem.setHash(resultSet.getString("itemHash"));
-        cachedItem.setCorrectedPublishDate(resultSet.getDate("correctedPollTime"));
+        cachedItem.setCorrectedPublishDate(resultSet.getTimestamp("correctedPollTime"));
         return cachedItem;
     }
 
