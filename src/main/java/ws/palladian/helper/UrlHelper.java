@@ -6,6 +6,8 @@ import java.net.URL;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 
+import ws.palladian.retrieval.DocumentRetriever;
+
 public class UrlHelper {
 
     /** The logger for this class. */
@@ -192,4 +194,72 @@ public class UrlHelper {
         return returnValue;
     }
 
+    /** 
+	 * Returns the canonical URL. This URL is lowercase, with trailing slash and
+	 * no index.htm* and is the redirected URL if input URL is redirecting.
+	 * 
+	 * @param url
+     * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
+	 * 
+	 */
+	public static String getCanonicalURL(String url) {
+		
+		if (url == null) {
+			return "";
+		}
+		
+		try {
+			
+			// get redirect url if it exists and continue with this url
+			DocumentRetriever dr = new DocumentRetriever();
+			String redirectUrl = dr.getRedirectUrl(url);
+			
+			if(isValidURL(redirectUrl)) url = redirectUrl;
+
+            URL urlObj = new URL(url);
+            
+            // get all url parts
+            String protocol = urlObj.getProtocol();
+            String port = "";
+            if(urlObj.getPort() != -1 && urlObj.getPort() != urlObj.getDefaultPort()) port = ":"+urlObj.getPort();
+            String host = urlObj.getHost().toLowerCase();
+            String path = urlObj.getPath();
+            String query = "";
+            if(urlObj.getQuery() != null) query = "?"+urlObj.getQuery();
+            
+            // correct path to eliminate ".." and recreate path accordingly
+            String [] parts = path.split("/");
+            path = "/";
+            
+            if(parts.length > 0) {
+	            for (int i = 0; i < parts.length; i++) {
+					parts[i] = parts[i].trim();
+					//throw away ".." and a directory above it 
+					if (parts[i].equals("..")) {
+						parts[i] = "";
+						//if there is a directory above this one in the path	
+						if (parts.length > 1 && i > 0) {
+							parts[i - 1] = "";
+						}
+					}
+				}
+	            for (int i = 0; i < parts.length; i++) if(parts[i].length() > 0) path += parts[i]+"/";
+
+	            // delete trailing slash if path ends with a file
+	            if(parts[parts.length-1].contains(".")) path = path.substring(0, path.length()-1);
+	            // delete index.* if there is no query
+	            if(parts[parts.length-1].contains("index") && query.isEmpty()) if(query.isEmpty()) path = path.replaceAll("index\\..+$", "");
+
+            }
+            
+            return protocol + "://" + port + host + path + query;
+            
+            
+        } catch (MalformedURLException e) {
+            LOGGER.trace("could not determine canonical url for" + url);
+            return "";
+        }
+		
+
+	}
 }
