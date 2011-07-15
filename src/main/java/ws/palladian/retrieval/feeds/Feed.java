@@ -248,10 +248,15 @@ public class Feed {
             } else {
                 itemCacheTemp.put(hash, getCachedItemTimestamp(hash));
             }
-            
-            
         }
-        setCachedItems(itemCacheTemp);
+
+        // Prevent cache from being reset to empty cache. Some feeds suddenly have empty windows for a short period of
+        // time, afterwards their windows contain items seen before. If we delete the cache when receiving an empty
+        // window, we loose the ability to do the duplicate detection, all items seem to be new, we have a MISS.
+        if (getCachedItems().isEmpty() || !itemCacheTemp.isEmpty()) {
+            setCachedItems(itemCacheTemp);
+        }
+
         setNewItems(newItemsTemp);
         this.items = items;
     }
@@ -363,7 +368,9 @@ public class Feed {
     }
 
     /**
-     * Get all cached item hashes and their associated corrected publish dates.
+     * Get all cached item hashes and their associated corrected publish dates. These are the items of the most recent
+     * feed window that was not empty. Caution! In case the feeds last window was empty but the one before contained
+     * items, the cache contains these items and does not reflect the current polls content (which would be empty).
      * 
      * @return all cached item hashes and their associated publish dates.
      */
@@ -556,7 +563,8 @@ public class Feed {
     }
 
     /**
-     * If date's year is > 9999, we set it to null!
+     * If date's year is > 9999, we set it to null! Do not set this value, it is calculated by the feed itself. The
+     * setter is to be used by the persistence layer only!
      * 
      * @param lastFeedEntry
      */
@@ -572,6 +580,9 @@ public class Feed {
         this.lastFeedEntry = lastFeedEntry;
     }
 
+    /**
+     * @return The timestamp of the most recent item.
+     */
     public Date getLastFeedEntry() {
         if (lastFeedEntry == null) {
             calculateNewestItemHashAndDate();
@@ -579,6 +590,9 @@ public class Feed {
         return lastFeedEntry;
     }
 
+    /**
+     * @return The timestamp of the most recent item.
+     */
     public Timestamp getLastFeedEntrySQLTimestamp() {
         if (lastFeedEntry == null) {
             calculateNewestItemHashAndDate();

@@ -47,7 +47,7 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
             if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
                 minCheckInterval = 2 * feed.getUpdateInterval() + 1;
                 LOGGER.warn("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") changed its windowSize to 0. Try to double checkInterval to ." + minCheckInterval);
+                        + ") changed its windowSize to 0. Try to double checkInterval to " + minCheckInterval + ".");
 
                 // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
             } else {
