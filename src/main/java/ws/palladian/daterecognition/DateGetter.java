@@ -5,33 +5,27 @@ import java.util.Collection;
 
 import org.w3c.dom.Document;
 
-import ws.palladian.daterecognition.dates.AbstractDate;
-import ws.palladian.daterecognition.dates.MetaDate;
-import ws.palladian.daterecognition.technique.ArchiveDateGetter;
 import ws.palladian.daterecognition.technique.ContentDateGetter;
-import ws.palladian.daterecognition.technique.HTTPDateGetter;
-import ws.palladian.daterecognition.technique.HeadDateGetter;
-import ws.palladian.daterecognition.technique.MetaDateGetter;
-import ws.palladian.daterecognition.technique.ReferenceDateGetter;
-import ws.palladian.daterecognition.technique.StructureDateGetter;
-import ws.palladian.daterecognition.technique.URLDateGetter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
- * This class is responsible for rating dates. <br>
- * Therefore it coordinates each technique-rater-class. <br>
+ * <p>
+ * This class is responsible for rating dates.
+ * </p>
+ * <p>
+ * Therefore it coordinates each technique-rater-class.
+ * </p>
  * 
  * @author Martin Gregor (mail@m-gregor.de)
- * @param <T>
  * 
  * 
  */
 public class DateGetter {
 
-	private boolean tech_HTML_content = true;
+    private boolean techHtmlContent = true;
 
-	private ContentDateGetter cdg = new ContentDateGetter();
+	private final ContentDateGetter cdg = new ContentDateGetter();
 
 	/** URL that will be called */
 	private String url;
@@ -88,7 +82,7 @@ public class DateGetter {
 		ArrayList<T> dates = new ArrayList<T>();
 		DocumentRetriever crawler = new DocumentRetriever();
 
-		if (url != null && tech_HTML_content) {
+        if (url != null && techHtmlContent) {
 			Document document = this.document;
 			if (document == null) {
 				document = crawler.getWebDocument(url);
@@ -127,7 +121,7 @@ public class DateGetter {
 	 * @param value
 	 */
 	public void setTechHTMLContent(boolean value) {
-		tech_HTML_content = value;
+        techHtmlContent = value;
 	}
 
 	public void setDocument(Document document) {
