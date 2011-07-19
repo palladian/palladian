@@ -101,6 +101,11 @@ public class FeedItem {
         this.rawId = rawId;
     }
 
+    /**
+     * The publish date read from the feed. Might be in the future.
+     * 
+     * @return
+     */
     public Date getPublished() {
         return published;
     }
@@ -109,6 +114,11 @@ public class FeedItem {
         this.published = published;
     }
 
+    /**
+     * The publish date read from the feed. Might be in the future.
+     * 
+     * @return
+     */
     public Timestamp getPublishedSQLTimestamp() {
         if (published != null) {
             return new Timestamp(published.getTime());

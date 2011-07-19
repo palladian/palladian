@@ -255,6 +255,27 @@ public class DateHelper {
         return ISO8601Now;
     }
 
+    /**
+     * Checks whether a date's year exceeds the given maximum. Useful to store a date in a mysql database since the
+     * maximum value of the DATETIME type is the year 9999.
+     * 
+     * @param date date to check.
+     * @param maxYear maximum year allowed.
+     * @return The given date if it's year <= maxYear or <code>null</code> if date == null or its year > maxYear.
+     */
+    public static Date validateYear(Date date, int maxYear) {
+        Date validatedDate = date;
+        if (date != null) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTime(date);
+            int year = cal.get(Calendar.YEAR);
+            if (year >= maxYear) {
+                validatedDate = null;
+            }
+        }
+        return validatedDate;
+    }
+
     public static void main(String[] t) {
         System.out.println(DateHelper.getCurrentDatetime());
         System.out.println(getTimeString(-1));
