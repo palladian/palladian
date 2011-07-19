@@ -3,6 +3,8 @@ package ws.palladian.retrieval.feeds.meta;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import ws.palladian.helper.date.DateHelper;
+
 /**
  * Store meta information for a single poll.
  * 
@@ -61,10 +63,12 @@ public class PollMetaInformation {
     }
 
     /**
+     * If date's year is > 9999, we set it to null!
+     * 
      * @param pollTimestamp the pollTimestamp to set
      */
     public final void setPollTimestamp(Date pollTimestamp) {
-        this.pollTimestamp = pollTimestamp;
+        this.pollTimestamp = DateHelper.validateYear(pollTimestamp, 9999);
     }
 
     /**
@@ -96,10 +100,12 @@ public class PollMetaInformation {
     }
 
     /**
+     * If date's year is > 9999, we set it to null!
+     * 
      * @param httpDate the httpDate to set
      */
     public final void setHttpDate(Date httpDate) {
-        this.httpDate = httpDate;
+        this.httpDate = DateHelper.validateYear(httpDate, 9999);
     }
 
     /**
@@ -120,10 +126,12 @@ public class PollMetaInformation {
     }
 
     /**
+     * If date's year is > 9999, we set it to null!
+     * 
      * @param httpLastModified the httpLastModified to set
      */
     public final void setHttpLastModified(Date httpLastModified) {
-        this.httpLastModified = httpLastModified;
+        this.httpLastModified = DateHelper.validateYear(httpLastModified, 9999);
     }
 
     /**
@@ -144,10 +152,12 @@ public class PollMetaInformation {
     }
 
     /**
+     * If date's year is > 9999, we set it to null!
+     * 
      * @param httpExpires the httpExpires to set
      */
     public final void setHttpExpires(Date httpExpires) {
-        this.httpExpires = httpExpires;
+        this.httpExpires = DateHelper.validateYear(httpExpires, 9999);
     }
 
 
@@ -169,10 +179,12 @@ public class PollMetaInformation {
     }
 
     /**
+     * If date's year is > 9999, we set it to null!
+     * 
      * @param newestItemTimestamp the newestItemTimestamp to set
      */
     public final void setNewestItemTimestamp(Date newestItemTimestamp) {
-        this.newestItemTimestamp = newestItemTimestamp;
+        this.newestItemTimestamp = DateHelper.validateYear(newestItemTimestamp, 9999);
     }
 
     /**

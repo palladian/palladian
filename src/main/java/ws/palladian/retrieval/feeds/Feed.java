@@ -2,10 +2,8 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.helper.EnumHelper;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
@@ -354,7 +353,6 @@ public class Feed {
      */
     private void addCacheItem(String hash, Date pubDate) {
         this.itemCache.put(hash, pubDate);
-
     }
 
     /**
@@ -530,8 +528,8 @@ public class Feed {
                 tempHash = hash;
             }
         }
-        lastFeedEntry = tempDate;
-        newestItemHash = tempHash;
+        setLastFeedEntry(tempDate);
+        setNewestItemHash(tempHash);
     }
 
     public void setUnreachableCount(Integer unreachableCount) {
@@ -569,15 +567,7 @@ public class Feed {
      * @param lastFeedEntry
      */
     public void setLastFeedEntry(Date lastFeedEntry) {
-        if (lastFeedEntry != null) {
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(lastFeedEntry);
-            int year = cal.get(Calendar.YEAR);
-            if (year >= 9999) {
-                lastFeedEntry = null;
-            }
-        }
-        this.lastFeedEntry = lastFeedEntry;
+        this.lastFeedEntry = DateHelper.validateYear(lastFeedEntry, 9999);
     }
 
     /**
@@ -610,15 +600,7 @@ public class Feed {
      * @param lastFeedEntry
      */
     public void setHttpLastModified(Date httpLastModified) {
-        if (httpLastModified != null) {
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(httpLastModified);
-            int year = cal.get(Calendar.YEAR);
-            if (year >= 9999) {
-                httpLastModified = null;
-            }
-        }
-        this.httpLastModified = httpLastModified;
+        this.httpLastModified = DateHelper.validateYear(httpLastModified, 9999);
     }
 
     public Date getHttpLastModified() {
