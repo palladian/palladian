@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.helper.date.DateComparator;
 
 public class searchengineEvaluation {

@@ -14,7 +14,6 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.MetaDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.HeadDateGetter;
 import ws.palladian.daterecognition.technique.HeadDateRater;
 import ws.palladian.daterecognition.technique.PageDateType;
@@ -46,7 +45,6 @@ public class HeaderEvaluator {
 		
 		String pub = "pub1";
 		String mod = "mod1";
-		String path;
 		int des = 3;
 		switch(des){
 		case 0:
@@ -56,60 +54,14 @@ public class HeaderEvaluator {
 			createHeadUrlList(in, out, (HeadDateGetter)dg);
 			break;
 		case 1:
-			path = "data/evaluation/daterecognition/datasets/headdataset.txt";
-			DataSetHandler.createSearchDatesAndDownload("headdateset", path);
 			break;
 		case 2:
-			path = "data/evaluation/daterecognition/datasets/headdataset.txt";
-			DataSetHandler.clearTable("headdateset", path);
 			break;
 		case 3:
 			evaluate(pub, DBExport.PUB_DATE, dg, dr, file);
 			evaluate(mod, DBExport.MOD_DATE, dg, dr, file);
 			break;
 		} 
-		
-
-		/*
-		evaluate("pub3", DBExport.PUB_DATE, dg, dr, file);
-		evaluate("mod3", DBExport.MOD_DATE, dg, dr, file);
-		*/
-		
-		/*
-		String in1 = "data/evaluation/daterecognition/datasets/headdataset9.txt";
-		String in2 = "data/evaluation/daterecognition/datasets/urldataset.txt";
-		mergeUrlsets(in1, in2, file);
-		*/
-		
-		//HashMap<Byte, Integer[]> parameter = new HashMap<Byte, Integer[]>();
-		//parameter.put(testDR.MOD_DATE_PARAMETER, null);
-		//Integer[] measure = {DateComparator.MEASURE_MIN};
-		//parameter.put(testDR.MEASURE_PARAMETER, measure);
-		/*parameter.put(testDR.YOUNGEST_PARAMERT, null);
-		testDR.setParameter(parameter);
-		evaluate("mod2", DBExport.MOD_DATE, dg, testDR);
-		String[] round = {"mod0", "mod1", "mod2"};
-		EvaluationHelper.calculateOutput(round, EvaluationHelper.HEADEVAL);
-		*/
-		
-
-		
-		
-		
-		System.out.println(pub);
-		System.out.println("AFR: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
-		System.out.println("ARD: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
-		System.out.println("AFW: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
-		System.out.println("ANF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
-		System.out.println("AWD: " + EvaluationHelper.count(file, pub, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
-				
-		System.out.println(mod);
-		System.out.println("AFR: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFR));
-		System.out.println("ARD: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ARD));
-		System.out.println("AFW: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AFW));
-		System.out.println("ANF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.ANF));
-		System.out.println("AWD: " + EvaluationHelper.count(file, mod, EvaluationHelper.HEADEVAL, DataSetHandler.AWD));
-		
 	}
 
 	private static <T,V> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<V> dr, String file){
@@ -189,34 +141,33 @@ public class HeaderEvaluator {
 			//System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
 			
 			switch(compare){
-				case DataSetHandler.AFW:
+				case EvaluationHelper.AFW:
 					wf++;
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					break;
-				case DataSetHandler.ANF:
+				case EvaluationHelper.ANF:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					wnf++;
 					break;
-				case DataSetHandler.AWD:
+				case EvaluationHelper.AWD:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					ff++;
 					break;
-				case DataSetHandler.ARD:
+				case EvaluationHelper.ARD:
 					rnf++;
 					break;
-				case DataSetHandler.AFR:
+				case EvaluationHelper.AFR:
 					rf++;
 					break;
 					
 			}
 			
-			DataSetHandler.writeInDB(table, e.getValue().getUrl(), compare, round);
 			counter++;
 			
 			//System.out.println();
@@ -319,7 +270,7 @@ public class HeaderEvaluator {
 			HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
 			merged.putAll(set1);
 			merged.putAll(set2);
-			String separator = DataSetHandler.SEPARATOR;
+			String separator = EvaluationHelper.SEPARATOR;
 			File file = new File(out);
 			try{
 				FileWriter outw = new FileWriter(file, false);

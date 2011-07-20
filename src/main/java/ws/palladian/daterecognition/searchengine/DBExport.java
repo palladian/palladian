@@ -1,5 +1,7 @@
 package ws.palladian.daterecognition.searchengine;
 
+import ws.palladian.daterecognition.evaluation.EvaluationHelper;
+
 public class DBExport {
 	private String url = "";
 	private String filePath = "";
@@ -189,7 +191,7 @@ public class DBExport {
 		
 	}
 	public String toString(){
-		String separator = DataSetHandler.SEPARATOR;
+		String separator = EvaluationHelper.SEPARATOR;
 		String write =getUrl() + separator
 		+ getFilePath() + separator
 		+ getPubDate() + separator
