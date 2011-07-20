@@ -26,6 +26,8 @@ public class XPathHelperTest {
         assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A"), "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A");
         assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A/text()"),
                 "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A/text()");
+        
+        // TODO assertEquals(XPathHelper.addXhtmlNsToXPath("//a[img]"), "//xhtml:a[xhtml:img]");
 
     }
 
