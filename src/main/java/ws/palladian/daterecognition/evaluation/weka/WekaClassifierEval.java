@@ -1,15 +1,11 @@
 package ws.palladian.daterecognition.evaluation.weka;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -28,7 +24,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.SerializationHelper;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.PageDateType;
 
 public class WekaClassifierEval {
@@ -38,19 +33,21 @@ public class WekaClassifierEval {
 		String arffPathPub = "/wekaClassifier/attributesPub.arff";
 		String arffPathMod = "/wekaClassifier/attributesMod.arff";
 
-		String classifierFilePub = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/pubClassifierFinal.model";
-		String classifierFileMod = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/modClassifierFinal.model";
 
 		Classifier classifierPub = wce.getThreshold();
 		Classifier classifierMod = wce.getThreshold();
 
 		wce.trainClassifier(classifierPub, arffPathPub,
 				PageDateType.publish, 1);
-		wce.saveClassifier(classifierFilePub, classifierPub);
+		//Store trained classifier
+//		String classifierFilePub = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/pubClassifierFinal.model";
+//		wce.saveClassifier(classifierFilePub, classifierPub);
 
 		wce.trainClassifier(classifierMod, arffPathMod,
 				PageDateType.last_modified, 1);
-		wce.saveClassifier(classifierFileMod, classifierMod);
+		//Store trained classifier
+//		String classifierFileMod = "D:/_Uni/_semester16/eclipse/Palladian_new/src/main/resources/wekaClassifier/modClassifierFinal.model";
+//		wce.saveClassifier(classifierFileMod, classifierMod);
 	}
 
 	private static void testXFold() {
@@ -80,20 +77,15 @@ public class WekaClassifierEval {
 		Classifier classifier = wce.getThreshold();
 		// classifier = wce.getMultiLayerPerceptron();
 		for (int i = 0; i < 2; i++) {
-			String xfoldDB = "";
 			int maxFolds = 0;
 			if (i == 0) {
-				xfoldDB = "contentXFold5";
 				maxFolds = 5;
 			} else if (i == 1) {
-				xfoldDB = "contentXFold10";
 				maxFolds = 10;
 			} else {
-				xfoldDB = "";
 				maxFolds = 0;
 			}
-			DataSetHandler.setDB(xfoldDB);
-			DataSetHandler.openConnection();
+			
 
 			Instances[] instances = WekaTraineeSetHelper.getXFoldSets(path,
 					maxFolds);
@@ -147,21 +139,6 @@ public class WekaClassifierEval {
 					e.printStackTrace();
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-
-				int index = 0;
-				for (Entry<Integer, Double> entry : classifiedMap.entrySet()) {
-					String query = "INSERT INTO xfold" + (fold + 1)
-							+ " (id, yesPub) VALUES (" + entry.getKey() + ", "
-							+ entry.getValue()
-							+ ") ON DUPLICATE KEY UPDATE yesPub = "
-							+ entry.getValue();
-					try {
-						DataSetHandler.st.execute(query);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				}
 			}
 		}

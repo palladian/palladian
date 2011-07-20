@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
 import ws.palladian.daterecognition.technique.URLDateGetter;
@@ -17,7 +16,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public abstract class Evaluator {
 	
-	public static <T> void evaluate(String table, String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
+	public static <T> void evaluate(int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
 		int rnf = 0;
 		int ff= 0;
 		int wnf= 0;
@@ -35,15 +34,10 @@ public abstract class Evaluator {
 			String bestDateString ="";
 			String url =e.getValue().get(DBExport.URL);
 			dg.setUrl(url);
-			//System.out.println(url);
-			if(table.equalsIgnoreCase(EvaluationHelper.CONTENTEVAL) || table.equalsIgnoreCase(EvaluationHelper.STRUCTEVAL) || table.equalsIgnoreCase(EvaluationHelper.HEADEVAL)){
-				String path = e.getValue().get(DBExport.PATH);
-				//System.out.println(path);
-				dg.setDocument(crawler.getWebDocument(path));
-			}else{
-				
-				dg.setUrl(url);
-			}
+			String path = e.getValue().get(DBExport.PATH);
+			dg.setDocument(crawler.getWebDocument(path));
+			
+			dg.setUrl(url);
 			
 			System.out.print("get dates... ");
 			StopWatch timer = new StopWatch();
@@ -93,34 +87,32 @@ public abstract class Evaluator {
 			//System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
 			
 			switch(compare){
-				case DataSetHandler.AFW:
+				case EvaluationHelper.AFW:
 					wf++;
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					break;
-				case DataSetHandler.ANF:
+				case EvaluationHelper.ANF:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					wnf++;
 					break;
-				case DataSetHandler.AWD:
+				case EvaluationHelper.AWD:
 					System.out.println(url);
 					System.out.println(compare + " bestDate:" + bestDateString + dbExportDateString);
 					//System.out.println("-------------------------------------------------------");
 					ff++;
 					break;
-				case DataSetHandler.ARD:
+				case EvaluationHelper.ARD:
 					rnf++;
 					break;
-				case DataSetHandler.AFR:
+				case EvaluationHelper.AFR:
 					rf++;
 					break;
 					
 			}
-			
-			DataSetHandler.writeInDB(table, e.getValue().getUrl(), compare, round);
 			counter++;
 			
 			//System.out.println();

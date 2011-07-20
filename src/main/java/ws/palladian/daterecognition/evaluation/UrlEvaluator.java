@@ -10,7 +10,6 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.dates.URLDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.daterecognition.technique.PageDateType;
 import ws.palladian.daterecognition.technique.TechniqueDateGetter;
 import ws.palladian.daterecognition.technique.TechniqueDateRater;
@@ -29,82 +28,15 @@ public class UrlEvaluator {
 		TechniqueDateRater<URLDate> dr = new UrlDateRater(PageDateType.publish);
 
 		String file = "data/evaluation/daterecognition/datasets/urldataset.txt";
-		String pub = "pub1";
-		String mod = "mod1";
-		evaluate(pub, DBExport.PUB_DATE, dg, dr, file);
-		evaluate(mod, DBExport.MOD_DATE, dg, dr, file);
-
-		// EvaluationHelper.calculateOutput(0, EvaluationHelper.URLEVAL);
-
-		// Integer[] list = {50, 100, 150, 200, 250, 300, 350};
-		// EvaluationHelper.calculateConfidenceInterval(EvaluationHelper.URLEVAL,
-		// "mod0", list);
-
-		/*
-		 * System.out.println(EvaluationHelper.count("pub0",
-		 * EvaluationHelper.URLEVAL, 350, DataSetHandler.TP));
-		 * 
-		 * System.out.println("pub:"); double ci =
-		 * EvaluationHelper.calculateCI(EvaluationHelper.URLEVAL, "pub0",
-		 * DataSetHandler.TP, 150, false); System.out.println("CI: " + ci);
-		 * System.out.println("Sample Size: " +
-		 * EvaluationHelper.calculateSampleSize(ci));
-		 * System.out.println("mod:"); ci =
-		 * EvaluationHelper.calculateCI(EvaluationHelper.URLEVAL, "mod0",
-		 * DataSetHandler.TP, 150, false); System.out.println("CI: " + ci);
-		 * System.out.println("Sample Size: " +
-		 * EvaluationHelper.calculateSampleSize(ci));
-		 */
-
-		// compareUrlDateFoundDate(PageDateType.publish,"data/evaluation/dateextraction/urldataset.txt");
-
-		/*
-		 * String in1 = "data/evaluation/dateextraction/dataset.txt"; String
-		 * in2= "data/evaluation/dateextraction/urldataset_old.txt"; String out=
-		 * "data/evaluation/dateextraction/urldataset.txt"; mergeUrlsets(in1,
-		 * in2, out);
-		 */
-		System.out.println("pub");
-		System.out.println("RF: "
-				+ EvaluationHelper.count(file, pub, EvaluationHelper.URLEVAL,
-						DataSetHandler.AFR));
-		System.out.println("RNF: "
-				+ EvaluationHelper.count(file, pub, EvaluationHelper.URLEVAL,
-						DataSetHandler.ARD));
-		System.out.println("WF: "
-				+ EvaluationHelper.count(file, pub, EvaluationHelper.URLEVAL,
-						DataSetHandler.AFW));
-		System.out.println("WNF: "
-				+ EvaluationHelper.count(file, pub, EvaluationHelper.URLEVAL,
-						DataSetHandler.ANF));
-		System.out.println("FF: "
-				+ EvaluationHelper.count(file, pub, EvaluationHelper.URLEVAL,
-						DataSetHandler.AWD));
-
-		System.out.println("mod");
-		System.out.println("RF: "
-				+ EvaluationHelper.count(file, mod, EvaluationHelper.URLEVAL,
-						DataSetHandler.AFR));
-		System.out.println("RNF: "
-				+ EvaluationHelper.count(file, mod, EvaluationHelper.URLEVAL,
-						DataSetHandler.ARD));
-		System.out.println("WF: "
-				+ EvaluationHelper.count(file, mod, EvaluationHelper.URLEVAL,
-						DataSetHandler.AFW));
-		System.out.println("WNF: "
-				+ EvaluationHelper.count(file, mod, EvaluationHelper.URLEVAL,
-						DataSetHandler.ANF));
-		System.out.println("FF: "
-				+ EvaluationHelper.count(file, mod, EvaluationHelper.URLEVAL,
-						DataSetHandler.AWD));
+		evaluate(DBExport.PUB_DATE, dg, dr, file);
+		evaluate(DBExport.MOD_DATE, dg, dr, file);
 
 	}
 
-	private static <T> void evaluate(String round, int pub_mod,
-			TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file) {
+	private static <T> void evaluate(int pub_mod, TechniqueDateGetter<T> dg,
+			TechniqueDateRater<T> dr, String file) {
 
-		Evaluator.evaluate(EvaluationHelper.URLEVAL, round, pub_mod, dg, dr,
-				file);
+		Evaluator.evaluate(pub_mod, dg, dr, file);
 
 	}
 
@@ -171,7 +103,7 @@ public class UrlEvaluator {
 		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
 		merged.putAll(set1);
 		merged.putAll(set2);
-		String separator = DataSetHandler.SEPARATOR;
+		String separator = EvaluationHelper.SEPARATOR;
 		File file = new File(out);
 		try {
 			FileWriter outw = new FileWriter(file, false);

@@ -13,14 +13,50 @@ import java.util.Map.Entry;
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.daterecognition.searchengine.DBExport;
-import ws.palladian.daterecognition.searchengine.DataSetHandler;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateComparator;
 
 public class EvaluationHelper {
 
 	private static File file = new File("data/evaluation/daterecognition/datasets/dataset.txt");
-	private static String separator = DataSetHandler.SEPARATOR;
+	private static String separator = EvaluationHelper.SEPARATOR;
+	
+	public static final String SEPARATOR = " *;_;* ";
+	/**
+	 * 2 <br>
+	 * Available Found Right. <br>
+	 * ED = 1 & FD = 1 & ED == FD
+	 */
+	public static final int AFR = 2;
+	/**
+	 * 1 <br>
+	 * Absent Right Detected. <br>
+	 * ED = 0 & FD = 0
+	 */
+	public static final int ARD = 1;
+	/**
+	 * 0 <br>
+	 * Absent Wrong Detected. <br>
+	 * ED = 0 & FD = 1
+	 */
+	public static final int AWD = 0;
+	/**
+	 * Extracted Date (Datum der Webseite): ED
+	 * Gefundenes Datum: FD
+	 * 
+	 */
+	/**
+	 * -2 <br>
+	 * Available Found Wrong. <br>
+	 * ED = 1 & FD = 1 & ED != Fd 
+	 */
+	/**
+	 * -1 <br>
+	 * Available Not Found. <br>
+	 * ED = 1 & FD = 0
+	 */
+	public static final int ANF = -1;
+	public static final int AFW = -2;
 	
 	public static final String CONTENTEVAL = "contenteval";
 	public static final String HTTPEVAL = "httpeval";
@@ -141,6 +177,16 @@ public class EvaluationHelper {
 		
 		return set;
 	}
+	
+	
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public File getFile() {
+		return file;
+	}
 	/**
 	 * Compares a date, found by date-getter and date-rater, with an date, found by hand. 
 	 * @param <T>
@@ -154,118 +200,25 @@ public class EvaluationHelper {
 		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
 		if(ed == null){
 			if(foundDate == null){
-				returnValue = DataSetHandler.ARD;
+				returnValue = EvaluationHelper.ARD;
 			}else{
-				returnValue = DataSetHandler.AWD;
+				returnValue = EvaluationHelper.AWD;
 			}
 		}else{
 			if(foundDate == null){
-				returnValue = DataSetHandler.ANF;
+				returnValue = EvaluationHelper.ANF;
 			}else{
 				DateComparator dc = new DateComparator();
 				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),dc.STOP_DAY)) == 0){
-					returnValue = DataSetHandler.AFR;
+					returnValue = EvaluationHelper.AFR;
 				}else{
-					returnValue = DataSetHandler.AFW;
+					returnValue = EvaluationHelper.AFW;
 				}
 			}
 		}
 		return returnValue;
 	}
 	
-
-	public void setFile(File file) {
-		this.file = file;
-	}
-
-	public File getFile() {
-		return file;
-	}
-	
-	private static double count(HashMap<String, Integer> urls, int classifire){
-		double count=0;
-		for(Entry<String, Integer> e : urls.entrySet()){
-			if(e.getValue() == classifire){
-				count++;
-			}
-		}
-		return count;
-	}
-	
-	
-	public static double count(String round, String table, int numberUrls, int classifire, boolean random){
-		return count(null, round, table, numberUrls, classifire, random);
-	}
-	public static double count(String file, String round, String table, int numberUrls, int classifire, boolean random){
-		ArrayList<String> urls = CollectionHelper.toArrayList(readFile(numberUrls, random, file));
-		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
-		return count(valuedUrls, classifire);
-	}
-	public static double count(String round, String table, int numberUrls, int classifire){
-		return count(round, table, numberUrls, classifire, false);
-	}
-	public static double count(String file, String round, String table, int numberUrls, int classifire){
-		return count(file, round, table, numberUrls, classifire, false);
-	}
-	public static double count(String file, String round, String table, int classifire){
-		return count(file, round, table, -1, classifire, false);
-	}
-	public static double count(String file, String round, String table, String db,  int classifire){
-		String oldDB = DataSetHandler.getDB();
-		DataSetHandler.setDB(db);
-		double dbl = count(file, round, table, -1, classifire, false);
-		DataSetHandler.setDB(oldDB);
-		return dbl;
-	}
-	/**
-	 * Calculates exactness. <br>
-	 * Exactness is defined by relation of correct answers to all answers. <br>
-	 * Correct answer includes found the right date and found if no date exists. <br>
-	 * (RNF+ RF) / all  
-	 * @param round
-	 * @param table
-	 * @param urls
-	 * @return
-	 */
-	public static double calculateExactness(String round, String table, ArrayList<String> urls){
-		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
-    	double tp = count(valuedUrls, DataSetHandler.ARD) + count(valuedUrls, DataSetHandler.AFR);
-    	double all = (double)urls.size();
-    	return (tp / all);
-    	
-    }
-	/**
-	 * Calculates exactness of missing dates. <br>
-	 * Is defined by relation of correct not found to all missing dates. <br>
-	 * RNF / (RNF + FF) 
-	 * @param round
-	 * @param table
-	 * @param urls
-	 * @return
-	 */
-	public static double calculateMissingExactness(String round, String table, ArrayList<String> urls){
-		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls);
-		double rnf = count(valuedUrls, DataSetHandler.ARD);
-    	double ff = count(valuedUrls, DataSetHandler.AWD);
-    	
-    	return (rnf / (rnf+ff));
-    }
-	
-	/**
-	 * Calculates sample size for Technique. <br> 
-	 * @param round e.g. "mod0", "pub0", "mod1" ...
-	 * @param table Name of DB-table.
-	 * @param file fitting file for table.
-	 * @return
-	 */
-	public static double calculateSampleSize(String round, String table,String file){
-		double zSqr = 1.96 * 1.96;
-		double ciSqr = 0.05 * 0.05;
-		ArrayList<String> urls = CollectionHelper.toArrayList(readFile(-1, false, file));
-		double p = calculateExactness(round, table, urls);
-		double n = ((zSqr * p * (1-p))/ciSqr)+1.0;
-		return n;
-	}
 	
 	
 }
