@@ -1,5 +1,6 @@
 package ws.palladian.classification.page.evaluation;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +22,10 @@ public class ClassifierEvaluator {
     private int crossValidation = 5;
 
     /** The list of classifiers to evaluate. */
-    private List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
+    private final List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
 
     /** The list of dataset to use for evaluation. */
-    private List<Dataset> datasets = new ArrayList<Dataset>();
+    private final List<Dataset> datasets = new ArrayList<Dataset>();
     
     /** The number of instances per dataset to use for evaluation. This number must be lower or equals the number of instances in the smallest dataset. -1 means that all instances should be considered. */
     private int numberOfInstances = -1;
@@ -56,7 +57,13 @@ public class ClassifierEvaluator {
                 List<ClassifierPerformanceResult> performances = new ArrayList<ClassifierPerformanceResult>();
 
                 // get the files for cross validation
-                List<String[]> fileSplits = dsManager.splitForCrossValidation(dataset, getCrossValidation());
+                List<String[]> fileSplits = new ArrayList<String[]>();
+                try {
+                    fileSplits = dsManager.splitForCrossValidation(dataset, getCrossValidation(),
+                            getNumberOfInstances());
+                } catch (IOException e) {
+                    LOGGER.error("could not split dataset for cross validation, " + e.getMessage());
+                }
 
                 // iterate through the cross validation folds, each entry contains the training and test file path
                 for (String[] filePaths : fileSplits) {
@@ -83,7 +90,7 @@ public class ClassifierEvaluator {
                     testDataset.setSeparationString(dataset.getSeparationString());
                     testDataset.setPath(filePaths[1]);
                     
-                    evalClassifier.train(trainingDataset, getNumberOfInstances());
+                    evalClassifier.train(trainingDataset);
 
                     ClassifierPerformanceResult performance = evalClassifier.evaluate(testDataset)
                     .getClassifierPerformanceResult();

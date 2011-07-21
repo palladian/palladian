@@ -1,5 +1,10 @@
 package ws.palladian.classification.page.evaluation;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.FileHelper;
 
 /**
@@ -34,6 +39,24 @@ public class Dataset {
     private boolean firstFieldLink = false;
 
     public Dataset() {
+    }
+
+    /**
+     * Create a new copy of the given dataset.
+     * 
+     * @param dataset The dataset which should be copied.
+     */
+    public Dataset(Dataset dataset) {
+        super();
+        try {
+            PropertyUtils.copyProperties(this, dataset);
+        } catch (IllegalAccessException e) {
+            Logger.getRootLogger().error(e);
+        } catch (InvocationTargetException e) {
+            Logger.getRootLogger().error(e);
+        } catch (NoSuchMethodException e) {
+            Logger.getRootLogger().error(e);
+        }
     }
 
     public Dataset(String name) {

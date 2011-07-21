@@ -467,7 +467,7 @@ public class Temp {
         String path = "index.txt";
 
         // create an excerpt with 1000 instances per class
-        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, 100);
+        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, " ", 100);
 
         String[] indexSplits = dsManager.splitIndex(indexExcerpt, 50);
 

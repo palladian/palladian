@@ -33,7 +33,7 @@ public class PalladianLangDetect extends LanguageClassifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianLangDetect.class);
 
-    private TextClassifier palladianClassifier;
+    private final TextClassifier palladianClassifier;
 
     /** We can specify which classes are possible and discard all others for the classification task. */
     private Set<String> possibleClasses = null;
@@ -264,7 +264,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         String path = dsManager.createIndex(datasetRootFolder, new String[] { "en", "es", "de" });
 
         // create an excerpt with 1000 instances per class
-        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, 1000);
+        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, " ", 1000);
 
         // specify the dataset that should be used as training data
         Dataset dataset = new Dataset();

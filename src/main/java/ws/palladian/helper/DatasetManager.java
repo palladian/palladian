@@ -93,44 +93,41 @@ public class DatasetManager {
      * Create a smaller subset of an index with exactly the same number of instances per class.
      * 
      * @param indexFilePath The path to the index file.
+     * @param separator The separator between the data and the class.
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
-    public String createIndexExcerpt(String indexFilePath, int instancesPerClass) throws IOException {
+    public String createIndexExcerpt(String indexFilePath, final String separator, final int instancesPerClass)
+            throws IOException {
 
         StopWatch sw = new StopWatch();
 
         String indexFilename = FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass);
-        FileWriter indexFile = new FileWriter(indexFilename);
-
-        final Object[] obj = new Object[3];
-        obj[0] = indexFile;
+        final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        obj[1] = new CountMap();
+        final CountMap cm = new CountMap();
 
-        obj[2] = instancesPerClass;
-
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(" ");
+                String[] parts = line.split(separator);
                 if (parts.length < 2) {
                     return;
                 }
 
-                if (((CountMap) obj[1]).get(parts[1]) >= (Integer) obj[2]) {
+                if (cm.get(parts[parts.length - 1]) >= instancesPerClass) {
                     return;
                 }
 
                 try {
-                    ((FileWriter) obj[0]).write(line + "\n");
+                    indexFile.write(line + "\n");
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage());
                 }
 
-                ((CountMap) obj[1]).increment(parts[1]);
+                cm.increment(parts[parts.length - 1]);
             }
 
         };
@@ -167,11 +164,24 @@ public class DatasetManager {
      * 
      * @param dataset The dataset to prepare for cross validation.
      * @param crossValidationFolds The number of folds for the cross validation.
+     * @param numberOfInstances The number of instances to use for training from the dataset. -1 means use all
+     *            instances.
      * @return The list of files used for the folds.
+     * @throws IOException
      */
-    public List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds) {
+    public List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances)
+            throws IOException {
 
         List<String[]> fileSplits = new ArrayList<String[]>();
+
+        // in case we don't want to use the complete dataset, we take a sub sample and create a new dataset
+        if (numberOfInstances > 0) {
+            String excerpt = createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), numberOfInstances);
+
+            Dataset newDataset = new Dataset(dataset);
+            newDataset.setPath(excerpt);
+            dataset = newDataset;
+        }
 
         List<String> lines = FileHelper.readFileToArray(dataset.getPath());
         int numberOfTrainingLines = lines.size() / crossValidationFolds;
@@ -426,6 +436,12 @@ public class DatasetManager {
     public static void main(String[] args) throws IOException {
 
         DatasetManager dsm = new DatasetManager();
+
+        Dataset dataset = new Dataset();
+        dataset.setPath("data/temp/trainCollection.csv");
+        dataset.setSeparationString("<###>");
+        dsm.splitForCrossValidation(dataset, 3, 10);
+        System.exit(0);
 
         String corpusRootFolderPath = "data/datasets/ner/www_test2/";
         dsm.cleanDataset(corpusRootFolderPath);
