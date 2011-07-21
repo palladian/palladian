@@ -437,16 +437,14 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         return show.toString();
     }
 
-    public void train(Dataset dataset) {
-        train(dataset, -1);
-    }
-    
     /**
-     * <p>Train the text classifier with the given dataset. Use a number of instances from the training set. -1 means use all data.</p>
+     * <p>
+     * Train the text classifier with the given dataset.
+     * </p>
+     * 
      * @param dataset The dataset to train from.
-     * @param numberOfInstances The number of instances to use for training from the dataset. -1 means use all instances.
      */
-    public void train(Dataset dataset, int numberOfInstances) {
+    public void train(Dataset dataset) {
 
         Instances<UniversalInstance> instances = getTrainingInstances();
 
@@ -455,10 +453,6 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
             List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
             for (String string : trainingArray) {
-                
-                if (added >= numberOfInstances && numberOfInstances > -1) {
-                    break;
-                }
                 
                 String[] parts = string.split(dataset.getSeparationString());
                 if (parts.length != 2) {
