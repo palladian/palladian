@@ -55,8 +55,6 @@ class DatasetProcessingAction extends FeedProcessingAction {
             newEntriesToWrite.add(fileEntry);
         }
 
-        feed.incrementNumberOfItemsReceived(newFeedEntries.size());
-
         // if all entries are new, we might have checked to late and missed some entries, we mark that by a
         // special line
         if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {

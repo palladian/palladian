@@ -428,6 +428,7 @@ public class Feed {
     private void setNewItems(List<FeedItem> newItems) {
         if (newItems != null) {
             this.newItems = newItems;
+            incrementNumberOfItemsReceived(newItems.size());
         }
     }
 
@@ -439,6 +440,7 @@ public class Feed {
      */
     private void addNewItem(FeedItem newItem) {
         this.newItems.add(newItem);
+        incrementNumberOfItemsReceived(1);
     }
 
     /**
@@ -1229,7 +1231,7 @@ public class Feed {
      * 
      * @param numberOfNewItems Number of new items.
      */
-    public void incrementNumberOfItemsReceived(int numberOfNewItems) {
+    private void incrementNumberOfItemsReceived(int numberOfNewItems) {
         numberOfItemsReceived += numberOfNewItems;
     }
 
