@@ -108,8 +108,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // String highestCountXPath = xpathset.getHighestCountXPath();
         shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
-        shortestMatchingXPath = shortestMatchingXPath.replace("HTML/BODY", "");
-        shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:HTML/xhtml:BODY", "");
+        shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
+        shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
         // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
         // shortestMatchingXPath =
         // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
@@ -157,7 +157,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
-        String imgXPath = "//IMG";
+        String imgXPath = "//img";
         // if (XPathHelper.hasXhtmlNs(document)) {
         // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
         // }
