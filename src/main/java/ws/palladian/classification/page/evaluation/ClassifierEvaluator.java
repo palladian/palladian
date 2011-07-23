@@ -129,7 +129,7 @@ public class ClassifierEvaluator {
         for (TextClassifier classifier : classifiers) {
             results.append(classifier.toString()).append(";");
             for (Dataset dataset : datasets) {
-                results.append(evaluationMatrix.get(dataset.getName(), classifier.toString()));
+                results.append(evaluationMatrix.get(dataset.getName(), classifier.getName()));
             }
             results.append("\n");
         }
