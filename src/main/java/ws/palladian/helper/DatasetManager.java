@@ -142,6 +142,58 @@ public class DatasetManager {
     }
 
     /**
+     * Create a smaller subset of an index with a limited total number of instances. As opposed to createIndexExcerpt,
+     * we have not a balanced, even number of instances per class but a sample of all instances. XXX => should be random
+     * 
+     * @param indexFilePath The path to the index file.
+     * @param separator The separator between the data and the class.
+     * @param totalInstances The total number of instances.
+     * @throws IOException
+     */
+    public String createIndexExcerptLimited(String indexFilePath, final String separator, final int totalInstances)
+            throws IOException {
+
+        StopWatch sw = new StopWatch();
+
+        String indexFilename = FileHelper.appendToFileName(indexFilePath, "_limited" + totalInstances);
+        final FileWriter indexFile = new FileWriter(indexFilename);
+
+        final CountMap instancesAdded = new CountMap();
+
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split(separator);
+                if (parts.length < 2) {
+                    return;
+                }
+
+                if (instancesAdded.get("total") >= totalInstances) {
+                    return;
+                }
+
+                try {
+                    indexFile.write(line + "\n");
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage());
+                }
+
+                instancesAdded.increment("total");
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(indexFilePath, la);
+
+        indexFile.close();
+
+        LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
+
+        return indexFilename;
+    }
+
+    /**
      * <p>
      * Create splits of the dataset so that it can be used for cross validation evaluation.
      * </p>
