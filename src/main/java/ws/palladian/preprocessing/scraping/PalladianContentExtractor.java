@@ -1,5 +1,6 @@
 package ws.palladian.preprocessing.scraping;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -19,6 +20,7 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
+import ws.palladian.preprocessing.multimedia.ImageHandler;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**
@@ -335,6 +337,25 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // CollectionHelper.print(pe.setDocument(
         // "http://edition.cnn.com/2011/WORLD/europe/01/14/italy.berlusconi/index.html").getImages("jpg"));
         // System.out.println(pe.getMainContentText());
+
+    }
+
+    /**
+     * <p>
+     * Try to find the correct image dimensions of all extracted images. Do that only for images that had no "width" and
+     * "height" attributes in the image tag. Note that other images might have different real dimensions and might have
+     * been scaled using the HTML attributes.
+     * </p>
+     */
+    public void analyzeImages() {
+
+        for (WebImage webImage : getImages()) {
+            if (webImage.getWidth() == 0) {
+                BufferedImage image = ImageHandler.load(webImage.getUrl());
+                webImage.setWidth(image.getWidth());
+                webImage.setHeight(image.getHeight());
+            }
+        }
 
     }
 

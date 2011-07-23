@@ -18,12 +18,9 @@ public class WebSearcherManager {
 
     // extracting knowledge from other sources (xml, rdf, owl, rss etc.)
     private final static WebSearcherManager INSTANCE = new WebSearcherManager();
+    @Deprecated
     public static final int YAHOO = 1;
     public static final int GOOGLE = 2;
-    // public static final int GOOGLE_PAGE = 5;
-    /** @deprecated obsolete; use {@link #BING} instead. */
-    @Deprecated
-    public static final int MICROSOFT = 3;
     public static final int HAKIA = 4;
     public static final int YAHOO_BOSS = 5;
     public static final int BING = 6;
@@ -45,11 +42,11 @@ public class WebSearcherManager {
 
     // determines how many sources (urls) should be retrieved
     private int resultCount = 8;
-    private int source = YAHOO;
+    private int source = BING;
 
     private int numberOfYahooRequests = 0;
     private int numberOfGoogleRequests = 0;
-    private int numberOfMicrosoftRequests = 0;
+    private final int numberOfMicrosoftRequests = 0;
     private int numberOfHakiaRequests = 0;
     private int numberOfBingRequests = 0;
     private int numberOfTwitterRequests = 0;
@@ -112,8 +109,6 @@ public class WebSearcherManager {
                 return numberOfYahooRequests;
             case GOOGLE:
                 return numberOfGoogleRequests;
-            case MICROSOFT:
-                return numberOfMicrosoftRequests;
             case HAKIA:
                 return numberOfHakiaRequests;
             case BING:
@@ -145,9 +140,6 @@ public class WebSearcherManager {
             case GOOGLE:
                 numberOfGoogleRequests++;
                 break;
-            case MICROSOFT:
-                numberOfMicrosoftRequests++;
-                break;
             case HAKIA:
                 numberOfHakiaRequests++;
                 break;
@@ -175,7 +167,8 @@ public class WebSearcherManager {
      */
     public static int[] getSearchEngines() {
         int[] indices = { WebSearcherManager.YAHOO, WebSearcherManager.GOOGLE,
-                WebSearcherManager.MICROSOFT, WebSearcherManager.HAKIA, WebSearcherManager.YAHOO_BOSS,
+ WebSearcherManager.HAKIA,
+                WebSearcherManager.YAHOO_BOSS,
                 WebSearcherManager.BING, WebSearcherManager.TWITTER, WebSearcherManager.GOOGLE_BLOGS,
                 WebSearcherManager.TEXTRUNNER, WebSearcherManager.GOOGLE_NEWS };
         return indices;
@@ -214,8 +207,6 @@ public class WebSearcherManager {
                 return "Yahoo!";
             case GOOGLE:
                 return "Google";
-            case MICROSOFT:
-                return "Microsoft";
             case HAKIA:
                 return "Hakia";
             case YAHOO_BOSS:

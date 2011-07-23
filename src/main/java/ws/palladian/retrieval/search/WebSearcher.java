@@ -405,7 +405,6 @@ public class WebSearcher {
      * 
      * @author Christopher Friedrich
      */
-    @SuppressWarnings("deprecation")
     public final List<WebResult> getWebResults(String searchQuery, int source, boolean exact) {
         // searchQuery = searchQuery.replaceAll(" ","+");
 
@@ -436,13 +435,6 @@ public class WebSearcher {
                 // case SourceRetriever.GOOGLE_PAGE:
                 // //if (exact) searchQuery = "%22"+searchQuery+"%22";
                 // return this.getURLsFromGooglePage(searchQuery);
-            case WebSearcherManager.MICROSOFT:
-                // if (exact) searchQuery = URLEncoder.encode(searchQuery);
-
-                // TODO: queries are now automatically redirected to Bing,
-                // so we have to use the Bing method here, can also remove
-                // this if existing code has been adapted.
-                return getWebResultsFromBing(searchQuery);
             case WebSearcherManager.HAKIA:
                 return getWebResultsFromHakia(searchQuery);
             case WebSearcherManager.BING:
