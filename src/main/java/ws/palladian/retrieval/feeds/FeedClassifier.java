@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +16,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
  * The FeedClassifier classifies a feed in terms of their update intervals.
  * 
  * @author David Urbansky
+ * @author Sandro Reichert
  */
 public class FeedClassifier {
 
@@ -94,25 +94,41 @@ public class FeedClassifier {
      * 
      * @param item The feed's items.
      * @return The classification as a numeric value.
+     * @deprecated Classifying a feed directly by its items is dangerous since all feeds that do not provide item
+     *             timestamps are classified as {@link #CLASS_ON_THE_FLY}. This is done since missing timestamps are
+     *             replaced by the current timestamp to construct a {@link Feed} from the items in order to calculate
+     *             the {@link FeedPostStatistics}. If you already have the {@link FeedItem}s to be used for
+     *             classification, use {@link #classify(Feed)}.
      */
+    @Deprecated
     public static int classify(List<FeedItem> items) {
-        int feedClass = CLASS_UNKNOWN;
-
         Feed feed = new Feed();
         feed.setItems(items);
+        feed.setActivityPattern(classify(feed));
+        return feed.getActivityPattern();
+    }
+
+    /**
+     * Classify a feed by the items it already provides.
+     * 
+     * @param item The feed.
+     * @return The classification as a numeric value.
+     */
+    public static int classify(Feed feed) {
+        int feedClass = CLASS_UNKNOWN;
+
         FeedPostStatistics fps = new FeedPostStatistics(feed);
 
-        // // use rule based classification
+        // use rule based classification
 
-        if (items.size() == 0) {
+        if (feed.getItems().size() == 0) {
             feedClass = CLASS_EMPTY;
-        } else if (items.size() == 1) {
+        } else if (feed.getItems().size() == 1) {
             feedClass = CLASS_SINGLE_ENTRY;
         } else if (fps.isValidStatistics()) {
 
             // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at
-            // the
-            // same time
+            // the same time
             if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
                 if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
                     // TODO Sandro: getTimeDifferenceToNewestPost() should be replaced by using the date element from
@@ -154,7 +170,7 @@ public class FeedClassifier {
     }
 
     /**
-     * Classify a feed by its given URL.
+     * Classify a feed by its given URL. Retrieves and classifies the feed. The retrieved feed is wasted
      * 
      * @param feedURL The URL of the feed.
      * @return The class of the feed.
@@ -162,17 +178,11 @@ public class FeedClassifier {
     public static int classify(String feedURL) {
 
         FeedRetriever feedRetriever = new FeedRetriever();
-
-        List<FeedItem> items = new ArrayList<FeedItem>();
-
-        // check if feed is not accessible, try 5 times
+        Feed feed = new Feed();
         DocumentRetriever crawler = new DocumentRetriever();
 
         try {
-
-            Feed feed = feedRetriever.getFeed(feedURL);
-            items = feed.getItems();
-
+            feed = feedRetriever.getFeed(feedURL);
         } catch (FeedRetrieverException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
@@ -183,13 +193,9 @@ public class FeedClassifier {
             }
         }
 
-        return classify(items);
+        return classify(feed);
     }
 
-    public static int classify(Feed feed) {
-        feed.setActivityPattern(classify(feed.getFeedUrl()));
-        return feed.getActivityPattern();
-    }
 
     /**
      * Get the name of the feed's class.

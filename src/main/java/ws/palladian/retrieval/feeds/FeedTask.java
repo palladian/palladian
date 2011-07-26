@@ -238,11 +238,11 @@ class FeedTask implements Callable<FeedTaskResult> {
     private boolean generateMetaInformation(HttpResult httpResult, Feed downloadedFeed) {
         boolean metadataCreated = false;
 
-        if (feed.getActivityPattern() == -1 || feed.getLastPollTime() != null
+        if (feed.getActivityPattern() == FeedClassifier.CLASS_UNKNOWN || feed.getLastPollTime() != null
                 && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
 
             metadataCreated = true;
-            FeedClassifier.classify(feed);
+            feed.setActivityPattern(FeedClassifier.classify(feed));
             MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
             metaInfExt.updateFeedMetaInformation(feed.getMetaInformation());
             feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());

@@ -14,7 +14,8 @@ public class FeedClassificationThread implements Runnable {
 
     @Override
     public void run() {
-        FeedClassifier.classify(feed);
+        feed.setActivityPattern(FeedClassifier.classify(feed.getFeedUrl()));
+
 //        List<FeedEntry> entries;
 //		try {
 //			entries = na.getEntries(feed.getFeedUrl());
