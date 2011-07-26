@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -117,11 +118,25 @@ public class FacebookLinkStats implements RankingService {
 		try {
 			
 	    	for(int i=0; i<urls.size(); i++){
-	    		if(i == urls.size()-1) encUrls += "url='"+StringHelper.urlEncode(urls.get(i)+"'");
-	    		else encUrls += "url='"+StringHelper.urlEncode(urls.get(i)+"' or ");
+	    		if(i == urls.size()-1) encUrls += "url='"+StringHelper.urlEncode(urls.get(i))+"'";
+	    		else encUrls += "url='"+StringHelper.urlEncode(urls.get(i))+"' or ";
 	    	}
 	    	
-	    	JSONArray json = crawler.getJSONArray(FQL_QUERY + encUrls);
+	    	HashMap<String, String> postData = new HashMap<String, String>();
+	    	postData.put("format", "json");
+	    	postData.put("query", "select total_count,like_count,comment_count,share_count from link_stat where "+encUrls);
+
+	    	HttpResult response = crawler.httpPost("https://api.facebook.com/method/fql.query", postData);
+	    	String content = new String(response.getContent());
+	    	JSONArray json = null;
+            if (content.length() > 0) {
+                try {
+                    json = new JSONArray(content);
+                } catch (JSONException e) {
+                    LOGGER.error("JSONException: " + e.getMessage());
+                }
+            }
+	    	
 	    	Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
             
 	        if (json != null) {
@@ -155,7 +170,9 @@ public class FacebookLinkStats implements RankingService {
 		} catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
-        }
+        } catch (HttpException e) {
+        	LOGGER.error("HttpException " + e.getMessage());
+		}
 
         return results;
 	}
