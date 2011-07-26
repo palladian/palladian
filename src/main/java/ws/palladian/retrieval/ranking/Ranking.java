@@ -18,7 +18,7 @@ public class Ranking {
 	private RankingService service;
 	/** The ranking values */
 	private Map<RankingType, Float> values;
-	/** The url these reanking values are for */
+	/** The url these ranking values are for */
 	private String url;
 	/** The time when the ranking was retrieved */
 	private Timestamp retrieved;
