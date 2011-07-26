@@ -244,6 +244,28 @@ public class ImageHandler {
         return rescaleImage(bufferedImage, scale);
     }
 
+    public static BufferedImage rescaleImageAndCrop(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+
+        if (bufferedImage == null) {
+            LOGGER.warn("given image was NULL");
+            return null;
+        }
+
+        BufferedImage rescaledImage = rescaleImage(bufferedImage, boxWidth, boxHeight);
+
+        int iHeight = rescaledImage.getHeight();
+
+        // vertically center the image in the box if the height is greateer than the box height
+        double yOffset = (iHeight - boxHeight) / 2.0;
+
+        // nothing to crop
+        if (yOffset < 0) {
+            return rescaledImage;
+        }
+
+        return rescaledImage.getSubimage(0, (int) yOffset, boxWidth, boxHeight);
+    }
+
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
 
         // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
@@ -753,6 +775,14 @@ public class ImageHandler {
         // url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
         // URL urlLocation;
         try {
+
+            BufferedImage i0 = ImageHandler
+                    .load("http://007blog.net/fotos/2011/06/Come%C3%A7am-as-inscri%C3%A7%C3%B5es-para-o-SiSU-20111.jpg");
+            BufferedImage i1 = ImageHandler.rescaleImageAndCrop(i0, 400, 100);
+            ImageHandler.saveImage(i1, "jpg", "testCrop.jpg");
+            i1 = ImageHandler.rescaleImage(i0, 400, 100);
+            ImageHandler.saveImage(i1, "jpg", "testRescale.jpg");
+            System.exit(0);
 
             BufferedImage im = ImageHandler
             .load("http://img-cdn.mediaplex.com/0/9609/82826/160x600_budget_gpsgeneric_0909.gif");

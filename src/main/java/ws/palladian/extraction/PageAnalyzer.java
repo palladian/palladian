@@ -929,11 +929,8 @@ public class PageAnalyzer {
 
             List<Node> results = XPathHelper.getXhtmlNodes(document, xpath);
 
-            Iterator<Node> nodeIterator = results.iterator();
-            while (nodeIterator.hasNext()) {
+            for (Node node : results) {
 
-                // get all text nodes
-                Node node = nodeIterator.next();
                 sb.append(getSeparatedTextContents(node, new StringBuilder(""))).append(" ");
                 // sb.append(nodeIterator.next().getTextContent()).append(" "); // texts from different nodes stick
                 // together
