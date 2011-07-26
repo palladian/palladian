@@ -83,13 +83,12 @@ public class GooglePageRank implements RankingService{
 	        // original code from ws.palladian.retrieval.ranking.RankingRetriever
 	        JenkinsHash jHash = new JenkinsHash();
 	        long urlHash = jHash.hash(("info:" + url).getBytes());
-	        
 	        String response = crawler
 	                .getTextDocument("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6"
 	                        + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + encUrl);
 	        
 	        ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-            if (response != null && !response.isEmpty()) {
+            if (response != null) {
             	int result = 0;
             	// result stays 0 if response empty -> url not found
             	if (response.contains(":")) {
