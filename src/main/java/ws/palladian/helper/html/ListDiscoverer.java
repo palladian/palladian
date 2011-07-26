@@ -43,7 +43,7 @@ public class ListDiscoverer {
     private static final Logger LOGGER = Logger.getLogger(ListDiscoverer.class);
 
     /** Set of URLs that were found in the pagination of the given page */
-    private Set<String> paginationURLs;
+    private final Set<String> paginationURLs;
 
     /** The XPath that points to the pagination of the given page */
     private String paginationXPath = "";
@@ -274,7 +274,7 @@ public class ListDiscoverer {
             // String[] removeCountElements = { "A", "TR", "TD", "P", "SPAN", "LI" };
 
             // all links are candidates for pagination, so get the nodes
-            List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//A");
+            List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//a");
             if (paginationCandidates == null) {
                 return paginationURLs;
             }
@@ -483,8 +483,8 @@ public class ListDiscoverer {
      * @return A set of xPaths.
      */
     public XPathSet getXPathSet(Document document) {
-        String[] listElements = { "//UL/LI", "//OL/LI", "//TD", "//H2", "//H3", "//H4", "//H5", "//H6", "//A", "//I",
-                "//DIV", "//STRONG", "//SPAN" };
+        String[] listElements = { "//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i",
+                "//div", "//strong", "//span" };
         PageAnalyzer pa = new PageAnalyzer();
         XPathSet xPathSet = new XPathSet();
 
@@ -500,7 +500,7 @@ public class ListDiscoverer {
                 // String xPath = PageAnalyzer.removeCounts(pa.constructXPath(currentNode));
                 // 1/1 better results
                 // String[] rcElements = {"DIV","TABLE","P","A"};
-                String[] rcElements = { "TABLE" }; // TODO! get more than one table?:
+                String[] rcElements = { "table" }; // TODO! get more than one table?:
                 // http://www.blu-ray.com/movies/movies.php?genre=action AND
                 // http://www.nytimes.com/ref/movies/1000best.html
                 String xPath = PageAnalyzer.removeXPathIndicesNot(pa.constructXPath(currentNode), rcElements);
@@ -534,8 +534,6 @@ public class ListDiscoverer {
         this.url = document.getDocumentURI();
         this.document = document;
 
-        // String[] listElements =
-        // {"//UL/LI[count(*)<4]","//OL/LI[count(*)<4]","//TD[count(*)<4]","//H1","//H2","//H3","//H4","//H5","//H6","//A[count(../*)<=3]","//I","//DIV[count(*)<4]","//STRONG"};
         XPathSet xPathSet = getXPathSet(document);
 
         // remove paths from xpath set that can be found on a sibling page
@@ -575,7 +573,7 @@ public class ListDiscoverer {
 
         // uniformity check
         List<Node> listNodes = XPathHelper.getXhtmlNodes(document, entityXPath);
-        ArrayList<String> entityCandidateList = new ArrayList<String>();
+        List<String> entityCandidateList = new ArrayList<String>();
         for (int j = 0; j < listNodes.size(); j++) {
             entityCandidateList.add(listNodes.get(j).getTextContent());
         }
