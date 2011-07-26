@@ -45,7 +45,7 @@ public class UrlHelper {
                 try {
                     resultUrl = new URL(pageUrl);
                 } catch (MalformedURLException e) {
-                    LOGGER.error("makeFullURL: pageUrl: " + e.getMessage());
+                    LOGGER.trace("makeFullURL: pageUrl: " + e.getMessage());
                 }
             }
             // create URL object considering baseUrl, relative to pageUrl
@@ -59,13 +59,13 @@ public class UrlHelper {
                     resultUrl = new URL(resultUrl, baseUrl);
                 }
             } catch (MalformedURLException e) {
-                LOGGER.error("makeFullURL: baseUrl: " + e.getMessage());
+                LOGGER.trace("makeFullURL: baseUrl: " + e.getMessage());
             }
             // create URL object considering linkUrl, relative to pageUrl+baseUrl
             try {
                 resultUrl = new URL(resultUrl, linkUrl);
             } catch (MalformedURLException e) {
-                LOGGER.error("makeFullURL: linkUrl: " + e.getMessage());
+                LOGGER.trace("makeFullURL: linkUrl: " + e.getMessage());
             }
             if (resultUrl != null) {
                 result = resultUrl.toString();
