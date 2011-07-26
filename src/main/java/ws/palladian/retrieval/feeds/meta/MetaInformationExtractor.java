@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
@@ -19,9 +18,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.XmlParser;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -33,6 +34,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * Helper to process a {@link HttpResult} and extract some Headers. Code taken from {@link MetaInformationCreationTask}.
  * 
  * @author Sandro Reichert
+ * @author Philipp Katz
  * 
  */
 public class MetaInformationExtractor {
@@ -72,9 +74,9 @@ public class MetaInformationExtractor {
      * <li>conditionalGetResponseSize</li>
      * </ul>
      * 
-     * @param feed The {@link Feed} to update.
+     * @param feedMetaInformation The {@link FeedMetaInformation} to update.
      */
-    public void updateGeneralMetaInformation(Feed feed) {
+    public void updateFeedMetaInformation(FeedMetaInformation feedMetaInformation) {
         if (httpContent.equals("")) {
             httpContent = getHttpContent();
         }
@@ -82,21 +84,21 @@ public class MetaInformationExtractor {
             syndFeed = getSyndFeed();
         }
 
-        feed.getMetaInformation().setAccessible(isAccessibleFeed());
-        feed.getMetaInformation().setSupportsPubSubHubBub(getFeedSupportsPubSubHubBub());
+        feedMetaInformation.setAccessible(isAccessibleFeed());
+        feedMetaInformation.setSupportsPubSubHubBub(getFeedSupportsPubSubHubBub());
 
         String feedFormat = getFeedFormat();
-        feed.getMetaInformation().setFeedFormat(feedFormat);
+        feedMetaInformation.setFeedFormat(feedFormat);
 
         if (feedFormat != null) {
             if (feedFormat.toLowerCase().contains("rss")) {
-                determineRssMetaInformation(feed);
+                determineRssMetaInformation(feedMetaInformation);
             } else if (feedFormat.toLowerCase().contains("atom")) {
-                determineAtomMetaInformation(feed);
+                determineAtomMetaInformation(feedMetaInformation);
             }
         }
 
-        feed.getMetaInformation().setCgHeaderSize(getHeaderFieldSize());
+        feedMetaInformation.setCgHeaderSize(getHeaderFieldSize());
     }
 
     /**
@@ -193,17 +195,18 @@ public class MetaInformationExtractor {
 
         SyndFeedInput input = new SyndFeedInput();
         input.setPreserveWireFeed(true);
-        StringReader currentFeedInputReader = null;
         SyndFeed feed = null;
         try {
-            currentFeedInputReader = new StringReader(httpContent);
-            feed = input.build(currentFeedInputReader);
+            XmlParser parser = new XmlParser();
+            InputStream inputStream = new ByteArrayInputStream(httpResult.getContent());
+            Document document = parser.parse(inputStream);
+            feed = input.build(document);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Unable to determine feed version. " + e.getMessage());
         } catch (FeedException e) {
             LOGGER.error("Unable to determine feed version. " + e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(currentFeedInputReader);
+        } catch (ParserException e) {
+            LOGGER.error("Unable to determine feed version. " + e.getMessage());
         }
         return feed;
     }
@@ -217,9 +220,9 @@ public class MetaInformationExtractor {
      * </ul>
      * The meta information is written to the feed's meta information.
      * 
-     * @param feed The feed to update.
+     * @param feedMetaInformation The feed to update.
      */
-    private void determineAtomMetaInformation(Feed feed) {
+    private void determineAtomMetaInformation(FeedMetaInformation feedMetaInformation) {
         if (syndFeed != null) {
             Iterator<?> it = syndFeed.getEntries().iterator();
             if (it.hasNext()) {
@@ -228,9 +231,9 @@ public class MetaInformationExtractor {
                         .getWireEntry();
                 String rawId = atomEntry.getId();
 
-                feed.getMetaInformation().setHasItemIds(rawId != null && !rawId.isEmpty());
-                feed.getMetaInformation().setHasUpdated(atomEntry.getUpdated() != null);
-                feed.getMetaInformation().setHasPublished(atomEntry.getPublished() != null);
+                feedMetaInformation.setHasItemIds(rawId != null && !rawId.isEmpty());
+                feedMetaInformation.setHasUpdated(atomEntry.getUpdated() != null);
+                feedMetaInformation.setHasPublished(atomEntry.getPublished() != null);
             }
         }
     }
@@ -250,7 +253,7 @@ public class MetaInformationExtractor {
      * @param syndFeed
      * @param metaInformation
      */
-    private void determineRssMetaInformation(Feed feed) {
+    private void determineRssMetaInformation(FeedMetaInformation feedMetaInformation) {
         Iterator<?> it = syndFeed.getEntries().iterator();
         if (it.hasNext()) {
             SyndEntry syndEntry = (SyndEntry) it.next();
@@ -260,12 +263,12 @@ public class MetaInformationExtractor {
                     .originalWireFeed();
             Guid guid = rssItem.getGuid();
 
-            feed.getMetaInformation().setHasItemIds(guid != null && !guid.getValue().isEmpty());
-            feed.getMetaInformation().setHasPubDate(rssItem.getPubDate() != null);
-            feed.getMetaInformation().setHasCloud(channel.getCloud() != null);
-            feed.getMetaInformation().setTtl(channel.getTtl());
-            feed.getMetaInformation().setHasSkipDays(!channel.getSkipDays().isEmpty());
-            feed.getMetaInformation().setHasSkipHours(!channel.getSkipHours().isEmpty());
+            feedMetaInformation.setHasItemIds(guid != null && !guid.getValue().isEmpty());
+            feedMetaInformation.setHasPubDate(rssItem.getPubDate() != null);
+            feedMetaInformation.setHasCloud(channel.getCloud() != null);
+            feedMetaInformation.setTtl(channel.getTtl());
+            feedMetaInformation.setHasSkipDays(!channel.getSkipDays().isEmpty());
+            feedMetaInformation.setHasSkipHours(!channel.getSkipHours().isEmpty());
         }
     }
 
