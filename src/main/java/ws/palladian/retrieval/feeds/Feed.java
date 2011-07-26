@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.helper.EnumHelper;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
@@ -128,7 +129,7 @@ public class Feed {
     private Boolean oneFullDayOfItemsSeen = null;
 
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
-    private int activityPattern = -1;
+    private int activityPattern = FeedClassifier.CLASS_UNKNOWN;
 
     /** The ETag that was send with the last request. This saves bandwidth for feeds that support ETags. */
     private String lastETag = null;
@@ -656,9 +657,11 @@ public class Feed {
     }
 
     public void setActivityPattern(Integer activityPattern) {
-        if (activityPattern != null) {
+        if (activityPattern != null
+                && CollectionHelper.contains(FeedClassifier.getActivityPatternIDs(), activityPattern)) {
             this.activityPattern = activityPattern;
         }
+        
     }
 
     /**
