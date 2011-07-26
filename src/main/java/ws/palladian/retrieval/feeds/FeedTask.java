@@ -244,7 +244,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             metadataCreated = true;
             FeedClassifier.classify(feed);
             MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
-            metaInfExt.updateGeneralMetaInformation(feed);
+            metaInfExt.updateFeedMetaInformation(feed.getMetaInformation());
             feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
             feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
             feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
