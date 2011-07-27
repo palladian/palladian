@@ -158,11 +158,11 @@ public class DatasetManager {
 
         String indexFilename = FileHelper.appendToFileName(indexFilePath, "_random" + totalInstances);
         final FileWriter indexFile = new FileWriter(indexFilename);
-        
+
         int numberOfLines = FileHelper.getNumberOfLines(indexFilePath);
 
-        final Set<Integer> randomNumbers = MathHelper.createRandomNumbers(totalInstances,0,numberOfLines);
-        
+        final Set<Integer> randomNumbers = MathHelper.createRandomNumbers(totalInstances, 0, numberOfLines);
+
         LineAction la = new LineAction() {
 
             @Override
@@ -480,6 +480,43 @@ public class DatasetManager {
         FileHelper.writeToFile(dataset.getRootPath() + "training.csv", linesTraining);
         FileHelper.writeToFile(dataset.getRootPath() + "test.csv", linesTest);
 
+    }
+
+    /**
+     * <p>
+     * Write the CSV separated list of class names and their frequencies in the dataset.
+     * </p>
+     * 
+     * @param datasetPath The path to the dataset index file.
+     * @param csvPath The path where the csv file should be saved to.
+     */
+    public CountMap calculateClassDistribution(final Dataset dataset, String csvPath) {
+
+        final CountMap classCounts = new CountMap();
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split(dataset.getSeparationString());
+                if (parts.length < 2) {
+                    return;
+                }
+
+                classCounts.increment(parts[parts.length - 1]);
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(dataset.getPath(), la);
+        
+        StringBuilder csv = new StringBuilder();
+        for (Entry<Object, Integer> entry : classCounts.entrySet()) {
+            csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
+        }
+        
+        FileHelper.writeToFile(csvPath, csv);      
+        
+        return classCounts;
     }
 
     public int countClasses(final Dataset dataset) {

@@ -1,8 +1,10 @@
 package ws.palladian.helper.collection;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 // FIXME make this generic
 public class CountMap extends HashMap<Object, Integer> {
@@ -66,6 +68,23 @@ public class CountMap extends HashMap<Object, Integer> {
             totalSize += entry.getValue();
         }
         return totalSize;
+    }
+    
+    /**
+     * <p>Get all objects that have more than a certain count.
+     * @param count Objects must have a count greater than count.</p>
+     * @return A set of objects with a higher count than specified.
+     */
+    public Set<Object> getObjectsWithHigherCountThan(int count) {
+        
+        Set<Object> highCountSet = new HashSet<Object>();
+        for (java.util.Map.Entry<Object, Integer> entry : entrySet()) {
+            if (entry.getValue() > count) {
+                highCountSet.add(entry.getKey());
+            }
+        }
+        
+        return highCountSet;        
     }
 
 }
