@@ -13,6 +13,7 @@ import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.Matrix;
+import ws.palladian.preprocessing.ProcessingPipeline;
 
 public class ClassifierEvaluator {
 
@@ -26,9 +27,12 @@ public class ClassifierEvaluator {
 
     /** The list of dataset to use for evaluation. */
     private final List<Dataset> datasets = new ArrayList<Dataset>();
-    
-    /** The number of instances per dataset to use for evaluation. This number must be lower or equals the number of instances in the smallest dataset. -1 means that all instances should be considered. */
-    private int numberOfInstances = -1;
+
+    /**
+     * The number of instances per class in the dataset to use for evaluation. This number must be lower or equals the
+     * number of instances in the smallest dataset. -1 means that all instances should be considered.
+     */
+    private int numberOfInstancesPerClass = -1;
 
     public void addClassifier(TextClassifier classifier) {
         classifiers.add(classifier);
@@ -48,9 +52,10 @@ public class ClassifierEvaluator {
         // loop through all classifiers
         for (TextClassifier classifier : classifiers) {
 
-            // we need to copy the classifier since we reset it for evaluation which makes the original classifier useless
+            // we need to copy the classifier since we reset it for evaluation which makes the original classifier
+            // useless
             TextClassifier evalClassifier = classifier.copy();
-            
+
             for (Dataset dataset : datasets) {
 
                 // collect the classifier performance for each fold, merge them in the end
@@ -60,7 +65,7 @@ public class ClassifierEvaluator {
                 List<String[]> fileSplits = new ArrayList<String[]>();
                 try {
                     fileSplits = dsManager.splitForCrossValidation(dataset, getCrossValidation(),
-                            getNumberOfInstances());
+                            getNumberOfInstancesPerClass());
                 } catch (IOException e) {
                     LOGGER.error("could not split dataset for cross validation, " + e.getMessage());
                 }
@@ -89,13 +94,11 @@ public class ClassifierEvaluator {
                     testDataset.setFirstFieldLink(dataset.isFirstFieldLink());
                     testDataset.setSeparationString(dataset.getSeparationString());
                     testDataset.setPath(filePaths[1]);
-                    
+
                     evalClassifier.train(trainingDataset);
 
                     ClassifierPerformanceResult performance = evalClassifier.evaluate(testDataset)
-                    .getClassifierPerformanceResult();
-
-                    // System.out.println(performance);
+                            .getClassifierPerformanceResult();
 
                     performances.add(performance);
                 }
@@ -193,19 +196,95 @@ public class ClassifierEvaluator {
         this.crossValidation = crossValidation;
     }
 
-    public void setNumberOfInstances(int numberOfInstances) {
-        this.numberOfInstances = numberOfInstances;
+    public void setNumberOfInstancesPerClass(int numberOfInstancesPerClass) {
+        this.numberOfInstancesPerClass = numberOfInstancesPerClass;
     }
 
-    public int getNumberOfInstances() {
-        return numberOfInstances;
+    public int getNumberOfInstancesPerClass() {
+        return numberOfInstancesPerClass;
     }
-    
+
+    /**
+     * Evaluate the classifier playground. Do not use...just for quality control and manual testing.
+     * 
+     * @throws IOException
+     * 
+     */
+    public void evaluateClassifierPlayground() throws IOException {
+
+        ProcessingPipeline pipeline = new ProcessingPipeline();
+        // pipeline.add(new StopWordRemover());
+
+        // pipeline.add(new WordCounter());
+
+        DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
+        dictionaryClassifier1.setName("D1");
+        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(2);
+        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(8);
+        dictionaryClassifier1.setProcessingPipeline(pipeline);
+        // dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+
+        DictionaryClassifier dictionaryClassifier2 = new DictionaryClassifier();
+        dictionaryClassifier2.setName("D2");
+        dictionaryClassifier2.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        dictionaryClassifier2.getFeatureSetting().setMinNGramLength(1);
+        dictionaryClassifier2.getFeatureSetting().setMaxNGramLength(4);
+        dictionaryClassifier2.setProcessingPipeline(pipeline);
+        DictionaryClassifier dictionaryClassifier3 = new DictionaryClassifier();
+        dictionaryClassifier3.setName("D3");
+        // dictionaryClassifier3.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        dictionaryClassifier3.getFeatureSetting().setMinNGramLength(3);
+        dictionaryClassifier3.getFeatureSetting().setMaxNGramLength(4);
+        DictionaryClassifier dictionaryClassifier4 = new DictionaryClassifier();
+        dictionaryClassifier4.setName("D4");
+        dictionaryClassifier4.getFeatureSetting().setMinNGramLength(2);
+        dictionaryClassifier4.getFeatureSetting().setMaxNGramLength(8);
+
+        Dataset dataset = new Dataset("MarktjagdProducts");
+        dataset.setFirstFieldLink(false);
+        dataset.setSeparationString("<###>");
+        dataset.setPath("data/temp/amazon/de_csv_ce_retail_delta_20110719.base_filtered_browsenode_cleansed.csv");
+        // dataset.setPath("data/temp/articles_small.csv");
+        // dataset.setPath("data/temp/trainingCollection.csv");
+        // dataset.setPath("data/temp/trainingCollection2.csv");
+        // dataset.setPath("data/temp/dataset_classifier_dev_1_ipc1000.csv");
+
+        DatasetManager datasetManager = new DatasetManager();
+
+        // create an excerpt (optional)
+        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
+                100);
+        dataset.setPath(dsExcerpt);
+        System.exit(0);
+
+        int countClasses = datasetManager.countClasses(dataset);
+        System.out.println("The dataset " + dataset.getName() + " contains " + countClasses + " classes");
+
+        ClassifierEvaluator evaluator = new ClassifierEvaluator();
+        evaluator.setCrossValidation(3);
+        // evaluator.setNumberOfInstancesPerClass(50);
+
+        evaluator.addClassifier(dictionaryClassifier1);
+        // evaluator.addClassifier(dictionaryClassifier2);
+        // evaluator.addClassifier(dictionaryClassifier3);
+        // evaluator.addClassifier(dictionaryClassifier4);
+        evaluator.addDataset(dataset);
+
+        evaluator.runEvaluation("data/temp/evaluatorResults.csv");
+        // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier1.getName()));
+        // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier2.getName()));
+    }
+
     /**
      * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
+
+        evaluator.evaluateClassifierPlayground();
+        System.exit(0);
+
         evaluator.setCrossValidation(2);
         evaluator.addClassifier(new DictionaryClassifier());
         Dataset dataset = new Dataset();

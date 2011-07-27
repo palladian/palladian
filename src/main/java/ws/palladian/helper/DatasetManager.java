@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.MathHelper;
 
 public class DatasetManager {
 
@@ -150,16 +151,18 @@ public class DatasetManager {
      * @param totalInstances The total number of instances.
      * @throws IOException
      */
-    public String createIndexExcerptLimited(String indexFilePath, final String separator, final int totalInstances)
+    public String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances)
             throws IOException {
 
         StopWatch sw = new StopWatch();
 
-        String indexFilename = FileHelper.appendToFileName(indexFilePath, "_limited" + totalInstances);
+        String indexFilename = FileHelper.appendToFileName(indexFilePath, "_random" + totalInstances);
         final FileWriter indexFile = new FileWriter(indexFilename);
+        
+        int numberOfLines = FileHelper.getNumberOfLines(indexFilePath);
 
-        final CountMap instancesAdded = new CountMap();
-
+        final Set<Integer> randomNumbers = MathHelper.createRandomNumbers(totalInstances,0,numberOfLines);
+        
         LineAction la = new LineAction() {
 
             @Override
@@ -169,7 +172,7 @@ public class DatasetManager {
                     return;
                 }
 
-                if (instancesAdded.get("total") >= totalInstances) {
+                if (randomNumbers.size() > 0 && !randomNumbers.contains(lineNumber)) {
                     return;
                 }
 
@@ -179,7 +182,6 @@ public class DatasetManager {
                     LOGGER.error(e.getMessage());
                 }
 
-                instancesAdded.increment("total");
             }
 
         };
@@ -260,7 +262,7 @@ public class DatasetManager {
             }
 
             String trainingFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_training" + fold
-            + ".txt";
+                    + ".txt";
             String testFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_test" + fold + ".txt";
 
             FileHelper.writeToFile(trainingFilePath, trainingData);
@@ -480,6 +482,27 @@ public class DatasetManager {
 
     }
 
+    public int countClasses(final Dataset dataset) {
+
+        final Set<String> classes = new HashSet<String>();
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split(dataset.getSeparationString());
+                if (parts.length < 2) {
+                    return;
+                }
+
+                classes.add(parts[parts.length - 1]);
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(dataset.getPath(), la);
+
+        return classes.size();
+    }
 
     /**
      * @param args
