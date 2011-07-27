@@ -121,9 +121,9 @@ public class FeedClassifier {
 
         // use rule based classification
 
-        if (feed.getItems().size() == 0) {
+        if (feed.getItemTimestamps().size() == 0) {
             feedClass = CLASS_EMPTY;
-        } else if (feed.getItems().size() == 1) {
+        } else if (feed.getItemTimestamps().size() == 1) {
             feedClass = CLASS_SINGLE_ENTRY;
         } else if (fps.isValidStatistics()) {
 
