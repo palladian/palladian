@@ -220,9 +220,9 @@ public class ClassifierEvaluator {
         DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
         dictionaryClassifier1.setName("D1");
         dictionaryClassifier1.getFeatureSetting().setMinNGramLength(2);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(8);
+        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(6);
         dictionaryClassifier1.setProcessingPipeline(pipeline);
-        // dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+         dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
         DictionaryClassifier dictionaryClassifier2 = new DictionaryClassifier();
         dictionaryClassifier2.setName("D2");
@@ -243,22 +243,27 @@ public class ClassifierEvaluator {
         Dataset dataset = new Dataset("MarktjagdProducts");
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("<###>");
-        dataset.setPath("data/temp/amazon/de_csv_ce_retail_delta_20110719.base_filtered_browsenode_cleansed.csv");
+        dataset.setPath("data/temp/amazon/amazonElectronicDE_detailedCats.csv");
+        dataset.setPath("data/temp/amazon/amazonElectronicDE_mainCats.csv");
+        dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
+        
         // dataset.setPath("data/temp/articles_small.csv");
         // dataset.setPath("data/temp/trainingCollection.csv");
         // dataset.setPath("data/temp/trainingCollection2.csv");
         // dataset.setPath("data/temp/dataset_classifier_dev_1_ipc1000.csv");
 
         DatasetManager datasetManager = new DatasetManager();
-
+        datasetManager.calculateClassDistribution(dataset, "data/temp/amazon/distributionFull.csv");
+        
         // create an excerpt (optional)
         String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
-                100);
+                10000);
         dataset.setPath(dsExcerpt);
-        System.exit(0);
+        datasetManager.calculateClassDistribution(dataset, "data/temp/amazon/distributionExcerpt.csv");
 
         int countClasses = datasetManager.countClasses(dataset);
         System.out.println("The dataset " + dataset.getName() + " contains " + countClasses + " classes");
+//        System.exit(0);
 
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
         evaluator.setCrossValidation(3);
@@ -270,7 +275,10 @@ public class ClassifierEvaluator {
         // evaluator.addClassifier(dictionaryClassifier4);
         evaluator.addDataset(dataset);
 
-        evaluator.runEvaluation("data/temp/evaluatorResults.csv");
+//        evaluator.runEvaluation("data/temp/amazon/evaluatorResults.csv");
+        
+        dictionaryClassifier1.train(dataset);
+        FileHelper.serialize(dictionaryClassifier1, "prcSelected10k.gz");
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier1.getName()));
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier2.getName()));
     }
