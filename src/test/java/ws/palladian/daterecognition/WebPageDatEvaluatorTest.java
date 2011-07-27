@@ -5,10 +5,15 @@ package ws.palladian.daterecognition;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
+import java.io.InputStream;
+
 import org.junit.Test;
 
+import weka.classifiers.Classifier;
+import weka.core.SerializationHelper;
 import ws.palladian.control.AllTests;
+import ws.palladian.daterecognition.technique.ContentDateRater;
+import ws.palladian.helper.Cache;
 
 /**
  * FIXME {@link #testGetAllBestRatedDate()} and {@link #testGetAllDates()} fail, after Document parser has been changed
@@ -74,9 +79,17 @@ public class WebPageDatEvaluatorTest {
 
     /**
      * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getAllDates()}.
+     * 
+     * @throws Exception
      */
     @Test
-    public void testGetAllDates() {
+    public void testGetAllDates() throws Exception {
+
+        // we need to load the model into the cache for the test case
+        InputStream stream = WebPageDatEvaluatorTest.class.getResourceAsStream("/model/pubClassifierFinal.model");
+        Classifier classifier = (Classifier) SerializationHelper.read(stream);
+        Cache.getInstance().putDataObject(ContentDateRater.DATE_CLASSIFIER_IDENTIFIER, classifier);
+
         String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
