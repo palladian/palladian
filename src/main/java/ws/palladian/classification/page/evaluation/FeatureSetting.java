@@ -1,8 +1,12 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Save the settings which text features should be used for a classifier.
@@ -51,16 +55,35 @@ public class FeatureSetting implements Serializable {
 
     public FeatureSetting() {
 
+        init();
+
+    }
+    
+    public FeatureSetting(FeatureSetting fs) {
+        super();
+        try {
+            PropertyUtils.copyProperties(this, fs);
+        } catch (IllegalAccessException e) {
+            Logger.getRootLogger().error(e);
+        } catch (InvocationTargetException e) {
+            Logger.getRootLogger().error(e);
+        } catch (NoSuchMethodException e) {
+            Logger.getRootLogger().error(e);
+        }
+        
+        init();
+    }
+
+    private void init() {
         String[] englishStopWordsArray = { "I", "a", "about", "an", "and", "are", "as", "at", "be", "by", "com", "de",
                 "en", "for", "from", "how", "in", "is", "he", "she", "it", "la", "of", "on", "or", "that", "the",
                 "this", "to", "was", "what", "when", "where", "who", "will", "with", "und", "the", "www" };
 
         for (String stopWord : englishStopWordsArray) {
             englishStopWords.add(stopWord);
-        }
-
+        }        
     }
-
+    
     public int getTextFeatureType() {
         return textFeatureType;
     }

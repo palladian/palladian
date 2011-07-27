@@ -17,6 +17,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
@@ -79,8 +80,12 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         TextClassifier copyClassifier = new DictionaryClassifier(getName(), "data/temp/");
         copyClassifier.setName(getName());
         copyClassifier.setPreprocessor(getPreprocessor());
-        copyClassifier.setFeatureSetting(getFeatureSetting());
-        copyClassifier.setClassificationTypeSetting(getClassificationTypeSetting());
+        
+        FeatureSetting fs = new FeatureSetting(getFeatureSetting());
+        copyClassifier.setFeatureSetting(fs);
+        
+        ClassificationTypeSetting cts = new ClassificationTypeSetting(getClassificationTypeSetting());
+        copyClassifier.setClassificationTypeSetting(cts);
         
         return copyClassifier;        
     }
