@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
@@ -113,7 +115,9 @@ public class BitlyClicks implements RankingService {
                     	results.put(CLICKS, null);
                     	LOGGER.trace("Bit.ly clicks for " + url + "could not be fetched");
                     }
-                }
+                } else {
+            		results.put(CLICKS, 0f);
+            	}
             } else {
             	results.put(CLICKS, null);
             	LOGGER.trace("Bit.ly clicks for " + url + "could not be fetched");
@@ -153,27 +157,29 @@ public class BitlyClicks implements RankingService {
 	            
 	            urlString = "http://api.bit.ly/v3/lookup?login=" 
             		+ getLogin() + "&apiKey=" + getApiKey() + "&mode=batch" + encUrls;
+	            
 	            JSONObject json = crawler.getJSONDocument(urlString);
 	            if (checkJsonResponse(json)) {
 	                JSONArray lookups = json.getJSONObject("data").getJSONArray("lookup");
 	                for(int i=0; i<lookups.length(); i++){
 	                	JSONObject lookup = lookups.getJSONObject(i);
 	                	if (lookup.has("global_hash")) {
-		                    hashes.put(lookup.getString("global_hash"), lookup.getString("url"));
+		                    hashes.put(lookup.getString("url"), lookup.getString("global_hash"));
 		                    LOGGER.trace("Bit.ly hash for url "+lookup.getString("url")+" : "+lookup.getString("global_hash"));
-		                } else hashes.put(null, lookup.getString("url"));
+		                } else hashes.put(lookup.getString("url"), null);
 	                }
-	
+
 	                // Step 2: get the # of clicks using the hash
                 	String hashList = "";
-                	for(String h:hashes.keySet()){
+                	for(String h:hashes.values()){
                 		if(h != null) hashList += "&hash="+h;
                 	}
+
+                    Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
 	                if(hashList.length() > 0) {
-	                	urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey="
-                        + getApiKey() + "&mode=batch" + hashList;
+	                	urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey=" + getApiKey() + "&mode=batch" + hashList;
 	                    json = crawler.getJSONDocument(urlString);
-	                    Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
+
 	                    if(checkJsonResponse(json)){
 		                    JSONArray clicks = json.getJSONObject("data").getJSONArray("clicks");
 		                    float count = -1;
@@ -184,19 +190,31 @@ public class BitlyClicks implements RankingService {
 		                    	if (click.has("global_clicks")) {
 		    	                    count = click.getInt("global_clicks");
 		    		            	result.put(CLICKS, count);
-		    		        		results.put(hashes.get(click.getString("global_hash")), new Ranking(this, hashes.get(click.getString("global_hash")), result, retrieved));
-		    	                    LOGGER.trace("Bit.ly clicks for hash "+click.getString("global_hash")+" : "+click.getInt("global_clicks"));
+		    		            	// find url for the current hash and add ranking
+		    		            	boolean found = false;
+		    		            	String hash = click.getString("global_hash");
+		    		            	Iterator<Entry<String, String>> it = hashes.entrySet().iterator(); 
+		    		            	while(!found && it.hasNext()){
+		    		            		Entry<String, String> entry = it.next();
+		    	                    	if(hash.equals(entry.getValue())) {
+		    	                    		results.put(entry.getKey(), new Ranking(this, entry.getKey(), result, retrieved));
+		    	                    		found = true;
+				    	                    LOGGER.trace("Bit.ly clicks for hash "+click.getString("global_hash")+" : "+click.getInt("global_clicks"));
+		    	                    	}
+		    	                    }
+		    		        		
 		    	                }
 		                    }
-		                    for(String h:hashes.keySet()){
-		                    	if(h == null) {
-		                    		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-		    	            		result.put(CLICKS, 0f);
-		    	            		results.put(hashes.get(h), new Ranking(this, hashes.get(h), result, retrieved));
-		                    	}
-		                    }
+		                    
 	                    }
 	                }
+	                for(String h:hashes.keySet()){
+                    	if(hashes.get(h) == null) {
+                    		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
+    	            		result.put(CLICKS, 0f);
+    	            		results.put(h, new Ranking(this, h, result, retrieved));
+                    	}
+                    }
 	            } else {
 		        	for(String u:subUrls) {
 		        		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
@@ -213,7 +231,7 @@ public class BitlyClicks implements RankingService {
 	        }
         
 		}
-
+		
         return results;
         
 	}

@@ -139,6 +139,9 @@ public class Ranking {
 	public String getTopic() {
 		return topic;
 	}
+	public String toString() {
+		return "Ranking for "+this.getUrl()+" from "+this.getService().getServiceId()+": "+this.getRankingValueSum();
+	}
 
 
 
