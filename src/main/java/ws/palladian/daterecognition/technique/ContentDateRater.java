@@ -4,13 +4,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.SerializationHelper;
 import ws.palladian.daterecognition.KeyWords;
 import ws.palladian.daterecognition.dates.ContentDate;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 /**
@@ -29,33 +31,36 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
 	Classifier classifier = null;
 
+    public static final String DATE_CLASSIFIER_IDENTIFIER = "wekaRandomCommitteeObjectModel";
+
 	public ContentDateRater(PageDateType dateType) {
 		super(dateType);
 		loadClasifier();
 	}
 
 	private void loadClasifier() {
+        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+
 		String classifierFile;
-		String classifierCacheString = "wekaRandomCommitteeObjectModel";
 		if (this.dateType.equals(PageDateType.publish)) {
-			classifierFile = "/wekaClassifier/pubClassifierFinal.model";
+            classifierFile = config.getString("models.root") + config.getString("models.palladian.date.published");
+            // classifierFile = "/wekaClassifier/pubClassifierFinal.model";
 		} else {
-			classifierFile = "/wekaClassifier/modClassifierFinal.model";
+            classifierFile = config.getString("models.root") + config.getString("models.palladian.date.modified");
+            // classifierFile = "/wekaClassifier/modClassifierFinal.model";
 		}
 		try {
 			// String modelPath = ContentDate.class.getResource(classifierFile)
 			// .getFile();
 			// this.classifier = (Classifier)
 			// SerializationHelper.read(modelPath);
-			this.classifier = (Classifier) Cache.getInstance().getDataObject(
-					classifierCacheString);
+            this.classifier = (Classifier) Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
 			if (this.classifier == null) {
 				System.out.println("load classifier");
 				InputStream stream = ContentDateRater.class
 						.getResourceAsStream(classifierFile);
 				this.classifier = (Classifier) SerializationHelper.read(stream);
-				Cache.getInstance().putDataObject(classifierCacheString,
-						this.classifier);
+                Cache.getInstance().putDataObject(DATE_CLASSIFIER_IDENTIFIER, this.classifier);
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
