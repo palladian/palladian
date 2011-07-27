@@ -343,11 +343,8 @@ public class MathHelper {
      * @return The IP address.
      */
     public static String numberToIp(long number) {
-        return (number >> 24 & 0xFF) + "." + (number >> 16 & 0xFF) + "." + (number >> 8 & 0xFF) + "."
-        + (number & 0xFF);
+        return (number >> 24 & 0xFF) + "." + (number >> 16 & 0xFF) + "." + (number >> 8 & 0xFF) + "." + (number & 0xFF);
     }
-
-
 
     /**
      * Create a random sample from a given collection.
@@ -390,6 +387,32 @@ public class MathHelper {
         }
 
         return sampledCollection;
+    }
+
+    /**
+     * <p>
+     * Create numbers random numbers between [min,max).
+     * </p>
+     * 
+     * @param numbers Number of numbers to generate.
+     * @param min The minimum number.
+     * @param max The maximum number.
+     * @return A set of random numbers between min and max.
+     */
+    public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
+        Set<Integer> randomNumbers = new HashSet<Integer>();
+
+        if (max - min < numbers) {
+            Logger.getRootLogger().warn("the range between min and max is not enough to create enough random numbers");
+            return randomNumbers;
+        }
+
+        while (randomNumbers.size() < numbers) {
+            int randomNumber = (int) (Math.random() * max + min);
+            randomNumbers.add(randomNumber);
+        }
+
+        return randomNumbers;
     }
 
     /**
