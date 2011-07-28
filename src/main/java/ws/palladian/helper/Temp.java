@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -505,13 +506,43 @@ public class Temp {
 
     }
 
+    public void createSubset(String rootPath,String targetPath, int num) {
+        
+        Set<Integer> useFeedIds = MathHelper.createRandomNumbers(num, 1, 200000);
+        //useFeedIds.add(123);
+          
+        File[] filesAndDirectories = FileHelper.getFilesRecursive(rootPath);
+        for (File file : filesAndDirectories) {
+            if (!file.isDirectory() && file.getName().endsWith("gz")) {
+                String path = file.getParent();
+//                System.out.println("path: " + path);
+                try {
+                    Integer id = Integer.valueOf(path.substring(path.lastIndexOf(File.separator)+1));
+                    if (useFeedIds.contains(id)) {
+                        String tPath = targetPath+id+"/"+file.getName();
+//                        System.out.println("tpath: " + tPath);
+                        FileHelper.copyFile(file.getPath(), tPath);
+                    }
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                }
+                
+                
+            }
+//            System.out.println(file.getPath());
+        }
+    }
+    
+    
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
-        new Temp().topicClassifier();
+        //args = new String[]{"data/temp/feedgz","data/temp/feedgz/copy/","100"};
+        new Temp().createSubset(args[0],args[1], Integer.valueOf(args[2]));
+        //new Temp().topicClassifier();
         System.exit(0);
         System.out.println(System.currentTimeMillis());
 

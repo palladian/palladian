@@ -858,6 +858,12 @@ public class FileHelper {
         InputStream in = null;
         OutputStream out = null;
         try {
+            
+            File outputFile = new File(FileHelper.getFilePath(destinationFile));
+            if (!outputFile.exists()) {
+                outputFile.mkdirs();
+            }
+            
             in = new FileInputStream(new File(sourceFile));
             out = new FileOutputStream(new File(destinationFile));
 

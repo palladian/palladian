@@ -164,6 +164,8 @@ public class DocumentRetriever {
 
     /** Factory for Document parsers. */
     private ParserFactory parserFactory = new ParserFactory();
+    
+    public static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -787,7 +789,7 @@ public class DocumentRetriever {
                     headerBuilder.append("\n");
                 }
 
-                headerBuilder.append("\n----------------- End Headers -----------------\n\n");
+                headerBuilder.append(HTTP_RESULT_SEPARATOR);
                 IOUtils.write(headerBuilder, out);
 
             }
