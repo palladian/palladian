@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,9 +21,13 @@ import org.w3c.dom.Document;
 
 import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SizeUnit;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -89,16 +94,36 @@ public class FeedRetriever {
     // ///////////////////////////////////////////////////
 
     /**
-     * Retrieve a feed from local file system.
+     * <p>Retrieve a feed from a gzipped {@link HttpResult}. These gzips are available for example in the <a href="http://areca.co/8/Feed-Item-Dataset-TUDCS5">TUD-CS5</a> feed dataset.</p>
      * 
-     * @param file the file with the RSS or Atom feed.
-     * @return
+     * @param file The file with the RSS or Atom feed.
+     * @return The parsed feed.
+     * @param serializedGzip If true, the feed will be read from a serialized and gzipped {@link HttpResult}.
+     * @return The parsed feed.
      * @throws FeedRetrieverException
      */
-    public Feed getFeed(File file) throws FeedRetrieverException {
+    public Feed getFeed(File file, boolean serializedGzip) throws FeedRetrieverException {
         InputStream inputStream = null;
         try {
-            inputStream = new BufferedInputStream(new FileInputStream(file));
+            
+            if (serializedGzip) {
+                
+                HttpResult httpResult = loadSerializedGzip(file);
+                return getFeed(httpResult);
+//                
+//                
+//                String unserializedFeed = FileHelper.ungzipFileToString(file.getPath());
+//                
+//                // get rid of header
+//                int headerIndex = unserializedFeed.indexOf(DocumentRetriever.HTTP_RESULT_SEPARATOR);
+//                headerIndex += DocumentRetriever.HTTP_RESULT_SEPARATOR.length();
+//                unserializedFeed = unserializedFeed.substring(headerIndex);         
+//                            
+//                inputStream = new BufferedInputStream(new StringInputStream(unserializedFeed));
+            } else {
+                inputStream = new BufferedInputStream(new FileInputStream(file));
+            }
+            
             SyndFeed syndFeed = getFeed(inputStream);
             return getFeed(syndFeed, file.toURI().toURL().toString());
         } catch (FileNotFoundException e) {
@@ -108,6 +133,83 @@ public class FeedRetriever {
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
+    }
+    
+    public HttpResult loadSerializedGzip(File file) {
+        
+        // we don't know this anymore
+        String url = "from_file_system";
+        Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
+        int statusCode = -1;
+        
+        // we don't know this anymore
+        long transferedBytes = -1;
+        
+        String unserializedFeed = FileHelper.ungzipFileToString(file.getPath());
+        
+        // get the header
+        int headerIndex = unserializedFeed.indexOf(DocumentRetriever.HTTP_RESULT_SEPARATOR);
+        String headerText = unserializedFeed.substring(0,headerIndex);
+        
+        String[] headerLines = headerText.split("\n");
+        for (String headerLine : headerLines) {
+            String[] parts = headerLine.split(":");
+            if (parts.length > 1) {
+                if (parts[0].equalsIgnoreCase("status code")) {
+                    try {
+                        statusCode = Integer.valueOf(parts[1]);
+                    } catch (Exception e) {
+                        LOGGER.error(e.getMessage());
+                    }
+                } else {
+                    
+                    StringBuilder valueString = new StringBuilder();
+                    for (int i = 1; i < parts.length; i++) {
+                        valueString.append(parts[i]).append(":");
+                    }
+                    String valueStringClean = valueString.toString();
+                    if (valueStringClean.endsWith(":")) {
+                        valueStringClean = valueStringClean.substring(0, valueStringClean.length()-1);
+                    }
+                    
+                    ArrayList<String> values = new ArrayList<String>();
+                    
+                    // in cases we have a "=" we can split on comma
+                    if (valueStringClean.contains("=")) {
+                        String[] valueParts = valueStringClean.split(",");
+                        for (String valuePart : valueParts) {
+                            values.add(valuePart.trim());
+                        }
+                    } else {
+                        values.add(valueStringClean);                        
+                    }
+                    
+                    headers.put(parts[0], values);                    
+                }
+            }
+        }
+
+        // get the body
+        headerIndex += DocumentRetriever.HTTP_RESULT_SEPARATOR.length();        
+        unserializedFeed = unserializedFeed.substring(headerIndex);   
+        
+        byte[] content = unserializedFeed.getBytes();
+        
+//        CollectionHelper.print(headers);
+        
+        HttpResult httpResult = new HttpResult(url, content, headers, statusCode, transferedBytes);        
+        return httpResult;
+    }
+    
+    /**
+     * <p>Retrieve a feed from local file system.</p>
+     * 
+     * @param file The file with the RSS or Atom feed.
+     * @return The parsed feed.
+     * @throws FeedRetrieverException
+     */
+    public Feed getFeed(File file) throws FeedRetrieverException {
+        return getFeed(file,false);
     }
 
     /**
@@ -130,10 +232,10 @@ public class FeedRetriever {
     }
 
     /**
-     * Parse a feed from the specified {@link HttpResult}.
+     * <p>Parse a feed from the specified {@link HttpResult}.</p>
      * 
-     * @param feedUrl
-     * @return
+     * @param httpResult The httpResult from the request.
+     * @return The parsed feed.
      * @throws FeedRetrieverException
      */
     public Feed getFeed(HttpResult httpResult) throws FeedRetrieverException {
@@ -149,7 +251,7 @@ public class FeedRetriever {
 
         return result;
     }
-
+    
     /**
      * Returns a feed from the specified Document.
      * 
@@ -623,6 +725,10 @@ public class FeedRetriever {
         // System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
+        Feed loadedFeed = downloader.getFeed(new File("data/temp/feedgz/feedpoll2.gz"), true);
+        System.out.println(loadedFeed);
+        System.exit(0);
+        
         // downloader.setCleanStrings(false);
         downloader.setUseDateRecognition(true);
         Feed feed = downloader.getFeed("http://www.d3p.co.jp/rss/mobile.rdf");
