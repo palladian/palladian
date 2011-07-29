@@ -268,14 +268,14 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
      * @param url The URL of the document that has to be classified.
      * @return A classified document.
      */
-    public TextInstance classify(String text) {
+    public synchronized TextInstance classify(String text) {
         TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
         processedDocument.setUrl(text);
         return classify(processedDocument);
     }
 
-    public TextInstance classify(String text, Set<String> possibleClasses) {
+    public synchronized TextInstance classify(String text, Set<String> possibleClasses) {
         TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
         processedDocument.setUrl(text);
