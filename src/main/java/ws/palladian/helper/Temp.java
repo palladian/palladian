@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -508,29 +507,64 @@ public class Temp {
 
     public void createSubset(String rootPath,String targetPath, int num) {
         
-        Set<Integer> useFeedIds = MathHelper.createRandomNumbers(num, 1, 200000);
+        FileHelper.addTrailingSlash(rootPath);
+        FileHelper.addTrailingSlash(targetPath);
+
+        Set<Integer> useFeedIds = MathHelper.createRandomNumbers(2 * num, 1, 200000);
         //useFeedIds.add(123);
+
+        System.out.println("created " + useFeedIds + " random numbers");
           
-        File[] filesAndDirectories = FileHelper.getFilesRecursive(rootPath);
-        for (File file : filesAndDirectories) {
-            if (!file.isDirectory() && file.getName().endsWith("gz")) {
-                String path = file.getParent();
-//                System.out.println("path: " + path);
-                try {
-                    Integer id = Integer.valueOf(path.substring(path.lastIndexOf(File.separator)+1));
-                    if (useFeedIds.contains(id)) {
-                        String tPath = targetPath+id+"/"+file.getName();
-//                        System.out.println("tpath: " + tPath);
-                        FileHelper.copyFile(file.getPath(), tPath);
-                    }
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-                
-                
+        int copiedFeeds = 0;
+        for (Integer integer : useFeedIds) {
+
+            if (copiedFeeds == num) {
+                break;
             }
-//            System.out.println(file.getPath());
+
+            int folderK = integer / 1000;
+
+            String pathToFeedFolder = rootPath + folderK + "/" + integer;
+
+            System.out.println("copy gzips from " + pathToFeedFolder);
+
+            File[] zipFiles = FileHelper.getFiles(pathToFeedFolder, ".gz");
+
+            System.out.println("found " + zipFiles.length + " zip files");
+
+            String newTargetPath = targetPath + integer + "/";
+
+            for (File file : zipFiles) {
+                FileHelper.copyFile(file.getPath(), newTargetPath + file.getName());
+            }
+
+            if (zipFiles.length > 0) {
+                copiedFeeds++;
+            }
         }
+
+        System.out.println("copied " + copiedFeeds);
+
+        // File[] filesAndDirectories = FileHelper.getFilesRecursive(rootPath);
+        // for (File file : filesAndDirectories) {
+        // if (!file.isDirectory() && file.getName().endsWith("gz")) {
+        // String path = file.getParent();
+        // // System.out.println("path: " + path);
+        // try {
+        // Integer id = Integer.valueOf(path.substring(path.lastIndexOf(File.separator)+1));
+        // if (useFeedIds.contains(id)) {
+        // String tPath = targetPath+id+"/"+file.getName();
+        // // System.out.println("tpath: " + tPath);
+        // FileHelper.copyFile(file.getPath(), tPath);
+        // }
+        // } catch (Exception e) {
+        // //e.printStackTrace();
+        // }
+        //
+        //
+        // }
+        // // System.out.println(file.getPath());
+        // }
     }
     
     
