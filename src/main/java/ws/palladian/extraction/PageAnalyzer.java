@@ -1085,6 +1085,11 @@ public class PageAnalyzer {
 
         String url = StringHelper.urlDecode(document.getDocumentURI());
 
+        // for test cases on local files, we ignore sibling URLs
+        if (url.startsWith("file:")) {
+            return siblingURL;
+        }
+
         // remove anchors from url
         url = UrlHelper.removeAnchors(url);
 
