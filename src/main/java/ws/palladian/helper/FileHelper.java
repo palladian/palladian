@@ -1105,7 +1105,6 @@ public class FileHelper {
             }
 
             return matchingFiles.toArray(new File[0]);
-
         }
 
         return new File[0];
