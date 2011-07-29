@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
 
@@ -728,6 +729,35 @@ public class StringHelper {
             trimmedStrings.add(trim(s));
         }
         return trimmedStrings;
+    }
+
+    /**
+     * <p>
+     * This is a shortcut method for frequent text cleaning needs.
+     * </p>
+     * <p>
+     * This method does the following.
+     * </p>
+     * <ul>
+     * <li>Unescape HTML (&_lt; becomes >)</li>
+     * <li>Remove control characters.</li>
+     * <li>Remove protected spaces.</li>
+     * <li>Remove HTML tags (<b>stop</B> becomes stop).</li> </li>
+     * 
+     * @param text The text that should be cleansed.
+     * @return The cleansed text.
+     */
+    public static String clean(String text) {
+
+        text = HTMLHelper.stripHTMLTags(text);
+        text = StringEscapeUtils.unescapeHtml(text);
+        text = removeControlCharacters(text);
+        text = removeProtectedSpace(text);
+        // text = removeNonAsciiCharacters(text);
+
+        text = StringHelper.trim(text);
+
+        return text;
     }
 
     /**

@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * Test cases for the StringHelper class.
@@ -21,6 +20,19 @@ public class StringHelperTest extends TestCase {
 
     public StringHelperTest(String name) {
         super(name);
+    }
+
+    @Test
+    public void testClean() {
+        assertEquals("", StringHelper.clean(""));
+        assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
+        assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
+        assertEquals("abcödef ghjiåjkl <mno å", StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
+        assertEquals("here starts the <clean> \"text\" stop",
+                StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
+
+        assertEquals("Say ‘hello’ to your horses for me",
+                StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
     }
 
     public void testGetCaseSignature() {

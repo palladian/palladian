@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,11 +22,8 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.daterecognition.dates.ExtractedDate;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SizeUnit;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -64,10 +60,10 @@ public class FeedRetriever {
     private static final Logger LOGGER = Logger.getLogger(FeedRetriever.class);
 
     /** Used for all downloading purposes. */
-    private DocumentRetriever documentRetriever = new DocumentRetriever();
+    private final DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Factory for creating Document parsers. */
-    private ParserFactory parserFactory = new ParserFactory();
+    private final ParserFactory parserFactory = new ParserFactory();
 
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
@@ -157,7 +153,11 @@ public class FeedRetriever {
             if (parts.length > 1) {
                 if (parts[0].equalsIgnoreCase("status code")) {
                     try {
-                        statusCode = Integer.valueOf(parts[1]);
+                        String statusCodeString = parts[1];
+                        statusCodeString = statusCodeString.replace("HTTP/1.1", "");
+                        statusCodeString = statusCodeString.replace("OK", "");
+                        statusCodeString = statusCodeString.trim();
+                        statusCode = Integer.valueOf(statusCodeString);
                     } catch (Exception e) {
                         LOGGER.error(e.getMessage());
                     }
