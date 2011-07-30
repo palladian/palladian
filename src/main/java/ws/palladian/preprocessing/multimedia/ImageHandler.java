@@ -15,9 +15,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -35,7 +41,6 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -186,14 +191,17 @@ public class ImageHandler {
     }
 
     /**
-     * Rescaling an image using JAI SubsampleAverage for downscaling and getScaledInstance for upscaling. This produces smooth images but upscaling is slightly
-     * slower.
+     * <p>
+     * Rescaling an image using JAI SubsampleAverage for downscaling and getScaledInstance for upscaling. This produces
+     * smooth images but upscaling is slightly slower.
+     * </p>
      * 
      * @param bufferedImage The input image.
      * @param newWidth The desired new width (size) of the image.
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
+    @Deprecated
     public static BufferedImage rescaleImageOptimal(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         int iWidth = bufferedImage.getWidth();
@@ -206,7 +214,7 @@ public class ImageHandler {
         }
 
         if (scale > 1.0) {
-            return rescaleImage3(bufferedImage, newWidth, fit);
+            return rescaleImageSmooth(bufferedImage, newWidth, iHeight);
         } else {
             return rescaleImage(bufferedImage, newWidth, fit);
         }
@@ -214,8 +222,47 @@ public class ImageHandler {
     }
 
     /**
-     * Rescale an image to fill a in a given box but having parts potentially outside of the box.
-     * For example, a 600x200 image is transformed to 300x100 to fit a 200x100 box.
+     * <p>
+     * Rescaling an image using JAI SubsampleAverage for downscaling and getScaledInstance for upscaling. This produces
+     * smooth images but upscaling is slightly slower.
+     * </p>
+     * 
+     * @param bufferedImage The input image.
+     * @param newWidth The desired new width (size) of the image.
+     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
+     * @return The scaled image.
+     */
+    public static BufferedImage rescaleImageOptimal(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+
+        if (bufferedImage == null) {
+            LOGGER.warn("given image was NULL");
+            return null;
+        }
+
+        int iWidth = bufferedImage.getWidth();
+        int iHeight = bufferedImage.getHeight();
+
+        double imageRatio = (double) iWidth / (double) iHeight;
+        double boxRatio = (double) boxWidth / (double) boxHeight;
+
+        double scale = (double) boxWidth / (double) iWidth;
+
+        if (imageRatio > boxRatio) {
+            scale = (double) boxHeight / (double) iHeight;
+        }
+
+        if (scale > 1.0) {
+            return rescaleImageSmooth(bufferedImage, boxWidth, boxHeight);
+        } else {
+            return rescaleImage(bufferedImage, boxWidth, boxHeight);
+        }
+    }
+
+    /**
+     * <p>
+     * Rescale an image to fill a in a given box but having parts potentially outside of the box. For example, a 600x200
+     * image is transformed to 300x100 to fit a 200x100 box.
+     * </p>
      * 
      * @param bufferedImage The buffered image which should be transformed.
      * @param boxWidth The width of the box in which the image should be positioned.
@@ -386,14 +433,16 @@ public class ImageHandler {
     }
 
     /**
+     * <p>
      * Rescaling an image using java.awt.Image.getScaledInstance. The image looks smooth after rescaling.
+     * </p>
      * 
      * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
+     * @param boxWidth The desired new width (size) of the image.
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
-    public static BufferedImage rescaleImage3(BufferedImage bufferedImage, int newWidth, boolean fit) {
+    public static BufferedImage rescaleImageSmooth(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -407,11 +456,20 @@ public class ImageHandler {
         int iWidth = image.getWidth(null);
         int iHeight = image.getHeight(null);
 
-        double scale = (double) newWidth / (double) iWidth;
+        double imageRatio = (double) iWidth / (double) iHeight;
+        double boxRatio = (double) boxWidth / (double) boxHeight;
 
-        if (fit && iWidth < iHeight) {
-            scale = (double) newWidth / (double) iHeight;
+        double scale = (double) boxWidth / (double) iWidth;
+
+        if (imageRatio > boxRatio) {
+            scale = (double) boxHeight / (double) iHeight;
         }
+
+        // double scale = (double) newWidth / (double) iWidth;
+        //
+        // if (fit && iWidth < iHeight) {
+        // scale = (double) newWidth / (double) iHeight;
+        // }
 
         resizedImage = image.getScaledInstance((int) (scale * iWidth), (int) (scale * iHeight), Image.SCALE_SMOOTH);
 
@@ -440,10 +498,6 @@ public class ImageHandler {
         // out.close();
 
         return bufferedImage;
-    }
-
-    public static BufferedImage rescaleImage3(BufferedImage bufferedImage, int newWidth) {
-        return rescaleImage3(bufferedImage, newWidth, false);
     }
 
     /**
@@ -737,6 +791,7 @@ public class ImageHandler {
      * @param filePath The path where the image should be saved.
      * @return True if the image was saved successfully, false otherwise.
      */
+    @Deprecated
     public static boolean saveImage2(BufferedImage image, String fileType, String filePath) {
         try {
             ImageIO.write(image, fileType, new File(filePath));
@@ -757,6 +812,7 @@ public class ImageHandler {
      * @param filePath The path where the image should be saved.
      * @return True if the image was saved successfully, false otherwise.
      */
+    @Deprecated
     public static boolean saveImage3(BufferedImage bufferedImage, String fileType, String filePath) {
 
         try {
@@ -769,6 +825,102 @@ public class ImageHandler {
         return false;
     }
 
+    /**
+     * <p>
+     * Given a set of images, we cluster them by similarity in order to remove duplicates. In each cluster with more
+     * than one image, we pick the one with the highest resolution. We return a set of image URLs with the highest
+     * resolving pictures.
+     * </p>
+     * 
+     * @param imageUrls A collection of image URLs.
+     * @return A set of image URLs that all represent different images (the highest resolving images per cluster).
+     */
+    public static Set<String> clusterImagesAndPickRepresentatives(Collection<String> imageUrls) {
+
+        Set<String> selectedImages = new HashSet<String>();
+
+        // keep the index of the loaded image and tie it to the image URL
+        Map<Integer, String> indexUrlMap = new HashMap<Integer, String>();
+
+        // load all images
+        List<BufferedImage> loadedImages = new ArrayList<BufferedImage>();
+        for (String imageUrl : imageUrls) {
+            indexUrlMap.put(loadedImages.size(), imageUrl);
+            BufferedImage loadedImage = load(imageUrl);
+            loadedImages.add(loadedImage);
+        }
+
+        // hold the representatives per cluster, <clusterId,[imageIds]>
+        Map<Integer, List<Integer>> representatives = new HashMap<Integer, List<Integer>>();
+
+        // remember all image ids that are in a cluster already
+        Set<Integer> clusteredImageIds = new HashSet<Integer>();
+
+        for (int i = 0; i < loadedImages.size(); i++) {
+
+            BufferedImage image1 = loadedImages.get(i);
+
+            boolean image1ClusteredAlready = !clusteredImageIds.add(i);
+            if (!image1ClusteredAlready) {
+                List<Integer> newList = new ArrayList<Integer>();
+                newList.add(i);
+                representatives.put(i, newList);
+            } else {
+                continue;
+            }
+
+            // int image1PixelCount = getPixelCount(image1);
+
+            for (int j = i + 1; j < loadedImages.size(); j++) {
+
+                boolean image2ClusteredAlready = clusteredImageIds.contains(j);
+                if (image2ClusteredAlready) {
+                    continue;
+                }
+
+                BufferedImage image2 = loadedImages.get(j);
+                boolean isDuplicate = isDuplicate(image1, image2);
+
+                if (isDuplicate) {
+                    representatives.get(i).add(j);
+                    clusteredImageIds.add(j);
+                }
+
+            }
+
+        }
+
+        // pick highest resolving representative
+        for (Entry<Integer, List<Integer>> cluster : representatives.entrySet()) {
+
+            // System.out.println(cluster.getKey());
+            // CollectionHelper.print(cluster.getValue());
+
+            int highestPixelCount = 0;
+            String highestResolutionImageUrl = "";
+            for (Integer imageId : cluster.getValue()) {
+
+                BufferedImage loadedImage = loadedImages.get(imageId);
+
+                int pixelCount = getPixelCount(loadedImage);
+                if (pixelCount > highestPixelCount) {
+                    highestResolutionImageUrl = indexUrlMap.get(imageId);
+                    highestPixelCount = pixelCount;
+                }
+
+            }
+
+            selectedImages.add(highestResolutionImageUrl);
+
+        }
+
+        return selectedImages;
+    }
+
+    private static int getPixelCount(BufferedImage image) {
+        return image.getWidth() * image.getHeight();
+    }
+
     public static void main(String[] args) {
 
         // String url = "http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg";
@@ -776,12 +928,35 @@ public class ImageHandler {
         // URL urlLocation;
         try {
 
-            BufferedImage i0 = ImageHandler
-                    .load("http://007blog.net/fotos/2011/06/Come%C3%A7am-as-inscri%C3%A7%C3%B5es-para-o-SiSU-20111.jpg");
-            BufferedImage i1 = ImageHandler.rescaleImageAndCrop(i0, 400, 100);
-            ImageHandler.saveImage(i1, "jpg", "testCrop.jpg");
-            i1 = ImageHandler.rescaleImage(i0, 400, 100);
-            ImageHandler.saveImage(i1, "jpg", "testRescale.jpg");
+            Collection<String> imageUrls = new ArrayList();
+            imageUrls.add("imageA1.jpg");
+            imageUrls.add("imageA2.jpg");
+            imageUrls.add("imageB1.jpg");
+            imageUrls.add("imageA3.jpg");
+            imageUrls.add("imageC1.jpg");
+            imageUrls.add("imageB2.jpg");
+            Set<String> representatives = ImageHandler.clusterImagesAndPickRepresentatives(imageUrls);
+            CollectionHelper.print(representatives);
+
+            System.exit(0);
+            // BufferedImage i0 = ImageHandler
+            // .load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_1.jpg");
+            // ImageHandler.saveImage(i0, "jpg", "testOriginal.jpg");
+            // BufferedImage i1 = ImageHandler.rescaleImageAndCrop(i0, 400, 100);
+            // ImageHandler.saveImage(i1, "jpg", "testCrop.jpg");
+            // i1 = ImageHandler.rescaleImage(i0, 500, 500);
+            // ImageHandler.saveImage(i1, "jpg", "testRescale.jpg");
+            // i1 = ImageHandler.rescaleImageOptimal(i0, 500, 500);
+            // ImageHandler.saveImage(i1, "jpg", "testRescaleOptimal.jpg");
+
+            BufferedImage duplicate1 = ImageHandler
+                    .load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_2.jpg");
+
+            BufferedImage duplicate2 = ImageHandler
+                    .load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_5.jpg");
+
+            System.out.println(ImageHandler.isDuplicate(duplicate1, duplicate2));
+
             System.exit(0);
 
             BufferedImage im = ImageHandler
@@ -797,12 +972,12 @@ public class ImageHandler {
             // System.exit(0);
 
             // measure performance of rescaling algorithms
-            long t1 = System.currentTimeMillis();
-            for (int i = 0; i < 20; i++) {
-                rescaleImage3(bufferedImage, 200);
-            }
-            DateHelper.getRuntime(t1, System.currentTimeMillis(), true);
-            System.exit(0);
+            // long t1 = System.currentTimeMillis();
+            // for (int i = 0; i < 20; i++) {
+            // rescaleImage3(bufferedImage, 200);
+            // }
+            // DateHelper.getRuntime(t1, System.currentTimeMillis(), true);
+            // System.exit(0);
 
             saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1.jpg");
 
@@ -817,7 +992,7 @@ public class ImageHandler {
             bufferedImage = rescaleImage2(ImageIO.read(new File("data/test/images/tdk5.jpg")), 200);
             saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1_rescaled2.jpg");
 
-            bufferedImage = rescaleImage3(ImageIO.read(new File("data/test/images/tdk5.jpg")), 200);
+            // bufferedImage = rescaleImage3(ImageIO.read(new File("data/test/images/tdk5.jpg")), 200);
             saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1_rescaled3.jpg");
 
             System.exit(0);

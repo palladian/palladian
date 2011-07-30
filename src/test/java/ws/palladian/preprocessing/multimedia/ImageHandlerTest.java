@@ -1,8 +1,13 @@
 package ws.palladian.preprocessing.multimedia;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
 import junit.framework.TestCase;
+
+import org.junit.Test;
 
 /**
  * Test cases for the image handler.
@@ -30,6 +35,31 @@ public class ImageHandlerTest extends TestCase {
         } else {
             super.runTest();
         }
+    }
+
+    @Test
+    public void testClusterImages() {
+
+        Collection<String> imageUrls = new ArrayList<String>();
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA1.jpg").getFile());
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA2.jpg").getFile());
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageB1.jpg").getFile());
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA3.jpg").getFile());
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageC1.jpg").getFile());
+        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageB2.jpg").getFile());
+
+        Set<String> representatives = ImageHandler.clusterImagesAndPickRepresentatives(imageUrls);
+
+        // CollectionHelper.print(representatives);
+
+        assertEquals(3, representatives.size());
+        assertEquals(true,
+                representatives.contains(ImageHandlerTest.class.getResource("/images/imageA3.jpg").getFile()));
+        assertEquals(true,
+                representatives.contains(ImageHandlerTest.class.getResource("/images/imageB2.jpg").getFile()));
+        assertEquals(true,
+                representatives.contains(ImageHandlerTest.class.getResource("/images/imageC1.jpg").getFile()));
+
     }
 
     public void testRescaleImage() {
