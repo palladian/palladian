@@ -16,14 +16,14 @@ public class Matrix implements Serializable {
     private Map<Object, Map<Object, Object>> matrix;
 
     /** All keys used in the matrix. */
-    private Set<String> keys;
+    private final Set<String> keys;
 
     public Matrix() {
         matrix = new HashMap<Object, Map<Object, Object>>();
         keys = new TreeSet<String>();
     }
 
-    public Object get(Object x) {
+    public Map<Object, Object> get(Object x) {
         return matrix.get(x);
     }
 
