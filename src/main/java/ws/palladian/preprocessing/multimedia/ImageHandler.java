@@ -292,13 +292,27 @@ public class ImageHandler {
     }
 
     public static BufferedImage rescaleImageAndCrop(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+        return rescaleImageAndCrop(bufferedImage, boxWidth, boxHeight, false);
+    }
+
+    public static BufferedImage rescaleImageAndCropOptimal(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+        return rescaleImageAndCrop(bufferedImage, boxWidth, boxHeight, true);
+    }
+
+    public static BufferedImage rescaleImageAndCrop(BufferedImage bufferedImage, int boxWidth, int boxHeight,
+            boolean optimal) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
             return null;
         }
 
-        BufferedImage rescaledImage = rescaleImage(bufferedImage, boxWidth, boxHeight);
+        BufferedImage rescaledImage;
+        if (optimal) {
+            rescaledImage = rescaleImageOptimal(bufferedImage, boxWidth, boxHeight);
+        } else {
+            rescaledImage = rescaleImage(bufferedImage, boxWidth, boxHeight);
+        }
 
         int iHeight = rescaledImage.getHeight();
 
