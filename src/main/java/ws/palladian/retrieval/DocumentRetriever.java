@@ -157,13 +157,13 @@ public class DocumentRetriever {
     // ///////////// Misc. ////////
 
     /** The callbacks that are called after each parsed page. */
-    private List<RetrieverCallback> retrieverCallbacks = new ArrayList<RetrieverCallback>();
+    private final List<RetrieverCallback> retrieverCallbacks = new ArrayList<RetrieverCallback>();
 
     /** Hook for http* methods. */
     private HttpHook httpHook = new HttpHook.DefaultHttpHook();
 
     /** Factory for Document parsers. */
-    private ParserFactory parserFactory = new ParserFactory();
+    private final ParserFactory parserFactory = new ParserFactory();
     
     public static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
@@ -172,6 +172,7 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public DocumentRetriever() {
+
         // initialize the HttpClient
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
@@ -192,6 +193,7 @@ public class DocumentRetriever {
          * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
          */
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+            @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
                 HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();

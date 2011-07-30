@@ -16,7 +16,12 @@ import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
  * A {@link PipelineProcessor} detecting 1H5W questions and questions ending on "?" from natural language texts. This is
  * the most simple way to find questions but usually sufficient. The 1H5W words are:
  * <ul>
- * <li></li>
+ * <li>How</li>
+ * <li>Who</li>
+ * <li>What</li>
+ * <li>Where</li>
+ * <li>When</li>
+ * <li>Why</li>
  * </ul>
  * </p>
  * <p>
@@ -26,21 +31,16 @@ import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
- * @since 1.0
+ * @author David Urbansky
  */
 public final class QuestionAnnotator extends AbstractPipelineProcessor {
 
     /**
-     * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
-     * </p>
      */
     private static final long serialVersionUID = -2998306515098026978L;
     /**
-     * <p>
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
-     * </p>
      */
     public final static String FEAUTRE_IDENTIFIER = "ws.palladian.features.question";
 

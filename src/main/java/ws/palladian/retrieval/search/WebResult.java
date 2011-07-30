@@ -1,96 +1,37 @@
 package ws.palladian.retrieval.search;
 
-
 /**
- * The knowledge unit web result.
+ * <p>
+ * WebResults are retrieved by the WebSearcher and represent web search results.
+ * </p>
  * 
- * WebResults are retrieved by the SourceRetriever and represent web search results.
- * 
- * @author Christopher Friedrich
- * @author Philipp Katz
+ * @author David Urbansky
  */
-public class WebResult {
+public class WebResult extends SearchResult {
 
-    private int index;
-    private int rank;
-    private String title;
-    private String summary;
-    private String url;
-    private String date;
+    /** The URL of the web result. */
+    private String url = "";
 
     public WebResult() {
-        
+        super();
     }
+
     public WebResult(int index, int rank, String url, String title, String summary) {
-        super();
-        this.index = index;
-        this.rank = rank;
+        super(index, rank, title, summary);
         this.url = url;
-        this.title = title;
-        this.summary = summary;
     }
+
     public WebResult(int index, int rank, String url, String title, String summary, String date) {
-        super();
-        this.index = index;
-        this.rank = rank;
+        super(index, rank, title, summary, date);
         this.url = url;
-        this.title = title;
-        this.summary = summary;
-        this.date = date;
-    }    
-
-    public int getIndex() {
-        return index;
-    }
-
-    public int getRank() {
-        return rank;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getSummary() {
-        return summary;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public String getDate(){
-    	return date;
-    }
-    
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    public void setRank(int rank) {
-        this.rank = rank;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
     public void setUrl(String url) {
         this.url = url;
     }
-    public void setDate(String date) {
-        this.date = date;
-    }
-    @Override
-    public String toString() {
-        // return index + ":" + rank + ":" + url;
-        StringBuilder sb = new StringBuilder();
-        sb.append(index);
-        sb.append(":").append(rank);
-        sb.append(":").append(getUrl());
-        // sb.append(":").append(title);
-        // sb.append(":").append(summary);
-        return sb.toString();
-    }
-
+    
 }

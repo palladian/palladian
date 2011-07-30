@@ -9,8 +9,6 @@ import ws.palladian.retrieval.feeds.FeedPostStatistics;
  * </p>
  * 
  * @author David Urbansky
- * @author Klemens Muthmann
- * 
  */
 public abstract class UpdateStrategy {
 

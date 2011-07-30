@@ -2,14 +2,12 @@ package ws.palladian.classification;
 
 import java.io.Serializable;
 
-
-
-
 /**
- * @author David Urbansky
- * @author Klemens Muthmann
- * @author Sandro Reichert
+ * <p>
+ * The word correlation stores the absolute and relative correlation of two terms.
+ * </p>
  * 
+ * @author David Urbansky
  */
 public class WordCorrelation implements Serializable {
 

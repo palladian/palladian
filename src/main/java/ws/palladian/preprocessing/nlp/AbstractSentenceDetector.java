@@ -42,8 +42,6 @@ import ws.palladian.preprocessing.featureextraction.Annotation;
  * 
  * @author Martin Wunderwald
  * @author Klemens Muthmann
- * @version 1.0
- * @since 1.0
  */
 public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor {
 

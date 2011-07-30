@@ -337,15 +337,16 @@ public class DictionaryClassifier extends TextClassifier {
     // weightedTerm);
 
     @Override
-    public TextInstance classify(TextInstance document, Set<String> possibleClasses) {
+    public synchronized TextInstance classify(TextInstance document, Set<String> possibleClasses) {
         return classify(document, false, possibleClasses);
     }
 
-    public TextInstance classify(TextInstance document, boolean loadDictionary) {
+    public synchronized TextInstance classify(TextInstance document, boolean loadDictionary) {
         return classify(document, loadDictionary, null);
     }
 
-    private TextInstance classify(TextInstance document, boolean loadDictionary, Set<String> possibleClasses) {
+    private synchronized TextInstance classify(TextInstance document, boolean loadDictionary,
+            Set<String> possibleClasses) {
 
         int classType = getClassificationType();
 
@@ -604,11 +605,11 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     @Override
-    public TextInstance classify(TextInstance document) {
+    public synchronized TextInstance classify(TextInstance document) {
         return classify(document, true);
     }
 
-    public void classifyTestDocuments(boolean loadDictionary) {
+    public synchronized void classifyTestDocuments(boolean loadDictionary) {
         for (TextInstance testDocument : getTestDocuments()) {
             classify(testDocument, loadDictionary);
         }

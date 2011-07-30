@@ -80,6 +80,9 @@ public class UrlHelper {
     }
 
     public static String getCleanURL(String url) {
+        if (url == null) {
+            url = "";
+        }
         if (url.startsWith("https://")) {
             url = url.substring(8);
         }
