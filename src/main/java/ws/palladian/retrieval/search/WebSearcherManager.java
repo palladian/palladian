@@ -5,12 +5,12 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import ws.palladian.helper.ConfigHolder;
 
 /**
- * The SourceRetrieverManager holds information about query settings and
- * statistics for indices of Yahoo!, Google, Microsoft, Hakia, Bing, Twitter and
- * Google Blogs. The SourceRetrieverManager is singleton.
+ * <p>
+ * The SourceRetrieverManager holds information about query settings and statistics for indices of Yahoo!, Google,
+ * Microsoft, Hakia, Bing, Twitter and Google Blogs. The SourceRetrieverManager is singleton.
+ * </p>
  * 
  * @author David Urbansky
- * @author Christopher Friedrich
  * @author Philipp Katz
  * @author Martin Wunderwald
  */
@@ -30,6 +30,8 @@ public class WebSearcherManager {
     public static final int YAHOO_BOSS_NEWS = 10;
     public static final int GOOGLE_NEWS = 11;
     public static final int HAKIA_NEWS = 12;
+    public static final int CLUEWEB = 13;
+
     // TODO add maximum number of queries per day
     // TODO automatically shift between extraction sources once too many queries
     // have been sent
@@ -44,14 +46,17 @@ public class WebSearcherManager {
     private int resultCount = 8;
     private int source = BING;
 
+    /** For indices such as ClueWeb we need to know where on the file system we can find the index. */
+    private String indexPath = "";
+
     private int numberOfYahooRequests = 0;
     private int numberOfGoogleRequests = 0;
-    private final int numberOfMicrosoftRequests = 0;
     private int numberOfHakiaRequests = 0;
     private int numberOfBingRequests = 0;
     private int numberOfTwitterRequests = 0;
     private int numberOfGoogleBlogsRequests = 0;
     private int numberOfTextRunnerRequests = 0;
+    private int numberOfClueWebRequests = 0;
 
     private WebSearcherManager() {
 
@@ -119,6 +124,8 @@ public class WebSearcherManager {
                 return numberOfGoogleBlogsRequests;
             case TEXTRUNNER:
                 return numberOfTextRunnerRequests;
+            case CLUEWEB:
+                return numberOfClueWebRequests;
         }
         return -1;
     }
@@ -155,23 +162,11 @@ public class WebSearcherManager {
             case TEXTRUNNER:
                 numberOfTextRunnerRequests++;
                 break;
+            case CLUEWEB:
+                numberOfClueWebRequests++;
             default:
                 break;
         }
-    }
-
-    /**
-     * Get all indices of search engines available.
-     * 
-     * @return An array of indices.
-     */
-    public static int[] getSearchEngines() {
-        int[] indices = { WebSearcherManager.YAHOO, WebSearcherManager.GOOGLE,
- WebSearcherManager.HAKIA,
-                WebSearcherManager.YAHOO_BOSS,
-                WebSearcherManager.BING, WebSearcherManager.TWITTER, WebSearcherManager.GOOGLE_BLOGS,
-                WebSearcherManager.TEXTRUNNER, WebSearcherManager.GOOGLE_NEWS };
-        return indices;
     }
 
     /**
@@ -185,12 +180,12 @@ public class WebSearcherManager {
         logs.append("\n");
         logs.append("Number of Yahoo! requests: ").append(numberOfYahooRequests).append("\n");
         logs.append("Number of Google requests: ").append(numberOfGoogleRequests).append("\n");
-        logs.append("Number of Microsoft requests: ").append(numberOfMicrosoftRequests).append("\n");
         logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests).append("\n");
         logs.append("Number of Bing requests: ").append(numberOfBingRequests).append("\n");
         logs.append("Number of Twitter requests: ").append(numberOfTwitterRequests).append("\n");
         logs.append("Number of Google Blogs requests: ").append(numberOfGoogleBlogsRequests).append("\n");
         logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
+        logs.append("Number of ClueWeb requests: ").append(numberOfClueWebRequests).append("\n");
 
         return logs.toString();
     }
@@ -223,6 +218,8 @@ public class WebSearcherManager {
                 return "Yahoo! Boss News";
             case GOOGLE_NEWS:
                 return "Google News";
+            case CLUEWEB:
+                return "ClueWeb09";
             default:
                 return "<unknown>";
         }
@@ -268,6 +265,14 @@ public class WebSearcherManager {
         this.bingApiKey = bingApiKey;
     }
 
+    public void setIndexPath(String indexPath) {
+        this.indexPath = indexPath;
+    }
+
+    public String getIndexPath() {
+        return indexPath;
+    }
+
     public static void main(String[] args) {
         String queryString = "population of Dresden is";
         queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
@@ -289,4 +294,5 @@ public class WebSearcherManager {
         // System.out.println(URLEncoder.encode(queryString));
 
     }
+
 }

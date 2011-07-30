@@ -18,8 +18,6 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * @version 1.0
- * @since 1.0
  */
 public final class PipelineDocument {
 

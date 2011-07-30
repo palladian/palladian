@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.CorruptIndexException;
 import org.jaxen.JaxenException;
 import org.jaxen.dom.DOMXPath;
 import org.json.JSONArray;
@@ -40,6 +41,8 @@ import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.local.QueryProcessor;
+import ws.palladian.retrieval.search.local.ScoredDocument;
 
 // TODO this class is way to heavy; split this up into subclasses, introduce AbstractWebSearcher
 // TODO remove non-working/obsolete search engines (Yahoo! still necessary, we have Yahoo! Boss)
@@ -47,8 +50,9 @@ import ws.palladian.retrieval.DocumentRetriever;
 // TODO parse date results
 
 /**
- * The WebSearcher queries the indices of Yahoo!, Google, Microsoft, and
- * Hakia.
+ * <p>
+ * The WebSearcher queries the indices of Yahoo!, Google, Microsoft, and Hakia.
+ * </p>
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
@@ -408,13 +412,15 @@ public class WebSearcher {
     public final List<WebResult> getWebResults(String searchQuery, int source, boolean exact) {
         // searchQuery = searchQuery.replaceAll(" ","+");
 
-        if (exact) {
-            searchQuery = "\"" + searchQuery + "\"";
-        }
-        try {
-            searchQuery = URLEncoder.encode(searchQuery, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(searchQuery, e);
+        if (source != WebSearcherManager.CLUEWEB) {
+            if (exact) {
+                searchQuery = "\"" + searchQuery + "\"";
+            }
+            try {
+                searchQuery = URLEncoder.encode(searchQuery, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error(searchQuery, e);
+            }
         }
 
         // if (exact) searchQuery = "%22"+searchQuery+"%22"; // TODO what works
@@ -451,6 +457,8 @@ public class WebSearcher {
                 return getWebResultsFromGoogleNews(searchQuery);
             case WebSearcherManager.HAKIA_NEWS:
                 return getNewsResultsFromHakia(searchQuery);
+            case WebSearcherManager.CLUEWEB:
+                return getWebResultsFromClueWeb(searchQuery, exact);
             default:
                 break;
         }
@@ -462,7 +470,7 @@ public class WebSearcher {
 
     private List<WebResult> getWebResultsFromYahoo(String searchQuery) {
 
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        List<WebResult> webresults = new ArrayList<WebResult>();
         Document searchResult = null;
 
         // query yahoo for search engine results
@@ -811,7 +819,9 @@ public class WebSearcher {
     }
 
     /**
+     * <p>
      * Query the Bing API. Maximum top 1,000 results (50 per query).
+     * </p>
      * 
      * @param searchQuery The search query.
      * @return A list of web results.
@@ -889,6 +899,65 @@ public class WebSearcher {
         return webresults;
     }
 
+    private List<WebResult> getWebResultsFromClueWeb(String searchQuery, boolean exact) {
+        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<LocalIndexResult> localIndexResults = getLocalIndexResultsFromClueWeb(searchQuery, exact);
+
+        for (LocalIndexResult localIndexResult : localIndexResults) {
+            WebResult webResult = new WebResult();
+            webResult.setIndex(localIndexResult.getIndex());
+            webResult.setUrl(localIndexResult.getId());
+            webResult.setRank(localIndexResult.getRank());
+            webResults.add(webResult);
+        }
+
+        return webResults;
+    }
+
+    /**
+     * <p>
+     * Query the ClueWeb09 (English) corpus. The index path must be set in the {@link WebSearcherManager} in order for
+     * this to return web results.
+     * </p>
+     * 
+     * @param searchQuery The search query.
+     * @return A list of web results.
+     */
+    public List<LocalIndexResult> getLocalIndexResultsFromClueWeb(String searchQuery, boolean exact) {
+
+        List<LocalIndexResult> indexResults = new ArrayList<LocalIndexResult>();
+
+        QueryProcessor queryProcessor = new QueryProcessor(WebSearcherManager.getInstance().getIndexPath());
+
+        List<ScoredDocument> indexAnswers = new ArrayList<ScoredDocument>();
+        try {
+            indexAnswers = queryProcessor.queryIndex(searchQuery, getResultCount(), exact);
+        } catch (CorruptIndexException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        for (ScoredDocument scoredDocument : indexAnswers) {
+
+            LocalIndexResult indexResult = new LocalIndexResult();
+            indexResult.setIndex(WebSearcherManager.CLUEWEB);
+            indexResult.setId(scoredDocument.getWarcId());
+            indexResult.setRank(scoredDocument.getRank());
+            indexResult.setContent(scoredDocument.getContent());
+
+            LOGGER.debug("clueweb retrieved url " + scoredDocument.getWarcId());
+            indexResults.add(indexResult);
+
+        }
+
+        srManager.addRequest(WebSearcherManager.CLUEWEB);
+        LOGGER.info("clueweb requests: " + srManager.getRequestCount(WebSearcherManager.CLUEWEB) + ", results: "
+                + indexAnswers.size());
+
+        return indexResults;
+    }
+
     private List<WebResult> getWebResultsFromHakia(String searchQuery) {
         return fetchAndProcessHakia("http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid=",
                 searchQuery);
@@ -907,7 +976,7 @@ public class WebSearcher {
      * @return
      */
     private List<WebResult> fetchAndProcessHakia(String endpoint, String searchQuery) {
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        List<WebResult> webresults = new ArrayList<WebResult>();
         Document searchResult = null;
 
         // query hakia for search engine results
@@ -974,11 +1043,11 @@ public class WebSearcher {
 
     private List<WebResult> getWebResultsFromTwitter(String searchQuery) {
 
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        List<WebResult> webresults = new ArrayList<WebResult>();
 
         Twitter twitter = new TwitterFactory().getInstance();
 
-        // FIXME dirty; WebSearcher surrounds query string with %22 when in "exact mode" .. 
+        // FIXME dirty; WebSearcher surrounds query string with %22 when in "exact mode" ..
         // remove them here, as twitter will give no results ...
         if (searchQuery.contains("%22")) {
             searchQuery = searchQuery.replace("%22", "");
@@ -1041,7 +1110,7 @@ public class WebSearcher {
 
     private List<WebResult> getWebResultsFromGoogleBlogs(String searchQuery) {
 
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        List<WebResult> webresults = new ArrayList<WebResult>();
 
         DocumentRetriever c = new DocumentRetriever();
 
@@ -1122,7 +1191,7 @@ public class WebSearcher {
     @SuppressWarnings("unchecked")
     private List<WebResult> getWebResultsFromTextRunner(String searchQuery) {
 
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        List<WebResult> webresults = new ArrayList<WebResult>();
 
         // TODO: implement TextRunner
         String xPath = "//div[@class='lin']/a";

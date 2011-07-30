@@ -1086,7 +1086,7 @@ public class PageAnalyzer {
         String url = StringHelper.urlDecode(document.getDocumentURI());
 
         // for test cases on local files, we ignore sibling URLs
-        if (url.startsWith("file:")) {
+        if (url == null || url.startsWith("file:")) {
             return siblingURL;
         }
 

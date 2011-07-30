@@ -16,9 +16,6 @@ import ws.palladian.model.features.FeatureVector;
  * </p>
  * 
  * @author David Urbansky
- * @author Klemens Muthmann
- * @version 1.0
- * @since 1.0
  */
 public interface PipelineProcessor extends Serializable {
 

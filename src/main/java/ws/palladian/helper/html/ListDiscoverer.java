@@ -754,20 +754,21 @@ public class ListDiscoverer {
      * @return True if the list entries are uniform, else false.
      */
     public static boolean entriesUniform(List<String> entries, boolean tableDuplicateCheck) {
-        // if (entries.size() == 0) return false;
 
-        Iterator<String> entryIterator = entries.iterator();
         int totalEntries = entries.size();
         int numericEntries = 0;
         int completelyCapitalized = 0;
         int totalWordLength = 0;
         int missingEntries = 0;
-        HashSet<String> duplicateCountSet = new HashSet<String>();
-        HashSet<String> duplicateWordCountSet = new HashSet<String>();
+
+        Set<String> duplicateCountSet = new HashSet<String>();
+        Set<String> duplicateWordCountSet = new HashSet<String>();
         int duplicateCount = 0;
         int duplicateWordCount = 0;
-        while (entryIterator.hasNext()) {
-            String entry = StringHelper.trim(entryIterator.next());
+
+        for (String entry : entries) {
+
+            entry = StringHelper.trim(entry);
 
             totalWordLength += entry.split(" ").length;
 
