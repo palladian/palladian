@@ -40,8 +40,10 @@ import com.temesoft.google.pr.JenkinsHash;
  * 
  * @author Philipp Katz
  * @see http://tools.seobook.com/firefox/seo-for-firefox.html
+ * @deprecated Replace by individual ranking retrieval classes, see subclasses of {@link RankingService}.
  * 
  */
+@Deprecated
 public class RankingRetriever {
 
     /** Type safe enum for all available ranking services. */
