@@ -53,7 +53,7 @@ public class FeedItem {
     private String text;
 
     /** The item's hash. */
-    private String itemHash = null;
+    // private String itemHash = null;
 
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData;
