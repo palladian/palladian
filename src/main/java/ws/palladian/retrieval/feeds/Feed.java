@@ -18,7 +18,9 @@ import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
+ * <p>
  * Represents a news feed.
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -238,11 +240,11 @@ public class Feed {
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
         setNewestItemHash(null);
         setLastFeedEntry(null);
-        
+
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
             String hash = feedItem.getHash();
-            if (isNewItem(hash)){
+            if (isNewItem(hash)) {
                 itemCacheTemp.put(hash, getCorrectedTimestamp(feedItem, false));
                 newItemsTemp.add(feedItem);
             } else {
@@ -269,7 +271,6 @@ public class Feed {
         setLastFeedEntry(null);
         items.add(item);
         item.setFeed(this);
-
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
@@ -384,7 +385,7 @@ public class Feed {
      * @return the cached, (corrected) publish date that is associated to the provided item hash or <code>null</code> if
      *         the hash is unknown.
      */
-    private Date getCachedItemTimestamp(String hash){
+    private Date getCachedItemTimestamp(String hash) {
         return itemCache.get(hash);
     }
 
@@ -525,7 +526,7 @@ public class Feed {
         String tempHash = null;
         Date tempDate = null;
 
-        for(String hash : cache.keySet()){
+        for (String hash : cache.keySet()) {
             if (tempDate == null || tempDate.getTime() < cache.get(hash).getTime()) {
                 tempDate = cache.get(hash);
                 tempHash = hash;
@@ -661,7 +662,7 @@ public class Feed {
                 && CollectionHelper.contains(FeedClassifier.getActivityPatternIDs(), activityPattern)) {
             this.activityPattern = activityPattern;
         }
-        
+
     }
 
     /**
@@ -1326,7 +1327,5 @@ public class Feed {
     public final void setLastFeedTaskResult(String lastFeedTaskResult) {
         this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
     }
-
-
 
 }

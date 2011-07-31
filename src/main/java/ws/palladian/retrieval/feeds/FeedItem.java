@@ -9,7 +9,9 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
+ * <p>
  * Represents a news item within a feed ({@link Feed}).
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -168,13 +170,12 @@ public class FeedItem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Entry");
-        // sb.append(" id:").append(id);
+        sb.append("FeedItem");
+        sb.append(" id:").append(id);
         sb.append(" title:").append(title);
         sb.append(" link:").append(link);
-        // sb.append(" rawId:").append(rawId);
+        sb.append(" rawId:").append(rawId);
         sb.append(" published:").append(published);
-        // sb.append(" entryText:").append(entryText);
         return sb.toString();
     }
 
