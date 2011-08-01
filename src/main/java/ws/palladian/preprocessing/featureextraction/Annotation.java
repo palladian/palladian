@@ -122,8 +122,17 @@ public abstract class Annotation {
         return this.viewName;
     }
     
-    // force subclasses to implement toString() method.
+    //
+    // force subclasses to implement the following methods
+    //
+    
     @Override
     public abstract String toString();
+    
+    @Override
+    public abstract boolean equals(Object obj);
+    
+    @Override
+    public abstract int hashCode();
 
 }

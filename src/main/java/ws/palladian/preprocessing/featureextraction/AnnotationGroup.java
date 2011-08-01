@@ -113,4 +113,40 @@ public class AnnotationGroup extends Annotation {
         return builder.toString();
     }
 
+    //
+    // Attention: do not auto-generate the following methods,
+    // they have been manually changed to consider the super#getDocument()
+    //
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((annotations == null) ? 0 : annotations.hashCode());
+        result = prime * result + ((getDocument() == null) ? 0 : getDocument().hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AnnotationGroup other = (AnnotationGroup)obj;
+        if (annotations == null) {
+            if (other.annotations != null)
+                return false;
+        } else if (!annotations.equals(other.annotations))
+            return false;
+        if (getDocument() == null) {
+            if (other.getDocument() != null)
+                return false;
+        } else if (getDocument().equals(other.getDocument()))
+            return false;
+        return true;
+    }
+
 }

@@ -7,19 +7,50 @@ import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
 
+/**
+ * <p>
+ * The NGramCreator creates token n-grams and stores them {@link AnnotationGroup}s. For example, using n-gram length of
+ * 2, for the list of {@link Annotation}s [<i>the, quick, brown, fox, jumps, over, the, lazy, dog</i>], the following
+ * {@link AnnotationGroup}s will be created: [<i>the quick</i>, <i>quick brown</i>, <i>brown fox</i>, ...].
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class NGramCreator implements PipelineProcessor {
-    
+
+    private static final long serialVersionUID = 1L;
+
     private final int minLength;
     private final int maxLength;
 
+    /**
+     * <p>
+     * Create a new {@link NGramCreator} which calculates 2-grams.
+     * </p>
+     */
     public NGramCreator() {
         this(2, 2);
     }
-    
+
+    /**
+     * <p>
+     * Create a new {@link NGramCreator} which calculates (2-maxLength)-grams.
+     * </p>
+     * 
+     * @param maxLength
+     */
     public NGramCreator(int maxLength) {
         this(2, maxLength);
     }
-    
+
+    /**
+     * <p>
+     * Create a new {@link NGramCreator} which calculates (minLength-maxLength)-grams.
+     * </p>
+     * 
+     * @param minLength
+     * @param maxLength
+     */
     public NGramCreator(int minLength, int maxLength) {
         this.minLength = minLength;
         this.maxLength = maxLength;
@@ -28,26 +59,27 @@ public class NGramCreator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
         if (annotationFeature == null) {
             throw new RuntimeException();
         }
         List<Annotation> annotations = annotationFeature.getValue();
-        List<Annotation> gramTokens = new ArrayList<Annotation>();
+        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         for (int i = minLength; i <= maxLength; i++) {
-            List<Annotation> nGramTokens = createNGrams(document, annotations, i);            
+            List<AnnotationGroup> nGramTokens = createNGrams(document, annotations, i);
             gramTokens.addAll(nGramTokens);
         }
         annotations.addAll(gramTokens);
     }
 
-    private List<Annotation> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
-        List<Annotation> gramTokens = new ArrayList<Annotation>();
+    private List<AnnotationGroup> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
+        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            int startPosition = tokensArray[i].getStartPosition();
-            int endPosition = tokensArray[i + length - 1].getEndPosition();
-            Annotation gramToken = new PositionAnnotation(document, startPosition, endPosition);
+            AnnotationGroup gramToken = new AnnotationGroup(document);
+            for (int j = i; j < i + length; j++) {
+                gramToken.add(tokensArray[j]);
+            }
             gramTokens.add(gramToken);
         }
         return gramTokens;
