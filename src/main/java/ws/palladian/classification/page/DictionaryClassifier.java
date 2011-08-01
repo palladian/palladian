@@ -1,5 +1,6 @@
 package ws.palladian.classification.page;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,11 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.LoremIpsumGenerator;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
@@ -47,7 +52,6 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     public DictionaryClassifier(String name, String dictionaryPath) {
-        ClassifierManager.log("DictionaryClassifier created");
         setName(name);
 
         dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
@@ -431,7 +435,7 @@ public class DictionaryClassifier extends TextClassifier {
                     if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
                             && classificationTypeSetting.getClassificationTypeTagSetting().isTagBoost()) {
                         if (classType == ClassificationTypeSetting.TAG
-                                && document.getUrl().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
+                                && document.getContent().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
                                 && categoryName.length() > 3) {
                             c.addAbsoluteRelevance(weightedTerm.getValue() * categoryName.length());
                         }
@@ -674,5 +678,74 @@ public class DictionaryClassifier extends TextClassifier {
         builder.append(getClassificationTypeSetting());
         return builder.toString();
     }
+    
+    /**
+     * <p>For quick thread-safe classification use this. The DictionaryClassifier is thread safe by itself but this is faster since copies of classifiers are created which all use the same dictionary (read-only).</p>
+     * @param classifier The classifier to use (will be copied).
+     * @param text The text to classify.
+     * @return The classified text instance.
+     */
+    public static TextInstance classify(DictionaryClassifier classifier, String text) {
+        
+//       FIXME: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+        DictionaryClassifier copy = new DictionaryClassifier();
+        copy.setDictionary(classifier.getDictionary());
+        copy.setCategories(classifier.getCategories());
+        return copy.classify(text);
+        
+    }
 
+    public void threadTest() {
+
+        String classifierPath = "prcSelected10k.gz";
+        final DictionaryClassifier classifier = FileHelper.deserialize(classifierPath);
+        System.out.println("loaded classifier");
+
+        Cache.getInstance().putDataObject("classifier", classifier);
+
+        int totalThreads = 200;
+        
+        final DictionaryClassifierPool dc2Pool = new DictionaryClassifierPool(classifier, totalThreads);
+        
+        final List<Long> longs = new ArrayList<Long>();
+        
+        for (int i = 0; i < totalThreads; i++) {
+
+            new Thread(new Runnable() {
+                public void run() {
+                    StopWatch sw2 = new StopWatch();
+//                    TextInstance classify = classifier.classify(LoremIpsumGenerator.getRandomText(100));
+//                    TextInstance classify = DictionaryClassifier.classify(classifier,LoremIpsumGenerator.getRandomText(100));
+//                    DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+                    DictionaryClassifier dc2 = dc2Pool.get();
+//                    System.out.println(dc2.getName());
+                    TextInstance classify = dc2.classify(LoremIpsumGenerator.getRandomText(100));
+                    dc2Pool.release(dc2);
+//                    TextInstance classify = dc2Pool.classify(LoremIpsumGenerator.getRandomText(100));
+                    System.out.println(sw2.getElapsedTimeString()+ " in current thread");
+                    longs.add(sw2.getElapsedTime());
+                }
+            }).start();
+
+        }
+
+        ThreadHelper.deepSleep(8 * DateHelper.SECOND_MS);
+        long totalTime = 0l;
+        for (Long l : longs) {
+            totalTime += l;
+        }
+        
+        System.out.println("avg. time per thread: " + totalTime / (double) totalThreads);
+
+        // thread safe:
+        // synchronized:    avg. time per thread: 957.595, 1073.045, 1098.385
+        // static:          avg. time per thread: 80.75, 450.79, 272.485, 196.635, 51.01, 398.265
+        // pooled:          avg. time per thread: 1126.855, 853.05, 646.7, 879.77
+        // pooled with getting and releasing: 1844.025, 1086.12, 935.965, 762.525, 968.975
+    }
+    
+    public static void main(String[] args) {
+        DictionaryClassifier dc2 = new DictionaryClassifier();
+        dc2.threadTest();
+    }
 }

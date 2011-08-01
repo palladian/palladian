@@ -614,7 +614,7 @@ public class ClassifierManager {
         }
         preprocessedDocument = classifier.preprocessDocument(data[0], preprocessedDocument);
 
-        preprocessedDocument.setUrl(data[0]);
+        preprocessedDocument.setContent(data[0]);
 
         Categories categories = new Categories();
         for (int j = 1; j < data.length; j++) {
@@ -666,7 +666,7 @@ public class ClassifierManager {
 
             preprocessedDocument = classifier.preprocessDocument(documentContent, preprocessedDocument);
 
-            preprocessedDocument.setUrl(firstField);
+            preprocessedDocument.setContent(firstField);
 
             Categories categories = new Categories();
             for (int j = 1; j < tData.length; j++) {

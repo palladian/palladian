@@ -30,7 +30,7 @@ public class TextInstance extends Instance {
     protected Categories realCategories;
 
     /** Each document has a unique URL. */
-    private String url = "";
+    private String content = "";
 
     /** The weighted terms with term,weight representation. */
     private HashMap<Term, Double> weightedTerms;
@@ -83,12 +83,12 @@ public class TextInstance extends Instance {
         return null;
     }
 
-    public String getUrl() {
-        return url;
+    public String getContent() {
+        return content;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public HashMap<Term, Double> getWeightedTerms() {

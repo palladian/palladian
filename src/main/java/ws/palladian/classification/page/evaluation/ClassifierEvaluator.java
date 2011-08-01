@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.ClassifierPerformanceResult;
+import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.helper.DatasetManager;
@@ -246,6 +247,10 @@ public class ClassifierEvaluator {
         dataset.setPath("data/temp/amazon/amazonElectronicDE_detailedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_mainCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
+        dataset.setFirstFieldLink(true);
+        dataset.setSeparationString(" ");
+        dataset.setPath("data/datasets/topic/index_ipc2440.txt");
+        
         
         // dataset.setPath("data/temp/articles_small.csv");
         // dataset.setPath("data/temp/trainingCollection.csv");
@@ -256,9 +261,9 @@ public class ClassifierEvaluator {
         datasetManager.calculateClassDistribution(dataset, "data/temp/amazon/distributionFull.csv");
         
         // create an excerpt (optional)
-        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
-                10000);
-        dataset.setPath(dsExcerpt);
+//        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
+//                10000);
+//        dataset.setPath(dsExcerpt);
         datasetManager.calculateClassDistribution(dataset, "data/temp/amazon/distributionExcerpt.csv");
 
         int countClasses = datasetManager.countClasses(dataset);
@@ -278,7 +283,12 @@ public class ClassifierEvaluator {
 //        evaluator.runEvaluation("data/temp/amazon/evaluatorResults.csv");
         
         dictionaryClassifier1.train(dataset);
-        FileHelper.serialize(dictionaryClassifier1, "prcSelected10k.gz");
+        
+        ClassifierManager classifierManager = new ClassifierManager();
+        classifierManager.trainClassifier(dataset, dictionaryClassifier1);
+        
+//        FileHelper.serialize(dictionaryClassifier1, "prcSelected10k.gz");
+        FileHelper.serialize(dictionaryClassifier1, "topicClassifier.gz");
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier1.getName()));
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier2.getName()));
     }

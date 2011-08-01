@@ -1,11 +1,14 @@
 package ws.palladian.classification.page;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.classification.Term;
@@ -40,9 +43,6 @@ public final class Preprocessor implements Serializable {
     public static final double WEIGHT_META_TERM = 4.0;
     public static final double WEIGHT_BODY_TERM = 1.0;
 
-    /** The crawler. */
-    private transient DocumentRetriever crawler = null;
-
     /**
      * the classifier that this preprocessor belongs to, the classifier holds
      * the feature settings which are needed here
@@ -64,7 +64,25 @@ public final class Preprocessor implements Serializable {
 
     public Preprocessor(TextClassifier classifier) {
         this.classifier = classifier;
-        crawler = new DocumentRetriever();
+    }
+    
+    /**
+     * Copy constructor
+     * @param classifier
+     * @param preprocessor
+     */
+    public Preprocessor(TextClassifier classifier, Preprocessor preprocessor) {
+        super();
+        this.classifier = classifier;
+        try {
+            PropertyUtils.copyProperties(this, preprocessor);
+        } catch (IllegalAccessException e) {
+            Logger.getRootLogger().error(e);
+        } catch (InvocationTargetException e) {
+            Logger.getRootLogger().error(e);
+        } catch (NoSuchMethodException e) {
+            Logger.getRootLogger().error(e);
+        }
     }
 
     /**
@@ -254,70 +272,6 @@ public final class Preprocessor implements Serializable {
         classificationDocument.getWeightedTerms().putAll(map);
 
         return classificationDocument;
-    }
-
-    public TextInstance preProcessString(String url) {
-        return preProcessString(url, new TextInstance());
-    }
-
-    /**
-     * Preprocess a web page and create a classification document. A map of
-     * terms is created for the document and added to it. If a term exists, it
-     * will be taken from the term index.
-     * 
-     * @deprecated consider using preprocess document
-     * 
-     * @param url
-     *            The URL of the web page.
-     * @param classificationDocument
-     *            The classification document.
-     * @return The classification document with the n-gram map.
-     */
-    @Deprecated
-    public TextInstance preProcessPage(String url, TextInstance classificationDocument) {
-
-        Document webPage = crawler.getWebDocument(url);
-
-        map = new HashMap<Term, Double>();
-
-        // fill weighted term map with keywords first
-        extractKeywords(webPage);
-
-        // get title
-        extractTitle(webPage);
-
-        // add meta description keywords
-        extractMetaDescription(webPage);
-
-        // get body text
-        String bodyContent = PageAnalyzer.extractBodyContent(webPage).toLowerCase();
-
-        bodyContent = HTMLHelper.stripHTMLTags(bodyContent, true, true, true, false);
-
-        // remove stop words
-        bodyContent = stripStopWords(bodyContent);
-
-        // get an array of terms
-        String[] termArray = bodyContent.split("\\s");
-
-        // build the map, weight 1 for all for now
-        for (String term : termArray) {
-            addToTermMap(term, WEIGHT_BODY_TERM);
-        }
-
-        classificationDocument.getWeightedTerms().putAll(map);
-
-        return classificationDocument;
-    }
-
-    /**
-     * @deprecated consider using preprocess document
-     * @param url
-     * @return
-     */
-    @Deprecated
-    public TextInstance preProcessPage(String url) {
-        return preProcessPage(url, new TextInstance());
     }
 
     /**
