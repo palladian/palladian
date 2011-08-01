@@ -118,7 +118,8 @@ public class QueryProcessor {
 
         Query query = null;
         try {
-            query = new QueryParser(Version.LUCENE_30, "Wordindex", new SimpleAnalyzer()).parse(queryString);
+            query = new QueryParser(Version.LUCENE_31, "Wordindex", new SimpleAnalyzer(Version.LUCENE_31))
+                    .parse(queryString);
         } catch (ParseException e) {
             LOGGER.error(e.getMessage());
         }
