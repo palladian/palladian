@@ -79,7 +79,9 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         
         TextClassifier copyClassifier = new DictionaryClassifier(getName(), "data/temp/");
         copyClassifier.setName(getName());
-        copyClassifier.setPreprocessor(getPreprocessor());
+        
+        Preprocessor preprocessorCopy = new Preprocessor(copyClassifier,getPreprocessor());
+        copyClassifier.setPreprocessor(preprocessorCopy);
         
         FeatureSetting fs = new FeatureSetting(getFeatureSetting());
         copyClassifier.setFeatureSetting(fs);
@@ -271,14 +273,14 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
     public synchronized TextInstance classify(String text) {
         TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
-        processedDocument.setUrl(text);
+        processedDocument.setContent(text);
         return classify(processedDocument);
     }
 
     public synchronized TextInstance classify(String text, Set<String> possibleClasses) {
         TextInstance processedDocument;
         processedDocument = preprocessDocument(text);
-        processedDocument.setUrl(text);
+        processedDocument.setContent(text);
         return classify(processedDocument, possibleClasses);
     }
 
@@ -375,7 +377,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
             document.sortCategoriesByRelevance();
 
-            show.append(document.getUrl() + "\n\treal (" + document.getClassifiedAsReadable() + "): ")
+            show.append(document.getContent() + "\n\treal (" + document.getClassifiedAsReadable() + "): ")
                     .append(document.getRealCategoriesString()).append("\n\tclassified:");
             while (j.hasNext()) {
                 CategoryEntry categoryEntry = j.next();
@@ -390,7 +392,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
                 int real = document.getRealCategories().size();
 
                 if (totalAssigned == 0 || real == 0) {
-                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getContent());
                     continue;
                 }
 
@@ -454,6 +456,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         Instances<UniversalInstance> instances = getTrainingInstances();
 
         int added = 0;
+        // TODO make work with first field link true, too
         if (!dataset.isFirstFieldLink()) {
 
             List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
@@ -576,7 +579,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             }
 
             preprocessedDocument = preprocessDocument(documentContent, preprocessedDocument);
-            preprocessedDocument.setUrl(firstField);
+            preprocessedDocument.setContent(firstField);
 
             Categories categories = new Categories();
             for (int j = 1; j < documentInformation.length; j++) {

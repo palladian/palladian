@@ -344,7 +344,7 @@ public class ClassifierPerformance implements Serializable {
                 int totalAssigned = document.getAssignedCategoryEntries().size();
 
                 if (totalAssigned == 0) {
-                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getContent());
                     continue;
                 }
 
@@ -413,7 +413,7 @@ public class ClassifierPerformance implements Serializable {
                 int real = document.getRealCategories().size();
 
                 if (real == 0) {
-                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getContent());
                     continue;
                 }
 
