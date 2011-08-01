@@ -17,14 +17,14 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * The document this {@code Annotation} points to.
+     * The document this {@link Annotation} points to.
      * </p>
      */
     private final PipelineDocument document;
 
     /**
      * <p>
-     * The feature vector this {@code Annotation} is part of.
+     * The feature vector of this {@link Annotation}.
      * </p>
      */
     private final FeatureVector featureVector;
@@ -38,10 +38,10 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * Creates a new completely initialized {@code Annotation}.
+     * Creates a new completely initialized {@link Annotation}.
      * </p>
      * 
-     * @param document The {@code PipelineDocument} the {@code Annotation} points to.
+     * @param document The {@link PipelineDocument} the {@link Annotation} points to.
      * @param viewName The name of the view in the document containing the annotated content.
      */
     public Annotation(PipelineDocument document, String viewName) {
@@ -53,10 +53,10 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * Creates a new document {@code Annotation} pointing on the "originalContent" view of the document.
+     * Creates a new document {@link Annotation} pointing on the "originalContent" view of the document.
      * </p>
      * 
-     * @param document The document the {@code Annotation} points to.
+     * @param document The document the {@link Annotation} points to.
      */
     public Annotation(PipelineDocument document) {
         this(document, "originalContent");
@@ -64,10 +64,10 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * Provides the {@code PipelineDocument} this {@code Annotation} points to.
+     * Provides the {@link PipelineDocument} this {@link Annotation} points to.
      * </p>
      * 
-     * @return The {@code PipelineDocument} containing the annotated content.
+     * @return The {@link PipelineDocument} containing the annotated content.
      */
     public final PipelineDocument getDocument() {
         return this.document;
@@ -75,37 +75,37 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * Provides the index of the first character of this {@code Annotation}.
+     * Provides the index of the first character of this {@link Annotation}.
      * </p>
      * 
-     * @return the index of the first character of this {@code Annotation}.
+     * @return the index of the first character of this {@link Annotation}.
      */
     public abstract int getStartPosition();
 
     /**
      * <p>
-     * Provides the index of the first character after the end of this {@code Annotation}.
+     * Provides the index of the first character after the end of this {@link Annotation}.
      * </p>
      * 
-     * @return the index of the first character after the end of this {@code Annotation}.
+     * @return the index of the first character after the end of this {@link Annotation}.
      */
     public abstract int getEndPosition();
 
     /**
      * <p>
-     * Provides the value of this {@code Annotation} from the underlying {@link PipelineDocument}.
+     * Provides the value of this {@link Annotation} from the underlying {@link PipelineDocument}.
      * </p>
      * 
-     * @return The value of this {@code Annotation} as a {@code String}.
+     * @return The value of this {@link Annotation} as a {@link String}.
      */
     public abstract String getValue();
 
     /**
      * <p>
-     * The {@code FeatureVector} this {@code Annotation} is part of.
+     * The {@link FeatureVector} of this {@link Annotation}.
      * </p>
      * 
-     * @return A {@code FeatureVector} containing this {@code Annotation}.
+     * @return A {@link FeatureVector} containing this {@link Annotation}.
      */
     public final FeatureVector getFeatureVector() {
         return this.featureVector;
@@ -116,10 +116,14 @@ public abstract class Annotation {
      * Provides the name of the view inside the {@link PipelineDocument} providing the annotated content.
      * </p>
      * 
-     * @return The views name.
+     * @return The view's name.
      */
     public final String getViewName() {
         return this.viewName;
     }
+    
+    // force subclasses to implement toString() method.
+    @Override
+    public abstract String toString();
 
 }

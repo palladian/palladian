@@ -1,8 +1,7 @@
 package ws.palladian.preprocessing.featureextraction;
 
-import gnu.trove.THashSet;
-
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
@@ -11,11 +10,12 @@ import ws.palladian.helper.LineAction;
 
 public class ControlledVocabularyFilter extends TokenRemover {
 
+    private static final long serialVersionUID = 1L;
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ControlledVocabularyFilter.class);
     
-    // private HashSet<String> vocabulary = new HashSet<String>();
-    private THashSet vocabulary = new THashSet();
+    private HashSet<String> vocabulary = new HashSet<String>();
     
     public ControlledVocabularyFilter(String vocabularyFile) {
 
