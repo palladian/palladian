@@ -11,6 +11,8 @@ import ws.palladian.preprocessing.PipelineProcessor;
 
 public class DuplicateTokenRemover implements PipelineProcessor {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
@@ -29,14 +31,6 @@ public class DuplicateTokenRemover implements PipelineProcessor {
             }
         }
         annotationFeature.setValue(resultTokens);
-        
-//        for (Iterator<Annotation> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-//            Annotation token = tokenIterator.next();
-//            String tokenValue = token.getValue().toLowerCase();
-//            if (!tokenValues.add(tokenValue)) {
-//                tokenIterator.remove();
-//            }
-//        }
     }
 
 }
