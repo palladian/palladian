@@ -30,8 +30,8 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of
-     * the provided {@code PipelineDocument}.
+     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
+     * provided {@code PipelineDocument}.
      * </p>
      * 
      * @param document The document this {@code Annotation} points to.
@@ -95,4 +95,41 @@ public final class PositionAnnotation extends Annotation {
         builder.append("]");
         return builder.toString();
     }
+
+    //
+    // Attention: do not auto-generate the following methods,
+    // they have been manually changed to consider the super#getDocument()
+    //
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + endPosition;
+        result = prime * result + startPosition;
+        result = prime * result + ((getDocument() == null) ? 0 : getDocument().hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PositionAnnotation other = (PositionAnnotation)obj;
+        if (endPosition != other.endPosition)
+            return false;
+        if (startPosition != other.startPosition)
+            return false;
+        if (getDocument() == null) {
+            if (other.getDocument() != null)
+                return false;
+        } else if (getDocument().equals(other.getDocument()))
+            return false;
+        return true;
+    }
+
 }
