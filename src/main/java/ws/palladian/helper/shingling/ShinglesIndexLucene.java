@@ -53,7 +53,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     private IndexWriter writer;
 
     /** This analyzer just tokenizes at whitespace. */
-    private Analyzer analyzer = new WhitespaceAnalyzer();
+    private Analyzer analyzer = new WhitespaceAnalyzer(Version.LUCENE_31);
 
     /** This class collects search results. */
     private class ShinglesIndexCollector extends Collector {
@@ -157,7 +157,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         try {
 
             // create the query and do the search
-            Query query = new QueryParser(Version.LUCENE_30, "sketch", analyzer).parse(String.valueOf(hash));
+            Query query = new QueryParser(Version.LUCENE_31, "sketch", analyzer).parse(String.valueOf(hash));
             IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
@@ -192,7 +192,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
 
         try {
 
-            Query query = new QueryParser(Version.LUCENE_30, "docId", analyzer).parse(String.valueOf(documentId));
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String.valueOf(documentId));
             IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
@@ -247,7 +247,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
 
         try {
 
-            Query query = new QueryParser(Version.LUCENE_30, "docId", analyzer).parse(String.valueOf(documentId));
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String.valueOf(documentId));
             IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
@@ -284,7 +284,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         try {
 
             // first, query for the masterDocument by ID
-            Query query = new QueryParser(Version.LUCENE_30, "docId", analyzer).parse(String
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String
                     .valueOf(masterDocumentId));
             IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
