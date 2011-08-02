@@ -61,7 +61,7 @@ public class Item implements Serializable {
      * </p>
      */
     @ManyToOne
-    private ItemStream parent;
+    private StreamSource parent;
 
     /**
      * <p>
@@ -217,11 +217,11 @@ public class Item implements Serializable {
         this.link = link;
     }
 
-    public ItemStream getParent() {
+    public StreamSource getParent() {
         return parent;
     }
 
-    public void setParent(ItemStream parent) {
+    public void setParent(StreamSource parent) {
         this.parent = parent;
     }
 

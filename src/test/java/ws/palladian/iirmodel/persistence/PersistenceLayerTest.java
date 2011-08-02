@@ -6,6 +6,7 @@ package ws.palladian.iirmodel.persistence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -23,11 +24,14 @@ import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.ItemType;
 import ws.palladian.iirmodel.RelationType;
+import ws.palladian.iirmodel.StreamGroup;
+import ws.palladian.iirmodel.StreamSource;
 
 /**
  * @author Klemens Muthmann
  * @author Philipp Katz
- * 
+ * @version 3.0
+ * @since 1.0
  */
 public class PersistenceLayerTest {
 
@@ -61,11 +65,12 @@ public class PersistenceLayerTest {
      * Test to save {@link ItemStream} without any {@link Item}s.
      */
     @Test
-    public final void testSaveItemStream() {
+    public final void testsaveStreamSource() {
         try {
             ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
-            persistenceLayer.saveItemStream(stream);
+            persistenceLayer.saveStreamSource(stream);
         } catch (Exception e) {
+            e.printStackTrace();
             fail("Unable to save new ItemStream due to: " + e.getStackTrace());
         }
     }
@@ -85,8 +90,8 @@ public class PersistenceLayerTest {
                 "i2text", item1, ItemType.OTHER);
         stream.addItem(item2);
 
-        persistenceLayer.saveItemStream(stream);
-        ItemStream result = persistenceLayer.loadItemStreamBySourceAddress(stream.getSourceAddress());
+        persistenceLayer.saveStreamSource(stream);
+        StreamSource result = persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
         assertEquals(stream, result);
     }
 
@@ -105,7 +110,7 @@ public class PersistenceLayerTest {
                 new Date(), "i2text", item1, ItemType.OTHER);
         stream.addItem(item2);
 
-        persistenceLayer.saveItemStream(stream);
+        persistenceLayer.saveStreamSource(stream);
 
         // save the same ItemStream again; ItemStream gets updated
         ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
@@ -119,9 +124,9 @@ public class PersistenceLayerTest {
                 new Date(), "i3text", changedItem1, ItemType.OTHER);
         changedStream.addItem(changedItem2);
 
-        persistenceLayer.saveItemStream(changedStream);
+        persistenceLayer.saveStreamSource(changedStream);
 
-        ItemStream loadedStream = persistenceLayer.loadItemStreamBySourceAddress("http://testSource.de/testStream");
+        ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
 
         Item deletedItem = persistenceLayer.loadItem(loadedStream.getIdentifier());
         assertNull(deletedItem);
@@ -184,5 +189,32 @@ public class PersistenceLayerTest {
         ItemRelation itemRelation = new ItemRelation(testItem1, testItem2, relationType, "duplicates");
         persistenceLayer.saveItemRelation(itemRelation);
 
+    }
+    
+    /**
+     * Test to save composite {@link StreamSource} structures.
+     */
+    @Test
+    public void testSaveStreamGroup() {
+        StreamGroup grandParentGroup = new StreamGroup("testSource", "http://testSource.de/testStream", "testChannel");
+
+        StreamGroup parentGroup1 = new StreamGroup("testSource1", "http://testSource.de/testStream1", "testChannel1");
+        StreamGroup parentGroup2 = new StreamGroup("testSource2", "http://testSource.de/testStream2", "testChannel2");
+        grandParentGroup.addChild(parentGroup1);
+        grandParentGroup.addChild(parentGroup2);
+
+        StreamGroup childGroup1 = new StreamGroup("testSource11", "http://testSource.de/testStream11", "testChannel11");
+        StreamGroup childGroup2 = new StreamGroup("testSource12", "http://testSource.de/testStream12", "testChannel12");
+        StreamGroup childGroup3 = new StreamGroup("testSource13", "http://testSource.de/testStream13", "testChannel13");
+        parentGroup1.addChild(childGroup1);
+        parentGroup1.addChild(childGroup2);
+        parentGroup1.addChild(childGroup3);
+        
+        persistenceLayer.saveStreamSource(grandParentGroup);
+        
+        StreamSource streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream1");
+        assertTrue(streamSource instanceof StreamGroup);
+        StreamGroup streamGroup = (StreamGroup) streamSource;
+        assertEquals(3, streamGroup.getChildren().size());
     }
 }

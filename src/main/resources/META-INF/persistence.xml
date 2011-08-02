@@ -3,7 +3,9 @@
 	<persistence-unit name="iirmodel" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>ws.palladian.iirmodel.Item</class>
+		<class>ws.palladian.iirmodel.StreamSource</class>
 		<class>ws.palladian.iirmodel.ItemStream</class>
+		<class>ws.palladian.iirmodel.StreamGroup</class>
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
 		<class>ws.palladian.iirmodel.RelationType</class>

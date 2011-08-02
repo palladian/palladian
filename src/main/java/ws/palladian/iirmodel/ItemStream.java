@@ -4,19 +4,14 @@ package ws.palladian.iirmodel;
  * Created on: 13.09.2009 21:22:49
  */
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * <p>
@@ -26,11 +21,10 @@ import javax.persistence.UniqueConstraint;
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @since 1.0
- * @version 2.0
+ * @version 3.0
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"))
-public class ItemStream implements Serializable {
+public final class ItemStream extends StreamSource {
 
     /**
      * <p>
@@ -38,28 +32,6 @@ public class ItemStream implements Serializable {
      * </p>
      */
     private static final long serialVersionUID = 9194871722956364875L;
-
-    /**
-     * <p>
-     * The unique identifier of this {@code ItemStream}. This value is generated automatically and internally by the ORM
-     * implementation.
-     * </p>
-     */
-    @Id
-    @GeneratedValue
-    private Integer identifier;
-
-    /**
-     * <p>
-     * The stream source is a system wide unique name identifying the source for a set of generated item streams. It
-     * might be the source's name as long as no other stream with the same name exists or the source's URL otherwise.
-     * For web forum threads this might be the forum name. For <a href="http://www.facebook.com">Facebook</a> it might
-     * be "facebook" or "http://facebook.com". When a service with multiple sources is considered, e. g. <a
-     * href="http://sourceforge.net/">SourceForge.net</a>, each source must have its own name, like "phpMyAdmin forum",
-     * "phpMyAdmin mailing list", etc.
-     * </p>
-     */
-    private String streamSource;
 
     /**
      * <p>
@@ -72,35 +44,18 @@ public class ItemStream implements Serializable {
 
     /**
      * <p>
-     * The address to access this stream. This is usually an URL but might be a file system path (in URL form or not) as
-     * well. The source address is a identifier for the corresponding stream, e.g. each source address is unique.
-     * </p>
-     */
-    private String sourceAddress;
-
-    /**
-     * <p>
-     * Streams with similar content are often presented together under common name. This property provides the name of
-     * the stream channel the current item stream belongs to. In case of a web forum, channel names might correspond to
-     * different sub-forums.
-     * </p>
-     */
-    private String channelName;
-
-    /**
-     * <p>
-     * Creates a new {@code ItemStream} with no initial values. Use the provided setter methods to initialize the
+     * Creates a new {@link ItemStream} with no initial values. Use the provided setter methods to initialize the
      * instance.
      * </p>
      */
-    public ItemStream() {
+    protected ItemStream() {
         super();
         this.items = new LinkedList<Item>();
     }
 
     /**
      * <p>
-     * Creates a new {@code ItemStream} with no items but all other values initialized.
+     * Creates a new {@link ItemStream} with no items but all other values initialized.
      * </p>
      * 
      * @param streamSource The stream source is a system wide unique name identifying the source for a set of generated
@@ -113,26 +68,8 @@ public class ItemStream implements Serializable {
      *            provides the name of the stream channel the current item stream belongs to.
      */
     public ItemStream(String streamSource, String sourceAddress, String channelName) {
-        this();
-        this.streamSource = streamSource;
-        this.sourceAddress = sourceAddress;
-        this.channelName = channelName;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
-    }
-
-    public Integer getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(Integer identifier) {
-        this.identifier = identifier;
+        super(streamSource, sourceAddress, channelName);
+        this.items = new LinkedList<Item>();
     }
 
     public List<Item> getItems() {
@@ -145,7 +82,7 @@ public class ItemStream implements Serializable {
 
     /**
      * <p>
-     * Adds a new {@link Item} to the end of this {@code ItemStream}s list of items. If same item already exists, it is
+     * Adds a new {@link Item} to the end of this {@link ItemStream}s list of items. If same item already exists, it is
      * overwritten by the new one.
      * </p>
      * 
@@ -173,38 +110,27 @@ public class ItemStream implements Serializable {
         }
     }
 
-    public String getSourceAddress() {
-        return sourceAddress;
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ItemStream [identifier=");
+        builder.append(getIdentifier());
+        builder.append(", streamSource=");
+        builder.append(getStreamSource());
+        builder.append(", items=");
+        builder.append(items);
+        builder.append(", sourceAddress=");
+        builder.append(getSourceAddress());
+        builder.append(", channelName=");
+        builder.append(getChannelName());
+        builder.append("]");
+        return builder.toString();
     }
 
-    public void setSourceAddress(String sourceAddress) {
-        this.sourceAddress = sourceAddress;
-    }
-
-    /**
-     * <p>
-     * The stream source is a unique name identifying the source. It might be its name as long as no other source with
-     * the same name exists or the URL of the source.
-     * </p>
-     * 
-     * @return the unique forum type.
-     */
-    public String getStreamSource() {
-        return streamSource;
-    }
-
-    /**
-     * <p>
-     * The type of a source is a unique name used for identifcation. It might be its name as long as no other source
-     * with the same name exists or the URL of the source.
-     * </p>
-     * 
-     * @param streamSource
-     *            the unique source type
-     */
-    public void setStreamSource(String streamSource) {
-        this.streamSource = streamSource;
-    }
+    //
+    // Attention: do not auto-generate the following methods,
+    // they have been manually changed to consider the super#getSourceAddress()
+    //
 
     @Override
     public boolean equals(Object itemStream) {
@@ -218,12 +144,12 @@ public class ItemStream implements Serializable {
             return false;
         }
 
-        ItemStream other = (ItemStream) itemStream;
-        if (sourceAddress == null) {
-            if (other.sourceAddress != null) {
+        StreamSource other = (StreamSource)itemStream;
+        if (getSourceAddress() == null) {
+            if (other.getSourceAddress() != null) {
                 return false;
             }
-        } else if (!sourceAddress.equals(other.sourceAddress)) {
+        } else if (!getSourceAddress().equals(other.getSourceAddress())) {
             return false;
         }
         return true;
@@ -233,25 +159,8 @@ public class ItemStream implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((sourceAddress == null) ? 0 : sourceAddress.hashCode());
+        result = prime * result + ((getSourceAddress() == null) ? 0 : getSourceAddress().hashCode());
         return result;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ItemStream [identifier=");
-        builder.append(identifier);
-        builder.append(", streamSource=");
-        builder.append(streamSource);
-        builder.append(", items=");
-        builder.append(items);
-        builder.append(", sourceAddress=");
-        builder.append(sourceAddress);
-        builder.append(", channelName=");
-        builder.append(channelName);
-        builder.append("]");
-        return builder.toString();
     }
 
 }

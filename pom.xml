@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ws.palladian</groupId>
 	<artifactId>iirmodel</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<name>Palladian IIR Model</name>
 	<description>An aggregated model for internet information retrieval tasks</description>
 	<build>

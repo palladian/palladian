@@ -25,6 +25,7 @@ import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.RelationType;
+import ws.palladian.iirmodel.StreamSource;
 
 /**
  * <p>
@@ -37,7 +38,7 @@ import ws.palladian.iirmodel.RelationType;
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
- * @version 1.0
+ * @version 3.0
  * @since 1.0
  * 
  */
@@ -106,34 +107,48 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         super(manager);
     }
 
-    /**
-     * <p>
-     * Saves an {@code ItemStream} with all its {@link Item}s to the database. If the stream already exists, the
-     * representation in the database is updated with the new values from this {@code ItemStream}. This means old values
-     * are overwritten if changed and the collections of {@code Item}s are merged. Existing {@code Item}s are updated
-     * with the new values from the new {@code ItemStream} and new {@code Item}s are added. However old {@code Item}s
-     * not in the new {@code ItemStream} are not deleted but simply kept. For each {@code Item} the operation also
-     * updates the {@link Author} information if necessary. This means that new {@code Author}s are added to the
-     * database and existing ones are updated with new values.
-     * </p>
-     * 
-     * @param stream The stream to save to the database.
-     */
-    public final void saveItemStream(final ItemStream stream) {
+    private final void saveItemStream(final ItemStream stream) {
         Boolean openedTransaction = openTransaction();
-        ItemStream existingStream = loadItemStreamBySourceAddress(stream.getSourceAddress());
+        ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
         updateAuthors(stream.getItems());
 
         if (existingStream == null) {
             getManager().persist(stream);
         } else {
             stream.setIdentifier(existingStream.getIdentifier());
-            // addNewItems(existingStream, stream);
             Collection<Item> removedItems = getRemovedItems(existingStream, stream);
             getManager().merge(stream);
             removeItems(removedItems);
         }
-        // saveItems(stream.getItems());
+        commitTransaction(openedTransaction);
+    }
+
+    /**
+     * <p>
+     * Saves a {@code StreamSource}. If the StreamSource is an {@link ItemStream}, all its {@link Item}s are also saved
+     * to the database. If the stream already exists, the representation in the database is updated with the new values
+     * from this {@code ItemStream}. This means old values are overwritten if changed and the collections of
+     * {@code Item}s are merged. Existing {@code Item}s are updated with the new values from the new {@code ItemStream}
+     * and new {@code Item}s are added. However old {@code Item}s not in the new {@code ItemStream} are not deleted but
+     * simply kept. For each {@code Item} the operation also updates the {@link Author} information if necessary. This
+     * means that new {@code Author}s are added to the database and existing ones are updated with new values.
+     * </p>
+     * 
+     * @param stream The {@link StreamSource} to save to the database.
+     */
+    public final void saveStreamSource(final StreamSource streamSource) {
+        Boolean openedTransaction = openTransaction();
+        if (streamSource instanceof ItemStream) {
+            ItemStream itemStream = (ItemStream)streamSource;
+            saveItemStream(itemStream);
+        } else {
+            StreamSource existingStream = loadStreamSourceByAddress(streamSource.getSourceAddress());
+            if (existingStream == null) {
+                getManager().persist(streamSource);
+            } else {
+                getManager().merge(existingStream);
+            }
+        }
         commitTransaction(openedTransaction);
     }
 
@@ -343,8 +358,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public void saveItemRelation(ItemRelation itemRelation) {
         Query relationExistsQuery = getManager().createQuery(
                 "SELECT r FROM ItemRelation r WHERE (r.firstItem=:firstItem AND r.secondItem=:secondItem) "
-                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) "
-                        + "AND r.type=:type");
+                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) " + "AND r.type=:type");
         relationExistsQuery.setParameter("firstItem", itemRelation.getFirstItem());
         relationExistsQuery.setParameter("secondItem", itemRelation.getSecondItem());
         relationExistsQuery.setParameter("type", itemRelation.getType());
@@ -541,10 +555,10 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (!results.isEmpty()) {
             final Random randomIndexGenerator = new Random();
             int randomIndex = randomIndexGenerator.nextInt(results.size());
-            final Object[] idPair = (Object[]) results.get(randomIndex);
+            final Object[] idPair = (Object[])results.get(randomIndex);
             // changed from (String) to (Integer); untested
-            Item firstEntry = loadItem((Integer) idPair[0]);
-            Item secondEntry = loadItem((Integer) idPair[1]);
+            Item firstEntry = loadItem((Integer)idPair[0]);
+            Item secondEntry = loadItem((Integer)idPair[1]);
             return createItemRelation(firstEntry, secondEntry, null, "");
         } else {
             return null;
@@ -693,22 +707,22 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return ret;
     }
 
-    /**
-     * @param identifier
-     *            the unique identifer (primary key) of a thread in the
-     *            database.
-     * @return the {@link DiscussionThread} corresponding to the provided
-     *         identifier or null if no such thread exists in the database.
-     */
-    public ItemStream loadItemStream(final String identifier) {
-        if (identifier == null) {
-            return null;
-        }
-        final Boolean openedTransaction = openTransaction();
-        final ItemStream ret = getManager().find(ItemStream.class, identifier);
-        commitTransaction(openedTransaction);
-        return ret;
-    }
+//    /**
+//     * @param identifier
+//     *            the unique identifer (primary key) of a thread in the
+//     *            database.
+//     * @return the {@link DiscussionThread} corresponding to the provided
+//     *         identifier or null if no such thread exists in the database.
+//     */
+//    public StreamSource loadItemStream(final String identifier) {
+//        if (identifier == null) {
+//            return null;
+//        }
+//        final Boolean openedTransaction = openTransaction();
+//        final StreamSource ret = getManager().find(ItemStream.class, identifier);
+//        commitTransaction(openedTransaction);
+//        return ret;
+//    }
 
     /**
      * Load and {@link ItemStream} by its source address.
@@ -716,12 +730,12 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param sourceAddress
      * @return
      */
-    public ItemStream loadItemStreamBySourceAddress(String sourceAddress) {
+    public StreamSource loadStreamSourceByAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
-        Query query = getManager().createQuery("select t from ItemStream t where t.sourceAddress=:sourceAddress");
+        Query query = getManager().createQuery("select t from StreamSource t where t.sourceAddress=:sourceAddress");
         query.setParameter("sourceAddress", sourceAddress);
         @SuppressWarnings("unchecked")
-        List<ItemStream> ret = query.getResultList();
+        List<StreamSource> ret = query.getResultList();
         commitTransaction(openedTransaction);
         return getFirst(ret);
     }
