@@ -89,7 +89,6 @@ public class DictionaryFileIndexTest extends TestCase {
 
         ces = di.read("com/abc");
         assertEquals(2, ces.size());
-        ;
         // System.out.println(ces);
 
         ces = di.read(".Com");

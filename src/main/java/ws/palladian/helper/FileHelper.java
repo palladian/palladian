@@ -1234,21 +1234,21 @@ public class FileHelper {
      * @param filenameInput The name of the zipped file.
      * @param filenameOutput The target name of the unzipped file.
      */
-    public static void ungzipFile(String filenameInput, String filenameOutput) {
-        String unzippedContent = ungzipFileToString(filenameInput);
-        writeToFile(filenameOutput, unzippedContent);
-    }
+//    public static void ungzipFile(String filenameInput, String filenameOutput) {
+//        String unzippedContent = ungzipFileToString(filenameInput);
+//        writeToFile(filenameOutput, unzippedContent);
+//    }
 
     /**
      * Unzip a file.
      * 
      * @param filenameInput The name of the file to unzip.
      */
-    public static void ungzipFile(String filenameInput) {
-        String unzippedContent = ungzipFileToString(filenameInput);
-        String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
-        writeToFile(filenameOutput, unzippedContent);
-    }
+//    public static void ungzipFile(String filenameInput) {
+//        String unzippedContent = ungzipFileToString(filenameInput);
+//        String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
+//        writeToFile(filenameOutput, unzippedContent);
+//    }
 
     /**
      * Unzip file using the command line cmd.
@@ -1321,6 +1321,46 @@ public class FileHelper {
         }
         return out.toString();
     }
+    
+    public static boolean ungzipFile(String filename) {
+        return ungzipFile(filename, "");
+    }
+    public static boolean ungzipFile(String filename, String targetFilename) {
+
+        boolean success = false;
+        
+        GZIPInputStream zipIn = null;
+        BufferedOutputStream dest = null;
+        FileOutputStream fos = null;
+
+        try {
+            zipIn = new GZIPInputStream(new FileInputStream(filename));
+            int chunkSize = 8192;
+            byte[] buffer = new byte[chunkSize];
+            int length;
+            
+            // write the files to the disk
+            if (targetFilename.isEmpty()) {
+                targetFilename = appendToFileName(filename, "_unpacked");
+            }
+            fos = new FileOutputStream(targetFilename);
+            dest = new BufferedOutputStream(fos, chunkSize);
+            while ((length = zipIn.read(buffer, 0, chunkSize)) != -1) {
+                dest.write(buffer, 0, length);
+            }
+            dest.close();
+            
+            success = true;
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            close(zipIn,fos,dest);
+        }
+        
+        return success;
+    }
 
     /**
      * Unzip a file.
@@ -1332,9 +1372,9 @@ public class FileHelper {
 
         int bufferSize = 1024;
 
-        BufferedOutputStream dest = null;
         ZipInputStream zis = null;
         FileInputStream fis = null;
+        BufferedOutputStream dest = null;
         FileOutputStream fos = null;
 
         try {
