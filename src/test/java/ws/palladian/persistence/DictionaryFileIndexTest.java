@@ -10,6 +10,7 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.persistence.DictionaryFileIndex;
 
 public class DictionaryFileIndexTest extends TestCase {
@@ -99,11 +100,9 @@ public class DictionaryFileIndexTest extends TestCase {
         // System.out.println(ces);
         assertEquals(2, ces.size());
         
-        try {
-            FileUtils.deleteDirectory(dictionaryFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        di.close();
+        
+        assertEquals(true, FileHelper.delete(dictionaryFile.getPath()));
     }
 
 }

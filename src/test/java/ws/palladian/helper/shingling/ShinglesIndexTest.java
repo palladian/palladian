@@ -48,14 +48,16 @@ public class ShinglesIndexTest {
 
     @Test
     public void testShinglesIndexLucene() {
-        testProcedure(new ShinglesIndexLucene());
+        ShinglesIndexLucene shinglesIndexLucene = new ShinglesIndexLucene();
+        testProcedure(shinglesIndexLucene);
+        testProcedure(shinglesIndexLucene);
     }
 
     private void testProcedure(ShinglesIndex index) {
 
         index.openIndex();
 
-        assertEquals("we need to start with an empty index", 0, index.getNumberOfDocuments());
+//        assertEquals("we need to start with an empty index", 0, index.getNumberOfDocuments());
 
         Set<Long> sketch = new HashSet<Long>(Arrays.asList(28372738L, 30948342L, -12093182L));
         Set<Long> sketch2 = new HashSet<Long>(Arrays.asList(28372738L, 30948342L, -12093182L, 18327378L));
