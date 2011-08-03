@@ -64,11 +64,9 @@ public final class ItemStream extends StreamSource {
      *            href="http://www.facebook.com">Facebook</a> it might be "facebook" or "http://facebook.com".
      * @param sourceAddress The address to access this stream. This usually is an URL but might be a file system path
      *            (in URL form or not) as well.
-     * @param channelName Streams with similar content are often presented together under common name. This property
-     *            provides the name of the stream channel the current item stream belongs to.
      */
-    public ItemStream(String streamSource, String sourceAddress, String channelName) {
-        super(streamSource, sourceAddress, channelName);
+    public ItemStream(String streamSource, String sourceAddress) {
+        super(streamSource, sourceAddress);
         this.items = new LinkedList<Item>();
     }
 
@@ -116,13 +114,11 @@ public final class ItemStream extends StreamSource {
         builder.append("ItemStream [identifier=");
         builder.append(getIdentifier());
         builder.append(", streamSource=");
-        builder.append(getStreamSource());
+        builder.append(getSourceName());
         builder.append(", items=");
         builder.append(items);
         builder.append(", sourceAddress=");
         builder.append(getSourceAddress());
-        builder.append(", channelName=");
-        builder.append(getChannelName());
         builder.append("]");
         return builder.toString();
     }

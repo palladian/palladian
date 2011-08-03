@@ -48,7 +48,7 @@ public abstract class StreamSource implements Serializable {
      * "phpMyAdmin mailing list", etc.
      * </p>
      */
-    private String streamSource;
+    private String sourceName;
 
     /**
      * <p>
@@ -58,14 +58,9 @@ public abstract class StreamSource implements Serializable {
      */
     private String sourceAddress;
 
-    /**
-     * <p>
-     * Streams with similar content are often presented together under common name. This property provides the name of
-     * the stream channel the current item stream belongs to. In case of a web forum, channel names might correspond to
-     * different sub-forums.
-     * </p>
-     */
-    private String channelName;
+    //
+    // Constructors
+    //
 
     /**
      * <p>
@@ -82,7 +77,7 @@ public abstract class StreamSource implements Serializable {
      * Creates a new {@code StreamSource} with no items but all other values initialized.
      * </p>
      * 
-     * @param streamSource The stream source is a system wide unique name identifying the source for a set of generated
+     * @param sourceName The stream source is a system wide unique name identifying the source for a set of generated
      *            item streams. It might be the sources name as long as no other stream with the same name exists or the
      *            sources URL otherwise. For web forum threads this might be the forum name. For <a
      *            href="http://www.facebook.com">Facebook</a> it might be "facebook" or "http://facebook.com".
@@ -91,12 +86,15 @@ public abstract class StreamSource implements Serializable {
      * @param channelName Streams with similar content are often presented together under common name. This property
      *            provides the name of the stream channel the current item stream belongs to.
      */
-    public StreamSource(String streamSource, String sourceAddress, String channelName) {
+    public StreamSource(String sourceName, String sourceAddress) {
         this();
-        this.streamSource = streamSource;
+        this.sourceName = sourceName;
         this.sourceAddress = sourceAddress;
-        this.channelName = channelName;
     }
+
+    //
+    // Getters and setters
+    //
 
     public Integer getIdentifier() {
         return identifier;
@@ -114,8 +112,8 @@ public abstract class StreamSource implements Serializable {
      * 
      * @return the unique forum type.
      */
-    public String getStreamSource() {
-        return streamSource;
+    public String getSourceName() {
+        return sourceName;
     }
 
     /**
@@ -124,19 +122,11 @@ public abstract class StreamSource implements Serializable {
      * with the same name exists or the URL of the source.
      * </p>
      * 
-     * @param streamSource
+     * @param sourceName
      *            the unique source type
      */
-    public void setStreamSource(String streamSource) {
-        this.streamSource = streamSource;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public String getSourceAddress() {

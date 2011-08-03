@@ -26,9 +26,8 @@ public class ItemStreamHelper {
     public static void print(ItemStream itemStream) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Channel Name: " + itemStream.getChannelName()).append(NEW_LINE);
         sb.append("Source Address: " + itemStream.getSourceAddress()).append(NEW_LINE);
-        sb.append("Stream Source: " + itemStream.getStreamSource()).append(NEW_LINE);
+        sb.append("Stream Source: " + itemStream.getSourceName()).append(NEW_LINE);
         sb.append("--------------------").append(NEW_LINE);
 
         List<Item> items = itemStream.getItems();

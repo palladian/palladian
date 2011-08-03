@@ -53,8 +53,8 @@ public final class StreamGroup extends StreamSource {
      * @param sourceAddress
      * @param channelName
      */
-    public StreamGroup(String streamSource, String sourceAddress, String channelName) {
-        super(streamSource, sourceAddress, channelName);
+    public StreamGroup(String streamSource, String sourceAddress) {
+        super(streamSource, sourceAddress);
         children = new ArrayList<StreamSource>();
     }
 

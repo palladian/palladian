@@ -67,7 +67,7 @@ public class PersistenceLayerTest {
     @Test
     public final void testsaveStreamSource() {
         try {
-            ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
+            ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
             persistenceLayer.saveStreamSource(stream);
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,7 +80,7 @@ public class PersistenceLayerTest {
      */
     @Test
     public final void testSaveComplexItemStream() {
-        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
+        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
                 "i1text", null, ItemType.QUESTION);
@@ -99,7 +99,7 @@ public class PersistenceLayerTest {
     public void testSaveChangeItemStream() throws Exception {
 
         // save an ItemStream
-        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
+        ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), "testSource");
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
                 "i1text", null, ItemType.QUESTION);
@@ -113,7 +113,7 @@ public class PersistenceLayerTest {
         persistenceLayer.saveStreamSource(stream);
 
         // save the same ItemStream again; ItemStream gets updated
-        ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream", "testChannel");
+        ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream");
 
         Author changedAuthor1 = new Author("a2", 11, 3, 5, author2RegistrationDate, "testSource");
         Item changedItem1 = new Item("i2", changedAuthor1, "http://testSource.de/testStream/i2", "i2",
@@ -196,16 +196,16 @@ public class PersistenceLayerTest {
      */
     @Test
     public void testSaveStreamGroup() {
-        StreamGroup grandParentGroup = new StreamGroup("testSource", "http://testSource.de/testStream", "testChannel");
+        StreamGroup grandParentGroup = new StreamGroup("testSource", "http://testSource.de/testStream");
 
-        StreamGroup parentGroup1 = new StreamGroup("testSource1", "http://testSource.de/testStream1", "testChannel1");
-        StreamGroup parentGroup2 = new StreamGroup("testSource2", "http://testSource.de/testStream2", "testChannel2");
+        StreamGroup parentGroup1 = new StreamGroup("testSource1", "http://testSource.de/testStream1");
+        StreamGroup parentGroup2 = new StreamGroup("testSource2", "http://testSource.de/testStream2");
         grandParentGroup.addChild(parentGroup1);
         grandParentGroup.addChild(parentGroup2);
 
-        StreamGroup childGroup1 = new StreamGroup("testSource11", "http://testSource.de/testStream11", "testChannel11");
-        StreamGroup childGroup2 = new StreamGroup("testSource12", "http://testSource.de/testStream12", "testChannel12");
-        StreamGroup childGroup3 = new StreamGroup("testSource13", "http://testSource.de/testStream13", "testChannel13");
+        StreamGroup childGroup1 = new StreamGroup("testSource11", "http://testSource.de/testStream11");
+        StreamGroup childGroup2 = new StreamGroup("testSource12", "http://testSource.de/testStream12");
+        StreamGroup childGroup3 = new StreamGroup("testSource13", "http://testSource.de/testStream13");
         parentGroup1.addChild(childGroup1);
         parentGroup1.addChild(childGroup2);
         parentGroup1.addChild(childGroup3);
