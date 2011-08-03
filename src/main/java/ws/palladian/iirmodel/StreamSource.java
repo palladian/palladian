@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -27,6 +28,13 @@ public abstract class StreamSource implements Serializable {
      * </p>
      */
     private static final long serialVersionUID = -4700473034518941820L;
+
+    /**
+     * <p>
+     * The separator character used when building a fully qualified name for the StreamSource.
+     * </p>
+     */
+    private static final char QUALIFIED_NAME_SEPARATOR = '.';
 
     /**
      * <p>
@@ -57,6 +65,14 @@ public abstract class StreamSource implements Serializable {
      * </p>
      */
     private String sourceAddress;
+
+    /**
+     * <p>
+     * The parent source, if this {@link StreamSource} is a child.
+     * </p>
+     */
+    @ManyToOne
+    private StreamSource parentSource;
 
     //
     // Constructors
@@ -135,6 +151,38 @@ public abstract class StreamSource implements Serializable {
 
     public void setSourceAddress(String sourceAddress) {
         this.sourceAddress = sourceAddress;
+    }
+
+    /**
+     * <p>
+     * Return the parent {@link StreamSource} of this instance.
+     * <p>
+     * 
+     * @return Parent StreamSource, or <code>null</code>, if no parent exists.
+     */
+    public final StreamSource getParentSource() {
+        return parentSource;
+    }
+
+    protected final void setParentSource(StreamSource parentSource) {
+        this.parentSource = parentSource;
+    }
+
+    /**
+     * <p>
+     * Returns a fully qualified name for this StreamSource.
+     * </p>
+     * 
+     * @return
+     */
+    public final String getQualifiedSourceName() {
+        StringBuilder result = new StringBuilder();
+        if (parentSource != null) {
+            result.append(parentSource.getQualifiedSourceName());
+            result.append(QUALIFIED_NAME_SEPARATOR);
+        }
+        result.append(getSourceName());
+        return result.toString();
     }
 
     //

@@ -32,7 +32,7 @@ public final class StreamGroup extends StreamSource {
      * The child elements of this group.
      * </p>
      */
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentSource")
     private final List<StreamSource> children;
 
     /**
@@ -82,6 +82,7 @@ public final class StreamGroup extends StreamSource {
             children.remove(child);
         }
         children.add(child);
+        child.setParentSource(this);
     }
 
     @Override

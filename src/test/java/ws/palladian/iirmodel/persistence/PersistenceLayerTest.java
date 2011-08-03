@@ -216,5 +216,10 @@ public class PersistenceLayerTest {
         assertTrue(streamSource instanceof StreamGroup);
         StreamGroup streamGroup = (StreamGroup) streamSource;
         assertEquals(3, streamGroup.getChildren().size());
+        assertEquals("testSource", streamGroup.getParentSource().getSourceName());
+        System.out.println(childGroup3.getQualifiedSourceName());
+        
+        streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
+        assertNull(streamSource.getParentSource());
     }
 }
