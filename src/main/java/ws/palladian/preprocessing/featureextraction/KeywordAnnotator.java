@@ -94,7 +94,6 @@ public class KeywordAnnotator implements PipelineProcessor {
         for (Keyword keyword : keywords) {
             System.out.println(keyword);
         }
-        
     }
 
 }

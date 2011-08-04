@@ -13,8 +13,9 @@ public class QueryCompiler {
 
     public static void main(String[] args) {
         String dmozCatergoriesFile = "/home/pk/Desktop/categories.txt";
-        List<String> queries = readQueriesFromDmoz(dmozCatergoriesFile);
-        FileHelper.writeToFile("/home/pk/Desktop/finalQueries2.txt", queries);
+        List<String> queries = readQueriesFromDmoz(dmozCatergoriesFile, -1, 2);
+        System.out.println(queries);
+        FileHelper.writeToFile("/home/pk/Desktop/newsseecrQueries_2011-08-04.txt", queries);
     }
 
     /**
@@ -24,7 +25,20 @@ public class QueryCompiler {
      * @param dmozCatergoriesFile
      * @return
      */
-    private static List<String> readQueriesFromDmoz(String dmozCatergoriesFile) {
+    public static List<String> readQueriesFromDmoz(String dmozCatergoriesFile) {
+        return readQueriesFromDmoz(dmozCatergoriesFile, -1, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Load query terms from DMOZ dataset.
+     * http://rdf.dmoz.org/rdf/categories.txt
+     * 
+     * @param dmozCatergoriesFile
+     * @param minOccurence minimum occurence count of a query term in the list to be included to the result
+     * @param maxDepth maximum depth in the category tree to consider
+     * @return
+     */
+    public static List<String> readQueriesFromDmoz(String dmozCatergoriesFile, int minOccurence, final int maxDepth) {
 
         final Bag<String> items = new HashBag<String>();
 
@@ -43,8 +57,10 @@ public class QueryCompiler {
                 // }
 
                 String[] split = line.split("/");
-                for (String item : split) {
+                for (int i = 0; i < Math.min(maxDepth, split.length); i++) {
 
+                    String item = split[i];
+                    
                     // ignore items of length 1
                     if (item.length() > 1) {
                         items.add(item);
@@ -64,12 +80,12 @@ public class QueryCompiler {
         for (String item : items.uniqueSet()) {
             // remove those, which only occur once
             int numOccur = items.getCount(item);
-            if (numOccur > 2) {
+            if (numOccur > minOccurence) {
                 result.add(item);
             }
         }
 
-        // System.out.println("# items " + result.size());
+        System.out.println("# items " + result.size());
         return result;
 
     }

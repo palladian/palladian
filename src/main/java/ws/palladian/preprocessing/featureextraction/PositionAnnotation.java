@@ -20,13 +20,13 @@ public final class PositionAnnotation extends Annotation {
      * The index of the first character of this {@code Annotation}.
      * </p>
      */
-    private int startPosition;
+    private final int startPosition;
     /**
      * <p>
      * The index of the first character after the end of this {@code Annotation}.
      * </p>
      */
-    private int endPosition;
+    private final int endPosition;
 
     /**
      * <p>
