@@ -65,7 +65,7 @@ public class PersistenceLayerTest {
      * Test to save {@link ItemStream} without any {@link Item}s.
      */
     @Test
-    public final void testsaveStreamSource() {
+    public final void testSaveStreamSource() {
         try {
             ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
             persistenceLayer.saveStreamSource(stream);
