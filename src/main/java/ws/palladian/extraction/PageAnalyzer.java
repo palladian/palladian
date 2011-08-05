@@ -187,6 +187,9 @@ public class PageAnalyzer {
         // printDOM(document.getLastChild(),"_");
 
         // xpaths = visit(document.getLastChild(),0,keyword,xpaths);
+        
+        //System.out.println(document.getFirstChild());
+        
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
         } catch (StackOverflowError e) {
