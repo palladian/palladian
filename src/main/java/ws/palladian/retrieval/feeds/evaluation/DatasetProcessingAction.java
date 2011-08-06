@@ -64,8 +64,8 @@ class DatasetProcessingAction extends FeedProcessingAction {
                     + feed.getChecks() + ", misses: " + feed.getMisses());
         }
 
-        // save the complete feed gzipped in the folder if we found at least one new item
-        if (newItems > 0) {
+        // save the complete feed gzipped in the folder if we found at least one new item or if its the first check
+        if (newItems > 0 || feed.getChecks() == 1) {
 
             Collections.reverse(newEntriesToWrite);
 
@@ -85,8 +85,8 @@ class DatasetProcessingAction extends FeedProcessingAction {
 
             // there is sometimes a weird behavior of some feeds that suddenly seem to change their window size to zero.
             // In this case, we store the received content for debugging. -- Sandro 11.07.11
-        } else if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
-            success = writeGZ(httpResult, folderPath, pollTimestamp, "_debug");
+            // } else if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
+            // success = writeGZ(httpResult, folderPath, pollTimestamp, "_debug");
         }
 
         boolean metadata = processPollMetadata(feed, httpResult, newItems);
