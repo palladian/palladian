@@ -66,11 +66,6 @@ class EvaluationScheduler {
 
         for (Feed feed : feedReader.getFeeds()) {
 
-            // FIXME remove debug code 3 lines
-            // if (feed.getId() > 100) {
-            // break;
-            // }
-
             scheduledTasks.put(feed.getId(), threadPool.submit(new CSVCleaner(feed)));
         }
 
@@ -79,15 +74,10 @@ class EvaluationScheduler {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
             }
 
             for (Feed feed : feedReader.getFeeds()) {
-                // FIXME remove debug code 3 lines
-                // if (feed.getId() > 100) {
-                // break;
-                // }
                 removeFeedTaskIfDone(feed.getId());
             }
             LOGGER.info("Number of remaining tasks to be done: " + scheduledTasks.size());

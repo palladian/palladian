@@ -536,7 +536,7 @@ public class ListDiscoverer {
 
         XPathSet xPathSet = getXPathSet(document);
 
-        // remove paths from xpath set that can be found on a sibling page FIXME???
+        // remove paths from xpath set that can be found on a sibling page
         xPathSet = removeSiblingPagePaths(xPathSet, url, document);
 
         // if no page specific list has been found (one that does not also appear on the sibling page) return empty
