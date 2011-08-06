@@ -890,6 +890,8 @@ public class WebSearcher {
 
             } catch (JSONException e) {
                 LOGGER.error(e.getMessage());
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
             }
 
             srManager.addRequest(WebSearcherManager.BING);

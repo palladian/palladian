@@ -282,10 +282,16 @@ public class HTMLHelper {
         }
 
         Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlText);
 
-        while (matcher.find()) {
-            htmlText = htmlText.replace(matcher.group(), "");
+        try {
+            Matcher matcher = pattern.matcher(htmlText);
+
+            while (matcher.find()) {
+                htmlText = htmlText.replace(matcher.group(), "");
+            }
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
 
         // close gaps

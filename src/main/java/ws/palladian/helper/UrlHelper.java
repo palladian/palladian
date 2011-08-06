@@ -110,12 +110,7 @@ public class UrlHelper {
      */
     public static boolean isValidURL(String url) {
 
-        // URLConnection conn = null;
-        // URL url = null;
         boolean returnValue = false;
-
-        // FIXME: URL filter for black and whitelists (currently in Extractor)
-        // if (MIOExtractor.getInstance().isURLallowed(url)) {
 
         String[] schemes = { "http", "https" };
         UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
@@ -123,8 +118,6 @@ public class UrlHelper {
         if (urlValidator.isValid(url)) {
             returnValue = true;
         }
-
-        // }
 
         return returnValue;
     }
