@@ -54,6 +54,8 @@ public class StringHelperTest extends TestCase {
         assertEquals("Text", StringHelper.removeNumbering("1.      Text"));
         assertEquals("Text", StringHelper.removeNumbering("1.2.3.Text"));
         assertEquals("Text", StringHelper.removeNumbering("1.2.3.4     Text"));
+        assertEquals("Led Zeppelin", StringHelper.removeNumbering("#14 Led Zeppelin"));
+
     }
 
     @Test
