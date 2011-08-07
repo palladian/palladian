@@ -3,6 +3,8 @@ package ws.palladian.helper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,7 +29,9 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
@@ -510,10 +514,23 @@ public class Temp {
         FileHelper.addTrailingSlash(rootPath);
         FileHelper.addTrailingSlash(targetPath);
 
-        Set<Integer> useFeedIds = MathHelper.createRandomNumbers(2 * num, 1, 200000);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+
+        final Set<Integer> useFeedIds = new HashSet<Integer>();
+        ResultSetCallback callback = new ResultSetCallback() {
+
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                useFeedIds.add(resultSet.getInt("id"));
+            }
+
+        };
+
+        dbm.runQuery(callback, "SELECT id FROM feeds ORDER BY RAND() LIMIT 0," + num);
+
         //useFeedIds.add(123);
 
-        System.out.println("created " + useFeedIds + " random numbers");
+        System.out.println("selected " + useFeedIds + " random ids");
           
         int copiedFeeds = 0;
         for (Integer integer : useFeedIds) {

@@ -228,6 +228,7 @@ public class StringHelper {
      */
     public static String removeNumbering(String numberedText) {
         String modText = numberedText.replaceAll("^\\s*\\d+(\\.?\\d?)*\\s*", "");
+        modText = modText.replaceAll("^\\s*#\\d+(\\.?\\d?)*\\s*", "");
         return modText;
     }
 
