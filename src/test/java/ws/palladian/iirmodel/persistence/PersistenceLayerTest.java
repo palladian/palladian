@@ -126,7 +126,8 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveStreamSource(changedStream);
 
-        ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
+        ItemStream loadedStream = (ItemStream)persistenceLayer
+                .loadStreamSourceByAddress("http://testSource.de/testStream");
 
         Item deletedItem = persistenceLayer.loadItem(loadedStream.getIdentifier());
         assertNull(deletedItem);
@@ -149,7 +150,7 @@ public class PersistenceLayerTest {
         assertEquals(Integer.valueOf(2), result.getCountOfStreamsStarted());
         assertEquals(Integer.valueOf(3), result.getAuthorRating());
         assertEquals(registrationDate, result.getRegisteredSince());
-        assertEquals("testSource", result.getStreamSource());
+        assertEquals("testGroup", result.getStreamSource().getSourceName());
     }
 
     @Test
@@ -176,26 +177,28 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveItem(testItem);
     }
-    
+
     @Test
     public void testSaveRelationType() throws Exception {
         RelationType relationType = new RelationType("duplicate");
         persistenceLayer.saveRelationType(relationType);
-        
+
         StreamSource testSource = new StreamGroup("testGroup", "http://testGroup4.de");
 
         Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), testSource);
-        Item testItem1 = new Item("testItem1", testAuthor, "http://testSource.de/testItem", "testItem", new Date(), new Date(), "testItemText");
-        Item testItem2 = new Item("testItem2", testAuthor, "http://testSource.de/testItem2", "testItem2", new Date(), new Date(), "testItemText");
+        Item testItem1 = new Item("testItem1", testAuthor, "http://testSource.de/testItem", "testItem", new Date(),
+                new Date(), "testItemText");
+        Item testItem2 = new Item("testItem2", testAuthor, "http://testSource.de/testItem2", "testItem2", new Date(),
+                new Date(), "testItemText");
         persistenceLayer.saveItem(testItem1);
         persistenceLayer.saveItem(testItem2);
-        
+
         // persistenceLayer.createItemRelation(testItem1, testItem2, relationType, "duplicates");
         ItemRelation itemRelation = new ItemRelation(testItem1, testItem2, relationType, "duplicates");
         persistenceLayer.saveItemRelation(itemRelation);
 
     }
-    
+
     /**
      * Test to save composite {@link StreamSource} structures.
      */
@@ -214,16 +217,16 @@ public class PersistenceLayerTest {
         parentGroup1.addChild(childGroup1);
         parentGroup1.addChild(childGroup2);
         parentGroup1.addChild(childGroup3);
-        
+
         persistenceLayer.saveStreamSource(grandParentGroup);
-        
+
         StreamSource streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream1");
         assertTrue(streamSource instanceof StreamGroup);
-        StreamGroup streamGroup = (StreamGroup) streamSource;
+        StreamGroup streamGroup = (StreamGroup)streamSource;
         assertEquals(3, streamGroup.getChildren().size());
         assertEquals("testSource", streamGroup.getParentSource().getSourceName());
         System.out.println(childGroup3.getQualifiedSourceName());
-        
+
         streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
         assertNull(streamSource.getParentSource());
     }
