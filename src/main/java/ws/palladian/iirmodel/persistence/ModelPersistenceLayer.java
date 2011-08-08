@@ -110,7 +110,6 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     private final void saveItemStream(final ItemStream stream) {
         Boolean openedTransaction = openTransaction();
         ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
-        updateAuthors(stream.getItems());
 
         if (existingStream == null) {
             getManager().persist(stream);
@@ -120,6 +119,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
             getManager().merge(stream);
             removeItems(removedItems);
         }
+        updateAuthors(stream.getItems());
         commitTransaction(openedTransaction);
     }
 
@@ -566,10 +566,15 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     }
 
     /**
-     * @return all threads from the database.
+     * <p>
+     * Loads all {@code ItemStream}s currently saved in the database.
+     * </p>
+     * Item
+     * 
+     * @return A collection containing all ItemStreams currently persisted in the underlying database.
      */
     @SuppressWarnings("unchecked")
-    public List<ItemStream> loadItemStream() {
+    public List<ItemStream> loadItemStreams() {
         final List<ItemStream> ret = new ArrayList<ItemStream>();
         getManager().getTransaction().begin();
 
@@ -637,10 +642,10 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
     /**
      * <p>
-     * 
+     * Loads all available stream sources from the database.
      * </p>
      * 
-     * @return
+     * @return A set of distinct stream source names.
      */
     @SuppressWarnings("unchecked")
     public Collection<String> loadStreamSourceNames() {
@@ -707,22 +712,22 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return ret;
     }
 
-//    /**
-//     * @param identifier
-//     *            the unique identifer (primary key) of a thread in the
-//     *            database.
-//     * @return the {@link DiscussionThread} corresponding to the provided
-//     *         identifier or null if no such thread exists in the database.
-//     */
-//    public StreamSource loadItemStream(final String identifier) {
-//        if (identifier == null) {
-//            return null;
-//        }
-//        final Boolean openedTransaction = openTransaction();
-//        final StreamSource ret = getManager().find(ItemStream.class, identifier);
-//        commitTransaction(openedTransaction);
-//        return ret;
-//    }
+    // /**
+    // * @param identifier
+    // * the unique identifer (primary key) of a thread in the
+    // * database.
+    // * @return the {@link DiscussionThread} corresponding to the provided
+    // * identifier or null if no such thread exists in the database.
+    // */
+    // public StreamSource loadItemStream(final String identifier) {
+    // if (identifier == null) {
+    // return null;
+    // }
+    // final Boolean openedTransaction = openTransaction();
+    // final StreamSource ret = getManager().find(ItemStream.class, identifier);
+    // commitTransaction(openedTransaction);
+    // return ret;
+    // }
 
     /**
      * Load and {@link ItemStream} by its source address.
