@@ -9,6 +9,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Date;
 
 import javax.persistence.EntityManagerFactory;
@@ -59,6 +61,17 @@ public class PersistenceLayerTest {
             emFactory.close();
         }
         emFactory = null;
+
+        DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
+        final Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:testdb", "sa", "");
+        try {
+            if (conn != null) {
+                conn.createStatement().execute("SHUTDOWN");
+                conn.commit();
+            }
+        } finally {
+            conn.close();
+        }
     }
 
     /**
