@@ -11,6 +11,8 @@
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
 		<class>ws.palladian.iirmodel.RelationType</class>
+		<class>ws.palladian.iirmodel.StreamSource</class>
+		<class>ws.palladian.iirmodel.StreamGroup</class>
 		<properties>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
 			<!-- <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:temp/testdb"/> -->
