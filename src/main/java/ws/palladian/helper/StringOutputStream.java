@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 public class StringOutputStream extends OutputStream {
 
-    private StringBuilder string = new StringBuilder();
+    private final StringBuilder string = new StringBuilder();
 
     @Override
     public void write(int b) throws IOException {

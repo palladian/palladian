@@ -1,9 +1,10 @@
 package ws.palladian.helper.nlp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.junit.Test;
 
@@ -16,11 +17,7 @@ import ws.palladian.helper.RegExp;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class StringHelperTest extends TestCase {
-
-    public StringHelperTest(String name) {
-        super(name);
-    }
+public class StringHelperTest {
 
     @Test
     public void testClean() {
@@ -35,6 +32,7 @@ public class StringHelperTest extends TestCase {
                 StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
     }
 
+    @Test
     public void testGetCaseSignature() {
         // System.out.println(StringHelper.getCaseSignature("Äpfelsüppchen"));
         assertEquals("Aa", StringHelper.getCaseSignature("Hello"));
@@ -46,6 +44,7 @@ public class StringHelperTest extends TestCase {
         assertEquals("Aa -Aa- Aa", StringHelper.getCaseSignature("Bruce \"Batman\" Wayne"));
     }
 
+    @Test
     public void testRemoveNumbering() {
         assertEquals("Text", StringHelper.removeNumbering("Text"));
         assertEquals("Text", StringHelper.removeNumbering("1 Text"));
@@ -76,10 +75,12 @@ public class StringHelperTest extends TestCase {
 
     }
 
+    @Test
     public void testReverseString() {
         assertEquals("fe dcBA", StringHelper.reverseString("ABcd ef"));
     }
 
+    @Test
     public void testRename() {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
@@ -89,6 +90,7 @@ public class StringHelperTest extends TestCase {
         assertEquals("sampleTextForTagging_tagged.txt", renamedFile);
     }
 
+    @Test
     public void testIsFileName() {
         assertEquals(true, FileHelper.isFileName(" website.html"));
         assertEquals(true, FileHelper.isFileName("test.ai "));
@@ -96,6 +98,7 @@ public class StringHelperTest extends TestCase {
         assertEquals(false, FileHelper.isFileName("everything..."));
     }
 
+    @Test
     public void testContainsNumber() {
         assertEquals(true, StringHelper.containsNumber("120"));
         assertEquals(true, StringHelper.containsNumber("120.2 GB"));
@@ -103,6 +106,7 @@ public class StringHelperTest extends TestCase {
         assertEquals(false, StringHelper.containsNumber("A-1 GB"));
     }
 
+    @Test
     public void testRemoveStopWords() {
         assertEquals("...neighborhoodthe ofrocking.",
                 StringHelper.removeStopWords("...The neighborhoodthe is ofrocking of."));
@@ -110,6 +114,7 @@ public class StringHelperTest extends TestCase {
                 StringHelper.removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
     }
 
+    @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
         assertEquals("", StringHelper.trim(","));
@@ -127,6 +132,7 @@ public class StringHelperTest extends TestCase {
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
 
+    @Test
     public void testLFEColonPattern() {
 
         assertEquals("Volume: 96 cc",
@@ -169,6 +175,7 @@ public class StringHelperTest extends TestCase {
 
     }
 
+    @Test
     public void testEscapeForRegularExpression() {
         // String containing RegEx meta characters which need to be escaped
         String s = "(the) [quick] {brown} fox$ ^jumps+ \n ov|er the? l-a\\zy ]dog[";
@@ -176,11 +183,13 @@ public class StringHelperTest extends TestCase {
         assertTrue(s.matches(StringHelper.escapeForRegularExpression(s)));
     }
 
+    @Test
     public void testGetSubstringBetween() {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
     }
 
+    @Test
     public void testCamelCaseToWords() {
         assertEquals("", StringHelper.camelCaseToWords(""));
         assertEquals("camel Case String", StringHelper.camelCaseToWords("camelCaseString"));
@@ -188,6 +197,7 @@ public class StringHelperTest extends TestCase {
         assertEquals("camel_Case_String", StringHelper.camelCaseToWords("camelCaseString", "_"));
     }
 
+    @Test
     public void testCountOccurences() {
         assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
         assertEquals(1, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
@@ -196,6 +206,7 @@ public class StringHelperTest extends TestCase {
         assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
     }
 
+    @Test
     public void testGetFirstWords() {
         assertEquals("the quick brown fox jumps",
                 StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
@@ -205,6 +216,7 @@ public class StringHelperTest extends TestCase {
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
 
+    @Test
     public void testExtractUrls() {
 
         String text = "The quick brown fox jumps over the lazy dog. Check out: http://microsoft.com, www.apple.com, google.com. (www.tu-dresden.de), http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars.";

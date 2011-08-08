@@ -725,7 +725,7 @@ public class FeedRetriever {
         // System.exit(0);
 
         FeedRetriever downloader = new FeedRetriever();
-        Feed loadedFeed = downloader.getFeed(new File("data/temp/feedgz/feedpoll2.gz"), true);
+        Feed loadedFeed = downloader.getFeed(new File("feedsandro.gz"), true);
         System.out.println(loadedFeed);
         System.exit(0);
         

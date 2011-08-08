@@ -1300,17 +1300,19 @@ public class FileHelper {
      * @return The unzipped string.
      */
     public static String ungzipInputStreamToString(InputStream in) {
-        StringOutputStream out = new StringOutputStream();
+        StringBuilder content = new StringBuilder();
         GZIPInputStream zipIn = null;
 
         try {
             zipIn = new GZIPInputStream(in);
-            int chunkSize = 8192;
-            byte[] buffer = new byte[chunkSize];
 
-            int length;
-            while ((length = zipIn.read(buffer, 0, chunkSize)) != -1) {
-                out.write(buffer, 0, length);
+            Reader reader = new InputStreamReader(zipIn, "UTF-8");
+            BufferedReader fin = new BufferedReader(reader);
+
+            String s;
+            while ((s = fin.readLine()) != null) {
+                content.append(s);
+                content.append("\n");
             }
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
@@ -1319,7 +1321,7 @@ public class FileHelper {
         } finally {
             close(zipIn);
         }
-        return out.toString();
+        return content.toString();
     }
     
     public static boolean ungzipFile(String filename) {
