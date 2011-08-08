@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -203,12 +204,14 @@ public class PersistenceLayerTest {
         Item item3 = new Item("id3", author3, "http://testSource1.de/item3", "title3", new Date(), new Date(), "");
         itemStream.addItem(item3);
         
-        // TODO fails
         persistenceLayer.saveStreamSource(itemStream);
 
-        // TODO should return two authors
         ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource1.de");
         Assert.assertEquals(2, loadedStream.getAuthors().size());
+        List<Item> items = loadedStream.getItems();
+        Assert.assertEquals("author1", items.get(0).getAuthor().getUsername());
+        Assert.assertEquals("author2", items.get(1).getAuthor().getUsername());
+        Assert.assertEquals("author1", items.get(2).getAuthor().getUsername());
     }
 
     @Test

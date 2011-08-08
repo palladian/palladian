@@ -123,7 +123,7 @@ public class Author {
         this();
         this.username = username;
         this.streamSource = streamSource;
-        //streamSource.addAuthor(this);
+        streamSource.addAuthor(this);
     }
 
     /**
@@ -153,7 +153,7 @@ public class Author {
         this.registeredSince = registeredSince;
         this.username = username;
         this.streamSource = streamSource;
-        //streamSource.addAuthor(this);
+        streamSource.addAuthor(this);
     }
 
     /**
@@ -163,7 +163,7 @@ public class Author {
      * 
      * @return The rating of this author. A value often received from other authors for high quality items.
      */
-    public  Integer getAuthorRating() {
+    public Integer getAuthorRating() {
         return this.authorRating;
     }
 
@@ -175,7 +175,7 @@ public class Author {
      * @param authorRating The new rating of this author. A value often received from other authors for high quality
      *            items.
      */
-    public  void setAuthorRating(Integer authorRating) {
+    public void setAuthorRating(Integer authorRating) {
         this.authorRating = authorRating;
     }
 
@@ -190,7 +190,7 @@ public class Author {
      *         stream was started before extraction began and if old items are lost after some time. Web feed for
      *         example show such a behaviour.
      */
-    public  Integer getCountOfItems() {
+    public Integer getCountOfItems() {
         return this.countOfItems;
     }
 
@@ -205,7 +205,7 @@ public class Author {
      *            happen if the stream was started before extraction began and if old items are lost after some time.
      *            Web feed for example show such a behaviour.
      */
-    public  void setCountOfItems(Integer countOfItems) {
+    public void setCountOfItems(Integer countOfItems) {
         this.countOfItems = countOfItems;
     }
 
@@ -217,7 +217,7 @@ public class Author {
      * @return The amount of streams this author created by publishing the first item.
      * @see ItemStream
      */
-    public  Integer getCountOfStreamsStarted() {
+    public Integer getCountOfStreamsStarted() {
         return this.countOfStreamsStarted;
     }
 
@@ -228,7 +228,7 @@ public class Author {
      * 
      * @param countOfStreamsStarted This is the amount of streams this author created by publishing the first item.
      */
-    public  void setCountOfStreamsStarted(Integer countOfStreamsStarted) {
+    public void setCountOfStreamsStarted(Integer countOfStreamsStarted) {
         this.countOfStreamsStarted = countOfStreamsStarted;
     }
 
@@ -241,7 +241,7 @@ public class Author {
      *         same as its username. Usernames are ambiguous since the same username might occur for different users in
      *         different stream sources.
      */
-    public  Integer getIdentifier() {
+    public Integer getIdentifier() {
         return this.identifier;
     }
 
@@ -255,9 +255,9 @@ public class Author {
      *            always the same as its username. Usernames are ambiguous since the same username might occur for
      *            different users in different stream sources.
      */
-    public  void setIdentifier(Integer identifier) {
-        this.identifier = identifier;
-    }
+    // public void setIdentifier(Integer identifier) {
+    // this.identifier = identifier;
+    // }
 
     /**
      * <p>
@@ -266,7 +266,7 @@ public class Author {
      * 
      * @return The items created by this author.
      */
-    public  Collection<Item> getItems() {
+    public Collection<Item> getItems() {
         return this.items;
     }
 
@@ -277,7 +277,7 @@ public class Author {
      * 
      * @param items The items created by this author.
      */
-    public  void setItems(Collection<Item> items) {
+    public void setItems(Collection<Item> items) {
         this.items = items;
     }
 
@@ -295,7 +295,7 @@ public class Author {
      * 
      * @return The date and time the author was created.
      */
-    public  Date getRegisteredSince() {
+    public Date getRegisteredSince() {
         return this.registeredSince;
     }
 
@@ -306,7 +306,7 @@ public class Author {
      * 
      * @param registeredSince The date and time the author was created.
      */
-    public  void setRegisteredSince(Date registeredSince) {
+    public void setRegisteredSince(Date registeredSince) {
         this.registeredSince = registeredSince;
     }
 
@@ -346,7 +346,7 @@ public class Author {
      * @return The author's username identifying the author within a stream source.
      * @see #getStreamSource()
      */
-    public  String getUsername() {
+    public String getUsername() {
         return this.username;
     }
 
@@ -357,7 +357,7 @@ public class Author {
      * 
      * @param username The author's username identifying the author within a stream source.
      */
-    public  void setUsername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -373,7 +373,7 @@ public class Author {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Author other = (Author) obj;
+        Author other = (Author)obj;
         if (streamSource == null) {
             if (other.streamSource != null)
                 return false;

@@ -1,8 +1,9 @@
 package ws.palladian.iirmodel;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -83,7 +84,7 @@ public abstract class StreamSource implements Serializable {
      * </p>
      */
     @OneToMany(mappedBy = "streamSource")
-    private Collection<Author> authors;
+    private Set<Author> authors;
 
     //
     // Constructors
@@ -97,7 +98,7 @@ public abstract class StreamSource implements Serializable {
      */
     protected StreamSource() {
         super();
-        authors = new ArrayList<Author>();
+        authors = new HashSet<Author>();
     }
 
     /**
@@ -201,7 +202,7 @@ public abstract class StreamSource implements Serializable {
         return authors;
     }
 
-    public void setAuthors(Collection<Author> authors) {
+    public void setAuthors(Set<Author> authors) {
         this.authors = authors;
     }
     

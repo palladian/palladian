@@ -270,8 +270,19 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (existingEntry == null) {
             getManager().persist(entry);
         } else {
-            entry.setIdentifier(existingEntry.getIdentifier());
-            getManager().merge(entry);
+            // entry.setIdentifier(existingEntry.getIdentifier());
+            // getManager().merge(entry);
+            existingEntry.setAuthor(entry.getAuthor());
+            existingEntry.setLink(entry.getLink());
+            existingEntry.setParent(entry.getParent());
+            existingEntry.setPredecessor(entry.getPredecessor());
+            existingEntry.setPublicationDate(entry.getPublicationDate());
+            existingEntry.setSourceInternalIdentifier(entry.getSourceInternalIdentifier());
+            existingEntry.setText(entry.getText());
+            existingEntry.setTitle(entry.getText());
+            existingEntry.setType(entry.getType());
+            existingEntry.setUpdateDate(entry.getUpdateDate());
+            existingEntry = getManager().merge(existingEntry);
         }
         commitTransaction(openedTransaction);
     }
@@ -293,8 +304,16 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
             getManager().persist(author);
             ret = author;
         } else {
-            author.setIdentifier(existingUser.getIdentifier());
-            ret = getManager().merge(author);
+            //author.setIdentifier(existingUser.getIdentifier());
+            //ret = getManager().merge(author);
+            existingUser.setAuthorRating(author.getAuthorRating());
+            existingUser.setCountOfItems(author.getCountOfItems());
+            existingUser.setCountOfStreamsStarted(author.getCountOfItems());
+            existingUser.setItems(author.getItems());
+            existingUser.setRegisteredSince(author.getRegisteredSince());
+            existingUser.setStreamSource(author.getStreamSource());
+            existingUser.setUsername(author.getUsername());
+            ret = getManager().merge(existingUser);
         }
         commitTransaction(openedTransaction);
         return ret;
