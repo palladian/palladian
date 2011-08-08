@@ -309,6 +309,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
             existingUser.setAuthorRating(author.getAuthorRating());
             existingUser.setCountOfItems(author.getCountOfItems());
             existingUser.setCountOfStreamsStarted(author.getCountOfItems());
+            // TODO need to merge Items?
             existingUser.setItems(author.getItems());
             existingUser.setRegisteredSince(author.getRegisteredSince());
             existingUser.setStreamSource(author.getStreamSource());

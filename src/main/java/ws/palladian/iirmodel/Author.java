@@ -284,7 +284,7 @@ public class Author {
     /**
      * @param item
      */
-    public void addItem(Item item) {
+    protected void addItem(Item item) {
         items.add(item);
     }
 

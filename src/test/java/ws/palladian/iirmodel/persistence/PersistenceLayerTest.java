@@ -212,6 +212,9 @@ public class PersistenceLayerTest {
         Assert.assertEquals("author1", items.get(0).getAuthor().getUsername());
         Assert.assertEquals("author2", items.get(1).getAuthor().getUsername());
         Assert.assertEquals("author1", items.get(2).getAuthor().getUsername());
+        
+        Author loadedAuthor = persistenceLayer.loadAuthor("author1", itemStream);
+        Assert.assertEquals(1, loadedAuthor.getItems().size());
     }
 
     @Test
