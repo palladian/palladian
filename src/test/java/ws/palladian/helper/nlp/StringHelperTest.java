@@ -84,8 +84,9 @@ public class StringHelperTest {
     public void testRename() {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.rename(new File(StringHelperTest.class.getResource("/sampleTextForTagging.txt")
-                .getFile()), "sampleTextForTagging_tagged");
+        String renamedFile = FileHelper.getRenamedFilename(
+                new File(StringHelperTest.class.getResource("/sampleTextForTagging.txt").getFile()),
+                "sampleTextForTagging_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("sampleTextForTagging_tagged.txt", renamedFile);
     }

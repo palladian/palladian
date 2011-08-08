@@ -9,8 +9,8 @@ public class StringTagger {
     public static void tagAndSaveString(File input) {
         String text = FileHelper.readFileToString(input.getAbsolutePath());
         String taggedText = tagString(text);
-        FileHelper.writeToFile(FileHelper.rename(input, input.getName().replaceAll("\\..*", "") + "_tagged"),
-                taggedText);
+        FileHelper.writeToFile(
+                FileHelper.getRenamedFilename(input, input.getName().replaceAll("\\..*", "") + "_tagged"), taggedText);
     }
 
     public static String tagString(File f) {

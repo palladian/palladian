@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,7 +51,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
+    private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
+    private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ? WHERE id = ? AND pollTimestamp = ?";
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
@@ -395,6 +398,17 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * 
+     * @param feedID The feed to get information about.
+     * @param timestamp The timestamp of the poll to get information about.
+     * @return Information about a single poll.
+     */
+    public PollMetaInformation getFeedPoll(int feedID, Timestamp timestamp) {
+        return runSingleQuery(new FeedPollRowConverter(), GET_FEED_POLL_BY_ID_TIMESTAMP, feedID, timestamp);
+    }
+
+    /**
      * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
      */
     @Override
@@ -413,6 +427,28 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(pollMetaInfo.getHttpStatusCode());
 
         return runInsertReturnId(ADD_FEED_POLL, parameters) != -1;
+    }
+
+    /**
+     * Update a feed poll identified by id and pollTimestamp
+     * 
+     * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
+     */
+    public boolean updateFeedPoll(PollMetaInformation pollMetaInfo) {
+
+        List<Object> parameters = new ArrayList<Object>();
+        parameters.add(truncateToVarchar255(pollMetaInfo.getHttpETag(), "lastETag", pollMetaInfo.getFeedID() + ""));
+        parameters.add(pollMetaInfo.getHttpDateSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpLastModifiedSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpExpiresSQLTimestamp());
+        parameters.add(pollMetaInfo.getNewestItemSQLTimestamp());
+        parameters.add(pollMetaInfo.getNumberNewItems());
+        parameters.add(pollMetaInfo.getWindowSize());
+        parameters.add(pollMetaInfo.getHttpStatusCode());
+        parameters.add(pollMetaInfo.getFeedID());
+        parameters.add(pollMetaInfo.getPollSQLTimestamp());
+
+        return runUpdate(UPDATE_FEED_POLL, parameters) != -1;
     }
 
     /**

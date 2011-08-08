@@ -93,7 +93,6 @@ public class FeedRetriever {
      * <p>Retrieve a feed from a gzipped {@link HttpResult}. These gzips are available for example in the <a href="http://areca.co/8/Feed-Item-Dataset-TUDCS5">TUD-CS5</a> feed dataset.</p>
      * 
      * @param file The file with the RSS or Atom feed.
-     * @return The parsed feed.
      * @param serializedGzip If true, the feed will be read from a serialized and gzipped {@link HttpResult}.
      * @return The parsed feed.
      * @throws FeedRetrieverException

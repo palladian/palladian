@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -201,17 +202,17 @@ public class FeedItem {
     /**
      * Returns a custom hash representation calculated by the item's title, link and raw id or <code>null</code> if it
      * is impossible to calculate a meaningful hash because title, link and raw id are all <code>null</code> or the
-     * empty string.
+     * empty string. SessionIDs are removed from link and raw id (in case raw id contains a url string only)
      * 
-     * @return
+     * @return sha1 hash.
      */
     public String getHash() {
         String newHash = null;
 
         StringBuilder hash = new StringBuilder();
         hash.append(getTitle());
-        hash.append(getLink());
-        hash.append(getRawId());
+        hash.append(UrlHelper.removeSessionID(getLink(), false));
+        hash.append(UrlHelper.removeSessionID(getRawId(), true));
         // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
         // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
         // hash.append(getPublished().toString());
