@@ -305,7 +305,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param streamSource
      * @return
      */
-    public Author loadAuthor(String username, String streamSource) {
+    public Author loadAuthor(String username, StreamSource streamSource) {
         Query authorQuery = getManager().createQuery(
                 "SELECT a FROM Author a WHERE a.username=:username AND a.streamSource=:streamSource");
         authorQuery.setParameter("username", username);

@@ -7,9 +7,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -94,7 +96,8 @@ public class Author {
      * kind of source the author's username is unique in.
      * </p>
      */
-    private String streamSource;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private StreamSource streamSource;
 
     /**
      * <p>
@@ -116,7 +119,7 @@ public class Author {
      *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
      *            Forum or other kind of source the author's username is unique in.
      */
-    public Author(String username, String streamSource) {
+    public Author(String username, StreamSource streamSource) {
         this();
         this.username = username;
         this.streamSource = streamSource;
@@ -141,7 +144,7 @@ public class Author {
      *            Forum or other kind of source the author's username is unique in.
      */
     public Author(String username, Integer countOfItems, Integer countOfStreamsStarted, Integer authorRating,
-            Date registeredSince, String streamSource) {
+            Date registeredSince, StreamSource streamSource) {
         this();
         this.countOfItems = countOfItems;
         this.countOfStreamsStarted = countOfStreamsStarted;
@@ -315,7 +318,7 @@ public class Author {
      *         href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web Forum
      *         or other kind of source the author's username is unique in.
      */
-    public String getStreamSource() {
+    public StreamSource getStreamSource() {
         return streamSource;
     }
 
@@ -329,7 +332,7 @@ public class Author {
      *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
      *            Forum or other kind of source the author's username is unique in.
      */
-    public void setStreamSource(String streamSource) {
+    public void setStreamSource(StreamSource streamSource) {
         this.streamSource = streamSource;
     }
 
@@ -406,14 +409,14 @@ public class Author {
         builder.append(authorRating);
         builder.append(", identifier=");
         builder.append(identifier);
-        builder.append(", items=");
-        builder.append(items);
+        // builder.append(", items=");
+        // builder.append(items);
         builder.append(", registeredSince=");
         builder.append(registeredSince);
         builder.append(", username=");
         builder.append(username);
-        builder.append(", streamSource=");
-        builder.append(streamSource);
+        // builder.append(", streamSource=");
+        // builder.append(streamSource);
         builder.append("]");
         return builder.toString();
     }

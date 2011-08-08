@@ -1,11 +1,14 @@
 package ws.palladian.iirmodel;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -73,6 +76,9 @@ public abstract class StreamSource implements Serializable {
      */
     @ManyToOne
     private StreamSource parentSource;
+    
+    @OneToMany(mappedBy = "streamSource")
+    private Collection<Author> authors;
 
     //
     // Constructors
@@ -183,6 +189,14 @@ public abstract class StreamSource implements Serializable {
         }
         result.append(getSourceName());
         return result.toString();
+    }
+    
+    public Collection<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Collection<Author> authors) {
+        this.authors = authors;
     }
 
     //
