@@ -184,26 +184,26 @@ public class PersistenceLayerTest {
         assertEquals(result, changedAuthor);
 
     }
-    
+
     @Test
     public void testSaveStreamWithAuthors() {
-        
+
         ItemStream itemStream = new ItemStream("testSource", "http://testSource1.de");
-        
+
         Author author1 = new Author("author1", itemStream);
         Item item1 = new Item("id1", author1, "http://testSource1.de/item1", "title1", new Date(), new Date(), "");
         itemStream.addItem(item1);
-        
+
         Author author2 = new Author("author2", itemStream);
         Item item2 = new Item("id2", author2, "http://testSource1.de/item2", "title2", new Date(), new Date(), "");
         itemStream.addItem(item2);
-        
-        // author3 is actually == author1, 
-        // so the existing author should just be updated 
+
+        // author3 is actually == author1,
+        // so the existing author should just be updated
         Author author3 = new Author("author1", itemStream);
         Item item3 = new Item("id3", author3, "http://testSource1.de/item3", "title3", new Date(), new Date(), "");
         itemStream.addItem(item3);
-        
+
         persistenceLayer.saveStreamSource(itemStream);
 
         ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource1.de");
@@ -212,18 +212,20 @@ public class PersistenceLayerTest {
         Assert.assertEquals("author1", items.get(0).getAuthor().getUsername());
         Assert.assertEquals("author2", items.get(1).getAuthor().getUsername());
         Assert.assertEquals("author1", items.get(2).getAuthor().getUsername());
-        
+
         Author loadedAuthor = persistenceLayer.loadAuthor("author1", itemStream);
         Assert.assertEquals(1, loadedAuthor.getItems().size());
     }
 
     @Test
     public void testSaveItem() throws Exception {
-        StreamSource testSource = new StreamGroup("testGroup", "http://testGroup3.de");
+        ItemStream testSource = new ItemStream("testGroup", "http://testGroup3.de");
         Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), testSource);
         Item testItem = new Item("testItem", testAuthor, "http://testSource.de/testItem", "testItem", new Date(),
                 new Date(), "testItemText", null, ItemType.OTHER);
+        testSource.addItem(testItem);
 
+        persistenceLayer.saveStreamSource(testSource);
         persistenceLayer.saveItem(testItem);
     }
 
@@ -232,15 +234,18 @@ public class PersistenceLayerTest {
         RelationType relationType = new RelationType("duplicate");
         persistenceLayer.saveRelationType(relationType);
 
-        StreamSource testSource = new StreamGroup("testGroup", "http://testGroup4.de");
+        ItemStream testSource = new ItemStream("testGroup", "http://testGroup4.de");
 
         Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), testSource);
         Item testItem1 = new Item("testItem1", testAuthor, "http://testSource.de/testItem", "testItem", new Date(),
                 new Date(), "testItemText");
         Item testItem2 = new Item("testItem2", testAuthor, "http://testSource.de/testItem2", "testItem2", new Date(),
                 new Date(), "testItemText");
-        persistenceLayer.saveItem(testItem1);
-        persistenceLayer.saveItem(testItem2);
+        testSource.addItem(testItem1);
+        testSource.addItem(testItem2);
+        persistenceLayer.saveStreamSource(testSource);
+        // persistenceLayer.saveItem(testItem1);
+        // persistenceLayer.saveItem(testItem2);
 
         // persistenceLayer.createItemRelation(testItem1, testItem2, relationType, "duplicates");
         ItemRelation itemRelation = new ItemRelation(testItem1, testItem2, relationType, "duplicates");

@@ -262,7 +262,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     /**
      * @param newEntry
      */
-    public void saveItem(final Item entry) {
+    protected void saveItem(final Item entry) {
         Author savedAuthor = saveAuthor(entry.getAuthor());
         entry.setAuthor(savedAuthor);
         Item existingEntry = loadItem(entry.getIdentifier());
@@ -304,8 +304,8 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
             getManager().persist(author);
             ret = author;
         } else {
-            //author.setIdentifier(existingUser.getIdentifier());
-            //ret = getManager().merge(author);
+            // author.setIdentifier(existingUser.getIdentifier());
+            // ret = getManager().merge(author);
             existingUser.setAuthorRating(author.getAuthorRating());
             existingUser.setCountOfItems(author.getCountOfItems());
             existingUser.setCountOfStreamsStarted(author.getCountOfItems());
