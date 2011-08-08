@@ -2,6 +2,8 @@ package ws.palladian.helper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
@@ -12,6 +14,100 @@ public class UrlHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(UrlHelper.class);
+
+    /** A format string must not be preceded by a word character [a-zA-Z0-9] */
+    private static final String START_PATTERN = "(?<!\\w)";
+
+    /** A format string must not be followed by a word character [a-zA-Z0-9] */
+    private static final String STOP_PATTERN = "(?!\\w)";
+
+    /** Identifiers that are typically used for sessionIDs */
+    private static final String[] SESSIONID_IDENTIFIER_PATTERN = { "jsessionid=", "s=", "sid=", "PHPSESSID=",
+            "sessionid=" };
+
+    private static final String SESSIONID_PATTERN = "[a-f0-9]{32}";
+
+    /** The compiled pattern for all sessionIDs. */
+    private static Pattern sessionIDPattern;
+
+    /**
+     * Compiles the {@link #sessionIDPattern} pattern. Pattern should look like
+     * (?<!\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[a-f0-9]{32}(?!\w)
+     */
+    private static void compilePattern() {
+        StringBuilder formatPatternBuilder = new StringBuilder();
+        formatPatternBuilder.append(START_PATTERN).append("(");
+        for (String identifiers : SESSIONID_IDENTIFIER_PATTERN) {
+            formatPatternBuilder.append(identifiers).append("|");
+        }
+        formatPatternBuilder.deleteCharAt(formatPatternBuilder.length() - 1);
+        formatPatternBuilder.append(")");
+        formatPatternBuilder.append(SESSIONID_PATTERN);
+        formatPatternBuilder.append(STOP_PATTERN);
+        LOGGER.debug(formatPatternBuilder.toString());
+        sessionIDPattern = Pattern.compile(formatPatternBuilder.toString(), Pattern.CASE_INSENSITIVE);
+    }
+
+    /**
+     * Tries to remove a sessionID from URL if it can be found.
+     * 
+     * @param original The URL to remove the sessionID from.
+     * @return The URL without the sessionID if it could be found or the original URL else wise. <code>null</code> if
+     *         original was <code>null</code>.
+     */
+    public static URL removeSessionID(URL original) {
+        URL replacedURL = original;
+        if (original != null) {
+            String origURL = original.toString();
+            compilePattern();
+            Matcher matcher = sessionIDPattern.matcher(origURL);
+            String sessionID = null;
+            String newURL = "";
+            while (matcher.find()) {
+                sessionID = matcher.group();
+                LOGGER.debug("   sessionID : " + sessionID);
+                newURL = origURL.replaceAll(sessionIDPattern.toString(), "");
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Original URL: " + origURL);
+                LOGGER.debug("Cleaned URL : " + newURL);
+            }
+            try {
+                replacedURL = new URL(newURL);
+            } catch (MalformedURLException e) {
+                LOGGER.error("Could not replace sessionID in URL \"" + origURL + "\", returning original value.");
+            }
+        }
+        return replacedURL;
+    }
+
+    /**
+     * Convenience method to remove a sessionID from a url string if it can be found.
+     * 
+     * @param originalURL The URL to remove the sessionID from.
+     * @param silent If <code>true</code>, do not log errors.
+     * @return The string representation of the url without the sessionID if it could be found or the original string
+     *         else wise. <code>null</code> if original was <code>null</code>.
+     */
+    public static String removeSessionID(String originalURL, boolean silent) {
+        String replacedURL = originalURL;
+        if (originalURL != null) {
+            try {
+                replacedURL = removeSessionID(new URL(originalURL)).toString();
+            } catch (MalformedURLException e) {
+                if (!silent) {
+                    LOGGER.error("Could not create URL from \"" + originalURL + "\". " + e.getLocalizedMessage());
+                }
+            }
+        }
+        return replacedURL;
+    }
+
+    // public static void main(String[] args) {
+    // String news = UrlHelper
+    // .removeSessionID("http://brbb.freeforums.org/viewforum.php?f=3&amp;sid=5c2676a9f621ffbadb6962da7e0c50d4");
+    // System.out.println(news);
+    // }
 
     /**
      * Creates a full/absolute URL based on the specified parameters.

@@ -832,13 +832,14 @@ public class FileHelper {
     }
 
     /**
-     * Rename a file.
+     * Rename a file name and return it. If you really want to rename the file, use FileHelper#renameFile(File, String).
      * 
      * @param inputFile The path to an input file which should be renamed.
      * @param newName The new name.
      * @return The name of the new path.
+     * @see FileHelper#renameFile(File, String)
      */
-    public static String rename(File inputFile, String newName) {
+    public static String getRenamedFilename(File inputFile, String newName) {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
@@ -846,6 +847,22 @@ public class FileHelper {
                 StringHelper.escapeForRegularExpression(newName) + ".");
 
         return newPath;
+    }
+
+    /**
+     * Rename a file in the file system.
+     * 
+     * @param source The original file.
+     * @param destination The new filename.
+     * @return <code>true</code> if and only if the file has been renamed.
+     */
+    public static boolean renameFile(File source, String destination) {
+        try {
+            File destFile = new File(destination);
+            return source.renameTo(destFile);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -1015,7 +1032,7 @@ public class FileHelper {
     }
 
     /**
-     * Move a file to a new path.
+     * Move a file to a new path, preserving the filename.
      * 
      * @param file The file to move.
      * @param newPath The new path.
@@ -1631,7 +1648,7 @@ public class FileHelper {
         isFileName("ab.ai");
         isFileName("  abasdf.mpeg2 ");
 
-        System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
 
