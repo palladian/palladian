@@ -123,6 +123,7 @@ public class Author {
         this();
         this.username = username;
         this.streamSource = streamSource;
+        //streamSource.addAuthor(this);
     }
 
     /**
@@ -152,6 +153,7 @@ public class Author {
         this.registeredSince = registeredSince;
         this.username = username;
         this.streamSource = streamSource;
+        //streamSource.addAuthor(this);
     }
 
     /**

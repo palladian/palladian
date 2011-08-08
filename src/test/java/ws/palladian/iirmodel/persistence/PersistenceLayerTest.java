@@ -16,6 +16,8 @@ import java.util.Date;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -179,6 +181,34 @@ public class PersistenceLayerTest {
         persistenceLayer.saveAuthor(changedAuthor);
         Author result = persistenceLayer.loadAuthor(changedAuthor.getUsername(), changedAuthor.getStreamSource());
         assertEquals(result, changedAuthor);
+
+    }
+    
+    @Test
+    public void testSaveStreamWithAuthors() {
+        
+        ItemStream itemStream = new ItemStream("testSource", "http://testSource1.de");
+        
+        Author author1 = new Author("author1", itemStream);
+        Item item1 = new Item("id1", author1, "http://testSource1.de/item1", "title1", new Date(), new Date(), "");
+        itemStream.addItem(item1);
+        
+        Author author2 = new Author("author2", itemStream);
+        Item item2 = new Item("id2", author2, "http://testSource1.de/item2", "title2", new Date(), new Date(), "");
+        itemStream.addItem(item2);
+        
+        // author3 is actually == author1, 
+        // so the existing author should just be updated 
+        Author author3 = new Author("author1", itemStream);
+        Item item3 = new Item("id3", author3, "http://testSource1.de/item3", "title3", new Date(), new Date(), "");
+        itemStream.addItem(item3);
+        
+        // TODO fails
+        persistenceLayer.saveStreamSource(itemStream);
+
+        // TODO should return two authors
+        ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource1.de");
+        Assert.assertEquals(2, loadedStream.getAuthors().size());
     }
 
     @Test
