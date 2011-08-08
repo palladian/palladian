@@ -38,11 +38,11 @@ public final class RelationType implements Serializable {
         this.name = name;
     }
 
-    public final String getName() {
+    public String getName() {
         return name;
     }
 
-    public final void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -65,7 +65,7 @@ public final class RelationType implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        RelationType other = (RelationType) obj;
+        RelationType other = (RelationType)obj;
         if (name == null) {
             if (other.name != null) {
                 return false;
