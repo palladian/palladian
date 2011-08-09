@@ -62,7 +62,7 @@ public class UrlHelper {
             compilePattern();
             Matcher matcher = sessionIDPattern.matcher(origURL);
             String sessionID = null;
-            String newURL = "";
+            String newURL = null;
             while (matcher.find()) {
                 sessionID = matcher.group();
                 LOGGER.debug("   sessionID : " + sessionID);
@@ -72,10 +72,12 @@ public class UrlHelper {
                 LOGGER.debug("Original URL: " + origURL);
                 LOGGER.debug("Cleaned URL : " + newURL);
             }
-            try {
-                replacedURL = new URL(newURL);
-            } catch (MalformedURLException e) {
-                LOGGER.error("Could not replace sessionID in URL \"" + origURL + "\", returning original value.");
+            if (newURL != null) {
+                try {
+                    replacedURL = new URL(newURL);
+                } catch (MalformedURLException e) {
+                    LOGGER.error("Could not replace sessionID in URL \"" + origURL + "\", returning original value.");
+                }
             }
         }
         return replacedURL;
