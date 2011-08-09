@@ -284,4 +284,34 @@ public class PersistenceLayerTest {
         streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
         assertNull(streamSource.getParentSource());
     }
+
+    @Test
+    public void testSaveTwoStreamsSharingAuthor() throws Exception {
+        StreamGroup forum = new StreamGroup("Test Forum", "http://testforum.de/");
+        ItemStream firstStream = new ItemStream("Title1", "http://testforum.de/t1");
+        ItemStream secondStream = new ItemStream("Title2", "http://testforum.de/t2");
+
+        forum.addChild(firstStream);
+        forum.addChild(secondStream);
+
+        Author firstAsker = new Author("a1", 1, 1, 0, new Date(), forum);
+        Item item11 = new Item("0", firstAsker, "http://testforum.de/t1/i1", "Title1", new Date(), new Date(),
+                "Hello World?", null, ItemType.QUESTION);
+        firstStream.addItem(item11);
+
+        Author answerer = new Author("a2", 2, 0, 1, new Date(), forum);
+        Item item12 = new Item("1", answerer, "http://testforum.de/t1/i2", "Title1", new Date(), new Date(),
+                "Hello World!", null, ItemType.CORRECT_ANSWER);
+        firstStream.addItem(item12);
+
+        Author secondAsker = new Author("a3", 1, 1, 0, new Date(), forum);
+        Item item21 = new Item("2", secondAsker, "http://testforum.de/t2/i1", "Title2", new Date(), new Date(),
+                "Hello World again?", null, ItemType.QUESTION);
+        secondStream.addItem(item21);
+        Item item22 = new Item("3", answerer, "http://testforum.de/t2/i2", "Title2", new Date(), new Date(),
+                "Hello World again!", item21, ItemType.CORRECT_ANSWER);
+        secondStream.addItem(item22);
+
+        persistenceLayer.saveStreamSource(forum);
+    }
 }
