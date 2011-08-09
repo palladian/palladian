@@ -61,7 +61,7 @@ class SessionIDFixProcessingAction extends FeedProcessingAction {
                     + feed.getChecks() + ", misses: " + feed.getMisses());
         }
 
-        // save the complete feed gzipped in the folder if we found at least one new item or if its the first check
+        // add new items to csv
         if (newItems > 0 || feed.getChecks() == 1) {
 
             Collections.reverse(newEntriesToWrite);
@@ -169,10 +169,13 @@ class SessionIDFixProcessingAction extends FeedProcessingAction {
     private boolean processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
         
         long correctedTime = (long) ((Math.ceil(feed.getLastPollTime().getTime() / 1000)) * 1000);
-        Date date = new Date(correctedTime);
         
         PollMetaInformation pollMetaInfo = feedStore.getFeedPoll(feed.getId(), new Timestamp(correctedTime));
-
+        if (pollMetaInfo == null) {
+            LOGGER.fatal("Could not load PollMetaInformation from DB for feed id " + feed.getId()
+                    + " and pollTimestamp " + new Date(correctedTime) + ". PollMetaInformations has not been updated!");
+            return false;
+        }
         pollMetaInfo.setFeedID(feed.getId());
         pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
         pollMetaInfo.setHttpDate(HTTPHelper.getDateFromHeader(httpResult, "Date", true));

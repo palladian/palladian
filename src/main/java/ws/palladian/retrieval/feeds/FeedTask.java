@@ -97,6 +97,7 @@ class FeedTask implements Callable<FeedTaskResult> {
         return requestHeaders;
     }
 
+    /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
     private Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
 
@@ -227,7 +228,6 @@ class FeedTask implements Callable<FeedTaskResult> {
     }
 
     /**
-     * 
      * Classify feed and process general meta data like feed title, language, size, format.
      * Everything in this method is done only if it has never been done before or once every month.
      * 
