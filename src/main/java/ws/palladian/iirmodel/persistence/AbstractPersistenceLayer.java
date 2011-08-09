@@ -119,7 +119,7 @@ public abstract class AbstractPersistenceLayer {
     // pl.commitTransaction(openedTransaction);
     // }
 
-    public <T> T load(String identifier, Class<T> classToLoad) {
+    public <T> T load(Object identifier, Class<T> classToLoad) {
         final Boolean openedTransaction = openTransaction();
         T ret = getManager().find(classToLoad, identifier);
         commitTransaction(openedTransaction);

@@ -6,7 +6,6 @@ package ws.palladian.iirmodel;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -68,7 +67,7 @@ public class Item implements Serializable {
      * The user profile of the author, who created this item.
      * </p>
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Author author;
 
     /**
@@ -116,7 +115,7 @@ public class Item implements Serializable {
      * stream is not linear but forms a tree structure.
      * </p>
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Item predecessor;
 
     /**
@@ -313,14 +312,16 @@ public class Item implements Serializable {
 
         // check equality by fields
         if (sourceInternalIdentifier == null) {
-            if (other.sourceInternalIdentifier != null)
+            if (other.sourceInternalIdentifier != null) {
                 return false;
+            }
         } else if (!sourceInternalIdentifier.equals(otherIdentifier)) {
             return false;
         }
         if (parent == null) {
-            if (other.parent != null)
+            if (other.parent != null) {
                 return false;
+            }
         } else if (!parent.equals(other.parent)) {
             return false;
         }
@@ -353,8 +354,8 @@ public class Item implements Serializable {
         builder.append(publicationDate);
         builder.append(", updateDate=");
         builder.append(updateDate);
-        builder.append(", text=");
-        builder.append(text);
+        // builder.append(", text=");
+        // builder.append(text);
         builder.append(", predecessor=");
         builder.append(predecessor);
         builder.append(", type=");

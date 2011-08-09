@@ -77,7 +77,7 @@ public abstract class StreamSource implements Serializable {
      */
     @ManyToOne
     private StreamSource parentSource;
-    
+
     /**
      * <p>
      * The authors contributing to this {@link StreamSource}.
@@ -197,15 +197,15 @@ public abstract class StreamSource implements Serializable {
         result.append(getSourceName());
         return result.toString();
     }
-    
+
     public Collection<Author> getAuthors() {
         return authors;
     }
 
-    public void setAuthors(Set<Author> authors) {
+    protected void setAuthors(Set<Author> authors) {
         this.authors = authors;
     }
-    
+
     protected void addAuthor(Author author) {
         authors.add(author);
     }

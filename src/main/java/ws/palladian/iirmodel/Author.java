@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -96,7 +95,7 @@ public class Author {
      * kind of source the author's username is unique in.
      * </p>
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private StreamSource streamSource;
 
     /**
@@ -367,23 +366,30 @@ public class Author {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Author other = (Author)obj;
         if (streamSource == null) {
-            if (other.streamSource != null)
+            if (other.streamSource != null) {
                 return false;
-        } else if (!streamSource.equals(other.streamSource))
+            }
+        } else if (!streamSource.equals(other.streamSource)) {
             return false;
+        }
         if (username == null) {
-            if (other.username != null)
+            if (other.username != null) {
                 return false;
-        } else if (!username.equals(other.username))
+            }
+        } else if (!username.equals(other.username)) {
             return false;
+        }
         return true;
     }
 

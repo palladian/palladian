@@ -296,10 +296,12 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public Author saveAuthor(final Author author) {
         // final Author existingUser = loadAuthor(author.getIdentifier());
+        final Boolean openedTransaction = openTransaction();
+        saveStreamSource(author.getStreamSource());
         final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
 
         Author ret = null;
-        final Boolean openedTransaction = openTransaction();
+
         if (existingUser == null) {
             getManager().persist(author);
             ret = author;
