@@ -138,17 +138,42 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public final void saveStreamSource(final StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
-        if (streamSource instanceof ItemStream) {
-            ItemStream itemStream = (ItemStream)streamSource;
-            saveItemStream(itemStream);
+
+        StreamSource existingStreamSource = loadStreamSourceByAddress(streamSource.getSourceAddress());
+        ItemStream itemStream = (ItemStream)streamSource;
+        if (existingStreamSource != null) {
+            Collection<Item> removedItems = getRemovedItems((ItemStream)existingStreamSource, itemStream);
+            removeItems(removedItems);
+
+            streamSource.setIdentifier(existingStreamSource.getIdentifier());
+            getManager().merge(existingStreamSource);
         } else {
-            StreamSource existingStream = loadStreamSourceByAddress(streamSource.getSourceAddress());
-            if (existingStream == null) {
-                getManager().persist(streamSource);
-            } else {
-                getManager().merge(existingStream);
-            }
+            getManager().persist(streamSource);
         }
+
+        for (Item item : itemStream.getItems()) {
+            getManager().persist(item);
+        }
+        for (Author author : streamSource.getAuthors()) {
+            // Author existingAuthor = loadAuthor(author.getUsername(), streamSource);
+            // if (existingAuthor == null) {
+            getManager().persist(author);
+            // } else {
+            // author.setIdentifier(existingAuthor.getIdentifier());
+            // getManager().merge(author);
+            // }
+        }
+        // if (streamSource instanceof ItemStream) {
+        // ItemStream itemStream = (ItemStream)streamSource;
+        // saveItemStream(itemStream);
+        // } else {
+        // StreamSource existingStream = loadStreamSourceByAddress(streamSource.getSourceAddress());
+        // if (existingStream == null) {
+        // getManager().persist(streamSource);
+        // } else {
+        // getManager().merge(existingStream);
+        // }
+        // }
         commitTransaction(openedTransaction);
     }
 
@@ -297,27 +322,35 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public Author saveAuthor(final Author author) {
         // final Author existingUser = loadAuthor(author.getIdentifier());
         final Boolean openedTransaction = openTransaction();
-        saveStreamSource(author.getStreamSource());
         final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
-
-        Author ret = null;
-
         if (existingUser == null) {
             getManager().persist(author);
-            ret = author;
+            getManager().persist(author.getStreamSource());
         } else {
-            // author.setIdentifier(existingUser.getIdentifier());
-            // ret = getManager().merge(author);
-            existingUser.setAuthorRating(author.getAuthorRating());
-            existingUser.setCountOfItems(author.getCountOfItems());
-            existingUser.setCountOfStreamsStarted(author.getCountOfItems());
-            // TODO need to merge Items?
-            existingUser.setItems(author.getItems());
-            existingUser.setRegisteredSince(author.getRegisteredSince());
-            existingUser.setStreamSource(author.getStreamSource());
-            existingUser.setUsername(author.getUsername());
-            ret = getManager().merge(existingUser);
+            author.setIdentifier(existingUser.getIdentifier());
+            getManager().merge(author);
         }
+        // saveStreamSource(author.getStreamSource());
+
+        //
+        Author ret = null;
+        //
+        // if (existingUser == null) {
+        // getManager().persist(author);
+        // ret = author;
+        // } else {
+        // // author.setIdentifier(existingUser.getIdentifier());
+        // // ret = getManager().merge(author);
+        // existingUser.setAuthorRating(author.getAuthorRating());
+        // existingUser.setCountOfItems(author.getCountOfItems());
+        // existingUser.setCountOfStreamsStarted(author.getCountOfItems());
+        // // TODO need to merge Items?
+        // existingUser.setItems(author.getItems());
+        // existingUser.setRegisteredSince(author.getRegisteredSince());
+        // existingUser.setStreamSource(author.getStreamSource());
+        // existingUser.setUsername(author.getUsername());
+        // ret = getManager().merge(existingUser);
+        // }
         commitTransaction(openedTransaction);
         return ret;
     }
@@ -608,6 +641,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return ret;
     }
 
+    // TODO adapt to new implementation
     /**
      * <p>
      * 
@@ -662,6 +696,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return ret;
     }
 
+    // TODO adapt this to new structure
     /**
      * <p>
      * Loads all available stream sources from the database.
@@ -818,5 +853,17 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         final Boolean openedTransaction = openTransaction();
         getManager().merge(t);
         commitTransaction(openedTransaction);
+    }
+
+    /**
+     * @return
+     */
+    public Collection<StreamSource> loadStreamSources() {
+        Query loadQuery = getManager().createQuery("SELECT ss FROM StreamSource ss");
+        final Boolean openedTransaction = openTransaction();
+        @SuppressWarnings("unchecked")
+        Collection<StreamSource> ret = loadQuery.getResultList();
+        commitTransaction(openedTransaction);
+        return ret;
     }
 }

@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -107,8 +108,29 @@ public class PersistenceLayerTest {
         stream.addItem(item2);
 
         persistenceLayer.saveStreamSource(stream);
-        StreamSource result = persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
-        assertEquals(stream, result);
+        ItemStream result = (ItemStream)persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
+        assertEquals(1, persistenceLayer.loadStreamSources().size());
+        assertEquals(stream.getQualifiedSourceName(), result.getQualifiedSourceName());
+        assertEquals(stream.getSourceAddress(), result.getSourceAddress());
+        assertEquals(stream.getSourceName(), result.getSourceName());
+        assertEquals(stream.getItems().size(), result.getItems().size());
+        Item firstResultItem = stream.getItems().get(0);
+        assertNotNull(firstResultItem);
+        assertEquals(item1.getLink(), firstResultItem.getLink());
+        assertEquals(item1.getPublicationDate(), firstResultItem.getPublicationDate());
+        assertEquals(item1.getSourceInternalIdentifier(), firstResultItem.getSourceInternalIdentifier());
+        assertEquals(item1.getText(), firstResultItem.getText());
+        assertEquals(item1.getTitle(), firstResultItem.getTitle());
+        assertEquals(item1.getUpdateDate(), firstResultItem.getUpdateDate());
+        assertEquals(item1.getType(), firstResultItem.getType());
+        Author firstItemResultAuthor = firstResultItem.getAuthor();
+        assertEquals(author1.getAuthorRating(), firstItemResultAuthor.getAuthorRating());
+        assertEquals(author1.getCountOfItems(), firstItemResultAuthor.getCountOfItems());
+        assertEquals(author1.getCountOfStreamsStarted(), firstItemResultAuthor.getCountOfStreamsStarted());
+        assertEquals(author1.getItems().size(), firstItemResultAuthor.getItems().size());
+        assertEquals(author1.getRegisteredSince(), firstItemResultAuthor.getRegisteredSince());
+        assertNotNull(firstItemResultAuthor.getStreamSource());
+        assertEquals(author1.getUsername(), firstItemResultAuthor.getUsername());
     }
 
     @Test
@@ -139,6 +161,9 @@ public class PersistenceLayerTest {
         Item changedItem2 = new Item("i3", changedAuthor2, "http://testSource.de/testStream/i3", "i3", new Date(),
                 new Date(), "i3text", changedItem1, ItemType.OTHER);
         changedStream.addItem(changedItem2);
+
+        System.out.println(changedStream.getItems().contains(changedItem1));
+        System.out.println(changedStream.getItems().contains(changedItem2));
 
         persistenceLayer.saveStreamSource(changedStream);
 
@@ -181,7 +206,11 @@ public class PersistenceLayerTest {
         Author changedAuthor = new Author("test", 30, 5, 4, registrationDate, testSource);
         persistenceLayer.saveAuthor(changedAuthor);
         Author result = persistenceLayer.loadAuthor(changedAuthor.getUsername(), changedAuthor.getStreamSource());
-        assertEquals(result, changedAuthor);
+        assertEquals(Integer.valueOf(30), result.getCountOfItems());
+        assertEquals(Integer.valueOf(5), result.getCountOfStreamsStarted());
+        assertEquals(Integer.valueOf(4), result.getAuthorRating());
+        Collection<Author> authors = persistenceLayer.loadAuthors();
+        assertEquals(1, authors.size());
 
     }
 

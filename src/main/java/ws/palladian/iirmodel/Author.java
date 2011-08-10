@@ -429,4 +429,12 @@ public class Author {
         return builder.toString();
     }
 
+    /**
+     * @param identifier2
+     */
+    public void setIdentifier(Integer identifier) {
+        this.identifier = identifier;
+
+    }
+
 }
