@@ -358,11 +358,16 @@ public class DatasetCreator {
      */
     public static boolean createDirectoriesAndCSV(Feed feed) {
 
+        boolean success = false;
         // get the path of the feed's folder and csv file
         String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(),
                 DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
-
-        return FileHelper.createDirectoriesAndFile(csvFilePath);
+        if (FileHelper.fileExists(csvFilePath)) {
+            success = true;
+        } else {
+            success = FileHelper.createDirectoriesAndFile(csvFilePath);
+        }
+        return success;
     }
 
     /**

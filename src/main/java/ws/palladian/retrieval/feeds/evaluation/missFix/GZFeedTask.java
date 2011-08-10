@@ -107,6 +107,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                             correctedFeed, gzHttpResult);
                     if (!actionSuccess) {
                         resultSet.add(FeedTaskResult.ERROR);
+                        LOGGER.info("ERROR here!");
                     }
 
                 } else {
@@ -120,6 +121,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                                 correctedFeed, gzHttpResult);
                         if (!actionSuccess) {
                             resultSet.add(FeedTaskResult.ERROR);
+                            LOGGER.info("ERROR here!");
                         }
 
                         // case 3: default case, try to process the feed.
@@ -155,6 +157,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                                 gzHttpResult);
                         if (!actionSuccess) {
                             resultSet.add(FeedTaskResult.ERROR);
+                            LOGGER.info("ERROR here!");
                         }
 
                         // rename gz file if there are no new items in it. File may be removed afterwards.
@@ -195,6 +198,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         } catch (Throwable th) {
             LOGGER.error("Error processing feedID " + correctedFeed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
+            LOGGER.info("ERROR here!");
             doFinalLogging(timer);
             return getResult();
         }
@@ -308,6 +312,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         boolean dbSuccess = feedReader.updateFeed(correctedFeed, storeMetadata, correctedFeed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
+            LOGGER.info("ERROR here!");
         }
     }
 
