@@ -193,7 +193,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param stream
      * @return
      */
-    private Collection<Item> getRemovedItems(ItemStream existingStream, ItemStream stream) {
+    protected Collection<Item> getRemovedItems(ItemStream existingStream, ItemStream stream) {
         Collection<Item> ret = new HashSet<Item>();
         for (Item item : existingStream.getItems()) {
             if (!stream.getItems().contains(item)) {

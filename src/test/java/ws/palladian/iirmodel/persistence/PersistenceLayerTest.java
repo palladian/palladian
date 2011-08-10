@@ -152,6 +152,8 @@ public class PersistenceLayerTest {
 
         // save the same ItemStream again; ItemStream gets updated
         ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream");
+        
+        System.err.println(changedStream.getItems().size());
 
         Author changedAuthor1 = new Author("a2", 11, 3, 5, author2RegistrationDate, changedStream);
         Item changedItem1 = new Item("i2", changedAuthor1, "http://testSource.de/testStream/i2", "i2",
@@ -161,6 +163,8 @@ public class PersistenceLayerTest {
         Item changedItem2 = new Item("i3", changedAuthor2, "http://testSource.de/testStream/i3", "i3", new Date(),
                 new Date(), "i3text", changedItem1, ItemType.OTHER);
         changedStream.addItem(changedItem2);
+        
+        System.err.println(changedStream.getItems().size());
 
         System.out.println(changedStream.getItems().contains(changedItem1));
         System.out.println(changedStream.getItems().contains(changedItem2));

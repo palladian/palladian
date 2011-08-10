@@ -178,6 +178,7 @@ public class Item implements Serializable {
      * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
      *            an answer or something completely different.
      */
+    // TODO wouldnt it be better to supply the parent stream also via constructor?
     public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
             Date updateDate, String text, Item predecessor, ItemType type) {
         this();
@@ -315,7 +316,7 @@ public class Item implements Serializable {
             if (other.sourceInternalIdentifier != null) {
                 return false;
             }
-        } else if (!sourceInternalIdentifier.equals(otherIdentifier)) {
+        } else if (!sourceInternalIdentifier.equals(other.sourceInternalIdentifier)) {
             return false;
         }
         if (parent == null) {
@@ -345,7 +346,7 @@ public class Item implements Serializable {
         builder.append(", sourceInternalIdentifier=");
         builder.append(sourceInternalIdentifier);
         builder.append(", author=");
-        builder.append(author);
+        builder.append(author.getUsername());
         builder.append(", link=");
         builder.append(link);
         builder.append(", title=");
