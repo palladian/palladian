@@ -19,6 +19,8 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -43,13 +45,14 @@ public class ListDiscoverer {
     private static final Logger LOGGER = Logger.getLogger(ListDiscoverer.class);
 
     /** Set of URLs that were found in the pagination of the given page */
-    private final Set<String> paginationURLs;
+    private Set<String> paginationURLs;
 
     /** The XPath that points to the pagination of the given page */
     private String paginationXPath = "";
 
     private String url = "";
     private Document document = null;
+
     private DocumentRetriever crawler = null;
 
     public ListDiscoverer() {
@@ -75,14 +78,26 @@ public class ListDiscoverer {
         return findPaginationURLs();
     }
 
-    // TODO also find "next" and "previous" button if no other pagination is given
-    public Set<String> findPaginationURLs_() {
+    /**
+     * <p>
+     * Find the URLs that point to pages that were used in the pagination.
+     * </p>
+     * TODO also find "next" and "previous" button if no other pagination is given
+     * TODO find pagination in drop down boxes
+     * 
+     * @return A set of URLs.
+     */
+    public Set<String> findPaginationURLs() {
 
         if (paginationXPath.length() == 0) {
+
+            // reset previously found URLs
+            paginationURLs = new HashSet<String>();
+
             XPathSet paginationPaths = new XPathSet();
             PageAnalyzer pa = new PageAnalyzer();
-            String[] removeCountElements = { "A", "TR", "TD", "P", "SPAN", "LI" };
-            List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//A");
+            String[] removeCountElements = { "a", "tr", "td", "p", "span", "li" };
+            List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//a");
             if (paginationCandidates == null) {
                 return paginationURLs;
             }
@@ -93,9 +108,10 @@ public class ListDiscoverer {
                 nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
                 // System.out.println(nodeText+" | "+currentNode.getTextContent());
                 if (nodeText.length() > 0
-                        && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1 && StringHelper
-                                .isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf("next") > -1 && nodeText
-                                .length() < 8)) {
+                        && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1
+                                && StringHelper.isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf(
+                                "next") > -1
+                                && nodeText.length() < 8)) {
                     paginationPaths.add(PageAnalyzer.removeXPathIndices(pa.constructXPath(currentNode),
                             removeCountElements));
                 }
@@ -169,9 +185,9 @@ public class ListDiscoverer {
                 int count = paginationPaths.getCountOfXPath(paginationXPath);
                 // System.out.println("one element: "+pa.getTextByXpath(document, paginationXPath));
                 if (count == 1/*
-                 * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
-                 * paginationXPath)).equals("1,2"))
-                 */) {
+                               * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
+                               * paginationXPath)).equals("1,2"))
+                               */) {
                     String pathText = StringHelper.trim(pa.getTextByXPath(document, paginationXPath));
                     if (pathText.toLowerCase().indexOf("next") == -1 && !pathText.equals("1")) {
                         paginationXPath = "";
@@ -179,14 +195,14 @@ public class ListDiscoverer {
                     }
 
                 }/*
-                 * else if (count > 1 && count < 20) { String pathText = StringHelper.trim(pa.getTextByXpath(document,
-                 * paginationXPath)); String[] entries =
-                 * pathText.split(","); int numericCount = 0; for (int i = 0; i < entries.length; i++) { if
-                 * (StringHelper.isNumericExpression(entries[i]))
-                 * numericCount++; } if ((double) numericCount / (double) entries.length < 0.4 &&
-                 * (pathText.indexOf("A") == -1 || pathText.indexOf("B") == -1
-                 * || pathText.indexOf("C") == -1)) { paginationXPath = ""; } }
-                 */
+                  * else if (count > 1 && count < 20) { String pathText = StringHelper.trim(pa.getTextByXpath(document,
+                  * paginationXPath)); String[] entries =
+                  * pathText.split(","); int numericCount = 0; for (int i = 0; i < entries.length; i++) { if
+                  * (StringHelper.isNumericExpression(entries[i]))
+                  * numericCount++; } if ((double) numericCount / (double) entries.length < 0.4 &&
+                  * (pathText.indexOf("A") == -1 || pathText.indexOf("B") == -1
+                  * || pathText.indexOf("C") == -1)) { paginationXPath = ""; } }
+                  */
 
             } else {
                 // TODO link similarity check: http://openwetware.org/wiki/OpenWetWare:Feature_list/Lab_notebook
@@ -200,7 +216,7 @@ public class ListDiscoverer {
             }
 
             Set<Integer> pageNumbers = new TreeSet<Integer>();
-            List<Node> linkNodes = XPathHelper.getNodes(document, paginationXPath);
+            List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, paginationXPath);
             for (int i = 0; i < linkNodes.size(); i++) {
                 String nodeText = StringHelper.trim(linkNodes.get(i).getTextContent());
                 nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
@@ -237,7 +253,7 @@ public class ListDiscoverer {
                 }
                 lastNumber = pageNumber;
             }
-            if (longestSequence < pageNumbers.size() - 3) {
+            if (longestSequence < pageNumbers.size() / 2) {
                 paginationXPath = "";
                 return paginationURLs;
             }
@@ -251,214 +267,7 @@ public class ListDiscoverer {
             return paginationURLs;
         }
 
-        List<Node> linkNodes = XPathHelper.getNodes(document, paginationXPath);
-        for (int i = 0; i < linkNodes.size(); i++) {
-            String linkURL = linkNodes.get(i).getTextContent();
-            linkURL = UrlHelper.makeFullURL(url, linkURL);
-            if (linkURL.length() > 0) {
-                paginationURLs.add(linkURL);
-            }
-        }
-
-        return paginationURLs;
-    }
-
-    public Set<String> findPaginationURLs() {
-
-        XPathSet paginationPaths = new XPathSet();
-
-        if (paginationXPath.length() == 0) {
-            PageAnalyzer pa = new PageAnalyzer();
-
-            // HTML elemens from which the index should be removed (basically these are the pagination candidate tags)
-            // String[] removeCountElements = { "A", "TR", "TD", "P", "SPAN", "LI" };
-
-            // all links are candidates for pagination, so get the nodes
-            List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//a");
-            if (paginationCandidates == null) {
-                return paginationURLs;
-            }
-
-            // check the link text of each node and add the XPath if the text complies with the heuristics
-            for (Node currentNode : paginationCandidates) {
-
-                String nodeText = StringHelper.trim(currentNode.getTextContent());
-
-                // remove [] around text [1] => 1
-                nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
-
-                if (nodeText.length() > 0
-                        && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1
-                                && StringHelper.isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf(
-                                "next") > -1
-                                && nodeText.length() < 8)) {
-                    // paginationPaths.add(PageAnalyzer.removeXPathIndices(pa.constructXPath(currentNode),
-                    // removeCountElements));
-                    paginationPaths.add(PageAnalyzer.removeXPathIndices(pa.constructXPath(currentNode)));
-                }
-            }
-
-            // LinkedHashMap<String, Integer> xPathMap = paginationPaths.getXPathMap();
-            // if (xPathMap.entrySet().size() > 0) {
-            // LinkedHashMap<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
-            // // QGramsDistance stringDistanceMetric = new QGramsDistance();
-            // JaroWinkler stringDistanceMetric = new JaroWinkler();
-            // Iterator<Map.Entry<String, Integer>> xPathMapIterator = xPathMap.entrySet().iterator();
-            // while (xPathMapIterator.hasNext()) {
-            // Map.Entry<String, Integer> entry = xPathMapIterator.next();
-            // double similaritySum = 0.0;
-            // int comparisons = 0;
-            //
-            // List<Node> hrefNodes = XPathHelper.getXhtmlNodes(document, entry.getKey() + "/@href");
-            //
-            // // remove duplicates
-            // int samePageLinks = 0;
-            // HashSet<String> hrefTexts = new HashSet<String>();
-            // for (int i = 0; i < hrefNodes.size(); i++) {
-            // String hrefText = hrefNodes.get(i).getTextContent().replaceAll("#.*", "");
-            // if (hrefText.length() == 0) {
-            // samePageLinks++;
-            // continue;
-            // }
-            // hrefTexts.add(hrefText);
-            // }
-            //
-            // if ((double) samePageLinks / (double) hrefNodes.size() > 0.5) {
-            // paginationXPath = "";
-            // return paginationURLs;
-            // }
-            //
-            // // there must be at least two distinct links
-            // if (hrefTexts.size() < 2) {
-            // continue;
-            // }
-            //
-            // String hrefText1 = "";
-            // String hrefText2 = "";
-            // int i = 0;
-            // Iterator<String> hrefTextIterator = hrefTexts.iterator();
-            // while (hrefTextIterator.hasNext()) {
-            // String currentHrefText = hrefTextIterator.next();
-            // if (i % 2 == 0) {
-            // hrefText1 = currentHrefText;
-            // } else {
-            // hrefText2 = currentHrefText;
-            // float hrefSimilarity = stringDistanceMetric.getSimilarity(hrefText1, hrefText2);
-            // similaritySum += hrefSimilarity;
-            // comparisons++;
-            // }
-            // i++;
-            // }
-            //
-            // double averageLinkSimilarity = similaritySum / comparisons;
-            // if (averageLinkSimilarity > 0.8) {
-            // xPathsBySimilarity.put(entry.getKey(), averageLinkSimilarity);
-            // }
-            // }
-            // xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity.entrySet(),
-            // CollectionHelper.DESCENDING);
-            //
-            // if (!xPathsBySimilarity.isEmpty()) {
-            // paginationXPath = xPathsBySimilarity.entrySet().iterator().next().getKey();
-            // } else {
-            // paginationXPath = paginationPaths.getHighestCountXPath();
-            // }
-            // int count = paginationPaths.getCountOfXPath(paginationXPath);
-            // // System.out.println("one element: "+pa.getTextByXpath(document, paginationXPath));
-            // if (count == 1/*
-            // * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
-            // * paginationXPath)).equals("1,2"))
-            // */) {
-            // String pathText = StringHelper.trim(pa.getTextByXPath(document, paginationXPath));
-            // if (pathText.toLowerCase().indexOf("next") == -1 && !pathText.equals("1")) {
-            // paginationXPath = "";
-            // return paginationURLs;
-            // }
-            //
-            // }/*
-            // * else if (count > 1 && count < 20) { String pathText = StringHelper.trim(pa.getTextByXpath(document,
-            // * paginationXPath)); String[] entries =
-            // * pathText.split(","); int numericCount = 0; for (int i = 0; i < entries.length; i++) { if
-            // * (StringHelper.isNumericExpression(entries[i]))
-            // * numericCount++; } if ((double) numericCount / (double) entries.length < 0.4 &&
-            // * (pathText.indexOf("A") == -1 || pathText.indexOf("B") == -1
-            // * || pathText.indexOf("C") == -1)) { paginationXPath = ""; } }
-            // */
-            //
-            // } else {
-            // // TODO link similarity check: http://openwetware.org/wiki/OpenWetWare:Feature_list/Lab_notebook
-            // // TODO link similarity check: http://www.infoplease.com/countries.html
-            // // TODO link similarity check: more urls (look in comments in test class)
-            // paginationXPath = paginationPaths.getHighestCountXPath(3);
-            // }
-            //
-            // if (paginationXPath.length() == 0) {
-            // return paginationURLs;
-            // }
-            //
-            // Set<Integer> pageNumbers = new TreeSet<Integer>();
-            // List<Node> linkNodes = XPathHelper.getNodes(document, paginationXPath);
-            // for (int i = 0; i < linkNodes.size(); i++) {
-            // String nodeText = StringHelper.trim(linkNodes.get(i).getTextContent());
-            // nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
-            // if (StringHelper.isNumber(nodeText)) {
-            // try {
-            // pageNumbers.add(Integer.valueOf(nodeText));
-            // } catch (NumberFormatException e) {
-            // LOGGER.error(nodeText + "," + e.getMessage());
-            // }
-            // }
-            // }
-            //
-            // // majority of numbers must form a sequence (but not all because some pages number this way: 1|2|3...511
-            // // next>
-            // if (pageNumbers.size() > 0 && pageNumbers.size() < 2) {
-            // paginationXPath = "";
-            // return paginationURLs;
-            // }
-            // int longestSequence = 0;
-            // int currentSequence = 0;
-            // int lastNumber = -1;
-            // Iterator<Integer> pageNumberIterator = pageNumbers.iterator();
-            // while (pageNumberIterator.hasNext()) {
-            // int pageNumber = pageNumberIterator.next();
-            // if (lastNumber > -1) {
-            // if (pageNumber == lastNumber + 1) {
-            // currentSequence++;
-            // if (currentSequence > longestSequence) {
-            // longestSequence = currentSequence;
-            // }
-            // } else {
-            // currentSequence = 0;
-            // }
-            // }
-            // lastNumber = pageNumber;
-            // }
-            // if (longestSequence < pageNumbers.size() - 3) {
-            // paginationXPath = "";
-            // return paginationURLs;
-            // }
-            //
-            // if (paginationXPath.length() > 0) {
-            // paginationXPath += "/@href";
-            // }
-        }
-
-        // // we should have found at least 3 pagination hints
-        // if (paginationPaths.getXPathMap().size() < 3) {
-        // return paginationURLs;
-        // }
-
-        paginationXPath = paginationPaths.getHighestCountXPath();
-
-        if (paginationXPath.length() == 0) {
-            return paginationURLs;
-        }
-
-        // we should have found at least 3 pagination hints
-        if (paginationPaths.getCountOfXPath(paginationXPath) < 3) {
-            return paginationURLs;
-        }
+        paginationXPath = removeHtmlBody(paginationXPath);
 
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, paginationXPath);
         for (int i = 0; i < linkNodes.size(); i++) {
@@ -469,7 +278,42 @@ public class ListDiscoverer {
             }
         }
 
+        filterPaginationUrls();
+
         return paginationURLs;
+    }
+
+    /**
+     * <p>
+     * Check the pagination URLs and remove the ones that might not be correct. For example, if we have a list of URLs
+     * "http.../A", "http.../B", "http.../somethingelse", the last one should be filtered out.
+     * </p>
+     */
+    private void filterPaginationUrls() {
+        CountMap countMap = new CountMap();
+        for (String url : paginationURLs) {
+            countMap.increment(url.length());
+        }
+
+        if (countMap.size() == 0) {
+            return;
+        }
+
+        int mostLikelyLength = (Integer) countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
+
+        Set<String> filteredUrls = new HashSet<String>();
+
+        for (String url : paginationURLs) {
+            if (MathHelper.isWithinRange(url.length(), mostLikelyLength, 1)) {
+                filteredUrls.add(url);
+            }
+        }
+
+        paginationURLs = filteredUrls;
+    }
+
+    private String removeHtmlBody(String paginationXPath) {
+        return paginationXPath.replace("/html/body/", "//");
     }
 
     public Set<String> getPaginationURLs() {
@@ -548,6 +392,7 @@ public class ListDiscoverer {
         // get list path
         entityXPath = xPathSet.getHighestCountXPath(); // TODO test without that
         entityXPath = xPathSet.getLongestHighCountXPath(document);
+        entityXPath = removeHtmlBody(entityXPath);
 
         // if xPath ends on td, the correct column has to be found
         if (pa.nodeInTable(entityXPath, 6)) {
@@ -557,7 +402,7 @@ public class ListDiscoverer {
             if (column == -1) {
                 return "";
             }
-            entityXPath = setIndex(entityXPath, "TD", column);
+            entityXPath = setIndex(entityXPath, "td", column);
 
             /*
              * // if list is in block node (p or div), the list is rejected if block has many children } else if
@@ -678,15 +523,16 @@ public class ListDiscoverer {
         // find out how many columns the table has
         int columnCount = pa.getNumberOfTableColumns(document, entityXPath);
 
-        ArrayList<Integer> uniformColumns = new ArrayList<Integer>();
+        List<Integer> uniformColumns = new ArrayList<Integer>();
 
         // for each column, get all entries in an array and check whether they look similar
         // List<Node> trNodes = XPathHelper.getNodesNS(document,pa.getParentNode(entityXPath));
         // Node firstTR = trNodes.get(0);
         for (int i = 1; i <= columnCount; i++) {
-            ArrayList<String> columnEntries = new ArrayList<String>();
-            List<Node> columnNodes = XPathHelper.getNodes(document, setIndex(entityXPath, "TD", i));
-            List<Node> pureColumnNodes = XPathHelper.getNodes(document, pa.getTableCellPath(setIndex(entityXPath, "TD",
+            List<String> columnEntries = new ArrayList<String>();
+            List<Node> columnNodes = XPathHelper.getXhtmlNodes(document, setIndex(entityXPath, "td", i));
+            List<Node> pureColumnNodes = XPathHelper.getXhtmlNodes(document,
+                    pa.getTableCellPath(setIndex(entityXPath, "td",
                     i)));
             for (int j = 0; j < columnNodes.size(); j++) {
                 columnEntries.add(columnNodes.get(j).getTextContent());
@@ -820,10 +666,10 @@ public class ListDiscoverer {
             LOGGER.info("entries not uniform because too many duplicate words");
             return false;
         }
-        if ((double) missingEntries / (double) totalEntries > 0.1) {
-            LOGGER.info("entries not uniform because too many entries are missing");
-            return false;
-        }
+        // if ((double) missingEntries / (double) totalEntries > 0.1) {
+        // LOGGER.info("entries not uniform because too many entries are missing");
+        // return false;
+        // }
 
         return true;
     }
@@ -834,6 +680,14 @@ public class ListDiscoverer {
 
     public void setPaginationXPath(String paginationXPath) {
         this.paginationXPath = paginationXPath;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     // TODO save pages where entities are extracted and that have attributes on them
@@ -872,7 +726,7 @@ public class ListDiscoverer {
         Document document = crawler.getWebDocument(url);
         System.out.println(pa.getTextByXPath(document, path));
 
-        List<Node> nodes = XPathHelper.getNodes(document, path);
+        List<Node> nodes = XPathHelper.getXhtmlNodes(document, path);
         for (Node n : nodes) {
             System.out.println("kbEntities.put(\"" + StringHelper.trim(n.getTextContent()) + "\",ct1);");
         }
