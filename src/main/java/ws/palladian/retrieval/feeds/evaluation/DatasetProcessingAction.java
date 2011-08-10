@@ -57,6 +57,10 @@ class DatasetProcessingAction extends FeedProcessingAction {
 
         // if all entries are new, we might have checked to late and missed some entries, we mark that by a
         // special line
+        // TODO feed.getChecks()>1 may be replaced by newItems<feed.getNumberOfItemsReceived() to avoid writing a MISS
+        // if a feed was empty and we now found one or more items. We have to define the MISS. If we say we write a MISS
+        // every time it can happen that we missed a item, feed.getChecks()>1 is correct. If we say there cant be a MISS
+        // before we see the first item, feed.getChecks()>1 has to be replaced. -- Sandro 10.08.2011
         if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {
             feed.increaseMisses();
             newEntriesToWrite.add("MISS;;;;;;");

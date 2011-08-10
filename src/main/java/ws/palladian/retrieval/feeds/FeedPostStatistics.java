@@ -75,7 +75,7 @@ public class FeedPostStatistics {
 
     private final void calculateStatistics(Feed feed) {
 
-        Collection<Date> feedPubdates = feed.getItemTimestamps();
+        Collection<Date> feedPubdates = feed.getCorrectedItemTimestamps();
 
         long timeOldestEntry = Long.MAX_VALUE;
         long timeNewestEntry = 0;

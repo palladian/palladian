@@ -9,6 +9,14 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
+/**
+ * TUDCS6 specific.<br />
+ * Reconstruct the csv file from persisted gz files to eliminate false positive MISSes caused by altering window sizes
+ * and wrong item hashes in case of seesionIDs in items' link and raw id attributes.
+ * 
+ * @author Sandro Reichert
+ * 
+ */
 public class SessionIDFixer {
 
     /** The logger for this class. */

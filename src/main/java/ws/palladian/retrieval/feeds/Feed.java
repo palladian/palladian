@@ -401,9 +401,9 @@ public class Feed {
 
     /**
      * Get the item's corrected timestamps of the most recent poll. Usually, these are the same timestamps as
-     * iterating over {@link #getItems()} an get their pubDate. In case #getItems() returns an empty list, it may have
-     * been reset by {@link #freeMemory()}, the timestamps provided by this method will not be removed. They are
-     * replaced as soon as the feed is downloaded the next time.
+     * iterating over {@link #getItems()} and get their pubDate. In case {@link #getItems()} returns an empty list, it
+     * may have been reset by {@link #freeMemory()}, the timestamps provided by this method will not be removed. They
+     * are replaced as soon as the feed is downloaded the next time.
      * <p>
      * Since some feeds do not provide timestamps for some or all of their items and publish dates may be in the future,
      * missing and future timestamps are replaced by the feed's poll timestamp.
@@ -411,7 +411,7 @@ public class Feed {
      * 
      * @return Corrected item timestamps.
      */
-    public Collection<Date> getItemTimestamps() {
+    public Collection<Date> getCorrectedItemTimestamps() {
         return itemCache.values();
     }
 
