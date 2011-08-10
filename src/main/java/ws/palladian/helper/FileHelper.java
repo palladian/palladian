@@ -1463,6 +1463,45 @@ public class FileHelper {
     }
 
     /**
+     * Creates the file and its directories if do not exist yet.
+     * 
+     * @param filePath The file to create.
+     * @return <code>true</code> if file and directories have been created, <code>false</code> otherwise or on every
+     *         error.
+     */
+    public static boolean createDirectoriesAndFile(String filePath) {
+        boolean success = false;
+        File newFile = new File(filePath);
+        if (!newFile.exists()) {
+
+            File directories = new File(newFile.getParent());
+            boolean directoriesExists = false;
+
+            try {
+                if (directories.exists()) {
+                    directoriesExists = true;
+                } else {
+                    directoriesExists = directories.mkdirs();
+                }
+
+                if (directoriesExists) {
+                    success = newFile.createNewFile();
+                } else {
+                    LOGGER.error("could not create the directories " + filePath);
+                    success = false;
+                }
+            } catch (IOException e) {
+                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                success = false;
+            } catch (SecurityException e) {
+                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    /**
      * Concatenates file2 to the end of file1.
      * 
      * @param file1 The first file.
