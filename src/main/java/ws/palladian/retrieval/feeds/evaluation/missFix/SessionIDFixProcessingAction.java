@@ -57,7 +57,8 @@ class SessionIDFixProcessingAction extends FeedProcessingAction {
         if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {
             feed.increaseMisses();
             newEntriesToWrite.add("MISS;;;;;;");
-            LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
+            // log to warn only
+            LOGGER.warn("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                     + feed.getChecks() + ", misses: " + feed.getMisses());
         }
 

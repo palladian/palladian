@@ -67,7 +67,6 @@ public class GZScheduler extends TimerTask {
     public void run() {
         LOGGER.debug("wake up to check feeds");
         int newlyScheduledFeedsCount = 0;
-        int alreadyScheduledFeedCount = 0;
         StringBuilder scheduledFeedIDs = new StringBuilder();
         StringBuilder alreadyScheduledFeedIDs = new StringBuilder();
 
@@ -75,6 +74,7 @@ public class GZScheduler extends TimerTask {
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
                 scheduledTasks.put(feed.getId(), threadPool.submit(new GZFeedTask(feed, feedReader)));
+                newlyScheduledFeedsCount++;
             } else {
                 removeFeedTaskIfDone(feed.getId());
             }
@@ -90,9 +90,9 @@ public class GZScheduler extends TimerTask {
         int slow = feedResults.getCount(FeedTaskResult.EXECUTION_TIME_WARNING);
         int errors = feedResults.getCount(FeedTaskResult.ERROR);
 
-        String logMsg = String.format("Newly scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d, "
+        String logMsg = String.format("Newly scheduled: %6d, queue size: %6d, processed: %4d, "
                 + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, ",
-                newlyScheduledFeedsCount, alreadyScheduledFeedCount, scheduledTasks.size(),
+                newlyScheduledFeedsCount, scheduledTasks.size(),
                 processedCounter, success, misses, unreachable, unparsable, slow, errors);
 
 
@@ -101,10 +101,6 @@ public class GZScheduler extends TimerTask {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
-            if (alreadyScheduledFeedCount > 0) {
-                LOGGER.debug("Could not schedule feedIDs that are already in queue: "
-                        + alreadyScheduledFeedIDs.toString());
-            }
         }
 
         // reset logging
