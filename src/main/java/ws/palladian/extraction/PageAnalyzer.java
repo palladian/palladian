@@ -375,9 +375,9 @@ public class PageAnalyzer {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch) {
-                        Pattern pattern = Pattern
-                        .compile("(?<![A-Za-z_-])" + StringHelper.escapeForRegularExpression(keyword)
-                                + "(?![A-Za-z_-])", Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile(
+                                "(?<![A-Za-z_])" + StringHelper.escapeForRegularExpression(keyword) + "(?![A-Za-z_])",
+                                Pattern.CASE_INSENSITIVE);
                         Matcher m = pattern.matcher(child.getNodeValue());
                         if (m.find()) {
                             String xpath = constructXPath(child);
@@ -830,7 +830,8 @@ public class PageAnalyzer {
 
         // System.out.println(getParentNode(getTableCellPath(tableTDXPath)));
         // printDOM(XPathHelper.getNodes(document, getParentNode(getTableCellPath(tableTDXPath))).item(0), " ");
-        List<Node> nodeList = XPathHelper.getXhtmlNodes(document, getParentNode(getTableCellPath(tableTDXPath)));
+        String t = getParentNode(getTableCellPath(tableTDXPath));
+        List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
         LinkedHashMap<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < nodeList.size(); i++) {
