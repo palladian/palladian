@@ -15,6 +15,10 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 
+/**
+ * @author Sandro Reichert
+ * 
+ */
 public class GZScheduler extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
@@ -68,7 +72,6 @@ public class GZScheduler extends TimerTask {
         LOGGER.debug("wake up to check feeds");
         int newlyScheduledFeedsCount = 0;
         StringBuilder scheduledFeedIDs = new StringBuilder();
-        StringBuilder alreadyScheduledFeedIDs = new StringBuilder();
 
         // schedule all feeds
         for (Feed feed : feedReader.getFeeds()) {

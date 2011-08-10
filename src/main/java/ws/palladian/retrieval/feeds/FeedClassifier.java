@@ -111,7 +111,7 @@ public class FeedClassifier {
     /**
      * Classify a feed by the items it already provides.
      * 
-     * @param item The feed.
+     * @param feed The feed.
      * @return The classification as a numeric value.
      */
     public static int classify(Feed feed) {
@@ -121,9 +121,9 @@ public class FeedClassifier {
 
         // use rule based classification
 
-        if (feed.getItemTimestamps().size() == 0) {
+        if (feed.getCorrectedItemTimestamps().size() == 0) {
             feedClass = CLASS_EMPTY;
-        } else if (feed.getItemTimestamps().size() == 1) {
+        } else if (feed.getCorrectedItemTimestamps().size() == 1) {
             feedClass = CLASS_SINGLE_ENTRY;
         } else if (fps.isValidStatistics()) {
 

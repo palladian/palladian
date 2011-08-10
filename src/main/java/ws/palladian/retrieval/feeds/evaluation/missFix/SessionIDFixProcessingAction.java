@@ -19,6 +19,14 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
+/**
+ * TUDCS6 specific.<br />
+ * Reconstruct the csv file from persisted gz files to eliminate false positive MISSes caused by altering window sizes
+ * and wrong item hashes in case of seesionIDs in items' link and raw id attributes.
+ * 
+ * @author Sandro Reichert
+ * 
+ */
 class SessionIDFixProcessingAction extends FeedProcessingAction {
     
     /** The logger for this class. */
