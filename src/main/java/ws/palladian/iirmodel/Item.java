@@ -346,7 +346,7 @@ public class Item implements Serializable {
         builder.append(", sourceInternalIdentifier=");
         builder.append(sourceInternalIdentifier);
         builder.append(", author=");
-        builder.append(author.getUsername());
+        builder.append(author);
         builder.append(", link=");
         builder.append(link);
         builder.append(", title=");
