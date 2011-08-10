@@ -3,6 +3,7 @@ package ws.palladian.retrieval;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -164,8 +166,9 @@ public class DocumentRetriever {
 
     /** Factory for Document parsers. */
     private final ParserFactory parserFactory = new ParserFactory();
-    
-    public static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
+
+    /** Separator between HTTP header and content payload when writing HTTP results to file. */
+    private static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -195,13 +198,13 @@ public class DocumentRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
 
-        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
+        ((AbstractHttpClient)httpClient).addResponseInterceptor(metricsSaver);
         // end edit
     }
 
@@ -352,9 +355,7 @@ public class DocumentRetriever {
 
             HttpContext context = new BasicHttpContext();
             HttpResponse response = httpClient.execute(request, context);
-            // HttpConnection connection = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-            // HttpConnectionMetrics metrics = connection.getMetrics();
-            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
@@ -446,7 +447,7 @@ public class DocumentRetriever {
         try {
             URL urlObject = new URL(url);
             URLConnection urlCon = urlObject.openConnection();
-            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
             httpUrlCon.setInstanceFollowRedirects(false);
             location = httpUrlCon.getHeaderField("Location");
         } catch (IOException e) {
@@ -546,27 +547,27 @@ public class DocumentRetriever {
         // delicous feeds return the whole JSON object wrapped in [square brackets],
         // altough this seems to be valid, our parser doesn't like this, so we remove
         // those brackets before parsing -- Philipp, 2010-07-04
-        if(json != null) {
-	        json = json.trim();
-	        if (json.startsWith("[") && json.endsWith("]")) {
-	            json = json.substring(1, json.length() - 1);
-	        }
-	
-	        JSONObject jsonOBJ = null;
-	
-	        if (json.length() > 0) {
-	            try {
-	                jsonOBJ = new JSONObject(json);
-	            } catch (JSONException e) {
-	                LOGGER.error(url + ", " + e.getMessage());
-	            }
-	        }
-	
-	        return jsonOBJ;
+        if (json != null) {
+            json = json.trim();
+            if (json.startsWith("[") && json.endsWith("]")) {
+                json = json.substring(1, json.length() - 1);
+            }
+
+            JSONObject jsonOBJ = null;
+
+            if (json.length() > 0) {
+                try {
+                    jsonOBJ = new JSONObject(json);
+                } catch (JSONException e) {
+                    LOGGER.error(url + ", " + e.getMessage());
+                }
+            }
+
+            return jsonOBJ;
         }
         return null;
     }
-    
+
     /**
      * Get a JSON array from a URL. The retrieved contents must return a valid JSON array.
      * 
@@ -576,12 +577,12 @@ public class DocumentRetriever {
     public JSONArray getJSONArray(String url) {
         String json = getTextDocument(url);
 
-        // since we know this string should be an JSON array, 
+        // since we know this string should be an JSON array,
         // we will directly parse it
-        if(json != null) {
-        	json = json.trim();
-        	
-        	JSONArray jsonAR = null;
+        if (json != null) {
+            json = json.trim();
+
+            JSONArray jsonAR = null;
 
             if (json.length() > 0) {
                 try {
@@ -592,10 +593,10 @@ public class DocumentRetriever {
             }
 
             return jsonAR;
-        	
+
         }
         return null;
-        
+
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -733,6 +734,19 @@ public class DocumentRetriever {
      * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * 
      * @param url the URL to download from.
+     * @param filePath the path where the downloaded contents should be saved to.
+     * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
+     *            content.
+     * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
+     */
+    public boolean downloadAndSave(String url, String filePath, boolean includeHttpResponseHeaders) {
+        return downloadAndSave(url, filePath, new HashMap<String, String>(), includeHttpResponseHeaders);
+    }
+
+    /**
+     * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
+     * 
+     * @param url the URL to download from.
      * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
      *            is compressed automatically.
      * @param requestHeaders The headers to include in the request.
@@ -792,6 +806,9 @@ public class DocumentRetriever {
                 }
 
                 headerBuilder.append(HTTP_RESULT_SEPARATOR);
+
+                // TODO should be set to UTF-8 explicitly, 
+                // but I do not want to change this now.
                 IOUtils.write(headerBuilder, out);
 
             }
@@ -807,6 +824,116 @@ public class DocumentRetriever {
 
         return result;
 
+    }
+
+    /**
+     * Load a GZIP dataset file and return a {@link HttpResult}.
+     * 
+     * @param file
+     * @return
+     */
+    // TODO should this be extended to handle files without the written header?
+    public HttpResult loadSerializedGzip(File file) {
+
+        HttpResult httpResult = null;
+        InputStream inputStream = null;
+
+        try {
+            // we don't know this anymore
+            String url = "from_file_system";
+            Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+            // we don't know this anymore
+            long transferedBytes = -1;
+
+            // Wrap this with a GZIPInputStream, if necessary.
+            // Do not use InputStreamReader, as this works encoding specific.
+            inputStream = new GZIPInputStream(new FileInputStream(file));
+
+            // Read the header information, until the HTTP_RESULT_SEPARATOR is reached.
+            // We assume here, that one byte resembles one character, which is not true
+            // in general, but should suffice in our case. Hopefully.
+            StringBuilder headerText = new StringBuilder();
+            int b;
+            while ((b = inputStream.read()) != -1) {
+                headerText.append((char)b);
+                if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
+                    break;
+                }
+            }
+            int statusCode = parseHeaders(headerText.toString(), headers);
+
+            // Read the payload.
+            ByteArrayOutputStream payload = new ByteArrayOutputStream();
+            while ((b = inputStream.read()) != -1) {
+                payload.write(b);
+            }
+            byte[] content = payload.toByteArray();
+            httpResult = new HttpResult(url, content, headers, statusCode, transferedBytes);
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        return httpResult;
+    }
+
+    /**
+     * Extract header information from the supplied string. The header data is put in the Map, the HTTP status code is
+     * returned.
+     * 
+     * @param headerText newline separated HTTP header text.
+     * @param headers out-parameter for parsed HTTP headers.
+     * @return the HTTP status code.
+     */
+    private int parseHeaders(String headerText, Map<String, List<String>> headers) {
+        String[] headerLines = headerText.split("\n");
+        int statusCode = -1;
+        for (String headerLine : headerLines) {
+            String[] parts = headerLine.split(":");
+            if (parts.length > 1) {
+                if (parts[0].equalsIgnoreCase("status code")) {
+                    try {
+                        String statusCodeString = parts[1];
+                        statusCodeString = statusCodeString.replace("HTTP/1.1", "");
+                        statusCodeString = statusCodeString.replace("OK", "");
+                        statusCodeString = statusCodeString.trim();
+                        statusCode = Integer.valueOf(statusCodeString);
+                    } catch (Exception e) {
+                        LOGGER.error(e.getMessage());
+                    }
+                } else {
+
+                    StringBuilder valueString = new StringBuilder();
+                    for (int i = 1; i < parts.length; i++) {
+                        valueString.append(parts[i]).append(":");
+                    }
+                    String valueStringClean = valueString.toString();
+                    if (valueStringClean.endsWith(":")) {
+                        valueStringClean = valueStringClean.substring(0, valueStringClean.length() - 1);
+                    }
+
+                    ArrayList<String> values = new ArrayList<String>();
+
+                    // in cases we have a "=" we can split on comma
+                    if (valueStringClean.contains("=")) {
+                        String[] valueParts = valueStringClean.split(",");
+                        for (String valuePart : valueParts) {
+                            values.add(valuePart.trim());
+                        }
+                    } else {
+                        values.add(valueStringClean);
+                    }
+
+                    headers.put(parts[0], values);
+                }
+            }
+        }
+        return statusCode;
     }
 
     /**
@@ -890,7 +1017,7 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(long connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, (int) connectionTimeout);
+        HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
     }
 
     public long getConnectionTimeout() {
@@ -898,7 +1025,7 @@ public class DocumentRetriever {
     }
 
     public void setSocketTimeout(long socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, (int) socketTimeout);
+        HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
 
     public long getSocketTimeout() {
@@ -937,7 +1064,7 @@ public class DocumentRetriever {
      * @param proxy the proxy to use.
      */
     public void setProxy(Proxy proxy) {
-        InetSocketAddress address = (InetSocketAddress) proxy.address();
+        InetSocketAddress address = (InetSocketAddress)proxy.address();
         String hostname = address.getHostName();
         int port = address.getPort();
         setProxy(hostname, port);
@@ -999,25 +1126,57 @@ public class DocumentRetriever {
         // #261 example code
         DocumentRetriever retriever = new DocumentRetriever();
 
-        String url = "http://www.ard.de/export/rss20/ratgeber/-/id=1874/format=rss20/6jw58y/index.xml";
-        System.out.println(retriever.httpHead(url));
-        
+        // String filePath = "/home/pk/1312910093553_2011-08-09_19-14-53.gz";
+        // HttpResult httpResult = retriever.loadSerializedGzip(new File(filePath));
+        // XmlParser parser = new XmlParser();
+        // Document document = parser.parse(httpResult);
+        // System.out.println(HTMLHelper.getXmlDump(document));
+        // System.exit(0);
+        //
+        //
+        // // Wrap this with a GZIPInputStream, if necessary.
+        // // Do not use InputStreamReader, as this works encoding specific.
+        // InputStream inputStream = new FileInputStream(new File(filePath));
+        // inputStream = new GZIPInputStream(inputStream);
+        //
+        // // Read the header information, until the HTTP_RESULT_SEPARATOR is reached.
+        // // We assume here, that one byte resembles one character, which is not true
+        // // in general, but should suffice in our case. Hopefully.
+        // StringBuilder headerText = new StringBuilder();
+        // int b;
+        // while ((b = inputStream.read()) != -1) {
+        // headerText.append((char) b);
+        // if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
+        // break;
+        // }
+        // }
+        //
+        // // Read the payload.
+        // ByteArrayOutputStream payload = new ByteArrayOutputStream();
+        // while ((b = inputStream.read()) != -1) {
+        // payload.write(b);
+        // }
+        //
+        // // Try to parse.
+        // //Document document = parser.parse(new ByteArrayInputStream(payload.toByteArray()));
+        // System.out.println(headerText.toString());
+        // System.out.println("===================");
+
         System.exit(0);
-        
-        
 
-        HttpResult result = retriever.httpGet(url);
-        String eTag = result.getHeaderString("Last-Modified");
-
-        Map<String, String> header = new HashMap<String, String>();
-        header.put("If-Modified-Since", eTag);
-
-        retriever.httpGet(url, header);
-        System.exit(0);
-
-        // download and save a web page including their headers in a gzipped file
-        retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", new HashMap<String, String>(),
-                true);
+        // HttpResult result = retriever.httpGet(url);
+        // String eTag = result.getHeaderString("Last-Modified");
+        //
+        // Map<String, String> header = new HashMap<String, String>();
+        // header.put("If-Modified-Since", eTag);
+        //
+        // retriever.httpGet(url, header);
+        // System.exit(0);
+        //
+        // // download and save a web page including their headers in a gzipped file
+        // retriever.downloadAndSave("http://cinefreaks.com", "data/temp/cf_no_headers.gz", new HashMap<String,
+        // String>(),
+        // true);
 
         // create a retriever that is triggered for every retrieved page
         RetrieverCallback crawlerCallback = new RetrieverCallback() {

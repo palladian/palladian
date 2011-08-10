@@ -13,6 +13,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.HTTPHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedClassifier;
@@ -91,7 +92,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
             File[] allFiles = FileHelper.getFiles(folderPath, ".gz");
             for (File file : allFiles) {
                 FeedRetriever feedRetriever = new FeedRetriever();
-                HttpResult gzHttpResult = feedRetriever.loadSerializedGzip(file);
+                DocumentRetriever documentRetriever = new DocumentRetriever();
+                HttpResult gzHttpResult = documentRetriever.loadSerializedGzip(file);
 
                 correctedFeed.setLastPollTime(getChecktimeFromFile(file));
 
