@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -103,7 +102,7 @@ public class FeedRetriever {
             
             if (serializedGzip) {
                 
-                HttpResult httpResult = loadSerializedGzip(file);
+                HttpResult httpResult = documentRetriever.loadSerializedGzip(file);
                 return getFeed(httpResult);
 //                
 //                
@@ -126,79 +125,11 @@ public class FeedRetriever {
         } catch (IOException e) {
             throw new FeedRetrieverException(e);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
     
-    public HttpResult loadSerializedGzip(File file) {
-        
-        // we don't know this anymore
-        String url = "from_file_system";
-        Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
-        int statusCode = -1;
-        
-        // we don't know this anymore
-        long transferedBytes = -1;
-        
-        String unserializedFeed = FileHelper.ungzipFileToString(file.getPath());
-        
-        // get the header
-        int headerIndex = unserializedFeed.indexOf(DocumentRetriever.HTTP_RESULT_SEPARATOR);
-        String headerText = unserializedFeed.substring(0,headerIndex);
-        
-        String[] headerLines = headerText.split("\n");
-        for (String headerLine : headerLines) {
-            String[] parts = headerLine.split(":");
-            if (parts.length > 1) {
-                if (parts[0].equalsIgnoreCase("status code")) {
-                    try {
-                        String statusCodeString = parts[1];
-                        statusCodeString = statusCodeString.replace("HTTP/1.1", "");
-                        statusCodeString = statusCodeString.replace("OK", "");
-                        statusCodeString = statusCodeString.trim();
-                        statusCode = Integer.valueOf(statusCodeString);
-                    } catch (Exception e) {
-                        LOGGER.error(e.getMessage());
-                    }
-                } else {
-                    
-                    StringBuilder valueString = new StringBuilder();
-                    for (int i = 1; i < parts.length; i++) {
-                        valueString.append(parts[i]).append(":");
-                    }
-                    String valueStringClean = valueString.toString();
-                    if (valueStringClean.endsWith(":")) {
-                        valueStringClean = valueStringClean.substring(0, valueStringClean.length()-1);
-                    }
-                    
-                    ArrayList<String> values = new ArrayList<String>();
-                    
-                    // in cases we have a "=" we can split on comma
-                    if (valueStringClean.contains("=")) {
-                        String[] valueParts = valueStringClean.split(",");
-                        for (String valuePart : valueParts) {
-                            values.add(valuePart.trim());
-                        }
-                    } else {
-                        values.add(valueStringClean);                        
-                    }
-                    
-                    headers.put(parts[0], values);                    
-                }
-            }
-        }
 
-        // get the body
-        headerIndex += DocumentRetriever.HTTP_RESULT_SEPARATOR.length();        
-        unserializedFeed = unserializedFeed.substring(headerIndex);   
-        
-        byte[] content = unserializedFeed.getBytes();
-        
-//        CollectionHelper.print(headers);
-        
-        HttpResult httpResult = new HttpResult(url, content, headers, statusCode, transferedBytes);        
-        return httpResult;
-    }
     
     /**
      * <p>Retrieve a feed from local file system.</p>
