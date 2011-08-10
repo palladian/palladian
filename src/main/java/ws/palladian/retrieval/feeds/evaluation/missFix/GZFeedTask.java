@@ -115,6 +115,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                     if (gzHttpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                         // feedReader.updateCheckIntervals(correctedFeed);
                         correctedFeed.setLastSuccessfulCheckTime(correctedFeed.getLastPollTime());
+                        correctedFeed.increaseChecks();
                         boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(
                                 correctedFeed, gzHttpResult);
                         if (!actionSuccess) {
@@ -138,8 +139,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                             continue;
                         }
 
-                        correctedFeed.setItems(gzFeed.getItems());
                         correctedFeed.increaseChecks();
+                        correctedFeed.setItems(gzFeed.getItems());
                         correctedFeed.setLastSuccessfulCheckTime(correctedFeed.getLastPollTime());
                         correctedFeed.setWindowSize(gzFeed.getItems().size());
 
@@ -167,7 +168,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
                 filesProcessed++;
                 if ((filesProcessed % 100) == 0) {
-                    LOGGER.info("Processed " + filesProcessed + " so far.");
+                    LOGGER.info("Processed " + filesProcessed + " gz files so far.");
                 }
 
             }
@@ -184,12 +185,6 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                             + " MISSes. Initial MISSes: " + initialMisses
                             + ", remaining MISSes: " + correctedFeed.getMisses());
                 }
-            }
-
-            // Make sure we have the same number of checks as when creating the dataset
-            if (correctedFeed.getChecks() != initialChecks) {
-                LOGGER.fatal("Different nukber of checks in corrected feed than in origial from feed-104!! Initial checks: "
-                        + initialChecks + ", new checks: " + correctedFeed.getChecks());
             }
 
             doFinalStuff(timer, storeMetadata);
@@ -250,6 +245,11 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         // updating the database. This has no effect as long as we do not restart the FeedReader in this case.
         correctedFeed.setLastFeedTaskResult(getResult());
         correctedFeed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
+
+        // It is important to write the initial number of checks back to the feed since we iterate over all files but
+        // there may were more checks than gz files in case we got HTTP-not-modified responses when creating the
+        // dataset. In case of 304, we didn't store a gz.
+        correctedFeed.setChecks(initialChecks);
         updateFeed(storeMetadata);
 
         doFinalLogging(timer);
@@ -323,6 +323,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         newFeed.setAdditionalData(dbFeed.getAdditionalData());
         newFeed.setBlocked(dbFeed.isBlocked());
         // newFeed.setCachedItems(dbFeed.getCachedItems());
+        // newFeed.setChecks(dbFeed.getChecks());
         newFeed.setFeedMetaInformation(dbFeed.getMetaInformation());
         newFeed.setFeedUrl(dbFeed.getFeedUrl());
         newFeed.setHttpLastModified(dbFeed.getHttpLastModified());
