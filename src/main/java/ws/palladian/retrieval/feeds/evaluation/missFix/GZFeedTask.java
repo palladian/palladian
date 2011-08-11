@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds.evaluation.missFix;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -94,6 +95,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
             int filesProcessed = 0;
             File[] allFiles = FileHelper.getFiles(folderPath, ".gz");
+            Arrays.sort(allFiles);
+
             for (File file : allFiles) {
                 // skip files that have been unparsable before.
                 if (file.getName().endsWith("unparsable.gz")) {
@@ -359,4 +362,15 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         checkTime = new Date(timestamp);
         return checkTime;
     }
+
+    // public static void main(String[] args) {
+    // File a = new File("a");
+    // File b = new File("b");
+    // File c = new File("c");
+    // File[] allFiles = { a, c, b };
+    // System.out.println(allFiles[0].getName() + allFiles[1].getName() + allFiles[2].getName());
+    // Arrays.sort(allFiles);
+    // System.out.println(allFiles[0].getName() + allFiles[1].getName() + allFiles[2].getName());
+    // }
+
 }
