@@ -662,7 +662,7 @@ public class ListDiscoverer {
         if (tableDuplicateCheck && (double) duplicateCount / (double) totalEntries > 0.1) {
             LOGGER.info("entries not uniform because too many duplicates");
             return false;
-        } else if (!tableDuplicateCheck && (double) duplicateWordCount / (double) duplicateCountSet.size() > 0.1) {
+        } else if (!tableDuplicateCheck && (double) duplicateWordCount / (double) duplicateCountSet.size() > 0.6) {
             LOGGER.info("entries not uniform because too many duplicate words");
             return false;
         }
