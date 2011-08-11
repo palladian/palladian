@@ -267,10 +267,10 @@ public class DictionaryFileIndex extends DictionaryIndex {
     }
 }
 
-class NGramAnalyzer extends Analyzer {
+final class NGramAnalyzer extends Analyzer {
 
     @Override
-    public TokenStream tokenStream(String arg0, Reader arg1) {
+    public final TokenStream tokenStream(String arg0, Reader arg1) {
         return new LowerCaseTokenizer(arg1);
     }
 
