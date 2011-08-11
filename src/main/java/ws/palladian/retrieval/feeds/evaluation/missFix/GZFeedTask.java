@@ -1,9 +1,11 @@
 package ws.palladian.retrieval.feeds.evaluation.missFix;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -17,7 +19,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedClassifier;
+import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedRetriever;
 import ws.palladian.retrieval.feeds.FeedRetrieverException;
@@ -62,6 +64,12 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
      * Warn if processing of a feed takes longer than this.
      */
     public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+
+    /**
+     * All items that have ever been seen in this feed. Remember to call {@link FeedItem#freeMemory()} on all items
+     * since there may be MANY items.
+     */
+    List<FeedItem> allItems = new ArrayList<FeedItem>();
 
     /**
      * Creates a new gz processing task for a provided feed.
@@ -155,10 +163,11 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                         correctedFeed.setItems(gzFeed.getItems());
                         correctedFeed.setLastSuccessfulCheckTime(correctedFeed.getLastPollTime());
                         correctedFeed.setWindowSize(gzFeed.getItems().size());
+                        // allItems.addAll(correctedFeed.getNewItems());
 
                         // store metadata if it has been created before or now.
                         storeMetadata = storeMetadata || generateMetaInformation(gzHttpResult, gzFeed);
-                        // feedReader.updateCheckIntervals(correctedFeed);
+
 
                         // perform actions on this feeds entries.
                         LOGGER.debug("Performing action on feed: " + correctedFeed.getId() + "("
@@ -169,8 +178,14 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                             resultSet.add(FeedTaskResult.ERROR);
                         }
 
-                        // rename gz file if there are no new items in it. File may be removed afterwards.
-                        if (!correctedFeed.hasNewItem()) {
+                        // free the items' memory since we are interested in timestamps only to do the classification
+                        if (correctedFeed.hasNewItem()) {
+                            // for (FeedItem newItem : correctedFeed.getNewItems()) {
+                            // newItem.freeMemory();
+                            // }
+                        } else {
+                            // rename gz file if there are no new items in it. File may be removed afterwards.
+                        
                             String newGzPath = FileHelper.getRenamedFilename(file, file.getName() + ".removeable");
                             FileHelper.renameFile(file, newGzPath);
                         }
@@ -199,7 +214,15 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                 }
             }
 
-            doFinalStuff(timer, storeMetadata);
+            // create temp feed with all items to do classification
+            // Feed tempClassifyFeed = new Feed();
+            // tempClassifyFeed.setId(correctedFeed.getId());
+            // tempClassifyFeed.setItems(allItems);
+            // tempClassifyFeed.setBenchmarkLookupTime(correctedFeed.getBenchmarkLookupTime());
+            // tempClassifyFeed.setLastPollTime(correctedFeed.getLastPollTime());
+            // correctedFeed.setActivityPattern(FeedClassifier.classify(tempClassifyFeed));
+
+            doFinalStuff(timer, true);
             return getResult();
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
@@ -215,7 +238,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Classify feed and process general meta data like feed title, language, size, format.
-     * Everything in this method is done only if it has never been done before or once every month.
+     * Everything in this method is done at the first poll that contained at least one item.
      * 
      * @param httpResult
      * @param downloadedFeed
@@ -224,12 +247,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
     private boolean generateMetaInformation(HttpResult httpResult, Feed downloadedFeed) {
         boolean metadataCreated = false;
 
-        if (correctedFeed.getActivityPattern() == FeedClassifier.CLASS_UNKNOWN
-                || correctedFeed.getLastPollTime() != null
-                && (System.currentTimeMillis() - correctedFeed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
-
+        if (correctedFeed.getNewItems().size() == allItems.size()) {
             metadataCreated = true;
-            correctedFeed.setActivityPattern(FeedClassifier.classify(correctedFeed));
             MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
             metaInfExt.updateFeedMetaInformation(correctedFeed.getMetaInformation());
             correctedFeed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
@@ -363,14 +382,23 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         return checkTime;
     }
 
-    // public static void main(String[] args) {
-    // File a = new File("a");
-    // File b = new File("b");
-    // File c = new File("c");
-    // File[] allFiles = { a, c, b };
-    // System.out.println(allFiles[0].getName() + allFiles[1].getName() + allFiles[2].getName());
-    // Arrays.sort(allFiles);
-    // System.out.println(allFiles[0].getName() + allFiles[1].getName() + allFiles[2].getName());
-    // }
+
+    public static void main(String[] args) {
+        // requires ~ 3.7GB heap per 10M Items!!
+        List<FeedItem> allItems = new ArrayList<FeedItem>();
+        for (int i = 0; i < 10000000; i++) {
+            FeedItem newItem = new FeedItem();
+            newItem.setAdded(new Date());
+            newItem.setPublished(new Date());
+            newItem.setCorrectedPublishedTimestamp(new Date());
+            newItem.setHttpDate(new Date());
+            newItem.freeMemory();
+            allItems.add(newItem);
+            if (i % 10000 == 0) {
+                System.out.println("added " + i + " items so far.");
+            }
+        }
+        System.exit(0);
+    }
 
 }
