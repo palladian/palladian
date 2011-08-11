@@ -245,7 +245,9 @@ public class Feed {
             feedItem.setFeed(this);
             String hash = feedItem.getHash();
             if (isNewItem(hash)) {
-                itemCacheTemp.put(hash, getCorrectedTimestamp(feedItem, false));
+                Date correctedTimestamp = correctedTimestamp(feedItem, false);
+                feedItem.setCorrectedPublishedTimestamp(correctedTimestamp);
+                itemCacheTemp.put(hash, correctedTimestamp);
                 newItemsTemp.add(feedItem);
             } else {
                 itemCacheTemp.put(hash, getCachedItemTimestamp(hash));
@@ -274,7 +276,9 @@ public class Feed {
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
-            addCacheItem(hash, getCorrectedTimestamp(item, false));
+            Date correctedTimestamp = correctedTimestamp(item, false);
+            item.setCorrectedPublishedTimestamp(correctedTimestamp);
+            addCacheItem(hash, correctedTimestamp);
             addNewItem(item);
         } else {
             addCacheItem(hash, getCachedItemTimestamp(hash));
@@ -312,7 +316,7 @@ public class Feed {
      *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
-    private Date getCorrectedTimestamp(FeedItem entry, boolean logWarnings) {
+    private Date correctedTimestamp(FeedItem entry, boolean logWarnings) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
