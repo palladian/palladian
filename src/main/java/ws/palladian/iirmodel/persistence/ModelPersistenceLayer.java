@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -43,7 +44,7 @@ import ws.palladian.iirmodel.StreamSource;
  * @since 1.0
  * 
  */
-public class ModelPersistenceLayer extends AbstractPersistenceLayer {
+public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
     /**
      * <p>
@@ -107,51 +108,51 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public ModelPersistenceLayer(final EntityManager manager) {
         super(manager);
     }
-    
-    public Collection<Author> getAllAuthors(StreamGroup sg) {
-        Collection<Author> authors = new ArrayList<Author>();
-        authors.addAll(sg.getAuthors());
-        List<StreamSource> sgc = sg.getChildren();
-        for (StreamSource s : sgc) {
-            authors.addAll(s.getAuthors());
+
+    /**
+     * <p>
+     * Deep traverse a {@link StreamSource} and return all contained {@link Author}s, i. e. also Authors which are
+     * contained in sub-{@link StreamGroup}s and sub-{@link ItemStream}s.
+     * </p>
+     * 
+     * @param streamSource
+     * @return
+     */
+    protected Set<Author> getAllAuthors(StreamSource streamSource) {
+        Set<Author> authors = new HashSet<Author>();
+        authors.addAll(streamSource.getAuthors());
+        if (streamSource instanceof StreamGroup) {
+            StreamGroup streamGroup = (StreamGroup) streamSource;
+            List<StreamSource> children = streamGroup.getChildren();
+            for (StreamSource child : children) {
+                authors.addAll(getAllAuthors(child));
+            }
         }
         return authors;
     }
 
-    public final void saveStreamSource(final StreamGroup streamGroup) {
+    public void saveStreamSource(StreamSource streamSource) {
+        if (streamSource instanceof StreamGroup) {
+            saveStreamGroup((StreamGroup) streamSource);
+        } else if (streamSource instanceof ItemStream) {
+            saveItemStream((ItemStream) streamSource);
+        }
+    }
+
+    protected void saveStreamGroup(final StreamGroup streamGroup) {
         Boolean openedTransaction = openTransaction();
-        //Collection<Author> authors = streamGroup.getAuthors();
         Collection<Author> authors = getAllAuthors(streamGroup);
         for (Author author : authors) {
             getManager().persist(author);
         }
         getManager().persist(streamGroup);
-        
+
         List<StreamSource> children = streamGroup.getChildren();
         for (StreamSource child : children) {
-            if (child instanceof StreamGroup) {
-                StreamGroup streamGroupChild = (StreamGroup) child;
-                saveStreamSource(streamGroupChild);
-            } else if (child instanceof ItemStream) {
-                ItemStream itemStreamChild = (ItemStream) child;
-                saveStreamSource(itemStreamChild);
-            }
+            saveStreamSource(child);
         }
-        
+
         commitTransaction(openedTransaction);
-//        Boolean openedTransaction = openTransaction();
-//        ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
-//
-//        if (existingStream == null) {
-//            getManager().persist(stream);
-//        } else {
-//            stream.setIdentifier(existingStream.getIdentifier());
-//            Collection<Item> removedItems = getRemovedItems(existingStream, stream);
-//            getManager().merge(stream);
-//            removeItems(removedItems);
-//        }
-//        updateAuthors(stream.getItems());
-//        commitTransaction(openedTransaction);
     }
 
     /**
@@ -167,22 +168,14 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @param stream The {@link StreamSource} to save to the database.
      */
-    public final void saveStreamSource(final ItemStream itemStream) {
+    protected void saveItemStream(final ItemStream itemStream) {
         Boolean openedTransaction = openTransaction();
         StreamSource existingStreamSource = loadStreamSourceByAddress(itemStream.getSourceAddress());
-        
-        
-        Collection<Author> authors = itemStream.getAuthors();
-        System.err.println("****** " + authors);
-        /*for (Author author : authors) {
-            getManager().persist(author);
-        }
-        */
-        
+
         for (Item item : itemStream.getItems()) {
             getManager().persist(item.getAuthor());
         }
-        
+
         if (existingStreamSource == null) {
             getManager().persist(itemStream);
         } else {
@@ -192,16 +185,16 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
     }
 
-    /**
-     * @param removedItems
-     */
-    private void removeItems(Collection<Item> removedItems) {
-        final Boolean openedTransaction = openTransaction();
-        for (Item item : removedItems) {
-            getManager().remove(item);
-        }
-        commitTransaction(openedTransaction);
-    }
+    // /**
+    // * @param removedItems
+    // */
+    // private void removeItems(Collection<Item> removedItems) {
+    // final Boolean openedTransaction = openTransaction();
+    // for (Item item : removedItems) {
+    // getManager().remove(item);
+    // }
+    // commitTransaction(openedTransaction);
+    // }
 
     /**
      * @param existingStream
@@ -228,18 +221,18 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     // }
     // }
 
-    /**
-     * <p>
-     * Updates all {@code Author}s occuring in the provided list of items.
-     * </p>
-     * 
-     * @param items The items containing possibly new or changed {@code Author} information.
-     */
-    private void updateAuthors(final List<Item> items) {
-        for (Item item : items) {
-            item.setAuthor(saveAuthor(item.getAuthor()));
-        }
-    }
+    // /**
+    // * <p>
+    // * Updates all {@code Author}s occuring in the provided list of items.
+    // * </p>
+    // *
+    // * @param items The items containing possibly new or changed {@code Author} information.
+    // */
+    // private void updateAuthors(final List<Item> items) {
+    // for (Item item : items) {
+    // item.setAuthor(saveAuthor(item.getAuthor()));
+    // }
+    // }
 
     // /**
     // * <p>
@@ -302,27 +295,16 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     /**
      * @param newEntry
      */
-    protected void saveItem(final Item entry) {
-        Author savedAuthor = saveAuthor(entry.getAuthor());
-        entry.setAuthor(savedAuthor);
-        Item existingEntry = loadItem(entry.getIdentifier());
+    protected void saveItem(final Item item) {
+        Author savedAuthor = saveAuthor(item.getAuthor());
+        item.setAuthor(savedAuthor);
+        Item existingItem = loadItem(item.getIdentifier());
         final Boolean openedTransaction = openTransaction();
-        if (existingEntry == null) {
-            getManager().persist(entry);
+        if (existingItem == null) {
+            getManager().persist(item);
         } else {
-            // entry.setIdentifier(existingEntry.getIdentifier());
-            // getManager().merge(entry);
-            existingEntry.setAuthor(entry.getAuthor());
-            existingEntry.setLink(entry.getLink());
-            existingEntry.setParent(entry.getParent());
-            existingEntry.setPredecessor(entry.getPredecessor());
-            existingEntry.setPublicationDate(entry.getPublicationDate());
-            existingEntry.setSourceInternalIdentifier(entry.getSourceInternalIdentifier());
-            existingEntry.setText(entry.getText());
-            existingEntry.setTitle(entry.getText());
-            existingEntry.setType(entry.getType());
-            existingEntry.setUpdateDate(entry.getUpdateDate());
-            existingEntry = getManager().merge(existingEntry);
+            item.setIdentifier(existingItem.getIdentifier());
+            getManager().merge(item);
         }
         commitTransaction(openedTransaction);
     }
@@ -335,39 +317,18 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param author The {@code Author} to save.
      */
     public Author saveAuthor(final Author author) {
-        // final Author existingUser = loadAuthor(author.getIdentifier());
         final Boolean openedTransaction = openTransaction();
         final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
+        Author result;
         if (existingUser == null) {
             getManager().persist(author);
-            // getManager().persist(author.getStreamSource());
+            result = author;
         } else {
             author.setIdentifier(existingUser.getIdentifier());
-            getManager().merge(author);
+            result = getManager().merge(author);
         }
-        // saveStreamSource(author.getStreamSource());
-
-        //
-        Author ret = null;
-        //
-        // if (existingUser == null) {
-        // getManager().persist(author);
-        // ret = author;
-        // } else {
-        // // author.setIdentifier(existingUser.getIdentifier());
-        // // ret = getManager().merge(author);
-        // existingUser.setAuthorRating(author.getAuthorRating());
-        // existingUser.setCountOfItems(author.getCountOfItems());
-        // existingUser.setCountOfStreamsStarted(author.getCountOfItems());
-        // // TODO need to merge Items?
-        // existingUser.setItems(author.getItems());
-        // existingUser.setRegisteredSince(author.getRegisteredSince());
-        // existingUser.setStreamSource(author.getStreamSource());
-        // existingUser.setUsername(author.getUsername());
-        // ret = getManager().merge(existingUser);
-        // }
         commitTransaction(openedTransaction);
-        return ret;
+        return result;
     }
 
     /**
@@ -404,7 +365,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public ItemRelation createItemRelation(Item item1, Item item2, RelationType relationType, String comment) {
+    private ItemRelation createItemRelation(Item item1, Item item2, RelationType relationType, String comment) {
         Query checkIfRelationExistsQuery = getManager().createQuery(
                 "SELECT r FROM ItemRelation r WHERE r.firstItem=:firstItem AND r.secondItem=:secondItem");
         checkIfRelationExistsQuery.setParameter("firstItem", item1);
@@ -468,23 +429,24 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         return query.toString();
     }
 
-    /**
-     * 
-     * @param name
-     * @return
-     * @deprecated Create the {@link RelationType} with its constructor and use {@link #saveRelationType(RelationType)}.
-     */
-    @Deprecated
-    public RelationType createRelationType(String name) {
-        RelationType ret = loadRelationType(name);
-        if (ret == null) {
-            ret = new RelationType(name);
-            getManager().getTransaction().begin();
-            getManager().persist(ret);
-            getManager().getTransaction().commit();
-        }
-        return ret;
-    }
+    // /**
+    // *
+    // * @param name
+    // * @return
+    // * @deprecated Create the {@link RelationType} with its constructor and use {@link
+    // #saveRelationType(RelationType)}.
+    // */
+    // @Deprecated
+    // public RelationType createRelationType(String name) {
+    // RelationType ret = loadRelationType(name);
+    // if (ret == null) {
+    // ret = new RelationType(name);
+    // getManager().getTransaction().begin();
+    // getManager().persist(ret);
+    // getManager().getTransaction().commit();
+    // }
+    // return ret;
+    // }
 
     public void saveRelationType(RelationType relationType) {
         RelationType existingRelationType = loadRelationType(relationType.getName());
@@ -569,9 +531,8 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @throws URISyntaxException
      *             If location of underlying index was not valid.
      */
-    public final ItemRelation getNonAnnotatedInterThreadRelation(
-            final Map<String, String[]> restrictedOnFieldsWithValues) throws IOException, ParseException,
-            URISyntaxException {
+    public ItemRelation getNonAnnotatedInterThreadRelation(final Map<String, String[]> restrictedOnFieldsWithValues)
+            throws IOException, ParseException, URISyntaxException {
         return getRandomNonAnnotatedRelation(createQueryForRandomNonAnnotatedRelations(
                 GET_NON_ANNOTATED_INTER_STREAM_RELATIONS, restrictedOnFieldsWithValues));
     }
@@ -596,9 +557,8 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @throws URISyntaxException
      *             If location of underlying index was not valid.
      */
-    public final ItemRelation getNonAnnotatedIntraThreadRelation(
-            final Map<String, String[]> restrictedOnFieldsWithValues) throws IOException, ParseException,
-            URISyntaxException {
+    public ItemRelation getNonAnnotatedIntraThreadRelation(final Map<String, String[]> restrictedOnFieldsWithValues)
+            throws IOException, ParseException, URISyntaxException {
         return getRandomNonAnnotatedRelation(createQueryForRandomNonAnnotatedRelations(
                 GET_NON_ANNOTATED_INTRA_STREAM_RELATIONS, restrictedOnFieldsWithValues));
     }
@@ -625,10 +585,10 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (!results.isEmpty()) {
             final Random randomIndexGenerator = new Random();
             int randomIndex = randomIndexGenerator.nextInt(results.size());
-            final Object[] idPair = (Object[])results.get(randomIndex);
+            final Object[] idPair = (Object[]) results.get(randomIndex);
             // changed from (String) to (Integer); untested
-            Item firstEntry = loadItem((Integer)idPair[0]);
-            Item secondEntry = loadItem((Integer)idPair[1]);
+            Item firstEntry = loadItem((Integer) idPair[0]);
+            Item secondEntry = loadItem((Integer) idPair[1]);
             return createItemRelation(firstEntry, secondEntry, null, "");
         } else {
             return null;
@@ -679,7 +639,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      *            A unique identifier (primary key) for an item.
      * @return The item matching the provided identifier form the database or null if no matching contribution exists.
      */
-    public final Item loadItem(final Integer identifier) {
+    public Item loadItem(final Integer identifier) {
         if (identifier != null) {
             Boolean openedTransaction = openTransaction();
             Item ret = getManager().find(Item.class, identifier);
@@ -850,24 +810,6 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         Collection<Author> ret = loadUsersQuery.getResultList();
         getManager().getTransaction().commit();
         return ret;
-    }
-
-    /**
-     * Saves a list of contributions to the database, updating already existing contributions.
-     * 
-     * @param contributions
-     *            The list of new or changed contributions.
-     */
-    public <T> void update(List<T> ts) {
-        for (T t : ts) {
-            update(t);
-        }
-    }
-
-    public <T> void update(T t) {
-        final Boolean openedTransaction = openTransaction();
-        getManager().merge(t);
-        commitTransaction(openedTransaction);
     }
 
     /**

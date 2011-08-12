@@ -51,7 +51,6 @@ public final class StreamGroup extends StreamSource {
      * 
      * @param streamSource
      * @param sourceAddress
-     * @param channelName
      */
     public StreamGroup(String streamSource, String sourceAddress) {
         super(streamSource, sourceAddress);
@@ -84,10 +83,21 @@ public final class StreamGroup extends StreamSource {
         children.add(child);
         child.setParentSource(this);
     }
-
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        return "StreamGroup [children=" + children + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("StreamGroup [children=");
+        builder.append(children);
+        builder.append(", getSourceName()=");
+        builder.append(getSourceName());
+        builder.append(", getSourceAddress()=");
+        builder.append(getSourceAddress());
+        builder.append("]");
+        return builder.toString();
     }
 
     //

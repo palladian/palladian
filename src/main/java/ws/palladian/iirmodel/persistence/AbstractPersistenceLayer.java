@@ -149,4 +149,22 @@ public abstract class AbstractPersistenceLayer {
             return list.get(0);
         }
     }
+
+    /**
+     * Saves a list of entities to the database, updating already existing contributions.
+     * 
+     * @param contributions
+     *            The list of new or changed contributions.
+     */
+    public <T> void update(List<T> ts) {
+        for (T t : ts) {
+            update(t);
+        }
+    }
+
+    public <T> void update(T t) {
+        final Boolean openedTransaction = openTransaction();
+        getManager().merge(t);
+        commitTransaction(openedTransaction);
+    }
 }

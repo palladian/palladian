@@ -85,7 +85,7 @@ public class PersistenceLayerTest {
     public final void testSaveStreamSource() {
         try {
             ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
-            persistenceLayer.saveStreamSource(stream);
+            persistenceLayer.saveItemStream(stream);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unable to save new ItemStream due to: " + e.getStackTrace());
@@ -109,7 +109,7 @@ public class PersistenceLayerTest {
         stream.addAuthor(author1);
         stream.addAuthor(author2);
 
-        persistenceLayer.saveStreamSource(stream);
+        persistenceLayer.saveItemStream(stream);
         ItemStream result = (ItemStream)persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
         assertEquals(1, persistenceLayer.loadStreamSources().size());
         assertEquals(stream.getQualifiedSourceName(), result.getQualifiedSourceName());
@@ -152,7 +152,7 @@ public class PersistenceLayerTest {
         stream.addAuthor(author1);
         stream.addAuthor(author2);
 
-        persistenceLayer.saveStreamSource(stream);
+        persistenceLayer.saveItemStream(stream);
 
         // save the same ItemStream again; ItemStream gets updated
         ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream");
@@ -175,7 +175,7 @@ public class PersistenceLayerTest {
         System.out.println(changedStream.getItems().contains(changedItem1));
         System.out.println(changedStream.getItems().contains(changedItem2));
 
-        persistenceLayer.saveStreamSource(changedStream);
+        persistenceLayer.saveItemStream(changedStream);
 
         ItemStream loadedStream = (ItemStream)persistenceLayer
                 .loadStreamSourceByAddress("http://testSource.de/testStream");
@@ -248,7 +248,7 @@ public class PersistenceLayerTest {
         itemStream.addItem(item3);
         itemStream.addAuthor(author3);
 
-        persistenceLayer.saveStreamSource(itemStream);
+        persistenceLayer.saveItemStream(itemStream);
 
         ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource1.de");
         Assert.assertEquals(2, loadedStream.getAuthors().size());
@@ -269,7 +269,7 @@ public class PersistenceLayerTest {
                 new Date(), "testItemText", null, ItemType.OTHER);
         testSource.addItem(testItem);
 
-        persistenceLayer.saveStreamSource(testSource);
+        persistenceLayer.saveItemStream(testSource);
         persistenceLayer.saveItem(testItem);
     }
 
@@ -287,7 +287,7 @@ public class PersistenceLayerTest {
                 new Date(), "testItemText");
         testSource.addItem(testItem1);
         testSource.addItem(testItem2);
-        persistenceLayer.saveStreamSource(testSource);
+        persistenceLayer.saveItemStream(testSource);
         // persistenceLayer.saveItem(testItem1);
         // persistenceLayer.saveItem(testItem2);
 
@@ -316,7 +316,7 @@ public class PersistenceLayerTest {
         parentGroup1.addChild(childGroup2);
         parentGroup1.addChild(childGroup3);
 
-        persistenceLayer.saveStreamSource(grandParentGroup);
+        persistenceLayer.saveStreamGroup(grandParentGroup);
 
         StreamSource streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream1");
         assertTrue(streamSource instanceof StreamGroup);
@@ -361,6 +361,6 @@ public class PersistenceLayerTest {
         secondStream.addItem(item22);
         secondStream.addAuthor(answerer);
 
-        persistenceLayer.saveStreamSource(forum);
+        persistenceLayer.saveStreamGroup(forum);
     }
 }

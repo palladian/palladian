@@ -83,7 +83,7 @@ public abstract class StreamSource implements Serializable {
      * The authors contributing to this {@link StreamSource}.
      * </p>
      */
-    @OneToMany //(cascade = CascadeType.PERSIST)
+    @OneToMany
     private Set<Author> authors;
 
     //
@@ -115,7 +115,7 @@ public abstract class StreamSource implements Serializable {
      * @param channelName Streams with similar content are often presented together under common name. This property
      *            provides the name of the stream channel the current item stream belongs to.
      */
-    public StreamSource(String sourceName, String sourceAddress) {
+    protected StreamSource(String sourceName, String sourceAddress) {
         this();
         this.sourceName = sourceName;
         this.sourceAddress = sourceAddress;
@@ -125,11 +125,11 @@ public abstract class StreamSource implements Serializable {
     // Getters and setters
     //
 
-    public Integer getIdentifier() {
+    public final Integer getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(Integer identifier) {
+    public final void setIdentifier(Integer identifier) {
         this.identifier = identifier;
     }
 
@@ -141,7 +141,7 @@ public abstract class StreamSource implements Serializable {
      * 
      * @return the unique forum type.
      */
-    public String getSourceName() {
+    public final String getSourceName() {
         return sourceName;
     }
 
@@ -154,15 +154,15 @@ public abstract class StreamSource implements Serializable {
      * @param sourceName
      *            the unique source type
      */
-    public void setSourceName(String sourceName) {
+    public final void setSourceName(String sourceName) {
         this.sourceName = sourceName;
     }
 
-    public String getSourceAddress() {
+    public final String getSourceAddress() {
         return sourceAddress;
     }
 
-    public void setSourceAddress(String sourceAddress) {
+    public final void setSourceAddress(String sourceAddress) {
         this.sourceAddress = sourceAddress;
     }
 
@@ -198,15 +198,15 @@ public abstract class StreamSource implements Serializable {
         return result.toString();
     }
 
-    public Collection<Author> getAuthors() {
+    public final Set<Author> getAuthors() {
         return authors;
     }
 
-    public void setAuthors(Set<Author> authors) {
-        this.authors = authors;
+    public final void setAuthors(Collection<Author> authors) {
+        this.authors = new HashSet<Author>(authors);
     }
 
-    public void addAuthor(Author author) {
+    public final void addAuthor(Author author) {
         authors.add(author);
     }
 

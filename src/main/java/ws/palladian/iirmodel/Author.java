@@ -61,14 +61,6 @@ public class Author {
     @GeneratedValue
     private Integer identifier;
 
-    // /**
-    // * <p>
-    // * The items created by this author.
-    // * </p>
-    // */
-    // @OneToMany(mappedBy = "author")
-    // private Collection<Item> items;
-
     /**
      * <p>
      * The date and time the author was created.
@@ -100,7 +92,6 @@ public class Author {
      */
     protected Author() {
         super();
-        // this.items = new HashSet<Item>();
     }
 
     /**
@@ -117,7 +108,6 @@ public class Author {
         this();
         this.username = username;
         this.streamSourceAddress = streamSourceAddress;
-        // streamSource.addAuthor(this);
     }
 
     /**
@@ -147,7 +137,6 @@ public class Author {
         this.registeredSince = registeredSince;
         this.username = username;
         this.streamSourceAddress = streamSourceAddress;
-        // streamSource.addAuthor(this);
     }
 
     /**
@@ -249,38 +238,9 @@ public class Author {
      *            always the same as its username. Usernames are ambiguous since the same username might occur for
      *            different users in different stream sources.
      */
-    // public void setIdentifier(Integer identifier) {
-    // this.identifier = identifier;
-    // }
-
-    // /**
-    // * <p>
-    // * A collection of all the items published by this author.
-    // * </p>
-    // *
-    // * @return The items created by this author.
-    // */
-    // public Collection<Item> getItems() {
-    // return this.items;
-    // }
-
-    // /**
-    // * <p>
-    // * Sets or resets and overwrites the author's collection of published items.
-    // * </p>
-    // *
-    // * @param items The items created by this author.
-    // */
-    // public void setItems(Collection<Item> items) {
-    // this.items = items;
-    // }
-    //
-    // /**
-    // * @param item
-    // */
-    // protected void addItem(Item item) {
-    // items.add(item);
-    // }
+    public void setIdentifier(Integer identifier) {
+        this.identifier = identifier;
+    }
 
     /**
      * <p>
@@ -370,7 +330,7 @@ public class Author {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Author other = (Author)obj;
+        Author other = (Author) obj;
         if (streamSourceAddress == null) {
             if (other.streamSourceAddress != null) {
                 return false;
@@ -422,14 +382,6 @@ public class Author {
         // builder.append(streamSource);
         builder.append("]");
         return builder.toString();
-    }
-
-    /**
-     * @param identifier2
-     */
-    public void setIdentifier(Integer identifier) {
-        this.identifier = identifier;
-
     }
 
 }

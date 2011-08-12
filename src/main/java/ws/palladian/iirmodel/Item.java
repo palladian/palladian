@@ -191,7 +191,6 @@ public class Item implements Serializable {
         this.text = text;
         this.predecessor = predecessor;
         this.type = type;
-        // author.addItem(this);
     }
 
     public Author getAuthor() {
@@ -206,9 +205,9 @@ public class Item implements Serializable {
         return identifier;
     }
 
-    // public void setIdentifier(Integer identifier) {
-    // this.identifier = identifier;
-    // }
+    public void setIdentifier(Integer identifier) {
+        this.identifier = identifier;
+    }
 
     public String getLink() {
         return link;
@@ -303,7 +302,7 @@ public class Item implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Item other = (Item)obj;
+        Item other = (Item) obj;
 
         // try to check equality by Pk
         Integer otherIdentifier = other.identifier;
