@@ -1,11 +1,15 @@
 package ws.palladian.iirmodel;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+
+import ws.palladian.iirmodel.helper.CompositeIterator;
+import ws.palladian.iirmodel.helper.SingleIterator;
 
 /**
  * <p>
@@ -83,8 +87,47 @@ public final class StreamGroup extends StreamSource {
         children.add(child);
         child.setParentSource(this);
     }
+
+    @Override
+    public Iterator<StreamSource> streamSourceIterator() {
+        List<Iterator<StreamSource>> childIterators = new ArrayList<Iterator<StreamSource>>();
+        childIterators.add(new SingleIterator<StreamSource>(this));
+        for (StreamSource child : getChildren()) {
+            childIterators.add(child.streamSourceIterator());
+        }
+        return new CompositeIterator<StreamSource>(childIterators);
+    }
+
+    @Override
+    public Iterator<ItemStream> itemStreamIterator() {
+        List<Iterator<ItemStream>> childIterators = new ArrayList<Iterator<ItemStream>>();
+        for (StreamSource child : getChildren()) {
+            childIterators.add(child.itemStreamIterator());
+        }
+        return new CompositeIterator<ItemStream>(childIterators);
+    }
     
-    /* (non-Javadoc)
+    @Override
+    public Iterator<StreamGroup> streamGroupIterator() {
+        List<Iterator<StreamGroup>> childIterators = new ArrayList<Iterator<StreamGroup>>();
+        childIterators.add(new SingleIterator<StreamGroup>(this));
+        for (StreamSource child : getChildren()) {
+            childIterators.add(child.streamGroupIterator());
+        }
+        return new CompositeIterator<StreamGroup>(childIterators);
+    }
+    
+    @Override
+    public Iterator<Item> itemIterator() {
+        List<Iterator<Item>> childIterators = new ArrayList<Iterator<Item>>();
+        for (StreamSource child : getChildren()) {
+            childIterators.add(child.itemIterator());
+        }
+        return new CompositeIterator<Item>(childIterators);
+    }
+
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -122,7 +165,7 @@ public final class StreamGroup extends StreamSource {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        StreamGroup other = (StreamGroup)obj;
+        StreamGroup other = (StreamGroup) obj;
         if (children == null) {
             if (other.children != null)
                 return false;

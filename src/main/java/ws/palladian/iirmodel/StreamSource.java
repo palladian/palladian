@@ -3,6 +3,7 @@ package ws.palladian.iirmodel;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -209,9 +210,21 @@ public abstract class StreamSource implements Serializable {
     public final void addAuthor(Author author) {
         authors.add(author);
     }
+    
+    //
+    // Iterators which allow convenient traversal of the composite structure:
+    //
+    
+    public abstract Iterator<StreamSource> streamSourceIterator();
+    
+    public abstract Iterator<ItemStream> itemStreamIterator();
+    
+    public abstract Iterator<StreamGroup> streamGroupIterator();
+    
+    public abstract Iterator<Item> itemIterator();
 
     //
-    // Force subclasses to implement the following methods:
+    // Also force subclasses to implement the following methods:
     //
 
     @Override

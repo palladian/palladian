@@ -5,6 +5,7 @@ package ws.palladian.iirmodel;
  */
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+
+import ws.palladian.iirmodel.helper.NullIterator;
+import ws.palladian.iirmodel.helper.SingleIterator;
 
 /**
  * <p>
@@ -58,15 +62,15 @@ public final class ItemStream extends StreamSource {
      * Creates a new {@link ItemStream} with no items but all other values initialized.
      * </p>
      * 
-     * @param streamSource The stream source is a system wide unique name identifying the source for a set of generated
+     * @param sourceName The stream source is a system wide unique name identifying the source for a set of generated
      *            item streams. It might be the sources name as long as no other stream with the same name exists or the
      *            sources URL otherwise. For web forum threads this might be the forum name. For <a
      *            href="http://www.facebook.com">Facebook</a> it might be "facebook" or "http://facebook.com".
      * @param sourceAddress The address to access this stream. This usually is an URL but might be a file system path
      *            (in URL form or not) as well.
      */
-    public ItemStream(String streamSource, String sourceAddress) {
-        super(streamSource, sourceAddress);
+    public ItemStream(String sourceName, String sourceAddress) {
+        super(sourceName, sourceAddress);
         this.items = new LinkedList<Item>();
     }
 
@@ -109,6 +113,26 @@ public final class ItemStream extends StreamSource {
     }
 
     @Override
+    public Iterator<StreamSource> streamSourceIterator() {
+        return new SingleIterator<StreamSource>(this);
+    }
+
+    @Override
+    public Iterator<ItemStream> itemStreamIterator() {
+        return new SingleIterator<ItemStream>(this);
+    }
+    
+    @Override
+    public Iterator<StreamGroup> streamGroupIterator() {
+        return new NullIterator<StreamGroup>();
+    }
+    
+    @Override
+    public Iterator<Item> itemIterator() {
+        return items.iterator();
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("ItemStream [identifier=");
@@ -140,7 +164,7 @@ public final class ItemStream extends StreamSource {
             return false;
         }
 
-        StreamSource other = (StreamSource)itemStream;
+        StreamSource other = (StreamSource) itemStream;
         if (getSourceAddress() == null) {
             if (other.getSourceAddress() != null) {
                 return false;

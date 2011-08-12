@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -120,23 +121,25 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     protected Set<Author> getAllAuthors(StreamSource streamSource) {
         Set<Author> authors = new HashSet<Author>();
-        authors.addAll(streamSource.getAuthors());
-        if (streamSource instanceof StreamGroup) {
-            StreamGroup streamGroup = (StreamGroup) streamSource;
-            List<StreamSource> children = streamGroup.getChildren();
-            for (StreamSource child : children) {
-                authors.addAll(getAllAuthors(child));
-            }
+        Iterator<StreamSource> streamSourceIterator = streamSource.streamSourceIterator();
+        while (streamSourceIterator.hasNext()) {
+            StreamSource current = streamSourceIterator.next();
+            authors.addAll(current.getAuthors());
         }
         return authors;
     }
 
     public void saveStreamSource(StreamSource streamSource) {
-        if (streamSource instanceof StreamGroup) {
-            saveStreamGroup((StreamGroup) streamSource);
-        } else if (streamSource instanceof ItemStream) {
-            saveItemStream((ItemStream) streamSource);
+        Boolean openedTransaction = openTransaction();
+        for (Iterator<StreamGroup> it = streamSource.streamGroupIterator(); it.hasNext();) {
+            StreamGroup streamGroup = it.next();
+            saveStreamGroup(streamGroup);
         }
+        for (Iterator<ItemStream> it = streamSource.itemStreamIterator(); it.hasNext();) {
+            ItemStream itemStream = it.next();
+            saveItemStream(itemStream);
+        }
+        commitTransaction(openedTransaction);
     }
 
     protected void saveStreamGroup(final StreamGroup streamGroup) {
@@ -146,12 +149,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
             getManager().persist(author);
         }
         getManager().persist(streamGroup);
-
-        List<StreamSource> children = streamGroup.getChildren();
-        for (StreamSource child : children) {
-            saveStreamSource(child);
-        }
-
         commitTransaction(openedTransaction);
     }
 
