@@ -234,16 +234,19 @@ public class PersistenceLayerTest {
         Author author1 = new Author("author1", itemStream.getSourceAddress());
         Item item1 = new Item("id1", author1, "http://testSource1.de/item1", "title1", new Date(), new Date(), "");
         itemStream.addItem(item1);
+        itemStream.addAuthor(author1);
 
         Author author2 = new Author("author2", itemStream.getSourceAddress());
         Item item2 = new Item("id2", author2, "http://testSource1.de/item2", "title2", new Date(), new Date(), "");
         itemStream.addItem(item2);
+        itemStream.addAuthor(author2);
 
         // author3 is actually == author1,
         // so the existing author should just be updated
         Author author3 = new Author("author1", itemStream.getSourceAddress());
         Item item3 = new Item("id3", author3, "http://testSource1.de/item3", "title3", new Date(), new Date(), "");
         itemStream.addItem(item3);
+        itemStream.addAuthor(author3);
 
         persistenceLayer.saveStreamSource(itemStream);
 

@@ -25,6 +25,7 @@ import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.RelationType;
+import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
 
 /**
@@ -107,20 +108,20 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         super(manager);
     }
 
-    private final void saveItemStream(final ItemStream stream) {
-        Boolean openedTransaction = openTransaction();
-        ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
-
-        if (existingStream == null) {
-            getManager().persist(stream);
-        } else {
-            stream.setIdentifier(existingStream.getIdentifier());
-            Collection<Item> removedItems = getRemovedItems(existingStream, stream);
-            getManager().merge(stream);
-            removeItems(removedItems);
-        }
-        updateAuthors(stream.getItems());
-        commitTransaction(openedTransaction);
+    public final void saveStreamSource(final StreamGroup streamGroup) {
+//        Boolean openedTransaction = openTransaction();
+//        ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
+//
+//        if (existingStream == null) {
+//            getManager().persist(stream);
+//        } else {
+//            stream.setIdentifier(existingStream.getIdentifier());
+//            Collection<Item> removedItems = getRemovedItems(existingStream, stream);
+//            getManager().merge(stream);
+//            removeItems(removedItems);
+//        }
+//        updateAuthors(stream.getItems());
+//        commitTransaction(openedTransaction);
     }
 
     /**
@@ -136,10 +137,9 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @param stream The {@link StreamSource} to save to the database.
      */
-    public final void saveStreamSource(final StreamSource streamSource) {
+    public final void saveStreamSource(final ItemStream itemStream) {
         Boolean openedTransaction = openTransaction();
-        StreamSource existingStreamSource = loadStreamSourceByAddress(streamSource.getSourceAddress());
-        ItemStream itemStream = (ItemStream)streamSource;
+        StreamSource existingStreamSource = loadStreamSourceByAddress(itemStream.getSourceAddress());
         for (Item item : itemStream.getItems()) {
             getManager().persist(item.getAuthor());
 
@@ -150,8 +150,8 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (existingStreamSource == null) {
             getManager().persist(itemStream);
         } else {
-            streamSource.setIdentifier(existingStreamSource.getIdentifier());
-            getManager().merge(streamSource);
+            itemStream.setIdentifier(existingStreamSource.getIdentifier());
+            getManager().merge(itemStream);
         }
 
         //
