@@ -315,19 +315,24 @@ public class DatasetCreator {
         feedChecker.startContinuousReading();
     }
 
-
     /**
-     * @param feedID
-     * @param safeFeedName
-     * @return
+     * Relative path to feed and the name of its csv file.<br />
+     * e.g. data/datasets/feedPosts/0/7/7_http___0_tqn_com_6_g_80music_b.csv
+     * 
+     * @param feedID The feedID
+     * @param safeFeedName The feeds safe name
+     * @return Relative path to feed and the name of its csv file
+     * @see #getSafeFeedName(String)
      */
     public static String getCSVFilePath(int feedID, String safeFeedName) {
         return getFolderPath(feedID) + feedID + "_" + safeFeedName + ".csv";
     }
 
     /**
-     * @param feedID
-     * @return
+     * Relative path to feed, * e.g. data/datasets/feedPosts/0/7/
+     * 
+     * @param feedID The feedID to get the path for.
+     * @return Relative path to feed
      */
     public static String getFolderPath(int feedID) {
         return DATASET_PATH + getSlice(feedID) + System.getProperty("file.separator") + feedID
@@ -335,16 +340,20 @@ public class DatasetCreator {
     }
 
     /**
-     * @param feedID
-     * @return
+     * Name of folder to group feeds. Math.floor(feedID / 1000.0)
+     * 
+     * @param feedID The feedID to get the slice for.
+     * @return Math.floor(feedID / 1000.0)
      */
     public static int getSlice(int feedID) {
         return (int) Math.floor(feedID / 1000.0);
     }
 
     /**
-     * @param feed
-     * @return
+     * e.g. http___0_tqn_com_6_g_80music_b
+     * 
+     * @param feed The url to make safe
+     * @return The safe feed name
      */
     public static String getSafeFeedName(String feedURL) {
         return StringHelper.makeSafeName(feedURL.replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);

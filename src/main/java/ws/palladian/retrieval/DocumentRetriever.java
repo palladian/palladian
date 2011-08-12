@@ -830,7 +830,7 @@ public class DocumentRetriever {
      * Load a GZIP dataset file and return a {@link HttpResult}.
      * 
      * @param file
-     * @return
+     * @return The http result from file or <code>null</code> on in case an {@link IOException} was caught.
      */
     // TODO should this be extended to handle files without the written header?
     public HttpResult loadSerializedGzip(File file) {
