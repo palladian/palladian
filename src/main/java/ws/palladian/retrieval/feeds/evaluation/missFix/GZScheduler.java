@@ -73,7 +73,7 @@ public class GZScheduler extends TimerTask {
         int newlyScheduledFeedsCount = 0;
         StringBuilder scheduledFeedIDs = new StringBuilder();
 
-        // schedule all feeds
+        // schedule all feeds only once
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
                 scheduledTasks.put(feed.getId(), threadPool.submit(new GZFeedTask(feed, feedReader)));
