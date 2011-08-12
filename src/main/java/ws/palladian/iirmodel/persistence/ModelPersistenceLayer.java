@@ -6,7 +6,6 @@ package ws.palladian.iirmodel.persistence;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,9 +15,9 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.log4j.Logger;
 
@@ -330,21 +329,18 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
     /**
      * @param username
-     * @param streamSource
+     * @param streamSourceAddress
      * @return
      */
-    public Author loadAuthor(String username, String streamSource) {
-        Query authorQuery = getManager().createQuery(
-                "SELECT a FROM Author a WHERE a.username=:username AND a.streamSourceAddress=:streamSource");
-        authorQuery.setParameter("username", username);
-        authorQuery.setParameter("streamSource", streamSource);
+    public Author loadAuthor(String username, String streamSourceAddress) {
+        TypedQuery<Author> query = getManager().createQuery(
+                "SELECT a FROM Author a WHERE a.username=:username AND a.streamSourceAddress=:streamSourceAddress",
+                Author.class);
+        query.setParameter("username", username);
+        query.setParameter("streamSourceAddress", streamSourceAddress);
 
         Boolean openedTransaction = openTransaction();
-        // EntityTransaction tx = getManager().getTransaction();
-
-        // tx.begin();
-        @SuppressWarnings("unchecked")
-        List<Author> authors = authorQuery.getResultList();
+        List<Author> authors = query.getResultList();
         Author ret = getFirst(authors);
         commitTransaction(openedTransaction);
         return ret;
@@ -384,15 +380,13 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     }
 
     public void saveItemRelation(ItemRelation itemRelation) {
-        Query relationExistsQuery = getManager().createQuery(
+        TypedQuery<ItemRelation> relationExistsQuery = getManager().createQuery(
                 "SELECT r FROM ItemRelation r WHERE (r.firstItem=:firstItem AND r.secondItem=:secondItem) "
-                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) " + "AND r.type=:type");
+                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) " + "AND r.type=:type", ItemRelation.class);
         relationExistsQuery.setParameter("firstItem", itemRelation.getFirstItem());
         relationExistsQuery.setParameter("secondItem", itemRelation.getSecondItem());
         relationExistsQuery.setParameter("type", itemRelation.getType());
-        EntityTransaction tx = getManager().getTransaction();
-        tx.begin();
-        @SuppressWarnings("unchecked")
+        Boolean openedTransaction = openTransaction();
         List<ItemRelation> relations = relationExistsQuery.getResultList();
         if (relations.isEmpty()) {
             getManager().persist(itemRelation);
@@ -401,7 +395,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
             existingRelation.setType(itemRelation.getType());
             existingRelation.setComment(itemRelation.getComment());
         }
-        tx.commit();
+        commitTransaction(openedTransaction);
     }
 
     /**
@@ -600,17 +594,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @return A collection containing all ItemStreams currently persisted in the underlying database.
      */
-    @SuppressWarnings("unchecked")
     public List<ItemStream> loadItemStreams() {
-        final List<ItemStream> ret = new ArrayList<ItemStream>();
-        getManager().getTransaction().begin();
-
-        final Query loadQuery = getManager().createQuery("select t from ItemStream t");
-        ret.addAll(loadQuery.getResultList());
-
-        getManager().getTransaction().commit();
-
-        return ret;
+        return loadAll(ItemStream.class);
     }
 
     // TODO adapt to new implementation
@@ -621,14 +606,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @return
      */
-    @SuppressWarnings("unchecked")
     public Collection<String> loadChannelNames() {
-        Collection<String> ret;
-        Query get = getManager().createQuery("SELECT DISTINCT t.channelName FROM ItemStream t");
+        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.channelName FROM ItemStream t", String.class);
         getManager().getTransaction().begin();
-        ret = get.getResultList();
+        List<String> result = query.getResultList();
         getManager().getTransaction().commit();
-        return ret;
+        return result;
     }
 
     /**
@@ -654,18 +637,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @return A list of all contributions from the database.
      */
-    @SuppressWarnings("unchecked")
     public List<Item> loadItems() {
-        LOGGER.debug("Loading contributions!");
-        final List<Item> ret = new ArrayList<Item>();
-        Query loadQuery = getManager().createQuery("select c from Item c");
-        getManager().getTransaction().begin();
-
-        ret.addAll(loadQuery.getResultList());
-
-        getManager().getTransaction().commit();
-        LOGGER.debug("Loaded " + ret.size() + "contributions: ");
-        return ret;
+        return loadAll(Item.class);
     }
 
     // TODO adapt this to new structure
@@ -676,14 +649,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @return A set of distinct stream source names.
      */
-    @SuppressWarnings("unchecked")
     public Collection<String> loadStreamSourceNames() {
-        Collection<String> ret;
-        Query get = getManager().createQuery("SELECT DISTINCT t.streamSource FROM ItemStream t");
+        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.streamSource FROM ItemStream t", String.class);
         getManager().getTransaction().begin();
-        ret = get.getResultList();
+        List<String> result = query.getResultList();
         getManager().getTransaction().commit();
-        return ret;
+        return result;
     }
 
     /**
@@ -704,23 +675,15 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     /**
      * @return All {@link ItemRelation} instances from the database.
      */
-    @SuppressWarnings("unchecked")
     public List<ItemRelation> loadRelations() {
-        List<ItemRelation> ret;
-        Query get = getManager().createQuery("SELECT fer FROM ForumEntryRelation fer");
-        getManager().getTransaction().begin();
-        ret = get.getResultList();
-        getManager().getTransaction().commit();
-        return ret;
+        return loadAll(ItemRelation.class);
     }
 
     private RelationType loadRelationType(String name) {
-        // return getManager().find(RelationType.class, type);
         EntityManager em = getManager();
-        Query query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name");
+        TypedQuery<RelationType> query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name", RelationType.class);
         query.setParameter("name", name);
         em.getTransaction().begin();
-        @SuppressWarnings("unchecked")
         List<RelationType> resultList = query.getResultList();
         em.getTransaction().commit();
         return getFirst(resultList);
@@ -731,14 +694,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * 
      * @return All relation types from the database.
      */
-    @SuppressWarnings("unchecked")
     public Collection<RelationType> loadRelationTypes() {
-        Collection<RelationType> ret;
-        Query get = getManager().createQuery("SELECT rt FROM RelationType rt");
-        getManager().getTransaction().begin();
-        ret = get.getResultList();
-        getManager().getTransaction().commit();
-        return ret;
+        return loadAll(RelationType.class);
     }
 
     // /**
@@ -766,12 +723,11 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public StreamSource loadStreamSourceByAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
-        Query query = getManager().createQuery("select t from StreamSource t where t.sourceAddress=:sourceAddress");
+        TypedQuery<StreamSource> query = getManager().createQuery("select t from StreamSource t where t.sourceAddress=:sourceAddress", StreamSource.class);
         query.setParameter("sourceAddress", sourceAddress);
-        @SuppressWarnings("unchecked")
-        List<StreamSource> ret = query.getResultList();
+        List<StreamSource> result = query.getResultList();
         commitTransaction(openedTransaction);
-        return getFirst(ret);
+        return getFirst(result);
     }
 
     // /**
@@ -801,23 +757,13 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     // }
 
     public Collection<Author> loadAuthors() {
-        Query loadUsersQuery = getManager().createQuery("SELECT u FROM Author u");
-        getManager().getTransaction().begin();
-        @SuppressWarnings("unchecked")
-        Collection<Author> ret = loadUsersQuery.getResultList();
-        getManager().getTransaction().commit();
-        return ret;
+        return loadAll(Author.class);
     }
 
     /**
      * @return
      */
     public Collection<StreamSource> loadStreamSources() {
-        Query loadQuery = getManager().createQuery("SELECT ss FROM StreamSource ss");
-        final Boolean openedTransaction = openTransaction();
-        @SuppressWarnings("unchecked")
-        Collection<StreamSource> ret = loadQuery.getResultList();
-        commitTransaction(openedTransaction);
-        return ret;
+        return loadAll(StreamSource.class);
     }
 }

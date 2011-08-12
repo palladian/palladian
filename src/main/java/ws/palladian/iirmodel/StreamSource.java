@@ -210,17 +210,48 @@ public abstract class StreamSource implements Serializable {
     public final void addAuthor(Author author) {
         authors.add(author);
     }
-    
+
     //
     // Iterators which allow convenient traversal of the composite structure:
     //
-    
+
+    /**
+     * <p>
+     * Obtain an Iterator with {@link StreamSource}s for deep-traversing this StreamSource. The StreamSource itself is
+     * also part of the iterator.
+     * </p>
+     * 
+     * @return
+     */
     public abstract Iterator<StreamSource> streamSourceIterator();
-    
+
+    /**
+     * <p>
+     * Obtain an Iterator with {@link ItemStream}s for deep-traversing this StreamSource. When invoked on an ItemStream,
+     * the ItemStream itself is also part of the iterator.
+     * </p>
+     * 
+     * @return
+     */
     public abstract Iterator<ItemStream> itemStreamIterator();
-    
+
+    /**
+     * <p>
+     * Obtain an Iterator with {@link StreamGroup}s for deep-traversing this StreamSource. When invoked on a
+     * StreamGroup, the StreamGroup itself is also part of the iterator.
+     * </p>
+     * 
+     * @return
+     */
     public abstract Iterator<StreamGroup> streamGroupIterator();
-    
+
+    /**
+     * <p>
+     * Obtain an iterator with {@link Item}s for deep-traversing this StreamSource.
+     * </p>
+     * 
+     * @return
+     */
     public abstract Iterator<Item> itemIterator();
 
     //

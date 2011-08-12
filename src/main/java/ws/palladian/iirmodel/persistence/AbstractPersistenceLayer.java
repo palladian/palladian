@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 /**
  * <p>
@@ -15,12 +17,12 @@ import javax.persistence.EntityManager;
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
+ * @version 3.0
  * @since 1.0
  */
 public abstract class AbstractPersistenceLayer {
 
-    public static final String MYSQL_PERSISTENCE_UNIT_NAME = "de.effingo.persistence";
+    public static final String MYSQL_PERSISTENCE_UNIT_NAME = "ws.palladian.iirmodel.persistence";
 
     /**
      * <p>
@@ -43,7 +45,7 @@ public abstract class AbstractPersistenceLayer {
      * </p>
      * 
      */
-    public void shutdown() {
+    public final void shutdown() {
         if (manager != null && manager.isOpen()) {
             manager.close();
         }
@@ -56,7 +58,7 @@ public abstract class AbstractPersistenceLayer {
      * 
      * @return the manager
      */
-    public EntityManager getManager() {
+    protected final EntityManager getManager() {
         return manager;
     }
 
@@ -69,7 +71,7 @@ public abstract class AbstractPersistenceLayer {
      * @param collection2
      * @return
      */
-    protected <T> List<T> mergeCollections(Collection<T> collection1, Collection<T> collection2) {
+    protected final <T> List<T> mergeCollections(Collection<T> collection1, Collection<T> collection2) {
         List<T> ret = new LinkedList<T>();
         for (T entry : collection1) {
             ret.add(entry);
@@ -82,7 +84,7 @@ public abstract class AbstractPersistenceLayer {
         return ret;
     }
 
-    protected Boolean openTransaction() {
+    protected final Boolean openTransaction() {
         if (manager.getTransaction().isActive()) {
             return false;
         } else {
@@ -91,7 +93,7 @@ public abstract class AbstractPersistenceLayer {
         }
     }
 
-    protected void commitTransaction(final Boolean openedTransaction) {
+    protected final void commitTransaction(final Boolean openedTransaction) {
         if (openedTransaction) {
             manager.getTransaction().commit();
         }
@@ -119,22 +121,39 @@ public abstract class AbstractPersistenceLayer {
     // pl.commitTransaction(openedTransaction);
     // }
 
-    public <T> T load(Object identifier, Class<T> classToLoad) {
+    /**
+     * <p>
+     * Load an entity be its identifier.
+     * </p>
+     * 
+     * @param identifier
+     * @param classToLoad
+     * @return
+     */
+    public final <T> T load(Object identifier, Class<T> classToLoad) {
         final Boolean openedTransaction = openTransaction();
         T ret = getManager().find(classToLoad, identifier);
         commitTransaction(openedTransaction);
         return ret;
     }
 
-    // public <T> Collection<T> loadAll(Class<T> classToLoad) {
-    // Query loadQuery = getManager().createQuery("SELECT t FROM :classToLoad t");
-    // loadQuery.setParameter("classToLoad", classToLoad.getName());
-    // final Boolean openedTransaction = openTransaction();
-    // @SuppressWarnings("unchecked")
-    // Collection<T> ret = loadQuery.getResultList();
-    // pl.commitTransaction(openedTransaction);
-    // return ret;
-    // }
+    /**
+     * <p>
+     * Load all entities of a specific type.
+     * </p>
+     * 
+     * @param classToLoad
+     * @return
+     */
+    public final <T> List<T> loadAll(Class<T> classToLoad) {
+        Boolean openedTransaction = openTransaction();
+        EntityManager entityManager = getManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> query = criteriaBuilder.createQuery(classToLoad);
+        List<T> result = entityManager.createQuery(query).getResultList();
+        commitTransaction(openedTransaction);
+        return result;
+    }
 
     /**
      * Return the first object in a list, or <code>null</code>, if list is empty.
@@ -142,7 +161,7 @@ public abstract class AbstractPersistenceLayer {
      * @param list
      * @return
      */
-    protected <T> T getFirst(List<T> list) {
+    protected final <T> T getFirst(List<T> list) {
         if (list.isEmpty()) {
             return null;
         } else {
@@ -156,13 +175,13 @@ public abstract class AbstractPersistenceLayer {
      * @param contributions
      *            The list of new or changed contributions.
      */
-    public <T> void update(List<T> ts) {
+    public final <T> void update(List<T> ts) {
         for (T t : ts) {
             update(t);
         }
     }
 
-    public <T> void update(T t) {
+    public final <T> void update(T t) {
         final Boolean openedTransaction = openTransaction();
         getManager().merge(t);
         commitTransaction(openedTransaction);
