@@ -176,6 +176,10 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                         }
 
                         correctedFeed.increaseChecks();
+                        Date httpDate = HTTPHelper.getDateFromHeader(gzHttpResult, "Date", true);
+                        for (FeedItem item : gzFeed.getItems()) {
+                            item.setHttpDate(httpDate);
+                        }
                         correctedFeed.setItems(gzFeed.getItems());
                         correctedFeed.setLastSuccessfulCheckTime(correctedFeed.getLastPollTime());
                         correctedFeed.setWindowSize(gzFeed.getItems().size());

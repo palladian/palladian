@@ -166,7 +166,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                         // parse the feed and get all its entries, do that here since that takes some time and this is a
                         // thread so it can be done in parallel
                         downloadedFeed = feedRetriever.getFeed(httpResult);
-                        feed.setItems(downloadedFeed.getItems());
                     } catch (FeedRetrieverException e) {
                         LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
                         feed.incrementUnparsableCount();
@@ -182,6 +181,11 @@ class FeedTask implements Callable<FeedTaskResult> {
                         doFinalStuff(timer, storeMetadata);
                         return getResult();
                     }
+                    Date httpDate = HTTPHelper.getDateFromHeader(httpResult, "Date", true);
+                    for (FeedItem item : downloadedFeed.getItems()) {
+                        item.setHttpDate(httpDate);
+                    }
+                    feed.setItems(downloadedFeed.getItems());
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     feed.setWindowSize(downloadedFeed.getItems().size());
 
