@@ -191,7 +191,7 @@ public class Item implements Serializable {
         this.text = text;
         this.predecessor = predecessor;
         this.type = type;
-        author.addItem(this);
+        // author.addItem(this);
     }
 
     public Author getAuthor() {

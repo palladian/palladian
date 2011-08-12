@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -37,7 +38,7 @@ public final class ItemStream extends StreamSource {
      * The items available within this item stream.
      * </p>
      */
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @OrderBy("publicationDate ASC")
     private List<Item> items;
 

@@ -142,18 +142,18 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         StreamSource existingStreamSource = loadStreamSourceByAddress(streamSource.getSourceAddress());
         ItemStream itemStream = (ItemStream)streamSource;
         if (existingStreamSource != null) {
-            Collection<Item> removedItems = getRemovedItems((ItemStream)existingStreamSource, itemStream);
-            removeItems(removedItems);
+            // Collection<Item> removedItems = getRemovedItems((ItemStream)existingStreamSource, itemStream);
+            // removeItems(removedItems);
 
             streamSource.setIdentifier(existingStreamSource.getIdentifier());
-            getManager().merge(existingStreamSource);
+            getManager().merge(streamSource);
         } else {
             getManager().persist(streamSource);
         }
-
-        for (Item item : itemStream.getItems()) {
-            getManager().persist(item);
-        }
+        //
+        // for (Item item : itemStream.getItems()) {
+        // getManager().persist(item);
+        // }
         for (Author author : streamSource.getAuthors()) {
             // Author existingAuthor = loadAuthor(author.getUsername(), streamSource);
             // if (existingAuthor == null) {

@@ -3,15 +3,12 @@
  */
 package ws.palladian.iirmodel;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -65,13 +62,13 @@ public class Author {
     @GeneratedValue
     private Integer identifier;
 
-    /**
-     * <p>
-     * The items created by this author.
-     * </p>
-     */
-    @OneToMany(mappedBy = "author")
-    private Collection<Item> items;
+    // /**
+    // * <p>
+    // * The items created by this author.
+    // * </p>
+    // */
+    // @OneToMany(mappedBy = "author")
+    // private Collection<Item> items;
 
     /**
      * <p>
@@ -105,7 +102,7 @@ public class Author {
      */
     protected Author() {
         super();
-        this.items = new HashSet<Item>();
+        // this.items = new HashSet<Item>();
     }
 
     /**
@@ -258,34 +255,34 @@ public class Author {
     // this.identifier = identifier;
     // }
 
-    /**
-     * <p>
-     * A collection of all the items published by this author.
-     * </p>
-     * 
-     * @return The items created by this author.
-     */
-    public Collection<Item> getItems() {
-        return this.items;
-    }
+    // /**
+    // * <p>
+    // * A collection of all the items published by this author.
+    // * </p>
+    // *
+    // * @return The items created by this author.
+    // */
+    // public Collection<Item> getItems() {
+    // return this.items;
+    // }
 
-    /**
-     * <p>
-     * Sets or resets and overwrites the author's collection of published items.
-     * </p>
-     * 
-     * @param items The items created by this author.
-     */
-    public void setItems(Collection<Item> items) {
-        this.items = items;
-    }
+    // /**
+    // * <p>
+    // * Sets or resets and overwrites the author's collection of published items.
+    // * </p>
+    // *
+    // * @param items The items created by this author.
+    // */
+    // public void setItems(Collection<Item> items) {
+    // this.items = items;
+    // }
 
-    /**
-     * @param item
-     */
-    protected void addItem(Item item) {
-        items.add(item);
-    }
+    // /**
+    // * @param item
+    // */
+    // protected void addItem(Item item) {
+    // items.add(item);
+    // }
 
     /**
      * <p>
