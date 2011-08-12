@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -94,11 +96,25 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                     + ")");
             String safeFeedName = DatasetCreator.getSafeFeedName(correctedFeed.getFeedUrl());
             String folderPath = DatasetCreator.getFolderPath(correctedFeed.getId());
-            String csvPath = DatasetCreator.getCSVFilePath(correctedFeed.getId(), safeFeedName);
-            File originalCsv = new File(csvPath);
+            String originalCsvPath = DatasetCreator.getCSVFilePath(correctedFeed.getId(), safeFeedName);
+            File originalCsv = new File(originalCsvPath);
             String newCsvPath = FileHelper.getRenamedFilename(originalCsv, originalCsv.getName() + ".bak");
-            FileHelper.renameFile(originalCsv, newCsvPath);
+            boolean csvBackupDone = FileHelper.renameFile(originalCsv, newCsvPath);
 
+            if (!csvBackupDone) {
+                LOGGER.fatal("Could not backup csv file for feed " + correctedFeed.getId()
+                        + ". Feed will not be processed!");
+                resultSet.add(FeedTaskResult.ERROR);
+                doFinalLogging(timer);
+                return getResult();
+            }
+
+            // create empty csv. important for class_empty
+            DatasetCreator.createDirectoriesAndCSV(correctedFeed);
+
+            // remember all renamed file names as original -> renamed
+            Map<String, String> renamedFiles = new HashMap<String, String>();
+            boolean updateDB = true;
             boolean storeMetadata = false;
 
             int filesProcessed = 0;
@@ -153,8 +169,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                         try {
                             gzFeed = feedRetriever.getFeed(gzHttpResult);
                         } catch (FeedRetrieverException e) {
-                            LOGGER.fatal("Could not read feed from file " + file.getAbsolutePath() + " . "
-                                    + e.getLocalizedMessage());
+                            LOGGER.fatal("Could not get feed from http header for feed id " + correctedFeed.getId()
+                                    + ". " + e.getLocalizedMessage());
                             resultSet.add(FeedTaskResult.UNPARSABLE);
                             continue;
                         }
@@ -167,7 +183,6 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
                         // store metadata if it has been created before or now.
                         storeMetadata = storeMetadata || generateMetaInformation(gzHttpResult, gzFeed);
-
 
                         // perform actions on this feeds entries.
                         LOGGER.debug("Performing action on feed: " + correctedFeed.getId() + "("
@@ -185,9 +200,12 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                             // }
                         } else {
                             // rename gz file if there are no new items in it. File may be removed afterwards.
-                        
+
                             String newGzPath = FileHelper.getRenamedFilename(file, file.getName() + ".removeable");
-                            FileHelper.renameFile(file, newGzPath);
+                            boolean renamed = FileHelper.renameFile(file, newGzPath);
+                            if (renamed) {
+                                renamedFiles.put(file.getName(), new File(newGzPath).getName());
+                            }
                         }
 
                     }
@@ -209,8 +227,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                 int removedMisses = initialMisses - correctedFeed.getMisses();
                 if (removedMisses > 0) {
                     LOGGER.info("Feed id " + correctedFeed.getId() + ": removed " + removedMisses
-                            + " MISSes. Initial MISSes: " + initialMisses
-                            + ", remaining MISSes: " + correctedFeed.getMisses());
+                            + " MISSes. Initial MISSes: " + initialMisses + ", remaining MISSes: "
+                            + correctedFeed.getMisses());
                 }
             }
 
@@ -222,18 +240,56 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
             // tempClassifyFeed.setLastPollTime(correctedFeed.getLastPollTime());
             // correctedFeed.setActivityPattern(FeedClassifier.classify(tempClassifyFeed));
 
-            doFinalStuff(timer, true);
+            // process class empty and errors: restore original files
+            if (!new File(originalCsvPath).exists() || getResult().equals(FeedTaskResult.UNPARSABLE)
+                    || getResult().equals(FeedTaskResult.ERROR)) {
+
+                LOGGER.error("One or more errors occurred. Rename csv-backup to its original name. "
+                        + "Reverting all gz files marked to be removable. Database will not be updated.");
+
+                // delete new csv file if it exists (it has the same name as the original)
+                if (originalCsv.exists()) {
+                    originalCsv.delete();
+                }
+                // restore original csv
+                FileHelper.renameFile(new File(newCsvPath), originalCsvPath);
+                revertRemovableFiles(renamedFiles, folderPath);
+                updateDB = false;
+            }
+
+            doFinalStuff(timer, updateDB, storeMetadata);
             return getResult();
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.error("Error processing feedID " + correctedFeed.getId() + ": " + th);
+            LOGGER.fatal("Error processing feedID " + correctedFeed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();
         }
 
+    }
+
+    /**
+     * Revert all file names that have been marked as removable
+     * 
+     * @param renamedFiles Map as original -> renamed file names
+     * @param path The path to these files.
+     * @return Number of files with errors when renaming.
+     */
+    private int revertRemovableFiles(Map<String, String> renamedFiles, String path) {
+        int errors = 0;
+        boolean success = true;
+        for (String origName : renamedFiles.keySet()) {
+            String removableName = renamedFiles.get(origName);
+            success = FileHelper.renameFile(new File(path + removableName), path + origName);
+            if (!success) {
+                LOGGER.fatal("File " + removableName + " could not be renamed to " + origName);
+                errors++;
+            }
+        }
+        return errors;
     }
 
     /**
@@ -263,9 +319,10 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
      * and frees the feed's memory.
      * 
      * @param timer The {@link StopWatch} to estimate processing time
+     * @param updateDB Specify whether the feed should be updated in the database.
      * @param storeMetadata Specify whether metadata should be updated in database.
      */
-    private void doFinalStuff(StopWatch timer, boolean storeMetadata) {
+    private void doFinalStuff(StopWatch timer, boolean updateDB, boolean storeMetadata) {
         if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
             LOGGER.warn("Processing feed id " + correctedFeed.getId() + " took very long: "
                     + timer.getElapsedTimeString());
@@ -281,7 +338,9 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         // there may were more checks than gz files in case we got HTTP-not-modified responses when creating the
         // dataset. In case of 304, we didn't store a gz.
         correctedFeed.setChecks(initialChecks);
-        updateFeed(storeMetadata);
+        if (updateDB) {
+            updateFeed(storeMetadata);
+        }
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
@@ -382,23 +441,22 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         return checkTime;
     }
 
-
-    public static void main(String[] args) {
-        // requires ~ 3.7GB heap per 10M Items!!
-        List<FeedItem> allItems = new ArrayList<FeedItem>();
-        for (int i = 0; i < 10000000; i++) {
-            FeedItem newItem = new FeedItem();
-            newItem.setAdded(new Date());
-            newItem.setPublished(new Date());
-            newItem.setCorrectedPublishedTimestamp(new Date());
-            newItem.setHttpDate(new Date());
-            newItem.freeMemory();
-            allItems.add(newItem);
-            if (i % 10000 == 0) {
-                System.out.println("added " + i + " items so far.");
-            }
-        }
-        System.exit(0);
-    }
+    // public static void main(String[] args) {
+    // // requires ~ 3.7GB heap per 10M FeedItems holding 3 Dates each!!
+    // List<FeedItem> allItems = new ArrayList<FeedItem>();
+    // for (int i = 0; i <= 10000000; i++) {
+    // FeedItem newItem = new FeedItem();
+    // newItem.setAdded(new Date());
+    // newItem.setPublished(new Date());
+    // newItem.setCorrectedPublishedTimestamp(new Date());
+    // newItem.setHttpDate(new Date());
+    // newItem.freeMemory();
+    // allItems.add(newItem);
+    // if (i % 10000 == 0) {
+    // System.out.println("added " + i + " items so far.");
+    // }
+    // }
+    // System.exit(0);
+    // }
 
 }
