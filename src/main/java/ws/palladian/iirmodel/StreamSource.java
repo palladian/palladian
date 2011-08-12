@@ -83,7 +83,7 @@ public abstract class StreamSource implements Serializable {
      * The authors contributing to this {@link StreamSource}.
      * </p>
      */
-    @OneToMany(mappedBy = "streamSource")
+    @OneToMany
     private Set<Author> authors;
 
     //
@@ -202,11 +202,11 @@ public abstract class StreamSource implements Serializable {
         return authors;
     }
 
-    protected void setAuthors(Set<Author> authors) {
+    public void setAuthors(Set<Author> authors) {
         this.authors = authors;
     }
 
-    protected void addAuthor(Author author) {
+    public void addAuthor(Author author) {
         authors.add(author);
     }
 

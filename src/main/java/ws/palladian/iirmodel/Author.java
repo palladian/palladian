@@ -8,7 +8,6 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -92,8 +91,7 @@ public class Author {
      * kind of source the author's username is unique in.
      * </p>
      */
-    @ManyToOne
-    private StreamSource streamSource;
+    private String streamSourceAddress;
 
     /**
      * <p>
@@ -115,11 +113,11 @@ public class Author {
      *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
      *            Forum or other kind of source the author's username is unique in.
      */
-    public Author(String username, StreamSource streamSource) {
+    public Author(String username, String streamSourceAddress) {
         this();
         this.username = username;
-        this.streamSource = streamSource;
-        streamSource.addAuthor(this);
+        this.streamSourceAddress = streamSourceAddress;
+        // streamSource.addAuthor(this);
     }
 
     /**
@@ -141,15 +139,15 @@ public class Author {
      *            Forum or other kind of source the author's username is unique in.
      */
     public Author(String username, Integer countOfItems, Integer countOfStreamsStarted, Integer authorRating,
-            Date registeredSince, StreamSource streamSource) {
+            Date registeredSince, String streamSourceAddress) {
         this();
         this.countOfItems = countOfItems;
         this.countOfStreamsStarted = countOfStreamsStarted;
         this.authorRating = authorRating;
         this.registeredSince = registeredSince;
         this.username = username;
-        this.streamSource = streamSource;
-        streamSource.addAuthor(this);
+        this.streamSourceAddress = streamSourceAddress;
+        // streamSource.addAuthor(this);
     }
 
     /**
@@ -276,7 +274,7 @@ public class Author {
     // public void setItems(Collection<Item> items) {
     // this.items = items;
     // }
-
+    //
     // /**
     // * @param item
     // */
@@ -316,8 +314,8 @@ public class Author {
      *         href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web Forum
      *         or other kind of source the author's username is unique in.
      */
-    public StreamSource getStreamSource() {
-        return streamSource;
+    public String getStreamSource() {
+        return streamSourceAddress;
     }
 
     /**
@@ -326,12 +324,12 @@ public class Author {
      * for.
      * </p>
      * 
-     * @param streamSource The source of streams this {@code Author} creates {@link Item}s for, such as <a
+     * @param streamSourceAddress The source of streams this {@code Author} creates {@link Item}s for, such as <a
      *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
      *            Forum or other kind of source the author's username is unique in.
      */
-    public void setStreamSource(StreamSource streamSource) {
-        this.streamSource = streamSource;
+    public void setStreamSource(String streamSourceAddress) {
+        this.streamSourceAddress = streamSourceAddress;
     }
 
     /**
@@ -373,11 +371,11 @@ public class Author {
             return false;
         }
         Author other = (Author)obj;
-        if (streamSource == null) {
-            if (other.streamSource != null) {
+        if (streamSourceAddress == null) {
+            if (other.streamSourceAddress != null) {
                 return false;
             }
-        } else if (!streamSource.equals(other.streamSource)) {
+        } else if (!streamSourceAddress.equals(other.streamSourceAddress)) {
             return false;
         }
         if (username == null) {
@@ -398,7 +396,7 @@ public class Author {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((streamSource == null) ? 0 : streamSource.hashCode());
+        result = prime * result + ((streamSourceAddress == null) ? 0 : streamSourceAddress.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
     }

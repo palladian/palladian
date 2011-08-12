@@ -13,9 +13,9 @@ public class ItemTest {
     public void testEquals() {
 
         ItemStream stream1 = new ItemStream("stream1", "http://source.de/stream1");
-        Author author = new Author("a1", 10, 2, 5, new Date(), stream1);
+        Author author = new Author("a1", 10, 2, 5, new Date(), stream1.getSourceAddress());
 
-        // item1 and changedItem1 are "equal", 
+        // item1 and changedItem1 are "equal",
         // because they are in the same ItemStream and have the same sourceInternalIdentifier
         Item item1 = new Item("i1", author, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
                 "i1text", null, ItemType.QUESTION);

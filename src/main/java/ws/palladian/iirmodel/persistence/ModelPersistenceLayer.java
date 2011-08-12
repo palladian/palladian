@@ -138,31 +138,19 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public final void saveStreamSource(final StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
-
-        StreamSource existingStreamSource = loadStreamSourceByAddress(streamSource.getSourceAddress());
-        ItemStream itemStream = (ItemStream)streamSource;
-        if (existingStreamSource != null) {
-            // Collection<Item> removedItems = getRemovedItems((ItemStream)existingStreamSource, itemStream);
-            // removeItems(removedItems);
-
-            streamSource.setIdentifier(existingStreamSource.getIdentifier());
-            getManager().merge(streamSource);
-        } else {
-            getManager().persist(streamSource);
+        for (Author author : streamSource.getAuthors()) {
+            getManager().persist(author);
         }
+        ItemStream itemStream = (ItemStream)streamSource;
+        for (Item item : itemStream.getItems()) {
+            getManager().persist(item);
+        }
+        getManager().persist(itemStream);
+
         //
         // for (Item item : itemStream.getItems()) {
         // getManager().persist(item);
         // }
-        for (Author author : streamSource.getAuthors()) {
-            // Author existingAuthor = loadAuthor(author.getUsername(), streamSource);
-            // if (existingAuthor == null) {
-            getManager().persist(author);
-            // } else {
-            // author.setIdentifier(existingAuthor.getIdentifier());
-            // getManager().merge(author);
-            // }
-        }
         // if (streamSource instanceof ItemStream) {
         // ItemStream itemStream = (ItemStream)streamSource;
         // saveItemStream(itemStream);
@@ -360,9 +348,9 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param streamSource
      * @return
      */
-    public Author loadAuthor(String username, StreamSource streamSource) {
+    public Author loadAuthor(String username, String streamSource) {
         Query authorQuery = getManager().createQuery(
-                "SELECT a FROM Author a WHERE a.username=:username AND a.streamSource=:streamSource");
+                "SELECT a FROM Author a WHERE a.username=:username AND a.streamSourceAddress=:streamSource");
         authorQuery.setParameter("username", username);
         authorQuery.setParameter("streamSource", streamSource);
 
