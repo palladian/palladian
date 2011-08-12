@@ -138,14 +138,21 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public final void saveStreamSource(final StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
-        for (Author author : streamSource.getAuthors()) {
-            getManager().persist(author);
-        }
+        StreamSource existingStreamSource = loadStreamSourceByAddress(streamSource.getSourceAddress());
         ItemStream itemStream = (ItemStream)streamSource;
         for (Item item : itemStream.getItems()) {
-            getManager().persist(item);
+            getManager().persist(item.getAuthor());
+
+            // Item existingItem = loadItem(item.getSourceInternalIdentifier(),item.getParent());
+            // getManager().persist(item);
         }
-        getManager().persist(itemStream);
+
+        if (existingStreamSource == null) {
+            getManager().persist(itemStream);
+        } else {
+            streamSource.setIdentifier(existingStreamSource.getIdentifier());
+            getManager().merge(streamSource);
+        }
 
         //
         // for (Item item : itemStream.getItems()) {
@@ -313,7 +320,7 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
         final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
         if (existingUser == null) {
             getManager().persist(author);
-            getManager().persist(author.getStreamSource());
+            // getManager().persist(author.getStreamSource());
         } else {
             author.setIdentifier(existingUser.getIdentifier());
             getManager().merge(author);

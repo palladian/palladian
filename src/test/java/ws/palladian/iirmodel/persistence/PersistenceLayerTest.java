@@ -136,7 +136,7 @@ public class PersistenceLayerTest {
     }
 
     @Test
-    public void testSaveChangeItemStream() throws Exception {
+    public void testSaveChangedItemStream() throws Exception {
 
         // save an ItemStream
         ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
@@ -149,6 +149,8 @@ public class PersistenceLayerTest {
         Item item2 = new Item("i2", author2, "http://testSource.de/testStream/i2", "i2", author2RegistrationDate,
                 new Date(), "i2text", item1, ItemType.OTHER);
         stream.addItem(item2);
+        stream.addAuthor(author1);
+        stream.addAuthor(author2);
 
         persistenceLayer.saveStreamSource(stream);
 
@@ -165,6 +167,8 @@ public class PersistenceLayerTest {
         Item changedItem2 = new Item("i3", changedAuthor2, "http://testSource.de/testStream/i3", "i3", new Date(),
                 new Date(), "i3text", changedItem1, ItemType.OTHER);
         changedStream.addItem(changedItem2);
+        changedStream.addAuthor(changedAuthor1);
+        changedStream.addAuthor(changedAuthor2);
 
         System.err.println(changedStream.getItems().size());
 
@@ -182,6 +186,8 @@ public class PersistenceLayerTest {
         assertEquals("http://testSource.de/testStream", loadedStream.getSourceAddress());
         assertEquals("i2", loadedStream.getItems().get(0).getSourceInternalIdentifier());
         assertEquals("i3", loadedStream.getItems().get(1).getSourceInternalIdentifier());
+        assertEquals(2, loadedStream.getAuthors().size());
+        assertEquals(Integer.valueOf(5), loadedStream.getItems().get(0).getAuthor().getAuthorRating());
     }
 
     @Test
