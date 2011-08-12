@@ -69,12 +69,12 @@ public abstract class AbstractPersistenceLayer {
      * @param collection2
      * @return
      */
-    protected List<Object> mergeCollections(Collection<Object> collection1, Collection<Object> collection2) {
-        List<Object> ret = new LinkedList<Object>();
-        for (Object entry : collection1) {
+    protected <T> List<T> mergeCollections(Collection<T> collection1, Collection<T> collection2) {
+        List<T> ret = new LinkedList<T>();
+        for (T entry : collection1) {
             ret.add(entry);
         }
-        for (Object obj : collection2) {
+        for (T obj : collection2) {
             if (!collection1.contains(obj)) {
                 ret.add(obj);
             }

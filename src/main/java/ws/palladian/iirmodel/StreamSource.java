@@ -83,7 +83,7 @@ public abstract class StreamSource implements Serializable {
      * The authors contributing to this {@link StreamSource}.
      * </p>
      */
-    @OneToMany
+    @OneToMany //(cascade = CascadeType.PERSIST)
     private Set<Author> authors;
 
     //

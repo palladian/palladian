@@ -107,8 +107,38 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public ModelPersistenceLayer(final EntityManager manager) {
         super(manager);
     }
+    
+    public Collection<Author> getAllAuthors(StreamGroup sg) {
+        Collection<Author> authors = new ArrayList<Author>();
+        authors.addAll(sg.getAuthors());
+        List<StreamSource> sgc = sg.getChildren();
+        for (StreamSource s : sgc) {
+            authors.addAll(s.getAuthors());
+        }
+        return authors;
+    }
 
     public final void saveStreamSource(final StreamGroup streamGroup) {
+        Boolean openedTransaction = openTransaction();
+        //Collection<Author> authors = streamGroup.getAuthors();
+        Collection<Author> authors = getAllAuthors(streamGroup);
+        for (Author author : authors) {
+            getManager().persist(author);
+        }
+        getManager().persist(streamGroup);
+        
+        List<StreamSource> children = streamGroup.getChildren();
+        for (StreamSource child : children) {
+            if (child instanceof StreamGroup) {
+                StreamGroup streamGroupChild = (StreamGroup) child;
+                saveStreamSource(streamGroupChild);
+            } else if (child instanceof ItemStream) {
+                ItemStream itemStreamChild = (ItemStream) child;
+                saveStreamSource(itemStreamChild);
+            }
+        }
+        
+        commitTransaction(openedTransaction);
 //        Boolean openedTransaction = openTransaction();
 //        ItemStream existingStream = (ItemStream)loadStreamSourceByAddress(stream.getSourceAddress());
 //
@@ -140,35 +170,25 @@ public class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public final void saveStreamSource(final ItemStream itemStream) {
         Boolean openedTransaction = openTransaction();
         StreamSource existingStreamSource = loadStreamSourceByAddress(itemStream.getSourceAddress());
+        
+        
+        Collection<Author> authors = itemStream.getAuthors();
+        System.err.println("****** " + authors);
+        /*for (Author author : authors) {
+            getManager().persist(author);
+        }
+        */
+        
         for (Item item : itemStream.getItems()) {
             getManager().persist(item.getAuthor());
-
-            // Item existingItem = loadItem(item.getSourceInternalIdentifier(),item.getParent());
-            // getManager().persist(item);
         }
-
+        
         if (existingStreamSource == null) {
             getManager().persist(itemStream);
         } else {
             itemStream.setIdentifier(existingStreamSource.getIdentifier());
             getManager().merge(itemStream);
         }
-
-        //
-        // for (Item item : itemStream.getItems()) {
-        // getManager().persist(item);
-        // }
-        // if (streamSource instanceof ItemStream) {
-        // ItemStream itemStream = (ItemStream)streamSource;
-        // saveItemStream(itemStream);
-        // } else {
-        // StreamSource existingStream = loadStreamSourceByAddress(streamSource.getSourceAddress());
-        // if (existingStream == null) {
-        // getManager().persist(streamSource);
-        // } else {
-        // getManager().merge(existingStream);
-        // }
-        // }
         commitTransaction(openedTransaction);
     }
 
