@@ -157,8 +157,6 @@ public class PersistenceLayerTest {
         // save the same ItemStream again; ItemStream gets updated
         ItemStream changedStream = new ItemStream("testSource", "http://testSource.de/testStream");
 
-        System.err.println(changedStream.getItems().size());
-
         Author changedAuthor1 = new Author("a2", 11, 3, 5, author2RegistrationDate, changedStream.getSourceAddress());
         Item changedItem1 = new Item("i2", changedAuthor1, "http://testSource.de/testStream/i2", "i2",
                 item2.getPublicationDate(), item2.getUpdateDate(), "i2text", null, ItemType.OTHER);
@@ -169,11 +167,6 @@ public class PersistenceLayerTest {
         changedStream.addItem(changedItem2);
         changedStream.addAuthor(changedAuthor1);
         changedStream.addAuthor(changedAuthor2);
-
-        System.err.println(changedStream.getItems().size());
-
-        System.out.println(changedStream.getItems().contains(changedItem1));
-        System.out.println(changedStream.getItems().contains(changedItem2));
 
         persistenceLayer.saveItemStream(changedStream);
 
@@ -323,7 +316,6 @@ public class PersistenceLayerTest {
         StreamGroup streamGroup = (StreamGroup) streamSource;
         assertEquals(3, streamGroup.getChildren().size());
         assertEquals("testSource", streamGroup.getParentSource().getSourceName());
-        // System.out.println(childGroup3.getQualifiedSourceName());
 
         streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream");
         assertNull(streamSource.getParentSource());
