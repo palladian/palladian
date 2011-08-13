@@ -76,6 +76,14 @@ public class GZScheduler extends TimerTask {
         // schedule all feeds only once
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
+
+                // Blacklist: gzs from thepiratebay.org are not parsable anymore since a linked namespace utl is
+                // unavailable, causing the parser to wait for 3 minutes before failing.
+                if (feed.getId() >= 670589 && feed.getId() <= 670618) {
+                    LOGGER.info("Blacklist. Skipping feed id " + feed.getId());
+                    continue;
+                }
+
                 scheduledTasks.put(feed.getId(), threadPool.submit(new GZFeedTask(feed, feedReader)));
                 newlyScheduledFeedsCount++;
             } else {
