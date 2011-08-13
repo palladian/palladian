@@ -94,6 +94,15 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
         try {
             LOGGER.debug("Start processing of feed id " + correctedFeed.getId() + " (" + correctedFeed.getFeedUrl()
                     + ")");
+
+            // skip feeds that have never been checked. We dont have any files, nor a folder for them.
+            if (initialChecks == 0) {
+                LOGGER.debug("Feed id " + correctedFeed.getId() + " has never been checked. Nothing to do.");
+                resultSet.add(FeedTaskResult.SUCCESS);
+                doFinalLogging(timer);
+                return getResult();
+            }
+
             String safeFeedName = DatasetCreator.getSafeFeedName(correctedFeed.getFeedUrl());
             String folderPath = DatasetCreator.getFolderPath(correctedFeed.getId());
             String originalCsvPath = DatasetCreator.getCSVFilePath(correctedFeed.getId(), safeFeedName);
@@ -217,7 +226,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
                 filesProcessed++;
                 if ((filesProcessed % 100) == 0) {
-                    LOGGER.info("Processed " + filesProcessed + " gz files so far.");
+                    LOGGER.info("Feed id " + correctedFeed.getId() + " processed " + filesProcessed
+                            + " gz files so far.");
                 }
 
             }
