@@ -55,6 +55,9 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
     /** Number of checks the feed had before running this task. */
     private int initialChecks = 0;
+    
+    /** The total number of items the feed had before running this task. */
+    private int initialTotalItems = 0;
 
     /**
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
@@ -79,10 +82,11 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
      * @param feed The feed retrieved by this task.
      */
     public GZFeedTask(Feed dbFeed, FeedReader feedChecker) {
-        this.correctedFeed = copyRequiredFeedProperties(dbFeed);
-        this.feedReader = feedChecker;
         this.initialMisses = dbFeed.getMisses();
         this.initialChecks = dbFeed.getChecks();
+        this.initialTotalItems = dbFeed.getNumberOfItemsReceived();
+        this.correctedFeed = copyRequiredFeedProperties(dbFeed);
+        this.feedReader = feedChecker;
     }
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
@@ -98,6 +102,14 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
             // skip feeds that have never been checked. We dont have any files, nor a folder for them.
             if (initialChecks == 0) {
                 LOGGER.debug("Feed id " + correctedFeed.getId() + " has never been checked. Nothing to do.");
+                resultSet.add(FeedTaskResult.SUCCESS);
+                doFinalLogging(timer);
+                return getResult();
+            }
+            
+            // skip feeds that contain no item
+            if(initialTotalItems == 0){
+                LOGGER.debug("Feed id " + correctedFeed.getId() + " has no items. Nothing to do.");
                 resultSet.add(FeedTaskResult.SUCCESS);
                 doFinalLogging(timer);
                 return getResult();
@@ -416,12 +428,14 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
     }
 
     /**
-     * Creates a new feed that has most but not all of the properties the provided feed has.
+     * Creates a new feed that has most but not all of the properties the provided feed has. Copying is required since
+     * the feed loaded from database might have a variableWindowSize that can not be reset to false.
      * 
      * @param dbFeed feed to copy.
      * @return New feed with partly copied properties.
      */
     private Feed copyRequiredFeedProperties(Feed dbFeed) {
+
         Feed newFeed = new Feed();
         newFeed.setActivityPattern(dbFeed.getActivityPattern());
         newFeed.setAdditionalData(dbFeed.getAdditionalData());
