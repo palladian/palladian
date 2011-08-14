@@ -60,7 +60,7 @@ public class Item implements Serializable {
      * </p>
      */
     @ManyToOne
-    private StreamSource parent;
+    private ItemStream parent;
 
     /**
      * <p>
@@ -144,7 +144,6 @@ public class Item implements Serializable {
      * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might not be
      *            world wide unique and only servers as identifier within the stream. This identifier is usually
      *            assigned by the item stream and extracted while reading on the stream.
-     * @param parent The item stream that produced this item.
      * @param author The user profile of the author, who created this item.
      * @param link The URL used to access this item.
      * @param title The title of this item.
@@ -217,11 +216,11 @@ public class Item implements Serializable {
         this.link = link;
     }
 
-    public StreamSource getParent() {
+    public ItemStream getParent() {
         return parent;
     }
 
-    public void setParent(StreamSource parent) {
+    public void setParent(ItemStream parent) {
         this.parent = parent;
     }
 
