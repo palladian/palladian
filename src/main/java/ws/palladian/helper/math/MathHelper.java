@@ -24,6 +24,37 @@ import ws.palladian.helper.LineAction;
  */
 public class MathHelper {
 
+    /**
+     * <p>
+     * Calculate the Jaccard similarity between two sets. J(A,B) = A and B / A union B.
+     * </p>
+     * 
+     * @param setA The first set.
+     * @param setB The second set.
+     * @return The jaccard similarity in the range [0,1].
+     */
+    public static double calculateJaccardSimilarity(Set<String> setA, Set<String> setB) {
+        double similarity = -1;
+
+        Set<String> aUnionB = new HashSet<String>();
+        aUnionB.addAll(setA);
+        aUnionB.addAll(setB);
+
+        // check items which are in both sets
+        Set<String> checkSet = new HashSet<String>();
+        checkSet.addAll(setA);
+        int aAndB = 0;
+        for (String itemB : setB) {
+            if (!checkSet.add(itemB)) {
+                aAndB++;
+            }
+        }
+
+        similarity = aAndB / (double) aUnionB.size();
+
+        return similarity;
+    }
+
     public static double round(double number, int digits) {
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;

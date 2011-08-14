@@ -189,7 +189,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         universalClassifier = new UniversalClassifier();
         universalClassifier.getTextClassifier().getClassificationTypeSetting()
-        .setClassificationType(ClassificationTypeSetting.TAG);
+                .setClassificationType(ClassificationTypeSetting.TAG);
 
         universalClassifier.getTextClassifier().getDictionary().setName("dictionary");
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -337,7 +337,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         LOGGER.info("case dictionary contains " + caseDictionary.size() + " entities");
         caseDictionary.saveAsCSV();
 
-        LOGGER.info("serializing Palladian NER");
+        LOGGER.info("serializing Palladian NER to " + modelFilePath);
         if (!modelFilePath.endsWith(getModelFileEnding())) {
             modelFilePath = modelFilePath + "." + getModelFileEnding();
         }
@@ -353,6 +353,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
         FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
                 + "_meta.txt", supportedConcepts);
+
+        LOGGER.info("all Palladian NER files written");
     }
 
     /**
@@ -862,10 +864,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (Annotation annotation : annotations) {
 
                 if (/*
-                 * // if the annotation is at the start of a sentence
-                 * Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                 * &&
-                 */annotation.getEntity().indexOf(" ") == -1) {
+                     * // if the annotation is at the start of a sentence
+                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
+                     * &&
+                     */annotation.getEntity().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
@@ -1649,7 +1651,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -1705,7 +1707,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // // training the tagger
         // needs to point to a column separated file
         String trainingPath = "data/datasets/ner/conll/training.txt";
-        String modelPath = "data/temp/palladianNer";
+        trainingPath = "data/temp/seedsTest100.txt";
+        trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
+        String modelPath = "data/temp/palladianNerTudCs4Annotations";
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1716,8 +1720,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");
 
-        // train the tagger on the training file
-        tagger.train(trainingPath, modelPath);
+        // we can add annotations without any context to the tagger to improve internal evidence features
+        String trainingSeedFilePath = PalladianNer.class.getResource("/nerSeeds.txt").getFile();
+        Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
+
+        // train the tagger on the training file (with or without additional training annotations)
+        tagger.train(trainingPath, trainingAnnotations, modelPath);
+        // tagger.train(trainingPath, modelPath);
 
         // // using a trained tagger
         // load a trained tagger
@@ -1738,10 +1747,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // // evaluate a tagger
         String testPath = "data/datasets/ner/conll/test_final.txt";
+        testPath = "data/datasets/ner/tud/tud2011_test.txt";
         EvaluationResult evr = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         System.out.println(evr.getMUCResultsReadable());
         System.out.println(evr.getExactMatchResultsReadable());
 
+        // CoNLL
         // without the dictionary
         // precision MUC: 76.19%, recall MUC: 82.25%, F1 MUC: 79.1%
         // precision exact: 64.54%, recall exact: 69.67%, F1 exact: 67.01%
@@ -1749,6 +1760,19 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // with the dbpedia dictionary BUT the types of conll and dbpedia do not match therefore a worse result
         // precision MUC: 57.09%, recall MUC: 62.96%, F1 MUC: 59.88%
         // precision exact: 30.41%, recall exact: 33.54%, F1 exact: 31.9%
+
+        // TUDCS4
+        // without the dictionary
+        // precision MUC: 52.12%, recall MUC: 53.36%, F1 MUC: 52.73%
+        // precision exact: 29.4%, recall exact: 30.11%, F1 exact: 29.75%
+
+        // with additional training annotations (src/main/resources/nerSeeds.txt)
+        // precision MUC: 51.92%, recall MUC: 64.46%, F1 MUC: 57.52%
+        // precision exact: 31.95%, recall exact: 39.66%, F1 exact: 35.39%
+
+        // learned from automatically generated training data, sparse (100 seeds)
+        // precision MUC: 42.56%, recall MUC: 51.76%, F1 MUC: 46.71%
+        // precision exact: 16.49%, recall exact: 20.05%, F1 exact: 18.09%
 
         System.exit(0);
 
@@ -1805,10 +1829,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         String trainingFilePath = "data/temp/autoGeneratedDataConll/seedsTest1.txt";
         // trainingFilePath = "data/temp/autoGeneratedDataTUD2/seedsTest1.txt";
         // trainingFilePath = "data/temp/autoGeneratedDataTUD4/seedsTest50.txt";
-        trainingFilePath = "data/datasets/ner/conll/training_small.txt";
+        // trainingFilePath = "data/datasets/ner/conll/training_small.txt";
+        // trainingFilePath = "data/temp/seedsTest100.txt";
 
         String testFilePath = "data/datasets/ner/conll/test_final.txt";
-        // testFilePath = "data/datasets/ner/tud/tud2011_test.txt";
+        testFilePath = "data/datasets/ner/tud/tud2011_test.txt";
 
         String seedFilePath = "data/datasets/ner/conll/training.txt";
         seedFilePath = "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt";
@@ -1816,44 +1841,45 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         StopWatch stopWatch = new StopWatch();
 
         // /////////////////////// evaluation purposes //////////////////////////
-        // StringBuilder evaluationResults = new StringBuilder();
-        // Annotations ignoreAnnotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
-        // String datasetFolder = "data/temp/autoGeneratedDataTUD4/";
-        // datasetFolder = "data/temp/autoGeneratedDataConll/";
-        //
-        // // for (int i = 1; i <= 100; i += 10) {
-        // for (int i = 1; i <= 5; i++) {
-        //
-        // int j = i;
-        // if (j > 1) {
-        // j *= 10;
-        // }
-        // j = 10;
-        // trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
-        //
-        // tagger = new PalladianNer();
-        // tagger.setLanguageMode(LanguageMode.English);
-        // tagger.setTrainingMode(TrainingMode.Sparse);
-        //
-        // // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
-        // // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
-        // tagger.train(trainingFilePath, "data/temp/tudner");
-        // // tagger.train(annotations, "data/temp/tudner2.model");
-        // tagger.loadModel("data/temp/tudner");
-        //
-        // EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
-        //
-        // evaluationResults.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-        // evaluationResults.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-        // evaluationResults.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-        // evaluationResults.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-        // evaluationResults.append(er.getRecall(EvaluationResult.MUC)).append(";");
-        // evaluationResults.append(er.getF1(EvaluationResult.MUC)).append(";");
-        //
-        // evaluationResults.append("\n");
-        // FileHelper.writeToFile("resultsConll.txt", evaluationResults);
-        // }
-        // System.exit(0);
+        StringBuilder evaluationResults = new StringBuilder();
+        Annotations ignoreAnnotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
+        String datasetFolder = "data/temp/autoGeneratedDataTUD4/";
+        datasetFolder = "data/temp/autoGeneratedDataConll/";
+        datasetFolder = "data/temp/autoGeneratedDataTUD/";
+
+        // for (int i = 1; i <= 100; i += 10) {
+        for (int i = 1; i <= 5; i++) {
+
+            int j = i;
+            if (j > 1) {
+                j *= 10;
+            }
+            j = 10;
+            trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
+
+            tagger = new PalladianNer();
+            tagger.setLanguageMode(LanguageMode.English);
+            tagger.setTrainingMode(TrainingMode.Sparse);
+
+            // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
+            // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
+            tagger.train(trainingFilePath, "data/temp/tudner");
+            // tagger.train(annotations, "data/temp/tudner2.model");
+            tagger.loadModel("data/temp/tudner");
+
+            EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
+
+            evaluationResults.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getPrecision(EvaluationResult.MUC)).append(";");
+            evaluationResults.append(er.getRecall(EvaluationResult.MUC)).append(";");
+            evaluationResults.append(er.getF1(EvaluationResult.MUC)).append(";");
+
+            evaluationResults.append("\n");
+            FileHelper.writeToFile("results.txt", evaluationResults);
+        }
+        System.exit(0);
         // 2-8, 4-5, 040: 0.3912314995811226;
         // 2-8, 4-5, 040, seedsText2: 0.40139470013947
         // 2-8, 4-5, 120: 0.39039374476403244;
