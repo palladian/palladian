@@ -312,8 +312,8 @@ public class ListDiscoverer {
         paginationURLs = filteredUrls;
     }
 
-    private String removeHtmlBody(String paginationXPath) {
-        return paginationXPath.replace("/html/body/", "//");
+    public static String removeHtmlBody(String paginationXPath) {
+        return paginationXPath.replace("/html/body/", "//").replace("/xhtml:html/xhtml:body/", "//");
     }
 
     public Set<String> getPaginationURLs() {
