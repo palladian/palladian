@@ -17,6 +17,7 @@ import javax.persistence.criteria.CriteriaQuery;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 3.0
  * @since 1.0
  */
@@ -84,6 +85,25 @@ public abstract class AbstractPersistenceLayer {
         return ret;
     }
 
+    /**
+     * <p>
+     * When no transaction is open, start a new one. This method can be used in conjunction with
+     * {@link #commitTransaction(Boolean)} and placed in subclasses to allow more convenient transaction handling among
+     * multiple methods. Example:
+     * </p>
+     * 
+     * <pre>
+     * boolean openedTransaction = openTransaction();
+     * // do persistence work here
+     * commitTransaction(openedTransaction);
+     * </pre>
+     * 
+     * <p>
+     * In this case, the transaction is only commited, if it was opened at the beginning.
+     * </p>
+     * 
+     * @return <code>true</code> if a new transaction was started, <code>false</code> if transaction was open already.
+     */
     protected final Boolean openTransaction() {
         if (manager.getTransaction().isActive()) {
             return false;
@@ -93,6 +113,14 @@ public abstract class AbstractPersistenceLayer {
         }
     }
 
+    /**
+     * <p>
+     * Commit a transaction, if supplied parameter is <code>true</code>. See {@link #openTransaction()} for more
+     * information.
+     * </p>
+     * 
+     * @param openedTransaction
+     */
     protected final void commitTransaction(final Boolean openedTransaction) {
         if (openedTransaction) {
             manager.getTransaction().commit();
@@ -156,7 +184,9 @@ public abstract class AbstractPersistenceLayer {
     }
 
     /**
+     * <p>
      * Return the first object in a list, or <code>null</code>, if list is empty.
+     * </p>
      * 
      * @param list
      * @return
@@ -170,10 +200,11 @@ public abstract class AbstractPersistenceLayer {
     }
 
     /**
+     * <p>
      * Saves a list of entities to the database, updating already existing contributions.
+     * </p>
      * 
-     * @param contributions
-     *            The list of new or changed contributions.
+     * @param ts The list of new or changed entities.
      */
     public final <T> void update(List<T> ts) {
         for (T t : ts) {
@@ -181,6 +212,13 @@ public abstract class AbstractPersistenceLayer {
         }
     }
 
+    /**
+     * <p>
+     * Save an entity to the database, updating if already existing.
+     * </p>
+     * 
+     * @param t The new or changed entity.
+     */
     public final <T> void update(T t) {
         final Boolean openedTransaction = openTransaction();
         getManager().merge(t);
