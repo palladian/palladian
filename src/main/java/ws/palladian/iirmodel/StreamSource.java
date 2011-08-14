@@ -53,12 +53,11 @@ public abstract class StreamSource implements Serializable {
 
     /**
      * <p>
-     * The stream source is a system wide unique name identifying the source for a set of generated item streams. It
-     * might be the source's name as long as no other stream with the same name exists or the source's URL otherwise.
-     * For web forum threads this might be the forum name. For <a href="http://www.facebook.com">Facebook</a> it might
-     * be "facebook" or "http://facebook.com". When a service with multiple sources is considered, e. g. <a
-     * href="http://sourceforge.net/">SourceForge.net</a>, each source must have its own name, like "phpMyAdmin forum",
-     * "phpMyAdmin mailing list", etc.
+     * A human-readable and understandable name for this source. For web forum threads this might be the name of the
+     * thread. For <a href="http://www.facebook.com">Facebook</a> it might be "Facebook". When a service with multiple
+     * sources is considered, e. g. <a href="http://sourceforge.net/">SourceForge.net</a>, each source can have its own
+     * name, like "Forum", "Mailing List", etc. and be bundeled together using a {@link StreamGroup}, which might have
+     * the parent's source's name like "SourceForge".
      * </p>
      */
     private String sourceName;
@@ -107,14 +106,9 @@ public abstract class StreamSource implements Serializable {
      * Creates a new {@code StreamSource} with no items but all other values initialized.
      * </p>
      * 
-     * @param sourceName The stream source is a system wide unique name identifying the source for a set of generated
-     *            item streams. It might be the sources name as long as no other stream with the same name exists or the
-     *            sources URL otherwise. For web forum threads this might be the forum name. For <a
-     *            href="http://www.facebook.com">Facebook</a> it might be "facebook" or "http://facebook.com".
+     * @param sourceName A human-readable and understandable name for this source.
      * @param sourceAddress The address to access this stream. This usually is an URL but might be a file system path
-     *            (in URL form or not) as well.
-     * @param channelName Streams with similar content are often presented together under common name. This property
-     *            provides the name of the stream channel the current item stream belongs to.
+     *            (in URL form or not) as well. This attribute is used as unique identifier for the source.
      */
     protected StreamSource(String sourceName, String sourceAddress) {
         this();

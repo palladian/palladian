@@ -53,11 +53,12 @@ public final class StreamGroup extends StreamSource {
      * Creates a new, empty {@link StreamGroup} with the specified values.
      * </p>
      * 
-     * @param streamSource
-     * @param sourceAddress
+     * @param sourceName A human-readable and understandable name for this source.
+     * @param sourceAddress The address to access this stream. This usually is an URL but might be a file system path
+     *            (in URL form or not) as well. This attribute is used as unique identifier for the source.
      */
-    public StreamGroup(String streamSource, String sourceAddress) {
-        super(streamSource, sourceAddress);
+    public StreamGroup(String sourceName, String sourceAddress) {
+        super(sourceName, sourceAddress);
         children = new ArrayList<StreamSource>();
     }
 

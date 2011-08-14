@@ -62,12 +62,9 @@ public final class ItemStream extends StreamSource {
      * Creates a new {@link ItemStream} with no items but all other values initialized.
      * </p>
      * 
-     * @param sourceName The stream source is a system wide unique name identifying the source for a set of generated
-     *            item streams. It might be the sources name as long as no other stream with the same name exists or the
-     *            sources URL otherwise. For web forum threads this might be the forum name. For <a
-     *            href="http://www.facebook.com">Facebook</a> it might be "facebook" or "http://facebook.com".
+     * @param sourceName A human-readable and understandable name for this source.
      * @param sourceAddress The address to access this stream. This usually is an URL but might be a file system path
-     *            (in URL form or not) as well.
+     *            (in URL form or not) as well. This attribute is used as unique identifier for the source.
      */
     public ItemStream(String sourceName, String sourceAddress) {
         super(sourceName, sourceAddress);
