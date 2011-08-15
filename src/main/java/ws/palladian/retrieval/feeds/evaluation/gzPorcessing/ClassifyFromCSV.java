@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -132,8 +131,8 @@ public class ClassifyFromCSV extends Thread {
 
                     try {
                         // get timestamps and windowSize from csv
-                        long csvPublishDate = Long.parseLong(split[0]);
-                        Date publishDate = new Date(csvPublishDate);
+                        String csvPublishDate = split[0];
+                        Date publishDate = new Date(Long.parseLong(csvPublishDate));
                         Date pollTime = new Date(Long.parseLong(split[1]));
                         String hash = split[2];
                         int windowSize = Integer.parseInt(split[5]);
@@ -142,9 +141,11 @@ public class ClassifyFromCSV extends Thread {
                         String logMessage = "Feed id " + originalFeed.getId() + " line " + lineCounter;
                         Date correctedPublishDate = Feed.correctedTimestamp(publishDate, pollTime, logMessage, false);
 
-                        // set pollTime if entry has no publish time
-                        if (csvPublishDate <= TimeUnit.HOURS.toMillis(1)) {
+                        // set pollTime if entry has no publish time. In case the item had no publish date, we wrote
+                        // 0000000000000 to the csv file to indicate a not existing publish date
+                        if (csvPublishDate.equals("0000000000000")) {
                             correctedPublishDate = pollTime;
+                            publishDate = null;
                         }
 
                         // tricky: we have timestamps with millisecond precision in csv but only second in database.
