@@ -192,7 +192,7 @@ public class ExperimentalFeedClassifier {
 
                     List<Long> publishTimestampsPerPoll = httpDateAndPollTimestamps.get(httpDate);
                     Collections.sort(publishTimestampsPerPoll);
-                    medianPostGapPerPollList.add(MathHelper.getMedianDifference(publishTimestampsPerPoll));
+                    // medianPostGapPerPollList.add(MathHelper.getMedianDifference(publishTimestampsPerPoll));
 
                     // one requirement for chunked and OTF is that if a poll contains new items, the whole window is
                     // new.
@@ -201,11 +201,17 @@ public class ExperimentalFeedClassifier {
                     // updated on a weekly basis, a movie might be in subsequent windows. The current item duplicate
                     // detection ignores dates so in this case, the feed is not classified as chunked.
                     // -- Sandro 15.08.2011
+                    // int windowSizeCurrentPoll = httpDateWindowSizes.get(httpDate);
+                    // int numNewItemsCurrentPoll = publishTimestampsPerPoll.size();
+                    // if (windowSizeCurrentPoll != numNewItemsCurrentPoll) {
+                    // chunkedCandidate = false;
+                    // otfCandidate = false;
+                    // }
+
                     int windowSizeCurrentPoll = httpDateWindowSizes.get(httpDate);
-                    int numNewItemsCurrentPoll = publishTimestampsPerPoll.size();
-                    if (windowSizeCurrentPoll != numNewItemsCurrentPoll) {
-                        chunkedCandidate = false;
-                        otfCandidate = false;
+
+                    if (windowSizeCurrentPoll > 1) {
+                        medianPostGapPerPollList.add(MathHelper.getMedianDifference(publishTimestampsPerPoll));
                     }
 
                     // Check OTF feed. Once failed, do not check again.
