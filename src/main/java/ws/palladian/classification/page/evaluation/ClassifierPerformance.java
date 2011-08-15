@@ -12,6 +12,7 @@ import ws.palladian.classification.page.ClassificationDocuments;
 import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
+import ws.palladian.helper.collection.CountMap;
 
 /**
  * This class calculates scores for a given classifier such as precision, recall, and F1.
@@ -116,6 +117,27 @@ public class ClassifierPerformance implements Serializable {
         }
 
         return correctlyClassified / (double) getTestDocuments().size();
+    }
+    
+    /**
+     * <p>Get the prior of the most likely category. In a dataset with evenly distributed classes the highest prior should be 1/#classes.</p>
+     * @return The highest prior.
+     */
+    public double getHighestPrior() {
+        
+        double highestPrior = -1.0;
+        
+        CountMap countMap = new CountMap();
+        for (TextInstance document : getTestDocuments()) {
+            countMap.increment(document.getMainCategoryEntry().getCategory().getName());
+        }
+
+        Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
+        if (highestClassCount != null && highestClassCount > 0) {
+            highestPrior = highestClassCount / (double) getTestDocuments().size();
+        }
+    
+        return highestPrior;
     }
 
     /**
@@ -650,6 +672,8 @@ public class ClassifierPerformance implements Serializable {
         classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
 
         classifierPerformanceResult.setCorrectlyClassified(getCorrectlyClassified());
+        
+        classifierPerformanceResult.setSuperiority(getCorrectlyClassified() / getHighestPrior());
 
         return classifierPerformanceResult;
     }
@@ -666,6 +690,7 @@ public class ClassifierPerformance implements Serializable {
         builder.append("Specificity: ").append(cpr.getSpecificity()).append("\n");
         builder.append("Accuracy: ").append(cpr.getAccuracy()).append("\n");
         builder.append("Correctly Classified: ").append(cpr.getCorrectlyClassified()).append("\n");
+        builder.append("Superiority: ").append(cpr.getSuperiority()).append("\n");
         return builder.toString();
 
     }
