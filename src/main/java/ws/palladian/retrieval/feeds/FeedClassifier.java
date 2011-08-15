@@ -130,8 +130,8 @@ public class FeedClassifier {
             // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at
             // the same time
             if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
-                if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
-                    // TODO Sandro: getTimeDifferenceToNewestPost() should be replaced by using the date element from
+                if (fps.getTimeDifferenceNewestPostToLastPollTime() < 5 * DateHelper.SECOND_MS) {
+                    // TODO Sandro: getTimeDifferenceNewestPostToLastPollTime() should be replaced by using the date element from
                     // HTTP header, otherwise classification only works when done at same time the feed is fetched.
                     feedClass = CLASS_ON_THE_FLY;
                 } else {
@@ -140,8 +140,8 @@ public class FeedClassifier {
             } else {
 
                 // if the last entry is a long time ago and the post gap was not that big, the feed is a zombie
-                if (fps.getTimeDifferenceToNewestPost() >= 8L * fps.getMedianPostGap()
-                        && fps.getTimeDifferenceToNewestPost() > 8L * DateHelper.WEEK_MS) {
+                if (fps.getTimeDifferenceNewestPostToLastPollTime() >= 8L * fps.getMedianPostGap()
+                        && fps.getTimeDifferenceNewestPostToLastPollTime() > 8L * DateHelper.WEEK_MS) {
                     feedClass = CLASS_ZOMBIE;
                 } else {
 
