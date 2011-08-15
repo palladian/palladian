@@ -56,7 +56,7 @@ public class FeedItem {
     private String text;
 
     /** The item's hash. */
-    // private String itemHash = null;
+    private String itemHash = null;
 
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData;
@@ -229,13 +229,44 @@ public class FeedItem {
     }
 
     /**
+     * Replaces the current item hash with the given one. Don't never ever ever ever use this. This is meant to be used
+     * only by the persistence layer and administrative authorities. And Chuck Norris.
+     * 
+     * <p>
+     * Setting an item hash that has not been calculated by the current implementation of {@link #generateHash()} voids
+     * the {@link Feed}'s duplicate detection. Duplicate items are not identified, you may get false positive MISSes.
+     * This setter may be used to create items from persisted csv files used in the TUDCS6 dataset.
+     * </p>
+     * 
+     * @param itemHash New item hash to set.
+     * @param iKowWhatImDoing Confirm that you know what you are doing :)
+     */
+    public void setHash(String itemHash, boolean iKowWhatImDoing) {
+        if (iKowWhatImDoing) {
+            this.itemHash = itemHash;
+        }
+    }
+
+    /**
+     * The custom hash used to identify items beyond their raw id that is empty for 20% of the feeds.
+     * 
+     * @return The items custom hash.
+     */
+    public String getHash(){
+        if (itemHash == null) {
+            generateHash();
+        }
+        return itemHash;
+    }
+
+    /**
      * Returns a custom hash representation calculated by the item's title, link and raw id or <code>null</code> if it
      * is impossible to calculate a meaningful hash because title, link and raw id are all <code>null</code> or the
      * empty string. SessionIDs are removed from link and raw id (in case raw id contains a url string only)
      * 
      * @return sha1 hash.
      */
-    public String getHash() {
+    private String generateHash() {
         String newHash = null;
 
         StringBuilder hash = new StringBuilder();
@@ -309,7 +340,8 @@ public class FeedItem {
     /**
      * <p>
      * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
-     * the dates {@link #published}, {@link #correctedPublishedTimestamp} and {@link #httpDate}. Use with caution :)
+     * the dates {@link #published}, {@link #correctedPublishedTimestamp}, {@link #httpDate} and the {@link #itemHash}.
+     * Use with caution :)
      * </p>
      * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
      * exceed 10 million as seen in TUDCS6 dataset.

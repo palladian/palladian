@@ -182,6 +182,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         return getResult();
                     }
                     Date httpDate = HTTPHelper.getDateFromHeader(httpResult, "Date", true);
+                    feed.setHttpDateLastPoll(httpDate);
                     for (FeedItem item : downloadedFeed.getItems()) {
                         item.setHttpDate(httpDate);
                     }

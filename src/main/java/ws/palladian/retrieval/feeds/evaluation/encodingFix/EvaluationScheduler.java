@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.gzPorcessing.ClassifyFromCSV;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
@@ -66,7 +67,11 @@ class EvaluationScheduler {
 
         for (Feed feed : feedReader.getFeeds()) {
 
-            scheduledTasks.put(feed.getId(), threadPool.submit(new CSVCleaner(feed)));
+            // FIXME remove filter
+            // if (feed.getId() == 4271) {
+                scheduledTasks.put(feed.getId(), threadPool.submit(new ClassifyFromCSV(feed)));
+            // }
+
         }
 
         while (!scheduledTasks.isEmpty()) {

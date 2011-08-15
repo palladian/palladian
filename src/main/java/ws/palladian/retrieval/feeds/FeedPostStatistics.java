@@ -69,7 +69,19 @@ public class FeedPostStatistics {
     /** Whether or not the statistics are valid, that is, pub dates must have been found and parsed correctly. */
     private boolean validStatistics = false;
 
+    /** The timestamp of the feed's most recent poll. */
+    private Long lastPollTime = null;
+
+    /** The httpDate from the header of the feed's most recent poll. */
+    private Long lastPollHttpDate = null;
+
     public FeedPostStatistics(Feed feed) {
+        if (feed.getLastPollTime() != null) {
+            lastPollTime = feed.getLastPollTime().getTime();
+        }
+        if (feed.getHttpDateLastPoll() != null) {
+            lastPollHttpDate = feed.getHttpDateLastPoll().getTime();
+        }
         calculateStatistics(feed);
     }
 
@@ -209,8 +221,48 @@ public class FeedPostStatistics {
         return Math.max(1, (int) (getTimeRange() / DateHelper.DAY_MS));
     }
 
-    public long getTimeDifferenceToNewestPost() {
+    /**
+     * The difference between the publish date of the newest item and the current system time. Be careful when
+     * processing persisted data since you may want to get the time between the publish date of the newest item and the
+     * time the feed has been polled the last time.
+     * 
+     * @return The difference between the publish date of the newest item and the current system time.
+     * @see #getTimeDifferenceNewestPostToLastPollTime()
+     */
+    public long getTimeDifferenceNewestPostToCurrentTime() {
         return System.currentTimeMillis() - timeNewestItem;
+    }
+
+    /**
+     * The difference between the publish date of the newest item and the time of the last poll. This is safe when
+     * processing persisted data. In case the http date is unknown or was not set by the server,
+     * {@link #getTimeDifferenceNewestPostToCurrentTime()} is returned for convenience.
+     * 
+     * @return The difference between the publish date of the newest item and the time of the last poll or the value
+     *         returned by {@link #getTimeDifferenceNewestPostToCurrentTime()}.
+     */
+    public long getTimeDifferenceNewestPostToLastPollTime() {
+        if (lastPollTime == null) {
+            return getTimeDifferenceNewestPostToCurrentTime();
+        } else {
+            return lastPollTime - timeNewestItem;
+        }
+    }
+
+    /**
+     * The difference between the publish date of the newest item and the http header's date value of the last poll.
+     * This is safe when processing persisted data. In case the http date is unknown or was not set by the server,
+     * {@link #getTimeDifferenceNewestPostToLastPollTime()} is returned for convenience.
+     * 
+     * @return The difference between the publish date of the newest item and the time of the last poll or the value
+     *         returned by {@link #getTimeDifferenceNewestPostToLastPollTime()}.
+     */
+    public long getTimeDifferenceNewestPostToLastPollHttpDate() {
+        if (lastPollHttpDate == null) {
+            return getTimeDifferenceNewestPostToLastPollTime();
+        } else {
+            return lastPollHttpDate - timeNewestItem;
+        }
     }
 
     public Map<Integer, Integer> getPostDistribution() {
@@ -309,7 +361,7 @@ public class FeedPostStatistics {
         builder.append("min. , medianPostGap=");
         builder.append((double) medianPostInterval / DateHelper.MINUTE_MS);
         builder.append("min. , time to newest post=");
-        builder.append((double) getTimeDifferenceToNewestPost() / DateHelper.MINUTE_MS);
+        builder.append((double) getTimeDifferenceNewestPostToCurrentTime() / DateHelper.MINUTE_MS);
         builder.append("min. , postDistribution=");
         builder.append(postDistribution);
         builder.append(", postGapStandardDeviation=");

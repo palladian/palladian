@@ -143,8 +143,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
             Arrays.sort(allFiles);
 
             for (File file : allFiles) {
-                // skip files that have been unparsable before.
-                if (file.getName().endsWith("unparsable.gz")) {
+                // skip files that have been unparsable before or that are tagged to be removable.
+                if (file.getName().endsWith("unparsable.gz") || file.getName().endsWith("removeable.gz")) {
                     continue;
                 }
 
