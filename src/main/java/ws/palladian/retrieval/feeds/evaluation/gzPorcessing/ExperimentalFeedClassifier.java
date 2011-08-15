@@ -254,7 +254,8 @@ public class ExperimentalFeedClassifier {
                     } else {
                         // long gaps between posts (at night) indicate sliced feeds
                         if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
-                                && fps.getLongestPostGap() < 2 * DateHelper.HOUR_MS && fps.getAvgEntriesPerDay() >= 4) {
+                                && fps.getLongestPostGap() < 2 * DateHelper.HOUR_MS && fps.getAvgEntriesPerDay() >= 4
+                                && fps.getTimeDifferenceNewestPostToLastPollHttpDate() < 2 * DateHelper.HOUR_MS) {
                             feedClass = CLASS_CONSTANT;
                         } else {
 
