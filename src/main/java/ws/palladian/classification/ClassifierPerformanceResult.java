@@ -11,6 +11,9 @@ public class ClassifierPerformanceResult {
     private double accuracy = -1.0;
 
     private double correctlyClassified = -1.0;
+    
+    /** Superiority is the factor with which the classifier is better than the highest prior in the dataset: Superiority = correctlyClassified / percentHighestPrior. A superiority of 1 means it doesn't make sense classifying at all since we could simply always take the category with the highest prior. A superiority smaller 1 means the classifier is harmful. */
+    private double superiority = -1.0;
 
     public double getPrecision() {
         return precision;
@@ -68,6 +71,14 @@ public class ClassifierPerformanceResult {
         return correctlyClassified;
     }
 
+    public double getSuperiority() {
+        return superiority;
+    }
+
+    public void setSuperiority(double superiority) {
+        this.superiority = superiority;
+    }
+    
     @Override
     public String toString() {
         StringBuilder csv = new StringBuilder();
@@ -80,7 +91,9 @@ public class ClassifierPerformanceResult {
         csv.append(specificity).append(";");
         csv.append(accuracy).append(";");
 
-        csv.append(correctlyClassified);
+        csv.append(correctlyClassified).append(";");
+
+        csv.append(superiority);
 
         return csv.toString();
     }
