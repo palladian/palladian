@@ -113,6 +113,9 @@ public class Feed {
     /** The HTTP header's last-modified value of the last poll. */
     private Date httpLastModified = null;
 
+    /** The HTTP header's date value of the last poll (The current system time of the feed server) */
+    private Date httpDateLastPoll = null;
+
     /**
      * Record statistics about poll data for evaluation purposes.
      */
@@ -245,7 +248,8 @@ public class Feed {
             feedItem.setFeed(this);
             String hash = feedItem.getHash();
             if (isNewItem(hash)) {
-                Date correctedTimestamp = correctedTimestamp(feedItem, false);
+                Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
+                        feedItem.toString(), false);
                 feedItem.setCorrectedPublishedTimestamp(correctedTimestamp);
                 itemCacheTemp.put(hash, correctedTimestamp);
                 newItemsTemp.add(feedItem);
@@ -276,7 +280,7 @@ public class Feed {
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
-            Date correctedTimestamp = correctedTimestamp(item, false);
+            Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(), item.toString(), false);
             item.setCorrectedPublishedTimestamp(correctedTimestamp);
             addCacheItem(hash, correctedTimestamp);
             addNewItem(item);
@@ -306,24 +310,28 @@ public class Feed {
     // }
 
     /**
-     * TODO remove param logWarnings, put to config file and set to true by default.
+     * TODO remove param logWarnings, put to config file and set to true by default?
      * 
-     * Get the publish date from the entry. In case an entry has no timestamp or its timestamp is in the future, the
-     * poll timestamp is used instead.
+     * Get the publish date from the entry. In case an entry has no timestamp, its timestamp is in the future or older
+     * than 01.01.1990 00:00 (Unix 631152000), the poll timestamp is used instead.
      * 
-     * @param entry The entry to get the date from.
+     * @param entryPublishDate The entry's publish date to correct.
+     * @param lastPollTimeFeed The time the feed has been polled the last time.
+     * @param logMessage Message to write to logfile in case the date has been corrected. Useful to know which item has
+     *            been corrected when reading the logfile.
      * @param logWarnings If <code>true</code>, warnings are logged in case the entry has no or an illegal timestamp.
      *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
-    private Date correctedTimestamp(FeedItem entry, boolean logWarnings) {
+    public static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, String logMessage,
+            boolean logWarnings) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
         long pollTime = 0;
         String timestampUsed = "";
-        if (getLastPollTime() != null) {
-            pollTime = getLastPollTime().getTime();
+        if (lastPollTimeFeed != null) {
+            pollTime = lastPollTimeFeed.getTime();
             timestampUsed = ". Setting poll timestamp instead.";
         } else {
             pollTime = System.currentTimeMillis();
@@ -332,17 +340,23 @@ public class Feed {
 
         // Is the pubDate provided by feed? Check for 'illegal' date in future.
         // Future publish dates are allowed in RSS 2.0 but are useless for predicting updates.
-        Date pubDate = entry.getPublished();
-        if (pubDate != null) {
+        Date pubDate = null;
+        if (entryPublishDate != null) {
+            pubDate = new Date(entryPublishDate.getTime());
             if (pubDate.getTime() > pollTime) {
                 pubDate = new Date(pollTime);
-                warnings.append("Entry has a pub date in the future, feed entry : ").append(entry)
+                warnings.append("Entry has a pub date in the future, feed entry : ").append(logMessage)
+                        .append(timestampUsed);
+            } else if (pubDate.getTime() < 631152000) {
+                pubDate = new Date(pollTime);
+                warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ")
+                        .append(logMessage)
                         .append(timestampUsed);
             }
 
             // no pubDate provided, use poll timestamp
         } else {
-            warnings.append("Entry has no pub date, feed entry : ").append(entry).append(timestampUsed);
+            warnings.append("Entry has no pub date, feed entry : ").append(logMessage).append(timestampUsed);
             pubDate = new Date(pollTime);
         }
         if (logWarnings && warnings.length() > 0) {
@@ -1330,6 +1344,25 @@ public class Feed {
      */
     public final void setLastFeedTaskResult(String lastFeedTaskResult) {
         this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
+    }
+
+    /**
+     * The HTTP header's date value of the last poll (The current system time of the feed server)
+     * 
+     * @return the httpDateLastPoll
+     */
+    public final Date getHttpDateLastPoll() {
+        return httpDateLastPoll;
+    }
+
+    /**
+     * The HTTP header's date value of the last poll (The current system time of the feed server)
+     * If date's year is > 9999, we set it to null!
+     * 
+     * @param httpDateLastPoll the httpDateLastPoll to set
+     */
+    public final void setHttpDateLastPoll(Date httpDateLastPoll) {
+        this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
     }
 
 }

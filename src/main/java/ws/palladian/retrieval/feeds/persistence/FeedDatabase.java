@@ -52,6 +52,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
     private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
+    private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
     private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ? WHERE id = ? AND pollTimestamp = ?";
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
@@ -396,6 +397,17 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getId());
         return runUpdate(UPDATE_FEED_META_INFORMATION, parameters) != -1;
     }
+
+    /**
+     * Get all polls that have been made to one feed.
+     * 
+     * @param feedID The feed to get information about.
+     * @return A list with information about a all polls.
+     */
+    public List<PollMetaInformation> getFeedPollsByID(int feedID) {
+        return runQuery(new FeedPollRowConverter(), GET_FEED_POLLS_BY_ID, feedID);
+    }
+
 
     /**
      * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
