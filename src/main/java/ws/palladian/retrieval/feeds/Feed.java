@@ -233,9 +233,10 @@ public class Feed {
     }
 
     /**
-     * Replace the feed's items with the provided items.
+     * Replace the feed's items with the provided items. Make sure the items' properties such as windowSize or httpDate
+     * are already set. It is not assumed that the list contains exactly one complete poll.
      * 
-     * @param items
+     * @param items All items to set.
      */
     public void setItems(List<FeedItem> items) {
 

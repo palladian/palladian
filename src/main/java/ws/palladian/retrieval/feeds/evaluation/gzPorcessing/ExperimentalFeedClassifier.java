@@ -109,7 +109,7 @@ public class ExperimentalFeedClassifier {
     }
 
     /**
-     * Classify a feed directly by its items.
+     * Classify a feed directly by its items. Make sure all properties such as windowSize httpDate are set.
      * 
      * @param item The feed's items.
      * @return The classification as a numeric value.
@@ -149,8 +149,12 @@ public class ExperimentalFeedClassifier {
             // do special calculation for on-the-fly and chunked since we need to use the items' original publish
             // timestamps. Structure Map<httpDate_of_poll, List<item_publish_date>>
 
+            // TODO: add pollTimestamp to FeedItem and use it if httpDate is not available
+            // TODO: use windowSize to identify CHUNKED.
+
             // first, collect all new items per poll
             Map<Date, List<Long>> httpDateAndPollTimestamps = new HashMap<Date, List<Long>>();
+            Map<Date, Integer> httpDateWindowSizes = new HashMap<Date, Integer>();
             for (FeedItem item : feed.getItems()) {
                 // skip items with missing timestamps
                 if (item.getHttpDate() == null || item.getPublished() == null) {
@@ -160,6 +164,7 @@ public class ExperimentalFeedClassifier {
                 Date httpDate = item.getHttpDate();
                 Long publishTimestamp = item.getPublished().getTime();
 
+                httpDateWindowSizes.put(httpDate, item.getWindowSize());
                 if (httpDateAndPollTimestamps.containsKey(httpDate)) {
                     httpDateAndPollTimestamps.get(httpDate).add(publishTimestamp);
                 } else {
@@ -169,8 +174,9 @@ public class ExperimentalFeedClassifier {
                 }
             }
 
-            boolean otfCandidate = true; // is feed on-the-fly
-            Long medianPostGapPerPoll = null;
+            boolean otfCandidate = true; // feed is on-the-fly candidate
+            boolean chunkedCandidate = true; //
+            Long medianPostGapAllPolls = null;
 
             List<Long> medianPostGapPerPollList = new ArrayList<Long>();
             if (!httpDateAndPollTimestamps.isEmpty()) {
@@ -178,29 +184,50 @@ public class ExperimentalFeedClassifier {
                 // second, get median post gap per poll
                 // iterate over polls
                 for (Date httpDate : httpDateAndPollTimestamps.keySet()) {
+
+                    // stop processing if feed is neither OTF, nor chunked
+                    if (!chunkedCandidate && !otfCandidate) {
+                        break;
+                    }
+
                     List<Long> publishTimestampsPerPoll = httpDateAndPollTimestamps.get(httpDate);
                     Collections.sort(publishTimestampsPerPoll);
                     medianPostGapPerPollList.add(MathHelper.getMedianDifference(publishTimestampsPerPoll));
+
+                    // one requirement for chunked and OTF is that if a poll contains new items, the whole window is
+                    // new.
+                    // TODO: there is still a problem with feeds that update say weekly and set all item publish dates
+                    // to the same value but contain overlapping windows. If a feed contains the top 10 movies and is
+                    // updated on a weekly basis, a movie might be in subsequent windows. The current item duplicate
+                    // detection ignores dates so in this case, the feed is not classified as chunked.
+                    // -- Sandro 15.08.2011
+                    int windowSizeCurrentPoll = httpDateWindowSizes.get(httpDate);
+                    int numNewItemsCurrentPoll = publishTimestampsPerPoll.size();
+                    if (windowSizeCurrentPoll != numNewItemsCurrentPoll) {
+                        chunkedCandidate = false;
+                        otfCandidate = false;
+                    }
 
                     // Check OTF feed. Once failed, do not check again.
                     if (otfCandidate) {
                         Long newesItem = Collections.max(publishTimestampsPerPoll);
                         Long timeToNewestItem = Math.abs(newesItem - httpDate.getTime());
-                        otfCandidate = otfCandidate && (timeToNewestItem < OTF_MAX_DELAY);
+                        if (timeToNewestItem > OTF_MAX_DELAY) {
+                            otfCandidate = false;
+                        }
                     }
                 }
 
                 // finally, get median post gap over all polls
-                medianPostGapPerPoll = MathHelper.getMedianDifference(medianPostGapPerPollList);
+                medianPostGapAllPolls = MathHelper.getMedianDifference(medianPostGapPerPollList);
             } else {
                 otfCandidate = false;
+                chunkedCandidate = false;
             }
 
-            // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at
-            // the same time
-
-            // FIXME hack, CLASS_CHUNKED is deactivated
-            if (medianPostGapPerPoll != null && medianPostGapPerPoll < 1 * DateHelper.SECOND_MS && otfCandidate) {
+            // if the post gap is 0 or extremely small and
+            if (medianPostGapAllPolls != null && medianPostGapAllPolls < 1 * DateHelper.SECOND_MS
+                    && (otfCandidate || chunkedCandidate)) {
                 if (otfCandidate) {
                     feedClass = CLASS_ON_THE_FLY;
                 } else {

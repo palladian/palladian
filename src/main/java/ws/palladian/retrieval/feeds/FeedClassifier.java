@@ -90,7 +90,7 @@ public class FeedClassifier {
     }
 
     /**
-     * Classify a feed directly by its items.
+     * Classify a feed directly by its items. Make sure all properties such as windowSize pollTimestamp are set.
      * 
      * @param item The feed's items.
      * @return The classification as a numeric value.
