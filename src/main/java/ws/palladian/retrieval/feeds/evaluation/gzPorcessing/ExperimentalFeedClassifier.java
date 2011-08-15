@@ -176,9 +176,9 @@ public class ExperimentalFeedClassifier {
 
             boolean otfCandidate = true; // feed is on-the-fly candidate
             boolean chunkedCandidate = true; //
-            Long medianPostGapAllPolls = null;
+            Double medianPostGapAllPolls = null;
 
-            List<Long> medianPostGapPerPollList = new ArrayList<Long>();
+            List<Double> medianPostGapPerPollList = new ArrayList<Double>();
             if (!httpDateAndPollTimestamps.isEmpty()) {
 
                 // second, get median post gap per poll
@@ -208,16 +208,16 @@ public class ExperimentalFeedClassifier {
                     // otfCandidate = false;
                     // }
 
-                    int windowSizeCurrentPoll = httpDateWindowSizes.get(httpDate);
+                    int numNewItemsCurrentPoll = publishTimestampsPerPoll.size();
 
-                    if (windowSizeCurrentPoll > 1) {
-                        medianPostGapPerPollList.add(MathHelper.getMedianDifference(publishTimestampsPerPoll));
+                    if (numNewItemsCurrentPoll > 1) {
+                        medianPostGapPerPollList.add((double) MathHelper.getMedianDifference(publishTimestampsPerPoll));
                     }
 
                     // Check OTF feed. Once failed, do not check again.
                     if (otfCandidate) {
-                        Long newesItem = Collections.max(publishTimestampsPerPoll);
-                        Long timeToNewestItem = Math.abs(newesItem - httpDate.getTime());
+                        Long newestItem = Collections.max(publishTimestampsPerPoll);
+                        Long timeToNewestItem = Math.abs(newestItem - httpDate.getTime());
                         if (timeToNewestItem > OTF_MAX_DELAY) {
                             otfCandidate = false;
                         }
@@ -225,7 +225,7 @@ public class ExperimentalFeedClassifier {
                 }
 
                 // finally, get median post gap over all polls
-                medianPostGapAllPolls = MathHelper.getMedianDifference(medianPostGapPerPollList);
+                medianPostGapAllPolls = MathHelper.getMedian(medianPostGapPerPollList);
             } else {
                 otfCandidate = false;
                 chunkedCandidate = false;
