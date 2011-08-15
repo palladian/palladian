@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds.evaluation.gzPorcessing;
 
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -88,10 +87,10 @@ public class ClassifyFromCSV extends Thread {
             boolean success = feedStore.updateFeed(originalFeed);
 
             if (!success) {
-                LOGGER.fatal("Feed id " + originalFeed.getId() + " could not be written to database. New activity pattern is "
+                LOGGER.fatal("Feed id " + originalFeed.getId()
+                        + " could not be written to database. New activity pattern is "
                         + originalFeed.getActivityPattern());
             }
-
 
             // if (backupOriginal && newFileWritten) {
             // LOGGER.info("New file written to " + csvPath);
@@ -108,7 +107,8 @@ public class ClassifyFromCSV extends Thread {
     }
 
     /**
-     * Reads the csv file at the specified path, get timestamps for each item, build item and add to {@link #originalFeed}.
+     * Reads the csv file at the specified path, get timestamps for each item, build item and add to
+     * {@link #originalFeed}.
      * 
      * @param csvPath Path to csv file to read.
      */
@@ -130,32 +130,38 @@ public class ClassifyFromCSV extends Thread {
                 // ignore MISS line
                 if (!split[0].startsWith("MISS")) {
 
-                    // get timestamps from csv
-                    Long csvPublishDate = Long.parseLong(split[0]);
-                    Date publishDate = new Date(csvPublishDate);
-                    Date pollTime = new Date(Long.parseLong(split[1]));
-                    String hash = split[2];
+                    try {
+                        // get timestamps and windowSize from csv
+                        long csvPublishDate = Long.parseLong(split[0]);
+                        Date publishDate = new Date(csvPublishDate);
+                        Date pollTime = new Date(Long.parseLong(split[1]));
+                        String hash = split[2];
+                        int windowSize = Integer.parseInt(split[5]);
 
-                    // get corrected publish date
-                    String logMessage = "Feed id " + originalFeed.getId() + " line " + lineCounter;
-                    Date correctedPublishDate = Feed.correctedTimestamp(publishDate, pollTime, logMessage, true);
+                        // get corrected publish date
+                        String logMessage = "Feed id " + originalFeed.getId() + " line " + lineCounter;
+                        Date correctedPublishDate = Feed.correctedTimestamp(publishDate, pollTime, logMessage, false);
 
-                    // set pollTime if entry has no publish time
-                    if (csvPublishDate <= TimeUnit.HOURS.toMillis(1)) {
-                        correctedPublishDate = pollTime;
+                        // set pollTime if entry has no publish time
+                        if (csvPublishDate <= TimeUnit.HOURS.toMillis(1)) {
+                            correctedPublishDate = pollTime;
+                        }
+
+                        // tricky: we have timestamps with millisecond precision in csv but only second in database.
+                        long pollTimeWithoutMillisecond = (long) ((Math.ceil(pollTime.getTime() / 1000)) * 1000);
+
+                        // create new, minimal item and add to feed
+                        FeedItem item = new FeedItem();
+                        item.setFeed(tempFeed);
+                        item.setHash(hash, true);
+                        item.setPublished(publishDate);
+                        item.setCorrectedPublishedTimestamp(correctedPublishDate);
+                        item.setHttpDate(pollMap.get(pollTimeWithoutMillisecond));
+                        item.setWindowSize(windowSize);
+                        tempFeed.addItem(item);
+                    } catch (NumberFormatException e) {
+                        LOGGER.fatal("Could not get number from csv: " + e.getLocalizedMessage());
                     }
-
-                    // tricky: we have timestamps with millisecond precision in csv but only second in database.
-                    long pollTimeWithoutMillisecond = (long) ((Math.ceil(pollTime.getTime() / 1000)) * 1000);
-
-                    // create new, minimal item and add to feed
-                    FeedItem item = new FeedItem();
-                    item.setFeed(tempFeed);
-                    item.setHash(hash, true);
-                    item.setPublished(publishDate);
-                    item.setCorrectedPublishedTimestamp(correctedPublishDate);
-                    item.setHttpDate(pollMap.get(pollTimeWithoutMillisecond));
-                    tempFeed.addItem(item);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -169,7 +175,6 @@ public class ClassifyFromCSV extends Thread {
         }
     }
 
-
     /**
      * Get {@link PollMetaInformation} for each poll that has been made on this feed and fills {@link #pollMap}.
      * Additionally, {@link Feed#setLastPollTime(Date)} and {@link Feed#setHttpDateLastPoll(Date)} are set
@@ -180,7 +185,7 @@ public class ClassifyFromCSV extends Thread {
         Date lastPollTime = null;
         Date lastHttpDate = null;
 
-        for (PollMetaInformation poll :pollMetaInfos){
+        for (PollMetaInformation poll : pollMetaInfos) {
             Date pollTime = poll.getPollTimestamp();
             Date httpDate = poll.getHttpDate();
             if (pollTime != null) {

@@ -64,6 +64,9 @@ public class FeedItem {
     /** The (server's) httpDate we got from the http header when receiving this item. */
     private Date httpDate = null;
 
+    /** The feed's windowSize at the time this item was fetched the first time. */
+    private int windowSize;
+
     /**
      * The item's corrected published date. In contrast to {@link #published}, this value may be modified at the time of
      * the poll this item has been received the first time.
@@ -335,6 +338,24 @@ public class FeedItem {
      */
     public final void setCorrectedPublishedTimestamp(Date correctedPublishedTimestamp) {
         this.correctedPublishedTimestamp = correctedPublishedTimestamp;
+    }
+
+    /**
+     * The feed's windowSize at the time this item was fetched the first time.
+     * 
+     * @return the windowSize
+     */
+    public final int getWindowSize() {
+        return windowSize;
+    }
+
+    /**
+     * The feed's windowSize at the time this item was fetched the first time.
+     * 
+     * @param windowSize the windowSize to set
+     */
+    public final void setWindowSize(int windowSize) {
+        this.windowSize = windowSize;
     }
 
     /**

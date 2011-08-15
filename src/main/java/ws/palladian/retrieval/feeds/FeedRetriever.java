@@ -326,7 +326,8 @@ public class FeedRetriever {
 
             Map<String, Object> additionalData = getAdditionalData(syndEntry);
             item.setAdditionalData(additionalData);
-
+            item.setWindowSize(syndEntries.size());
+            
             feed.addItem(item);
         }
     }
