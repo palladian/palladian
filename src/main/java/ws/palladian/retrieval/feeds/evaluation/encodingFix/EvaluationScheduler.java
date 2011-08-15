@@ -68,9 +68,9 @@ class EvaluationScheduler {
         for (Feed feed : feedReader.getFeeds()) {
 
             // FIXME remove filter
-            if (feed.getActivityPattern() == 9) {
+            // if (feed.getActivityPattern() == 9) {
                 scheduledTasks.put(feed.getId(), threadPool.submit(new ClassifyFromCSV(feed)));
-            }
+            // }
         }
 
         while (!scheduledTasks.isEmpty()) {
