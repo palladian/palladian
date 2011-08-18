@@ -257,7 +257,7 @@ public class FeedItem {
      */
     public String getHash(){
         if (itemHash == null) {
-            generateHash();
+            itemHash = generateHash();
         }
         return itemHash;
     }
