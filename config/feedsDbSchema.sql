@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
   PRIMARY KEY (`id`),
   CONSTRAINT `feed_items_ibfk_1` FOREIGN KEY (`feedId`) REFERENCES `feeds` (`id`) ON DELETE CASCADE,
   UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Daten für Tabelle `feed_items`
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
 --
 
 CREATE TABLE IF NOT EXISTS `feed_polls` (
-  `id` INT(10) NOT NULL,
+  `id` int(10) NOT NULL,
   `pollTimestamp` DATETIME NOT NULL,
   `httpETag` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The ETag element from the HTTP header. ',
   `httpDate` DATETIME DEFAULT NULL COMMENT 'The date element from the HTTP header. ',
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
   `numberNewItems` INT(10) DEFAULT NULL COMMENT 'The number of new items.',
   `windowSize` INT(10) DEFAULT NULL COMMENT 'The current window size.',
   `httpStatusCode` INT(10) NOT NULL COMMENT 'The http status code returned.'
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Daten für Tabelle `feed_polls
@@ -180,10 +180,10 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
 -- Tabellenstruktur für Tabelle `feed_item_cache`
 --
 CREATE TABLE IF NOT EXISTS `feed_item_cache` (
-  `id` INT(10) UNSIGNED NOT NULL COMMENT 'The feeds internal identifier.',
+  `id` int(10) unsigned NOT NULL COMMENT 'The feeds internal identifier.',
   `itemHash` CHAR(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of a item (in xml) of the last poll.',
   `correctedPollTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.'
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='table to serialize the item cache'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='table to serialize the item cache';
 
 --
 -- Daten für Tabelle `feed_item_cache
