@@ -382,7 +382,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public void saveItemRelation(ItemRelation itemRelation) {
         TypedQuery<ItemRelation> relationExistsQuery = getManager().createQuery(
                 "SELECT r FROM ItemRelation r WHERE (r.firstItem=:firstItem AND r.secondItem=:secondItem) "
-                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) " + "AND r.type=:type", ItemRelation.class);
+                        + "OR (r.firstItem=:secondItem AND r.secondItem=:firstItem) " + "AND r.type=:type",
+                ItemRelation.class);
         relationExistsQuery.setParameter("firstItem", itemRelation.getFirstItem());
         relationExistsQuery.setParameter("secondItem", itemRelation.getSecondItem());
         relationExistsQuery.setParameter("type", itemRelation.getType());
@@ -576,10 +577,10 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
         if (!results.isEmpty()) {
             final Random randomIndexGenerator = new Random();
             int randomIndex = randomIndexGenerator.nextInt(results.size());
-            final Object[] idPair = (Object[]) results.get(randomIndex);
+            final Object[] idPair = (Object[])results.get(randomIndex);
             // changed from (String) to (Integer); untested
-            Item firstEntry = loadItem((Integer) idPair[0]);
-            Item secondEntry = loadItem((Integer) idPair[1]);
+            Item firstEntry = loadItem((Integer)idPair[0]);
+            Item secondEntry = loadItem((Integer)idPair[1]);
             return createItemRelation(firstEntry, secondEntry, null, "");
         } else {
             return null;
@@ -607,7 +608,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @return
      */
     public Collection<String> loadChannelNames() {
-        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.channelName FROM ItemStream t", String.class);
+        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.channelName FROM ItemStream t",
+                String.class);
         getManager().getTransaction().begin();
         List<String> result = query.getResultList();
         getManager().getTransaction().commit();
@@ -650,7 +652,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @return A set of distinct stream source names.
      */
     public Collection<String> loadStreamSourceNames() {
-        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.streamSource FROM ItemStream t", String.class);
+        TypedQuery<String> query = getManager().createQuery("SELECT DISTINCT t.streamSource FROM ItemStream t",
+                String.class);
         getManager().getTransaction().begin();
         List<String> result = query.getResultList();
         getManager().getTransaction().commit();
@@ -681,7 +684,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
 
     private RelationType loadRelationType(String name) {
         EntityManager em = getManager();
-        TypedQuery<RelationType> query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name", RelationType.class);
+        TypedQuery<RelationType> query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name",
+                RelationType.class);
         query.setParameter("name", name);
         em.getTransaction().begin();
         List<RelationType> resultList = query.getResultList();
@@ -723,7 +727,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public StreamSource loadStreamSourceByAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
-        TypedQuery<StreamSource> query = getManager().createQuery("select t from StreamSource t where t.sourceAddress=:sourceAddress", StreamSource.class);
+        TypedQuery<StreamSource> query = getManager().createQuery(
+                "select t from StreamSource t where t.sourceAddress=:sourceAddress", StreamSource.class);
         query.setParameter("sourceAddress", sourceAddress);
         List<StreamSource> result = query.getResultList();
         commitTransaction(openedTransaction);
@@ -765,5 +770,55 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public Collection<StreamSource> loadStreamSources() {
         return loadAll(StreamSource.class);
+    }
+
+    /**
+     * <p>
+     * Loads a {@code StreamSource} identified by a certain name. Use this method with care. It throws an
+     * {@code IllegalStateException} if there are more than one {@code StreamSource} with that name.
+     * </p>
+     * 
+     * @param streamSourceName The name of the {@code StreamSource} to load.
+     * @return The {@code StreamSource} carrying the provided {@code streamSourceName} or {@code null} otherwise.
+     */
+    public StreamSource loadStreamSourceByName(String streamSourceName) {
+        TypedQuery<StreamSource> query = getManager().createQuery(
+                "SELECT s FROM StreamSource s WHERE s.sourceName=:sourceName", StreamSource.class);
+        query.setParameter("sourceName", streamSourceName);
+
+        final Boolean openedTransaction = openTransaction();
+        List<StreamSource> result = query.getResultList();
+        commitTransaction(openedTransaction);
+
+        if (result.size() > 1) {
+            throw new IllegalStateException("There are " + result.size() + " stream sources named " + streamSourceName
+                    + ". There should be only one.");
+        } else if (result.size() == 1) {
+            return result.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param forumInternalIdentifier
+     * @param parentStream
+     * @return
+     */
+    public Item loadItem(String forumInternalIdentifier, ItemStream parentStream) {
+        TypedQuery<Item> query = getManager().createQuery(
+                "SELECt i FROM Item i WHERE i.sourceInternalIdentifier=:sourceInternalIdentifier AND parent=:parent",
+                Item.class);
+        query.setParameter("sourceInternalIdentifier", forumInternalIdentifier);
+        query.setParameter("parent", parentStream);
+        final Boolean openedTransaction = openTransaction();
+        List<Item> result = query.getResultList();
+        commitTransaction(openedTransaction);
+        if (result.size() == 1) {
+            return result.get(0);
+        } else {
+            throw new IllegalStateException("Found " + result.size() + " items with internal identifier "
+                    + forumInternalIdentifier + "in item stream " + parentStream);
+        }
     }
 }
