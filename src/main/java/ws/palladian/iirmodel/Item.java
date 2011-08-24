@@ -24,7 +24,7 @@ import javax.persistence.TemporalType;
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @since 1.0
- * @version 2.0
+ * @version 3.1
  */
 @Entity
 public class Item implements Serializable {

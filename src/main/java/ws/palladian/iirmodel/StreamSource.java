@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint;
  * </p>
  * 
  * @author Philipp Katz
- * @version 3.0
+ * @version 3.1
  * @since 3.0
  */
 @Entity
@@ -247,6 +247,16 @@ public abstract class StreamSource implements Serializable {
      * @return
      */
     public abstract Iterator<Item> itemIterator();
+    
+    //
+    // Visitor interface, which allow even more convenient traversal of the composite structure.
+    //
+    
+    public final void accept(StreamVisitor visitor) {
+        accept(visitor, 0);
+    }
+    
+    protected abstract void accept(StreamVisitor visitor, int depth);
 
     //
     // Also force subclasses to implement the following methods:

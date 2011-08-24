@@ -25,7 +25,7 @@ import ws.palladian.iirmodel.helper.SingleIterator;
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @since 1.0
- * @version 3.0
+ * @version 3.1
  */
 @Entity
 public final class ItemStream extends StreamSource {
@@ -127,6 +127,14 @@ public final class ItemStream extends StreamSource {
     @Override
     public Iterator<Item> itemIterator() {
         return items.iterator();
+    }
+    
+    @Override
+    public void accept(StreamVisitor visitor, int depth) {
+        visitor.visitItemStream(this, depth);
+        for (Item item : getItems()) {
+            visitor.visitItem(item, depth + 1);
+        }
     }
 
     @Override

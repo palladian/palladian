@@ -18,7 +18,7 @@ import ws.palladian.iirmodel.helper.SingleIterator;
  * </p>
  * 
  * @author Philipp Katz
- * @version 3.0
+ * @version 3.1
  * @since 3.0
  */
 @Entity
@@ -82,6 +82,9 @@ public final class StreamGroup extends StreamSource {
      * @param child The StreamSource to add.
      */
     public void addChild(StreamSource child) {
+        if (this == child) {
+            throw new IllegalArgumentException("You cannot add a StreamGroup as child to itself.");
+        }
         if (children.contains(child)) {
             children.remove(child);
         }
@@ -125,6 +128,14 @@ public final class StreamGroup extends StreamSource {
             childIterators.add(child.itemIterator());
         }
         return new CompositeIterator<Item>(childIterators);
+    }
+    
+    @Override
+    public void accept(StreamVisitor visitor, int depth) {
+        visitor.visitStreamGroup(this, depth);
+        for (StreamSource child : getChildren()) {
+            child.accept(visitor, depth + 1);
+        }
     }
 
     /*
