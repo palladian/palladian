@@ -136,8 +136,14 @@ public class Matrix implements Serializable {
             o = (Integer) o + 1;
         }
         confusionMatrix.set("B", "B", o);
-
+        
         System.out.println(confusionMatrix);
+        
+        Matrix confusionMatrix2 = new Matrix();
+        confusionMatrix2.set("A", "1", "A1");
+        confusionMatrix2.set("B", "2", "B2");
+        System.out.println(confusionMatrix2);
+
     }
 
 }
