@@ -242,9 +242,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // precision exact: 62.54%, recall exact: 67.56%, F1 exact: 64.95%
     }
 
+    public static String getModelFileEndingStatic() {
+        return "model.gz";
+    }
+    
     @Override
     public String getModelFileEnding() {
-        return "model.gz";
+        return getModelFileEndingStatic();
     }
 
     @Override
@@ -315,6 +319,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         LOGGER.info("deserialzing model from " + modelPath);
 
+        if (!modelPath.endsWith(getModelFileEndingStatic())) {
+        	modelPath += "." + getModelFileEndingStatic();
+        }
+        
         PalladianNer tagger;
         tagger = (PalladianNer) FileHelper.deserialize(modelPath);
 
@@ -1707,9 +1715,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // // training the tagger
         // needs to point to a column separated file
         String trainingPath = "data/datasets/ner/conll/training.txt";
-        trainingPath = "data/temp/seedsTest100.txt";
-        trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
+        //trainingPath = "data/temp/seedsTest100.txt";
+        //trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
         String modelPath = "data/temp/palladianNerTudCs4Annotations";
+        modelPath = "data/temp/palladianNerConllAnnotations";
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1744,6 +1753,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         System.out.println(taggedText);
 
         CollectionHelper.print(tagger.getAnnotations(inputText));
+        
+        System.exit(0);
 
         // // evaluate a tagger
         String testPath = "data/datasets/ner/conll/test_final.txt";

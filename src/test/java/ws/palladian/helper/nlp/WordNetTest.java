@@ -9,8 +9,6 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.nlp.WordNet;
-
 /**
  * Test for WordNet helper class. Test cases are not executed automatically, as WordNet files need to be installed.
  * 
@@ -24,7 +22,7 @@ public class WordNetTest {
         
         Map<String, String> testSet = new HashMap<String, String>();
         
-        // testSet.put("routing", "route"); // FIXME
+        // testSet.put("routing", "route"); // TODO
         testSet.put("accounting", "account");
         testSet.put("advertising", "advertise");
         testSet.put("aging", "age");

@@ -642,11 +642,11 @@ public class StringHelper {
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
         // Pattern p = Pattern.compile("((\\d)+'')|('(\\s)?(\\d)+\")");
-        Pattern p = Pattern.compile("(\\A\"([^\"]*)[^\"]$)|((\\d)+'')|('(\\s)?(\\d)+\")");
-        if (p.matcher(string).find()) {
-            unwanted[12] = " ";
-            unwanted[13] = " ";
-        }
+//        Pattern p = Pattern.compile("(\\A\"([^\"]*)[^\"]$)|((\\d)+'')|('(\\s)?(\\d)+\")");
+//        if (p.matcher(string).find()) {
+//            unwanted[12] = " ";
+//            unwanted[13] = " ";
+//        }
 
         boolean deleteFirst = true;
         boolean deleteLast = true;
