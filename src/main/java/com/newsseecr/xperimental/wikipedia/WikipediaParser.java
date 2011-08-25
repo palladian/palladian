@@ -37,11 +37,9 @@ public class WikipediaParser {
     private MediaWikiParser parser = pf.createParser();
     private static final Pattern DISAMBIGUATION_PATTERN = Pattern.compile("\\s\\(.*\\)");
     private SAXParserFactory factory = SAXParserFactory.newInstance();
-    private ProcessingPipeline processingPipeline;
     private Set<String> namespaces = new HashSet<String>();
 
     public WikipediaParser() {
-        processingPipeline = new ProcessingPipeline();
     }
 
     public static void main(String[] args) throws Exception {
@@ -50,7 +48,7 @@ public class WikipediaParser {
         wikipediaParser.setInputFile("/Users/pk/Desktop/WikipediaData/dewiki-20110410-pages-articles.xml");
         wikipediaParser.setOutputFile("data/wikipedia-de-corpus.ser");
         wikipediaParser.readArticleTitles();
-        wikipediaParser.readTermFrequencies();
+//        wikipediaParser.readTermFrequencies();
 
     }
 
@@ -98,61 +96,51 @@ public class WikipediaParser {
 
     }
 
-    public void readTermFrequencies() throws Exception {
-
-        LOGGER.info("calculating frequencies");
-        
-        TermCorpusBuilder corpusBuilder = new TermCorpusBuilder();
-        
-        // set up the processing pipeline
-        processingPipeline.add(new Tokenizer());
-        processingPipeline.add(new NGramCreator(4));
-        processingPipeline.add(new DuplicateTokenRemover());
-        processingPipeline.add(new ControlledVocabularyFilter(pageTitles));
-        processingPipeline.add(corpusBuilder);
-
-
-        final MutableInt counter = new MutableInt();
-
-        TextBufferHandler handler = new TextBufferHandler() {
-
-            private String pageTitle;
-
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes)
-                    throws SAXException {
-                if (qName.equals("title") || qName.equals("text")) {
-                    startCatching();
-                }
-            }
-
-            @Override
-            public void endElement(String uri, String localName, String qName) throws SAXException {
-                if (qName.equals("title")) {
-                    pageTitle = getText();
-                } else if (qName.equals("text")) {
-                    processPage(pageTitle, getText());
-                    counter.increment();
-                    if (counter.intValue() % 10000 == 0) {
-                        LOGGER.info("read " + counter.intValue());
-                    }
-                }
-            }
-
-        };
-
-        try {
-            SAXParser saxParser = factory.newSAXParser();
-            saxParser.parse(inputFile, handler);
-            // LOGGER.info("finished calculating frequencies; titleCount=" + titleCorpus.getNumDocs());
-            LOGGER.info("finished calculating frequencies; titleCount=" + corpusBuilder.getTermCorpus().getNumDocs());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // corpusBuilder.getTermCorpus().serialize(outputFile);
-        corpusBuilder.getTermCorpus().save(outputFile);
-    }
+//    public void readTermFrequencies() throws Exception {
+//
+//        LOGGER.info("calculating frequencies");
+//
+//        final MutableInt counter = new MutableInt();
+//
+//        TextBufferHandler handler = new TextBufferHandler() {
+//
+//            private String pageTitle;
+//
+//            @Override
+//            public void startElement(String uri, String localName, String qName, Attributes attributes)
+//                    throws SAXException {
+//                if (qName.equals("title") || qName.equals("text")) {
+//                    startCatching();
+//                }
+//            }
+//
+//            @Override
+//            public void endElement(String uri, String localName, String qName) throws SAXException {
+//                if (qName.equals("title")) {
+//                    pageTitle = getText();
+//                } else if (qName.equals("text")) {
+//                    processPage(pageTitle, getText());
+//                    counter.increment();
+//                    if (counter.intValue() % 10000 == 0) {
+//                        LOGGER.info("read " + counter.intValue());
+//                    }
+//                }
+//            }
+//
+//        };
+//
+//        try {
+//            SAXParser saxParser = factory.newSAXParser();
+//            saxParser.parse(inputFile, handler);
+//            // LOGGER.info("finished calculating frequencies; titleCount=" + titleCorpus.getNumDocs());
+//            LOGGER.info("finished calculating frequencies; titleCount=" + corpusBuilder.getTermCorpus().getNumDocs());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        // corpusBuilder.getTermCorpus().serialize(outputFile);
+//        corpusBuilder.getTermCorpus().save(outputFile);
+//    }
 
     public void setInputFile(String inputFile) {
         this.inputFile = inputFile;
@@ -178,13 +166,13 @@ public class WikipediaParser {
         return DISAMBIGUATION_PATTERN.matcher(title).find();
     }
 
-    private void processPage(String pageTitle, String text) {
-        if (!isInNamespace(pageTitle) && !isDisambiguated(pageTitle)) {
-            ParsedPage parsedPage = parser.parse(text);
-            PipelineDocument document = new PipelineDocument(parsedPage.getText());
-            processingPipeline.process(document);
-        }
-    }
+//    private void processPage(String pageTitle, String text) {
+//        if (!isInNamespace(pageTitle) && !isDisambiguated(pageTitle)) {
+//            ParsedPage parsedPage = parser.parse(text);
+//            PipelineDocument document = new PipelineDocument(parsedPage.getText());
+//            processingPipeline.process(document);
+//        }
+//    }
     
     public void getNumItems() throws Exception {
         final MutableInt counter = new MutableInt();

@@ -27,9 +27,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian</artifactId>
-			<version>[0.8-SNAPSHOT,)</version>
+	<groupId>ws.palladian</groupId>
+	<artifactId>palladian</artifactId>
+			<version>0.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
