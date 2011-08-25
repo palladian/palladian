@@ -233,9 +233,11 @@ public class ClassifierEvaluator {
         DictionaryClassifier dictionaryClassifier2 = new DictionaryClassifier();
         dictionaryClassifier2.setName("D2");
         dictionaryClassifier2.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        dictionaryClassifier2.getFeatureSetting().setMinNGramLength(2);
-        dictionaryClassifier2.getFeatureSetting().setMaxNGramLength(2);
+        dictionaryClassifier2.getFeatureSetting().setMinNGramLength(1);
+        dictionaryClassifier2.getFeatureSetting().setMaxNGramLength(3);
         dictionaryClassifier2.setProcessingPipeline(pipeline);
+        dictionaryClassifier2.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        
         DictionaryClassifier dictionaryClassifier3 = new DictionaryClassifier();
         dictionaryClassifier3.setName("D3");
         // dictionaryClassifier3.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
@@ -253,7 +255,8 @@ public class ClassifierEvaluator {
         dataset.setPath("data/temp/amazon/amazonElectronicDE_mainCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
-        dataset.setPath("data/temp/schottenland/schottenland.txt");        
+        dataset.setPath("data/temp/schottenland/schottenland.txt"); 
+        dataset.setPath("data/temp/SentimentSentences.csv");
         
         // dataset.setPath("data/temp/articles_small.csv");
         // dataset.setPath("data/temp/trainingCollection.csv");
@@ -264,10 +267,10 @@ public class ClassifierEvaluator {
         datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
         
         // create an excerpt (optional)
-        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
-                10000);
-        dataset.setPath(dsExcerpt);
-        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
+//        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
+//                10000);
+//        dataset.setPath(dsExcerpt);
+//        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
 
         int countClasses = datasetManager.countClasses(dataset);
         System.out.println("The dataset " + dataset.getName() + " contains " + countClasses + " classes");
@@ -283,8 +286,9 @@ public class ClassifierEvaluator {
 //        evaluator.addClassifier(dictionaryClassifier4);
         evaluator.addDataset(dataset);
 
-        evaluator.runEvaluation("data/temp/schottenland/evaluatorResults.csv");
-//        System.exit(0);
+//        evaluator.runEvaluation("data/temp/schottenland/evaluatorResults.csv");
+        evaluator.runEvaluation("data/temp/evaluationResults.csv");
+        System.exit(0);
         
         dictionaryClassifier2.train(dataset);
         

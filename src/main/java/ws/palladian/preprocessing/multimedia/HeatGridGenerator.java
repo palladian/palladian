@@ -145,15 +145,16 @@ public class HeatGridGenerator {
         System.out.println(data.get(0,0));
         
         // generate random heat grid data
-        for (int i = 0; i < 20; i++) {
-            for (int j = 0; j < 20; j++) {
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 100; j++) {
                 data.set(i, j, Math.random());
             }
         }
         
         HeatGridGenerator heatGridGenerator = new HeatGridGenerator();
-        heatGridGenerator.setMode(TRANSPARENCY);
-        heatGridGenerator.setColor(new Color(10,40,200));
+//        heatGridGenerator.setMode(TRANSPARENCY);
+//        heatGridGenerator.setColor(new Color(10,40,200));
+        heatGridGenerator.setMode(COLOR);
         heatGridGenerator.generateHeatGrid(data, "heatgrid.png");
         
     }

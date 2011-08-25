@@ -3,9 +3,11 @@ package ws.palladian.helper.math;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -53,6 +55,33 @@ public class MathHelper {
         similarity = aAndB / (double) aUnionB.size();
 
         return similarity;
+    }
+    
+    /**
+     * <p>Calculate the confidence interval with a given confidence level and mean.</p>
+     * 
+     * <p>See here: http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm</p>
+     * 
+     * @param samples The number of samples used.
+     * @param confidenceLevel Must be one of the following: 0.75, 0.85, 0.90, 0.95, 0.99.
+     * @param mean The mean, if unknown, assume worst case with mean = 0.5.
+     * 
+     * @return The calculated confidence interval.
+     */
+    public static double getConfidenceInterval(int samples, double confidenceLevel, double mean) {
+        
+        Map<Double, Double> zValues = new HashMap<Double, Double>();
+        zValues.put(0.75, 1.151);
+        zValues.put(0.85, 1.139);
+        zValues.put(0.90, 1.645);
+        zValues.put(0.95, 1.96);
+        zValues.put(0.99, 2.577);
+        
+        double chosenZ = zValues.get(confidenceLevel);
+        
+        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * mean / ((double)samples - 1.0));        
+        
+        return confidenceInterval;
     }
 
     public static double round(double number, int digits) {
