@@ -1,4 +1,9 @@
-package ws.palladian.iirmodel;
+package ws.palladian.iirmodel.helper;
+
+import ws.palladian.iirmodel.Item;
+import ws.palladian.iirmodel.ItemStream;
+import ws.palladian.iirmodel.StreamGroup;
+import ws.palladian.iirmodel.StreamSource;
 
 /**
  * <p>

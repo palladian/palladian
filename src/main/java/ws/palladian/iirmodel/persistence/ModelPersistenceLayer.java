@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -28,6 +27,7 @@ import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.RelationType;
 import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
+import ws.palladian.iirmodel.helper.DefaultStreamVisitor;
 
 /**
  * <p>
@@ -119,25 +119,36 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @return
      */
     protected Set<Author> getAllAuthors(StreamSource streamSource) {
-        Set<Author> authors = new HashSet<Author>();
-        Iterator<StreamSource> streamSourceIterator = streamSource.streamSourceIterator();
-        while (streamSourceIterator.hasNext()) {
-            StreamSource current = streamSourceIterator.next();
-            authors.addAll(current.getAuthors());
-        }
+        final Set<Author> authors = new HashSet<Author>();
+        streamSource.accept(new DefaultStreamVisitor() {
+            
+            @Override
+            public void visitStreamGroup(StreamGroup streamGroup, int depth) {
+                authors.addAll(streamGroup.getAuthors());
+            }
+            
+            @Override
+            public void visitItemStream(ItemStream itemStream, int depth) {
+                authors.addAll(itemStream.getAuthors());
+            }
+        });
         return authors;
     }
 
     public void saveStreamSource(StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
-        for (Iterator<StreamGroup> it = streamSource.streamGroupIterator(); it.hasNext();) {
-            StreamGroup streamGroup = it.next();
-            saveStreamGroup(streamGroup);
-        }
-        for (Iterator<ItemStream> it = streamSource.itemStreamIterator(); it.hasNext();) {
-            ItemStream itemStream = it.next();
-            saveItemStream(itemStream);
-        }
+        streamSource.accept(new DefaultStreamVisitor() {
+            
+            @Override
+            public void visitStreamGroup(StreamGroup streamGroup, int depth) {
+                saveStreamGroup(streamGroup);
+            }
+            
+            @Override
+            public void visitItemStream(ItemStream itemStream, int depth) {
+                saveItemStream(itemStream);
+            }
+        });
         commitTransaction(openedTransaction);
     }
 

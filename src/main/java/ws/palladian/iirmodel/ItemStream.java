@@ -5,7 +5,6 @@ package ws.palladian.iirmodel;
  */
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,8 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
-import ws.palladian.iirmodel.helper.NullIterator;
-import ws.palladian.iirmodel.helper.SingleIterator;
+import ws.palladian.iirmodel.helper.StreamVisitor;
 
 /**
  * <p>
@@ -108,29 +106,9 @@ public final class ItemStream extends StreamSource {
             addItem(item);
         }
     }
-
-    @Override
-    public Iterator<StreamSource> streamSourceIterator() {
-        return new SingleIterator<StreamSource>(this);
-    }
-
-    @Override
-    public Iterator<ItemStream> itemStreamIterator() {
-        return new SingleIterator<ItemStream>(this);
-    }
     
     @Override
-    public Iterator<StreamGroup> streamGroupIterator() {
-        return new NullIterator<StreamGroup>();
-    }
-    
-    @Override
-    public Iterator<Item> itemIterator() {
-        return items.iterator();
-    }
-    
-    @Override
-    public void accept(StreamVisitor visitor, int depth) {
+    protected void accept(StreamVisitor visitor, int depth) {
         visitor.visitItemStream(this, depth);
         for (Item item : getItems()) {
             visitor.visitItem(item, depth + 1);

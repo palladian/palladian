@@ -1,11 +1,10 @@
 package ws.palladian.iirmodel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Iterator;
 
 import org.junit.Test;
+
+import ws.palladian.iirmodel.helper.DefaultStreamVisitor;
 
 public class StreamSourceTest {
 
@@ -26,37 +25,40 @@ public class StreamSourceTest {
     @Test
     public void testStreamSourceTraversal() {
         
-        StreamGroup streamGroup1 = new StreamGroup("grandma", "grandma");
-        StreamGroup streamGroup2 = new StreamGroup("mother", "mother");
-        StreamGroup streamGroup3 = new StreamGroup("uncle", "uncle");
+        final StreamGroup streamGroup1 = new StreamGroup("grandma", "grandma");
+        final StreamGroup streamGroup2 = new StreamGroup("mother", "mother");
+        final StreamGroup streamGroup3 = new StreamGroup("uncle", "uncle");
         streamGroup1.addChild(streamGroup2);
         streamGroup1.addChild(streamGroup3);
         
-        ItemStream itemStream1 = new ItemStream("brother", "brother");
-        ItemStream itemStream2 = new ItemStream("sister", "sister");
+        final ItemStream itemStream1 = new ItemStream("brother", "brother");
+        final ItemStream itemStream2 = new ItemStream("sister", "sister");
         streamGroup2.addChild(itemStream1);
         streamGroup2.addChild(itemStream2);
         
-        ItemStream itemStream3 = new ItemStream("cousin", "cousin");
+        final ItemStream itemStream3 = new ItemStream("cousin", "cousin");
         streamGroup3.addChild(itemStream3);
         
-        Iterator<ItemStream> itemStreamIterator = streamGroup1.itemStreamIterator();
-        assertTrue(itemStreamIterator.hasNext());
-        assertEquals(itemStreamIterator.next(), itemStream1);
-        assertTrue(itemStreamIterator.hasNext());
-        assertEquals(itemStreamIterator.next(), itemStream2);
-        assertTrue(itemStreamIterator.hasNext());
-        assertEquals(itemStreamIterator.next(), itemStream3);
-        
-        Iterator<StreamGroup> streamGroupIterator = streamGroup1.streamGroupIterator();
-        assertTrue(streamGroupIterator.hasNext());
-        assertEquals(streamGroupIterator.next(), streamGroup1);
-        assertTrue(streamGroupIterator.hasNext());
-        assertEquals(streamGroupIterator.next(), streamGroup2);
-        assertTrue(streamGroupIterator.hasNext());
-        assertEquals(streamGroupIterator.next(), streamGroup3);
-        
-
+        streamGroup1.accept(new DefaultStreamVisitor() {
+            int itemStreamCount = 0;
+            int streamGroupCount = 0;
+            
+            @Override
+            public void visitItemStream(ItemStream itemStream, int depth) {
+                if (0 == itemStreamCount) { assertEquals(itemStream1, itemStream); }
+                if (1 == itemStreamCount) { assertEquals(itemStream2, itemStream); }
+                if (2 == itemStreamCount) { assertEquals(itemStream3, itemStream); }
+                itemStreamCount++;
+            }
+            
+            @Override
+            public void visitStreamGroup(StreamGroup streamGroup, int depth) {
+                if (0 == streamGroupCount) { assertEquals(streamGroup1, streamGroup); }
+                if (1 == streamGroupCount) { assertEquals(streamGroup2, streamGroup); }
+                if (2 == streamGroupCount) { assertEquals(streamGroup3, streamGroup); }
+                streamGroupCount++;
+            }
+        });
         
     }
 

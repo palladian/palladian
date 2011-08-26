@@ -1,15 +1,13 @@
 package ws.palladian.iirmodel;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
-import ws.palladian.iirmodel.helper.CompositeIterator;
-import ws.palladian.iirmodel.helper.SingleIterator;
+import ws.palladian.iirmodel.helper.StreamVisitor;
 
 /**
  * <p>
@@ -93,45 +91,7 @@ public final class StreamGroup extends StreamSource {
     }
 
     @Override
-    public Iterator<StreamSource> streamSourceIterator() {
-        List<Iterator<StreamSource>> childIterators = new ArrayList<Iterator<StreamSource>>();
-        childIterators.add(new SingleIterator<StreamSource>(this));
-        for (StreamSource child : getChildren()) {
-            childIterators.add(child.streamSourceIterator());
-        }
-        return new CompositeIterator<StreamSource>(childIterators);
-    }
-
-    @Override
-    public Iterator<ItemStream> itemStreamIterator() {
-        List<Iterator<ItemStream>> childIterators = new ArrayList<Iterator<ItemStream>>();
-        for (StreamSource child : getChildren()) {
-            childIterators.add(child.itemStreamIterator());
-        }
-        return new CompositeIterator<ItemStream>(childIterators);
-    }
-    
-    @Override
-    public Iterator<StreamGroup> streamGroupIterator() {
-        List<Iterator<StreamGroup>> childIterators = new ArrayList<Iterator<StreamGroup>>();
-        childIterators.add(new SingleIterator<StreamGroup>(this));
-        for (StreamSource child : getChildren()) {
-            childIterators.add(child.streamGroupIterator());
-        }
-        return new CompositeIterator<StreamGroup>(childIterators);
-    }
-    
-    @Override
-    public Iterator<Item> itemIterator() {
-        List<Iterator<Item>> childIterators = new ArrayList<Iterator<Item>>();
-        for (StreamSource child : getChildren()) {
-            childIterators.add(child.itemIterator());
-        }
-        return new CompositeIterator<Item>(childIterators);
-    }
-    
-    @Override
-    public void accept(StreamVisitor visitor, int depth) {
+    protected void accept(StreamVisitor visitor, int depth) {
         visitor.visitStreamGroup(this, depth);
         for (StreamSource child : getChildren()) {
             child.accept(visitor, depth + 1);
