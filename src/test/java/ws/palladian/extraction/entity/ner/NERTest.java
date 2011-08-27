@@ -31,6 +31,8 @@ public class NERTest {
         // System.out.println(er.getExactMatchResultsReadable());
 
         tagger.loadModel(NERTest.class.getResource("/ner/tudnerLI.model").getFile());
+        tagger.setTagUrls(false);
+        tagger.setTagDates(false);
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText(
                 NERTest.class.getResource("/ner/test.txt").getFile(), TaggingFormat.COLUMN));
         annotations.removeNestedAnnotations();
@@ -64,6 +66,8 @@ public class NERTest {
         //        System.out.println(er.getExactMatchResultsReadable());
 
         tagger.loadModel(NERTest.class.getResource("/ner/tudnerEn.model").getFile());
+        tagger.setTagUrls(false);
+        tagger.setTagDates(false);
         annotations = tagger.getAnnotations(FileFormatParser.getText(
                 NERTest.class.getResource("/ner/test.txt")
                 .getFile(), TaggingFormat.COLUMN));

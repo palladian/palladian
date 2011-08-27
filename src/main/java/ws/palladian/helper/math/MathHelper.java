@@ -522,9 +522,9 @@ public class MathHelper {
     }
 
     /**
-     * Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
+     * <p>Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
      * dimensional array, where the first dimension indicates the Rank k, the second dimension distinguishes between Pr
-     * and AP. Example:
+     * and AP. Example:</p>
      * 
      * <pre>
      * double[][] ap = MathHelper.calculateAP(rankedList);
@@ -538,8 +538,11 @@ public class MathHelper {
      */
     public static double[][] calculateAP(List<Boolean> rankedList) {
 
-        int numRelevant = 0; // number of relevant entries at k
-        double relPrSum = 0; // sum of all relevant precisions at k
+    	// number of relevant entries at k
+        int numRelevant = 0; 
+        
+        // sum of all relevant precisions at k
+        double relPrSum = 0; 
         double[][] result = new double[rankedList.size()][2];
 
         for (int k = 0; k < rankedList.size(); k++) {
@@ -556,11 +559,12 @@ public class MathHelper {
                 relPrSum += prAtK;
             }
 
-            double ap = relPrSum / numRelevant;
+            double ap = relPrSum / (double) numRelevant;
 
             result[k][0] = prAtK;
             result[k][1] = ap;
         }
+        
         return result;
     }
 }
