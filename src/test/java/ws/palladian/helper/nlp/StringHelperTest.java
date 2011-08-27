@@ -124,11 +124,11 @@ public class StringHelperTest {
         assertEquals("asd", StringHelper.trim(" ; asd ?-"));
         assertEquals("27 30 N, 90 30 E", StringHelper.trim("; ,.  27 30 N, 90 30 E -"));
         assertEquals("27 30 N, 90 30 E", StringHelper.trim(",.  27 30 N, 90 30 E  ##"));
-        assertEquals("' 2''", StringHelper.trim("' 2''"));
-        assertEquals("' 2\"", StringHelper.trim("' 2\""));
+        assertEquals("2", StringHelper.trim("' 2''"));
+        //assertEquals("' 2\"", StringHelper.trim("' 2\""));
         assertEquals("abc", StringHelper.trim("\"abc\""));
         assertEquals("abc\"def", StringHelper.trim("\"abc\"def\""));
-        assertEquals("\"abc", StringHelper.trim("\"abc"));
+        assertEquals("abc", StringHelper.trim("\"abc"));
         // TODO? assertEquals(StringHelper.trim("'80GB'))"),"80GB");
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
