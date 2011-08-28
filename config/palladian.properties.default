@@ -227,3 +227,13 @@ sendMail.smtpHost =
 sendMail.smtpPort = 
 sendMail.smtpUser = 
 sendMail.smtpPass =
+
+######################## Threshold Dateextraction ########################
+threshold.group1 = 0.15
+threshold.group2 = 0.24
+threshold.group3 = 0.18
+threshold.group4 = 0.16
+threshold.group5 = 0.14
+threshold.group6 = 0.13
+threshold.group7 = 0.17
+threshold.group8 = 0.26
