@@ -102,6 +102,7 @@ public final class DateGetterHelper {
 	                    hasPrePostNum = true;
 
 	                } catch (NumberFormatException e) {
+	                	//e.printStackTrace();
 	                }
 	            }
 	            if (end < tempText.length()) {
@@ -111,18 +112,22 @@ public final class DateGetterHelper {
 	                    hasPrePostNum = true;
 
 	                } catch (NumberFormatException e) {
-
+	                	//e.printStackTrace();
 	                }
 	            }
 	            if (!hasPrePostNum) {
-	            	String dateString = tempText.substring(start, end);
-	            	ContentDate date = (ContentDate) DateConverter.convert(
-	            			new ExtractedDate(dateString,((String[])regExps[i])[1]), DateType.ContentDate);
-	            	int index = tempText.indexOf(date.getDateString());
-	            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
-	                String xString = getXs(dateString);
-	                tempText = tempText.replaceFirst(dateString, xString);
-	                dates.add(date);
+	            	try {
+		            	String dateString = tempText.substring(start, end);
+		            	ContentDate date = (ContentDate) DateConverter.convert(
+		            			new ExtractedDate(dateString,((String[])regExps[i])[1]), DateType.ContentDate);
+		            	int index = tempText.indexOf(date.getDateString());
+		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
+		                String xString = getXs(dateString);
+		                tempText = tempText.replaceFirst(dateString, xString);
+		                dates.add(date);
+	            	} catch (Exception e) {
+	            		e.printStackTrace();
+	            	}
 	            }
     		}
     	}

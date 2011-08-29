@@ -201,6 +201,21 @@ public class InformativenessAssigner {
 
         return informativeness;
     }
+    
+    public String removeWordsWithLowInformativeness(String text, double informativenessLimit) {
+    	String filteredString = "";
+    	String[] tokens = text.split("\\s");
+    	
+    	for (String string : tokens) {
+			double informativeness = getInformativeness(string);
+			if (informativeness > informativenessLimit) {
+				filteredString += string + " ";
+			}
+		}
+
+    	
+    	return filteredString.trim();
+    }
 
     public void saveAsHTML(String text, String path) {
         StringBuilder sb = new StringBuilder();
