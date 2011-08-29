@@ -3,7 +3,6 @@
  */
 package ws.palladian.daterecognition.dates;
 
-import weka.core.Attribute;
 
 /**
  * @author Martin Gregor
@@ -77,7 +76,6 @@ public class ContentDate extends AbstractBodyDate {
      * 
      */
     public ContentDate() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -85,7 +83,6 @@ public class ContentDate extends AbstractBodyDate {
      */
     public ContentDate(String dateString) {
         super(dateString);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -94,7 +91,6 @@ public class ContentDate extends AbstractBodyDate {
      */
     public ContentDate(String dateString, String format) {
         super(dateString, format);
-        // TODO Auto-generated constructor stub
     }
 
    
