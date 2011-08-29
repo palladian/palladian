@@ -197,6 +197,25 @@ public abstract class StreamSource implements Serializable {
     public final Set<Author> getAuthors() {
         return authors;
     }
+    
+    /**
+     * <p>
+     * Get an {@link Author} by his username.
+     * </p>
+     * 
+     * @param username
+     * @return The author with the specified username, or <code>null</code>, if no such author exists.
+     */
+    public final Author getAuthor(String username) {
+        Author ret = null;
+        for (Author author : authors) {
+            if (author.getUsername().equals(username)) {
+                ret = author;
+                break;
+            }
+        }
+        return ret;
+    }
 
     public final void setAuthors(Collection<Author> authors) {
         this.authors = new HashSet<Author>(authors);

@@ -360,4 +360,27 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveStreamGroup(forum);
     }
+    
+    @Test
+    public void testSaveStreamWithMultipleAuthorOccurrences() {
+        StreamGroup forum = new StreamGroup("testgroup", "http://testgroup.com");
+        
+        ItemStream itemStream1 = new ItemStream("teststream1", "http://testgroup.com/teststream1");
+        forum.addChild(itemStream1);
+        Author author1 = new Author("u1", "http://testgroup.com");
+        forum.addAuthor(author1);
+        Item item1 = new Item("id1", author1, "http://testgroup.com/teststream1/item1", "item1", new Date(), new Date(), "");
+        itemStream1.addItem(item1);
+        
+        ItemStream itemStream2 = new ItemStream("teststream2", "http://testgroup.com/teststream2");
+        forum.addChild(itemStream2);
+        
+        // retrieve Author by his username, as we must avoid duplicate author instances!
+        Author author2 = forum.getAuthor("u1");
+        forum.addAuthor(author2);
+        Item item2 = new Item("id2", author2, "http://testgroup.com/teststream1/item2", "item2", new Date(), new Date(), "");
+        itemStream2.addItem(item2);
+        
+        persistenceLayer.saveStreamSource(forum);
+    }
 }
