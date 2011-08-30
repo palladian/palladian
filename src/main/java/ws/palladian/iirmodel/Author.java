@@ -101,7 +101,7 @@ public class Author {
      * 
      * @param username The author's username identifying the author within a stream source.
      * @param streamSource The source of streams this {@code Author} creates {@link Item}s for, such as <a
-     *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
+     *            href="http://www.twitter.com">Twitter</a>, <a href="http://www.facebook.com">Facebook</a>, any Web
      *            Forum or other kind of source the author's username is unique in.
      */
     public Author(String username, String streamSourceAddress) {
