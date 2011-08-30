@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -831,5 +832,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
             throw new IllegalStateException("Found " + result.size() + " items with internal identifier "
                     + forumInternalIdentifier + "in item stream " + parentStream);
         }
+    }
+    
+    /**
+     * <p>Delete all data.</p>
+     */
+    public void deleteAll() {
+        EntityManager entityManager = getManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        entityManager.createQuery("DELETE FROM Item").executeUpdate();
+        entityManager.createQuery("DELETE FROM StreamSource").executeUpdate();
+        entityManager.createQuery("DELETE FROM ItemStream").executeUpdate();
+        entityManager.createQuery("DELETE FROM StreamGroup").executeUpdate();
+        entityManager.createQuery("DELETE FROM Author").executeUpdate();
+        entityManager.createQuery("DELETE FROM ItemRelation").executeUpdate();
+        entityManager.createQuery("DELETE FROM RelationType").executeUpdate();
+        transaction.commit();
     }
 }
