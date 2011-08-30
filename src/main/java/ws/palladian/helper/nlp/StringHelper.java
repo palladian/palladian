@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -218,6 +219,38 @@ public class StringHelper {
             return term;
         }
         return term.substring(0, 1).toLowerCase() + term.substring(1);
+    }
+    
+    /**
+     * <p>
+     * Transform a name  For example: jim carrey => Jim Carrey, university of los angeles => University of Los Angeles
+     * </p>
+     * <p>
+     * <em>Note: This works for English only!</em>
+     * </p>
+     * 
+     * @param name The entity name.
+     * @return The normalized entity name.
+     */
+    public static String normalizeCapitalization(String name) {
+        String normalizedName = "";
+
+        Set<String> noUppercaseSet = new HashSet<String>();
+        noUppercaseSet.add("of");
+        noUppercaseSet.add("and");
+        noUppercaseSet.add("the");
+        
+        String[] parts = name.split("\\s");
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (i > 0 && noUppercaseSet.contains(part)) {
+            	normalizedName += part + " ";
+            } else {
+            	normalizedName += upperCaseFirstLetter(part) + " ";            	
+            }
+        }   
+
+        return normalizedName.trim();
     }
 
     /**
