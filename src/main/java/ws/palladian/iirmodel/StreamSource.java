@@ -40,7 +40,7 @@ public abstract class StreamSource implements Serializable {
      * The separator character used when building a fully qualified name for the StreamSource.
      * </p>
      */
-    private static final char QUALIFIED_NAME_SEPARATOR = '.';
+    // private static final char QUALIFIED_NAME_SEPARATOR = '.';
 
     /**
      * <p>
@@ -177,27 +177,27 @@ public abstract class StreamSource implements Serializable {
         this.parentSource = parentSource;
     }
 
-    /**
-     * <p>
-     * Returns a fully qualified name for this StreamSource.
-     * </p>
-     * 
-     * @return
-     */
-    public final String getQualifiedSourceName() {
-        StringBuilder result = new StringBuilder();
-        if (parentSource != null) {
-            result.append(parentSource.getQualifiedSourceName());
-            result.append(QUALIFIED_NAME_SEPARATOR);
-        }
-        result.append(getSourceName());
-        return result.toString();
-    }
+    // /**
+    // * <p>
+    // * Returns a fully qualified name for this StreamSource.
+    // * </p>
+    // *
+    // * @return
+    // */
+    // public final String getQualifiedSourceName() {
+    // StringBuilder result = new StringBuilder();
+    // if (parentSource != null) {
+    // result.append(parentSource.getQualifiedSourceName());
+    // result.append(QUALIFIED_NAME_SEPARATOR);
+    // }
+    // result.append(getSourceName());
+    // return result.toString();
+    // }
 
     public final Set<Author> getAuthors() {
         return authors;
     }
-    
+
     /**
      * <p>
      * Get an {@link Author} by his username.

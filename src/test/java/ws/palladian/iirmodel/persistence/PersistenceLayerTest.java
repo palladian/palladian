@@ -112,7 +112,6 @@ public class PersistenceLayerTest {
         persistenceLayer.saveItemStream(stream);
         ItemStream result = (ItemStream) persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
         assertEquals(1, persistenceLayer.loadStreamSources().size());
-        assertEquals(stream.getQualifiedSourceName(), result.getQualifiedSourceName());
         assertEquals(stream.getSourceAddress(), result.getSourceAddress());
         assertEquals(stream.getSourceName(), result.getSourceName());
         assertEquals(stream.getItems().size(), result.getItems().size());

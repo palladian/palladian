@@ -1,62 +1,60 @@
 package ws.palladian.iirmodel;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
 import ws.palladian.iirmodel.helper.DefaultStreamVisitor;
 
 public class StreamSourceTest {
-
-    @Test
-    public void testStreamSource() {
-
-        StreamGroup streamGroup1 = new StreamGroup("ExampleSource", "http://example.com");
-        StreamGroup streamGroup2 = new StreamGroup("ExampleChannel", "http://example.com/channel");
-        StreamGroup streamGroup3 = new StreamGroup("ExampleThread", "http://example.com/channel/thread");
-        streamGroup2.addChild(streamGroup3);
-        streamGroup1.addChild(streamGroup2);
-
-        assertEquals("ExampleSource", streamGroup1.getQualifiedSourceName());
-        assertEquals("ExampleSource.ExampleChannel.ExampleThread", streamGroup3.getQualifiedSourceName());
-
-    }
     
     @Test
-    public void testStreamSourceTraversal() {
+    public void testStreamSourceVisitor() {
         
-        final StreamGroup streamGroup1 = new StreamGroup("grandma", "grandma");
-        final StreamGroup streamGroup2 = new StreamGroup("mother", "mother");
-        final StreamGroup streamGroup3 = new StreamGroup("uncle", "uncle");
+        StreamGroup streamGroup1 = new StreamGroup("grandma", "grandma");
+        StreamGroup streamGroup2 = new StreamGroup("mother", "mother");
+        StreamGroup streamGroup3 = new StreamGroup("uncle", "uncle");
         streamGroup1.addChild(streamGroup2);
         streamGroup1.addChild(streamGroup3);
         
-        final ItemStream itemStream1 = new ItemStream("brother", "brother");
-        final ItemStream itemStream2 = new ItemStream("sister", "sister");
+        ItemStream itemStream1 = new ItemStream("brother", "brother");
+        ItemStream itemStream2 = new ItemStream("sister", "sister");
         streamGroup2.addChild(itemStream1);
         streamGroup2.addChild(itemStream2);
         
-        final ItemStream itemStream3 = new ItemStream("cousin", "cousin");
+        ItemStream itemStream3 = new ItemStream("cousin", "cousin");
         streamGroup3.addChild(itemStream3);
         
+        Item item1 = new Item("i1", null, "", "i1", null, null, "");
+        Item item2 = new Item("i2", null, "", "i1", null, null, "");
+        Item item3 = new Item("i3", null, "", "i1", null, null, "");
+        itemStream1.addItem(item1);
+        itemStream1.addItem(item2);
+        itemStream1.addItem(item3);
+        
+        final Object[] expectedOrder = { streamGroup1, streamGroup2, itemStream1, item1, item2, item3, itemStream2, streamGroup3, itemStream3 };
+        
         streamGroup1.accept(new DefaultStreamVisitor() {
-            int itemStreamCount = 0;
-            int streamGroupCount = 0;
             
             @Override
             public void visitItemStream(ItemStream itemStream, int depth) {
-                if (0 == itemStreamCount) { assertEquals(itemStream1, itemStream); }
-                if (1 == itemStreamCount) { assertEquals(itemStream2, itemStream); }
-                if (2 == itemStreamCount) { assertEquals(itemStream3, itemStream); }
-                itemStreamCount++;
+                validate(itemStream);
             }
             
             @Override
             public void visitStreamGroup(StreamGroup streamGroup, int depth) {
-                if (0 == streamGroupCount) { assertEquals(streamGroup1, streamGroup); }
-                if (1 == streamGroupCount) { assertEquals(streamGroup2, streamGroup); }
-                if (2 == streamGroupCount) { assertEquals(streamGroup3, streamGroup); }
-                streamGroupCount++;
+                validate(streamGroup);
+            }
+            
+            @Override
+            public void visitItem(Item item, int depth) {
+                validate(item);
+            }
+            
+            int index = 0;
+
+            private void validate(Object object) {
+                assertSame(expectedOrder[index++], object);
             }
         });
         

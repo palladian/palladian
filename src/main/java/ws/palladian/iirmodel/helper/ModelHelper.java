@@ -10,9 +10,9 @@ import ws.palladian.iirmodel.StreamSource;
  * @author Philipp Katz
  * 
  */
-public class ItemStreamHelper {
+public class ModelHelper {
 
-    private ItemStreamHelper() {
+    private ModelHelper() {
         // prevent instantiation
     }
 
