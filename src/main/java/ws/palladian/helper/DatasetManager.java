@@ -137,6 +137,8 @@ public class DatasetManager {
 
         indexFile.close();
 
+        // shuffle lines
+        FileHelper.shuffleLines(indexFilename);
         LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
 
         return indexFilename;

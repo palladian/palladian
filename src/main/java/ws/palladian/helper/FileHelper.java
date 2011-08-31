@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +45,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1689,6 +1692,16 @@ public class FileHelper {
 
         System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
+    }
+
+    /**
+     * <p>Shuffles the order of lines in a given file.</p>
+     * @param filePath The path of the file which lines should be shuffled.
+     */
+    public static void shuffleLines(String filePath) {
+        List<String> lines = FileHelper.readFileToArray(filePath);
+        Collections.shuffle(lines);
+        FileHelper.writeToFile(filePath, lines);        
     }
 
 }
