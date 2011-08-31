@@ -13,9 +13,11 @@ import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.helper.math.Matrix;
 
 /**
- * This class calculates scores for a given classifier such as precision, recall, and F1.
+ * This class calculates scores for a given classifier such as precision, recall, and F1 on one given dataset.
  * 
  * @author David Urbansky
  * 
@@ -109,6 +111,25 @@ public class ClassifierPerformance implements Serializable {
 
         return number;
     }
+    
+    // XXX this assumes cClassificationTypeSetting.SINGLE
+    public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
+        int number = 0;
+
+        for (TextInstance document : getTestDocuments()) {
+            TestDocument testDocument = (TestDocument) document;
+
+            if (testDocument.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
+                document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
+                
+                number++;
+                
+            }
+
+        }
+
+        return number;
+    }
 
     public double getCorrectlyClassified() {
         int correctlyClassified = 0;
@@ -129,7 +150,7 @@ public class ClassifierPerformance implements Serializable {
         
         CountMap countMap = new CountMap();
         for (TextInstance document : getTestDocuments()) {
-            countMap.increment(document.getMainCategoryEntry().getCategory().getName());
+            countMap.increment(document.getFirstRealCategory().getName());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
@@ -652,6 +673,39 @@ public class ClassifierPerformance implements Serializable {
 
         return accuracy / count;
     }
+    
+    /**
+     * <p>Calculate a confusion matrix.</p>
+     * <p>On such matrix could look like this:</p>
+     * 
+     * <pre>
+     * classified\actual    | mobile phone  | camera | tv set
+     * ----------------------------------------------------------
+     * mobile phone         | 10            | 11     | 3
+     * camera               | 4             | 20     | 5
+     * tv set               | 1             | 1      | 31
+     * </pre>
+     * 
+     * @return The confusion matrix.
+     */
+    public ConfusionMatrix getConfusionMatrix() {
+        
+        // x = actual category, y = classified category
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+
+        for (Category actualCategory : categories) {
+            
+            for (Category classifiedCategory : categories) {
+                
+                int count = getNumberOfConfusionsBetween(actualCategory, classifiedCategory);
+                
+                confusionMatrix.set(actualCategory.getName(), classifiedCategory.getName(), count);
+            }
+            
+        }
+        
+        return confusionMatrix;
+    }
 
     /**
      * Write the most basic scores to a result class which only holds these but not the documents. The
@@ -675,6 +729,8 @@ public class ClassifierPerformance implements Serializable {
         
         classifierPerformanceResult.setSuperiority(getCorrectlyClassified() / getHighestPrior());
 
+        classifierPerformanceResult.setConfusionMatrix(getConfusionMatrix());
+        
         return classifierPerformanceResult;
     }
 

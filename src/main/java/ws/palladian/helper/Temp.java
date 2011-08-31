@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
@@ -27,6 +28,8 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.ListDiscoverer;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
@@ -584,13 +587,30 @@ public class Temp {
         // }
     }
     
+    public List<String> getPaginationFromGoogle(String googlePage) {
+        //googlePage = "http://www.google.de/search?sourceid=chrome&ie=UTF-8&q=test";
+        
+        DocumentRetriever dret = new DocumentRetriever();
+        Document webDocument = dret.getWebDocument(googlePage);
+        List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(webDocument, XPathHelper.addXhtmlNsToXPath("//div[4]/div/div/div[9]/span/div/table/tr/td/a"));
+        List<String> paginationUrls = new ArrayList<String>();
+        for (Node n : paginationCandidates) {
+            paginationUrls.add(n.getAttributes().getNamedItem("href").getTextContent());
+        }
+        CollectionHelper.print(paginationUrls);
+        return paginationUrls;
+        
+//        ListDiscoverer ld = new ListDiscoverer();
+//        Set<String> urls = ld.findPaginationURLs(url);        
+    }
     
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-
+        new Temp().getPaginationFromGoogle("http://www.google.de/search?sourceid=chrome&ie=UTF-8&q=test");
+        System.exit(0);
         //args = new String[]{"data/temp/feedgz","data/temp/feedgz/copy/","100"};
         new Temp().createSubset(args[0],args[1], Integer.valueOf(args[2]));
         //new Temp().topicClassifier();

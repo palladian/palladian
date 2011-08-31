@@ -7,12 +7,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.ClassifierPerformanceResult;
-import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.preprocessing.ProcessingPipeline;
 
@@ -100,6 +100,8 @@ public class ClassifierEvaluator {
 
                     ClassifierPerformanceResult performance = evalClassifier.evaluate(testDataset)
                             .getClassifierPerformanceResult();
+                    
+                    System.out.println(performance.getConfusionMatrix());
 
                     performances.add(performance);
                 }
@@ -124,16 +126,28 @@ public class ClassifierEvaluator {
         for (Dataset dataset : datasets) {
             results.append(dataset).append(";;;;;;;;");
         }
-        results.append("\n;");
+        results.append("\n");
         for (int i = 0; i < datasets.size(); i++) {
-            results.append("Precision;Recall;F1;Sensitivity;Specificity;Acurracy;Correctness;Superiority");
+            results.append(";Precision;Recall;F1;Sensitivity;Specificity;Acurracy;Correctness;Superiority");
         }
         results.append("\n");
 
         for (TextClassifier classifier : classifiers) {
-            results.append(classifier.toString()).append(";");
+            results.append(classifier.toString());
             for (Dataset dataset : datasets) {
-                results.append(evaluationMatrix.get(dataset.getName(), classifier.getName()));
+                results.append(";").append(evaluationMatrix.get(dataset.getName(), classifier.getName()));
+            }
+            results.append("\n");
+        }
+        
+        // add all confusion matrices for all classifier-dataset combinations
+        results.append("\n");
+        for (TextClassifier classifier : classifiers) {
+            for (Dataset dataset : datasets) {
+                results.append(classifier.toString() + " - " + dataset.getName() + " confusion matrix\n");
+                ClassifierPerformanceResult classificationResult = (ClassifierPerformanceResult) evaluationMatrix.get(dataset.getName(), classifier.getName());
+                results.append(classificationResult.getConfusionMatrix().asCsv());
+                results.append("\n\n");
             }
             results.append("\n");
         }
@@ -161,6 +175,8 @@ public class ClassifierEvaluator {
         double correctness = 0.0;
         
         double superiority = 0.0;
+        
+        ConfusionMatrix confusionMatrix = null;
 
         for (ClassifierPerformanceResult classifierPerformanceResult : performances) {
             precision += classifierPerformanceResult.getPrecision();
@@ -171,6 +187,13 @@ public class ClassifierEvaluator {
             accuracy += classifierPerformanceResult.getAccuracy();
             correctness += classifierPerformanceResult.getCorrectlyClassified();
             superiority += classifierPerformanceResult.getSuperiority();
+            
+            if (confusionMatrix == null) {
+                confusionMatrix = classifierPerformanceResult.getConfusionMatrix();
+            } else {
+                confusionMatrix.add(classifierPerformanceResult.getConfusionMatrix());
+            }
+            
         }
 
         precision /= performances.size();
@@ -181,7 +204,8 @@ public class ClassifierEvaluator {
         accuracy /= performances.size();
         correctness /= performances.size();
         superiority /= performances.size();
-
+        confusionMatrix.divideBy(performances.size());
+        
         result.setPrecision(precision);
         result.setRecall(recall);
         result.setF1(f1);
@@ -190,7 +214,8 @@ public class ClassifierEvaluator {
         result.setAccuracy(accuracy);
         result.setCorrectlyClassified(correctness);
         result.setSuperiority(superiority);
-
+        result.setConfusionMatrix(confusionMatrix);
+        
         return result;
     }
 
@@ -228,7 +253,7 @@ public class ClassifierEvaluator {
         dictionaryClassifier1.getFeatureSetting().setMinNGramLength(3);
         dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(5);
         dictionaryClassifier1.setProcessingPipeline(pipeline);
-         dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+//         dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
         DictionaryClassifier dictionaryClassifier2 = new DictionaryClassifier();
         dictionaryClassifier2.setName("D2");
@@ -236,7 +261,7 @@ public class ClassifierEvaluator {
         dictionaryClassifier2.getFeatureSetting().setMinNGramLength(1);
         dictionaryClassifier2.getFeatureSetting().setMaxNGramLength(3);
         dictionaryClassifier2.setProcessingPipeline(pipeline);
-        dictionaryClassifier2.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+//        dictionaryClassifier2.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
         
         DictionaryClassifier dictionaryClassifier3 = new DictionaryClassifier();
         dictionaryClassifier3.setName("D3");
@@ -248,15 +273,19 @@ public class ClassifierEvaluator {
         dictionaryClassifier4.getFeatureSetting().setMinNGramLength(2);
         dictionaryClassifier4.getFeatureSetting().setMaxNGramLength(8);
 
-        Dataset dataset = new Dataset("MarktjagdProducts");
+        Dataset dataset = new Dataset("Sentiment");
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("<###>");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_detailedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_mainCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
-        dataset.setPath("data/temp/schottenland/schottenland.txt"); 
-        dataset.setPath("data/temp/SentimentSentences.csv");
+        dataset.setPath("data/datasets/classification/SentimentSentences.csv");
+        
+        Dataset dataset2 = new Dataset("Schottenland");
+        dataset2.setFirstFieldLink(false);
+        dataset2.setSeparationString("<###>");
+        dataset2.setPath("data/temp/schottenland/schottenland.txt"); 
         
         // dataset.setPath("data/temp/articles_small.csv");
         // dataset.setPath("data/temp/trainingCollection.csv");
@@ -264,12 +293,13 @@ public class ClassifierEvaluator {
         // dataset.setPath("data/temp/dataset_classifier_dev_1_ipc1000.csv");
 
         DatasetManager datasetManager = new DatasetManager();
-        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
+        //datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
+        datasetManager.calculateClassDistribution(dataset, "data/datasets/classification/SentimentSentences_distribution.csv");
         
         // create an excerpt (optional)
-//        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset.getPath(), dataset.getSeparationString(),
-//                10000);
-//        dataset.setPath(dsExcerpt);
+//        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset2.getPath(), dataset2.getSeparationString(), 5000);
+        String dsExcerpt = datasetManager.createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), 200);
+        dataset2.setPath(dsExcerpt);
 //        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
 
         int countClasses = datasetManager.countClasses(dataset);
@@ -280,11 +310,12 @@ public class ClassifierEvaluator {
         evaluator.setCrossValidation(3);
         // evaluator.setNumberOfInstancesPerClass(50);
 
-//        evaluator.addClassifier(dictionaryClassifier1);
+        evaluator.addClassifier(dictionaryClassifier1);
         evaluator.addClassifier(dictionaryClassifier2);
 //        evaluator.addClassifier(dictionaryClassifier3);
 //        evaluator.addClassifier(dictionaryClassifier4);
         evaluator.addDataset(dataset);
+        evaluator.addDataset(dataset2);
 
 //        evaluator.runEvaluation("data/temp/schottenland/evaluatorResults.csv");
         evaluator.runEvaluation("data/temp/evaluationResults.csv");

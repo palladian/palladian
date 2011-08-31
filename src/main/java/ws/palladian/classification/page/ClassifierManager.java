@@ -621,6 +621,10 @@ public class ClassifierManager {
             categories.add(new Category(data[j]));
         }
 
+        if (categories.isEmpty()) {
+            LOGGER.warn("no real categories assigned to document with content: "  +data[0]);
+        }
+        
         preprocessedDocument.setRealCategories(categories);
         preprocessedDocument.setDocumentType(type);
 
@@ -671,6 +675,9 @@ public class ClassifierManager {
             Categories categories = new Categories();
             for (int j = 1; j < tData.length; j++) {
                 categories.add(new Category(tData[j]));
+            }
+            if (categories.isEmpty()) {
+                LOGGER.warn("no real categories assigned to document with content: "  +tData[0]);
             }
             if (forTraining) {
                 preprocessedDocument.setDocumentType(TextInstance.TRAINING);

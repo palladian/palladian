@@ -1,5 +1,8 @@
 package ws.palladian.classification;
 
+import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.helper.math.Matrix;
+
 public class ClassifierPerformanceResult {
 
     private double precision = -1.0;
@@ -14,6 +17,8 @@ public class ClassifierPerformanceResult {
     
     /** Superiority is the factor with which the classifier is better than the highest prior in the dataset: Superiority = correctlyClassified / percentHighestPrior. A superiority of 1 means it doesn't make sense classifying at all since we could simply always take the category with the highest prior. A superiority smaller 1 means the classifier is harmful. */
     private double superiority = -1.0;
+    
+    private ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
     public double getPrecision() {
         return precision;
@@ -79,6 +84,14 @@ public class ClassifierPerformanceResult {
         this.superiority = superiority;
     }
     
+    public void setConfusionMatrix(ConfusionMatrix confusionMatrix) {
+        this.confusionMatrix = confusionMatrix;
+    }
+    
+    public ConfusionMatrix getConfusionMatrix() {
+        return confusionMatrix;
+    }
+    
     @Override
     public String toString() {
         StringBuilder csv = new StringBuilder();
@@ -97,5 +110,6 @@ public class ClassifierPerformanceResult {
 
         return csv.toString();
     }
+
 
 }
