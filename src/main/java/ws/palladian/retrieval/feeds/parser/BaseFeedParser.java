@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -23,8 +24,15 @@ public abstract class BaseFeedParser implements FeedParser {
     
     private final DocumentRetriever documentRetriever;
     
-    public BaseFeedParser() {
+    protected BaseFeedParser() {
         documentRetriever = new DocumentRetriever();
+        
+        // suXXX that I have to set this explicitly;
+        // makes sense to have this setting for Neko,
+        // but ROME generally has no problem with too big files ...
+        // think this over?
+        documentRetriever.getDownloadFilter().setMaxFileSize(SizeUnit.MEGABYTES.toBytes(5));
+
     }
     
     
@@ -85,22 +93,13 @@ public abstract class BaseFeedParser implements FeedParser {
             throw new FeedParserException(e);
         }
     }
-
+    
+    /* (non-Javadoc)
+     * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(ws.palladian.retrieval.HttpResult)
+     */
     @Override
     public Feed getFeed(HttpResult httpResult) throws FeedParserException {
         return getFeed(new ByteArrayInputStream(httpResult.getContent()));
     }
-
-//    @Override
-//    public Feed getFeed(Document document) throws FeedParserException {
-//        // TODO Auto-generated method stub
-//        return null;
-//    }
-
-//    @Override
-//    public Feed getFeed(InputStream inputStream) throws FeedParserException {
-//        // TODO Auto-generated method stub
-//        return null;
-//    }
 
 }
