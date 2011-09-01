@@ -2,7 +2,7 @@
  * <p>
  * Classes from this package provide functionality to work with Atom and RSS web feeds. The central class is the
  * {@code Feed} class representing a single feed with several {@code FeedItem} objects as children. To get the content
- * of a feed into a {@code Feed} object use the {@code FeedRetriever}. The {@code FeedRetriever} is like a factory for
+ * of a feed into a {@code Feed} object use the {@code RomeFeedParser}. The {@code RomeFeedParser} is like a factory for
  * feeds and tries to fetch a feeds content directly over the internet using Palladians {@link ws.palladian.retrieval.DocumentRetriever}
  * and the ROME framework. To save the retrieved contents use an instance of
  * {@link ws.palladian.retrieval.feeds.persistence.FeedDatabase}.

@@ -8,6 +8,9 @@ import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 public class FeedDatabaseTest {
@@ -22,27 +25,27 @@ public class FeedDatabaseTest {
 
     @Test
     // @Ignore
-    public void testAddFeed() throws FeedRetrieverException {
+    public void testAddFeed() throws FeedParserException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedRetriever newsAggregator = new FeedRetriever();
+        FeedParser newsAggregator = new RomeFeedParser();
         Feed feed = newsAggregator.getFeed(feedUrl);
         db.addFeed(feed);
     }
 
     @Test
     @Ignore
-    public void testAddDuplicateFeed() throws FeedRetrieverException {
+    public void testAddDuplicateFeed() throws FeedParserException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedRetriever feedDownloader = new FeedRetriever();
+        FeedParser feedDownloader = new RomeFeedParser();
         Feed feed = feedDownloader.getFeed(feedUrl);
         System.out.println(db.addFeed(feed));
     }
 
     @Test
     @Ignore
-    public void testAddEntries() throws FeedRetrieverException {
+    public void testAddEntries() throws FeedParserException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedRetriever newsAggregator = new FeedRetriever();
+        FeedParser newsAggregator = new RomeFeedParser();
         Feed feed = db.getFeedByUrl(feedUrl);
         List<FeedItem> entries = newsAggregator.getFeed(feedUrl).getItems();
         for (FeedItem entry : entries) {
@@ -64,10 +67,10 @@ public class FeedDatabaseTest {
     }
 
     @Test
-    public void testAddDuplicateEntry() throws FeedRetrieverException {
+    public void testAddDuplicateEntry() throws FeedParserException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
 
-        FeedRetriever aggregator = new FeedRetriever();
+        FeedParser aggregator = new RomeFeedParser();
         Feed feed = aggregator.getFeed(feedUrl);
 
         System.out.println(feed);

@@ -10,6 +10,9 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
@@ -177,13 +180,13 @@ public class FeedClassifier {
      */
     public static int classify(String feedURL) {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser feedParser = new RomeFeedParser();
         Feed feed = new Feed();
         DocumentRetriever crawler = new DocumentRetriever();
 
         try {
-            feed = feedRetriever.getFeed(feedURL);
-        } catch (FeedRetrieverException e) {
+            feed = feedParser.getFeed(feedURL);
+        } catch (FeedParserException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
             if (crawler.getResponseCode(feedURL) == 200) {

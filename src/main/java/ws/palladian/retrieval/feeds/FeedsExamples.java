@@ -5,6 +5,9 @@ import java.util.List;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.search.WebSearcherManager;
@@ -17,7 +20,7 @@ import ws.palladian.retrieval.search.WebSearcherManager;
  */
 public class FeedsExamples {
 
-    public static void main(String[] args) throws FeedRetrieverException {
+    public static void main(String[] args) throws FeedParserException {
 
         // search feeds for "Porsche 911"
         String discoveredFeedsFile = "data/foundFeeds.txt";
@@ -29,8 +32,8 @@ public class FeedsExamples {
         feedDiscovery.findFeeds();
 
         // download a feed
-        FeedRetriever feedRetriever = new FeedRetriever();
-        Feed feed = feedRetriever.getFeed("http://rss.cnn.com/rss/edition.rss");
+        FeedParser feedParser = new RomeFeedParser();
+        Feed feed = feedParser.getFeed("http://rss.cnn.com/rss/edition.rss");
         List<FeedItem> feedItems = feed.getItems();
         CollectionHelper.print(feedItems);
 

@@ -27,6 +27,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.evaluation.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -427,10 +428,10 @@ public final class FeedReader {
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
      * 
-     * @throws FeedRetrieverException
+     * @throws FeedParserException
      */
     @SuppressWarnings("static-access")
-    public static void main(String[] args) throws FeedRetrieverException {
+    public static void main(String[] args) throws FeedParserException {
 
         FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
         r.setThreadPoolSize(1);
@@ -447,7 +448,7 @@ public final class FeedReader {
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        // FeedParser feedParser = new RomeFeedParser();
         // feedRetriever.updateFeed(feed);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);

@@ -18,6 +18,9 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
 /**
  * <p>
@@ -160,13 +163,13 @@ class FeedTask implements Callable<FeedTaskResult> {
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
                     feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified", false));
 
-                    FeedRetriever feedRetriever = new FeedRetriever();
+                    FeedParser feedParser = new RomeFeedParser();
                     Feed downloadedFeed = null;
                     try {
                         // parse the feed and get all its entries, do that here since that takes some time and this is a
                         // thread so it can be done in parallel
-                        downloadedFeed = feedRetriever.getFeed(httpResult);
-                    } catch (FeedRetrieverException e) {
+                        downloadedFeed = feedParser.getFeed(httpResult);
+                    } catch (FeedParserException e) {
                         LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
                         feed.incrementUnparsableCount();
                         resultSet.add(FeedTaskResult.UNPARSABLE);

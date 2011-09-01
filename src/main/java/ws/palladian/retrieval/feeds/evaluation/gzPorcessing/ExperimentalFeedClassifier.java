@@ -21,8 +21,9 @@ import ws.palladian.retrieval.feeds.FeedClassificationThread;
 import ws.palladian.retrieval.feeds.FeedClassifier;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedRetriever;
-import ws.palladian.retrieval.feeds.FeedRetrieverException;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
@@ -280,13 +281,13 @@ public class ExperimentalFeedClassifier {
      */
     public static int classify(String feedURL) {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser feedParser = new RomeFeedParser();
         Feed feed = new Feed();
         DocumentRetriever crawler = new DocumentRetriever();
 
         try {
-            feed = feedRetriever.getFeed(feedURL);
-        } catch (FeedRetrieverException e) {
+            feed = feedParser.getFeed(feedURL);
+        } catch (FeedParserException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
             if (crawler.getResponseCode(feedURL) == 200) {
