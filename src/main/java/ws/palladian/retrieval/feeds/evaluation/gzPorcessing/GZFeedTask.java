@@ -23,11 +23,12 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.FeedRetriever;
-import ws.palladian.retrieval.feeds.FeedRetrieverException;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
 /**
  * TUDCS6 specific.<br />
@@ -148,7 +149,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                     continue;
                 }
 
-                FeedRetriever feedRetriever = new FeedRetriever();
+                FeedParser feedParser = new RomeFeedParser();
                 DocumentRetriever documentRetriever = new DocumentRetriever();
                 HttpResult gzHttpResult = documentRetriever.loadSerializedGzip(file);
 
@@ -188,8 +189,8 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
 
                         Feed gzFeed = null;
                         try {
-                            gzFeed = feedRetriever.getFeed(gzHttpResult);
-                        } catch (FeedRetrieverException e) {
+                            gzFeed = feedParser.getFeed(gzHttpResult);
+                        } catch (FeedParserException e) {
                             LOGGER.fatal("Could not get feed from http header for feed id " + correctedFeed.getId()
                                     + ". " + e.getLocalizedMessage());
                             resultSet.add(FeedTaskResult.UNPARSABLE);

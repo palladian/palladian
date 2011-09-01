@@ -25,6 +25,9 @@ import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
@@ -47,7 +50,7 @@ public class FeedImporter {
     private final FeedStore store;
 
     /** The downloader for getting the feeds. */
-    private FeedRetriever feedRetriever;
+    private FeedParser feedParser;
 
     /** Whether to store the items of the added feed, or only the feed data. */
     private boolean storeItems = false;
@@ -57,7 +60,7 @@ public class FeedImporter {
 
     public FeedImporter(FeedStore store) {
         this.store = store;
-        feedRetriever = new FeedRetriever();
+        feedParser = new RomeFeedParser();
     }
 
     /**
@@ -93,7 +96,7 @@ public class FeedImporter {
             boolean errorFree = true;
             if (isDownloadFeeds()) {
                 try {
-                    feed = feedRetriever.getFeed(cleanedURL);
+                    feed = feedParser.getFeed(cleanedURL);
 
                     // classify the feed's activity pattern
                     int activityPattern = FeedClassifier.classify(feed);
@@ -102,7 +105,7 @@ public class FeedImporter {
 
                     feed.setWindowSize(feed.getItems().size());
 
-                } catch (FeedRetrieverException e) {
+                } catch (FeedParserException e) {
                     LOGGER.error("error adding feed " + cleanedURL + " " + e.getMessage());
                     errorFree = false;
                 }

@@ -16,8 +16,9 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
-import ws.palladian.retrieval.feeds.FeedRetriever;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 class DatasetProcessingAction extends FeedProcessingAction {
@@ -234,7 +235,7 @@ class DatasetProcessingAction extends FeedProcessingAction {
     
 
     public static void main(String[] args) throws Exception {
-        FeedRetriever fr = new FeedRetriever();
+        FeedParser fr = new RomeFeedParser();
         Feed feed = fr.getFeed("http://www.d3p.co.jp/rss/mobile.rdf");
         feed.setLastPollTime(new Date());
         FeedItem item = feed.getItems().get(0);

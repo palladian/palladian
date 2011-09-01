@@ -209,11 +209,11 @@ public class ClassifyFromCSV extends Thread {
 
     // /**
     // * @param args
-    // * @throws FeedRetrieverException
+    // * @throws FeedParserException
     // */
-    // public static void main(String[] args) throws FeedRetrieverException {
+    // public static void main(String[] args) throws FeedParserException {
     //
-    // FeedRetriever feedRetriever = new FeedRetriever();
+    // RomeFeedParser feedRetriever = new RomeFeedParser();
     // File file = new File(
     // "F:\\Workspaces\\Eclipse\\Palladian\\trunk\\data\\datasets\\feedPosts\\4\\4271\\1311030075575_2011-07-19_01-01-15.gz");
     // Feed gzFeed = feedRetriever.getFeed(file, true);

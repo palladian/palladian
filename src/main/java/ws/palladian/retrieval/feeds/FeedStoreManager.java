@@ -75,9 +75,9 @@ public class FeedStoreManager {
 
     // /**
     // * @param args
-    // * @throws FeedRetrieverException
+    // * @throws FeedParserException
     // */
-    // public static void main(String[] args) throws FeedRetrieverException {
+    // public static void main(String[] args) throws FeedParserException {
     // Crawler c = new Crawler();
     // Document document = c.getWebDocument("http://www.newser.com/");
 

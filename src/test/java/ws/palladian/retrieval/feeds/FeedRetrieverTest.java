@@ -20,6 +20,9 @@ import ws.palladian.daterecognition.DateGetterHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
 
 public class FeedRetrieverTest {
 
@@ -31,79 +34,79 @@ public class FeedRetrieverTest {
     /**
      * Test downloading a feed from the web.
      * 
-     * @throws FeedRetrieverException
+     * @throws FeedParserException
      */
     @Test
-    public void testDownloadFeed() throws FeedRetrieverException {
+    public void testDownloadFeed() throws FeedParserException {
         if (AllTests.ALL_TESTS) {
-            FeedRetriever feedRetriever = new FeedRetriever();
-            feedRetriever.getFeed("http://www.gizmodo.de/feed/atom");
+            FeedParser romeFeedParser = new RomeFeedParser();
+            romeFeedParser.getFeed("http://www.gizmodo.de/feed/atom");
         }
     }
 
     /**
      * Test, if feeds can be parsed. This is a very primitive way of testing, as we just assert no
-     * {@link FeedRetrieverException}s.
+     * {@link FeedParserException}s.
      * 
-     * @throws FeedRetrieverException
+     * @throws FeedParserException
      */
     @Test
-    public void testFeedParsing() throws FeedRetrieverException {
+    public void testFeedParsing() throws FeedParserException {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser romeFeedParser = new RomeFeedParser();
 
         // Content is not allowed in prolog.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed004.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed004.xml").getFile());
 
         // The processing instruction target matching "[xX][mM][lL]" is not allowed.
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed009.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed085.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed086.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed009.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed085.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed086.xml").getFile()));
 
         // The reference to entity "L" must end with the ';' delimiter.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed010.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed010.xml").getFile());
 
         // The markup declarations contained or pointed to by the document type declaration must be well-formed.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed013.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed013.xml").getFile());
 
         // The reference to entity "F" must end with the ';' delimiter.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed030.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed030.xml").getFile());
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed035.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed035.xml").getFile());
 
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed055.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed063.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed065.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed067.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed055.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed063.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed065.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed067.xml").getFile()));
 
         // The reference to entity "M" must end with the ';' delimiter.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed068.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed068.xml").getFile());
 
         // The entity "nbsp" was referenced, but not declared.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed069.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed069.xml").getFile());
 
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed070.xml").getFile()));
-
-        // The entity name must immediately follow the '&' in the entity reference.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed078.xml").getFile());
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed070.xml").getFile()));
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed081.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed078.xml").getFile());
+
+        // The entity name must immediately follow the '&' in the entity reference.
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed081.xml").getFile());
 
         // The entity "eacute" was referenced, but not declared.
-        // FeedRetriever.getFeed(FeedRetriever.class.getResource("/feeds/feed082.xml").getFile());
+        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed082.xml").getFile());
 
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed084.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed084.xml").getFile()));
 
         // Sourceforge feeds; sourceforge02.xml failed because of illegal XML characters
         // An invalid XML character (Unicode: 0x4) was found in the CDATA section.
-        feedRetriever.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile()));
-        feedRetriever.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
+        romeFeedParser.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile()));
+        romeFeedParser.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
 
         // UTF-16
         // feedRetriever.setCleanStrings(false);
-        feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed102.xml").getFile()));
+        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed102.xml").getFile()));
 
     }
 
@@ -112,38 +115,38 @@ public class FeedRetrieverTest {
      * {@link #testFeedParsing()}, the feed data which is checked below is taken from synthetic sample data, not
      * "from the wild".
      * 
-     * @throws FeedRetrieverException
+     * @throws FeedParserException
      * @throws ParseException
      */
     @Test
-    public void testFeedParsing2() throws FeedRetrieverException, ParseException {
+    public void testFeedParsing2() throws FeedParserException, ParseException {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser romeFeedParser = new RomeFeedParser();
         // feedRetriever.setCleanStrings(false);
 
         // verify, if author information is parsed correctly
 
         // //////////// Atom feeds ////////////
-        Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/atomSample1.xml").getFile()));
+        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample1.xml").getFile()));
         FeedItem feedItem = feed.getItems().iterator().next();
         // FIXME time offset since Atom bug fixed.
         //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
         //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
-        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/atomSample2.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample2.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
         //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
 
         // //////////// RSS feeds ////////////
-        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/rss20Sample1.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rss20Sample1.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
         Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
 
         // RDF Site Summary 1.0; Content Module
         // http://web.resource.org/rss/1.0/modules/content/
-        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/rssRdf10.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rssRdf10.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
 
@@ -152,25 +155,25 @@ public class FeedRetrieverTest {
     /**
      * Test parsing of exotic "real world" feeds with foreign characters.
      * 
-     * @throws FeedRetrieverException
+     * @throws FeedParserException
      */
     @Test
-    public void testFeedParsing3() throws FeedRetrieverException {
+    public void testFeedParsing3() throws FeedParserException {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser romeFeedParser = new RomeFeedParser();
 
         // TODO cleaning destroys the content
         // feedRetriever.setCleanStrings(false);
 
         // arabic characters
-        Feed feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed100.xml").getFile()));
+        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed100.xml").getFile()));
         FeedItem item = feed.getItems().iterator().next();
         Assert.assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
         Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
         Assert.assertEquals(80, feed.getItems().size());
 
         // japanese characters
-        feed = feedRetriever.getFeed(new File(FeedRetriever.class.getResource("/feeds/feed101.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed101.xml").getFile()));
         item = feed.getItems().iterator().next();
         Assert.assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
 
@@ -308,19 +311,19 @@ public class FeedRetrieverTest {
      */
     private void checkDate(String expected, String feedFile) throws ParseException {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser romeFeedParser = new RomeFeedParser();
         // DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
 
         try {
 
             Date expectedDate = df.parse(expected);
-            Feed feed = feedRetriever.getFeed(new File(FeedRetrieverTest.class.getResource(feedFile).getFile()));
+            Feed feed = romeFeedParser.getFeed(new File(FeedRetrieverTest.class.getResource(feedFile).getFile()));
 
             // we always test the feed's first entry
             Date itemDate = feed.getItems().iterator().next().getPublished();
             Assert.assertEquals(feedFile, expectedDate, itemDate);
 
-        } catch (FeedRetrieverException e) {
+        } catch (FeedParserException e) {
             Assert.fail("feed " + feedFile + " could not be read : " + e.getMessage());
         }
 
@@ -342,7 +345,7 @@ public class FeedRetrieverTest {
     @SuppressWarnings("unused")
     private void buildTestsetWithErrors(String inputPath, String outputPath) {
         List<String> feedUrls = FileHelper.readFileToArray(inputPath);
-        FeedRetriever feedRetriever = new FeedRetriever();
+        FeedParser romeFeedParser = new RomeFeedParser();
         StringBuilder output = new StringBuilder();
         int counter = 0;
 
@@ -352,7 +355,7 @@ public class FeedRetrieverTest {
             counter++;
             LOGGER.info("checking " + counter + " : " + feedUrl);
             try {
-                Feed feed = feedRetriever.getFeed(feedUrl);
+                Feed feed = romeFeedParser.getFeed(feedUrl);
                 Iterator<FeedItem> itemIterator = feed.getItems().iterator();
                 if (itemIterator.hasNext()) {
                     FeedItem item = itemIterator.next();
@@ -361,7 +364,7 @@ public class FeedRetrieverTest {
                         output.append("no pub date").append("\t").append(feed.getFeedUrl()).append("\n");
                     }
                 }
-            } catch (FeedRetrieverException e) {
+            } catch (FeedParserException e) {
                 output.append("error (").append(e.getMessage()).append(")");
                 output.append("\t").append(feedUrl).append("\n");
             }
@@ -393,23 +396,23 @@ public class FeedRetrieverTest {
      * Performance test concerning date recognition.
      */
     @SuppressWarnings("unused")
-    private void evaluateDateParsing() throws FeedRetrieverException {
+    private void evaluateDateParsing() throws FeedParserException {
 
-        FeedRetriever feedRetriever = new FeedRetriever();
+        RomeFeedParser romeFeedParser = new RomeFeedParser();
         int numIterations = 100;
-        File feed= new File(FeedRetriever.class.getResource("/feeds/feed014.xml").getFile());
+        File feed= new File(RomeFeedParser.class.getResource("/feeds/feed014.xml").getFile());
 
         StopWatch sw = new StopWatch();
-        feedRetriever.setUseDateRecognition(false);
+        romeFeedParser.setUseDateRecognition(false);
         for (int i = 0; i < numIterations; i++) {
-            feedRetriever.getFeed(feed);
+            romeFeedParser.getFeed(feed);
         }
         LOGGER.info("without date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
         sw = new StopWatch();
-        feedRetriever.setUseDateRecognition(true);
+        romeFeedParser.setUseDateRecognition(true);
         for (int i = 0; i < numIterations; i++) {
-            feedRetriever.getFeed(feed);
+            romeFeedParser.getFeed(feed);
         }
         LOGGER.info("with date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
