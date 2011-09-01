@@ -320,13 +320,14 @@ public class ClassifierEvaluator {
 //        evaluator.runEvaluation("data/temp/schottenland/evaluatorResults.csv");
         evaluator.runEvaluation("data/temp/evaluationResults.csv");
         System.exit(0);
-        
-        dictionaryClassifier2.train(dataset);
+
+        dictionaryClassifier2.train(dataset2);
         
 //        ClassifierManager classifierManager = new ClassifierManager();
 //        classifierManager.trainClassifier(dataset, dictionaryClassifier1);
         
-        FileHelper.serialize(dictionaryClassifier2, "slc10k.gz");
+        FileHelper.serialize(dictionaryClassifier2, "senticlassifier.gz");
+//        FileHelper.serialize(dictionaryClassifier2, "slc10k.gz");
 //        FileHelper.serialize(dictionaryClassifier1, "prcSelected10k.gz");
 //        FileHelper.serialize(dictionaryClassifier1, "topicClassifier.gz");
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier1.getName()));
