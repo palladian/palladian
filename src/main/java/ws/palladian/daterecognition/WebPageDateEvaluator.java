@@ -49,6 +49,7 @@ public class WebPageDateEvaluator {
 	}
 
 	public void setDocument(Document document) {
+	    this.url = document.getDocumentURI();
 		this.document = document;
 	}
 
