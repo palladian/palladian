@@ -47,21 +47,24 @@ public class FacebookLinkStats implements RankingService {
     /** 
      * The number of times Facebook users have "Liked" the page, or liked any comments or re-shares of this page.
      * Commitment value is 0.6
+     * Max. Ranking value is 12220
      */
     static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes", "The number of times Facebook users " +
-    		"have \"Liked\" the page, or liked any comments or re-shares of this page.", 0.6f);
+    		"have \"Liked\" the page, or liked any comments or re-shares of this page.", 0.6f, 12220);
     /** 
      * The number of times users have shared the page on Facebook.
      * Commitment value is 0.7
+     * Max. Ranking value is 7760
      */
     static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have " +
-    		"shared the page on Facebook.", 0.7f);
+    		"shared the page on Facebook.", 0.7f, 7760);
     /** 
      * The number of comments users have made on the shared story.
      * Commitment value is 1.0
+     * Max. Ranking value is 10480
      */
     static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users " +
-    		"have made on the shared story.", 1.0f);
+    		"have made on the shared story.", 1.0f, 10480);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
