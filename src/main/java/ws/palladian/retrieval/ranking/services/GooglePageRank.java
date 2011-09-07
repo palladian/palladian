@@ -48,8 +48,9 @@ public class GooglePageRank implements RankingService{
     /** 
      * The PageRank from Google.
      * Commitment value is 1.0
+     * Max. Ranking value is 10
      */
-    static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google", 1.0f);
+    static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google", 1.0f, 10);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

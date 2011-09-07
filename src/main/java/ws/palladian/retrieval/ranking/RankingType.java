@@ -16,6 +16,7 @@ public class RankingType {
 	private final String name;
 	private final String description;
 	private final float commitment;
+	private final float maxRanking;
 	
 	/**
 	 * Get ranking values for a single url.
@@ -25,11 +26,12 @@ public class RankingType {
 	 * @param description A short description of this type
 	 * @param commitment The commitment value, between 0.5 and 1.0
 	 */
-	public RankingType(String id, String name, String description, float commitment) {
+	public RankingType(String id, String name, String description, float commitment, float maxRanking) {
 		this.id = id.replace(" ", "");
 		this.name = name;
 		this.description = description;
 		this.commitment = commitment;
+		this.maxRanking = maxRanking;
 	}
 	
 	
@@ -44,6 +46,11 @@ public class RankingType {
 	}
 	public float getCommittment() {
 		return this.commitment;
+	}
+
+
+	public float getMaxRanking() {
+		return maxRanking;
 	}
 	public String toString() {
 		return this.name;

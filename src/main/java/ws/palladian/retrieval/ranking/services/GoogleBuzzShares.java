@@ -49,9 +49,10 @@ public class GoogleBuzzShares implements RankingService{
     /** 
      * The number of times users have shared the page on Google Buzz.
      * Commitment value is 0.7
+     * Max. Ranking value is 1300
      */
     static RankingType SHARES = new RankingType("buzz_shares", "Google Buzz Shares", "The number of times users have " +
-    		"shared the page on Google Buzz", 0.7f);
+    		"shared the page on Google Buzz", 0.7f, 1300);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

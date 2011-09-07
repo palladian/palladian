@@ -51,15 +51,17 @@ public class DiggStats implements RankingService{
     /** 
      * The number of times users have "dugg" this url on digg.com.
      * Commitment value is 0.6
+     * Max. Ranking value is 750
      */
     static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs", "The number of " +
-    		"times users have \"dugg\" this url on digg.com.", 0.6f);
+    		"times users have \"dugg\" this url on digg.com.", 0.6f, 750);
     /** 
      * The number of comments users have left for this digged url on digg.com.
      * Commitment value is 1.0
+     * Max. Ranking value is 200
      */
     static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments", "The number of " +
-    		"comments users have left for this digged url on digg.com.", 1.0f);
+    		"comments users have left for this digged url on digg.com.", 1.0f, 200);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

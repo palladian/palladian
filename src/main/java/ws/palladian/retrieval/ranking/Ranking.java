@@ -72,7 +72,10 @@ public class Ranking {
 	 */
 	public float getRankingValueSum() {
 		float sum = 0;
-		for(Float v:values.values()) sum += v;
+		for(RankingType rt:values.keySet()) {
+			if(values.get(rt) < rt.getMaxRanking()) sum += values.get(rt)/rt.getMaxRanking();
+			else sum += 1;
+		}
 		return sum;
 	}
 	/**
@@ -87,7 +90,8 @@ public class Ranking {
 	public float getWeightedRankingValueSum() {
 		float weightedSum = 0;
 		for(RankingType rt:values.keySet()) {
-			weightedSum += rt.getCommittment()*values.get(rt);
+			if(values.get(rt) < rt.getMaxRanking()) weightedSum += rt.getCommittment()*values.get(rt)/rt.getMaxRanking();
+			else weightedSum += rt.getCommittment();
 		}
 		return weightedSum;
 	}
