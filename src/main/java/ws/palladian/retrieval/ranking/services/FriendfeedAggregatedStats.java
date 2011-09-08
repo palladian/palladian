@@ -60,10 +60,10 @@ public class FriendfeedAggregatedStats implements RankingService{
     /** 
      * The number of entries from varying services containing the given url on FriendFeed.
      * Commitment value is 0.9
-     * Max. Ranking value is 20
+     * Max. Ranking value is 10
      */
     static RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services", "The number of entries from " +
-    		"varying services containing the given url on FriendFeed.", 0.9f, 20);
+    		"varying services containing the given url on FriendFeed.", 0.9f, 10);
     /** 
      * The number of likes on entries from varying services containing the given url on FriendFeed.
      * Commitment value is 0.6

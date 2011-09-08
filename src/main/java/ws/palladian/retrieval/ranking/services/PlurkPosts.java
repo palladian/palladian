@@ -54,10 +54,10 @@ public class PlurkPosts implements RankingService {
     /** 
      * The number of bookmarks users have created for this url.
      * Commitment value is 0.9
-     * Max. Ranking value is 30
+     * Max. Ranking value is 10
      */
     static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts", "The number of " +
-    		"posts on plurk.com mentioning this url.", 0.9f, 30);
+    		"posts on plurk.com mentioning this url.", 0.9f, 10);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

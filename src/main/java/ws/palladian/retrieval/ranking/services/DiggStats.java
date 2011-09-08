@@ -51,17 +51,17 @@ public class DiggStats implements RankingService{
     /** 
      * The number of times users have "dugg" this url on digg.com.
      * Commitment value is 0.6
-     * Max. Ranking value is 750
+     * Max. Ranking value is 200
      */
     static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs", "The number of " +
-    		"times users have \"dugg\" this url on digg.com.", 0.6f, 750);
+    		"times users have \"dugg\" this url on digg.com.", 0.6f, 200);
     /** 
      * The number of comments users have left for this digged url on digg.com.
      * Commitment value is 1.0
-     * Max. Ranking value is 200
+     * Max. Ranking value is 70
      */
     static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments", "The number of " +
-    		"comments users have left for this digged url on digg.com.", 1.0f, 200);
+    		"comments users have left for this digged url on digg.com.", 1.0f, 70);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -247,7 +247,7 @@ public class DiggStats implements RankingService{
 	 */
 	public RankingType getRankingType(String id) {
 		if(id.equals("digg_diggs")) return DIGGS;
-		else if(id.equals("digg_comments")) return DIGGS;
+		else if(id.equals("digg_comments")) return COMMENTS;
 		return null;
 	}
 
