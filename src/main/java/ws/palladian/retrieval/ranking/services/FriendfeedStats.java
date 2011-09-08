@@ -63,10 +63,10 @@ public class FriendfeedStats implements RankingService{
     /** 
      * The number of comments for entries posted on FriendFeed containing the given url.
      * Commitment value is 1.0
-     * Max. Ranking value is 30
+     * Max. Ranking value is 20
      */
     static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments", "The number of comments for " +
-    		"entries posted on FriendFeed containing the given url.", 1.0f, 30);
+    		"entries posted on FriendFeed containing the given url.", 1.0f, 20);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

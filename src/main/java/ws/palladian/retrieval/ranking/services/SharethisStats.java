@@ -53,10 +53,10 @@ public class SharethisStats implements RankingService{
     /** 
      * The number of shares via multiple services measured on sharethis.com.
      * Commitment value is 0.7
-     * Max. Ranking value is 350
+     * Max. Ranking value is 110
      */
     static RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats", "The number of shares via  " +
-    		"multiple services measured on sharethis.com.", 0.7f, 350);
+    		"multiple services measured on sharethis.com.", 0.7f, 110);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
