@@ -25,7 +25,7 @@ import ws.palladian.retrieval.resources.WebImage;
 
 /**
  * <p>
- * The PageSentenceExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in
+ * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in
  * the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this class
  * also finds sentences in comment sections of web pages.
  * </p>
