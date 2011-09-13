@@ -92,6 +92,9 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * <p>
  * The DocumentRetriever allows to download pages from the Web or the hard disk.
  * </p>
+ * <p>
+ * You may configure it using the appropriate setter and getter methods or accept the default values.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -173,7 +176,32 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-
+    /**
+     * Creates a new document retriever using default values for the parameters:
+     * <table>
+     * <tr>
+     * <td>connection timeout</td>
+     * <td>10 milliseconds</td>
+     * </tr>
+     * <tr>
+     * <td>socket timeout</td>
+     * <td>180 milliseconds</td>
+     * </tr>
+     * <tr>
+     * <td>retries</td>
+     * <td>3</td>
+     * </tr>
+     * <tr>
+     * <td>maximum number of simultaneous threads</td>
+     * <td>10</td>
+     * </tr>
+     * <tr>
+     * <td>maximum number of simultanous connections</td>
+     * <td>100</td>
+     * </tr>
+     * </table>
+     * </p>
+     **/
     public DocumentRetriever() {
 
         // initialize the HttpClient
@@ -807,7 +835,7 @@ public class DocumentRetriever {
 
                 headerBuilder.append(HTTP_RESULT_SEPARATOR);
 
-                // TODO should be set to UTF-8 explicitly, 
+                // TODO should be set to UTF-8 explicitly,
                 // but I do not want to change this now.
                 IOUtils.write(headerBuilder, out);
 
