@@ -27,10 +27,11 @@ public class ConnectionManager {
     private static final Logger LOGGER = Logger.getLogger(ConnectionManager.class);
 
     /** The pool for the connections. */
-    private BoneCP connectionPool;
+    private transient BoneCP connectionPool;
 
     /** The private constructor. */
-    /* package */ ConnectionManager(final String driver, final String jdbcUrl, final String username, final String password) {
+    /* package */ConnectionManager(final String driver, final String jdbcUrl, final String username,
+            final String password) {
         super();
         connect(driver, jdbcUrl, username, password);
     }
@@ -46,14 +47,14 @@ public class ConnectionManager {
      */
     private void connect(String driver, String jdbcUrl, String username, String password) {
 
-        StopWatch sw = new StopWatch();
+        StopWatch initTimeStopper = new StopWatch();
 
         try {
             // load the database driver (make sure this is in your classpath!)
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
             LOGGER.error("error loading database driver : " + driver);
-            throw new RuntimeException("error loading database driver : " + driver, e);
+            throw new IllegalStateException("error loading database driver : " + driver, e);
         }
 
         try {
@@ -81,7 +82,9 @@ public class ConnectionManager {
                 public void onCheckOut(ConnectionHandle connection) {
                     try {
                         connection.setAutoCommit(true);
-                    } catch (SQLException ignore) {
+                    } catch (SQLException e) {
+                        LOGGER.error(e);
+                        throw new IllegalStateException(e);
                     }
                 }
             };
@@ -89,11 +92,11 @@ public class ConnectionManager {
 
             connectionPool = new BoneCP(boneConfig);
 
-            LOGGER.debug("initialized the connection pool in " + sw.getElapsedTimeString());
+            LOGGER.debug("initialized the connection pool in " + initTimeStopper.getElapsedTimeString());
 
         } catch (SQLException e) {
             LOGGER.error("error setting up connection pool : " + e.getMessage());
-            throw new RuntimeException("error setting up connection pool", e);
+            throw new IllegalStateException("error setting up connection pool", e);
         }
 
     }
@@ -106,7 +109,7 @@ public class ConnectionManager {
      */
     public Connection getConnection() throws SQLException {
         Connection connection = connectionPool.getConnection();
-        assert connection.getAutoCommit() == true;
+        assert connection.getAutoCommit();
         // check if logging is enabled before creating the log output;
         // this is saves time, es this method might be called millions of times.
         if (LOGGER.isTraceEnabled()) {
