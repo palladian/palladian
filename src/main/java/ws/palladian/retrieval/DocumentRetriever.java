@@ -1052,10 +1052,26 @@ public class DocumentRetriever {
         return HttpConnectionParams.getConnectionTimeout(httpParams);
     }
 
+    /**
+     * <p>
+     * Resets this {@code DocumentRetriever}s socket timeout time overwriting the old value. The default value for this
+     * attribute after initialisation is 180 milliseconds.
+     * </p>
+     * 
+     * @param socket timeout The new socket timeout time in milliseconds
+     */
     public void setSocketTimeout(long socketTimeout) {
         HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
 
+    /**
+     * <p>
+     * Provides this {@code DocumentRetriever}s socket timeout time. The default value set upon initialisation is 180
+     * milliseconds.
+     * </p>
+     * 
+     * @return The socket timeout time of this {@code DocumentRetriever} in milliseconds.
+     */
     public long getSocketTimeout() {
         return HttpConnectionParams.getSoTimeout(httpParams);
     }
