@@ -56,10 +56,10 @@ public class BibsonomyBookmarks implements RankingService{
     /** 
      * The number of bookmarks users have created for this url.
      * Commitment value is 0.8
-     * Max. Ranking value is 10
+     * Max. Ranking value is 3
      */
     static RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 0.8f, 10);
+    		"bookmarks users have created for this url.", 0.8f, 3);
     
     /** Fields to check the service availability. */
     private static boolean blocked = false;

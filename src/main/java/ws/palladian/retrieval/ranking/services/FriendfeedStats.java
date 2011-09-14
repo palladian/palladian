@@ -49,24 +49,24 @@ public class FriendfeedStats implements RankingService{
     /** 
      * The number of entries posted on FriendFeed containing the given url.
      * Commitment value is 0.9
-     * Max. Ranking value is 10
+     * Max. Ranking value is 3
      */
     static RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts", "The number of entries posted " +
-    		"on FriendFeed containing the given url.", 0.9f, 10);
+    		"on FriendFeed containing the given url.", 0.9f, 3);
     /** 
      * The number of likes for entries posted on FriendFeed containing the given url.
      * Commitment value is 0.6
-     * Max. Ranking value is 20
+     * Max. Ranking value is 9
      */
     static RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes", "The number of likes for entries " +
-    		"posted on FriendFeed containing the given url.", 0.6f, 20);
+    		"posted on FriendFeed containing the given url.", 0.6f, 9);
     /** 
      * The number of comments for entries posted on FriendFeed containing the given url.
      * Commitment value is 1.0
-     * Max. Ranking value is 20
+     * Max. Ranking value is 7
      */
     static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments", "The number of comments for " +
-    		"entries posted on FriendFeed containing the given url.", 1.0f, 20);
+    		"entries posted on FriendFeed containing the given url.", 1.0f, 7);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
