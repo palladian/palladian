@@ -48,25 +48,39 @@ public class FriendfeedStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of entries posted on FriendFeed containing the given url.
-     * Commitment value is 0.9
+     * Commitment value is 1.8154
      * Max. Ranking value is 3
      */
     static RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts", "The number of entries posted " +
-    		"on FriendFeed containing the given url.", 0.9f, 3);
+    		"on FriendFeed containing the given url.", 1.8154f, 3);
     /** 
      * The number of likes for entries posted on FriendFeed containing the given url.
-     * Commitment value is 0.6
+     * Commitment value is 1.1346
      * Max. Ranking value is 9
      */
     static RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes", "The number of likes for entries " +
-    		"posted on FriendFeed containing the given url.", 0.6f, 9);
+    		"posted on FriendFeed containing the given url.", 1.1346f, 9);
     /** 
      * The number of comments for entries posted on FriendFeed containing the given url.
-     * Commitment value is 1.0
+     * Commitment value is 1.2836
      * Max. Ranking value is 7
      */
     static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments", "The number of comments for " +
-    		"entries posted on FriendFeed containing the given url.", 1.0f, 7);
+    		"entries posted on FriendFeed containing the given url.", 1.2836f, 7);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 3.5927f);
+            put("politics", 3.9132f);
+            put("entertainment", 1.8192f);
+            put("lifestyle", 1.2669f);
+            put("sports", 1f);
+            put("technology", 1.5670f);
+            put("science", 2.1774f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -214,6 +228,16 @@ public class FriendfeedStats implements RankingService{
 		else if(id.equals(LIKES.getId())) return LIKES;
 		else if(id.equals(COMMENTS.getId())) return COMMENTS;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 
 }

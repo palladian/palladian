@@ -48,11 +48,25 @@ public class GoogleBuzzShares implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of times users have shared the page on Google Buzz.
-     * Commitment value is 0.7
+     * Commitment value is 1.8332
      * Max. Ranking value is 50
      */
     static RankingType SHARES = new RankingType("buzz_shares", "Google Buzz Shares", "The number of times users have " +
-    		"shared the page on Google Buzz", 0.7f, 50);
+    		"shared the page on Google Buzz", 1.8332f, 50);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.1337f);
+            put("politics", 1.9666f);
+            put("entertainment", 1.5467f);
+            put("lifestyle", 1.8047f);
+            put("sports", 1.7416f);
+            put("technology", 1.0924f);
+            put("science", 1.6927f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -220,6 +234,16 @@ public class GoogleBuzzShares implements RankingService{
 	 */
 	public RankingType getRankingType(String id) {
 		return SHARES;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;

@@ -59,25 +59,39 @@ public class FriendfeedAggregatedStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of entries from varying services containing the given url on FriendFeed.
-     * Commitment value is 0.9
+     * Commitment value is 2.2547
      * Max. Ranking value is 5
      */
     static RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services", "The number of entries from " +
-    		"varying services containing the given url on FriendFeed.", 0.9f, 5);
+    		"varying services containing the given url on FriendFeed.", 2.2547f, 5);
     /** 
      * The number of likes on entries from varying services containing the given url on FriendFeed.
-     * Commitment value is 0.6
+     * Commitment value is 1.0
      * Max. Ranking value is 5
      */
     static RankingType LIKES = new RankingType("friendfeed_ext_likes", "FriendFeed likes for external services", "The number of likes on " +
-    		"entries from varying services containing the given url on FriendFeed.", 0.6f, 5);
+    		"entries from varying services containing the given url on FriendFeed.", 1.0f, 5);
     /** 
      * The number of comments on entries from varying services containing the given url on FriendFeed.
-     * Commitment value is 1.0
+     * Commitment value is 3.0256
      * Max. Ranking value is 4
      */
     static RankingType COMMENTS = new RankingType("friendfeed_ext_comments", "FriendFeed comments for external services", "The number of comments on " +
-    		"entries from varying services containing the given url on FriendFeed.", 1.0f, 4);
+    		"entries from varying services containing the given url on FriendFeed.", 3.0256f, 4);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 2.4106f);
+            put("politics", 2.0482f);
+            put("entertainment", 3.2189f);
+            put("lifestyle", 3.3761f);
+            put("sports", 0.7632f);
+            put("technology", 2.0314f);
+            put("science", 2.3384f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -223,6 +237,16 @@ public class FriendfeedAggregatedStats implements RankingService{
 		else if(id.equals("friendfeed_ext_likes")) return LIKES;
 		else if(id.equals("friendfeed_ext_comments")) return COMMENTS;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 
 }

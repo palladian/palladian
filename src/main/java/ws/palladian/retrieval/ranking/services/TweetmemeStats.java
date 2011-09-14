@@ -44,18 +44,32 @@ public class TweetmemeStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of tweets mentioning this url.
-     * Commitment value is 0.9
+     * Commitment value is 1.4741
      * Max. Ranking value is 130
      */
     static RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets", "The number of " +
-    		"tweets mentioning this url, derived from tweetmeme.", 0.9f, 130);
+    		"tweets mentioning this url, derived from tweetmeme.", 1.4741f, 130);
     /** 
      * The number of comments tweets mentioning this url.
-     * Commitment value is 1.0
+     * Commitment value is 2.2692
      * Max. Ranking value is 3
      */
     static RankingType COMMENTS = new RankingType("tweetmeme_comments", "Tweetmeme comments", "The number of " +
-    		"comments on tweetmeme for this url.", 1.0f, 3);
+    		"comments on tweetmeme for this url.", 2.2692f, 3);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.4387f);
+            put("politics", 1.6175f);
+            put("entertainment", 1.1873f);
+            put("lifestyle", 1.8908f);
+            put("sports", 1.0500f);
+            put("technology", 0.8715f);
+            put("science", 1.8849f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -198,5 +212,14 @@ public class TweetmemeStats implements RankingService{
 		else if(id.equals(COMMENTS.getId())) return COMMENTS;
 		return null;
 	}
-
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
+	}
 }

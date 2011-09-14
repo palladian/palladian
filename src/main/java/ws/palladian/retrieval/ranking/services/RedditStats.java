@@ -47,18 +47,32 @@ public class RedditStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of up-votes minus down-votes for this url on reddit.com.
-     * Commitment value is 0.6
+     * Commitment value is 1.6885
      * Max. Ranking value is 40
      */
     static RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes", "The number of " +
-    		"up-votes minus down-votes for this url on reddit.com.", 0.6f, 40);
+    		"up-votes minus down-votes for this url on reddit.com.", 1.6885f, 40);
     /** 
      * The number of comments users have left for this url on reddit.com.
-     * Commitment value is 1.0
+     * Commitment value is 1.7381
      * Max. Ranking value is 40
      */
     static RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments", "The number of " +
-    		"comments users have left for this url on reddit.com.", 1.0f, 40);
+    		"comments users have left for this url on reddit.com.", 1.7381f, 40);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 2.1298f);
+            put("politics", 2.3630f);
+            put("entertainment", 5.6753f);
+            put("lifestyle", 1.9057f);
+            put("sports", 0.6328f);
+            put("technology", 1.5604f);
+            put("science", 1.6084f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -201,6 +215,16 @@ public class RedditStats implements RankingService{
 		if(id.equals(VOTES.getId())) return VOTES;
 		else if(id.equals(COMMENTS.getId())) return COMMENTS;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 
 }

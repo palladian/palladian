@@ -50,19 +50,34 @@ public class DiggStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of times users have "dugg" this url on digg.com.
-     * Commitment value is 0.6
+     * Commitment value is 2.0100
      * Max. Ranking value is 30
      */
     static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs", "The number of " +
-    		"times users have \"dugg\" this url on digg.com.", 0.6f, 30);
+    		"times users have \"dugg\" this url on digg.com.", 2.0100f, 30);
     /** 
      * The number of comments users have left for this digged url on digg.com.
-     * Commitment value is 1.0
+     * Commitment value is 2.2692
      * Max. Ranking value is 20
      */
     static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments", "The number of " +
-    		"comments users have left for this digged url on digg.com.", 1.0f, 20);
+    		"comments users have left for this digged url on digg.com.", 2.2692f, 20);
 
+    
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+    private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 2.3915f);
+            put("politics", 1.8302f);
+            put("entertainment", 3.0389f);
+            put("lifestyle", 4.8621f);
+            put("sports", 18.8886f);
+            put("technology", 1.8797f);
+            put("science", 1.7209f);
+        }
+    };
+    
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
@@ -249,6 +264,16 @@ public class DiggStats implements RankingService{
 		if(id.equals("digg_diggs")) return DIGGS;
 		else if(id.equals("digg_comments")) return COMMENTS;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 
 }

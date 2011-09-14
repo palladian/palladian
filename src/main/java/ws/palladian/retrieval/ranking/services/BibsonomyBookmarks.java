@@ -55,11 +55,25 @@ public class BibsonomyBookmarks implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of bookmarks users have created for this url.
-     * Commitment value is 0.8
+     * Commitment value is 1.0
      * Max. Ranking value is 3
      */
-    static RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 0.8f, 3);
+    private static RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of " +
+    		"bookmarks users have created for this url.", 1.0f, 3);
+    
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.0f);
+            put("politics", 1.0f);
+            put("entertainment", 1.0f);
+            put("lifestyle", 1.0f);
+            put("sports", 1.0f);
+            put("technology", 1.0f);
+            put("science", 1.0f);
+        }
+    };
     
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -211,6 +225,16 @@ public class BibsonomyBookmarks implements RankingService{
 	 */
 	public RankingType getRankingType(String id) {
 		return BOOKMARKS;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setLogin(String login) {
 		this.login = login;

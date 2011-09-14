@@ -46,25 +46,39 @@ public class FacebookLinkStats implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of times Facebook users have "Liked" the page, or liked any comments or re-shares of this page.
-     * Commitment value is 0.6
+     * Commitment value is  1.1181
      * Max. Ranking value is 120
      */
     static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes", "The number of times Facebook users " +
-    		"have \"Liked\" the page, or liked any comments or re-shares of this page.", 0.6f, 120);
+    		"have \"Liked\" the page, or liked any comments or re-shares of this page.",  1.1181f, 120);
     /** 
      * The number of times users have shared the page on Facebook.
-     * Commitment value is 0.7
+     * Commitment value is 1.1935
      * Max. Ranking value is 130
      */
     static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have " +
-    		"shared the page on Facebook.", 0.7f, 130);
+    		"shared the page on Facebook.", 1.1935f, 130);
     /** 
      * The number of comments users have made on the shared story.
-     * Commitment value is 1.0
+     * Commitment value is 1.1939
      * Max. Ranking value is 150
      */
     static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users " +
-    		"have made on the shared story.", 1.0f, 150);
+    		"have made on the shared story.", 1.1939f, 150);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.1586f);
+            put("politics", 1.2390f);
+            put("entertainment", 0.9546f);
+            put("lifestyle", 1.1207f);
+            put("sports", 1.3261f);
+            put("technology", 1.1297f);
+            put("science", 1.3313f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -255,6 +269,16 @@ public class FacebookLinkStats implements RankingService {
 		else if(id.equals("facebook_shares")) return SHARES;
 		else if(id.equals("facebook_comments")) return COMMENTS;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 
 }

@@ -48,12 +48,26 @@ public class DeliciousBookmarks implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of bookmarks users have created for this url.
-     * Commitment value is 0.8
+     * Commitment value is 1.4154
      * Max. Ranking value is 10
      */
     static RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 0.8f, 10);
+    		"bookmarks users have created for this url.", 1.4154f, 10);
 
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 0.9129f);
+            put("politics", 1.4894f);
+            put("entertainment", 1.8891f);
+            put("lifestyle", 1.3397f);
+            put("sports", 0.9935f);
+            put("technology", 1.0110f);
+            put("science", 1.4930f);
+        }
+    };
+    
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
@@ -185,5 +199,15 @@ public class DeliciousBookmarks implements RankingService {
 	 */
 	public RankingType getRankingType(String id) {
 		return BOOKMARKS;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 }
