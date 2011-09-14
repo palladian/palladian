@@ -53,11 +53,25 @@ public class PlurkPosts implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of bookmarks users have created for this url.
-     * Commitment value is 0.9
+     * Commitment value is 1.4238
      * Max. Ranking value is 4
      */
     static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts", "The number of " +
-    		"posts on plurk.com mentioning this url.", 0.9f, 4);
+    		"posts on plurk.com mentioning this url.", 1.4238f, 4);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 2.0358f);
+            put("politics", 1.2525f);
+            put("entertainment", 1.0529f);
+            put("lifestyle", 1.4257f);
+            put("sports", 1f);
+            put("technology", 0.8313f);
+            put("science", 1.6439f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -193,6 +207,16 @@ public class PlurkPosts implements RankingService {
 	 */
 	public RankingType getRankingType(String id) {
 		return POSTS;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;

@@ -55,12 +55,26 @@ public class BitlyClicks implements RankingService {
      /** The ranking value types of this service **/
     /** 
      * The number of times users have clicked the shortened version of this url.
-     * Commitment value is 0.7
+     * Commitment value is 1.5008
      * Max. Ranking value is 1200
      */
     static RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks", "The number of times users " +
-    		"have clicked the shortened version of this url.", 0.7f, 1200);
+    		"have clicked the shortened version of this url.", 1.5008f, 1200);
 
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.5719f);
+            put("politics", 1.4679f);
+            put("entertainment", 1.0187f);
+            put("lifestyle", 1.5524f);
+            put("sports", 1.3263f);
+            put("technology", 1.1637f);
+            put("science", 1.9189f);
+        }
+    };
+    
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
@@ -313,6 +327,16 @@ public class BitlyClicks implements RankingService {
 	 */
 	public RankingType getRankingType(String id) {
 		return CLICKS;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;

@@ -51,6 +51,14 @@ public interface RankingService {
 	public RankingType getRankingType(String id);
 	
 	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic);
+	
+	/**
 	 * Force a new check if this service is blocked due to excess
 	 * of request limits. This updates the blocked-attribute
 	 * of this service.

@@ -52,6 +52,20 @@ public class GooglePageRank implements RankingService{
      */
     static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google", 1.0f, 10);
 
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 1.0f);
+            put("politics", 1.0f);
+            put("entertainment", 1.0f);
+            put("lifestyle", 1.0f);
+            put("sports", 1.0f);
+            put("technology", 1.0f);
+            put("science", 1.0f);
+        }
+    };
+
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
@@ -197,6 +211,16 @@ public class GooglePageRank implements RankingService{
 	 */
 	public RankingType getRankingType(String id) {
 		return PAGERANK;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;

@@ -52,11 +52,25 @@ public class SharethisStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of shares via multiple services measured on sharethis.com.
-     * Commitment value is 0.7
+     * Commitment value is 2.9046
      * Max. Ranking value is 30
      */
     static RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats", "The number of shares via  " +
-    		"multiple services measured on sharethis.com.", 0.7f, 30);
+    		"multiple services measured on sharethis.com.", 2.9046f, 30);
+
+    /** The topic weighting coefficients for this service **/
+    @SuppressWarnings("serial")
+  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
+        {
+            put("business", 3.1186f);
+            put("politics", 3.0604f);
+            put("entertainment", 1.3234f);
+            put("lifestyle", 1.2927f);
+            put("sports", 3.2678f);
+            put("technology", 0.9955f);
+            put("science", 2.0863f);
+        }
+    };
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -190,6 +204,16 @@ public class SharethisStats implements RankingService{
 	public RankingType getRankingType(String id) {
 		if(id.equals(SHARES.getId())) return SHARES;
 		return null;
+	}
+	/**
+	 * Retrieve this service topic weighting coefficient
+	 * for a given topic
+	 * 
+	 * @return Weighting coefficient if topic is known, 1 otherwise
+	 */
+	public float getTopicWeighting(String topic) {
+		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
+		else return 1.0f;
 	}
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
