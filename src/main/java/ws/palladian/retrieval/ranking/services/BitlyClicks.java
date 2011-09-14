@@ -56,10 +56,10 @@ public class BitlyClicks implements RankingService {
     /** 
      * The number of times users have clicked the shortened version of this url.
      * Commitment value is 0.7
-     * Max. Ranking value is 5200
+     * Max. Ranking value is 1200
      */
     static RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks", "The number of times users " +
-    		"have clicked the shortened version of this url.", 0.7f, 5200);
+    		"have clicked the shortened version of this url.", 0.7f, 1200);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

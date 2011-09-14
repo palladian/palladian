@@ -48,17 +48,17 @@ public class RedditStats implements RankingService{
     /** 
      * The number of up-votes minus down-votes for this url on reddit.com.
      * Commitment value is 0.6
-     * Max. Ranking value is 250
+     * Max. Ranking value is 40
      */
     static RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes", "The number of " +
-    		"up-votes minus down-votes for this url on reddit.com.", 0.6f, 250);
+    		"up-votes minus down-votes for this url on reddit.com.", 0.6f, 40);
     /** 
      * The number of comments users have left for this url on reddit.com.
      * Commitment value is 1.0
-     * Max. Ranking value is 230
+     * Max. Ranking value is 40
      */
     static RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments", "The number of " +
-    		"comments users have left for this url on reddit.com.", 1.0f, 230);
+    		"comments users have left for this url on reddit.com.", 1.0f, 40);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

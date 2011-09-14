@@ -49,10 +49,10 @@ public class DeliciousBookmarks implements RankingService {
     /** 
      * The number of bookmarks users have created for this url.
      * Commitment value is 0.8
-     * Max. Ranking value is 30
+     * Max. Ranking value is 10
      */
     static RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 0.8f, 30);
+    		"bookmarks users have created for this url.", 0.8f, 10);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

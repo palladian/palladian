@@ -45,17 +45,17 @@ public class TweetmemeStats implements RankingService{
     /** 
      * The number of tweets mentioning this url.
      * Commitment value is 0.9
-     * Max. Ranking value is 530
+     * Max. Ranking value is 130
      */
     static RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets", "The number of " +
-    		"tweets mentioning this url, derived from tweetmeme.", 0.9f, 530);
+    		"tweets mentioning this url, derived from tweetmeme.", 0.9f, 130);
     /** 
      * The number of comments tweets mentioning this url.
      * Commitment value is 1.0
-     * Max. Ranking value is 10
+     * Max. Ranking value is 3
      */
     static RankingType COMMENTS = new RankingType("tweetmeme_comments", "Tweetmeme comments", "The number of " +
-    		"comments on tweetmeme for this url.", 1.0f, 10);
+    		"comments on tweetmeme for this url.", 1.0f, 3);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
