@@ -7,6 +7,8 @@ import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.entity.ner.tagger.PalladianNer;
+
 /**
  * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each category has a certain relevance for the word
  * which is expressed in the CategoryEntry.
@@ -16,6 +18,9 @@ import org.apache.log4j.Logger;
  */
 public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implements Serializable {
 
+	/** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
+    
     private static final long serialVersionUID = 4321001999458490582L;
 
     private boolean relevancesInPercent = false;
@@ -174,7 +179,12 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
 
     public CategoryEntry getMostLikelyCategoryEntry() {
         sortByRelevance();
-        return get(0);
+        //XXX
+        if (size() > 0) {
+        	return get(0);        	
+        }
+        LOGGER.warn("no most likey category entry found");
+        return new CategoryEntry(this, new Category(""), 1);
     }
 
     /**

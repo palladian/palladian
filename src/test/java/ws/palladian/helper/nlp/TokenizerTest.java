@@ -140,13 +140,23 @@ public class TokenizerTest extends TestCase {
         assertEquals(2, sentences.size());
         assertEquals("Dont repeat yourself.", sentences.get(0));
         assertEquals("Dont repeat yourself.", sentences.get(1));
+        
+        inputText = "Mr. T's kill count is ca. 4,500. Right?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+        assertEquals("Mr. T's kill count is ca. 4,500.", sentences.get(0));
+        assertEquals("Right?", sentences.get(1));
+        
+        inputText = "You can't have a rainbow without rain ... think about it! Did you...think about it?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+        assertEquals("You can't have a rainbow without rain ... think about it!", sentences.get(0));
+        assertEquals("Did you...think about it?", sentences.get(1));
 
         inputText = "Dies    ist  ein toller Test. Hallo Tag wird toll";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
         assertEquals("Dies    ist  ein toller Test.", sentences.get(0));
         assertEquals("Hallo Tag wird toll", sentences.get(1));
-        System.out.println(sentences);
-
     }
 }
