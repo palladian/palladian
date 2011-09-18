@@ -97,12 +97,17 @@ public class HeatGridGenerator {
      */
     public void generateHeatGrid(Matrix data, String imagePath) {
         
-        final int IMAGE_WIDTH = 400;
-        final int IMAGE_HEIGHT = 400;
+        //final int IMAGE_WIDTH = 400;
+        //final int IMAGE_HEIGHT = 400;
         
         Map<Object, Map<Object, Object>> matrix = data.getMatrix();
-        final int tileWidth = IMAGE_WIDTH / matrix.size();
-        final int tileHeight = IMAGE_HEIGHT / matrix.get(0).size();
+        //final int tileWidth = IMAGE_WIDTH / matrix.size();
+        //final int tileHeight = IMAGE_HEIGHT / matrix.entrySet().size();
+        
+        final int tileWidth = 30;
+        final int tileHeight = 30;
+        final int IMAGE_WIDTH = matrix.size() * tileWidth;
+        final int IMAGE_HEIGHT = matrix.entrySet().iterator().next().getValue().size() * tileHeight;
         
         BufferedImage bufferedImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
@@ -111,13 +116,12 @@ public class HeatGridGenerator {
         g2.fill(new Rectangle(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT));
         g2.setPaint(Color.RED);
         
-        
         int columnNumber = 0;
         for (Entry<Object, Map<Object, Object>> column : matrix.entrySet()) {
-            
+            //System.out.println("column " + columnNumber + " : " + column.getKey());
             int rowNumber = 0;
             for (Entry<Object, Object> row : column.getValue().entrySet()) {
-                
+            	//System.out.println("row " + rowNumber + " : " + row.getKey());
                 double intensity = (Double) row.getValue();
                 int intensityScaled = (int) (intensity * 255); 
                 g2.setColor(getColor(intensityScaled));              
@@ -126,8 +130,7 @@ public class HeatGridGenerator {
                 
                 rowNumber++;
             }
-            columnNumber++;
-            
+            columnNumber++;            
         }
         
         ImageHandler.saveImage(bufferedImage, "png", imagePath);        

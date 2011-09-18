@@ -68,7 +68,7 @@ public class MathHelper {
      * 
      * @return The calculated confidence interval.
      */
-    public static double getConfidenceInterval(int samples, double confidenceLevel, double mean) {
+    public static double computeConfidenceInterval(int samples, double confidenceLevel, double mean) {
         
         Map<Double, Double> zValues = new HashMap<Double, Double>();
         zValues.put(0.75, 1.151);
@@ -79,7 +79,7 @@ public class MathHelper {
         
         double chosenZ = zValues.get(confidenceLevel);
         
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * mean / ((double)samples - 1.0));        
+        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / ((double)samples - 1.0));        
         
         return confidenceInterval;
     }

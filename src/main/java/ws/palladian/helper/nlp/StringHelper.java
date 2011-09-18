@@ -789,7 +789,8 @@ public class StringHelper {
         text = removeProtectedSpace(text);
         // text = removeNonAsciiCharacters(text);
 
-        text = StringHelper.trim(text);
+        // trim but keep sentence delimiters
+        text = StringHelper.trim(text,".?!");
 
         return text;
     }

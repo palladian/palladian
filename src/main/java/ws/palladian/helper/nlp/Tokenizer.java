@@ -203,7 +203,7 @@ public class Tokenizer {
         List<String> sentences = new ArrayList<String>();
 
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
