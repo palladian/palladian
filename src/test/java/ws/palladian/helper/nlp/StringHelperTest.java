@@ -24,7 +24,7 @@ public class StringHelperTest {
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
         assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
-        assertEquals("abcödef ghjiåjkl <mno å", StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
+        assertEquals("abcödef ghjiåjkl <mno å ???", StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
         assertEquals("here starts the <clean> \"text\" stop",
                 StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
 
