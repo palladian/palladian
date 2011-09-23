@@ -273,16 +273,17 @@ public class ClassifierEvaluator {
         dictionaryClassifier4.getFeatureSetting().setMinNGramLength(2);
         dictionaryClassifier4.getFeatureSetting().setMaxNGramLength(8);
 
-        Dataset dataset = new Dataset("Sentiment");
+        Dataset dataset = new Dataset("Preisroboter");
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("<###>");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_detailedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_mainCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
-        dataset.setPath("data/datasets/classification/SentimentSentences.csv");
+        //dataset.setPath("data/datasets/classification/SentimentSentences.csv");
+        dataset.setPath("data/datasets/classification/pr_amazon_selected170.csv");
         
-        Dataset dataset2 = new Dataset("Schottenland");
+        Dataset dataset2 = new Dataset("PreisroboterSmall");
         dataset2.setFirstFieldLink(false);
         dataset2.setSeparationString("<###>");
         dataset2.setPath("data/temp/schottenland/schottenland.txt"); 
@@ -293,15 +294,16 @@ public class ClassifierEvaluator {
         // dataset.setPath("data/temp/dataset_classifier_dev_1_ipc1000.csv");
 
         DatasetManager datasetManager = new DatasetManager();
-        //datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
-        datasetManager.calculateClassDistribution(dataset, "data/datasets/classification/SentimentSentences_distribution.csv");
         
         // create an excerpt (optional)
 //        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset2.getPath(), dataset2.getSeparationString(), 5000);
-        String dsExcerpt = datasetManager.createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), 200);
+        String dsExcerpt = datasetManager.createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), 100);
         dataset2.setPath(dsExcerpt);
 //        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
 
+        //datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
+        datasetManager.calculateClassDistribution(dataset2, "data/datasets/classification/pr_amazon_distribution.csv");
+        
         int countClasses = datasetManager.countClasses(dataset);
         System.out.println("The dataset " + dataset.getName() + " contains " + countClasses + " classes");
 //        System.exit(0);
@@ -311,10 +313,10 @@ public class ClassifierEvaluator {
         // evaluator.setNumberOfInstancesPerClass(50);
 
         evaluator.addClassifier(dictionaryClassifier1);
-        evaluator.addClassifier(dictionaryClassifier2);
+        //evaluator.addClassifier(dictionaryClassifier2);
 //        evaluator.addClassifier(dictionaryClassifier3);
 //        evaluator.addClassifier(dictionaryClassifier4);
-        evaluator.addDataset(dataset);
+        //evaluator.addDataset(dataset);
         evaluator.addDataset(dataset2);
 
 //        evaluator.runEvaluation("data/temp/schottenland/evaluatorResults.csv");
