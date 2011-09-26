@@ -321,16 +321,23 @@ public class WebSearcher {
     }
 
     /**
+     * <p>
      * Return number of hits for a given query.
+     * </p>
      * 
-     * @param searchQuery
-     *            A search query.
+     * @param searchQuery A search query.
      * @return The number of hits for a given query.
      */
     public final int getHitCount(String searchQuery) {
         int hitCount = 0;
 
         DocumentRetriever crawler = new DocumentRetriever();
+
+        try {
+            searchQuery = URLEncoder.encode(searchQuery, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(searchQuery, e);
+        }
 
         if (getSource() == WebSearcherManager.GOOGLE) {
 
