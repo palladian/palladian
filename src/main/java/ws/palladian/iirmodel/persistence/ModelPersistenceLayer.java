@@ -3,6 +3,7 @@
  */
 package ws.palladian.iirmodel.persistence;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,8 +41,12 @@ import ws.palladian.iirmodel.helper.DefaultStreamVisitor;
  * @since 1.0
  * 
  */
-public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
+public final class ModelPersistenceLayer extends AbstractPersistenceLayer implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1692254286550452271L;
     /**
      * <p>
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
