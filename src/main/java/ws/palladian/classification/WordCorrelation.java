@@ -96,6 +96,6 @@ public class WordCorrelation implements Serializable {
 
     @Override
     public String toString() {
-        return "WordCorrelation [correlation=" + absoluteCorrelation + ", word1=" + word1 + ", word2=" + word2 + "]";
+        return "WordCorrelation [abs. correlation=" + absoluteCorrelation + ", rel. correlation=" + relativeCorrelation + ", word1=" + word1 + ", word2=" + word2 + "]";
     }
 }
