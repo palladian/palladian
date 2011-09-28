@@ -3,9 +3,11 @@
  */
 package ws.palladian.iirmodel.persistence;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -22,6 +24,7 @@ import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.iirmodel.Author;
@@ -110,7 +113,7 @@ public class PersistenceLayerTest {
         stream.addAuthor(author2);
 
         persistenceLayer.saveItemStream(stream);
-        ItemStream result = (ItemStream) persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
+        ItemStream result = (ItemStream)persistenceLayer.loadStreamSourceByAddress(stream.getSourceAddress());
         assertEquals(1, persistenceLayer.loadStreamSources().size());
         assertEquals(stream.getSourceAddress(), result.getSourceAddress());
         assertEquals(stream.getSourceName(), result.getSourceName());
@@ -169,7 +172,7 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveItemStream(changedStream);
 
-        ItemStream loadedStream = (ItemStream) persistenceLayer
+        ItemStream loadedStream = (ItemStream)persistenceLayer
                 .loadStreamSourceByAddress("http://testSource.de/testStream");
 
         Item deletedItem = persistenceLayer.loadItem(loadedStream.getIdentifier());
@@ -199,6 +202,7 @@ public class PersistenceLayerTest {
     }
 
     @Test
+    @Ignore
     public void testUpdateAuthor() throws Exception {
         Date registrationDate = new Date();
         StreamSource testSource = new StreamGroup("testGroup", "http://testGroup.de");
@@ -210,12 +214,19 @@ public class PersistenceLayerTest {
         Author changedAuthor = new Author("test", 30, 5, 4, registrationDate, testSource.getSourceAddress());
         persistenceLayer.saveAuthor(changedAuthor);
         Author result = persistenceLayer.loadAuthor(changedAuthor.getUsername(), changedAuthor.getStreamSource());
-        assertEquals(Integer.valueOf(30), result.getCountOfItems());
-        assertEquals(Integer.valueOf(5), result.getCountOfStreamsStarted());
-        assertEquals(Integer.valueOf(4), result.getAuthorRating());
+        assertThat(result.getCountOfItems(), is(30));
+        assertThat(result.getCountOfStreamsStarted(), is(5));
+        assertThat(result.getAuthorRating(), is(4));
         Collection<Author> authors = persistenceLayer.loadAuthors();
-        assertEquals(1, authors.size());
+        assertThat(authors.size(), is(1));
+    }
 
+    @Test(expected = javax.persistence.RollbackException.class)
+    public void testSaveSameAuthorTwice() {
+        Author firstAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
+        Author secondAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
+        persistenceLayer.saveAuthor(firstAuthorObject);
+        persistenceLayer.saveAuthor(secondAuthorObject);
     }
 
     @Test
@@ -242,7 +253,7 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveItemStream(itemStream);
 
-        ItemStream loadedStream = (ItemStream) persistenceLayer.loadStreamSourceByAddress("http://testSource.de");
+        ItemStream loadedStream = (ItemStream)persistenceLayer.loadStreamSourceByAddress("http://testSource.de");
         Assert.assertEquals(2, loadedStream.getAuthors().size());
         List<Item> items = loadedStream.getItems();
         Assert.assertEquals("author1", items.get(0).getAuthor().getUsername());
@@ -312,7 +323,7 @@ public class PersistenceLayerTest {
 
         StreamSource streamSource = persistenceLayer.loadStreamSourceByAddress("http://testSource.de/testStream1");
         assertTrue(streamSource instanceof StreamGroup);
-        StreamGroup streamGroup = (StreamGroup) streamSource;
+        StreamGroup streamGroup = (StreamGroup)streamSource;
         assertEquals(3, streamGroup.getChildren().size());
         assertEquals("testSource", streamGroup.getParentSource().getSourceName());
 
@@ -320,7 +331,7 @@ public class PersistenceLayerTest {
         assertNull(streamSource.getParentSource());
         assertEquals("testSource", streamSource.getSourceName());
         assertEquals("http://testSource.de/testStream", streamSource.getSourceAddress());
-        streamGroup = (StreamGroup) streamSource;
+        streamGroup = (StreamGroup)streamSource;
         assertEquals(2, streamGroup.getChildren().size());
         assertEquals("testSource1", streamGroup.getChildren().get(0).getSourceName());
     }
@@ -359,27 +370,29 @@ public class PersistenceLayerTest {
 
         persistenceLayer.saveStreamGroup(forum);
     }
-    
+
     @Test
     public void testSaveStreamWithMultipleAuthorOccurrences() {
         StreamGroup forum = new StreamGroup("testgroup", "http://testgroup.com");
-        
+
         ItemStream itemStream1 = new ItemStream("teststream1", "http://testgroup.com/teststream1");
         forum.addChild(itemStream1);
         Author author1 = new Author("u1", "http://testgroup.com");
         forum.addAuthor(author1);
-        Item item1 = new Item("id1", author1, "http://testgroup.com/teststream1/item1", "item1", new Date(), new Date(), "");
+        Item item1 = new Item("id1", author1, "http://testgroup.com/teststream1/item1", "item1", new Date(),
+                new Date(), "");
         itemStream1.addItem(item1);
-        
+
         ItemStream itemStream2 = new ItemStream("teststream2", "http://testgroup.com/teststream2");
         forum.addChild(itemStream2);
-        
+
         // retrieve Author by his username, as we must avoid duplicate author instances!
         Author author2 = forum.getAuthor("u1");
         forum.addAuthor(author2);
-        Item item2 = new Item("id2", author2, "http://testgroup.com/teststream1/item2", "item2", new Date(), new Date(), "");
+        Item item2 = new Item("id2", author2, "http://testgroup.com/teststream1/item2", "item2", new Date(),
+                new Date(), "");
         itemStream2.addItem(item2);
-        
+
         persistenceLayer.saveStreamSource(forum);
     }
 }
