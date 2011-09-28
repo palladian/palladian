@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -13,7 +14,9 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.Tokenizer;
 
 /**
  * <p>
@@ -28,7 +31,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author David Urbansky
  */
-public class GermanSentimentClassifier implements Serializable {
+public class GermanSentimentClassifier extends AbstractSentimentClassifier implements Serializable {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(GermanSentimentClassifier.class);
@@ -48,7 +51,10 @@ public class GermanSentimentClassifier implements Serializable {
 
         emphasizeMap.put("bisschen", 0.9);
         emphasizeMap.put("sehr", 2.0);
+        emphasizeMap.put("deutlich", 2.0);
         emphasizeMap.put("unheimlich", 3.0);
+        emphasizeMap.put("absolut", 3.0);
+        emphasizeMap.put("vollkommen",3.0);
         emphasizeMap.put("extrem", 3.0);
     }
 
@@ -109,62 +115,101 @@ public class GermanSentimentClassifier implements Serializable {
     private void saveDictionary(String modelPath) {
         FileHelper.serialize(this, modelPath);
     }
-
-    /**
-     * <p>
-     * Classify a text as rather positive or negative.
-     * </p>
-     * <p>
-     * We simply look up the sentiment for each word, negate the sentiment if we find a "nicht" before the word, and
-     * emphasize the sentiment if we find and emphasizing word such as "sehr".
-     * </p>
-     * 
-     * @param text The text to be classified.
-     * @return A CategoryEntry with the likelihood.
-     */
-    public CategoryEntry classify(String text) {
-
+ 
+    @Override
+    public CategoryEntry getPolarity(String text, String query) {
+        
         Category positiveCategory = new Category("positive");
         Category negativeCategory = new Category("negative");
         
-        double positiveSentimentSum = 0;
-        double negativeSentimentSum = 0;
-        
-        String[] tokens = text.split("\\s");
-        String lastToken = "";
-        for (String token : tokens) {
-            
-            token = StringHelper.trim(token);
-            
-            // check whether we should emphasize the sentiment
-            double emphasizeWeight = 1.0;
-            if (emphasizeMap.get(lastToken) != null) {
-                emphasizeWeight = emphasizeMap.get(lastToken);
-            }
-            
-            // check whether we need to negate the sentiment
-            if (lastToken.equalsIgnoreCase("nicht")) {
-                emphasizeWeight *= -1;
-            }
-            
-            Double sentiment = sentimentMap.get(token);
-            if (sentiment != null) {
-                sentiment *= emphasizeWeight;
-                if (sentiment > 0) {
-                    LOGGER.debug("positive word: " + token + " ("+sentiment+")");
-                    positiveSentimentSum += sentiment;
-                } else {
-                    LOGGER.debug("negative word: " + token + " ("+sentiment+")");
-                    negativeSentimentSum += Math.abs(sentiment);
-                }
-            }
-            
-            lastToken = token;
+        if (query != null) {
+            query = query.toLowerCase();
         }
         
+        // total sum of positive and negative sentiments (on word level) in the text
+        double positiveSentimentSum = 0;
+        double negativeSentimentSum = 0;
+                
+        List<String> sentences = Tokenizer.getSentences(text);
+        
+        for (String sentence : sentences) {
+            
+            double positiveSentimentSumSentence = 0;
+            double negativeSentimentSumSentence = 0;
+            
+            // if a query is given, we only consider sentences that contain the query term(s)
+            if (query != null && sentence.toLowerCase().indexOf(query) == -1) {
+                continue;
+            }
+            
+            String[] tokens = sentence.split("\\s");
+            String beforeLastToken = "";
+            String lastToken = "";
+            for (String token : tokens) {
+                
+                token = StringHelper.trim(token);
+                
+                // check whether we should emphasize the sentiment
+                double emphasizeWeight = 1.0;
+                if (emphasizeMap.get(lastToken) != null) {
+                    emphasizeWeight = emphasizeMap.get(lastToken);
+                }
+                
+                // check whether we need to negate the sentiment
+                if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht")) {
+                    emphasizeWeight *= -1;
+                }
+                
+                Double sentiment = sentimentMap.get(token);
+                if (sentiment != null) {
+                    sentiment *= emphasizeWeight;
+                    if (sentiment > 0) {
+                        LOGGER.debug("positive word: " + token + " ("+sentiment+")");
+                        positiveSentimentSum += sentiment;
+                        positiveSentimentSumSentence += sentiment;
+                    } else {
+                        LOGGER.debug("negative word: " + token + " ("+sentiment+")");
+                        negativeSentimentSum += Math.abs(sentiment);
+                        negativeSentimentSumSentence += Math.abs(sentiment);
+                    }
+                }
+                
+                beforeLastToken = lastToken;
+                lastToken = token;
+            }
+            
+            CategoryEntries categoryEntries = new CategoryEntries();
+            CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSumSentence);
+            CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSumSentence);
+            categoryEntries.add(positiveCategoryEntry);
+            categoryEntries.add(negativeCategoryEntry);
+            
+            
+            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold && 
+                    (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence) &&
+                    (positiveSentimentSumSentence > 0.1 || negativeSentimentSumSentence > 0.1)) {
+                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory().getName(), sentence);
+            }
+            
+        }
+        
+//        CategoryEntries categoryEntries = new CategoryEntries();
+//        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSum);
+//        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSum);
+//        categoryEntries.add(positiveCategoryEntry);
+//        categoryEntries.add(negativeCategoryEntry);
+        
         CategoryEntries categoryEntries = new CategoryEntries();
-        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSum);
-        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSum);
+        int positiveSentences = 0;
+        if (getOpinionatedSentences().get("positive") != null) {
+            positiveSentences = getOpinionatedSentences().get("positive").size();
+        }
+        int negativeSentences = 0;
+        if (getOpinionatedSentences().get("negative") != null) {
+            negativeSentences = getOpinionatedSentences().get("negative").size();
+        }
+        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentences);
+        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentences);
         categoryEntries.add(positiveCategoryEntry);
         categoryEntries.add(negativeCategoryEntry);
         
@@ -176,12 +221,22 @@ public class GermanSentimentClassifier implements Serializable {
         GermanSentimentClassifier gsc = null;
         
         // build the model
-//        gsc = new GermanSentimentClassifier();
-//        gsc.buildModel("data/temp/SentiWS_v1.8b_", "data/temp/gsc.gz");
+        gsc = new GermanSentimentClassifier();
+        gsc.buildModel("data/temp/SentiWS_v1.8b_", "data/temp/gsc.gz");
 
         gsc = new GermanSentimentClassifier("data/temp/gsc.gz");
-        CategoryEntry result = gsc.classify("Das finde ich nicht extrem toll aber manchmal ist das unschön.");
-        result = gsc.classify("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen, 3.");
+        gsc.setConfidenceThreshold(0.6);
+        CategoryEntry result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
+        //result = gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen, 3.");
+        result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));
+        
+        Map<String, List<String>> opinionatedSentences = gsc.getOpinionatedSentences();
+        for (Entry<String, List<String>> entry : opinionatedSentences.entrySet()) {
+            System.out.println(entry.getKey());
+            CollectionHelper.print(entry.getValue());
+        }
+        
+        
         System.out.println(result);
     }
 
