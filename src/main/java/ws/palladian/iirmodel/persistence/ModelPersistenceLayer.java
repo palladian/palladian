@@ -3,20 +3,15 @@
  */
 package ws.palladian.iirmodel.persistence;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.log4j.Logger;
@@ -53,41 +48,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * </p>
      */
     private static final Logger LOGGER = Logger.getLogger(ModelPersistenceLayer.class);
-    /**
-     * <p>
-     * The query for getting all pairs of {@code Item}s from different {@code ItemStream}s that have no relation yet.
-     * </p>
-     * 
-     * @see #getNonAnnotatedInterThreadRelation(Map)
-     */
-    private static final String GET_NON_ANNOTATED_INTER_STREAM_RELATIONS = "SELECT i1.identifier,i2.identifier "
-            + "FROM Item i1, Item i2 " + "WHERE i1.identifier <> i2.identifier " + "AND i1.identifier NOT IN "
-            + "(SELECT DISTINCT ir1.firstEntry.identifier FROM ItemRelation ir1) " + "AND i1.identifier NOT IN "
-            + "(SELECT DISTINCT ir2.secondEntry.identifier FROM ItemRelation ir2) " + "AND i2.identifier NOT IN "
-            + "(SELECT DISTINCT ir3.firstEntry.identifier FROM ItemRelation ir3) " + "AND i2.identifier NOT IN "
-            + "(SELECT DISTINCT ir4.secondEntry.identifier FROM ItemRelation ir4) " + "AND i1.parent<>i2.parent";
-    /**
-     * <p>
-     * The query for getting all pairs of {@code Item}s from the same {@code ItemStream} that have no relation yet.
-     * </p>
-     * 
-     * @see #getNonAnnotatedIntraThreadRelation(Map)
-     */
-    private static final String GET_NON_ANNOTATED_INTRA_STREAM_RELATIONS = "SELECT i1.identifier,i2.identifier "
-            + "FROM Item i1, Item i2 " + "WHERE i1.identifier <> i2.identifier " + "AND i1.identifier NOT IN "
-            + "(SELECT DISTINCT ir1.firstEntry.identifier FROM ForumEntryRelation ir1) " + "AND i1.identifier NOT IN "
-            + "(SELECT DISTINCT ir2.secondEntry.identifier FROM ForumEntryRelation ir2) " + "AND i2.identifier NOT IN "
-            + "(SELECT DISTINCT ir3.firstEntry.identifier FROM ForumEntryRelation ir3) " + "AND i2.identifier NOT IN "
-            + "(SELECT DISTINCT ir4.secondEntry.identifier FROM ForumEntryRelation ir4) " + "AND i1.parent=i2.parent";
-
-    /**
-     * <p>
-     * The maximum count of non annotated relations that are returned during one query.
-     * </p>
-     * 
-     * @see #getRandomNonAnnotatedRelation(String)
-     */
-    private static final Integer MAX_NUMBER_OF_NON_ANNOTATED_RELATIONS = 100;
 
     /**
      * <p>
@@ -122,12 +82,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     protected Set<Author> getAllAuthors(StreamSource streamSource) {
         final Set<Author> authors = new HashSet<Author>();
         streamSource.accept(new DefaultStreamVisitor() {
-            
+
             @Override
             public void visitStreamGroup(StreamGroup streamGroup, int depth) {
                 authors.addAll(streamGroup.getAuthors());
             }
-            
+
             @Override
             public void visitItemStream(ItemStream itemStream, int depth) {
                 authors.addAll(itemStream.getAuthors());
@@ -139,12 +99,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
     public void saveStreamSource(StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
         streamSource.accept(new DefaultStreamVisitor() {
-            
+
             @Override
             public void visitStreamGroup(StreamGroup streamGroup, int depth) {
                 saveStreamGroup(streamGroup);
             }
-            
+
             @Override
             public void visitItemStream(ItemStream itemStream, int depth) {
                 saveItemStream(itemStream);
@@ -325,18 +285,32 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      * @param author The {@code Author} to save.
      */
     public Author saveAuthor(final Author author) {
+        // final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
         final Boolean openedTransaction = openTransaction();
-        final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
+
         Author result;
-        if (existingUser == null) {
-            getManager().persist(author);
-            result = author;
-        } else {
-            author.setIdentifier(existingUser.getIdentifier());
-            result = getManager().merge(author);
-        }
+        // if (existingUser == null) {
+        getManager().persist(author);
+        result = author;
+        // } else {
+        // author.setIdentifier(existingUser.getIdentifier());
+        // result = getManager().merge(author);
+        // }
         commitTransaction(openedTransaction);
         return result;
+    }
+
+    /**
+     * <p>
+     * Save all {@code Author}s of the provided collection to the database.
+     * </p>
+     * 
+     * @param authors The {@code Author}s to save.
+     */
+    public void saveAuthors(final Collection<Author> authors) {
+        for (Author author : authors) {
+            saveAuthor(author);
+        }
     }
 
     /**
@@ -355,39 +329,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
         List<Author> authors = query.getResultList();
         Author ret = getFirst(authors);
         commitTransaction(openedTransaction);
-        return ret;
-    }
-
-    /**
-     * 
-     * @param item1
-     * @param item2
-     * @param relationType
-     * @param comment
-     * @return
-     * @deprecated Create the {@link ItemRelation} with its constructor and use {@link #saveItemRelation(ItemRelation)}
-     *             to store them.
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    private ItemRelation createItemRelation(Item item1, Item item2, RelationType relationType, String comment) {
-        Query checkIfRelationExistsQuery = getManager().createQuery(
-                "SELECT r FROM ItemRelation r WHERE r.firstItem=:firstItem AND r.secondItem=:secondItem");
-        checkIfRelationExistsQuery.setParameter("firstItem", item1);
-        checkIfRelationExistsQuery.setParameter("secondItem", item2);
-        getManager().getTransaction().begin();
-        List<ItemRelation> relations = checkIfRelationExistsQuery.getResultList();
-        ItemRelation ret = null;
-        if (relations.isEmpty()) {
-            ret = new ItemRelation(item1, item2, relationType, comment);
-            getManager().persist(ret);
-        } else {
-            ret = relations.get(0);
-            ret.setType(relationType);
-            ret.setComment(comment);
-        }
-        getManager().getTransaction().commit();
-
         return ret;
     }
 
@@ -411,47 +352,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
         commitTransaction(openedTransaction);
     }
 
-    /**
-     * Adds restriction to the WHERE clause of a base query. These restrictions might be values on some of the threads
-     * fields and/or a free text query in Lucene Query Syntax.
-     * <p>
-     * If one or both of {@code restrictedOnfieldsWithValues} and {@code freeTextQuery} is null, they are silently
-     * ignored.
-     * 
-     * @param baseQuery
-     *            The base query to restrict
-     * @param restrictedOnFieldsWithValues
-     *            Restricts query to a specific set of values
-     * @return The complete query as a string.
-     */
-    private String createQueryForRandomNonAnnotatedRelations(final String baseQuery,
-            final Map<String, String[]> restrictedOnFieldsWithValues) {
-        StringBuffer query = new StringBuffer(baseQuery);
-        if (restrictedOnFieldsWithValues != null && !restrictedOnFieldsWithValues.isEmpty()) {
-            query.append(createRestriction(restrictedOnFieldsWithValues));
-        }
-        return query.toString();
-    }
-
-    // /**
-    // *
-    // * @param name
-    // * @return
-    // * @deprecated Create the {@link RelationType} with its constructor and use {@link
-    // #saveRelationType(RelationType)}.
-    // */
-    // @Deprecated
-    // public RelationType createRelationType(String name) {
-    // RelationType ret = loadRelationType(name);
-    // if (ret == null) {
-    // ret = new RelationType(name);
-    // getManager().getTransaction().begin();
-    // getManager().persist(ret);
-    // getManager().getTransaction().commit();
-    // }
-    // return ret;
-    // }
-
     public void saveRelationType(RelationType relationType) {
         RelationType existingRelationType = loadRelationType(relationType.getName());
         final Boolean openedTransaction = openTransaction();
@@ -462,141 +362,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
             getManager().merge(relationType);
         }
         commitTransaction(openedTransaction);
-    }
-
-    /**
-     * <p>
-     * Creates restrictions as appendix to an existing JPQL query.
-     * </p>
-     * 
-     * @param fieldValues
-     *            Map containing the restrictions.
-     * @return A query string starting whit "AND" that can be appended to any
-     *         JPQL query joining two contributions.
-     */
-    private String createRestriction(final Map<String, String[]> fieldValues) {
-        final StringBuffer retBuffer = new StringBuffer(29);
-
-        for (Map.Entry<String, String[]> entry : fieldValues.entrySet()) {
-            final StringBuffer valuesString = new StringBuffer();
-            for (int i = 0; i < entry.getValue().length; i++) {
-                valuesString.append("\"" + entry.getValue()[i] + "\",");
-            }
-            valuesString.deleteCharAt(valuesString.length() - 1);
-            retBuffer.append(" AND f1." + entry.getKey() + " IN (" + valuesString + ") AND f2." + entry.getKey()
-                    + " IN (" + valuesString + ")");
-        }
-        return retBuffer.toString();
-    }
-
-    // @SuppressWarnings("unchecked")
-    // public Author createAuthor(String username, Integer absoluteCountOfPosts, Integer absoluteCountOfThreadsStarted,
-    // Integer forumPoints, Date registeredSince, String forumType) {
-    // Query checkIfUserExists = getManager().createQuery(
-    // "SELECT u FROM User u WHERE u.username=:username AND u.forumType = :forumType");
-    // checkIfUserExists.setParameter("username", username);
-    // checkIfUserExists.setParameter("forumType", forumType);
-    // getManager().getTransaction().begin();
-    // List<Author> users = checkIfUserExists.getResultList();
-    // Author ret = null;
-    // if (!users.isEmpty()) {
-    // ret = users.get(0);
-    // // ret.setCountOfItems(absoluteCountOfPosts);
-    // // ret.setCountOfStreamsStarted(absoluteCountOfThreadsStarted);
-    // // ret.setAuthorRating(forumPoints);
-    // } else {
-    // ret = new Author(username + "@" + forumType, username, absoluteCountOfPosts, absoluteCountOfThreadsStarted,
-    // forumPoints, registeredSince, forumType);
-    // getManager().persist(ret);
-    // }
-    // getManager().getTransaction().commit();
-    // return ret;
-    // }
-
-    // public Author createAuthor(Author author) {
-    // return createAuthor(author.getUsername(), author.getCountOfItems(), author.getCountOfStreamsStarted(),
-    // author.getAuthorRating(), author.getRegisteredSince(), author.getStreamSource());
-    // }
-
-    /**
-     * Returns a new non existing relation between two contributions from two different threads. The two contributions
-     * are selected by random from the pool of existing contributions.
-     * <p>
-     * The two parameters are optional to restrict the returned results to some search query or specific fields (like
-     * taking only contributions from a certain forum or channel).
-     * 
-     * @param restrictedOnFieldsWithValues
-     *            A map from contribution fields to allowed values.
-     * @return A new relation of two contributions.
-     * @throws IOException
-     *             If underlying lucene index is not available.
-     * @throws ParseException
-     *             If query is not parseable.
-     * @throws URISyntaxException
-     *             If location of underlying index was not valid.
-     */
-    public ItemRelation getNonAnnotatedInterThreadRelation(final Map<String, String[]> restrictedOnFieldsWithValues)
-            throws IOException, ParseException, URISyntaxException {
-        return getRandomNonAnnotatedRelation(createQueryForRandomNonAnnotatedRelations(
-                GET_NON_ANNOTATED_INTER_STREAM_RELATIONS, restrictedOnFieldsWithValues));
-    }
-
-    /**
-     * <p>
-     * Returns a new non existing relation between two contributions from the same thread. The two contributions are
-     * selected by random from the pool of existing contributions.
-     * </p>
-     * <p>
-     * The two parameters are optional to restrict the returned results to some search query or specific fields (like
-     * taking only contributions from a certain forum or channel).
-     * </p>
-     * 
-     * @param restrictedOnFieldsWithValues
-     *            A map from contribution fields to allowed values.
-     * @return A new relation of two contributions.
-     * @throws IOException
-     *             If underlying lucene index is not available.
-     * @throws ParseException
-     *             If query is not parseable.
-     * @throws URISyntaxException
-     *             If location of underlying index was not valid.
-     */
-    public ItemRelation getNonAnnotatedIntraThreadRelation(final Map<String, String[]> restrictedOnFieldsWithValues)
-            throws IOException, ParseException, URISyntaxException {
-        return getRandomNonAnnotatedRelation(createQueryForRandomNonAnnotatedRelations(
-                GET_NON_ANNOTATED_INTRA_STREAM_RELATIONS, restrictedOnFieldsWithValues));
-    }
-
-    /**
-     * <p>
-     * Provides one non annotated relation between two contributions by random.
-     * </p>
-     * 
-     * @param query
-     *            The JPQL Query used to search the set of valid contributions.
-     * @return A new {@link ItemRelation} that does not exist in the
-     *         database.
-     * @see #GET_NON_ANNOTATED_INTER_STREAM_RELATIONS
-     * @see #GET_NON_ANNOTATED_INTRA_STREAM_RELATIONS
-     */
-    @SuppressWarnings("unchecked")
-    private ItemRelation getRandomNonAnnotatedRelation(final String query) {
-        LOGGER.debug("Running getRandomNonAnnotatedRelation with query: " + query);
-        Query loadNonEvaluatedForumEntryIDPairs = getManager().createQuery(query);
-        loadNonEvaluatedForumEntryIDPairs.setMaxResults(MAX_NUMBER_OF_NON_ANNOTATED_RELATIONS);
-        List<Object> results = loadNonEvaluatedForumEntryIDPairs.getResultList();
-        LOGGER.debug("Returned results: " + results);
-        if (!results.isEmpty()) {
-            final Random randomIndexGenerator = new Random();
-            int randomIndex = randomIndexGenerator.nextInt(results.size());
-            final Object[] idPair = (Object[])results.get(randomIndex);
-            // changed from (String) to (Integer); untested
-            Item firstEntry = loadItem((Integer)idPair[0]);
-            Item secondEntry = loadItem((Integer)idPair[1]);
-            return createItemRelation(firstEntry, secondEntry, null, "");
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -653,6 +418,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
      */
     public List<Item> loadItems() {
         return loadAll(Item.class);
+    }
+
+    /**
+     * <p>
+     * Provides the set of items corresponding to a set of item identifiers.
+     * </p>
+     * 
+     * @param identifiers The item identifiers to query the database for.
+     * @return Items for the provided identifiers.
+     */
+    public List<Item> loadItems(Collection<Integer> identifiers) {
+        List<Item> ret = new ArrayList<Item>(identifiers.size());
+        for (Integer identifier : identifiers) {
+            ret.add(loadItem(identifier));
+        }
+        return ret;
     }
 
     // TODO adapt this to new structure
@@ -833,9 +614,11 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer {
                     + forumInternalIdentifier + "in item stream " + parentStream);
         }
     }
-    
+
     /**
-     * <p>Delete all data.</p>
+     * <p>
+     * Delete all data.
+     * </p>
      */
     public void deleteAll() {
         EntityManager entityManager = getManager();

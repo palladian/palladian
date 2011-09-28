@@ -151,12 +151,12 @@ public abstract class AbstractPersistenceLayer {
 
     /**
      * <p>
-     * Load an entity be its identifier.
+     * Load an entity by its identifier.
      * </p>
      * 
-     * @param identifier
-     * @param classToLoad
-     * @return
+     * @param identifier The database wide unique identifier of the entity to load.
+     * @param classToLoad The Java class of the entity to load.
+     * @return The entity identified by {@code identifier} or {@code null} if it does not exist.
      */
     public final <T> T load(Object identifier, Class<T> classToLoad) {
         final Boolean openedTransaction = openTransaction();

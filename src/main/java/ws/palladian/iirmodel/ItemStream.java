@@ -106,7 +106,7 @@ public final class ItemStream extends StreamSource {
             addItem(item);
         }
     }
-    
+
     @Override
     protected void accept(StreamVisitor visitor, int depth) {
         visitor.visitItemStream(this, depth);
@@ -147,7 +147,7 @@ public final class ItemStream extends StreamSource {
             return false;
         }
 
-        StreamSource other = (StreamSource) itemStream;
+        StreamSource other = (StreamSource)itemStream;
         if (getSourceAddress() == null) {
             if (other.getSourceAddress() != null) {
                 return false;
@@ -165,5 +165,4 @@ public final class ItemStream extends StreamSource {
         result = prime * result + ((getSourceAddress() == null) ? 0 : getSourceAddress().hashCode());
         return result;
     }
-
 }

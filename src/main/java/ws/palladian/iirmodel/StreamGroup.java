@@ -90,6 +90,19 @@ public final class StreamGroup extends StreamSource {
         child.setParentSource(this);
     }
 
+    /**
+     * <p>
+     * Adds all provided {@code children} to the {@code StreamSource}s that are already children of this
+     * {@code StreamGroup}.
+     * </p>
+     * 
+     * @param children The list of children to append to the end of the list of already existing children of this
+     *            {@code StreamGroup}.
+     */
+    public void addChildren(List<? extends StreamSource> children) {
+        this.children.addAll(children);
+    }
+
     @Override
     protected void accept(StreamVisitor visitor, int depth) {
         visitor.visitStreamGroup(this, depth);
@@ -98,10 +111,6 @@ public final class StreamGroup extends StreamSource {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -131,24 +140,55 @@ public final class StreamGroup extends StreamSource {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
-        StreamGroup other = (StreamGroup) obj;
+        }
+        StreamGroup other = (StreamGroup)obj;
         if (children == null) {
-            if (other.children != null)
+            if (other.children != null) {
                 return false;
-        } else if (!children.equals(other.children))
+            }
+        } else if (!children.equals(other.children)) {
             return false;
+        }
         if (getSourceAddress() == null) {
-            if (other.getSourceAddress() != null)
+            if (other.getSourceAddress() != null) {
                 return false;
-        } else if (!getSourceAddress().equals(other.getSourceAddress()))
+            }
+        } else if (!getSourceAddress().equals(other.getSourceAddress())) {
             return false;
+        }
         return true;
+    }
+
+    /**
+     * 
+     */
+    public void removeChildren() {
+        this.children.clear();
+    }
+
+    /**
+     * <p>
+     * Provides the first child {@code StreamSource} having the requested {@code sourceAddress}.
+     * </p>
+     * 
+     * @param sourceAddress The URL identifying the requested child.
+     * @return The requested child {@code StreamSource} or {@code null} if no child with {@code sourceAddress} exists.
+     */
+    public StreamSource getChild(String sourceAddress) {
+        for (StreamSource child : children) {
+            if (sourceAddress.equals(child.getSourceAddress())) {
+                return child;
+            }
+        }
+        return null;
     }
 
 }

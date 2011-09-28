@@ -8,8 +8,10 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 /**
  * <p>
@@ -24,6 +26,7 @@ import javax.persistence.TemporalType;
  * @since 2.0
  */
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"USERNAME", "STREAMSOURCEADDRESS"})})
 public class Author {
 
     /**
@@ -330,7 +333,7 @@ public class Author {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Author other = (Author) obj;
+        Author other = (Author)obj;
         if (streamSourceAddress == null) {
             if (other.streamSourceAddress != null) {
                 return false;
