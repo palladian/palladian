@@ -47,18 +47,18 @@ public class RedditStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of up-votes minus down-votes for this url on reddit.com.
-     * Commitment value is 1.6885
+     * Commitment value is 1.1285
      * Max. Ranking value is 40
      */
     static RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes", "The number of " +
-    		"up-votes minus down-votes for this url on reddit.com.", 1.6885f, 40);
+    		"up-votes minus down-votes for this url on reddit.com.", 1.1285f, 40, new int[]{0,0,1,2,4,6,9,17,40});
     /** 
      * The number of comments users have left for this url on reddit.com.
-     * Commitment value is 1.7381
+     * Commitment value is 1.1737
      * Max. Ranking value is 40
      */
     static RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments", "The number of " +
-    		"comments users have left for this url on reddit.com.", 1.7381f, 40);
+    		"comments users have left for this url on reddit.com.", 1.1737f, 40, new int[]{0,1,2,3,4,5,8,15,35});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -112,8 +112,8 @@ public class RedditStats implements RankingService{
                         comments += child.getJSONObject("data").getInt("num_comments");
                     }
                 }
-            	results.put(VOTES, (float) votes);
-            	results.put(COMMENTS, (float) comments);
+            	results.put(VOTES, VOTES.normalize(votes));
+            	results.put(COMMENTS, COMMENTS.normalize(comments));
                 LOGGER.trace("Reddit stats for " + url + " : " + results);
             } else {
             	results.put(VOTES, null);

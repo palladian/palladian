@@ -48,11 +48,11 @@ public class DeliciousBookmarks implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of bookmarks users have created for this url.
-     * Commitment value is 1.4154
-     * Max. Ranking value is 10
+     * Commitment value is 0.9880
+     * Max. Ranking value is 8
      */
     static RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 1.4154f, 10);
+    		"bookmarks users have created for this url.", 0.9880f, 8, new int[]{0,0,0,1,1,2,3,4,8});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -100,7 +100,7 @@ public class DeliciousBookmarks implements RankingService {
             if (json != null) {
                 int result = 0;
                 if(json.length() > 0) result = json.getJSONObject(0).getInt("total_posts");
-                results.put(BOOKMARKS, (float) result);
+                results.put(BOOKMARKS, BOOKMARKS.normalize(result));
                 LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
             } else {
             	results.put(BOOKMARKS, null);

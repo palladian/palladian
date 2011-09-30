@@ -52,11 +52,11 @@ public class SharethisStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of shares via multiple services measured on sharethis.com.
-     * Commitment value is 2.9046
-     * Max. Ranking value is 30
+     * Commitment value is 1.3911
+     * Max. Ranking value is 32
      */
     static RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats", "The number of shares via  " +
-    		"multiple services measured on sharethis.com.", 2.9046f, 30);
+    		"multiple services measured on sharethis.com.", 1.3911f, 32, new int[]{0,0,1,2,3,5,9,15,32});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -103,7 +103,7 @@ public class SharethisStats implements RankingService{
 	        ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
             if (json != null) {
 	        	int total = json.getJSONObject("total").getInt("outbound");
-	        	results.put(SHARES, (float) total);
+	        	results.put(SHARES, SHARES.normalize(total));
 	            LOGGER.trace("ShareThis stats for " + url + " : " + total);
 	        } else {
             	results.put(SHARES, null);

@@ -47,10 +47,10 @@ public class GooglePageRank implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The PageRank from Google.
-     * Commitment value is 1.0
+     * Commitment value is 1.5128
      * Max. Ranking value is 10
      */
-    static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google", 1.0f, 10);
+    static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google", 1.5128f, 10, new int[]{1,2,3,4,5,6,7,8,9});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -110,7 +110,7 @@ public class GooglePageRank implements RankingService{
             		response = response.split(":")[2].trim();
 	                result = Integer.valueOf(response);
             	}
-                results.put(PAGERANK, (float) result);
+                results.put(PAGERANK, (float) result/10);
         		LOGGER.trace("Google PageRank for " + url + " : " + result);
 	        } else {
             	results.put(PAGERANK, null);

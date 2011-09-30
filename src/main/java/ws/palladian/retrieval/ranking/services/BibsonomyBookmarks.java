@@ -56,10 +56,10 @@ public class BibsonomyBookmarks implements RankingService{
     /** 
      * The number of bookmarks users have created for this url.
      * Commitment value is 1.0
-     * Max. Ranking value is 3
+     * Max. Ranking value is 2
      */
     private static RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of " +
-    		"bookmarks users have created for this url.", 1.0f, 3);
+    		"bookmarks users have created for this url.", 1.0f, 2, new int[]{0,0,0,0,1,1,1,1,2});
     
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -119,7 +119,7 @@ public class BibsonomyBookmarks implements RankingService{
         	
             if (json != null) {
             	int result = json.getJSONObject("posts").getInt("end");
-            	results.put(BOOKMARKS, (float) result);
+            	results.put(BOOKMARKS, BOOKMARKS.normalize(result));
                 LOGGER.trace("Bibsonomy bookmarks for " + url + " : " + result);
             } else {
             	results.put(BOOKMARKS, null);

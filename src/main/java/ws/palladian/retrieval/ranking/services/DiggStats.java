@@ -50,18 +50,18 @@ public class DiggStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of times users have "dugg" this url on digg.com.
-     * Commitment value is 2.0100
+     * Commitment value is 1.0529
      * Max. Ranking value is 30
      */
     static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs", "The number of " +
-    		"times users have \"dugg\" this url on digg.com.", 2.0100f, 30);
+    		"times users have \"dugg\" this url on digg.com.", 1.0529f, 30, new int[]{0,0,0,1,2,4,6,10,30});
     /** 
      * The number of comments users have left for this digged url on digg.com.
-     * Commitment value is 2.2692
-     * Max. Ranking value is 20
+     * Commitment value is 1.0980
+     * Max. Ranking value is 18
      */
     static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments", "The number of " +
-    		"comments users have left for this digged url on digg.com.", 2.2692f, 20);
+    		"comments users have left for this digged url on digg.com.", 1.0980f, 18, new int[]{0,0,0,1,1,2,4,6,18});
 
     
     /** The topic weighting coefficients for this service **/
@@ -109,8 +109,8 @@ public class DiggStats implements RankingService{
             		diggs = json.getJSONArray("stories").getJSONObject(0).getInt("diggs");
             		comments = json.getJSONArray("stories").getJSONObject(0).getInt("comments");
             	}
-            	results.put(DIGGS, (float) diggs);
-            	results.put(COMMENTS, (float) comments);
+            	results.put(DIGGS, DIGGS.normalize(diggs));
+            	results.put(COMMENTS, COMMENTS.normalize(comments));
                 LOGGER.trace("Digg stats for " + url + " : " + results);
             } else {
             	results.put(DIGGS, null);
@@ -159,8 +159,8 @@ public class DiggStats implements RankingService{
                     diggs = stories.getJSONObject(i).getInt("diggs");
                     comments = stories.getJSONObject(i).getInt("comments");
                     Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-	            	result.put(DIGGS, (float) diggs);
-	            	result.put(COMMENTS, (float) comments);
+	            	result.put(DIGGS, DIGGS.normalize(diggs));
+	            	result.put(COMMENTS, COMMENTS.normalize(comments));
                     results.put(url, new Ranking(this, url, result, retrieved));
                     tempUrls.remove(url);
                     LOGGER.trace("Digg stats for " + url + " : " + result);

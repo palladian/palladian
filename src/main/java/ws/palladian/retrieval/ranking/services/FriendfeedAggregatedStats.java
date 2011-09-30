@@ -59,25 +59,25 @@ public class FriendfeedAggregatedStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of entries from varying services containing the given url on FriendFeed.
-     * Commitment value is 2.2547
+     * Commitment value is 1.2539
      * Max. Ranking value is 5
      */
     static RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services", "The number of entries from " +
-    		"varying services containing the given url on FriendFeed.", 2.2547f, 5);
+    		"varying services containing the given url on FriendFeed.", 1.2539f, 5, new int[]{0,0,0,0,1,1,2,3,5});
     /** 
      * The number of likes on entries from varying services containing the given url on FriendFeed.
      * Commitment value is 1.0
-     * Max. Ranking value is 5
+     * Max. Ranking value is 2
      */
     static RankingType LIKES = new RankingType("friendfeed_ext_likes", "FriendFeed likes for external services", "The number of likes on " +
-    		"entries from varying services containing the given url on FriendFeed.", 1.0f, 5);
+    		"entries from varying services containing the given url on FriendFeed.", 1.0f, 2, new int[]{0,0,0,0,0,1,1,1,2});
     /** 
      * The number of comments on entries from varying services containing the given url on FriendFeed.
-     * Commitment value is 3.0256
-     * Max. Ranking value is 4
+     * Commitment value is 0.8405
+     * Max. Ranking value is 1
      */
     static RankingType COMMENTS = new RankingType("friendfeed_ext_comments", "FriendFeed comments for external services", "The number of comments on " +
-    		"entries from varying services containing the given url on FriendFeed.", 3.0256f, 4);
+    		"entries from varying services containing the given url on FriendFeed.", 0.8405f, 1, new int[]{0,0,0,0,0,0,0,0,1});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -126,9 +126,9 @@ public class FriendfeedAggregatedStats implements RankingService{
 	        			comments += post.getJSONArray("comments").length();
 	        		}
 	        	}
-	        	results.put(ENTRIES, (float) entries);
-	        	results.put(LIKES, (float) likes);
-	        	results.put(COMMENTS, (float) comments);
+	        	results.put(ENTRIES, ENTRIES.normalize(entries));
+	        	results.put(LIKES, LIKES.normalize(likes));
+	        	results.put(COMMENTS, COMMENTS.normalize(comments));
 	            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
 	        } else {
             	results.put(ENTRIES, null);

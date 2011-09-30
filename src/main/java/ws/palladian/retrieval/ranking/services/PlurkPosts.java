@@ -53,11 +53,11 @@ public class PlurkPosts implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of bookmarks users have created for this url.
-     * Commitment value is 1.4238
+     * Commitment value is 0.9455
      * Max. Ranking value is 4
      */
     static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts", "The number of " +
-    		"posts on plurk.com mentioning this url.", 1.4238f, 4);
+    		"posts on plurk.com mentioning this url.", 0.9455f, 4, new int[]{0,0,0,0,0,0,1,2,4});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -108,7 +108,7 @@ public class PlurkPosts implements RankingService {
             if (json != null) {
                 JSONArray plurks = json.getJSONArray("plurks");
                 int result = plurks.length();
-                results.put(POSTS, (float) result);
+                results.put(POSTS, POSTS.normalize(result));
                 LOGGER.trace("Plurk.com posts for " + url + " : " + result);
             } else {
             	results.put(POSTS, null);
