@@ -48,23 +48,23 @@ public class GoogleBuzzShares implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of times users have shared the page on Google Buzz.
-     * Commitment value is 1.8332
-     * Max. Ranking value is 50
+     * Commitment value is 1.0840
+     * Max. Ranking value is 47
      */
     static RankingType SHARES = new RankingType("buzz_shares", "Google Buzz Shares", "The number of times users have " +
-    		"shared the page on Google Buzz", 1.8332f, 50);
+    		"shared the page on Google Buzz", 1.0840f, 47, new int[]{0,1,1,2,3,5,9,18,47});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
   	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
         {
-            put("business", 1.1337f);
-            put("politics", 1.9666f);
-            put("entertainment", 1.5467f);
-            put("lifestyle", 1.8047f);
-            put("sports", 1.7416f);
-            put("technology", 1.0924f);
-            put("science", 1.6927f);
+            put("business", 0.8877f);
+            put("politics", 1.3110f);
+            put("entertainment", 1.1418f);
+            put("lifestyle", 1.0032f);
+            put("sports", 0.9684f);
+            put("technology", 0.8863f);
+            put("science", 1.1542f);
         }
     };
 
@@ -100,7 +100,7 @@ public class GoogleBuzzShares implements RankingService{
 	        ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
             if (json != null) {
 	        	int result = json.getJSONObject("data").getJSONObject("counts").getJSONArray(url).getJSONObject(0).getInt("count");
-	        	results.put(SHARES, (float) result);
+	        	results.put(SHARES, SHARES.normalize(result));
 	            LOGGER.trace("Google Buzz shares for " + url + " : " + result);
 	        } else {
             	results.put(SHARES, null);
@@ -142,7 +142,7 @@ public class GoogleBuzzShares implements RankingService{
 		        	for(String u : subUrls){
 		        		count = json.getJSONObject("data").getJSONObject("counts").getJSONArray(u).getJSONObject(0).getInt("count");
 		        		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-		            	result.put(SHARES, count);
+		            	result.put(SHARES, SHARES.normalize(count));
 		        		results.put(u, new Ranking(this, u, result, retrieved));
 		            	LOGGER.trace("Google Buzz shares for " + u + " : " + count);
 		            }

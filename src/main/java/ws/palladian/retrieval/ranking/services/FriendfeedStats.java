@@ -48,25 +48,25 @@ public class FriendfeedStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of entries posted on FriendFeed containing the given url.
-     * Commitment value is 1.8154
-     * Max. Ranking value is 3
+     * Commitment value is 0.9169
+     * Max. Ranking value is 2
      */
     static RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts", "The number of entries posted " +
-    		"on FriendFeed containing the given url.", 1.8154f, 3);
+    		"on FriendFeed containing the given url.", 0.9169f, 2, new int[]{0,0,0,0,0,0,0,1,2});
     /** 
      * The number of likes for entries posted on FriendFeed containing the given url.
-     * Commitment value is 1.1346
-     * Max. Ranking value is 9
+     * Commitment value is 0.9455
+     * Max. Ranking value is 8
      */
     static RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes", "The number of likes for entries " +
-    		"posted on FriendFeed containing the given url.", 1.1346f, 9);
+    		"posted on FriendFeed containing the given url.", 0.9455f, 8, new int[]{0,0,1,2,2,3,4,6,8});
     /** 
      * The number of comments for entries posted on FriendFeed containing the given url.
-     * Commitment value is 1.2836
+     * Commitment value is 1.0806
      * Max. Ranking value is 7
      */
     static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments", "The number of comments for " +
-    		"entries posted on FriendFeed containing the given url.", 1.2836f, 7);
+    		"entries posted on FriendFeed containing the given url.", 1.0806f, 7, new int[]{0,0,0,1,1,2,3,4,7});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
@@ -116,9 +116,9 @@ public class FriendfeedStats implements RankingService{
 	        			comments += post.getJSONArray("comments").length();
 	        		}
 	        	}
-	        	results.put(POSTS, (float) posts);
-	        	results.put(LIKES, (float) likes);
-	        	results.put(COMMENTS, (float) comments);
+	        	results.put(POSTS, POSTS.normalize(posts));
+	        	results.put(LIKES, LIKES.normalize(likes));
+	        	results.put(COMMENTS, COMMENTS.normalize(comments));
 	            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
 	        } else {
             	results.put(POSTS, null);

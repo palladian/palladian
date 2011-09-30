@@ -46,37 +46,37 @@ public class FacebookLinkStats implements RankingService {
     /** The ranking value types of this service **/
     /** 
      * The number of times Facebook users have "Liked" the page, or liked any comments or re-shares of this page.
-     * Commitment value is  1.1181
+     * Commitment value is  0.8947
      * Max. Ranking value is 120
      */
     static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes", "The number of times Facebook users " +
-    		"have \"Liked\" the page, or liked any comments or re-shares of this page.",  1.1181f, 120);
+    		"have \"Liked\" the page, or liked any comments or re-shares of this page.",  0.8947f, 120, new int[]{1,2,4,6,10,16,27,50,120});
     /** 
      * The number of times users have shared the page on Facebook.
-     * Commitment value is 1.1935
+     * Commitment value is 0.9455
      * Max. Ranking value is 130
      */
     static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have " +
-    		"shared the page on Facebook.", 1.1935f, 130);
+    		"shared the page on Facebook.", 0.9455f, 130, new int[]{1,2,4,7,11,18,30,55,130});
     /** 
      * The number of comments users have made on the shared story.
-     * Commitment value is 1.1939
-     * Max. Ranking value is 150
+     * Commitment value is 0.9383
+     * Max. Ranking value is 148
      */
     static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users " +
-    		"have made on the shared story.", 1.1939f, 150);
+    		"have made on the shared story.", 0.9383f, 148, new int[]{1,3,5,8,13,20,34,62,148});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
   	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
         {
-            put("business", 1.1586f);
-            put("politics", 1.2390f);
-            put("entertainment", 0.9546f);
-            put("lifestyle", 1.1207f);
-            put("sports", 1.3261f);
-            put("technology", 1.1297f);
-            put("science", 1.3313f);
+            put("business", 1.0413f);
+            put("politics", 1.1352f);
+            put("entertainment", 0.9020f);
+            put("lifestyle", 1.0086f);
+            put("sports", 1.1762f);
+            put("technology", 0.9608f);
+            put("science", 1.2185f);
         }
     };
 
@@ -104,9 +104,9 @@ public class FacebookLinkStats implements RankingService {
             ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
             
             if (json != null) {
-            	results.put(LIKES, (float) json.getInt("like_count"));
-            	results.put(SHARES, (float) json.getInt("share_count"));
-            	results.put(COMMENTS, (float) json.getInt("comment_count"));
+            	results.put(LIKES, LIKES.normalize(json.getInt("like_count")));
+            	results.put(SHARES, SHARES.normalize(json.getInt("share_count")));
+            	results.put(COMMENTS, COMMENTS.normalize(json.getInt("comment_count")));
             	LOGGER.trace("Facebook link stats for " + url + " : " + results);
             } else {
             	results.put(LIKES, null);
@@ -167,9 +167,9 @@ public class FacebookLinkStats implements RankingService {
 	        		shareCount = json.getJSONObject(i).getInt("share_count");
 	        		commentCount = json.getJSONObject(i).getInt("comment_count");
 	        		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-	            	result.put(LIKES, likeCount);
-	            	result.put(SHARES, shareCount);
-	            	result.put(COMMENTS, commentCount);
+	            	result.put(LIKES, LIKES.normalize(likeCount));
+	            	result.put(SHARES, SHARES.normalize(shareCount));
+	            	result.put(COMMENTS, COMMENTS.normalize(commentCount));
 	        		results.put(urls.get(i), new Ranking(this, urls.get(i), result, retrieved));
 	            	LOGGER.trace("Facebook link stats for " + urls.get(i) + " : " + result);
 	            }

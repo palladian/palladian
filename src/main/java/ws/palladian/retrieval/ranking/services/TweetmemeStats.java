@@ -44,30 +44,33 @@ public class TweetmemeStats implements RankingService{
     /** The ranking value types of this service **/
     /** 
      * The number of tweets mentioning this url.
-     * Commitment value is 1.4741
-     * Max. Ranking value is 130
+     * Commitment value is 1.0709
+     * Max. Ranking value is 132
      */
     static RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets", "The number of " +
-    		"tweets mentioning this url, derived from tweetmeme.", 1.4741f, 130);
+    		"tweets mentioning this url, derived from tweetmeme.", 1.0709f, 132, new int[]{2,3,5,8,12,18,30,54,132});
     /** 
      * The number of comments tweets mentioning this url.
-     * Commitment value is 2.2692
+     * Commitment value is 1.5128
      * Max. Ranking value is 3
+     * 
+     * This RankingType is not used at the moment
+     *
      */
-    static RankingType COMMENTS = new RankingType("tweetmeme_comments", "Tweetmeme comments", "The number of " +
-    		"comments on tweetmeme for this url.", 2.2692f, 3);
-
+    /*static RankingType COMMENTS = new RankingType("tweetmeme_comments", "Tweetmeme comments", "The number of " +
+    		"comments on tweetmeme for this url.", 1.5128f, 3, new int[]{0,0,0,0,0,1,1,2,3});
+     */
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
   	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
         {
-            put("business", 1.4387f);
-            put("politics", 1.6175f);
-            put("entertainment", 1.1873f);
-            put("lifestyle", 1.8908f);
-            put("sports", 1.0500f);
-            put("technology", 0.8715f);
-            put("science", 1.8849f);
+            put("business", 1.1753f);
+            put("politics", 1.2564f);
+            put("entertainment", 0.9783f);
+            put("lifestyle", 1.1029f);
+            put("sports", 0.8025f);
+            put("technology", 0.8160f);
+            put("science", 1.3053f);
         }
     };
 
@@ -95,23 +98,25 @@ public class TweetmemeStats implements RankingService{
             if(json != null) {
             	if(json.has("story")) {
 	            	int count = json.getJSONObject("story").getInt("url_count");
-	            	int comments = json.getJSONObject("story").getInt("comment_count");
-	            	results.put(TWEETS, (float) count);
-	            	results.put(COMMENTS, (float) comments);
+	            	//int comments = json.getJSONObject("story").getInt("comment_count");
+	            	results.put(TWEETS, TWEETS.normalize(count));
+	            	//results.put(COMMENTS, COMMENTS.normalize(comments));
 	                LOGGER.trace("Tweetmeme stats for " + url + " : " + results);
             	} else if(json.has("comment")) {
             		if(json.getString("comment").equals("unable to resolve URL")) {
             			results.put(TWEETS, 0f);
-    	            	results.put(COMMENTS, 0f);
+    	            	//results.put(COMMENTS, 0f);
     	                LOGGER.trace("Tweetmeme stats for " + url + " : " + results);
             		}
             	} else {
                 	results.put(TWEETS, null);
+                	//results.put(COMMENTS, null);
                 	LOGGER.trace("Tweetmeme stats for " + url + "could not be fetched");
                     checkBlocked();
                 }
             } else {
             	results.put(TWEETS, null);
+            	//results.put(COMMENTS, null);
             	LOGGER.trace("Tweetmeme stats for " + url + "could not be fetched");
                 checkBlocked();
             }
@@ -199,7 +204,7 @@ public class TweetmemeStats implements RankingService{
 	public List<RankingType> getRankingTypes() {
 		ArrayList<RankingType> types = new ArrayList<RankingType>();
 		types.add(TWEETS);
-		types.add(COMMENTS);
+		//types.add(COMMENTS);
 		return types;
 	}
 	/**
@@ -209,7 +214,7 @@ public class TweetmemeStats implements RankingService{
 	 */
 	public RankingType getRankingType(String id) {
 		if(id.equals(TWEETS.getId())) return TWEETS;
-		else if(id.equals(COMMENTS.getId())) return COMMENTS;
+		//else if(id.equals(COMMENTS.getId())) return COMMENTS;
 		return null;
 	}
 	/**

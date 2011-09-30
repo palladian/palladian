@@ -64,6 +64,21 @@ public class Ranking {
 	}
 
 	/**
+	 * Get the ranking score (average weighted ranking of all values)
+	 * of this ranking. Set topicWeighted to true to also use topic
+	 * specific weighting.
+	 *  
+	 * @return the ranking score between 0 and 1
+	 * 
+	 */
+	public float getRankingScore(boolean topicWeighted) {
+		float score = getWeightedRankingValueSum()/values.size();
+		if(topicWeighted && this.topic.length()>0) 
+			score = score*this.service.getTopicWeighting(this.topic);
+		if(score > 1) score = 1;
+		return score;
+	}
+	/**
 	 * Get the total of all ranking values
 	 * associated with this ranking
 	 * 
@@ -73,8 +88,7 @@ public class Ranking {
 	public float getRankingValueSum() {
 		float sum = 0;
 		for(RankingType rt:values.keySet()) {
-			if(values.get(rt) < rt.getMaxRanking()) sum += values.get(rt)/rt.getMaxRanking();
-			else sum += 1;
+			sum += values.get(rt);
 		}
 		return sum;
 	}
@@ -90,8 +104,8 @@ public class Ranking {
 	public float getWeightedRankingValueSum() {
 		float weightedSum = 0;
 		for(RankingType rt:values.keySet()) {
-			if(values.get(rt) < rt.getMaxRanking()) weightedSum += rt.getCommittment()*values.get(rt)/rt.getMaxRanking();
-			else weightedSum += rt.getCommittment();
+			if(rt.getCommittment()*values.get(rt) < 1) weightedSum += rt.getCommittment()*values.get(rt);
+			else weightedSum += 1;
 		}
 		return weightedSum;
 	}

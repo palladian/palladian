@@ -55,23 +55,23 @@ public class BitlyClicks implements RankingService {
      /** The ranking value types of this service **/
     /** 
      * The number of times users have clicked the shortened version of this url.
-     * Commitment value is 1.5008
+     * Commitment value is 0.9999
      * Max. Ranking value is 1200
      */
-    static RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks", "The number of times users " +
-    		"have clicked the shortened version of this url.", 1.5008f, 1200);
+	static RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks", "The number of times users " +
+    		"have clicked the shortened version of this url.", 0.9999f, 1200, new int[]{2,4,7,14,26,47,103,330,1200});
 
     /** The topic weighting coefficients for this service **/
     @SuppressWarnings("serial")
 	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
         {
-            put("business", 1.5719f);
-            put("politics", 1.4679f);
-            put("entertainment", 1.0187f);
-            put("lifestyle", 1.5524f);
-            put("sports", 1.3263f);
-            put("technology", 1.1637f);
-            put("science", 1.9189f);
+            put("business", 1.0586f);
+            put("politics", 1.1476f);
+            put("entertainment", 0.8398f);
+            put("lifestyle", 0.9432f);
+            put("sports", 0.9961f);
+            put("technology", 0.9154f);
+            put("science", 1.1427f);
         }
     };
     
@@ -124,7 +124,7 @@ public class BitlyClicks implements RankingService {
                     ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
                     if (checkJsonResponse(json)) {
                     	int result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0).getInt("global_clicks");
-                    	results.put(CLICKS, (float) result);
+                    	results.put(CLICKS, CLICKS.normalize(result));
                     	LOGGER.trace("Bit.ly clicks for " + url + " : " + result);
                     } else {
                     	results.put(CLICKS, null);
@@ -204,7 +204,7 @@ public class BitlyClicks implements RankingService {
 		                    	Map<RankingType, Float> result = new HashMap<RankingType, Float>();
 		                    	if (click.has("global_clicks")) {
 		    	                    count = click.getInt("global_clicks");
-		    		            	result.put(CLICKS, count);
+		    		            	result.put(CLICKS, CLICKS.normalize(count));
 		    		            	// find url for the current hash and add ranking
 		    		            	boolean found = false;
 		    		            	String hash = click.getString("global_hash");
