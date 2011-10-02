@@ -359,7 +359,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         } finally {
             close(connection, ps, rs);
         }

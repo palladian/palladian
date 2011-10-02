@@ -6,8 +6,6 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import ws.palladian.helper.nlp.Tokenizer;
-
 /**
  * Test cases for the Tokenizer class.
  * 
@@ -158,5 +156,12 @@ public class TokenizerTest extends TestCase {
         assertEquals(2, sentences.size());
         assertEquals("Dies    ist  ein toller Test.", sentences.get(0));
         assertEquals("Hallo Tag wird toll", sentences.get(1));
+
+        inputText = "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals(
+                "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg",
+                sentences.get(0));
     }
 }

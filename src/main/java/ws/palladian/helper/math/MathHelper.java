@@ -35,7 +35,7 @@ public class MathHelper {
      * @param setB The second set.
      * @return The jaccard similarity in the range [0,1].
      */
-    public static double calculateJaccardSimilarity(Set<String> setA, Set<String> setB) {
+    public static double computeJaccardSimilarity(Set<String> setA, Set<String> setB) {
         double similarity = -1;
 
         Set<String> aUnionB = new HashSet<String>();
@@ -57,6 +57,38 @@ public class MathHelper {
         return similarity;
     }
     
+    public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
+        double similarity = 0.0;
+        
+        double dotProduct = computeDotProduct(vector1, vector2);
+        double magnitude1 = computeMagnitude(vector1);
+        double magnitude2 = computeMagnitude(vector2);
+
+        similarity = dotProduct / (magnitude1 * magnitude2);
+        
+        return similarity;
+    }
+
+    public static double computeDotProduct(Double[] vector1, Double[] vector2) {
+        double dotProduct = 0.0;
+
+        for (int i = 0; i < Math.min(vector1.length, vector2.length); i++) {
+            dotProduct += vector1[i] * vector2[i];
+        }
+
+        return dotProduct;
+    }
+
+    public static double computeMagnitude(Double[] vector) {
+        double magnitude = 0.0;
+
+        for (Double double1 : vector) {
+            magnitude += double1 * double1;
+        }
+
+        return Math.sqrt(magnitude);
+    }
+
     /**
      * <p>Calculate the confidence interval with a given confidence level and mean.</p>
      * 
@@ -79,7 +111,7 @@ public class MathHelper {
         
         double chosenZ = zValues.get(confidenceLevel);
         
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / ((double)samples - 1.0));        
+        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / (samples - 1.0));        
         
         return confidenceInterval;
     }
@@ -559,7 +591,7 @@ public class MathHelper {
                 relPrSum += prAtK;
             }
 
-            double ap = relPrSum / (double) numRelevant;
+            double ap = relPrSum / numRelevant;
 
             result[k][0] = prAtK;
             result[k][1] = ap;

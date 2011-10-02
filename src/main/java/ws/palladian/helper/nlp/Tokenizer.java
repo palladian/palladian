@@ -2,12 +2,18 @@ package ws.palladian.helper.nlp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.entity.ner.Annotation;
+import ws.palladian.extraction.entity.ner.Annotations;
+import ws.palladian.extraction.entity.ner.UrlTagger;
 import ws.palladian.helper.FileHelper;
 
 /**
@@ -200,6 +206,18 @@ public class Tokenizer {
      */
     public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
 
+        // recognize URLs so we don't break them
+        UrlTagger urlTagger = new UrlTagger();
+        Annotations taggedUrls = urlTagger.tagUrls(inputText);
+        int uCount = 1;
+        Map<String, String> urlMapping = new HashMap<String, String>();
+        for (Annotation annotation : taggedUrls) {
+            String replacement = "URL" + uCount;
+            inputText = inputText.replace(annotation.getEntity(), replacement);
+            urlMapping.put(replacement, annotation.getEntity());
+            uCount++;
+        }
+
         List<String> sentences = new ArrayList<String>();
 
         Pattern pattern = Pattern
@@ -239,13 +257,20 @@ public class Tokenizer {
             sentences = realSentences;
         }
 
-        return sentences;
+        // replace URLs back
+        List<String> sentencesReplacedUrls = new ArrayList<String>();
+        for (String sentence : sentences) {
+            for (Entry<String, String> entry : urlMapping.entrySet()) {
+                sentence = sentence.replace(entry.getKey(), entry.getValue());
+            }
+            sentencesReplacedUrls.add(sentence);
+        }
+
+        return sentencesReplacedUrls;
     }
 
     public static List<String> getSentences(String inputText) {
-
         return getSentences(inputText, false);
-
     }
 
     /**

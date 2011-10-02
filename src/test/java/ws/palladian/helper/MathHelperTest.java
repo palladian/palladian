@@ -39,6 +39,17 @@ public class MathHelperTest {
     }
 
     @Test
+    public void testComputeCosineSimilarity() {
+
+        Double[] vector1 = {10.0, 50.0};
+        Double[] vector2 = {8.0, 66.0};
+
+        // System.out.println(MathHelper.computeCosineSimilarity(vector1, vector2));
+
+        Assert.assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3));
+    }
+
+    @Test
     public void testStandardDeviation() {
         // see Wikipedia: http://en.wikipedia.org/wiki/Standard_deviation
         TreeSet<Long> values = new TreeSet<Long>();
@@ -80,7 +91,7 @@ public class MathHelperTest {
         setB.add("2");
         setB.add("3");
         setB.add("6");
-        Assert.assertEquals(0.6, MathHelper.calculateJaccardSimilarity(setA, setB));
+        Assert.assertEquals(0.6, MathHelper.computeJaccardSimilarity(setA, setB));
 
         setA.clear();
         setB.clear();
@@ -92,7 +103,7 @@ public class MathHelperTest {
         setB.add("2");
         setB.add("3");
         setB.add("4");
-        Assert.assertEquals(1.0, MathHelper.calculateJaccardSimilarity(setA, setB));
+        Assert.assertEquals(1.0, MathHelper.computeJaccardSimilarity(setA, setB));
 
         setA.clear();
         setB.clear();
@@ -104,7 +115,7 @@ public class MathHelperTest {
         setB.add("6");
         setB.add("7");
         setB.add("8");
-        Assert.assertEquals(0.0, MathHelper.calculateJaccardSimilarity(setA, setB));
+        Assert.assertEquals(0.0, MathHelper.computeJaccardSimilarity(setA, setB));
 
     }
 
