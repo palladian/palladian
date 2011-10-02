@@ -16,7 +16,7 @@ public class UrlTagger {
 	public static final String URI_TAG_NAME = "URI";
 	
 	/** The URL regular expression. */
-	private static final String URL_REGEXP = "(http://|www\\.).*?(?=\\s|$)";
+    private static final String URL_REGEXP = "(http://|www\\.).*?(?=[.,;?!]?\\s|[.,;?!]?$)";
 
 	private final Pattern urlPattern;
 
