@@ -18,15 +18,11 @@ public class WebSearcherManager {
 
     // extracting knowledge from other sources (xml, rdf, owl, rss etc.)
     private final static WebSearcherManager INSTANCE = new WebSearcherManager();
-    @Deprecated
-    public static final int YAHOO = 1;
     public static final int GOOGLE = 2;
     public static final int HAKIA = 4;
-    public static final int YAHOO_BOSS = 5;
     public static final int BING = 6;
     public static final int TWITTER = 7;
     public static final int GOOGLE_BLOGS = 8;
-    public static final int TEXTRUNNER = 9;
     public static final int YAHOO_BOSS_NEWS = 10;
     public static final int GOOGLE_NEWS = 11;
     public static final int HAKIA_NEWS = 12;
@@ -108,10 +104,6 @@ public class WebSearcherManager {
      */
     public int getRequestCount(int source) {
         switch (source) {
-            case YAHOO:
-                return numberOfYahooRequests;
-            case YAHOO_BOSS:
-                return numberOfYahooRequests;
             case GOOGLE:
                 return numberOfGoogleRequests;
             case HAKIA:
@@ -122,8 +114,6 @@ public class WebSearcherManager {
                 return numberOfTwitterRequests;
             case GOOGLE_BLOGS:
                 return numberOfGoogleBlogsRequests;
-            case TEXTRUNNER:
-                return numberOfTextRunnerRequests;
             case CLUEWEB:
                 return numberOfClueWebRequests;
         }
@@ -138,12 +128,6 @@ public class WebSearcherManager {
      */
     public void addRequest(int source) {
         switch (source) {
-            case YAHOO:
-                numberOfYahooRequests++;
-                break;
-            case YAHOO_BOSS:
-                numberOfYahooRequests++;
-                break;
             case GOOGLE:
                 numberOfGoogleRequests++;
                 break;
@@ -158,9 +142,6 @@ public class WebSearcherManager {
                 break;
             case GOOGLE_BLOGS:
                 numberOfGoogleBlogsRequests++;
-                break;
-            case TEXTRUNNER:
-                numberOfTextRunnerRequests++;
                 break;
             case CLUEWEB:
                 numberOfClueWebRequests++;
@@ -198,22 +179,16 @@ public class WebSearcherManager {
      */
     public static String getName(int source) {
         switch (source) {
-            case YAHOO:
-                return "Yahoo!";
             case GOOGLE:
                 return "Google";
             case HAKIA:
                 return "Hakia";
-            case YAHOO_BOSS:
-                return "Yahoo! Boss";
             case BING:
                 return "Bing";
             case TWITTER:
                 return "Twitter";
             case GOOGLE_BLOGS:
                 return "Google Blogs";
-            case TEXTRUNNER:
-                return "TextRunner";
             case YAHOO_BOSS_NEWS:
                 return "Yahoo! Boss News";
             case GOOGLE_NEWS:
@@ -278,7 +253,7 @@ public class WebSearcherManager {
         queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
         queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
         // queryString = "top speed of the Bugatti Veyron is";
-        new WebSearcher().getURLs(queryString, WebSearcherManager.YAHOO, true);
+        new WebSearcher().getURLs(queryString, WebSearcherManager.BING, true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
         // true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,

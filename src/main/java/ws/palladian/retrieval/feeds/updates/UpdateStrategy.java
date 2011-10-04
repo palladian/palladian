@@ -52,10 +52,11 @@ public abstract class UpdateStrategy {
     abstract public String getName();
 
     /**
+     * <p>
      * What is the lowest allowed interval (in minutes) in which feeds should be read (independent of checking mode). -1
-     * = no lowest
-     * interval. For example, 10 means that the feed reading frequency is maximum every 10 minutes, so it can never be
-     * read every 9 minutes or lower.
+     * = no lowest interval. For example, 10 means that the feed reading frequency is maximum every 10 minutes, so it
+     * can never be read every 9 minutes or lower.
+     * </p>
      * 
      * @param lowestCheckInterval The lowestCheckInterval to set.
      */
@@ -72,9 +73,11 @@ public abstract class UpdateStrategy {
     }
 
     /**
+     * <p>
      * What is the highest allowed interval in which feeds should be read (independent of checking mode). -1 = no
      * highest interval. For example, 100 means that the feed reading frequency is minimum every 100 minutes, so it can
      * never be read every 101 minutes or higher (at least every 100 minutes).
+     * </p>
      * 
      * @param highestCheckInterval The highestCheckInterval to set.
      */
@@ -91,7 +94,7 @@ public abstract class UpdateStrategy {
     }
 
     /**
-     * Check whether the computed highest check interval complies with the allowed highestCheckInterval.
+     * <p>Check whether the computed highest check interval complies with the allowed highestCheckInterval.</p>
      * 
      * @param updateInterval The computed highestCheckInterval.
      * @return The computed interval if it is in the limit.

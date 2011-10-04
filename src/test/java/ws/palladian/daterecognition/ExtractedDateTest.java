@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.GregorianCalendar;

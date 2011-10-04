@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTTPHelper;
+import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -222,9 +222,9 @@ class DatasetProcessingAction extends FeedProcessingAction {
         pollMetaInfo.setFeedID(feed.getId());
         pollMetaInfo.setPollTimestamp(feed.getLastPollTime());
         pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
-        pollMetaInfo.setHttpDate(HTTPHelper.getDateFromHeader(httpResult, "Date", true));
-        pollMetaInfo.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified", false));
-        pollMetaInfo.setHttpExpires(HTTPHelper.getDateFromHeader(httpResult, "Expires", false));
+        pollMetaInfo.setHttpDate(HttpHelper.getDateFromHeader(httpResult, "Date", true));
+        pollMetaInfo.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
+        pollMetaInfo.setHttpExpires(HttpHelper.getDateFromHeader(httpResult, "Expires", false));
         pollMetaInfo.setNewestItemTimestamp(feed.getLastFeedEntry());
         pollMetaInfo.setNumberNewItems(newItems);
         pollMetaInfo.setWindowSize(feed.getWindowSize());

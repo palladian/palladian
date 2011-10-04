@@ -1,12 +1,9 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
@@ -20,15 +17,13 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
  * @author Sandro Reichert
  * 
  */
-public class MAVStrategyDatasetCreation extends UpdateStrategy {
+public class MavStrategyDatasetCreation extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MAVStrategyDatasetCreation.class);
+    private static final Logger LOGGER = Logger.getLogger(MavStrategyDatasetCreation.class);
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
-
-        List<FeedItem> entries = feed.getItems();
 
         int minCheckInterval = feed.getUpdateInterval();
         // int maxCheckInterval = feed.getUpdateInterval();
@@ -93,12 +88,14 @@ public class MAVStrategyDatasetCreation extends UpdateStrategy {
     }
 
     /**
+     * <p>
      * Check whether the computed highest check interval complies with the allowed highest check interval. If
      * getHighestUpdateInterval() < updateInterval is true, we return the highest check interval, but we subtract a
      * random offset to the default check time to avoid a peak in the number of feeds that have exactly the same update
-     * interval (in our experiments, more than 10.000 feeds got the default check time)
-     * If updateInterval is shorter than the allowed lowest update interval, we return the lowest. Here, we do nor add a
-     * random offset since these feeds need to be polled as soon as possible.
+     * interval (in our experiments, more than 10.000 feeds got the default check time) If updateInterval is shorter
+     * than the allowed lowest update interval, we return the lowest. Here, we do nor add a random offset since these
+     * feeds need to be polled as soon as possible.
+     * </p>
      * 
      * @param updateInterval The computed highestCheckInterval.
      * @return The computed interval if it is in the limit.

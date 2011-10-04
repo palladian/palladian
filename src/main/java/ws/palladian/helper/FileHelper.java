@@ -44,7 +44,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -235,7 +235,7 @@ public class FileHelper {
 
         if (stripTags) {
             contents = StringEscapeUtils.unescapeHtml(contents);
-            contents = HTMLHelper.stripHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
+            contents = HtmlHelper.stripHtmlTags(contents, true, false, false, false); // TODO remove JS, CSS,
             // comments and merge?
             return contents;
         }

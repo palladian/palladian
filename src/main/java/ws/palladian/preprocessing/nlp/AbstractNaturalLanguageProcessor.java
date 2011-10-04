@@ -1,12 +1,14 @@
 package ws.palladian.preprocessing.nlp;
 
-import ws.palladian.extraction.entity.ner.Annotations;
-import ws.palladian.extraction.entity.ner.NamedEntityRecognizer;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
+import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
+import ws.palladian.preprocessing.nlp.phrasechunking.AbstractPhraseChunker;
+import ws.palladian.preprocessing.nlp.pos.PosTagger;
+import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 
 /**
- * The NaturalLanguageProcessor holds functionality from the field of natural
- * language processing, such as a <code>NamedEntityRecognizer</code>, <code>POSTagger</code> and <code>Parser</code>.
+ * <p>The NaturalLanguageProcessor holds functionality from the field of natural language processing, such as a <code>NamedEntityRecognizer</code>, <code>POSTagger</code> and <code>Parser</code>.</p>
  * 
  * @author Martin Wunderwald
  */

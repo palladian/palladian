@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.MathHelper;
@@ -14,12 +15,12 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * An evaluator for the FeedReader.
+ * <p>An evaluator for the FeedReader.</p>
  * 
  * @author David Urbansky
  * 
@@ -257,7 +258,7 @@ public class FeedReaderEvaluator {
         FeedReaderEvaluator.benchmarkSample = benchmarkSample;
 
         UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
-                new MAVUpdateStrategy(), new PostRateUpdateStrategy() };
+                new MavUpdateStrategy(), new PostRateUpdateStrategy() };
 
         Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
@@ -292,7 +293,7 @@ public class FeedReaderEvaluator {
 
                     setBenchmarkMode(mode);
 
-                    FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+                    FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
                     fc.setUpdateStrategy(strategy, false);
 
                     LOGGER.info("start evaluation for strategy " + strategy + " (" + checkInterval + "min), policy "
@@ -323,13 +324,13 @@ public class FeedReaderEvaluator {
 
         UpdateStrategy updateStrategy = new FixUpdateStrategy();
         ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
-        updateStrategy = new MAVUpdateStrategy();
+        updateStrategy = new MavUpdateStrategy();
         updateStrategy = new PostRateUpdateStrategy();
         // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
 
         FeedReaderEvaluator.benchmarkSample = 100;
 
-        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
         fc.setUpdateStrategy(updateStrategy, true);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);

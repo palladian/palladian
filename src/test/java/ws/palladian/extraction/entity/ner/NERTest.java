@@ -5,14 +5,17 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.ner.tagger.IllinoisLbjNER;
-import ws.palladian.extraction.entity.ner.tagger.JulieNER;
-import ws.palladian.extraction.entity.ner.tagger.LingPipeNER;
-import ws.palladian.extraction.entity.ner.tagger.OpenNLPNER;
-import ws.palladian.extraction.entity.ner.tagger.PalladianNer;
-import ws.palladian.extraction.entity.ner.tagger.PalladianNer.LanguageMode;
-import ws.palladian.extraction.entity.ner.tagger.StanfordNER;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
+import ws.palladian.preprocessing.nlp.ner.FileFormatParser;
+import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
+import ws.palladian.preprocessing.nlp.ner.tagger.IllinoisLbjNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.JulieNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.LingPipeNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.OpenNLPNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.StanfordNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer.LanguageMode;
 
 public class NERTest {
 

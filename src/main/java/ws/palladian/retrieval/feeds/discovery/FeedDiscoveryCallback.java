@@ -12,10 +12,10 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 
 /**
- * This class is used as a callback to automatically detect news feeds on pages which are downloaded with the
+ * <p>This class is used as a callback to automatically detect news feeds on pages which are downloaded with the
  * {@link DocumentRetriever}. Discovered feed URLs are written into a text file. This is singleton as we have
  * potentially multiple DocumentRetriever instances, but writing to the list must be coordinated. See feeds.conf for
- * options concerning the discovery.
+ * options concerning the discovery.</p>
  * 
  * @author Philipp Katz
  * 

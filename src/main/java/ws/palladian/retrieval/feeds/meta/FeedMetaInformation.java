@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 /**
- * Represents MetaInformation about a Feed. Used for evaluation and statistical purposes.
+ * <p>Represents MetaInformation about a Feed. Used for evaluation and statistical purposes.</p>
  * 
  * @author Philipp Katz
  * @author Sandro Reichert

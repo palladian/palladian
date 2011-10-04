@@ -6,8 +6,8 @@ import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.DateGetterHelper;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;
 
 /**
@@ -16,10 +16,10 @@ import ws.palladian.retrieval.HttpResult;
  * @author Sandro Reichert
  * 
  */
-public class HTTPHelper {
+public class HttpHelper {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(HTTPHelper.class);
+    public static final Logger LOGGER = Logger.getLogger(HttpHelper.class);
 
     /**
      * Get a date from http header. According to the HTTP specification [RFC2616, 14.18], the date must be in RFC 1123

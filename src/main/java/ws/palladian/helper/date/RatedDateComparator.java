@@ -2,9 +2,9 @@ package ws.palladian.helper.date;
 
 import java.util.Comparator;
 
-import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.dates.DateType;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.DateType;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 
 /**
  * Compare rated dates.<br>

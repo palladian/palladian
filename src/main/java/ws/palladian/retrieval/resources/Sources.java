@@ -5,11 +5,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 /**
- * A set of sources.
+ * <p>A set of sources.</p>
  * 
  * @author David Urbansky
- * 
- * @param <S>
  */
 public class Sources<S> extends HashSet<Source> implements Serializable {
 

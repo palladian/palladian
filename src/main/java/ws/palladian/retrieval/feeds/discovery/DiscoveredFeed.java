@@ -1,7 +1,8 @@
 package ws.palladian.retrieval.feeds.discovery;
 
 /**
- * Represents a feed which was found on a web page.
+ * <p>Represents a feed which was found on a Web page.</p>
+ * 
  * @author Philipp Katz
  */
 public class DiscoveredFeed {

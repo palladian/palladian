@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.technique.ContentDateGetter;
+import ws.palladian.extraction.date.DateGetterHelper;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.technique.ContentDateGetter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -109,7 +110,7 @@ public class ContentDateGetterTest {
 		}
 		System.out.println(text.length());
 		
-		ArrayList<ContentDate> newDates = DateGetterHelper.findALLDates(text);
+		List<ContentDate> newDates = DateGetterHelper.findAllDates(text);
 		HashMap<String, Integer> dateMap = new HashMap<String, Integer>(); 
 		System.out.println(newDates.size());
 		for(int i=0; i< newDates.size(); i++){

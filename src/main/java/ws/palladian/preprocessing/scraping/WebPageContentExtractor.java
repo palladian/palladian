@@ -8,9 +8,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
+/**
+ * <p>The abstract class for Web page content extraction. The "content" is the main node with the contents of the page but not the navigation, foot etc.</p>
+ * @author David Urbansky
+ *
+ */
 public abstract class WebPageContentExtractor {
 
     private static final Logger LOGGER = Logger.getLogger(WebPageContentExtractor.class);
@@ -23,9 +28,9 @@ public abstract class WebPageContentExtractor {
     }
 
     /**
-     * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
+     * <p>Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
      * convenient concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument(...).getResultDocument();</code>
+     * <code>new PageContentExtractor().setDocument(...).getResultDocument();</code></p>
      * 
      * @param document
      * @return
@@ -134,7 +139,7 @@ public abstract class WebPageContentExtractor {
         } catch (PageContentExtractorException e) {
             LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
         }
-        return HTMLHelper.documentToReadableText(getResultNode());
+        return HtmlHelper.documentToReadableText(getResultNode());
     }
 
 
@@ -150,7 +155,5 @@ public abstract class WebPageContentExtractor {
     public abstract String getResultTitle();
     
     public abstract String getExtractorName();
-
-
 
 }

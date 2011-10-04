@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import weka.core.Attribute;
 import weka.core.Instance;
-import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.technique.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 public class DateWekaInstanceFactoryTest {

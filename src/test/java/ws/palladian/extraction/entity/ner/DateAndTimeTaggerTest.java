@@ -5,6 +5,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
+import ws.palladian.preprocessing.nlp.ner.DateAndTimeTagger;
 
 public class DateAndTimeTaggerTest {
 

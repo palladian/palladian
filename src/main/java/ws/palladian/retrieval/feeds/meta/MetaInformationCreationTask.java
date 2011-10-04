@@ -1,6 +1,3 @@
-/**
- * Created on: 25.10.2010 18:24:49
- */
 package ws.palladian.retrieval.feeds.meta;
 
 import java.io.IOException;
@@ -11,9 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,15 +27,14 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * The MetaInformationCreator gets information about last modified since and
- * ETag support as well as information about the header size.
+ * <p>The MetaInformationCreator gets information about last modified since and
+ * ETag support as well as information about the header size.</p>
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
  * @author Sandro Reichert
- * @version 1.0
- * @since 1.0
+ *
  * @deprecated Code refactored and moved to {@link MetaInformationExtractor} which is periodically called by
  *             {@link FeedTask}.
  */
@@ -85,22 +78,6 @@ public final class MetaInformationCreationTask implements Runnable {
         }
         return ret;
     }
-
-    private int getFeedResponseSize(final HttpURLConnection connection) {
-        int ret = 0;
-        try {
-            if (HttpURLConnection.HTTP_NOT_MODIFIED == connection.getResponseCode()) {
-                ret = new Integer((connection.getContentLength() == -1 ? 0 : connection.getContentLength())
-                        + sumHeaderFieldSize(connection.getHeaderFields()));
-            } else {
-                ret = new Integer(-1);
-            }
-        } catch (IOException e) {
-            LOGGER.error("Could not read header fields");
-        }
-        return ret;
-    }
-
 
     private boolean getFeedSupportsPubSubHubBub(final URLConnection connection) throws IOException {
         if (currentFeedContent != null && currentFeedContent.contains("rel=\"hub\"")) {
@@ -305,25 +282,5 @@ public final class MetaInformationCreationTask implements Runnable {
 //        }
 //        return result;
 //    }
-
-    /**
-     * @param headerFields
-     *            The header fields from an http connection.
-     * @return The summed up size of all header fields in bytes
-     */
-    private int sumHeaderFieldSize(Map<String, List<String>> headerFields) {
-        Integer ret = 0;
-        for (Entry<String, List<String>> entry : headerFields.entrySet()) {
-            String key = entry.getKey();
-            if (key != null) {
-                byte[] bytes = key.getBytes();
-                ret += bytes.length;
-            }
-            for (String value : entry.getValue()) {
-                ret += value.getBytes().length;
-            }
-        }
-        return ret;
-    }
 
 }

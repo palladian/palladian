@@ -11,7 +11,7 @@ import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
 import sun.net.www.protocol.http.HttpURLConnection;
-import ws.palladian.helper.HTTPHelper;
+import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -161,7 +161,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
                     // store http header information
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
-                    feed.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified", false));
+                    feed.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
 
                     FeedParser feedParser = new RomeFeedParser();
                     Feed downloadedFeed = null;
@@ -184,7 +184,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         doFinalStuff(timer, storeMetadata);
                         return getResult();
                     }
-                    Date httpDate = HTTPHelper.getDateFromHeader(httpResult, "Date", true);
+                    Date httpDate = HttpHelper.getDateFromHeader(httpResult, "Date", true);
                     feed.setHttpDateLastPoll(httpDate);
                     for (FeedItem item : downloadedFeed.getItems()) {
                         item.setHttpDate(httpDate);

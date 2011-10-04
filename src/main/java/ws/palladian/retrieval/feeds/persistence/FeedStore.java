@@ -7,7 +7,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
- * The FeedStore is an interface for feed stores such as databases or file indices.
+ * <p>The FeedStore is an interface for feed stores such as databases or file indices.</p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -16,7 +16,7 @@ import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 public interface FeedStore {
 
     /**
-     * Add a new feed if its feedURL does not yet exist.
+     * <p>Add a new feed if its feedURL does not yet exist.</p>
      * 
      * @param feed The feed to add.
      * @return true if feed was added successfully
@@ -24,7 +24,7 @@ public interface FeedStore {
     boolean addFeed(Feed feed);
 
     /**
-     * Update a feed if its feedURL already exists.
+     * <p>Update a feed if its feedURL already exists.</p>
      * 
      * @param feed The feed to update.
      * @return True if feed was updated successfully.
@@ -32,7 +32,7 @@ public interface FeedStore {
     boolean updateFeed(Feed feed);
 
     /**
-     * Update a feed if its feedURL already exists.
+     * <p>Update a feed if its feedURL already exists.</p>
      * 
      * @param feed The feed to update.
      * @param updateMetaInformation Specify whether the feed's meta information has to be updated or not.
@@ -42,7 +42,7 @@ public interface FeedStore {
     boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems);
 
     /**
-     * Update the feed's meta information only.
+     * <p>Update the feed's meta information only.</p>
      * 
      * @param feed The feed containing the meta information to update.
      * @return <code>true</code> if feed meta information was updated successfully.
@@ -50,14 +50,14 @@ public interface FeedStore {
     boolean updateMetaInformation(Feed feed);
 
     /**
-     * Get all feeds.
+     * <p>Get all feeds.</p>
      * 
      * @return A list of all feeds from the store.
      */
     List<Feed> getFeeds();
 
     /**
-     * Get a feed by its feedUrl.
+     * <p>Get a feed by its feedUrl.</p>
      * 
      * @param feedUrl
      * @return the Feed with specified feedUrl, <code>null</code> if Feed does not exist.
@@ -65,7 +65,7 @@ public interface FeedStore {
     Feed getFeedByUrl(String feedUrl);
 
     /**
-     * If it does not yet exist, add a {@link FeedItem} to an existing feed.
+     * <p>If it does not yet exist, add a {@link FeedItem} to an existing feed.</p>
      * 
      * @param feed
      * @param entry
@@ -73,7 +73,7 @@ public interface FeedStore {
     boolean addFeedItem(Feed feed, FeedItem item);
 
     /**
-     * Add the not yet existing {@link FeedItem}s to the specified Feed.
+     * <p>Add the not yet existing {@link FeedItem}s to the specified Feed.</p>
      * 
      * @param feed
      * @param items
@@ -82,7 +82,7 @@ public interface FeedStore {
     int addFeedItems(Feed feed, List<FeedItem> items);
 
     /**
-     * Get an entry for a specific feed by its rawId.
+     * <p>Get an entry for a specific feed by its rawId.</p>
      * 
      * @param feedId
      * @param rawId
@@ -93,8 +93,8 @@ public interface FeedStore {
     Feed getFeedByID(int feedID);
 
     /**
-     * Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
-     * names from the feed_entries table.
+     * <p>Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
+     * names from the feed_entries table.</p>
      * 
      * @param sqlQuery
      * @return

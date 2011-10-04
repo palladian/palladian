@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 import com.sun.syndication.io.XmlReader;
 
 /**
- * Parser for XML documents, which provides some additional sanitizing capabilities concerning illegal characters, etc.
+ * <p>Parser for XML documents, which provides some additional sanitizing capabilities concerning illegal characters, etc.</p>
  * 
  * @author Philipp Katz
  */

@@ -24,7 +24,7 @@ import ws.palladian.extraction.keyphrase.ControlledTaggerSettings.TaggingType;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -969,7 +969,7 @@ public class ControlledTagger extends KeyphraseExtractor {
 
         DocumentRetriever c = new DocumentRetriever();
         String result = c.getTextDocument("http://www.i-funbox.com/");
-        result = HTMLHelper.documentToReadableText(result, true);
+        result = HtmlHelper.documentToReadableText(result, true);
         tagger.getSettings().setTagCount(20);
         List<Keyphrase> extract = tagger.extract(result);
         System.out.println(extract);

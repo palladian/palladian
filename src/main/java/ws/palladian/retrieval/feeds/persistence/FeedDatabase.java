@@ -21,7 +21,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
- * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
+ * <p>The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.</p>
  * 
  * @author Philipp Katz
  * @author David Urbansky

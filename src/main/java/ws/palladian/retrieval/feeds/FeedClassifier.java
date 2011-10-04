@@ -16,7 +16,7 @@ import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * The FeedClassifier classifies a feed in terms of their update intervals.
+ * <p>The FeedClassifier classifies a feed in terms of their update intervals.</p>
  * 
  * @author David Urbansky
  * @author Sandro Reichert
@@ -182,14 +182,14 @@ public class FeedClassifier {
 
         FeedParser feedParser = new RomeFeedParser();
         Feed feed = new Feed();
-        DocumentRetriever crawler = new DocumentRetriever();
+        DocumentRetriever retriever = new DocumentRetriever();
 
         try {
             feed = feedParser.getFeed(feedURL);
         } catch (FeedParserException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
-            if (crawler.getResponseCode(feedURL) == 200) {
+            if (retriever.getResponseCode(feedURL) == 200) {
                 return CLASS_UNKNOWN;
             } else {
                 return CLASS_DEAD;

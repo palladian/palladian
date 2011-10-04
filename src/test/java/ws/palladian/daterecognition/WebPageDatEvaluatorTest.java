@@ -12,7 +12,8 @@ import org.junit.Test;
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.technique.ContentDateRater;
+import ws.palladian.extraction.date.WebPageDateEvaluator;
+import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.helper.Cache;
 
 /**

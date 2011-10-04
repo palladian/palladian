@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.preprocessing.nlp.OpenNLPParser;
+import ws.palladian.preprocessing.nlp.OpenNlpParser;
 
 /**
  * <p>
@@ -51,7 +51,7 @@ public class ParserTest {
     @Test
     @Ignore
     public void testOpenNLPParser() throws Exception {
-        OpenNLPParser objectOfClassUnderTest = new OpenNLPParser();
+        OpenNlpParser objectOfClassUnderTest = new OpenNlpParser();
         objectOfClassUnderTest.loadDefaultModel();
         objectOfClassUnderTest.parse(fixture);
         Parse result = objectOfClassUnderTest.getParse();

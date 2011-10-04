@@ -81,7 +81,7 @@ public class ContentExtractionEvaluation {
      */
     public static String normalizeString(String input) {
 
-        input = StringHelper.removeProtectedSpace(input);
+        input = StringHelper.replaceProtectedSpace(input);
         input = input.replace("\n", " ");
         input = input.replaceAll(" {2,}", " ");
         return input;

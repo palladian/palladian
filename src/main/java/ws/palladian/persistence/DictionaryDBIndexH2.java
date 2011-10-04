@@ -17,7 +17,7 @@ import ws.palladian.classification.CategoryEntry;
  * @author David Urbansky
  * 
  */
-public class DictionaryDBIndexH2 extends DictionaryIndex {
+public class DictionaryDbIndexH2 extends DictionaryIndex {
 
     // //////////////////database paramenters ////////////////////
     private Connection connection = null;
@@ -64,7 +64,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private boolean inMemoryMode = false;
 
-    public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword, String indexPath) {
+    public DictionaryDbIndexH2(String dbName, String dbUsername, String dbPassword, String indexPath) {
         setDbName(dbName);
         setDbUsername(dbUsername);
         setDbPassword(dbPassword);
@@ -664,7 +664,7 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
         // CategoryEntries read = db.read(yyy);
         // System.out.println(read);
 
-        DictionaryDBIndexH2 db = new DictionaryDBIndexH2("palladianLanguageJRCDictionary", "root", "", "");
+        DictionaryDbIndexH2 db = new DictionaryDbIndexH2("palladianLanguageJRCDictionary", "root", "", "");
         db.setIndexPath("C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC\\");
         PreparedStatement ps = db.connection.prepareStatement("SELECT id, word FROM DICTIONARY where WORD = 'eliki '");
         ResultSet runQuery = db.runQuery(ps);

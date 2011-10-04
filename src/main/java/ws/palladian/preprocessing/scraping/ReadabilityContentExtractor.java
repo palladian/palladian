@@ -27,11 +27,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-// TODO move to preprocessing package
-//
 // possible improvements:
 // TODO add frame handling? -> low priority
 // TODO paging detection + appending of all following pages ... I just discovered, that newer versions of the script
@@ -188,7 +186,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      */
     @Override
     public String getResultText() {
-        String result = HTMLHelper.documentToReadableText(getResultNode());
+        String result = HtmlHelper.documentToReadableText(getResultNode());
         return result;
     }
 
@@ -290,7 +288,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         // operate destructively, directly on the Document and we might need
         // multiple runs with different parameters.
         // -- Philipp.
-        Document cache = HTMLHelper.cloneDocument(document);
+        Document cache = HtmlHelper.cloneDocument(document);
         if (cache == null) {
             throw new PageContentExtractorException("caching the original document failed.");
         }
@@ -300,7 +298,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         // write Document's dump to disk, using time stamped file name
         if (isWriteDump()) {
             String filename = "dumps/pageContentExtractor" + System.currentTimeMillis() + ".xml";
-            HTMLHelper.writeXmlDump(cache, filename);
+            HtmlHelper.writeXmlDump(cache, filename);
             LOGGER.info("wrote dump to " + filename);
         }
 
@@ -407,9 +405,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         // this method is pretty simplified in comparison to the JavaScript
         // TODO handling of frames is missing -- but do we really still need this in 2010? (:
         // TODO Turn all double br's into p's
-        HTMLHelper.removeAll(document, Node.ELEMENT_NODE, "script");
-        HTMLHelper.removeAll(document, Node.ELEMENT_NODE, "style");
-        HTMLHelper.removeAll(document, Node.COMMENT_NODE);
+        HtmlHelper.removeAll(document, Node.ELEMENT_NODE, "script");
+        HtmlHelper.removeAll(document, Node.ELEMENT_NODE, "style");
+        HtmlHelper.removeAll(document, Node.COMMENT_NODE);
 
         // I did not port the addFootnotes functionality from r138 which converts
         // links to footnotes, as I don't think this makes much sense for our
@@ -555,7 +553,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             /* Turn all divs that don't have children block level elements into p's */
             if (node.getTagName().equalsIgnoreCase("div")) {
-                if (!DIV_TO_P_ELEMENTS_RE.matcher(HTMLHelper.getInnerXml(node)).find()) {
+                if (!DIV_TO_P_ELEMENTS_RE.matcher(HtmlHelper.getInnerXml(node)).find()) {
                     LOGGER.debug("Altering div to p");
                     document.renameNode(node, node.getNamespaceURI(), "p");
                     nodeIndex--;
@@ -673,7 +671,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          * that we removed, etc.
          **/
         // create result Document
-        Document result = HTMLHelper.createDocument();
+        Document result = HtmlHelper.createDocument();
         Element html = result.createElementNS("http://www.w3.org/1999/xhtml", "html");
         result.appendChild(html);
         Element articleContent = result.createElement("body");
@@ -1139,7 +1137,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 System.out.println(pageContentExtractor.getResultText());
 
                 if (outputfile != null) {
-                    HTMLHelper.writeXmlDump(pageContentExtractor.getResultNode(), outputfile);
+                    HtmlHelper.writeXmlDump(pageContentExtractor.getResultNode(), outputfile);
                 }
 
 

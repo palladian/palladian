@@ -5,8 +5,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.searchengine.HakiaDateGetter;
+import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.searchengine.HakiaDateGetter;
 
 public class HakiaDateGetterTEst {
     private static final Logger LOGGER = Logger.getLogger(HakiaDateGetterTEst.class);

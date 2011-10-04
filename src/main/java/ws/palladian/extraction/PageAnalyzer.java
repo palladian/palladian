@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -1361,7 +1361,7 @@ public class PageAnalyzer {
     public static String extractBodyContent(String pageContent, boolean textOnly) {
 
         String bodyContent = "";
-        List<String> tempList = HTMLHelper.getConcreteTags(pageContent, "body");
+        List<String> tempList = HtmlHelper.getConcreteTags(pageContent, "body");
 
         if (tempList.size() > 0) {
             bodyContent = tempList.get(0);
@@ -1379,7 +1379,7 @@ public class PageAnalyzer {
             boolean joinTagsAndRemoveNewlines = false;
 
             // Remove all tags, comments, JS and CSS from body
-            bodyContent = HTMLHelper.stripHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
+            bodyContent = HtmlHelper.stripHtmlTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
             bodyContent = bodyContent.replaceAll("&nbsp;", " ");
             bodyContent = bodyContent.replaceAll("&amp;", "&");
@@ -1442,11 +1442,11 @@ public class PageAnalyzer {
         DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url);
 
-        System.out.println(HTMLHelper.getXmlDump(document));
+        System.out.println(HtmlHelper.getXmlDump(document));
         System.exit(1);
 
         // String t = PageAnalyzer.getDocumentTextDump(document);
-        String t = HTMLHelper.documentToHTMLString(document);
+        String t = HtmlHelper.documentToHtmlString(document);
 
         System.out.println(t.getBytes().length);
         System.out.println(t);

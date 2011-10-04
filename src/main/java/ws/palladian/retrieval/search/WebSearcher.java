@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,8 +18,6 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
-import org.jaxen.JaxenException;
-import org.jaxen.dom.DOMXPath;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,15 +34,14 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HTMLHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.local.LocalIndexResult;
 import ws.palladian.retrieval.search.local.QueryProcessor;
 import ws.palladian.retrieval.search.local.ScoredDocument;
 
 // TODO this class is way to heavy; split this up into subclasses, introduce AbstractWebSearcher
-// TODO remove non-working/obsolete search engines (Yahoo! still necessary, we have Yahoo! Boss)
 // TODO extract all available meta data from search engines
 // TODO parse date results
 
@@ -55,7 +51,6 @@ import ws.palladian.retrieval.search.local.ScoredDocument;
  * </p>
  * 
  * @author David Urbansky
- * @author Christopher Friedrich
  * @author Philipp Katz
  */
 public class WebSearcher {
@@ -116,14 +111,12 @@ public class WebSearcher {
      * @return A list of images.
      */
     public final List<ExtractedImage> getImages(String searchQuery, int source, boolean exact, String[] matchContent) {
-        if (source != WebSearcherManager.GOOGLE && source != WebSearcherManager.YAHOO_BOSS) {
+        if (source != WebSearcherManager.GOOGLE) {
             LOGGER.warn("Image search is only supported for Google and Yahoo! BOSS.");
         }
 
         if (source == WebSearcherManager.GOOGLE) {
             return getImagesFromGoogle(searchQuery, exact, matchContent);
-        } else if (source == WebSearcherManager.YAHOO_BOSS) {
-            return getImagesFromYahooBoss(searchQuery, exact, matchContent);
         }
 
         return null;
@@ -224,102 +217,7 @@ public class WebSearcher {
 
         return images;
     }
-
-    private List<ExtractedImage> getImagesFromYahooBoss(String searchQuery, boolean exact, String[] matchContent) {
-        ArrayList<String> urls = new ArrayList<String>();
-        Document searchResult = null;
-
-        // query yahoo for search engine results
-        try {
-            searchResult = DocumentBuilderFactory
-                    .newInstance()
-                    .newDocumentBuilder()
-                    .parse("http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                            + WebSearcherManager.getInstance().getYahooBossApiKey() + "&format=xml&count="
-                            + Math.max(50, getResultCount()));
-            LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
-                    + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
-                    + "&format=xml&count=" + Math.max(50, getResultCount()));
-        } catch (SAXException e1) {
-            LOGGER.error("yahoo", e1);
-        } catch (IOException e1) {
-            LOGGER.error("yahoo", e1);
-        } catch (ParserConfigurationException e1) {
-            LOGGER.error("yahoo", e1);
-        }
-
-        ArrayList<ExtractedImage> images = new ArrayList<ExtractedImage>();
-
-        // create an xpath to grab the returned urls
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-
-        XPathExpression expr;
-
-        try {
-
-            // System.out.println(searchResult);
-            expr = xpath.compile("//result");
-
-            Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
-            NodeList nodes = (NodeList) result;
-            LOGGER.debug("URL Nodes: " + nodes.getLength());
-
-            int grabSize = Math.min(nodes.getLength(), getResultCount());
-            for (int i = 0; i < grabSize; i++) {
-                NodeList childNodes = nodes.item(i).getChildNodes();
-
-                String abstractText = "";
-                String imageURL = "";
-                String imageWidth = "";
-                String imageHeight = "";
-                for (int j = 0; j < childNodes.getLength(); j++) {
-                    String nodeNameLC = childNodes.item(j).getNodeName().toLowerCase();
-                    if (nodeNameLC.equals("abstract")) {
-                        abstractText = childNodes.item(j).getTextContent();
-                    } else if (nodeNameLC.equals("url")) {
-                        imageURL = childNodes.item(j).getTextContent();
-                    } else if (nodeNameLC.equals("width")) {
-                        imageWidth = childNodes.item(j).getTextContent();
-                    } else if (nodeNameLC.equals("height")) {
-                        imageHeight = childNodes.item(j).getTextContent();
-                    }
-                }
-
-                // abstract of result must match match content
-                int matchCount = 0;
-                for (String element : matchContent) {
-                    if (abstractText.toLowerCase().indexOf(element.toLowerCase()) > -1) {
-                        matchCount++;
-                    }
-                }
-                if (matchCount < matchContent.length) {
-                    continue;
-                }
-
-                ExtractedImage image = new ExtractedImage();
-                image.setURL(imageURL);
-                image.setWidth(Integer.valueOf(imageWidth));
-                image.setHeight(Integer.valueOf(imageHeight));
-                image.setRankCount(i);
-                images.add(image);
-
-                LOGGER.debug("yahoo retrieved url " + imageURL);
-                urls.add(imageURL);
-            }
-
-        } catch (XPathExpressionException e) {
-            LOGGER.error(e.getMessage());
-        } catch (DOMException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        srManager.addRequest(WebSearcherManager.YAHOO_BOSS);
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO_BOSS));
-
-        return images;
-    }
-
+    
     /**
      * <p>
      * Return number of hits for a given query.
@@ -436,18 +334,8 @@ public class WebSearcher {
         // what's not deprecated for encoding urls?
 
         switch (source) {
-            case WebSearcherManager.YAHOO:
-                // if (exact) searchQuery = "\""+searchQuery+"\"";
-                return getWebResultsFromYahoo(searchQuery);
-            case WebSearcherManager.YAHOO_BOSS:
-                // if (exact) searchQuery = "\""+searchQuery+"\"";
-                return getWebResultsFromYahooBoss(searchQuery);
             case WebSearcherManager.GOOGLE:
-                // if (exact) searchQuery = "%22"+searchQuery+"%22";
-                return this.getWebResultsFromGoogle(searchQuery);
-                // case SourceRetriever.GOOGLE_PAGE:
-                // //if (exact) searchQuery = "%22"+searchQuery+"%22";
-                // return this.getURLsFromGooglePage(searchQuery);
+                return getWebResultsFromGoogle(searchQuery);
             case WebSearcherManager.HAKIA:
                 return getWebResultsFromHakia(searchQuery);
             case WebSearcherManager.BING:
@@ -456,10 +344,6 @@ public class WebSearcher {
                 return getWebResultsFromTwitter(searchQuery);
             case WebSearcherManager.GOOGLE_BLOGS:
                 return getWebResultsFromGoogleBlogs(searchQuery);
-            case WebSearcherManager.TEXTRUNNER:
-                return getWebResultsFromTextRunner(searchQuery);
-            case WebSearcherManager.YAHOO_BOSS_NEWS:
-                return getWebResultsFromYahooBossNews(searchQuery);
             case WebSearcherManager.GOOGLE_NEWS:
                 return getWebResultsFromGoogleNews(searchQuery);
             case WebSearcherManager.HAKIA_NEWS:
@@ -473,185 +357,6 @@ public class WebSearcher {
         // error
         return new ArrayList<WebResult>();
 
-    }
-
-    private List<WebResult> getWebResultsFromYahoo(String searchQuery) {
-
-        List<WebResult> webresults = new ArrayList<WebResult>();
-        Document searchResult = null;
-
-        // query yahoo for search engine results
-        try {
-            searchResult = DocumentBuilderFactory
-                    .newInstance()
-                    .newDocumentBuilder()
-                    .parse("http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                            + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
-                            + getResultCount());
-            LOGGER.debug("Search Results for " + searchQuery + "\n"
-                    + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + WebSearcherManager.getInstance().getYahooApiKey() + "&query=" + searchQuery + "&results="
-                    + getResultCount());
-        } catch (SAXException e1) {
-            LOGGER.error("yahoo", e1);
-        } catch (IOException e1) {
-            LOGGER.error("yahoo", e1);
-        } catch (ParserConfigurationException e1) {
-            LOGGER.error("yahoo", e1);
-        }
-
-        // create an xpath to grab the returned urls
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-
-        try {
-
-            LOGGER.debug(searchResult);
-            XPathExpression expr = xpath.compile("//Result");
-
-            NodeList resultNodes = (NodeList) expr.evaluate(searchResult, XPathConstants.NODESET);
-            LOGGER.debug("URL Nodes: " + resultNodes.getLength());
-
-            int rank = 1;
-            int grabSize = Math.min(resultNodes.getLength(), getResultCount());
-
-            for (int i = 0; i < grabSize; i++) {
-
-                Node resultNode = resultNodes.item(i);
-
-                String currentURL = XPathHelper.getChildNode(resultNode, "Url").getTextContent();
-                String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
-                String summary = XPathHelper.getChildNode(resultNode, "Summary").getTextContent();
-
-                WebResult webresult = new WebResult(WebSearcherManager.YAHOO, rank, currentURL, title, summary);
-                rank++;
-
-                LOGGER.debug("yahoo retrieved url " + currentURL);
-                webresults.add(webresult);
-            }
-
-        } catch (XPathExpressionException e) {
-            LOGGER.error(e.getMessage());
-        } catch (DOMException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        srManager.addRequest(WebSearcherManager.YAHOO);
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO));
-        return webresults;
-    }
-
-    private List<WebResult> getWebResultsFromYahooBoss(String searchQuery) {
-        return fetchAndProcessYahooBoss("http://boss.yahooapis.com/ysearch/web/v1/", searchQuery);
-    }
-
-    private List<WebResult> getWebResultsFromYahooBossNews(String searchQuery) {
-        return fetchAndProcessYahooBoss("http://boss.yahooapis.com/ysearch/news/v1/", searchQuery);
-    }
-
-    /**
-     * General reusable method for processing Yahoo Web Search and Yahoo News
-     * Search requests. Only the provided URLs differ.
-     * 
-     * @param url
-     * @return
-     */
-    private List<WebResult> fetchAndProcessYahooBoss(String endpoint, String searchQuery) {
-        LOGGER.trace(">fetchAndProcessWebResultsFromYahooBoss");
-
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
-
-        try {
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xpath = factory.newXPath();
-
-            // create xpath to grab the results, and containing url,title and
-            // abstract
-            XPathExpression resultExpr = xpath.compile("//result");
-            XPathExpression urlExpr = xpath.compile("./url");
-            XPathExpression titleExpr = xpath.compile("./title");
-            XPathExpression summExpr = xpath.compile("./abstract");
-
-            // we either have resultset_news or resultset_web, therefore use
-            // wildcard for tag name
-            XPathExpression totalHitsExpr = xpath.compile("//*[starts-with(name(),'resultset')]/@totalhits");
-
-            // determine # of necessary iterations
-            int numIterations = (int) Math.ceil(getResultCount() / 50.0);
-
-            int numHits = 0;
-
-            // language+region .. english or german
-            // need to provide region too, language is not sufficient
-            // see ->
-            // http://developer.yahoo.com/search/boss/boss_guide/supp_regions_lang.html
-            String langStr = "en";
-            String regStr = "us";
-            if (getLanguage() == LANGUAGE_GERMAN) {
-                langStr = "de";
-                regStr = "de";
-            }
-
-            // construct fix url part for each iteration
-            // for avail parameters see ->
-            // http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
-            String fixUrl = endpoint + searchQuery + "?appid=" + WebSearcherManager.getInstance().getYahooBossApiKey()
-                    + "&lang=" + langStr + "&region=" + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
-
-            // iterate through result responses
-            for (int it = 0; it < numIterations; it++) {
-
-                // query yahoo for search engine results
-                String iterationUrl = fixUrl + "&start=" + 50 * it;
-                Document searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(iterationUrl);
-                LOGGER.debug("Search Results for " + iterationUrl);
-                srManager.addRequest(WebSearcherManager.YAHOO_BOSS);
-
-                // update number of iterations with each step, as values might
-                // change
-                // http://developer.yahoo.com/search/boss/boss_guide/ch02s02.html
-                int totalHits = ((Number) totalHitsExpr.evaluate(searchResult, XPathConstants.NUMBER)).intValue();
-                numIterations = (int) Math.ceil(Math.min(getResultCount(), totalHits) / 50.0);
-                LOGGER.debug("Total hits: " + totalHits + " total iterations: " + numIterations);
-
-                NodeList nodes = (NodeList) resultExpr.evaluate(searchResult, XPathConstants.NODESET);
-                LOGGER.debug("URL Nodes: " + nodes.getLength());
-
-                for (int i = 0; i < nodes.getLength(); i++) {
-                    Node currentNode = nodes.item(i);
-
-                    String resultUrl = (String) urlExpr.evaluate(currentNode, XPathConstants.STRING);
-                    String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
-                    String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
-
-                    WebResult webresult = new WebResult(WebSearcherManager.YAHOO_BOSS, numHits + 1, resultUrl,
-                            HTMLHelper.stripHTMLTags(title, true, true, true, true), HTMLHelper.stripHTMLTags(summary,
-                                    true, true, true, true));
-
-                    LOGGER.debug("yahoo boss retrieved url " + resultUrl);
-                    webresults.add(webresult);
-                    numHits++;
-
-                    // stop when we got enough
-                    if (numHits == getResultCount()) {
-                        break;
-                    }
-                }
-            }
-
-        } catch (XPathExpressionException e) {
-            LOGGER.error(e.getMessage());
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        LOGGER.info("yahoo requests: " + srManager.getRequestCount(WebSearcherManager.YAHOO_BOSS));
-        LOGGER.trace("<fetchAndProcessWebResultsFromYahooBoss");
-        return webresults;
     }
 
     private List<WebResult> getWebResultsFromGoogle(String searchQuery) {
@@ -1197,91 +902,6 @@ public class WebSearcher {
         return webresults;
     }
 
-    @SuppressWarnings("unchecked")
-    private List<WebResult> getWebResultsFromTextRunner(String searchQuery) {
-
-        List<WebResult> webresults = new ArrayList<WebResult>();
-
-        // TODO: implement TextRunner
-        String xPath = "//div[@class='lin']/a";
-
-        DocumentRetriever crawler = new DocumentRetriever();
-        Document document = null;
-
-        String sourceURL = "http://turingc.cs.washington.edu:7125/TextRunner/cgi-bin/ds-g1b.pl?query=" + searchQuery;
-        System.out.println(sourceURL);
-
-        int rank = 1;
-        int urlsCollected = 0;
-
-        try {
-            document = crawler.getWebDocument(sourceURL);
-
-            LOGGER.debug(sourceURL);
-            LOGGER.debug(document.getTextContent());
-
-            Node startNode = document.getLastChild(); // the html node
-
-            if (XPathHelper.hasXhtmlNs(document)) {
-                xPath = xPath.replaceAll("/", "/xhtml:");
-            }
-
-            // print(startNode," ");
-
-            org.jaxen.XPath xpath2 = new DOMXPath(xPath);
-            xpath2.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-
-            List<Node> results = xpath2.selectNodes(startNode);
-            // System.out.println(results.size());
-
-            Iterator<Node> nodeIterator = results.iterator();
-            while (nodeIterator.hasNext()) {
-                Node n = nodeIterator.next();
-                try {
-
-                    XPathFactory factory = XPathFactory.newInstance();
-                    XPath xpath = factory.newXPath();
-                    XPathExpression exp = xpath.compile("@href");
-                    String currentURL = ((Node) exp.evaluate(n, XPathConstants.NODE)).getTextContent();
-
-                    if (urlsCollected < getResultCount()) {
-                        // TODO: webresult.setTitle(title);
-                        String title = null;
-
-                        // TODO: setSummary(summary);
-                        String summary = null;
-
-                        WebResult webresult = new WebResult(WebSearcherManager.TEXTRUNNER, rank, currentURL, title,
-                                summary);
-                        rank++;
-
-                        LOGGER.info("textrunner retrieved url " + currentURL);
-                        webresults.add(webresult);
-
-                        ++urlsCollected;
-                    } else {
-                        break;
-                    }
-                } catch (NullPointerException e) {
-                    LOGGER.error(e.getMessage());
-                } catch (StringIndexOutOfBoundsException e) {
-                    LOGGER.error(e.getMessage());
-                }
-            }
-
-        } catch (XPathExpressionException e) {
-            LOGGER.error(e.getMessage());
-        } catch (JaxenException e) {
-            LOGGER.error(e.getMessage());
-        } catch (NullPointerException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        srManager.addRequest(WebSearcherManager.TEXTRUNNER);
-
-        return webresults;
-    }
-
     public int getLanguage() {
         return language;
     }
@@ -1325,7 +945,7 @@ public class WebSearcher {
         // SourceRetrieverManager.BING, // 100
         // SourceRetrieverManager.TWITTER, // 100
         // SourceRetrieverManager.GOOGLE_BLOGS, // 64
-        WebSearcherManager.TEXTRUNNER, // 0
+        WebSearcherManager.BING, // 0
         };
 
         HashMap<Integer, String> arl = new HashMap<Integer, String>();

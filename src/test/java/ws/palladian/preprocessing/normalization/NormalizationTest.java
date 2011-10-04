@@ -1,7 +1,7 @@
 package ws.palladian.preprocessing.normalization;
 
 import junit.framework.TestCase;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
@@ -32,9 +32,9 @@ public class NormalizationTest extends TestCase {
     }
 
     public void testRemoveHTMLTags() {
-        assertEquals("some text1", HTMLHelper.stripHTMLTags(
+        assertEquals("some text1", HtmlHelper.stripHtmlTags(
                 "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>", true, true, true, true));
-        assertEquals("some text 2", HTMLHelper.stripHTMLTags(
+        assertEquals("some text 2", HtmlHelper.stripHtmlTags(
                 "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
     }
 

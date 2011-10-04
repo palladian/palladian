@@ -15,7 +15,7 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.retrieval.DocumentRetriever;

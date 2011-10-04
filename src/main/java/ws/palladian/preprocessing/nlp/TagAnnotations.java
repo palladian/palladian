@@ -3,6 +3,8 @@ package ws.palladian.preprocessing.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.preprocessing.nlp.pos.PosTagger;
+
 import com.aliasi.util.Arrays;
 
 /**

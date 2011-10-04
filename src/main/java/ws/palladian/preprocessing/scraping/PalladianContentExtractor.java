@@ -16,7 +16,7 @@ import org.w3c.dom.Node;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
@@ -79,7 +79,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void parseDocument() {
 
-        String content = HTMLHelper.documentToText(document);
+        String content = HtmlHelper.documentToText(document);
         sentences = Tokenizer.getSentences(content, true);
 
         PageAnalyzer pa = new PageAnalyzer();
@@ -121,10 +121,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return;
         }
 
-        mainContentHTML = HTMLHelper.documentToHTMLString(resultNode);
+        mainContentHTML = HtmlHelper.documentToHtmlString(resultNode);
 
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
-        mainContentText = HTMLHelper.documentToReadableText(resultNode);
+        mainContentText = HtmlHelper.documentToReadableText(resultNode);
 
         // System.out.println(mainContentHTML);
         // System.out.println(mainContentText);

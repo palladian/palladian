@@ -19,11 +19,11 @@ import ws.palladian.retrieval.feeds.FeedTaskResult;
  * @author Sandro Reichert
  * 
  */
-public class GZScheduler extends TimerTask {
+public class GzScheduler extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      */
-    private static final Logger LOGGER = Logger.getLogger(GZScheduler.class);
+    private static final Logger LOGGER = Logger.getLogger(GzScheduler.class);
 
     /**
      * The thread pool managing threads that read feeds from the feed sources
@@ -56,7 +56,7 @@ public class GZScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public GZScheduler(final FeedReader feedReader) {
+    public GzScheduler(final FeedReader feedReader) {
         super();
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
@@ -84,7 +84,7 @@ public class GZScheduler extends TimerTask {
                     continue;
                 }
 
-                scheduledTasks.put(feed.getId(), threadPool.submit(new GZFeedTask(feed, feedReader)));
+                scheduledTasks.put(feed.getId(), threadPool.submit(new GzFeedTask(feed, feedReader)));
                 newlyScheduledFeedsCount++;
             } else {
                 removeFeedTaskIfDone(feed.getId());

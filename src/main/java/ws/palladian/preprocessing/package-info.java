@@ -14,8 +14,8 @@
  * <li>{@link ws.palladian.preprocessing.StopWordRemover}</li>
  * <li>{@link ws.palladian.preprocessing.WordCounter}</li>
  * <li>{@link ws.palladian.preprocessing.nlp.QuestionAnnotator}</li>
- * <li>{@link ws.palladian.preprocessing.nlp.LingPipeSentenceDetector}</li>
- * <li>{@link ws.palladian.preprocessing.nlp.OpenNLPSentenceDetector}</li>
+ * <li>{@link ws.palladian.preprocessing.nlp.sentencedetection.LingPipeSentenceDetector}</li>
+ * <li>{@link ws.palladian.preprocessing.nlp.sentencedetection.OpenNlpSentenceDetector}</li>
  * </ul>
  * </p>
  */

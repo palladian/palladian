@@ -8,15 +8,16 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * A scheduler task handles the distribution of feeds to worker threads that check the csv files for the ASCII encoding
- * problem in TUDCS2 dataset.
- * This class is based on ws.palladian.retrieval.feeds.SchedulerTask
+ * <p>A scheduler task handles the distribution of feeds to worker threads that check the csv files for the ASCII encoding
+ * problem in TUDCS2 dataset.</p>
+ * <p>This class is based on ws.palladian.retrieval.feeds.SchedulerTask</p>
  * 
  * @author Sandro Reichert
  */
@@ -97,7 +98,7 @@ class FeedStatisticReaderScheduler {
 
     public static void main(String[] args) {
 
-        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         FeedStatisticReaderScheduler scheduler = new FeedStatisticReaderScheduler(feedStore);
         scheduler.run();
 

@@ -17,13 +17,13 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * @author Sandro Reichert
  * 
  */
-public class SessionIDFixer {
+public class SessionIdFixer {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SessionIDFixer.class);
+    private static final Logger LOGGER = Logger.getLogger(SessionIdFixer.class);
 
     /**
-     * Schedule all {@link GZFeedTask}s
+     * Schedule all {@link GzFeedTask}s
      */
     private Timer checkScheduler;
 
@@ -32,7 +32,7 @@ public class SessionIDFixer {
      */
     private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
 
-    public SessionIDFixer() {
+    public SessionIdFixer() {
         checkScheduler = new Timer();
     }
 
@@ -41,10 +41,10 @@ public class SessionIDFixer {
         final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
         FeedReader feedChecker = new FeedReader(feedStore);
 
-        SessionIDFixProcessingAction fpa = new SessionIDFixProcessingAction(feedStore);
+        SessionIdFixProcessingAction fpa = new SessionIdFixProcessingAction(feedStore);
         feedChecker.setFeedProcessingAction(fpa);
 
-        GZScheduler gzScheduler = new GZScheduler(feedChecker);
+        GzScheduler gzScheduler = new GzScheduler(feedChecker);
         checkScheduler.schedule(gzScheduler, 0, wakeUpInterval);
 
     }
@@ -56,7 +56,7 @@ public class SessionIDFixer {
      */
     public static void main(String[] args) {
 
-        SessionIDFixer sidFixer = new SessionIDFixer();
+        SessionIdFixer sidFixer = new SessionIdFixer();
         sidFixer.removeFalseMisses();
     }
 

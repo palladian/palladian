@@ -8,25 +8,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
- * Capture some statistics about the posts of a feed. When reading the statistics, make sure
- * {@link #isValidStatistics()} returns <code>true</code>!
+ * <p>Capture some statistics about the posts of a feed. When reading the statistics, make sure
+ * {@link #isValidStatistics()} returns <code>true</code>!</p>
  * 
  * @author David Urbansky
  * @author Sandro Reichert
  * 
  */
 public class FeedPostStatistics {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedPostStatistics.class);
 
     /**
      * Record a list of checkInterval values for each feed: <minuteOfDay : number of posts in that minute.

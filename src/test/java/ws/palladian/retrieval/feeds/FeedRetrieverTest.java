@@ -16,7 +16,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.DateGetterHelper;
+import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;

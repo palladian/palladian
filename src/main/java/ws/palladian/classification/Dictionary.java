@@ -14,8 +14,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.persistence.DictionaryDBIndexH2;
-import ws.palladian.persistence.DictionaryDBIndexMySQL;
+import ws.palladian.persistence.DictionaryDbIndexH2;
+import ws.palladian.persistence.DictionaryDbIndexMySQL;
 import ws.palladian.persistence.DictionaryFileIndex;
 import ws.palladian.persistence.DictionaryIndex;
 
@@ -114,18 +114,18 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             if (indexType == DB_INDEX_FAST || indexType == DB_INDEX_NORMALIZED) {
 
                 if (databaseType == DB_MYSQL) {
-                    dictionaryIndex = new DictionaryDBIndexMySQL(getName(), "root", "", getIndexPath());
+                    dictionaryIndex = new DictionaryDbIndexMySQL(getName(), "root", "", getIndexPath());
                     if (indexType == DB_INDEX_FAST) {
-                        ((DictionaryDBIndexMySQL) dictionaryIndex).setFastMode(true);
+                        ((DictionaryDbIndexMySQL) dictionaryIndex).setFastMode(true);
                     } else {
-                        ((DictionaryDBIndexMySQL) dictionaryIndex).setFastMode(false);
+                        ((DictionaryDbIndexMySQL) dictionaryIndex).setFastMode(false);
                     }
                 } else {
-                    dictionaryIndex = new DictionaryDBIndexH2(getName(), "root", "", getIndexPath());
+                    dictionaryIndex = new DictionaryDbIndexH2(getName(), "root", "", getIndexPath());
                     if (indexType == DB_INDEX_FAST) {
-                        ((DictionaryDBIndexH2) dictionaryIndex).setFastMode(true);
+                        ((DictionaryDbIndexH2) dictionaryIndex).setFastMode(true);
                     } else {
-                        ((DictionaryDBIndexH2) dictionaryIndex).setFastMode(false);
+                        ((DictionaryDbIndexH2) dictionaryIndex).setFastMode(false);
                     }
                 }
 

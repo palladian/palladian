@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.StringInputStream;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
@@ -140,7 +140,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url.toString());
 
-        System.out.println(HTMLHelper.documentToHTMLString(document));
+        System.out.println(HtmlHelper.documentToHtmlString(document));
 
         return classify(document);
     }

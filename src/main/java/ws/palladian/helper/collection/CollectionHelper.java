@@ -126,25 +126,6 @@ public final class CollectionHelper {
     }
 
     /**
-     * Reverse the order in a {@link List}.
-     * 
-     * @param <T>
-     * @param list
-     * @return
-     * @deprecated Use Mama's {@link Collections#reverse(List)}.
-     */
-    @Deprecated
-    public static <T> List<T> reverse(List<T> list) {
-        ArrayList<T> reversedList = new ArrayList<T>();
-
-        for (int i = list.size() - 1; i >= 0; --i) {
-            reversedList.add(list.get(i));
-        }
-
-        return reversedList;
-    }
-
-    /**
      * Get a human readable, line separated output of an Array.
      * 
      * @param array

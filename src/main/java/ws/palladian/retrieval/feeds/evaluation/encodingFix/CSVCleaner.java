@@ -21,19 +21,17 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
- * Quick'n'dirty
+ * <p>Quick'n'dirty worker thread that remove superfluous feed size and item size columns with "-1" values.</p>
  * 
- * Worker thread that remove superfluous feed size and item size columns with "-1" values.
- * Input format: PUBLISH_TIMESTAMP;TITLE;LINK;-1;-1;WINDOW_SIZE
- * Output format: PUBLISH_TIMESTAMP;TITLE;LINK;WINDOW_SIZE;
+ * <p>Input format: PUBLISH_TIMESTAMP;TITLE;LINK;-1;-1;WINDOW_SIZE</p>
+ * <p>Output format: PUBLISH_TIMESTAMP;TITLE;LINK;WINDOW_SIZE;</p>
  * 
- * Required for CIKM feed dataset paper using TUDCS5 dataset.
- * 
+ * <p>Required for CIKM feed dataset paper using TUDCS5 dataset.</p>
  * 
  * @author Sandro Reichert
  * 
  */
-public class CSVCleaner extends Thread {
+public class CsvCleaner extends Thread {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EncodingFixer2.class);
@@ -45,7 +43,7 @@ public class CSVCleaner extends Thread {
     /**
      * @param feed the Feed to process
      */
-    public CSVCleaner(Feed feed) {
+    public CsvCleaner(Feed feed) {
         this.feed = feed;
     }
 

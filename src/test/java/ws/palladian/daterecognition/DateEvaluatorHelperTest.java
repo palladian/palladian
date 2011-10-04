@@ -9,9 +9,9 @@ import java.util.TimeZone;
 
 import org.junit.Test;
 
-import ws.palladian.daterecognition.DateRaterHelper;
-import ws.palladian.daterecognition.ExtractedDateHelper;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.DateRaterHelper;
+import ws.palladian.extraction.date.ExtractedDateHelper;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 
 public class DateEvaluatorHelperTest {

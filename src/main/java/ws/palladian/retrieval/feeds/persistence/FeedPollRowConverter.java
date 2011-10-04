@@ -3,7 +3,7 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ws.palladian.helper.SQLHelper;
+import ws.palladian.helper.SqlHelper;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
@@ -20,9 +20,9 @@ public class FeedPollRowConverter implements RowConverter<PollMetaInformation> {
         pollMetaInfo.setHttpLastModified(resultSet.getTimestamp("httpLastModified"));
         pollMetaInfo.setHttpExpires(resultSet.getTimestamp("httpExpires"));
         pollMetaInfo.setNewestItemTimestamp(resultSet.getTimestamp("newestItemTimestamp"));
-        pollMetaInfo.setNumberNewItems(SQLHelper.getInteger(resultSet, "numberNewItems"));
-        pollMetaInfo.setWindowSize(SQLHelper.getInteger(resultSet, "windowSize"));
-        pollMetaInfo.setHttpStatusCode(SQLHelper.getInteger(resultSet, "httpStatusCode"));
+        pollMetaInfo.setNumberNewItems(SqlHelper.getInteger(resultSet, "numberNewItems"));
+        pollMetaInfo.setWindowSize(SqlHelper.getInteger(resultSet, "windowSize"));
+        pollMetaInfo.setHttpStatusCode(SqlHelper.getInteger(resultSet, "httpStatusCode"));
         return pollMetaInfo;
     }
 

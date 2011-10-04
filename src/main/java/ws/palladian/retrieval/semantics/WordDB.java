@@ -24,7 +24,7 @@ import ws.palladian.helper.LoremIpsumGenerator;
 import ws.palladian.helper.StopWatch;
 
 /**
- * This is a class for accessing an embedded H2 database holding {@link Word}s.
+ * <p>This is a class for accessing an embedded H2 database holding {@link Word}s.</p>
  * 
  * @author David Urbansky
  * 

@@ -11,10 +11,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.extraction.entity.ner.Annotation;
-import ws.palladian.extraction.entity.ner.Annotations;
-import ws.palladian.extraction.entity.ner.UrlTagger;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.preprocessing.nlp.ner.Annotation;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
+import ws.palladian.preprocessing.nlp.ner.UrlTagger;
 
 /**
  * The Tokenizer tokenizes strings or creates chunks of that string.

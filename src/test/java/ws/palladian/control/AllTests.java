@@ -4,7 +4,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import ws.palladian.classification.page.ClassifierTest;
 import ws.palladian.extraction.PageAnalyzerTest;
-import ws.palladian.persistence.DBStoreTest;
 import ws.palladian.persistence.DictionaryFileIndexTest;
 import ws.palladian.preprocessing.multimedia.ImageHandlerTest;
 import ws.palladian.preprocessing.normalization.NormalizationTest;
@@ -29,7 +28,6 @@ public class AllTests {
         suite.addTestSuite(ImageHandlerTest.class);
         suite.addTestSuite(NormalizationTest.class);
         suite.addTestSuite(PageAnalyzerTest.class);
-        suite.addTestSuite(DBStoreTest.class);
 
         // $JUnit-END$
         return suite;

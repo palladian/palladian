@@ -344,24 +344,6 @@ public class DatasetMerger extends Thread {
         return result.substring(0, result.length() - 1);
     }
 
-    /**
-     * Caution! TUDCS2 specific! use in last run only!
-     * Removes the columns containing item and feed size, restores splitted item into single line to write to csv, using
-     * ";" as separator
-     * 
-     * @param toPrint
-     * @return
-     */
-    private String removeUnusedColumnsAndRestoreCSVString(String[] toPrint) {
-        StringBuilder result = new StringBuilder();
-        result.append(toPrint[0]).append(";"); // item timestamp
-        result.append(toPrint[1]).append(";"); // title
-        result.append(toPrint[2]).append(";"); // link
-        result.append(toPrint[5]); // window size
-        return result.toString();
-    }
-
-
     /* package */static List<String> readCsv(String csvPath) {
         // List<String> items = FileHelper.readFileToArray(csvPath);
         // return items;

@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 
 /**
  * Representation of a Wiki page with title, pageID, namespaceID, content, revisions, etc.
@@ -166,7 +166,7 @@ public class WikiPage {
     public final String getPageContentStriped() {
         String stripedText = null;
         if (pageContentHTML != null) {
-            stripedText = HTMLHelper.documentToReadableText(pageContentHTML, false);
+            stripedText = HtmlHelper.documentToReadableText(pageContentHTML, false);
         }
         return stripedText;
     }
