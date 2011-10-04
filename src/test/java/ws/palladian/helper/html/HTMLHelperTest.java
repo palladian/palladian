@@ -21,7 +21,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class HtmlHelperTest {
 
 
-
     // @Test
     // public void testGetHTMLContent() {
     //
@@ -87,7 +86,6 @@ public class HtmlHelperTest {
     public void testReplaceHTMLSymbols() {
         String htmlText = "&nbsp; &Auml; &auml; &Ouml; &ouml; &Uuml; &uuml; &szlig; &lt; &gt; &amp; &quot;";
         String clearText = "  Ä ä Ö ö Ü ü ß < > & \"";
-        System.out.println(StringEscapeUtils.unescapeHtml(htmlText));
         assertEquals(clearText, StringHelper.replaceProtectedSpace(StringEscapeUtils.unescapeHtml(htmlText)));
     }
 }
