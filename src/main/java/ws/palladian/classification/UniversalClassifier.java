@@ -9,9 +9,9 @@ import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.numeric.NumericInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
-import ws.palladian.extraction.entity.ner.Annotation;
-import ws.palladian.extraction.entity.ner.Annotations;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.preprocessing.nlp.ner.Annotation;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
 
 
 public class UniversalClassifier extends Classifier<UniversalInstance> {

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.daterecognition.ExtractedDateHelper;
+import ws.palladian.extraction.date.ExtractedDateHelper;
 
 /**
  * @author Martin Gregor
@@ -16,7 +16,7 @@ import ws.palladian.daterecognition.ExtractedDateHelper;
 public class ExtractedDateHelperTest {
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#getMonthNumber(java.lang.String)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#getMonthNumber(java.lang.String)}.
      */
     @Test
     public void testGetMonthNumber() {
@@ -75,7 +75,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#normalizeYear(java.lang.String)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#normalizeYear(java.lang.String)}.
      */
     @Test
     public void testNormalizeYear() {
@@ -90,7 +90,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#removeNodigits(java.lang.String)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#removeNodigits(java.lang.String)}.
      */
     @Test
     public void testRemoveNodigits() {
@@ -104,7 +104,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#get4DigitYear(int)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#get4DigitYear(int)}.
      */
     @Test
     public void testGet4DigitYear() {
@@ -114,7 +114,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#getSeparator(java.lang.String)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#getSeparator(java.lang.String)}.
      */
     @Test
     public void testGetSeparator() {
@@ -126,7 +126,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#get2Digits(int)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#get2Digits(int)}.
      */
     @Test
     public void testGet2Digits() {
@@ -137,7 +137,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link ws.palladian.daterecognition.ExtractedDateHelper#removeTimezone(java.lang.String)}.
+     * Test method for {@link ws.palladian.extraction.date.ExtractedDateHelper#removeTimezone(java.lang.String)}.
      */
     @Test
     public void testRemoveTimezone() {

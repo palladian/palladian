@@ -24,7 +24,7 @@ import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.MAVStrategyDatasetCreation;
+import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
 
 /**
  * <p>
@@ -282,7 +282,7 @@ public class DatasetCreator {
      */
     public void createDataset() {
 
-        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
@@ -291,7 +291,7 @@ public class DatasetCreator {
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        MAVStrategyDatasetCreation updateStrategy = new MAVStrategyDatasetCreation();
+        MavStrategyDatasetCreation updateStrategy = new MavStrategyDatasetCreation();
 
         updateStrategy.setHighestUpdateInterval(360); // 6hrs
         updateStrategy.setLowestUpdateInterval(0);

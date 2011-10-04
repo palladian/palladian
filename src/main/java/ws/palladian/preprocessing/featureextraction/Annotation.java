@@ -10,8 +10,6 @@ import ws.palladian.preprocessing.PipelineDocument;
  * 
  * @author Philipp Katz
  * @author Klemens Muthmann
- * @since 0.8
- * @version 1.0
  */
 public abstract class Annotation {
 

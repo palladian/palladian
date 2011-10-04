@@ -31,7 +31,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * Helper to process a {@link HttpResult} and extract some Headers. Code taken from {@link MetaInformationCreationTask}.
+ * <p>Helper to process a {@link HttpResult} and extract some Headers. Code taken from {@link MetaInformationCreationTask}.</p>
  * 
  * @author Sandro Reichert
  * @author Philipp Katz

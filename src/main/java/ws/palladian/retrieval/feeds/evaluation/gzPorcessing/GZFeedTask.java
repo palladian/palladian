@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTTPHelper;
+import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -41,10 +41,10 @@ import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
  * @author Sandro Reichert
  * 
  */
-public class GZFeedTask implements Callable<FeedTaskResult> {
+public class GzFeedTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(GZFeedTask.class);
+    private final static Logger LOGGER = Logger.getLogger(GzFeedTask.class);
 
     /**
      * The feed corrected by this task.
@@ -82,7 +82,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
      * 
      * @param feed The feed retrieved by this task.
      */
-    public GZFeedTask(Feed dbFeed, FeedReader feedChecker) {
+    public GzFeedTask(Feed dbFeed, FeedReader feedChecker) {
         this.initialMisses = dbFeed.getMisses();
         this.initialChecks = dbFeed.getChecks();
         this.initialTotalItems = dbFeed.getNumberOfItemsReceived();
@@ -184,7 +184,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                     } else {
                         // store http header information
                         correctedFeed.setLastETag(gzHttpResult.getHeaderString("ETag"));
-                        correctedFeed.setHttpLastModified(HTTPHelper.getDateFromHeader(gzHttpResult, "Last-Modified",
+                        correctedFeed.setHttpLastModified(HttpHelper.getDateFromHeader(gzHttpResult, "Last-Modified",
                                 false));
 
                         Feed gzFeed = null;
@@ -198,7 +198,7 @@ public class GZFeedTask implements Callable<FeedTaskResult> {
                         }
 
                         correctedFeed.increaseChecks();
-                        Date httpDate = HTTPHelper.getDateFromHeader(gzHttpResult, "Date", true);
+                        Date httpDate = HttpHelper.getDateFromHeader(gzHttpResult, "Date", true);
                         for (FeedItem item : gzFeed.getItems()) {
                             item.setHttpDate(httpDate);
                         }

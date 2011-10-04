@@ -3,7 +3,7 @@ package ws.palladian.preprocessing.multimedia;
 import java.awt.image.BufferedImage;
 
 /**
- * An image.
+ * <p>An image.</p>
  * 
  * @author David Urbansky
  */

@@ -20,12 +20,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
 
 /**
- * The StringHelper adds string functionality.
+ * <p>The StringHelper adds string functionality.</p>
  * 
  * @author David Urbansky
  * @author Martin Werner
@@ -351,7 +351,7 @@ public class StringHelper {
      * @param string the string
      * @return the string
      */
-    public static String removeProtectedSpace(String string) {
+    public static String replaceProtectedSpace(String string) {
         // String modString = string.replaceAll(" ", " ");
         // let's use this notation, which does the same, to make clear what's going on ...:
         String modString = string.replaceAll("\u00A0", " ");
@@ -783,10 +783,10 @@ public class StringHelper {
      */
     public static String clean(String text) {
 
-        text = HTMLHelper.stripHTMLTags(text);
+        text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
         text = removeControlCharacters(text);
-        text = removeProtectedSpace(text);
+        text = replaceProtectedSpace(text);
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
@@ -1240,21 +1240,6 @@ public class StringHelper {
         }
         String[] result = { returnString, removedString };
         return result;
-    }
-
-    /**
-     * Removes trailing whitespace at the end.
-     * 
-     * @param dateString String to be cleared.
-     * @return Cleared string.
-     */
-    public static String removeLastWhitespace(String dateString) {
-        StringBuffer temp = new StringBuffer(dateString);
-
-        while (temp.charAt(temp.length() - 1) == ' ') {
-            temp.deleteCharAt(temp.length() - 1);
-        }
-        return temp.toString();
     }
 
     /**

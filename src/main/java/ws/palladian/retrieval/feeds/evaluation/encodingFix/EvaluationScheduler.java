@@ -8,19 +8,17 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.evaluation.gzPorcessing.ClassifyFromCSV;
+import ws.palladian.retrieval.feeds.evaluation.gzPorcessing.ClassifyFromCsv;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * A scheduler task handles the distribution of feeds to a) worker threads that check the csv files for the ASCII
- * encoding problem in TUDCS2 dataset or b) worker threads that remove superfluous feed size and item size columns with
- * "-1" values.
- * This class is based on ws.palladian.retrieval.feeds.SchedulerTask
- * 
+ * <p>A scheduler task handles the distribution of feeds to a) worker threads that check the csv files for the ASCII encoding problem in TUDCS2 dataset or b) worker threads that remove superfluous feed size and item size columns with "-1" values. This class is based on ws.palladian.retrieval.feeds.SchedulerTask</p>
+
  * @author Klemens Muthmann
  * @author Sandro Reichert
  * 
@@ -69,7 +67,7 @@ class EvaluationScheduler {
 
             // FIXME remove filter
             // if (feed.getActivityPattern() == 9) {
-                scheduledTasks.put(feed.getId(), threadPool.submit(new ClassifyFromCSV(feed)));
+                scheduledTasks.put(feed.getId(), threadPool.submit(new ClassifyFromCsv(feed)));
             // }
         }
 
@@ -106,7 +104,7 @@ class EvaluationScheduler {
 
     public static void main(String[] args) {
 
-        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         FeedReader feedChecker = new FeedReader(feedStore);
         EvaluationScheduler scheduler = new EvaluationScheduler(feedChecker);
         scheduler.run();

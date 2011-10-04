@@ -29,7 +29,7 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.FileHelper;
 
 /**
- * This class can be used to create, write and read a dictionary index.
+ * <p>This class can be used to create, write and read a dictionary index.</p>
  * 
  * @author David Urbansky
  * 

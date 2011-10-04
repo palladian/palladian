@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
@@ -23,18 +24,15 @@ import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
- * Quick'n'dirty
+ * <p>Quick'n'dirty worker thread to read all items from csv, read httpDate from db table feed_polls and classify a feed based on ALL
+ * items.</p>
  * 
- * Worker thread to read all items from csv, read httpDate from db table feed_polls and classify a feed based on ALL
- * items.
- * 
- * Required for iiWAS feed dataset paper using TUDCS6 dataset.
- * 
+ * <p>Required for iiWAS feed dataset paper using TUDCS6 dataset.</p>
  * 
  * @author Sandro Reichert
  * 
  */
-public class ClassifyFromCSV extends Thread {
+public class ClassifyFromCsv extends Thread {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EncodingFixer2.class);
@@ -45,7 +43,7 @@ public class ClassifyFromCSV extends Thread {
 
     public static final String BACKUP_FILE_EXTENSION = ".6rows";
 
-    private FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+    private FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
 
     // Map(pollTimestamp -> httpDate)
     private Map<Long, Date> pollMap = new HashMap<Long, Date>();
@@ -53,7 +51,7 @@ public class ClassifyFromCSV extends Thread {
     /**
      * @param feed the Feed to process
      */
-    public ClassifyFromCSV(Feed feed) {
+    public ClassifyFromCsv(Feed feed) {
         this.originalFeed = feed;
     }
 

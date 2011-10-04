@@ -19,6 +19,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.SizeUnit;
@@ -32,7 +33,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * The FeedImporter allows to add new feeds to the database.
+ * <p>The FeedImporter allows to add new feeds to the database.</p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -299,7 +300,7 @@ public class FeedImporter {
 
         try {
 
-            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class));
+            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
 
             CommandLine cmd = parser.parse(options, args);
 

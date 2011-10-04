@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.searchengine.GoogleDateGetter;
+import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.searchengine.GoogleDateGetter;
 
 public class GoogleDateGetterTest {
 

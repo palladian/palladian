@@ -2,7 +2,7 @@ package ws.palladian.helper.date;
 
 import java.util.Comparator;
 
-import ws.palladian.daterecognition.dates.ContentDate;
+import ws.palladian.extraction.date.dates.ContentDate;
 
 /**
  * Comparator for content-dates.<br>

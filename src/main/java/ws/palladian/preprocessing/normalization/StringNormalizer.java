@@ -11,8 +11,8 @@ import java.util.Locale;
 public class StringNormalizer {
 
     /**
-     * Different number formats do not match if compared, thus they have to be normalized before. e.g. 40,000 = 40000 and 4.00 = 4.0 = 4 but 6,6 should be equal
-     * to 6.6
+     * <p>Different number formats do not match if compared, thus they have to be normalized before. e.g. 40,000 = 40000 and 4.00 = 4.0 = 4 but 6,6 should be equal
+     * to 6.6.</p>
      * 
      * @param numberString The string with a number.
      * @return The normalized number as a string.

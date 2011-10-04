@@ -14,7 +14,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * @author David Urbansky
  * 
  */
-public class MAVPRUpdateStrategy extends UpdateStrategy {
+public class MavPrUpdateStrategy extends UpdateStrategy {
 
     /** The prediction for the next item of the post rate strategy. */
     private int prCheckIntervalPrediction;
@@ -43,7 +43,7 @@ public class MAVPRUpdateStrategy extends UpdateStrategy {
         }
 
         int mavInterval = FeedReader.DEFAULT_CHECK_TIME;
-        UpdateStrategy mav = new MAVUpdateStrategy();
+        UpdateStrategy mav = new MavUpdateStrategy();
         mav.update(feed, fps);
         mavInterval = feed.getUpdateInterval();
         mavCheckIntervalPrediction = feed.getUpdateInterval();

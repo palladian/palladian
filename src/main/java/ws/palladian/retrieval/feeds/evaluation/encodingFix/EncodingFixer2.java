@@ -5,6 +5,7 @@ package ws.palladian.retrieval.feeds.evaluation.encodingFix;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import org.apache.commons.collections.buffer.BoundedFifoBuffer;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
@@ -210,9 +210,9 @@ public class EncodingFixer2 extends Thread {
         }
         
         // reverse to get original order of csv
-        List<String> reversedItems = CollectionHelper.reverse(finalItems);
+        Collections.reverse(finalItems);
 
-        return reversedItems;
+        return finalItems;
     }
 
     private void addToBuffer(String[] itemToAdd) {
@@ -226,68 +226,12 @@ public class EncodingFixer2 extends Thread {
         LOGGER.trace("adding to windowbuffer: " + restoreCSVString(itemToAdd));
     }
 
-    private boolean isOriginal(String title) {
-        // TODO Auto-generated method stub
-        return !title.equals(StringHelper.removeNonAsciiCharacters(title));
-    }
-
-    /**
-     * Checks whether there is a MISS-line between the two given lines
-     * 
-     * @param itemA
-     * @param itemB
-     * @return true if there is a MISS-line between the two given lines
-     */
-    private boolean missBetweenLines(int itemA, int itemB) {
-        boolean missBetween = false;
-        if (itemA != itemB) {
-            int low = 0;
-            int high = 0;
-            if (itemA < itemB) {
-                low = itemA;
-                high = itemB;
-            } else {
-                low = itemB;
-                high = itemA;
-            }
-            for (Integer missline : linesContainingMISS) {
-                if (low < missline && high > missline) {
-                    missBetween = true;
-                    break;
-                }
-            }
-        }
-        return missBetween;
-    }
-
     private String restoreCSVString(String[] toPrint) {
         String result = "";
         for (String part : toPrint) {
             result += part + ";";
         }
         return result.substring(0, result.length() - 1);
-    }
-
-    /**
-     * Two titles are encoding duplicates if the strings are not equal but equal after removing non-ASCII chars. eg:
-     * stringA = "æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹"
-     * stringB = "?????hk????????????? ???? nputSemicolonHere??l?"
-     * strings are encoding duplicates
-     * 
-     * stringC = "æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹"
-     * stringD = "æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹"
-     * strings are *not* encoding duplicates since they are real duplicates
-     * 
-     * @param stringA
-     * @param stringB
-     * @return
-     */
-    private static boolean isEncodingDuplicate(String stringA, String stringB) {
-        boolean encodingDuplicate = false;
-        String aStriped = StringHelper.removeNonAsciiCharacters(stringA.replace("?", "").replace("–", ""));
-        String bStriped = StringHelper.removeNonAsciiCharacters(stringB.replace("?", "").replace("–", ""));
-        encodingDuplicate = (!stringA.equals(stringB) && aStriped.equals(bStriped));
-        return encodingDuplicate;
     }
 
     // detect encoding and normal duplicates

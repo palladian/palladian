@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.entity.ner.tagger.PalladianNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer;
 
 /**
  * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each category has a certain relevance for the word

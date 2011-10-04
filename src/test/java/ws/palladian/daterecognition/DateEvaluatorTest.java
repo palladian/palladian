@@ -5,7 +5,8 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.WebPageDateEvaluator;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;

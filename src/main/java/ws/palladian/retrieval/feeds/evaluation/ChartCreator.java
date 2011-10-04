@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -54,7 +55,7 @@ public class ChartCreator {
      *            MAX-policy.
      */
     public ChartCreator(final int maxNumberOfPollsScoreMin, final int maxNumberOfPollsScoreMax) {
-        this.database = DatabaseManagerFactory.create(EvaluationDatabase.class);
+        this.database = DatabaseManagerFactory.create(EvaluationDatabase.class, ConfigHolder.getInstance().getConfig());
         this.maxNumberOfPollsScoreMax = maxNumberOfPollsScoreMin;
         this.maxNumberOfPollsScoreMin = maxNumberOfPollsScoreMax;
         this.totalExperimentHours = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
@@ -71,7 +72,6 @@ public class ChartCreator {
      *            e.g. 20 generates 20 intervals of size {@link #chartInterval} plus one containing all feeds that are
      *            larger
      */
-    @SuppressWarnings("unused")
     private void createFeedSizeHistogrammFile(final int chartInterval, final int chartNumberOfIntervals) {
         // List<EvaluationFeedPoll> polls = database.getFeedSizes();
 
@@ -414,87 +414,7 @@ public class ChartCreator {
         transferredDataArray[columnToWrite] += sizeToAdd;
         totalResultMapMax.put(hourToProcess, transferredDataArray);
     }
-
-    /**
-     * Calculates the cumulated transfer volume per poll per {@link PollingStrategy} in megabytes to a *.csv file.
-     * Every row represents one poll, every column is one {@link PollingStrategy}.
-     * 
-     * @param policy The {@link Policy} to generate the file for.
-     * @param simulateEtagUsage If true, for each poll that has no new item, the size of the conditional header is
-     *            added to the transfer volume (instead of the sizeOfPoll).
-     * @param feedIDMax the highest FeedID in the data set.
-     */
-    private void cumulatedVolumePerTimeFile(final Policy policy, final boolean simulateEtagUsage, final int feedIDMax) {
-        LOGGER.info("starting to create sumVolumeFile for policy " + policy);
-        StringBuilder cumulatedVolumeSB = new StringBuilder();
-        // <hourOfExperiment, cumulatedVolumePerAlgorithm[fix1440,fix60,ficLearned,adaptive,probabilistic] in Bytes>
-        Map<Integer, Long[]> totalResultMap = new TreeMap<Integer, Long[]>();
-        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        final int numberOfColumns = PollingStrategy.values().length;
-        int feedIDStart = 1;
-        int feedIDEnd = 10000;
-        final int feedIDStep = 10000;
-        int columnToWrite = 0;
-
-        cumulatedVolumeSB.append("hour of experiment;");
-        for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
-
-            LOGGER.info("starting to create data for " + pollingStrategy.toString());
-            cumulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            feedIDStart = 1;
-            feedIDEnd = 10000;
-
-            while (feedIDEnd < feedIDMax) {
-                LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-                polls = database.getTransferVolumeByHourFromTime(policy, pollingStrategy, feedIDStart, feedIDEnd);
-                volumeHelper(polls, totalResultMap, columnToWrite, numberOfColumns, simulateEtagUsage);
-                feedIDStart += feedIDStep;
-                feedIDEnd += feedIDStep;
-            }
-            columnToWrite++;
-            LOGGER.info("finished creating data for " + pollingStrategy.toString());
-        }
-        cumulatedVolumeSB.append("\n");
-
-        // //////////// write totalResultMapMax to StringBuilder, cumulating the values row-wise \\\\\\\\\\\\\\\\\
-        final long byteToMB = 1048576;
-        Long[] volumesCumulated = new Long[numberOfColumns];
-        Arrays.fill(volumesCumulated, 0l);
-        Iterator<Integer> it = totalResultMap.keySet().iterator();
-        while (it.hasNext()) {
-            int currentHour = it.next();
-            Long[] volumes = totalResultMap.get(currentHour);
-
-            for (int i = 0; i < numberOfColumns; i++) {
-                volumesCumulated[i] += volumes[i];
-            }
-            cumulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / byteToMB).append(";")
-                    .append(volumesCumulated[1] / byteToMB).append(";").append(volumesCumulated[2] / byteToMB).append(
-                            ";").append(volumesCumulated[3] / byteToMB).append(";").append(
-                            volumesCumulated[4] / byteToMB).append(";\n");
-        }
-
-        // //////////// write final output to file \\\\\\\\\\\\\\\\\
-        String filePathToWrite = "";
-        String eTag = simulateEtagUsage ? "ETag" : "NoETag";
-        switch (policy) {
-            case MAX:
-                filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Max" + eTag + ".csv";
-                break;
-            case MIN:
-                filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Min" + eTag + ".csv";
-                break;
-            default:
-                throw new IllegalStateException("unknown Policy: " + policy.toString());
-        }
-        boolean outputWritten = FileHelper.writeToFile(filePathToWrite, cumulatedVolumeSB);
-        if (outputWritten) {
-            LOGGER.info("sumVolumeFile for policy " + policy + " written to: " + filePathToWrite);
-        } else {
-            LOGGER.fatal("sumVolumeFile for policy " + policy + " has not been written to: " + filePathToWrite);
-        }
-    }
-
+    
     /**
      * Rewrites file FEEDS_NEW_ITEMS_PATH_INPUT to FEEDS_NEW_ITEMS_PATH_OUTPUT. Input is a two column table with "new
      * Items"; "Number of Feeds", where (12, 2217) means that exactly 300 feeds had exactly 12 new items. Output file

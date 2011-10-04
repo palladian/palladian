@@ -15,13 +15,14 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 
 /**
- * Quick'n'dirty
+ * <p>Quick'n'dirty</p>
  * 
- * Required for CIKM feed dataset paper using TUDCS2 dataset. On one machine, the encoding has temporarily been changed,
- * so non-ASCII characters have been written as "?" to *.csv and *.gz files.
- * Detects duplicate items like
+ * <p>Required for CIKM feed dataset paper using TUDCS2 dataset. On one machine, the encoding has temporarily been changed,
+ * so non-ASCII characters have been written as "?" to *.csv and *.gz files.</p>
+ * 
+ * <p>Detects duplicate items like
  * orig: "æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹"
- * bad_: "?????hk????????????? ???? nputSemicolonHere??l?"
+ * bad_: "?????hk????????????? ???? nputSemicolonHere??l?"</p>
  * 
  * 
  * @author Sandro Reichert
@@ -91,7 +92,6 @@ public class EncodingFixer extends Thread {
 
             if (feedContainsMiss) {
 
-                boolean duplicateSearch = false;
                 int currentLine = 0;
 
                 for (String[] currentItem : splitItems) {
@@ -209,36 +209,7 @@ public class EncodingFixer extends Thread {
         // TODO Auto-generated method stub
         return !title.equals(StringHelper.removeNonAsciiCharacters(title));
     }
-
-    /**
-     * Checks whether there is a MISS-line between the two given lines
-     * 
-     * @param itemA
-     * @param itemB
-     * @return true if there is a MISS-line between the two given lines
-     */
-    private boolean missBetweenLines(int itemA, int itemB) {
-        boolean missBetween = false;
-        if (itemA != itemB) {
-            int low = 0;
-            int high = 0;
-            if (itemA < itemB) {
-                low = itemA;
-                high = itemB;
-            } else {
-                low = itemB;
-                high = itemA;
-            }
-            for (Integer missline : linesContainingMISS) {
-                if (low < missline && high > missline) {
-                    missBetween = true;
-                    break;
-                }
-            }
-        }
-        return missBetween;
-    }
-
+    
     private String restoreCSVString(String[] toPrint) {
         String result = "";
         for (String part : toPrint) {

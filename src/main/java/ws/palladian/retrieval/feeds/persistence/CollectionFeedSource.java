@@ -9,8 +9,8 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
- * A feed source providing feeds from a static collection. The collection is provided to an object of this class upon
- * its creation. Can be used as mock class for testing purposes when no database is available.
+ * <p>A feed source providing feeds from a static collection. The collection is provided to an object of this class upon
+ * its creation. Can be used as mock class for testing purposes when no database is available.</p>
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz

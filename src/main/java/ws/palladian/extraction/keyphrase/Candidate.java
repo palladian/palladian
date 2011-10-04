@@ -13,7 +13,7 @@ import ws.palladian.helper.nlp.Tokenizer;
  * @author Philipp Katz
  * 
  */
-class Candidate {
+public class Candidate {
 
     private DocumentModel document;
 

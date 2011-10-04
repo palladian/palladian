@@ -3,7 +3,7 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.util.Date;
 
 /**
- * Helper that is used to load cached items from database.
+ * <p>Helper that is used to load cached items from database.</p>
  * 
  * @author Sandro Reichert
  * 

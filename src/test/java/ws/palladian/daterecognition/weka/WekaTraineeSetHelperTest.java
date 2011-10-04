@@ -12,7 +12,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import weka.core.Instances;
-import ws.palladian.daterecognition.evaluation.weka.WekaTraineeSetHelper;
+import ws.palladian.extraction.date.evaluation.weka.WekaTraineeSetHelper;
 
 public class WekaTraineeSetHelperTest {
 	@Test

@@ -1,6 +1,3 @@
-/**
- * Created on: 28.07.2010 17:43:02
- */
 package ws.palladian.retrieval.feeds.meta;
 
 import java.sql.ResultSet;
@@ -67,7 +64,7 @@ public class MetaInformationCreator {
     }
 
     public MetaInformationCreator() {
-        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
+        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         this.feedIdentifierLowerBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
                 "SELECT MIN(id) FROM feeds");
         this.feedIdentifierUpperBound = feedDatabase.runSingleQuery(new IntegerRowConverter(),
@@ -81,7 +78,7 @@ public class MetaInformationCreator {
      * @param string2
      */
     public MetaInformationCreator(Integer feedIdentifierLowerBound, Integer feedIdentifierUpperBound) {
-        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
+        feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         this.availableFeedIdentifier = feedDatabase.runQuery(new IntegerRowConverter(), "SELECT id from feeds");
         this.feedIdentifierLowerBound = feedIdentifierLowerBound;
         this.feedIdentifierUpperBound = feedIdentifierUpperBound;

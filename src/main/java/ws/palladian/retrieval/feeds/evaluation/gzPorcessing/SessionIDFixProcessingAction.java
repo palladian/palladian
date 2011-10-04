@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.HTTPHelper;
+import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
@@ -27,14 +27,14 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * @author Sandro Reichert
  * 
  */
-class SessionIDFixProcessingAction extends FeedProcessingAction {
+class SessionIdFixProcessingAction extends FeedProcessingAction {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SessionIDFixProcessingAction.class);
+    private static final Logger LOGGER = Logger.getLogger(SessionIdFixProcessingAction.class);
     
     private final FeedDatabase feedStore;
     
-    SessionIDFixProcessingAction(FeedDatabase feedStore) {
+    SessionIdFixProcessingAction(FeedDatabase feedStore) {
         this.feedStore = feedStore;
     }
     
@@ -187,9 +187,9 @@ class SessionIDFixProcessingAction extends FeedProcessingAction {
         }
         pollMetaInfo.setFeedID(feed.getId());
         pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
-        pollMetaInfo.setHttpDate(HTTPHelper.getDateFromHeader(httpResult, "Date", true));
-        pollMetaInfo.setHttpLastModified(HTTPHelper.getDateFromHeader(httpResult, "Last-Modified", false));
-        pollMetaInfo.setHttpExpires(HTTPHelper.getDateFromHeader(httpResult, "Expires", false));
+        pollMetaInfo.setHttpDate(HttpHelper.getDateFromHeader(httpResult, "Date", true));
+        pollMetaInfo.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
+        pollMetaInfo.setHttpExpires(HttpHelper.getDateFromHeader(httpResult, "Expires", false));
         pollMetaInfo.setNewestItemTimestamp(feed.getLastFeedEntry());
         pollMetaInfo.setNumberNewItems(newItems);
         pollMetaInfo.setWindowSize(feed.getWindowSize());

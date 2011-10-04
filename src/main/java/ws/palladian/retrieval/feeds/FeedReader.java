@@ -32,12 +32,12 @@ import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.MAVUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
+ * <p>The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.</p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -493,7 +493,7 @@ public final class FeedReader {
             updateStrategy = new FixUpdateStrategy();
             ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
         } else if (cmd.hasOption("ca")) {
-            updateStrategy = new MAVUpdateStrategy();
+            updateStrategy = new MavUpdateStrategy();
         } else if (cmd.hasOption("cp")) {
             updateStrategy = new PostRateUpdateStrategy();
         }

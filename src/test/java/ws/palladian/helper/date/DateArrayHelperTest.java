@@ -3,31 +3,28 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.daterecognition.DateGetter;
-import ws.palladian.daterecognition.dates.DateType;
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
+import ws.palladian.extraction.date.DateGetter;
+import ws.palladian.extraction.date.dates.DateType;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 
 public class DateArrayHelperTest {
 
     @Test
     public void testFilter() {
         final String url = DateArrayHelperTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
-        if (!AllTests.ALL_TESTS) {
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            DateGetter dateGetter = new DateGetter(url);
-            
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
-            date.addAll(dates);
-            ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
-            assertEquals(6, filter.size());
-        }
+        List<ExtractedDate> date = new ArrayList<ExtractedDate>();
+        DateGetter dateGetter = new DateGetter(url);
+        
+        List<ExtractedDate> dates = dateGetter.getDate();
+        date.addAll(dates);
+        List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
+        assertEquals(5, filter.size());
     }
 
     @Test

@@ -9,10 +9,10 @@ import java.io.StringReader;
 
 import weka.core.Instance;
 import weka.core.Instances;
-import ws.palladian.daterecognition.KeyWords;
-import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.technique.PageDateType;
+import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringOutputStream;
 

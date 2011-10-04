@@ -12,12 +12,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -121,7 +122,7 @@ public class FeedStatisticCreator {
         final DecimalFormat format = new DecimalFormat("#.###################");
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         ResultSetCallback callback = new ResultSetCallback() {
 
@@ -175,7 +176,7 @@ public class FeedStatisticCreator {
     private static double calculateMedianDelay(int avgStyle, int activityPattern, String tableName) throws SQLException {
 
         List<Double> valueList = new ArrayList<Double>();
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         String query = "";
         String countQuery = "SELECT COUNT(*) AS count FROM " + tableName;
@@ -303,7 +304,7 @@ public class FeedStatisticCreator {
         final DecimalFormat format = new DecimalFormat("#.###################");
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         // Double trafficPerNewItemCG = null;
 
@@ -431,7 +432,7 @@ public class FeedStatisticCreator {
      *            The table's name.
      */
     private static void createTempTablePollsX(final String tempTableName) {
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         // with fix1440
         // final String sql = "CREATE TABLE "
@@ -489,7 +490,7 @@ public class FeedStatisticCreator {
     private static void dropTempTable(final String tempTableName) {
         final String sql = "DROP TABLE " + tempTableName;
         Logger.getRootLogger().info(sql);
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
         dbm.runUpdate(sql);
     }
 
@@ -497,7 +498,7 @@ public class FeedStatisticCreator {
 
         StringBuilder csv = new StringBuilder();
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         // new item number, [total delay, number of feeds]
         final Map<Integer, Double[]> delayChartData = new TreeMap<Integer, Double[]>();
@@ -557,7 +558,7 @@ public class FeedStatisticCreator {
 
         StringBuilder csv = new StringBuilder();
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         // new item number, [total timeliness, number of feeds]
         final Map<Integer, Double[]> timelinessChartData = new TreeMap<Integer, Double[]>();
@@ -665,7 +666,7 @@ public class FeedStatisticCreator {
      */
     @SuppressWarnings("unused")
     private static void createTempTableMin() {
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
         String sql = "CREATE TABLE tempTableMin AS SELECT DISTINCT a.feedID FROM "
                 + "feed_evaluation2_adaptive_min_time a, feed_evaluation2_fix1440_max_min_time b "
                 + "WHERE a.feedID = b.feedID " + "AND a.pollTimestamp BETWEEN "
@@ -693,7 +694,7 @@ public class FeedStatisticCreator {
      */
     private static boolean isInTempTable(Feed feed) {
         String sql = "SELECT COUNT(*) AS count FROM tempTableMin WHERE feedID = " + feed.getId();
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
         int c = dbm.runCountQuery(sql);
         if (c > 0) {
             return true;
@@ -873,7 +874,7 @@ public class FeedStatisticCreator {
 
     private static double getUpdateInterval(String query) throws SQLException {
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
         RowConverter<Double> converter = new RowConverter<Double>() {
 
             @Override
@@ -954,7 +955,7 @@ public class FeedStatisticCreator {
     public static void main(String[] args) throws IOException, SQLException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(),
         // "data/temp/feedstats_combined.txt");
-        FeedStatisticCreator.createFeedUpdateIntervalDistribution(DatabaseManagerFactory.create(FeedDatabase.class),
+        FeedStatisticCreator.createFeedUpdateIntervalDistribution(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()),
                 "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");

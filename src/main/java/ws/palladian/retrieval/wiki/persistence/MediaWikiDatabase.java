@@ -16,7 +16,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.daterecognition.DateGetterHelper;
+import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.LocalizeHelper;
 import ws.palladian.persistence.ConnectionManager;

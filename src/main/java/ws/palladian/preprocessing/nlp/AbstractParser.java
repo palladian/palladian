@@ -22,7 +22,7 @@ public abstract class AbstractParser {
      * @param args
      */
     public static void main(String[] args) {
-        final OpenNLPParser onlpp = new OpenNLPParser();
+        final OpenNlpParser onlpp = new OpenNlpParser();
 
         onlpp.loadDefaultModel();
 

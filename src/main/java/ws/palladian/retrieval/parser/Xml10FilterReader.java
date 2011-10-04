@@ -7,11 +7,12 @@ import java.io.Reader;
 import com.sun.org.apache.xerces.internal.util.XMLChar;
 
 /**
- * {@link FilterReader} to skip invalid xml version 1.0 characters. Valid Unicode chars for xml version 1.0 according to
+ * <p>{@link FilterReader} to skip invalid xml version 1.0 characters. Valid Unicode chars for xml version 1.0 according to
  * http://www.w3.org/TR/xml are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD], [#x10000-#x10FFFF] . In other words -
- * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
+ * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.</p>
  * 
- * @author tsachev
+ * @author Philipp Katz
+ * 
  * @see http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
  * 
  */

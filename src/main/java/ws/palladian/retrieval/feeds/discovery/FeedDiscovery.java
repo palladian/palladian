@@ -39,13 +39,14 @@ import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
- * FeedDiscovery works like the following:
+ * <p>FeedDiscovery works like the following:
  * <ol>
  * <li>Query search engine with some terms (see {@link WebSearcherManager} for available search engines)</li>
  * <li>Get root URLs for each hit</li>
  * <li>Check page for feeds using RSS/Atom autodiscovery feature</li>
  * <li>Write the discovered feed URLs to file</li>
  * </ol>
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -109,7 +110,7 @@ public class FeedDiscovery {
 
         if (config != null) {
             setNumThreads(config.getInt("feedDiscovery.numDiscoveryThreads", DEFAULT_NUM_THREADS));
-            setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.YAHOO_BOSS));
+            setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.BING));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
         }

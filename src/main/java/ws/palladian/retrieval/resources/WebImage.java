@@ -2,6 +2,11 @@ package ws.palladian.retrieval.resources;
 
 import ws.palladian.helper.FileHelper;
 
+/**
+ * <p>An extracted image from a Web page.</p>
+ * 
+ * @author David Urbansky
+ */
 public class WebImage {
 
     private String url = "";

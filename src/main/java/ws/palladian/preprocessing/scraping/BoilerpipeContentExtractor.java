@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
@@ -56,7 +56,7 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
 
     @Override
     public BoilerpipeContentExtractor setDocument(Document document) throws PageContentExtractorException {
-        StringReader stringReader = new StringReader(HTMLHelper.getXmlDump(document));
+        StringReader stringReader = new StringReader(HtmlHelper.getXmlDump(document));
         InputSource inputSource = new InputSource(stringReader);
         setDocument(inputSource);
         return this;

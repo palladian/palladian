@@ -22,8 +22,8 @@ import ws.palladian.helper.SendMail;
 import ws.palladian.helper.date.DateHelper;
 
 /**
- * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
- * It has an integrated monitoring component that logs and sends error notifications via email.
+ * <p>A scheduler task handles the distribution of feeds to worker threads that read these feeds.
+ * It has an integrated monitoring component that logs and sends error notifications via email.</p>
  * 
  * @author Klemens Muthmann
  * @author Sandro Reichert

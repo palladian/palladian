@@ -44,7 +44,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 
 /**
- * A handler for images.
+ * <p>A handler for images.</p>
  * 
  * @author David Urbansky
  */
@@ -53,10 +53,10 @@ public class ImageHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ImageHandler.class);
 
-    // image similarity mean square error
+    /** Image similarity mean square error. */
     public static final int MSE = 1;
 
-    // image similarity with minkowsi
+    /** Image similarity with Minkowsi. */
     public static final int MINKOWSKI = 2;
 
     // image similarity with image difference and average gray values

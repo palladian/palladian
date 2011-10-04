@@ -26,18 +26,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 
 /**
- * This class converts various datasets to our Palladian internal format.
+ * <p>This class converts various datasets to our Palladian internal format.</p>
  * 
  * @author Philipp Katz
  * 
  */
-public class Datasetwriter {
+public class DatasetWriter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Datasetwriter.class);
+    private static final Logger LOGGER = Logger.getLogger(DatasetWriter.class);
 
     public static void main(String[] args) {
 
@@ -218,7 +218,7 @@ public class Datasetwriter {
 
                     // parse the HTML file
                     String content = FileHelper.readFileToString(pathToHtmlFile);
-                    String cleanContent = HTMLHelper.documentToReadableText(content, false);
+                    String cleanContent = HtmlHelper.documentToReadableText(content, false);
                     
                     if (cleanContent.length() < 100) {
                         return;

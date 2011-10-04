@@ -15,7 +15,7 @@
  * 
  * <p>
  * A quick overview demonstrating the main use cases of this package in code can be found in
- * {@link ws.palladian.retrieval.feeds.FeedsExamples}.
+ * {@link ws.palladian.retrieval.feeds.UsageExamples}.
  * </p>
  * 
  * @author Philipp Katz

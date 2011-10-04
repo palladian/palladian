@@ -30,12 +30,12 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Martin Wunderwald
  */
-public class OpenNLPParser extends AbstractParser {
+public class OpenNlpParser extends AbstractParser {
 
     /**
      * Logger for this class.
      */
-    protected static final Logger LOGGER = Logger.getLogger(OpenNLPParser.class);
+    protected static final Logger LOGGER = Logger.getLogger(OpenNlpParser.class);
 
     private static final String COREF_PATH = "data/models/opennlp/coref/";
 
@@ -100,7 +100,7 @@ public class OpenNLPParser extends AbstractParser {
     /** The model path. **/
     private final transient String MODEL;
 
-    public OpenNLPParser() {
+    public OpenNlpParser() {
         super();
         setName("OpenNLP Parser");
         final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
@@ -134,12 +134,12 @@ public class OpenNLPParser extends AbstractParser {
     }
 
     @Override
-    public OpenNLPParser loadDefaultModel() {
+    public OpenNlpParser loadDefaultModel() {
         return loadModel(MODEL);
     }
 
     @Override
-    public OpenNLPParser loadModel(final String configModelPath) {
+    public OpenNlpParser loadModel(final String configModelPath) {
 
         try {
 
@@ -180,7 +180,7 @@ public class OpenNLPParser extends AbstractParser {
      *         initialized or the sentence is empty
      */
     @Override
-    public final OpenNLPParser parse(final String sentence) {
+    public final OpenNlpParser parse(final String sentence) {
 
         return parse(sentence, 0);
 
@@ -193,7 +193,7 @@ public class OpenNLPParser extends AbstractParser {
      * @param sentence
      * @param index
      */
-    public final OpenNLPParser parse(final String sentence, final int index) {
+    public final OpenNlpParser parse(final String sentence, final int index) {
 
         openNLPParse = getFullParse(sentence)[index];
 

@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateHelper;
 
-// TODO put normalization from StringHelper and MathHelper here
 /**
  * The DateNormalizer normalizes dates.
  */

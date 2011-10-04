@@ -4,10 +4,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.ner.Annotations;
-import ws.palladian.extraction.entity.ner.FileFormatParser;
-import ws.palladian.extraction.entity.ner.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.preprocessing.nlp.ner.Annotations;
+import ws.palladian.preprocessing.nlp.ner.FileFormatParser;
+import ws.palladian.preprocessing.nlp.ner.StringTagger;
 
 public class StringTaggerTest {
 

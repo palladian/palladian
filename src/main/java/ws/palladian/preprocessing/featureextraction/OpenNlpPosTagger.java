@@ -12,6 +12,9 @@ import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
+import ws.palladian.preprocessing.featureextraction.Tokenizer;
 
 public class OpenNlpPosTagger implements PipelineProcessor {
     

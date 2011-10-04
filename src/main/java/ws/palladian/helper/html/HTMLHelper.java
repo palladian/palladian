@@ -66,9 +66,9 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  * @author Philipp Katz
  * @author Martin Gregor
  */
-public class HTMLHelper {
+public class HtmlHelper {
 
-    private static final Logger LOGGER = Logger.getLogger(HTMLHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(HtmlHelper.class);
 
     /** HTML block level elements. */
     private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset",
@@ -81,7 +81,7 @@ public class HTMLHelper {
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
 
     /** prevent instantiation. */
-    private HTMLHelper() {
+    private HtmlHelper() {
     }
 
     /**
@@ -235,7 +235,7 @@ public class HTMLHelper {
     /**
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
      * gaps. The text might not be readable since all format hints are discarded. Consider using
-     * {@link HTMLHelper.htmlToReableText} in case you need formatting.
+     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
      * 
      * @param htmlContent the html content
      * @param stripTags the strip tags
@@ -244,7 +244,7 @@ public class HTMLHelper {
      * @param joinTagsAndRemoveNewlines the join tags and remove newlines
      * @return The text of the web page.
      */
-    public static String stripHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
+    public static String stripHtmlTags(String htmlContent, boolean stripTags, boolean stripComments,
             boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
 
         String htmlText = htmlContent;
@@ -305,7 +305,7 @@ public class HTMLHelper {
      * <p>
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
      * gaps. The text might not be readable since all format hints are discarded. Consider using
-     * {@link HTMLHelper.htmlToReableText} in case you need formatting.
+     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
      * </p>
      * <p>
      * All tags, including css and javascript, will be removed. Lines will be joined.
@@ -313,8 +313,8 @@ public class HTMLHelper {
      * 
      * @param htmlContent the html content
      */
-    public static String stripHTMLTags(String htmlContent) {
-        return stripHTMLTags(htmlContent, true, true, true, false);
+    public static String stripHtmlTags(String htmlContent) {
+        return stripHtmlTags(htmlContent, true, true, true, false);
     }
 
     /**
@@ -324,19 +324,19 @@ public class HTMLHelper {
      * @param tag The tag that should be removed.
      * @return The html text without the tag.
      */
-    public static String removeConcreteHTMLTag(String pageString, String tag) {
-        return removeConcreteHTMLTag(pageString, tag, tag);
+    public static String removeConcreteHtmlTag(String pageString, String tag) {
+        return removeConcreteHtmlTag(pageString, tag, tag);
     }
 
     /**
-     * Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.
+     * <p>Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.</p>
      * 
      * @param pageContent The html text.
      * @param beginTag The begin tag.
      * @param endTag The end tag.
      * @return The string without the specified html tag.
      */
-    public static String removeConcreteHTMLTag(String pageContent, String beginTag, String endTag) {
+    public static String removeConcreteHtmlTag(String pageContent, String beginTag, String endTag) {
         String pageString = pageContent;
         List<String> removeList;
         removeList = getConcreteTags(pageString, beginTag, endTag);
@@ -397,7 +397,7 @@ public class HTMLHelper {
      * </p>
      * 
      * <p>
-     * In contrast to {@link #stripHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and
+     * In contrast to {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and
      * just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content in
      * text mode in a readable form.
      * </p>
@@ -473,7 +473,7 @@ public class HTMLHelper {
     /**
      * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
      * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
-     * whitespace is handled more correctly than in {@link #stripHTMLTags(String, boolean, boolean, boolean, boolean)}
+     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
      * which never worked well for me.
      * TODO: "namespace not declared errors"
      * 
@@ -500,7 +500,7 @@ public class HTMLHelper {
 
             // parser failed -> fall back, remove tags directly from the string without parsing
             LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
-            result = stripHTMLTags(html, true, true, true, false);
+            result = stripHtmlTags(html, true, true, true, false);
 
         }
 
@@ -582,32 +582,6 @@ public class HTMLHelper {
     }
 
     /**
-     * Sometimes texts in webpages have special code for character.<br>
-     * E.g. <i>&ampuuml;</i> or whitespace. <br>
-     * To evaluate this text reasonably you need to convert this code.<br>
-     * This code and equivalent text is hold in {@link HTMLSymbols}.<br>
-     * 
-     * @param text
-     * @return
-     */
-
-    // TODO rem: there is org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text) which should do the same job.
-    // -- Philipp.
-    // Thanks, will do this after be sure nothing changes.
-
-    public static String replaceHTMLSymbols(String text) {
-        String result = text;
-        if (result != null) {
-            Iterator<String[]> htmlSymbols = HTMLSymbols.getHTMLSymboles().iterator();
-            while (htmlSymbols.hasNext()) {
-                String[] symbol = htmlSymbols.next();
-                result = result.replaceAll(symbol[0], symbol[1]);
-            }
-        }
-        return result;
-    }
-
-    /**
      * Converts a DOM Node or Document into a String. In contrast to {@link PageAnalyzer#getTextDump(Node)}, this method
      * will write out the full node, including tags.
      * 
@@ -624,7 +598,7 @@ public class HTMLHelper {
         try {
 
             if (removeWhitespace) {
-                node = HTMLHelper.removeWhitespace(node);
+                node = HtmlHelper.removeWhitespace(node);
             }
 
             Source source = new DOMSource(node);
@@ -822,7 +796,7 @@ public class HTMLHelper {
      * @param nodeType for example <code>Node.COMMENT_NODE</code>
      */
     public static void removeAll(Node node, short nodeType) {
-        HTMLHelper.removeAll(node, nodeType, null);
+        HtmlHelper.removeAll(node, nodeType, null);
     }
 
     /**
@@ -884,11 +858,11 @@ public class HTMLHelper {
 
         System.out.println(input);
 
-        HTMLHelper.stringToXml(input);
+        HtmlHelper.stringToXml(input);
 
         System.exit(0);
 
-        System.out.println(stripHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
+        System.out.println(stripHtmlTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
         System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 
         // String html = readHtmlFile("testfiles/readability/test004.html");
@@ -936,7 +910,7 @@ public class HTMLHelper {
      * @param document The web document to transform to the HTML string.
      * @return The unformatted HTML code of the document.
      */
-    public static String documentToHTMLString(Document document) {
+    public static String documentToHtmlString(Document document) {
 
         String htmlString = "";
 
@@ -965,7 +939,7 @@ public class HTMLHelper {
      * @param node An HTML node that should be transformed to an HTML string.
      * @return The unformatted HTML code of the node.
      */
-    public static String documentToHTMLString(Node node) {
+    public static String documentToHtmlString(Node node) {
         Document doc = new DocumentImpl();
 
         String ret = "";
@@ -974,7 +948,7 @@ public class HTMLHelper {
             Node clonedNode = node.cloneNode(true);
             Node adoptedNode = doc.adoptNode(clonedNode);
             doc.appendChild(adoptedNode);
-            String rawMarkupString = documentToHTMLString(doc);
+            String rawMarkupString = documentToHtmlString(doc);
             ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
         } catch (Exception e) {
             LOGGER.error("couldn't get raw markup from node " + e.getMessage());
@@ -983,11 +957,11 @@ public class HTMLHelper {
         return ret;
     }
 
-    public static void printDOM(Node node, String indent) {
+    public static void printDom(Node node, String indent) {
         System.out.println(indent + node.getNodeName()/* +node.getTextContent().substring(0,20) */);
         Node child = node.getFirstChild();
         while (child != null) {
-            printDOM(child, indent + "_");
+            printDom(child, indent + "_");
             child = child.getNextSibling();
         }
     }
@@ -1064,7 +1038,7 @@ public class HTMLHelper {
 
     /**
      * Get the string representation of a document.
-     * TODO duplicate of {@link #documentToHTMLString(Document)}?
+     * TODO duplicate of {@link #documentToHtmlString(Document)}?
      * 
      * @param document The document.
      * @return The string representation of the document.

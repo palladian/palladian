@@ -2,7 +2,7 @@ package ws.palladian.helper.math;
 
 
 /**
- * Binary size units, inspired by TimeUnit from Java's concurrent package.
+ * <p>Binary size units, inspired by TimeUnit from Java's concurrent package.</p>
  * @author Philipp Katz
  */
 public enum SizeUnit {

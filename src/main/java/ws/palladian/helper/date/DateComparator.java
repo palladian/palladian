@@ -7,8 +7,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import ws.palladian.daterecognition.dates.AbstractDate;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.dates.AbstractDate;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 
 /**
  * 

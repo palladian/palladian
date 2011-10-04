@@ -2,15 +2,15 @@ package ws.palladian.retrieval.feeds.evaluation;
 
 
 /**
- * This class holds meta information about a poll of an news feed.
+ * <p>This class holds meta information about a poll of an news feed.</p>
  * 
  * @author David Urbansky
  */
 public class PollData {
 
     /**
-     * The type of benchmark where this poll data belongs to. The check interval for example is either min or max check
-     * interval time depending on the benchmark type.
+     * <p>The type of benchmark where this poll data belongs to. The check interval for example is either min or max check
+     * interval time depending on the benchmark type.</p>
      */
     private int benchmarkType = FeedReaderEvaluator.BENCHMARK_OFF;
 

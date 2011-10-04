@@ -1,5 +1,10 @@
 package ws.palladian.retrieval.resources;
 
+/**
+ * <p>An extracted link from a Web page.</p>
+ * 
+ * @author David Urbansky
+ */
 public class WebLink {
 
     private String url = "";

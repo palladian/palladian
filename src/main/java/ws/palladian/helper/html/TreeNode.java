@@ -2,6 +2,7 @@ package ws.palladian.helper.html;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,8 +13,8 @@ import java.util.Set;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
- * A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of
- * another tree node.
+ * <p>A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of
+ * another tree node.</p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -182,9 +183,10 @@ public class TreeNode implements Serializable {
     public List<TreeNode> getFullPath() {
         List<TreeNode> list = getLeafPath();
         list.remove(0);
-        list = CollectionHelper.reverse(list);
+        Collections.reverse(list);
         list.addAll(getRootPath());
-        return CollectionHelper.reverse(list);
+        Collections.reverse(list);
+        return list;
     }
 
     public Object getValue() {

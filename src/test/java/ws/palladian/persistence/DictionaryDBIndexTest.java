@@ -11,7 +11,7 @@ public class DictionaryDBIndexTest extends TestCase {
 
     public void testDBIndex() {
 
-        DictionaryDBIndexH2 dbIndex = new DictionaryDBIndexH2("test_dictionary", "root", "", "");
+        DictionaryDbIndexH2 dbIndex = new DictionaryDbIndexH2("test_dictionary", "root", "", "");
         dbIndex.setDictionary(new Dictionary("test_dictionary", 1));
         dbIndex.empty();
 

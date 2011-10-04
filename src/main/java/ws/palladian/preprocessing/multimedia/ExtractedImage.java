@@ -1,7 +1,7 @@
 package ws.palladian.preprocessing.multimedia;
 
 /**
- * An extracted image.
+ * <p>An extracted image.</p>
  * 
  * @author David Urbansky
  */

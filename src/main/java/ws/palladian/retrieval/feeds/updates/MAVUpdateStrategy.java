@@ -16,7 +16,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * @author David Urbansky
  * 
  */
-public class MAVUpdateStrategy extends UpdateStrategy {
+public class MavUpdateStrategy extends UpdateStrategy {
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {

@@ -3,16 +3,16 @@ package ws.palladian.helper.date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
-import ws.palladian.daterecognition.DateRaterHelper;
-import ws.palladian.daterecognition.ExtractedDateHelper;
-import ws.palladian.daterecognition.dates.AbstractDate;
-import ws.palladian.daterecognition.dates.ContentDate;
-import ws.palladian.daterecognition.dates.DateType;
-import ws.palladian.daterecognition.dates.ExtractedDate;
-import ws.palladian.daterecognition.dates.MetaDate;
-import ws.palladian.daterecognition.dates.StructureDate;
+import ws.palladian.extraction.date.DateRaterHelper;
+import ws.palladian.extraction.date.ExtractedDateHelper;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.DateType;
+import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.StructureDate;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
@@ -81,7 +81,7 @@ public class DateArrayHelper {
 
     }
 
-    public static <T> ArrayList<T> filter(ArrayList<T> dates, DateType filter) {
+    public static <T> ArrayList<T> filter(List<T> dates, DateType filter) {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
         Iterator<T> iterator = dates.iterator();

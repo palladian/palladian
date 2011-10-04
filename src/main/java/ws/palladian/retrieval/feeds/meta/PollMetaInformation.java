@@ -6,8 +6,7 @@ import java.util.Date;
 import ws.palladian.helper.date.DateHelper;
 
 /**
- * Store meta information for a single poll.
- * 
+ * <p>Store meta information for a single poll.</p>
  * 
  * @author Sandro Reichert
  * 

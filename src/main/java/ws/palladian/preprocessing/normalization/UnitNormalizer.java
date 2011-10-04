@@ -11,7 +11,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
- * The UnitNormalizer normalizes units.
+ * <p>The UnitNormalizer normalizes units.</p>
  * 
  * @author David Urbansky
  */

@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HTMLHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.ListDiscoverer;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -147,7 +147,7 @@ public abstract class RuleBasedPageClassifier<T> {
         // HTMLHelper.documentToHTMLString(document)));
 
         setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
-                HTMLHelper.documentToText(document)));
+                HtmlHelper.documentToText(document)));
 
         // setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
         // pse.getSentencesString()));
@@ -162,7 +162,7 @@ public abstract class RuleBasedPageClassifier<T> {
 
     private int getHighestNumberOfConsecutiveSentences(Collection<String> sentences, String html) {
 
-        html = HTMLHelper.stripHTMLTags(html);
+        html = HtmlHelper.stripHtmlTags(html);
 
         html = StringHelper.removeControlCharacters(html);
 

@@ -22,8 +22,7 @@ import ws.palladian.helper.LineAction;
 import ws.palladian.helper.UrlHelper;
 
 /**
- * Quickndirty implementation for Sandro's highly sophisticated
- * Feed-URLs-Near-Duplicate-Detection-Algorithm(tm)(c)(reg).
+ * <p>Implementation for Sandro's highly sophisticated Feed-URLs-Near-Duplicate-Detection-Algorithm.</p>
  * 
  * @author Philipp Katz
  * @author Sandro Reichert

@@ -4,7 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * This class represents a single word which is held in the {@link WordDB}.
+ * <p>This class represents a single word which is held in the {@link WordDB}.</p>
  * 
  * @author David Urbansky
  * 

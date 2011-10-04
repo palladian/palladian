@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -19,15 +20,14 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * Reads the feed's csv, extracts the windowSize, checks whether it is variable or static, gets number of items and
- * number of misses and stores these values in the database.
+ * <p>Reads the feed's csv, extracts the windowSize, checks whether it is variable or static, gets number of items and
+ * number of misses and stores these values in the database.</p>
  * 
- * Class might be used after merging multiple csv files to get these statistics which are usually directly written to
- * database when crawling the feed.
+ * <p>Class might be used after merging multiple csv files to get these statistics which are usually directly written to
+ * database when crawling the feed.</p>
  * 
  * @author Sandro Reichert
  * 
- *         TODO: find better name :)
  */
 public class FeedStatisticReaderTask extends Thread {
 
@@ -171,7 +171,7 @@ public class FeedStatisticReaderTask extends Thread {
 
     public static void main(String[] args) {
 
-        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         Feed feed = new Feed();
         feed.getMetaInformation().setSiteUrl("");
 

@@ -7,7 +7,7 @@ import java.sql.SQLException;
  * @author Sandro Reichert
  * 
  */
-public class SQLHelper {
+public class SqlHelper {
 
     /**
      * Helper to get an Integer value from a result set that preserves <code>null</code> values.

@@ -12,8 +12,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.daterecognition.DateGetterHelper;
-import ws.palladian.daterecognition.dates.ExtractedDate;
+import ws.palladian.extraction.date.DateGetterHelper;
+import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.Feed;
