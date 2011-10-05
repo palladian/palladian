@@ -17,9 +17,9 @@ import ws.palladian.helper.date.DateHelper;
  * 
  * @author David Urbansky
  */
-public class DBStore {
+public class DbStore {
 
-    protected static final Logger logger = Logger.getLogger(DBStore.class);
+    protected static final Logger logger = Logger.getLogger(DbStore.class);
 
     // database paramenters
     private Connection connection = null;
@@ -47,12 +47,12 @@ public class DBStore {
     // number of objects in the store
     private int size = 0;
 
-    public DBStore(String tableName) {
+    public DbStore(String tableName) {
         setTableName(tableName);
         connection = getConnection();
     }
 
-    public DBStore(String tableName, String dbUsername, String dbPassword) {
+    public DbStore(String tableName, String dbUsername, String dbPassword) {
         setTableName(tableName);
         setDbUsername(dbUsername);
         setDbPassword(dbPassword);
@@ -306,7 +306,7 @@ public class DBStore {
      * @param args
      */
     public static void main(String[] args) {
-        DBStore dbStore = new DBStore("testStore");
+        DbStore dbStore = new DbStore("testStore");
         dbStore.put("abc", "def");
         System.out.println(dbStore.get("abc"));
 
@@ -322,7 +322,7 @@ public class DBStore {
         // performance test (H2 is about 8-40 times faster than MySQL
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
-            DBStore dbs = new DBStore("table" + i);
+            DbStore dbs = new DbStore("table" + i);
             dbs.put("abc", "def");
             dbs.remove("abc");
             dbs.put("abc", "def");
