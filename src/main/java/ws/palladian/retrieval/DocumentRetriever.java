@@ -565,6 +565,7 @@ public class DocumentRetriever {
 
     /**
      * Get a JSON object from a URL. The retrieved contents must return a valid JSON object.
+     * TODO rename this to getJSONObject
      * 
      * @param url the URL pointing to the JSON string.
      * @return the JSON object.
