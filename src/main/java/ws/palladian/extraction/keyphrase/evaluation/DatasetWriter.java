@@ -19,12 +19,12 @@ import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.helper.Counter;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -148,8 +148,8 @@ public class DatasetWriter {
             FileHelper.delete(pathToDocsSubdirectory);
         }
 
-        final Counter parseCounter = new Counter();
-        final Counter acceptCounter = new Counter();
+        final MutableInt parseCounter = new MutableInt();
+        final MutableInt acceptCounter = new MutableInt();
         
         try {
 
@@ -237,7 +237,7 @@ public class DatasetWriter {
                     
                     acceptCounter.increment();
                     
-                    if (acceptCounter.getCount() % 1000 == 0) {
+                    if (acceptCounter.intValue() % 1000 == 0) {
                         LOGGER.info("wrote " + acceptCounter + " entries; parsed " + parseCounter + " entries.");
                     }
 
