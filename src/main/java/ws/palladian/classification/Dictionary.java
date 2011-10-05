@@ -15,7 +15,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DictionaryDbIndexH2;
-import ws.palladian.persistence.DictionaryDbIndexMySQL;
+import ws.palladian.persistence.DictionaryDbIndexMySql;
 import ws.palladian.persistence.DictionaryFileIndex;
 import ws.palladian.persistence.DictionaryIndex;
 
@@ -114,11 +114,11 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             if (indexType == DB_INDEX_FAST || indexType == DB_INDEX_NORMALIZED) {
 
                 if (databaseType == DB_MYSQL) {
-                    dictionaryIndex = new DictionaryDbIndexMySQL(getName(), "root", "", getIndexPath());
+                    dictionaryIndex = new DictionaryDbIndexMySql(getName(), "root", "", getIndexPath());
                     if (indexType == DB_INDEX_FAST) {
-                        ((DictionaryDbIndexMySQL) dictionaryIndex).setFastMode(true);
+                        ((DictionaryDbIndexMySql) dictionaryIndex).setFastMode(true);
                     } else {
-                        ((DictionaryDbIndexMySQL) dictionaryIndex).setFastMode(false);
+                        ((DictionaryDbIndexMySql) dictionaryIndex).setFastMode(false);
                     }
                 } else {
                     dictionaryIndex = new DictionaryDbIndexH2(getName(), "root", "", getIndexPath());

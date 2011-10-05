@@ -1,6 +1,5 @@
 package ws.palladian.persistence;
 
-import ws.palladian.persistence.DBStore;
 import junit.framework.TestCase;
 
 /**
@@ -8,14 +7,14 @@ import junit.framework.TestCase;
  * 
  * @author David Urbansky
  */
-public class DBStoreTest extends TestCase {
+public class DbStoreTest extends TestCase {
 
-    public DBStoreTest(String name) {
+    public DbStoreTest(String name) {
         super(name);
     }
 
-    public void testDBStore() {
-        DBStore dbStore = new DBStore("test");
+    public void testDbStore() {
+        DbStore dbStore = new DbStore("test");
         dbStore.clear();
 
         dbStore.put("abc", "def");

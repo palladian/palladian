@@ -7,7 +7,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 
-public class DictionaryDBIndexTest extends TestCase {
+public class DictionaryDbIndexTest extends TestCase {
 
     public void testDBIndex() {
 
