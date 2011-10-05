@@ -1186,6 +1186,7 @@ public class StringHelper {
      * @param string
      * @return
      */
+    // TODO move to UrlHelper
     public static String urlDecode(String string) {
         try {
             string = URLDecoder.decode(string, "UTF-8");
@@ -1203,6 +1204,7 @@ public class StringHelper {
      * @param string
      * @return
      */
+    // TODO move to UrlHelper
     public static String urlEncode(String string) {
         String result;
         try {
@@ -1387,6 +1389,7 @@ public class StringHelper {
      * @param text
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
+    // TODO move to UrlHelper
     public static List<String> extractUrls(String text) {
         List<String> urls = new ArrayList<String>();
         Pattern p = Pattern
