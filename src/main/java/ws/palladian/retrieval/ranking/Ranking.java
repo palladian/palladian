@@ -1,166 +1,107 @@
 package ws.palladian.retrieval.ranking;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
-
-import com.ibm.icu.util.Calendar;
+import java.util.Map.Entry;
 
 /**
+ * <p>
  * Represents a ranking value retrieved at a given moment for a given RankingService.
+ * </p>
  * 
  * @author Julien Schmehl
- * 
  */
 public class Ranking {
-	
-	
-	/** The ranking service producing this ranking */
-	private RankingService service;
-	/** The ranking values */
-	private Map<RankingType, Float> values;
-	/** The url these ranking values are for */
-	private String url;
-	/** The time when the ranking was retrieved */
-	private Timestamp retrieved;
-	/** The topic this URL was classified in */
-	private String topic;
-	
-	
-	
-	
-	public Ranking(){
-		super();
-	}
-	
-	public Ranking(RankingService service){
-		this.setService(service);
-	}
-	
-	public Ranking(RankingService service, String url){
-		this.setService(service);
-		this.setUrl(url);
-	}
-	
-	public Ranking(RankingService service, String url, Map<RankingType, Float> values){
-		this.setService(service);
-		this.setValues(values);
-		this.setUrl(url);
-		this.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-	}
-	
-	public Ranking(RankingService service, String url, Map<RankingType, Float> values, Timestamp retrieved){
-		this.setService(service);
-		this.setValues(values);
-		this.setUrl(url);
-		this.setRetrieved(retrieved);
-	}
-	
-	public Ranking(RankingService service, String url, Map<RankingType, Float> values, Timestamp retrieved, String topic){
-		this.setService(service);
-		this.setValues(values);
-		this.setUrl(url);
-		this.setRetrieved(retrieved);
-		this.setTopic(topic);
-	}
 
-	/**
-	 * Get the ranking score (average weighted ranking of all values)
-	 * of this ranking. Set topicWeighted to true to also use topic
-	 * specific weighting.
-	 *  
-	 * @return the ranking score between 0 and 1
-	 * 
-	 */
-	public float getRankingScore(boolean topicWeighted) {
-		float score = getWeightedRankingValueSum()/values.size();
-		if(topicWeighted && this.topic.length()>0) 
-			score = score*this.service.getTopicWeighting(this.topic);
-		if(score > 1) score = 1;
-		return score;
-	}
-	/**
-	 * Get the total of all ranking values
-	 * associated with this ranking
-	 * 
-	 * @return the total sum of all ranking values
-	 * 
-	 */
-	public float getRankingValueSum() {
-		float sum = 0;
-		for(RankingType rt:values.keySet()) {
-			sum += values.get(rt);
-		}
-		return sum;
-	}
-	/**
-	 * Get the total of all ranking values
-	 * associated with this ranking weighted 
-	 * by their commitment factors
-	 * 
-	 * @return the total sum of all ranking values weighted 
-	 * by their commitment factors
-	 * 
-	 */
-	public float getWeightedRankingValueSum() {
-		float weightedSum = 0;
-		for(RankingType rt:values.keySet()) {
-			if(rt.getCommittment()*values.get(rt) < 1) weightedSum += rt.getCommittment()*values.get(rt);
-			else weightedSum += 1;
-		}
-		return weightedSum;
-	}
-	
-	
-	public void setService(RankingService service) {
-		this.service = service;
-	}
-	public RankingService getService() {
-		return service;
-	}
-	/**
-	 * Set a map of all ranking values
-	 * associated with this ranking and their
-	 * corresponding ranking type
-	 * 
-	 * @param pairs of ranking type and ranking value
-	 * 
-	 */
-	public void setValues(Map<RankingType, Float> values) {
-		this.values = values;
-	}
-	/**
-	 * Get a map of all ranking values
-	 * associated with this ranking and their
-	 * corresponding ranking type
-	 * 
-	 * @return pairs of ranking type and ranking value
-	 * 
-	 */
-	public Map<RankingType, Float> getValues() {
-		return values;
-	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public void setRetrieved(Timestamp retrieved) {
-		this.retrieved = retrieved;
-	}
-	public Timestamp getRetrieved() {
-		return retrieved;
-	}
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-	public String getTopic() {
-		return topic;
-	}
-	public String toString() {
-		return "Ranking for "+this.getUrl()+" from "+this.getService().getServiceId()+": "+this.getRankingValueSum();
-	}
+    /** The ranking service producing this ranking */
+    private RankingService service;
 
+    /** The ranking values */
+    private Map<RankingType, Float> values;
 
+    /** The URL these ranking values are for */
+    private String url;
 
+    /** The time when the ranking was retrieved */
+    private Date retrieved;
+
+    /**
+     * <p>
+     * Create a new instance with the retrieved value set to now.
+     * </p>
+     * 
+     * @param service
+     * @param url
+     * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
+     */
+    public Ranking(RankingService service, String url, Map<RankingType, Float> values) {
+        this(service, url, values, new Date());
+    }
+
+    /**
+     * <p>
+     * Create a new, fully initialized instance.
+     * </p>
+     * 
+     * @param service
+     * @param url
+     * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
+     * @param retrieved
+     */
+    public Ranking(RankingService service, String url, Map<RankingType, Float> values, Date retrieved) {
+        this.service = service;
+        this.values = values;
+        this.url = url;
+        this.retrieved = retrieved;
+    }
+
+    /**
+     * <p>
+     * Get the total of all ranking values associated with this ranking.
+     * </p>
+     * 
+     * @return the total sum of all ranking values
+     */
+    public float getRankingValueSum() {
+        float sum = 0;
+        for (RankingType rt : values.keySet()) {
+            sum += values.get(rt);
+        }
+        return sum;
+    }
+
+    public RankingService getService() {
+        return service;
+    }
+
+    /**
+     * <p>
+     * Get a Map of all ranking values associated with this ranking and their corresponding ranking type.
+     * </p>
+     * 
+     * @return pairs of ranking type and ranking value
+     */
+    public Map<RankingType, Float> getValues() {
+        return values;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public Date getRetrieved() {
+        return retrieved;
+    }
+
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Ranking for ").append(getUrl());
+        stringBuilder.append(" from ").append(getService().getServiceId()).append(":");
+        for (Entry<RankingType, Float> entry : getValues().entrySet()) {
+            RankingType rankingType = entry.getKey();
+            Float rankingValue = entry.getValue();
+            stringBuilder.append(" ").append(rankingType.getId()).append("=").append(rankingValue);
+        }
+        return stringBuilder.toString();
+    }
 }
