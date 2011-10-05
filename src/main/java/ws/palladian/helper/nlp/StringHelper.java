@@ -1,8 +1,5 @@
 package ws.palladian.helper.nlp;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +22,7 @@ import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
 
 /**
- * <p>The StringHelper adds string functionality.</p>
+ * <p>The StringHelper provides functionality for typical String manipulation operations.</p>
  * 
  * @author David Urbansky
  * @author Martin Werner
@@ -265,15 +262,15 @@ public class StringHelper {
         return modText;
     }
 
-    /**
-     * Make name for view.
-     * 
-     * @param name The name.
-     * @return The view name.
-     */
-    public static String makeViewName(String name) {
-        return name.replaceAll("_", " ");
-    }
+//    /**
+//     * Make name for view.
+//     * 
+//     * @param name The name.
+//     * @return The view name.
+//     */
+//    public static String makeViewName(String name) {
+//        return name.replaceAll("_", " ");
+//    }
 
     /**
      * Check whether a given string contains a proper noun.
@@ -751,19 +748,19 @@ public class StringHelper {
         return string;
     }
 
-    /**
-     * Trim.
-     * 
-     * @param strings the strings
-     * @return the hash set
-     */
-    public static HashSet<String> trim(HashSet<String> strings) {
-        HashSet<String> trimmedStrings = new HashSet<String>();
-        for (String s : strings) {
-            trimmedStrings.add(trim(s));
-        }
-        return trimmedStrings;
-    }
+//    /**
+//     * Trim.
+//     * 
+//     * @param strings the strings
+//     * @return the hash set
+//     */
+//    public static HashSet<String> trim(HashSet<String> strings) {
+//        HashSet<String> trimmedStrings = new HashSet<String>();
+//        for (String s : strings) {
+//            trimmedStrings.add(trim(s));
+//        }
+//        return trimmedStrings;
+//    }
 
     /**
      * <p>
@@ -1181,42 +1178,6 @@ public class StringHelper {
     }
 
     /**
-     * URLDecode a String.
-     * 
-     * @param string
-     * @return
-     */
-    // TODO move to UrlHelper
-    public static String urlDecode(String string) {
-        try {
-            string = URLDecoder.decode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Logger.getRootLogger().error("unsupportedEncodingException for " + string + ", " + e.getMessage());
-        } catch (Exception e) {
-            Logger.getRootLogger().error("exception at Crawler for " + string + ", " + e.getMessage());
-        }
-        return string;
-    }
-
-    /**
-     * URLEncode a String.
-     * 
-     * @param string
-     * @return
-     */
-    // TODO move to UrlHelper
-    public static String urlEncode(String string) {
-        String result;
-        try {
-            result = URLEncoder.encode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Logger.getRootLogger().error("urlEncodeUtf8 " + e.getMessage());
-            result = string;
-        }
-        return result;
-    }
-
-    /**
      * Looks for a regular expression in string. Removes found substring from source-string. <br>
      * Only the first found match will be deleted. <br>
      * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
@@ -1376,31 +1337,6 @@ public class StringHelper {
             }
         }
         return out.toString();
-    }
-
-    /**
-     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
-     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
-     * processing of the extracted URLs.
-     * 
-     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-     * and alternative one can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
-     * 
-     * @param text
-     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
-     */
-    // TODO move to UrlHelper
-    public static List<String> extractUrls(String text) {
-        List<String> urls = new ArrayList<String>();
-        Pattern p = Pattern
-        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
-        .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
-
-        Matcher m = p.matcher(text);
-        while (m.find()) {
-            urls.add(m.group());
-        }
-        return urls;
     }
 
     public static String getRegexpMatch(String regexp, String text) {

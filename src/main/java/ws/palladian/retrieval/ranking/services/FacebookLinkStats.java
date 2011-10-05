@@ -13,7 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -74,7 +74,7 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
 
         try {
 
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = retriever.getJSONDocument(FQL_QUERY + "url='" + encUrl + "'");
 
             if (json != null) {
@@ -110,9 +110,9 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
 
             for (int i = 0; i < urls.size(); i++) {
                 if (i == urls.size() - 1) {
-                    encUrls += "url='" + StringHelper.urlEncode(urls.get(i)) + "'";
+                    encUrls += "url='" + UrlHelper.urlEncode(urls.get(i)) + "'";
                 } else {
-                    encUrls += "url='" + StringHelper.urlEncode(urls.get(i)) + "' or ";
+                    encUrls += "url='" + UrlHelper.urlEncode(urls.get(i)) + "' or ";
                 }
             }
 

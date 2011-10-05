@@ -1,7 +1,12 @@
 package ws.palladian.helper;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,13 +54,13 @@ public class UrlHelper {
     }
 
     /**
-     * Tries to remove a sessionID from URL if it can be found.
+     * Tries to remove a session ID from URL if it can be found.
      * 
      * @param original The URL to remove the sessionID from.
      * @return The URL without the sessionID if it could be found or the original URL else wise. <code>null</code> if
      *         original was <code>null</code>.
      */
-    public static URL removeSessionID(URL original) {
+    public static URL removeSessionId(URL original) {
         URL replacedURL = original;
         if (original != null) {
             String origURL = original.toString();
@@ -86,19 +91,19 @@ public class UrlHelper {
     /**
      * Convenience method to remove a sessionID from a url string if it can be found.
      * 
-     * @param originalURL The URL to remove the sessionID from.
+     * @param originalUrl The URL to remove the sessionID from.
      * @param silent If <code>true</code>, do not log errors.
      * @return The string representation of the url without the sessionID if it could be found or the original string
      *         else wise. <code>null</code> if original was <code>null</code>.
      */
-    public static String removeSessionID(String originalURL, boolean silent) {
-        String replacedURL = originalURL;
-        if (originalURL != null) {
+    public static String removeSessionId(String originalUrl, boolean silent) {
+        String replacedURL = originalUrl;
+        if (originalUrl != null) {
             try {
-                replacedURL = removeSessionID(new URL(originalURL)).toString();
+                replacedURL = removeSessionId(new URL(originalUrl)).toString();
             } catch (MalformedURLException e) {
                 if (!silent) {
-                    LOGGER.error("Could not create URL from \"" + originalURL + "\". " + e.getLocalizedMessage());
+                    LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
                 }
             }
         }
@@ -132,7 +137,7 @@ public class UrlHelper {
      * 
      * @author Philipp Katz
      */
-    public static String makeFullURL(String pageUrl, String baseUrl, String linkUrl) {
+    public static String makeFullUrl(String pageUrl, String baseUrl, String linkUrl) {
         // LOGGER.trace(">makeFullURL " + pageUrl + " " + baseUrl + " " + linkUrl);
         String result = "";
         if (linkUrl != null && !linkUrl.startsWith("javascript") && !linkUrl.startsWith("mailto:")) {
@@ -173,11 +178,11 @@ public class UrlHelper {
         return result;
     }
 
-    public static String makeFullURL(String pageUrl, String linkUrl) {
-        return makeFullURL(pageUrl, null, linkUrl);
+    public static String makeFullUrl(String pageUrl, String linkUrl) {
+        return makeFullUrl(pageUrl, null, linkUrl);
     }
 
-    public static String getCleanURL(String url) {
+    public static String getCleanUrl(String url) {
         if (url == null) {
             url = "";
         }
@@ -206,7 +211,7 @@ public class UrlHelper {
      * @return true, if is a valid URL
      * @author Martin Werner
      */
-    public static boolean isValidURL(String url) {
+    public static boolean isValidUrl(String url) {
 
         boolean returnValue = false;
 
@@ -263,23 +268,23 @@ public class UrlHelper {
      * Check URL for validness and eventually modify e.g. relative path
      * 
      * @param urlCandidate the URLCandidate
-     * @param pageURL the pageURL
+     * @param pageUrl the pageURL
      * @return the verified URL
      */
-    public static String verifyURL(final String urlCandidate, final String pageURL) {
+    public static String verifyUrl(final String urlCandidate, final String pageUrl) {
 
         String returnValue = "";
 
         final String modUrlCandidate = urlCandidate.trim();
         if (modUrlCandidate.startsWith("http://")) {
-            if (isValidURL(modUrlCandidate)) {
+            if (isValidUrl(modUrlCandidate)) {
                 returnValue = modUrlCandidate;
             }
         } else {
 
             if (modUrlCandidate.length() > 2) {
-                final String modifiedURL = makeFullURL(pageURL, modUrlCandidate);
-                if (isValidURL(modifiedURL)) {
+                final String modifiedURL = makeFullUrl(pageUrl, modUrlCandidate);
+                if (isValidUrl(modifiedURL)) {
                     returnValue = modifiedURL;
                 }
             }
@@ -296,7 +301,7 @@ public class UrlHelper {
      * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
 	 * 
 	 */
-	public static String getCanonicalURL(String url) {
+	public static String getCanonicalUrl(String url) {
 		
 		if (url == null) {
 			return "";
@@ -308,7 +313,7 @@ public class UrlHelper {
 			DocumentRetriever dr = new DocumentRetriever();
 			String redirectUrl = dr.getRedirectUrl(url);
 			
-			if(isValidURL(redirectUrl)) url = redirectUrl;
+			if(isValidUrl(redirectUrl)) url = redirectUrl;
 
             URL urlObj = new URL(url);
             
@@ -356,4 +361,62 @@ public class UrlHelper {
 		
 
 	}
+
+    /**
+     * URLDecode a String.
+     * 
+     * @param string
+     * @return
+     */
+    public static String urlDecode(String string) {
+        try {
+            string = URLDecoder.decode(string, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Logger.getRootLogger().error("unsupportedEncodingException for " + string + ", " + e.getMessage());
+        } catch (Exception e) {
+            Logger.getRootLogger().error("exception at Crawler for " + string + ", " + e.getMessage());
+        }
+        return string;
+    }
+
+    /**
+     * URLEncode a String.
+     * 
+     * @param string
+     * @return
+     */
+    public static String urlEncode(String string) {
+        String result;
+        try {
+            result = URLEncoder.encode(string, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Logger.getRootLogger().error("urlEncodeUtf8 " + e.getMessage());
+            result = string;
+        }
+        return result;
+    }
+
+    /**
+     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
+     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
+     * processing of the extracted URLs.
+     * 
+     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+     * and alternative one can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
+     * 
+     * @param text
+     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
+     */
+    public static List<String> extractUrls(String text) {
+        List<String> urls = new ArrayList<String>();
+        Pattern p = Pattern
+        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
+        .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+    
+        Matcher m = p.matcher(text);
+        while (m.find()) {
+            urls.add(m.group());
+        }
+        return urls;
+    }
 }

@@ -272,7 +272,7 @@ public class ListDiscoverer {
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, paginationXPath);
         for (int i = 0; i < linkNodes.size(); i++) {
             String linkURL = linkNodes.get(i).getTextContent();
-            linkURL = UrlHelper.makeFullURL(url, linkURL);
+            linkURL = UrlHelper.makeFullUrl(url, linkURL);
             if (linkURL.length() > 0) {
                 paginationURLs.add(linkURL);
             }

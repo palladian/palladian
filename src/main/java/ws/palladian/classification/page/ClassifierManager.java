@@ -535,14 +535,14 @@ public class ClassifierManager {
                 List<String> urls = sr.getURLs(keyword);
 
                 for (String url : urls) {
-                    String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanURL(url));
+                    String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanUrl(url));
                     String cleanURLName = "webpage" + fileCounter++ + "_"
                     + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
                     if (crawler.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
                         fileIndex.append(cleanURLName).append(" ").append(category.getKey()).append("\n");
-                        urlIndex.append(UrlHelper.getCleanURL(url)).append(" ").append(category.getKey()).append("\n");
+                        urlIndex.append(UrlHelper.getCleanUrl(url)).append(" ").append(category.getKey()).append("\n");
                         System.out.println("Saved and indexed " + url + " to " + cleanURLName);
                     } else {
                         System.out.println("Failed to save from page from " + url);

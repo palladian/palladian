@@ -239,7 +239,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         String entryLink = syndEntry.getLink();
         if (entryLink != null && entryLink.length() > 0) {
             entryLink = entryLink.trim();
-            entryLink = UrlHelper.makeFullURL(syndFeed.getLink(), entryLink);
+            entryLink = UrlHelper.makeFullUrl(syndFeed.getLink(), entryLink);
         }
         return entryLink;
     }

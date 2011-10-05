@@ -179,7 +179,7 @@ final class DataHelper {
 
                             if (linkNode.getAttributes().getNamedItem("r:resource") != null) {
                                 String link = linkNode.getAttributes().getNamedItem("r:resource").getTextContent();
-                                link = UrlHelper.getCleanURL(link);
+                                link = UrlHelper.getCleanUrl(link);
                                 transformedString.append(link).append(" ").append(categoryString).append("\n");
                                 fileLines++;
                                 // System.out.println(fileLines);

@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -86,7 +87,7 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
 
         try {
 
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             // authenticate via HTTP Auth and send GET request
             String pass = getLogin() + ":" + getApiKey();
             Map<String, String> headerParams = new HashMap<String, String>();

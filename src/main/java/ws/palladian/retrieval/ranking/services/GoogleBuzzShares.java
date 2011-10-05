@@ -14,7 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -77,7 +77,7 @@ public class GoogleBuzzShares extends BaseRankingService implements RankingServi
         }
 
         try {
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = retriever.getJSONDocument("https://www.googleapis.com/buzz/v1/activities/count?key="
                     + getApiKey() + "&alt=json&url=" + encUrl);
             if (json != null) {
@@ -113,7 +113,7 @@ public class GoogleBuzzShares extends BaseRankingService implements RankingServi
 
             try {
                 for (int i = 0; i < subUrls.size(); i++) {
-                    encUrls += "&url=" + StringHelper.urlEncode(subUrls.get(i));
+                    encUrls += "&url=" + UrlHelper.urlEncode(subUrls.get(i));
                 }
 
                 JSONObject json = retriever.getJSONDocument("https://www.googleapis.com/buzz/v1/activities/count?key="

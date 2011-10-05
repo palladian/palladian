@@ -1087,7 +1087,7 @@ public class PageAnalyzer {
         String siblingURL = "";
         String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
 
-        String url = StringHelper.urlDecode(document.getDocumentURI());
+        String url = UrlHelper.urlDecode(document.getDocumentURI());
 
         // for test cases on local files, we ignore sibling URLs
         if (url == null || url.startsWith("file:")) {
@@ -1116,13 +1116,13 @@ public class PageAnalyzer {
             currentLink = UrlHelper.removeAnchors(currentLink);
 
             // normalize relative and absolute links
-            currentLink = UrlHelper.makeFullURL(url, currentLink);
+            currentLink = UrlHelper.makeFullUrl(url, currentLink);
 
             if (currentLink.length() == 0) {
                 continue;
             }
 
-            currentLink = StringHelper.urlDecode(currentLink);
+            currentLink = UrlHelper.urlDecode(currentLink);
 
             // calculate similarity to given url
             double similarity = StringHelper.calculateSimilarity(currentLink, url, false);
@@ -1217,7 +1217,7 @@ public class PageAnalyzer {
 
             // normalize relative and absolute links
             // currentLink = makeFullURL(url, currentLink);
-            currentLink = UrlHelper.makeFullURL(url, baseHref, currentLink);
+            currentLink = UrlHelper.makeFullUrl(url, baseHref, currentLink);
 
             if (currentLink.length() == 0) {
                 continue;

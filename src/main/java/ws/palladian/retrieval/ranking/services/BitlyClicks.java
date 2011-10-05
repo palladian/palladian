@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -92,7 +92,7 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
             // Step 1: get the bit.ly hash for the specified URL
             String hash = null;
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = retriever.getJSONDocument("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
                     + getApiKey() + "&url=" + encUrl);
             if (checkJsonResponse(json)) {
@@ -152,7 +152,7 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
                 Map<String, String> hashes = new HashMap<String, String>();
 
                 for (int i = 0; i < subUrls.size(); i++) {
-                    encUrls += "&url=" + StringHelper.urlEncode(subUrls.get(i));
+                    encUrls += "&url=" + UrlHelper.urlEncode(subUrls.get(i));
                 }
 
                 urlString = "http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey=" + getApiKey()
