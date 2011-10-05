@@ -17,8 +17,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.helper.Counter;
-
 /**
  * Parser for Delicious data set from http://nlp.uned.es/social-tagging/delicioust140/
  * 
@@ -323,15 +321,12 @@ public class DeliciousDatasetReader {
         filter.setMaxFileSize(500000);
         reader.setFilter(filter);
 
-        final Counter c = new Counter();
         // callback for every entry in the data set
         DatasetCallback callback = new DatasetCallback() {
 
             @Override
             public void callback(DatasetEntry entry) {
-
-                c.increment();
-
+                // do stuff
             }
         };
 
@@ -340,8 +335,6 @@ public class DeliciousDatasetReader {
         // defining an offset is useful for evaluation purposes,
         // allowing to separate into train and test set
         reader.read(callback);
-
-        System.out.println(c);
 
     }
 
