@@ -9,10 +9,10 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-public final class URLCleaner {
+public final class UrlCleaner {
 
     @SuppressWarnings("unused")
-    private final static Logger LOGGER = Logger.getLogger(URLCleaner.class);
+    private final static Logger LOGGER = Logger.getLogger(UrlCleaner.class);
     private final static String INSERT_STATEMENT = "INSERT INTO feeds (feedUrl,siteUrl,format,textType,newestItemHash) VALUES (?,\"\",0,0,\"\");";
 
     // private final static String[] duplicateFeeds = { "http://216.109.136.224/RSS.aspx",
