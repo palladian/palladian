@@ -8,8 +8,8 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -40,7 +40,7 @@ public class AlexaRank extends BaseRankingService implements RankingService {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
 
-        String encUrl = StringHelper.urlEncode(url);
+        String encUrl = UrlHelper.urlEncode(url);
         Document doc = retriever.getXMLDocument("http://data.alexa.com/data?cli=10&dat=s&url=" + encUrl);
 
         if (doc != null) {

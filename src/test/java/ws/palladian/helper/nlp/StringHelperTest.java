@@ -217,21 +217,6 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
 
-    @Test
-    public void testExtractUrls() {
 
-        String text = "The quick brown fox jumps over the lazy dog. Check out: http://microsoft.com, www.apple.com, google.com. (www.tu-dresden.de), http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars.";
-        List<String> urls = StringHelper.extractUrls(text);
-
-        assertEquals(4, urls.size());
-        assertEquals("http://microsoft.com", urls.get(0));
-        assertEquals("www.apple.com", urls.get(1));
-        // assertEquals("google.com", urls.get(2)); // not recognized
-        assertEquals("www.tu-dresden.de", urls.get(2));
-        assertEquals(
-                "http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars",
-                urls.get(3));
-
-    }
 
 }

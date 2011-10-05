@@ -1,19 +1,21 @@
 package ws.palladian.helper;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.junit.Test;
 
 public class UrlHelperTest {
 
     @Test
-    public void testGetCleanURL() {
-        assertEquals("amazon.com/", UrlHelper.getCleanURL("http://www.amazon.com/"));
-        assertEquals("amazon.com/", UrlHelper.getCleanURL("http://amazon.com/"));
-        assertEquals("amazon.com/", UrlHelper.getCleanURL("https://www.amazon.com/"));
-        assertEquals("amazon.com", UrlHelper.getCleanURL("https://amazon.com"));
-        assertEquals("amazon.com/", UrlHelper.getCleanURL("www.amazon.com/"));
-        assertEquals("amazon.com/", UrlHelper.getCleanURL("amazon.com/"));
+    public void testGetCleanUrl() {
+        assertEquals("amazon.com/", UrlHelper.getCleanUrl("http://www.amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanUrl("http://amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanUrl("https://www.amazon.com/"));
+        assertEquals("amazon.com", UrlHelper.getCleanUrl("https://amazon.com"));
+        assertEquals("amazon.com/", UrlHelper.getCleanUrl("www.amazon.com/"));
+        assertEquals("amazon.com/", UrlHelper.getCleanUrl("amazon.com/"));
     }
 
     @Test
@@ -39,35 +41,52 @@ public class UrlHelperTest {
     }
 
     @Test
-    public void testMakeFullURL() {
+    public void testMakeFullUrl() {
 
-        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullURL("http://www.xyz.de", "", "page.html"));
-        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullURL("http://www.xyz.de", null, "page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", "", "page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", null, "page.html"));
         assertEquals("http://www.xyz.de/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "", "page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "", "page.html"));
         assertEquals("http://www.xyz.de/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory", "/page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "/directory", "/page.html"));
         assertEquals("http://www.xyz.de/directory/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory", "./page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "/directory", "./page.html"));
         assertEquals("http://www.xyz.de/directory/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
 
         assertEquals("http://www.abc.de/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de", "", "http://www.abc.de/page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de", "", "http://www.abc.de/page.html"));
         assertEquals("http://www.abc.de/page.html",
-                UrlHelper.makeFullURL("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
+                UrlHelper.makeFullUrl("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
 
         assertEquals("http://www.example.com/page.html",
-                UrlHelper.makeFullURL("/some/file/path.html", "http://www.example.com/page.html"));
-        assertEquals("", UrlHelper.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
+                UrlHelper.makeFullUrl("/some/file/path.html", "http://www.example.com/page.html"));
+        assertEquals("", UrlHelper.makeFullUrl("http://www.xyz.de", "mailto:example@example.com"));
 
         assertEquals("http://www.example.com/page.html",
-                UrlHelper.makeFullURL(null, null, "http://www.example.com/page.html"));
+                UrlHelper.makeFullUrl(null, null, "http://www.example.com/page.html"));
 
         // when no linkUrl is supplied, we cannot determine the full URL, so just return an empty String.
-        assertEquals("", UrlHelper.makeFullURL(null, "http://www.example.com", null));
-        assertEquals("", UrlHelper.makeFullURL("http://www.example.com", null, null));
-        assertEquals("", UrlHelper.makeFullURL(null, null, "/page.html"));
+        assertEquals("", UrlHelper.makeFullUrl(null, "http://www.example.com", null));
+        assertEquals("", UrlHelper.makeFullUrl("http://www.example.com", null, null));
+        assertEquals("", UrlHelper.makeFullUrl(null, null, "/page.html"));
+
+    }
+    
+    @Test
+    public void testExtractUrls() {
+
+        String text = "The quick brown fox jumps over the lazy dog. Check out: http://microsoft.com, www.apple.com, google.com. (www.tu-dresden.de), http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars.";
+        List<String> urls = UrlHelper.extractUrls(text);
+
+        assertEquals(4, urls.size());
+        assertEquals("http://microsoft.com", urls.get(0));
+        assertEquals("www.apple.com", urls.get(1));
+        // assertEquals("google.com", urls.get(2)); // not recognized
+        assertEquals("www.tu-dresden.de", urls.get(2));
+        assertEquals(
+                "http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars",
+                urls.get(3));
 
     }
 

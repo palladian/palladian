@@ -230,7 +230,7 @@ public class FeedDiscovery {
             feedUrl = feedUrl.replace("feed:", "");
 
             // make full URL
-            feedUrl = UrlHelper.makeFullURL(pageUrl, baseHref, feedUrl);
+            feedUrl = UrlHelper.makeFullUrl(pageUrl, baseHref, feedUrl);
 
             // validate URL
 

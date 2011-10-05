@@ -13,7 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -78,7 +78,7 @@ public class DiggStats extends BaseRankingService implements RankingService {
 
         try {
 
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = retriever.getJSONDocument(GET_STORY_INFO + encUrl);
             if (json != null) {
                 float diggs = 0;
@@ -116,7 +116,7 @@ public class DiggStats extends BaseRankingService implements RankingService {
 
         try {
             for (int i = 0; i < urls.size(); i++) {
-                encUrls += StringHelper.urlEncode(urls.get(i));
+                encUrls += UrlHelper.urlEncode(urls.get(i));
                 if (i < urls.size() - 1) {
                     encUrls += ",";
                 }

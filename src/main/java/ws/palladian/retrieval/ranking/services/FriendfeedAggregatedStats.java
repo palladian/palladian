@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -83,7 +83,7 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
         }
 
         try {
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = retriever.getJSONDocument(GET_ENTRIES + encUrl);
             if (json != null) {
                 JSONArray entriesArray = json.getJSONArray("entries");

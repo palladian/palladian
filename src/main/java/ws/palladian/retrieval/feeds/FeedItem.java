@@ -274,8 +274,8 @@ public class FeedItem {
 
         StringBuilder hash = new StringBuilder();
         hash.append(getTitle());
-        hash.append(UrlHelper.removeSessionID(getLink(), false));
-        hash.append(UrlHelper.removeSessionID(getRawId(), true));
+        hash.append(UrlHelper.removeSessionId(getLink(), false));
+        hash.append(UrlHelper.removeSessionId(getRawId(), true));
         // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
         // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
         // hash.append(getPublished().toString());

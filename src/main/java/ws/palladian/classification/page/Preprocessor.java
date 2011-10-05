@@ -193,7 +193,7 @@ public final class Preprocessor implements Serializable {
         map = new HashMap<Term, Double>();
 
         // remove http(s): and www from URL XXX
-        inputString = UrlHelper.getCleanURL(inputString);
+        inputString = UrlHelper.getCleanUrl(inputString);
 
         Set<String> ngrams = null;
 
@@ -251,7 +251,7 @@ public final class Preprocessor implements Serializable {
         map = new HashMap<Term, Double>();
 
         // remove http(s): and www from URL
-        inputString = UrlHelper.getCleanURL(inputString);
+        inputString = UrlHelper.getCleanUrl(inputString);
 
         Set<String> ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
                 getFeatureSetting().getMaxNGramLength());

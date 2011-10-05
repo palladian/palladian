@@ -434,7 +434,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageContent.length() > 100 && foundMarkup) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                    + StringHelper.makeSafeName(UrlHelper.getCleanURL(webPage.getDocumentURI()), 30) + ".html",
+                    + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html",
                     webPageContent);
 
             LOGGER.debug("saved html file");

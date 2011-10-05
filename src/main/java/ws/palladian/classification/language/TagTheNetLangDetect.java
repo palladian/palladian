@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HTTPPoster;
 
 /**
@@ -43,7 +43,7 @@ public class TagTheNetLangDetect extends LanguageClassifier {
 
         try {
 
-            postMethod.setEntity(new StringEntity("text=" + StringHelper.urlEncode(text) + "&view=json",
+            postMethod.setEntity(new StringEntity("text=" + UrlHelper.urlEncode(text) + "&view=json",
                     "text/raw", "UTF-8"));
 
             String response = poster.handleRequest(postMethod);

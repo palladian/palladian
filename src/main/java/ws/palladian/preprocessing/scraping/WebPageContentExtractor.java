@@ -95,7 +95,7 @@ public abstract class WebPageContentExtractor {
      */
     public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
         try {
-            if (UrlHelper.isValidURL(documentLocation)) {
+            if (UrlHelper.isValidUrl(documentLocation)) {
                 return setDocument(new URL(documentLocation));
             } else {
                 return setDocument(new File(documentLocation));

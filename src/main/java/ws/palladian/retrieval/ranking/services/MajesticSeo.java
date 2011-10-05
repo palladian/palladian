@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -60,7 +60,7 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
 
-        String encUrl = StringHelper.urlEncode(url);
+        String encUrl = UrlHelper.urlEncode(url);
         Document doc = retriever.getXMLDocument("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
                 + "&url=" + encUrl);
         if (doc != null) {

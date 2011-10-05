@@ -10,7 +10,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -76,7 +76,7 @@ public class GooglePageRank extends BaseRankingService implements RankingService
         }
 
         try {
-            String encUrl = StringHelper.urlEncode(url);
+            String encUrl = UrlHelper.urlEncode(url);
 
             // original code from ws.palladian.retrieval.ranking.RankingRetriever
             JenkinsHash jHash = new JenkinsHash();
