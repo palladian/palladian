@@ -20,8 +20,6 @@ import ws.palladian.helper.StopWatch;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * @version 1.0
- * @since 1.0
  */
 public class ProcessingPipeline implements Serializable {
 
