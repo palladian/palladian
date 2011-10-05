@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -22,97 +21,72 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
+ * <p>
  * RankingService implementation for likes, shares and comments on Facebook.
+ * </p>
  * 
  * @author Julien Schmehl
- * @author Philipp Katz
- *
  */
-public class FacebookLinkStats implements RankingService {
-	
-	/** The class logger. */
+public class FacebookLinkStats extends BaseRankingService implements RankingService {
+
+    /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(FacebookLinkStats.class);
-    
+
     private static final String FQL_QUERY = "https://api.facebook.com/method/fql.query?format=json&query=select+total_count,like_count,comment_count,share_count+from+link_stat+where+";
-    
-    /** No config values. */
-    
-    /** Crawler for downloading purposes. */
-    private DocumentRetriever crawler = new DocumentRetriever();
-    
+
     /** The id of this service. */
     private static final String SERVICE_ID = "facebook";
-    
-    /** The ranking value types of this service **/
-    /** 
-     * The number of times Facebook users have "Liked" the page, or liked any comments or re-shares of this page.
-     * Commitment value is  0.8947
-     * Max. Ranking value is 120
-     */
-    static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes", "The number of times Facebook users " +
-    		"have \"Liked\" the page, or liked any comments or re-shares of this page.",  0.8947f, 120, new int[]{1,2,4,6,10,16,27,50,120});
-    /** 
-     * The number of times users have shared the page on Facebook.
-     * Commitment value is 0.9455
-     * Max. Ranking value is 130
-     */
-    static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have " +
-    		"shared the page on Facebook.", 0.9455f, 130, new int[]{1,2,4,7,11,18,30,55,130});
-    /** 
-     * The number of comments users have made on the shared story.
-     * Commitment value is 0.9383
-     * Max. Ranking value is 148
-     */
-    static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users " +
-    		"have made on the shared story.", 0.9383f, 148, new int[]{1,3,5,8,13,20,34,62,148});
 
-    /** The topic weighting coefficients for this service **/
-    @SuppressWarnings("serial")
-  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
-        {
-            put("business", 1.0413f);
-            put("politics", 1.1352f);
-            put("entertainment", 0.9020f);
-            put("lifestyle", 1.0086f);
-            put("sports", 1.1762f);
-            put("technology", 0.9608f);
-            put("science", 1.2185f);
-        }
-    };
+    /** The ranking value types of this service **/
+    static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
+            "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.");
+
+    static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
+            "The number of times users have shared the page on Facebook.");
+
+    static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
+            "The number of comments users have made on the shared story.");
+    
+    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    static {
+        RANKING_TYPES.add(LIKES);
+        RANKING_TYPES.add(SHARES);
+        RANKING_TYPES.add(COMMENTS);
+    }
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000*60*1;
-    
-	public FacebookLinkStats() {
-        // we use a rather short timeout here, as responses are short.
-        crawler.setConnectionTimeout(5000);
-	}
+    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-	
-	public Ranking getRanking(String url) {
-		
-		Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-		Ranking ranking = new Ranking(this, url);
-		if(isBlocked()) return ranking;
-		
+    public FacebookLinkStats() {
+        super();
+    }
+
+    @Override
+    public Ranking getRanking(String url) {
+
+        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Ranking ranking = new Ranking(this, url, results);
+        if (isBlocked()) {
+            return ranking;
+        }
+
         try {
 
-        	String encUrl = StringHelper.urlEncode(url);
-            JSONObject json = crawler.getJSONDocument(FQL_QUERY+"url='"+encUrl+"'");
-            ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-            
+            String encUrl = StringHelper.urlEncode(url);
+            JSONObject json = retriever.getJSONDocument(FQL_QUERY + "url='" + encUrl + "'");
+
             if (json != null) {
-            	results.put(LIKES, LIKES.normalize(json.getInt("like_count")));
-            	results.put(SHARES, SHARES.normalize(json.getInt("share_count")));
-            	results.put(COMMENTS, COMMENTS.normalize(json.getInt("comment_count")));
-            	LOGGER.trace("Facebook link stats for " + url + " : " + results);
+                results.put(LIKES, (float) json.getInt("like_count"));
+                results.put(SHARES, (float) json.getInt("share_count"));
+                results.put(COMMENTS, (float) json.getInt("comment_count"));
+                LOGGER.trace("Facebook link stats for " + url + " : " + results);
             } else {
-            	results.put(LIKES, null);
-            	results.put(SHARES, null);
-            	results.put(COMMENTS, null);
-            	LOGGER.trace("Facebook link stats for " + url + "could not be fetched");
+                results.put(LIKES, null);
+                results.put(SHARES, null);
+                results.put(COMMENTS, null);
+                LOGGER.trace("Facebook link stats for " + url + "could not be fetched");
                 checkBlocked();
             }
 
@@ -120,32 +94,36 @@ public class FacebookLinkStats implements RankingService {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
         }
-
-        ranking.setValues(results);
         return ranking;
-	}
+    }
 
-	
-	public Map<String, Ranking> getRanking(List<String> urls) {
-		
-		Map<String, Ranking> results = new HashMap<String, Ranking>();
-		if(isBlocked()) return results;
-		String encUrls = "";
+    @Override
+    public Map<String, Ranking> getRanking(List<String> urls) {
 
-		try {
-			
-	    	for(int i=0; i<urls.size(); i++){
-	    		if(i == urls.size()-1) encUrls += "url='"+StringHelper.urlEncode(urls.get(i))+"'";
-	    		else encUrls += "url='"+StringHelper.urlEncode(urls.get(i))+"' or ";
-	    	}
-	    	
-	    	HashMap<String, String> postData = new HashMap<String, String>();
-	    	postData.put("format", "json");
-	    	postData.put("query", "select total_count,like_count,comment_count,share_count from link_stat where "+encUrls);
+        Map<String, Ranking> results = new HashMap<String, Ranking>();
+        if (isBlocked()) {
+            return results;
+        }
+        String encUrls = "";
 
-	    	HttpResult response = crawler.httpPost("https://api.facebook.com/method/fql.query", postData);
-	    	String content = new String(response.getContent());
-	    	JSONArray json = null;
+        try {
+
+            for (int i = 0; i < urls.size(); i++) {
+                if (i == urls.size() - 1) {
+                    encUrls += "url='" + StringHelper.urlEncode(urls.get(i)) + "'";
+                } else {
+                    encUrls += "url='" + StringHelper.urlEncode(urls.get(i)) + "' or ";
+                }
+            }
+
+            HashMap<String, String> postData = new HashMap<String, String>();
+            postData.put("format", "json");
+            postData.put("query", "select total_count,like_count,comment_count,share_count from link_stat where "
+                    + encUrls);
+
+            HttpResult response = retriever.httpPost("https://api.facebook.com/method/fql.query", postData);
+            String content = new String(response.getContent());
+            JSONArray json = null;
             if (content.length() > 0) {
                 try {
                     json = new JSONArray(content);
@@ -153,132 +131,89 @@ public class FacebookLinkStats implements RankingService {
                     LOGGER.error("JSONException: " + e.getMessage());
                 }
             }
-	    	
-	    	Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
-            
-	        if (json != null) {
-	        	
-	        	float likeCount = -1;
-	        	float shareCount = -1;
-	        	float commentCount = -1;
-	
-	        	for(int i=0; i<urls.size(); i++){
-	        		likeCount = json.getJSONObject(i).getInt("like_count");
-	        		shareCount = json.getJSONObject(i).getInt("share_count");
-	        		commentCount = json.getJSONObject(i).getInt("comment_count");
-	        		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-	            	result.put(LIKES, LIKES.normalize(likeCount));
-	            	result.put(SHARES, SHARES.normalize(shareCount));
-	            	result.put(COMMENTS, COMMENTS.normalize(commentCount));
-	        		results.put(urls.get(i), new Ranking(this, urls.get(i), result, retrieved));
-	            	LOGGER.trace("Facebook link stats for " + urls.get(i) + " : " + result);
-	            }
-	        } else {
-	        	for(String u:urls) {
-	        		Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-	            	result.put(LIKES, null);
-	            	result.put(SHARES, null);
-	            	result.put(COMMENTS, null);
-	        		results.put(u, new Ranking(this, u, result, retrieved));
-	        	}
-            	LOGGER.trace("Facebook link stats for " + urls + "could not be fetched");
+
+            Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
+
+            if (json != null) {
+
+                float likeCount = -1;
+                float shareCount = -1;
+                float commentCount = -1;
+
+                for (int i = 0; i < urls.size(); i++) {
+                    likeCount = json.getJSONObject(i).getInt("like_count");
+                    shareCount = json.getJSONObject(i).getInt("share_count");
+                    commentCount = json.getJSONObject(i).getInt("comment_count");
+                    Map<RankingType, Float> result = new HashMap<RankingType, Float>();
+                    result.put(LIKES, likeCount);
+                    result.put(SHARES, shareCount);
+                    result.put(COMMENTS, commentCount);
+                    results.put(urls.get(i), new Ranking(this, urls.get(i), result, retrieved));
+                    LOGGER.trace("Facebook link stats for " + urls.get(i) + " : " + result);
+                }
+            } else {
+                for (String u : urls) {
+                    Map<RankingType, Float> result = new HashMap<RankingType, Float>();
+                    result.put(LIKES, null);
+                    result.put(SHARES, null);
+                    result.put(COMMENTS, null);
+                    results.put(u, new Ranking(this, u, result, retrieved));
+                }
+                LOGGER.trace("Facebook link stats for " + urls + "could not be fetched");
                 checkBlocked();
             }
-		} catch (JSONException e) {
+        } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
         } catch (HttpException e) {
-        	LOGGER.error("HttpException " + e.getMessage());
-		}
+            LOGGER.error("HttpException " + e.getMessage());
+        }
 
         return results;
-	}
-	
+    }
 
-	/**
-	 * Force a new check if this service is blocked due to excess
-	 * of request limits. This updates the blocked-attribute
-	 * of this service.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean checkBlocked() {
-		int status = -1;
-		try {
-	        status = crawler.httpGet(FQL_QUERY+"url='http://www.google.com/'").getStatusCode();
-		} catch (HttpException e) {
-			LOGGER.error("HttpException " + e.getMessage());
-		}
-		if(status == 200) {
-			blocked = false;
-			lastCheckBlocked = new Date().getTime();
-			return false;
-		}
-		blocked = true;
-		lastCheckBlocked = new Date().getTime();
-		LOGGER.error("Facebook Ranking Service is momentarily blocked. Will check again in 1min.");
-		return true;
-	}
-	/**
-	 * Returns if this service is momentarily blocked or not.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean isBlocked() {
-		if(new Date().getTime()-lastCheckBlocked < checkBlockedIntervall) return blocked;
-		else return checkBlocked();
-	}
-	/**
-	 * Sets this service blocked status to unblocked and resets the
-	 * time of the last check to now.
-	 * 
-	 * @return True if reset was successful, false otherwise
-	 */
-	public boolean resetBlocked() {
-		blocked = false;
-		lastCheckBlocked = new Date().getTime();
-		return true;
-	}
-	/**
-	 * Get the id of this ranking service.
-	 * 
-	 * @return The id-string of this service
-	 */
-	public String getServiceId() {
-		return SERVICE_ID;
-	}
-	/**
-	 * Get all ranking types of this ranking service.
-	 * 
-	 * @return A list of ranking types
-	 */
-	public List<RankingType> getRankingTypes() {
-		ArrayList<RankingType> types = new ArrayList<RankingType>();
-		types.add(LIKES);
-		types.add(SHARES);
-		types.add(COMMENTS);
-		return types;
-	}
-	/**
-	 * Get the ranking type for this id.
-	 * 
-	 * @return The ranking type for the given id
-	 */
-	public RankingType getRankingType(String id) {
-		if(id.equals("facebook_likes")) return LIKES;
-		else if(id.equals("facebook_shares")) return SHARES;
-		else if(id.equals("facebook_comments")) return COMMENTS;
-		return null;
-	}
-	/**
-	 * Retrieve this service topic weighting coefficient
-	 * for a given topic
-	 * 
-	 * @return Weighting coefficient if topic is known, 1 otherwise
-	 */
-	public float getTopicWeighting(String topic) {
-		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
-		else return 1.0f;
-	}
+    @Override
+    public boolean checkBlocked() {
+        int status = -1;
+        try {
+            status = retriever.httpGet(FQL_QUERY + "url='http://www.google.com/'").getStatusCode();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
+        }
+        if (status == 200) {
+            blocked = false;
+            lastCheckBlocked = new Date().getTime();
+            return false;
+        }
+        blocked = true;
+        lastCheckBlocked = new Date().getTime();
+        LOGGER.error("Facebook Ranking Service is momentarily blocked. Will check again in 1min.");
+        return true;
+    }
+
+    @Override
+    public boolean isBlocked() {
+        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+            return blocked;
+        } else {
+            return checkBlocked();
+        }
+    }
+
+    @Override
+    public void resetBlocked() {
+        blocked = false;
+        lastCheckBlocked = new Date().getTime();
+    }
+
+    @Override
+    public String getServiceId() {
+        return SERVICE_ID;
+    }
+
+    @Override
+    public List<RankingType> getRankingTypes() {
+        return RANKING_TYPES;
+    }
 
 }

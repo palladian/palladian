@@ -4,82 +4,87 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>
  * Interface for ranking service implementations.
+ * </p>
  * 
  * @author Julien Schmehl
- *
  */
 public interface RankingService {
-	
 
-	
-	/**
-	 * Get ranking values for a single url.
-	 * 
-	 * @param url
-	 * @return A map of ranking values for each type
-	 */
-	public Ranking getRanking(String url);
-	
-	/**
-	 * Get ranking values for a batch of urls.
-	 * 
-	 * @param urls A list of urls
-	 * @return A map of ranking values per url
-	 */
-	public Map<String, Ranking> getRanking(List<String> urls);
-	
-	/**
-	 * Get the id of this ranking service.
-	 * 
-	 * @return The id-string of this service
-	 */
-	public String getServiceId();
-	
-	/**
-	 * Get all ranking types of this ranking service.
-	 * 
-	 * @return A list of ranking types
-	 */
-	public List<RankingType> getRankingTypes();
-	
-	/**
-	 * Get the ranking type for this id.
-	 * 
-	 * @return The ranking type for the given id
-	 */
-	public RankingType getRankingType(String id);
-	
-	/**
-	 * Retrieve this service topic weighting coefficient
-	 * for a given topic
-	 * 
-	 * @return Weighting coefficient if topic is known, 1 otherwise
-	 */
-	public float getTopicWeighting(String topic);
-	
-	/**
-	 * Force a new check if this service is blocked due to excess
-	 * of request limits. This updates the blocked-attribute
-	 * of this service.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean checkBlocked();
-	
-	/**
-	 * Returns if this service is momentarily blocked or not.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean isBlocked();
+    /**
+     * <p>
+     * Get ranking values for a single URL.
+     * </p>
+     * 
+     * @param url
+     * @return A map of ranking values for each type
+     */
+    Ranking getRanking(String url);
 
-	/**
-	 * Sets this service blocked status to unblocked and resets the
-	 * time of the last check to now.
-	 * 
-	 * @return True if reset was successful, false otherwise
-	 */
-	public boolean resetBlocked();
+    /**
+     * <p>
+     * Get ranking values for a batch of URLs. Subclasses may offer a specific implementation for this case, if
+     * supported by the underlying service or may just iterate over the parameters and use {@link #getRanking(String)}
+     * to build the result.
+     * </p>
+     * 
+     * @param urls A list of URLs
+     * @return A map of ranking values per URL
+     */
+    Map<String, Ranking> getRanking(List<String> urls);
+
+    /**
+     * <p>
+     * Get the id of this ranking service.
+     * </p>
+     * 
+     * @return The id-string of this service
+     */
+    String getServiceId();
+
+    /**
+     * <p>
+     * Get all ranking types of this ranking service.
+     * </p>
+     * 
+     * @return A list of ranking types
+     */
+    List<RankingType> getRankingTypes();
+
+    /**
+     * <p>
+     * Get the ranking type for this id.
+     * </p>
+     * 
+     * @return The ranking type for the given id, or <code>null</code> if no such {@link RankingType}
+     */
+    RankingType getRankingType(String id);
+
+    /**
+     * <p>
+     * Force a new check if this service is blocked due to excess of request limits. This updates the blocked-attribute
+     * of this service.
+     * </p>
+     * 
+     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
+     */
+    boolean checkBlocked();
+
+    /**
+     * <p>
+     * Returns if this service is momentarily blocked or not.
+     * </p>
+     * 
+     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
+     */
+    boolean isBlocked();
+
+    /**
+     * <p>
+     * Sets this service blocked status to unblocked and resets the time of the last check to now.
+     * </p>
+     */
+    void resetBlocked();
 
 }

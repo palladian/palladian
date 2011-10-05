@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,215 +14,144 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
- * RankingService implementation to get the number of posts containing 
- * a given url on plurk.com.<br/>
- * http://www.plurk.com - microblogging service
- * <br/><br/>
- * Does fulltext search, e.g. it finds also posts that have 
- * parts of the url - only usable for longer urls
- * <br/><br/>
+ * <p>
+ * RankingService implementation to get the number of posts containing a given URL on plurk.com. Does fulltext search,
+ * e.g. it finds also posts that have parts of the url - only usable for longer URLs.
+ * </p>
+ * <p>
  * Current limit is 50.000 calls pr. day
- * <br/><br/>
+ * </p>
  * TODO implement follow up request if has_more:true
  * 
  * @author Julien Schmehl
- *
+ * @see http://www.plurk.com
  */
-public class PlurkPosts implements RankingService {
+public class PlurkPosts extends BaseRankingService implements RankingService {
 
-	/** The class logger. */
+    /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(PlurkPosts.class);
-    
+
     /** The config values. */
     private String apiKey;
-    
-    /** Crawler for downloading purposes. */
-    private DocumentRetriever crawler = new DocumentRetriever();
-    
+
     /** The id of this service. */
     private static final String SERVICE_ID = "plurk";
-    
-    /** The ranking value types of this service **/
-    /** 
-     * The number of bookmarks users have created for this url.
-     * Commitment value is 0.9455
-     * Max. Ranking value is 4
-     */
-    static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts", "The number of " +
-    		"posts on plurk.com mentioning this url.", 0.9455f, 4, new int[]{0,0,0,0,0,0,1,2,4});
 
-    /** The topic weighting coefficients for this service **/
-    @SuppressWarnings("serial")
-  	private static Map<String, Float> topicWeighting = new HashMap<String, Float>() {
-        {
-            put("business", 2.0358f);
-            put("politics", 1.2525f);
-            put("entertainment", 1.0529f);
-            put("lifestyle", 1.4257f);
-            put("sports", 1f);
-            put("technology", 0.8313f);
-            put("science", 1.6439f);
-        }
-    };
+    /** The ranking value types of this service **/
+    static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts",
+            "The number of posts on plurk.com mentioning this url.");
+    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    static {
+        RANKING_TYPES.add(POSTS);
+    }
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000*60*1;
-    
-	public PlurkPosts() {
+    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-		PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
+    public PlurkPosts() {
+        super();
+
+        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
 
         if (configuration != null) {
-        	setApiKey(configuration.getString("api.plurk.key"));
+            setApiKey(configuration.getString("api.plurk.key"));
         } else {
-        	LOGGER.warn("could not load configuration, ranking retrieval won't work");
+            LOGGER.warn("could not load configuration, ranking retrieval won't work");
         }
-        
-		// we use a rather short timeout here, as responses are short.
-        crawler.setConnectionTimeout(5000);
-        
-	}
+    }
 
-	
-	public Ranking getRanking(String url) {
-		Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-		Ranking ranking = new Ranking(this, url);
-		if(isBlocked()) return ranking;
+    @Override
+    public Ranking getRanking(String url) {
+        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Ranking ranking = new Ranking(this, url, results);
+        if (isBlocked()) {
+            return ranking;
+        }
 
         try {
 
-        	String encUrl = StringHelper.urlEncode(url);
-            JSONObject json = crawler.getJSONDocument("http://www.plurk.com/API/PlurkSearch/search?api_key="+ getApiKey() +"&query=" + encUrl);
-            ranking.setRetrieved(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-            
+            String encUrl = StringHelper.urlEncode(url);
+            JSONObject json = retriever.getJSONDocument("http://www.plurk.com/API/PlurkSearch/search?api_key="
+                    + getApiKey() + "&query=" + encUrl);
+
             if (json != null) {
                 JSONArray plurks = json.getJSONArray("plurks");
-                int result = plurks.length();
-                results.put(POSTS, POSTS.normalize(result));
+                float result = plurks.length();
+                results.put(POSTS, result);
                 LOGGER.trace("Plurk.com posts for " + url + " : " + result);
             } else {
-            	results.put(POSTS, null);
-            	LOGGER.trace("Plurk.com posts for " + url + "could not be fetched");
+                results.put(POSTS, null);
+                LOGGER.trace("Plurk.com posts for " + url + "could not be fetched");
                 checkBlocked();
             }
-            
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
         }
-
-        ranking.setValues(results);
         return ranking;
-	}
+    }
 
-	@Override
-	public Map<String, Ranking> getRanking(List<String> urls) {
-		Map<String, Ranking> results = new HashMap<String, Ranking>();
-		if(isBlocked()) return results;
-		 
-		// iterate through urls and get ranking for each
-		for(String u:urls) results.put(u, getRanking(u));
+    @Override
+    public boolean checkBlocked() {
+        int status = -1;
+        try {
+            status = retriever.httpGet(
+                    "http://www.plurk.com/API/PlurkSearch/search?api_key=" + getApiKey()
+                            + "&query=http://www.google.com/").getStatusCode();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
+        }
+        if (status == 200) {
+            blocked = false;
+            lastCheckBlocked = new Date().getTime();
+            return false;
+        }
+        blocked = true;
+        lastCheckBlocked = new Date().getTime();
+        LOGGER.error("Plurk Ranking Service is momentarily blocked. Will check again in 1min.");
+        return true;
+    }
 
-        return results;
-        
-	}
+    @Override
+    public boolean isBlocked() {
+        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+            return blocked;
+        } else {
+            return checkBlocked();
+        }
+    }
 
-	/**
-	 * Force a new check if this service is blocked due to excess
-	 * of request limits. This updates the blocked-attribute
-	 * of this service.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean checkBlocked() {
-		int status = -1;
-		try {
-	        status = crawler.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="+ getApiKey() +"&query=http://www.google.com/").getStatusCode();
-		} catch (HttpException e) {
-			LOGGER.error("HttpException " + e.getMessage());
-		}
-		if(status == 200) {
-			blocked = false;
-			lastCheckBlocked = new Date().getTime();
-			return false;
-		}
-		blocked = true;
-		lastCheckBlocked = new Date().getTime();
-		LOGGER.error("Plurk Ranking Service is momentarily blocked. Will check again in 1min.");
-		return true;
-	}
-	/**
-	 * Returns if this service is momentarily blocked or not.
-	 * 
-	 * @return True if the service is momentarily blocked, false otherwise
-	 */
-	public boolean isBlocked() {
-		if(new Date().getTime()-lastCheckBlocked < checkBlockedIntervall) return blocked;
-		else return checkBlocked();
-	}
-	/**
-	 * Sets this service blocked status to unblocked and resets the
-	 * time of the last check to now.
-	 * 
-	 * @return True if reset was successful, false otherwise
-	 */
-	public boolean resetBlocked() {
-		blocked = false;
-		lastCheckBlocked = new Date().getTime();
-		return true;
-	}
-	/**
-	 * Get the id of this ranking service.
-	 * 
-	 * @return The id-string of this service
-	 */
-	public String getServiceId() {
-		return SERVICE_ID;
-	}
-	/**
-	 * Get all ranking types of this ranking service.
-	 * 
-	 * @return A list of ranking types
-	 */
-	public List<RankingType> getRankingTypes() {
-		ArrayList<RankingType> types = new ArrayList<RankingType>();
-		types.add(POSTS);
-		return types;
-	}
-	/**
-	 * Returns POSTS.
-	 * 
-	 * @return The ranking type POSTS
-	 */
-	public RankingType getRankingType(String id) {
-		return POSTS;
-	}
-	/**
-	 * Retrieve this service topic weighting coefficient
-	 * for a given topic
-	 * 
-	 * @return Weighting coefficient if topic is known, 1 otherwise
-	 */
-	public float getTopicWeighting(String topic) {
-		if(topicWeighting.containsKey(topic)) return topicWeighting.get(topic);
-		else return 1.0f;
-	}
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
+    @Override
+    public void resetBlocked() {
+        blocked = false;
+        lastCheckBlocked = new Date().getTime();
+    }
 
-	public String getApiKey() {
-		return apiKey;
-	}
-	
+    @Override
+    public String getServiceId() {
+        return SERVICE_ID;
+    }
+
+    @Override
+    public List<RankingType> getRankingTypes() {
+        return RANKING_TYPES;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
 }
