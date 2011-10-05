@@ -10,7 +10,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 
-public class DictionaryDbIndexMySQL extends DictionaryIndex {
+public class DictionaryDbIndexMySql extends DictionaryIndex {
 
     // database paramenters
     private Connection connection = null;
@@ -49,7 +49,7 @@ public class DictionaryDbIndexMySQL extends DictionaryIndex {
     /** if fastmode = true, only one table will be used to store all information */
     private boolean fastMode = true;
 
-    public DictionaryDbIndexMySQL(String dbName, String dbUsername, String dbPassword, String indexPath) {
+    public DictionaryDbIndexMySql(String dbName, String dbUsername, String dbPassword, String indexPath) {
         setDbName(dbName);
         setDbUsername(dbUsername);
         setDbPassword(dbPassword);
@@ -57,7 +57,7 @@ public class DictionaryDbIndexMySQL extends DictionaryIndex {
         connection = getConnection();
     }
 
-    public DictionaryDbIndexMySQL(String dbName, String dbUsername, String dbPassword) {
+    public DictionaryDbIndexMySql(String dbName, String dbUsername, String dbPassword) {
         setDbName(dbName);
         setDbUsername(dbUsername);
         setDbPassword(dbPassword);
