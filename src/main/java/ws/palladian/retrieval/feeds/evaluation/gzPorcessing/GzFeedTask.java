@@ -120,7 +120,9 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
             String folderPath = DatasetCreator.getFolderPath(correctedFeed.getId());
             String originalCsvPath = DatasetCreator.getCSVFilePath(correctedFeed.getId(), safeFeedName);
             File originalCsv = new File(originalCsvPath);
-            String newCsvPath = FileHelper.getRenamedFilename(originalCsv, originalCsv.getName() + ".bak");
+            long eliminationTimestamp = System.currentTimeMillis();
+            String newCsvPath = FileHelper.getRenamedFilename(originalCsv, originalCsv.getName() + ".bak-"
+                    + eliminationTimestamp);
             boolean csvBackupDone = FileHelper.renameFile(originalCsv, newCsvPath);
 
             if (!csvBackupDone) {
@@ -257,6 +259,16 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                             + " MISSes. Initial MISSes: " + initialMisses + ", remaining MISSes: "
                             + correctedFeed.getMisses());
                 }
+            }
+
+            // check whether we eliminated some duplicate items
+            int removedItems = initialTotalItems - correctedFeed.getNumberOfItemsReceived();
+            if (removedItems > 0) {
+                LOGGER.info("Feed id " + correctedFeed.getId() + ": removed " + removedItems + " items.");
+            } else if (removedItems < 0) {
+                LOGGER.error("Feed id " + correctedFeed.getId() + ": Feed has " + -1 * removedItems
+                        + " items more than before - something went wrong!");
+                resultSet.add(FeedTaskResult.ERROR);
             }
 
             // create temp feed with all items to do classification
