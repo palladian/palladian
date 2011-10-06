@@ -58,6 +58,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
+    private static final String ADD_EVALUATION_ITEMS = "INSERT IGNORE INTO feed_evaluation_items SET feedId = ?, pollTimestamp = ?, itemHash = ?, publishTime = ?";
 
     /**
      * @param connectionManager
@@ -513,5 +514,28 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runUpdate(DELETE_CACHE_ITEMS_BY_ID, id) >= 0;
     }
 
+    /**
+     * Add the provided items to table feed_evaluation_items. This may be used in TUDCS6 dataset to put all items from
+     * csv files to database.
+     * 
+     * @param allItems The items to add.
+     * @return true if all items have been added.
+     */
+    public boolean addEvaluationItems(List<FeedItem> allItems) {
+
+        List<List<Object>> batchArgs = new ArrayList<List<Object>>();
+        for (FeedItem item : allItems) {
+            List<Object> parameters = new ArrayList<Object>();
+            parameters.add(item.getFeedId());
+            parameters.add(item.getPollSQLTimestamp());
+            parameters.add(item.getHash());
+            parameters.add(item.getPublishedSQLTimestamp());
+            batchArgs.add(parameters);
+        }
+
+        int[] result = runBatchInsertReturnIds(ADD_EVALUATION_ITEMS, batchArgs);
+
+        return (result.length == allItems.size());
+    }
 
 }
