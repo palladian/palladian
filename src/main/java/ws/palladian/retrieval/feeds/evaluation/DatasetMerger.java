@@ -322,7 +322,7 @@ public class DatasetMerger extends Thread {
      * @param items Items to split
      * @return List with items split into their parts.
      */
-    private List<String[]> splitItems(List<String> items) {
+    public static List<String[]> splitItems(List<String> items) {
         List<String[]> splitItems = new ArrayList<String[]>();
         for (String item : items) {
             splitItems.add(item.split(";"));
@@ -344,7 +344,7 @@ public class DatasetMerger extends Thread {
         return result.substring(0, result.length() - 1);
     }
 
-    /* package */static List<String> readCsv(String csvPath) {
+    public static List<String> readCsv(String csvPath) {
         // List<String> items = FileHelper.readFileToArray(csvPath);
         // return items;
 

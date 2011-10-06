@@ -67,6 +67,9 @@ public class FeedItem {
     /** The feed's windowSize at the time this item was fetched the first time. */
     private int windowSize;
 
+    /** The timestamp this item was fetched the first time. */
+    private Date pollTimestamp;
+
     /**
      * The item's corrected published date. In contrast to {@link #published}, this value may be modified at the time of
      * the poll this item has been received the first time.
@@ -356,6 +359,32 @@ public class FeedItem {
      */
     public final void setWindowSize(int windowSize) {
         this.windowSize = windowSize;
+    }
+
+    /**
+     * @return the pollTimestamp
+     */
+    public final Date getPollTimestamp() {
+        return pollTimestamp;
+    }
+
+    /**
+     * The pollTimestamp as SQLTimestamp
+     * 
+     * @return the pollTimestamp
+     */
+    public Timestamp getPollSQLTimestamp() {
+        if (pollTimestamp != null) {
+            return new Timestamp(pollTimestamp.getTime());
+        }
+        return null;
+    }
+
+    /**
+     * @param pollTimestamp the pollTimestamp to set
+     */
+    public final void setPollTimestamp(Date pollTimestamp) {
+        this.pollTimestamp = pollTimestamp;
     }
 
     /**
