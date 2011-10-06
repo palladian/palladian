@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `feed_evaluation_polls` (
   `activityPattern` int(11) NOT NULL COMMENT 'activity pattern of the feed',
   `conditionalGetResponseSize` int(11) DEFAULT NULL COMMENT 'the size of the HTTP 304 response in Bytes, (if there is no new entry)',
   `sizeOfPoll` float NOT NULL COMMENT 'the amount of bytes that have been downloadad',
-  `pollTimestamp` bigint(20) unsigned NOT NULL COMMENT 'the feed has been pooled at this timestamp',
+  `pollTimestamp` bigint(20) unsigned NOT NULL COMMENT 'the feed has been polled at this timestamp',
   `checkInterval` float unsigned DEFAULT NULL COMMENT 'time in minutes we waited betwen last and this check',
   `newWindowItems` float NOT NULL COMMENT 'number of new items in the window',
   `missedItems` int(10) NOT NULL COMMENT 'the number of new items we missed because there more new items since the last poll than fit into the window',
@@ -182,10 +182,29 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
 CREATE TABLE IF NOT EXISTS `feed_item_cache` (
   `id` int(10) unsigned NOT NULL COMMENT 'The feeds internal identifier.',
   `itemHash` CHAR(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of a item (in xml) of the last poll.',
-  `correctedPollTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.'
+  `correctedPollTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.',
+  PRIMARY KEY (`id`,`itemHash`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='table to serialize the item cache';
 
 --
 -- Daten für Tabelle `feed_item_cache
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_evaluation_items`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_evaluation_items` (  
+  `feedId` int(10) unsigned NOT NULL COMMENT 'The feeds internal identifier.',
+  `pollTimestamp` DATETIME NOT NULL COMMENT 'At this timestamp, the item has been received.',
+  `itemHash` CHAR(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of a item (in xml) of the last poll.',
+  `publishTime` DATETIME COMMENT 'Original publish date of this item.'
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+
+--
+-- Daten für Tabelle `feed_items`
 --
 
