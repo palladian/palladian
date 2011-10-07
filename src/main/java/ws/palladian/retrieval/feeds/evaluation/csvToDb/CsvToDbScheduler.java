@@ -79,13 +79,6 @@ public class CsvToDbScheduler extends TimerTask {
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
 
-                // Blacklist: gzs from thepiratebay.org are not parsable anymore since a linked namespace utl is
-                // unavailable, causing the parser to wait for 3 minutes before failing.
-                if (feed.getId() >= 670589 && feed.getId() <= 670618) {
-                    LOGGER.info("Blacklist. Skipping feed id " + feed.getId());
-                    continue;
-                }
-
                 // FIXME: remove dbug filter
                 // if (feed.getId() == 8654) {
                 scheduledTasks.put(feed.getId(),
