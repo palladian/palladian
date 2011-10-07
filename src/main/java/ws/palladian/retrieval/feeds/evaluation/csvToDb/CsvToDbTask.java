@@ -95,12 +95,15 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                     DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
 
             // get items from csv file
+            // Caution. some csv files are huge, might be better to stream the file instead of loading it into memory.
             List<String> items = DatasetMerger.readCsv(csvFilePath);
 
             // split items into parts
             List<String[]> splitItems = DatasetMerger.splitItems(items);
 
-            List<FeedItem> allItems = new ArrayList<FeedItem>(items.size());
+            int batchSize = 1000;
+            int listCapacity = Math.max(items.size(), batchSize);
+            List<FeedItem> allItems = new ArrayList<FeedItem>(listCapacity);
 
             int itemCounter = 0;
             for (String[] splitItem : splitItems) {
@@ -134,6 +137,14 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
 
                     // keep all items locally
                     allItems.add(item);
+
+                    // do not waste memory: collect only 1000 items, add them to db and continue. TUDCS6 had up to
+                    // 12 million items per feed...
+                    if (allItems.size() == batchSize) {
+                        addItemsToDb(allItems);
+                        allItems = new ArrayList<FeedItem>(listCapacity);
+                    }
+
                 } catch (NumberFormatException e) {
                     LOGGER.fatal("Could not get number from csv: " + e.getLocalizedMessage());
                 }
