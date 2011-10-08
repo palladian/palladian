@@ -1063,4 +1063,28 @@ public class HtmlHelper {
         return documentString;
     }
 
+    /**
+     * Sometimes texts in webpages have special code for character.<br>
+     * E.g. <i>&ampuuml;</i> or whitespace. <br>
+     * To evaluate this text reasonably you need to convert this code.<br>
+     * This code and equivalent text is hold in {@link HTMLSymbols}.<br>
+     * 
+     * @param text
+     * @return
+     */
+    public static String replaceHtmlSymbols(String text) {
+        String result = text;
+        if (result != null) {
+            Iterator<String[]> htmlSymbols = HtmlSymbols.getHTMLSymboles().iterator();
+            while (htmlSymbols.hasNext()) {
+                String[] symbol = htmlSymbols.next();
+                result = result.replaceAll(symbol[0], symbol[1]);
+            }
+        }
+
+        result = StringEscapeUtils.unescapeHtml(result);
+
+        return result;
+    }
+
 }

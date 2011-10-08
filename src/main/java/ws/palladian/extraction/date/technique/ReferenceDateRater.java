@@ -50,8 +50,6 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      * @return
      */
     private HashMap<ReferenceDate, Double> getRefDates() {
-        DateGetter dg = new DateGetter(url);
-
         ReferenceDateGetter rdg = new ReferenceDateGetter();
         rdg.setUrl(url);
         ArrayList<ReferenceDate> newRefDates = rdg.getDates();
@@ -59,7 +57,6 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
         ArrayList<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
 
         return rate(refDates);
-
     }
 
     /**
