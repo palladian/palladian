@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -99,15 +98,15 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
 		for (ContentDate date : dates) {
 
-			date.setRelSize(1.0 / (double) dates.size());
+			date.setRelSize(1.0 / dates.size());
 
 			double ordDocPos = Math
-					.round(((double) (posOrder.indexOf(date) + 1.0) / (double) posOrder
+					.round(((posOrder.indexOf(date) + 1.0) / posOrder
 							.size()) * 1000.0) / 1000.0;
 			date.setOrdDocPos(ordDocPos);
 
 			double ordAgePos = Math
-					.round(((double) (ageOrder.indexOf(date) + 1.0) / (double) dates
+					.round(((ageOrder.indexOf(date) + 1.0) / dates
 							.size()) * 1000.0) / 1000.0;
 			date.setOrdAgePos(ordAgePos);
 
@@ -173,7 +172,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 			// TODO: Check if an element is visible
 			// checkVisiblityOfAllNodes(body.item(0));
 			// Get webpage as text (for finding position).
-			this.doc = StringHelper.removeDoubleWhitespaces(StringEscapeUtils.unescapeHtml(HtmlHelper.documentToReadableText(body
+            this.doc = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(HtmlHelper
+                    .documentToReadableText(body
 							.item(0))));
 			
 			/*
@@ -227,7 +227,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
 //		String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 		
-		String text = StringEscapeUtils.unescapeHtml(node.getNodeValue());
+        String text = HtmlHelper.replaceHtmlSymbols(node.getNodeValue());
 		
 		int index = -1;
 		Node parent = node.getParentNode();

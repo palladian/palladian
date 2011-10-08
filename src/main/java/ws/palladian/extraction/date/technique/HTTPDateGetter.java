@@ -42,10 +42,10 @@ public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
      */
     private static ArrayList<MetaDate> getHTTPHeaderDate(String url) {
         ArrayList<MetaDate> result = new ArrayList<MetaDate>();
-        DocumentRetriever crawler = new DocumentRetriever();
+        DocumentRetriever retriever = new DocumentRetriever();
         Map<String, List<String>> headers = new  HashMap<String, List<String>>();
         if(url.indexOf("http") != -1){
-        	headers = crawler.getHeaders(url);
+        	headers = retriever.getHeaders(url);
         }
         String[] keywords = KeyWords.HTTP_KEYWORDS;
         for (int i = 0; i < keywords.length; i++) {

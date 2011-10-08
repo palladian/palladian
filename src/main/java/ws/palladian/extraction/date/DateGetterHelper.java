@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -254,7 +253,7 @@ public final class DateGetterHelper {
      */
     public static ExtractedDate getDateFromString(final String dateString, final String[] regExp) {
     	
-        String text = StringHelper.removeDoubleWhitespaces(StringEscapeUtils.unescapeHtml(dateString));
+        String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
         Pattern pattern;

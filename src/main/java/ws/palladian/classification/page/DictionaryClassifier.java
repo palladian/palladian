@@ -687,10 +687,17 @@ public class DictionaryClassifier extends TextClassifier {
      */
     public static TextInstance classify(DictionaryClassifier classifier, String text) {
         
-//       FIXME: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+        // FIXME: remove this 01.01.2012
+        // if (System.currentTimeMillis() > 1325376000000L) {
+        // System.out.println("Your licensed has expired. Please contact davidurbansky@gmail.com");
+        // System.exit(0);
+        // }
+
+        // TODO: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
         DictionaryClassifier copy = new DictionaryClassifier();
         copy.setDictionary(classifier.getDictionary());
         copy.setCategories(classifier.getCategories());
+        copy.setClassificationTypeSetting(classifier.getClassificationTypeSetting());
         return copy.classify(text);
         
     }
@@ -712,6 +719,7 @@ public class DictionaryClassifier extends TextClassifier {
         for (int i = 0; i < totalThreads; i++) {
 
             new Thread(new Runnable() {
+                @Override
                 public void run() {
                     StopWatch sw2 = new StopWatch();
 //                    TextInstance classify = classifier.classify(LoremIpsumGenerator.getRandomText(100));

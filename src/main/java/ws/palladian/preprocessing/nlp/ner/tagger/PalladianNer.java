@@ -309,6 +309,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         this.unwrapEntities = n.unwrapEntities;
         this.unwrapEntitiesWithContext = n.unwrapEntitiesWithContext;
 
+        // assign tagging options
+        this.tagDates = n.tagDates;
+        this.tagUrls = n.tagUrls;
+
         setModel(this);
 
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
@@ -1688,6 +1692,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         //trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
         String modelPath = "data/temp/palladianNerTudCs4Annotations";
         modelPath = "data/temp/palladianNerConllAnnotations";
+        modelPath = "data/temp/palladianNerConll";
+
+        // set whether to tag dates
+        tagger.setTagDates(false);
+
+        // set whether to tag URLs
+        tagger.setTagUrls(false);
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1703,8 +1714,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
 
         // train the tagger on the training file (with or without additional training annotations)
-        tagger.train(trainingPath, trainingAnnotations, modelPath);
-        // tagger.train(trainingPath, modelPath);
+        // tagger.train(trainingPath, trainingAnnotations, modelPath);
+        tagger.train(trainingPath, modelPath);
+
+        System.exit(0);
 
         // // using a trained tagger
         // load a trained tagger
