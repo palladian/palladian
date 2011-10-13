@@ -150,8 +150,8 @@ public class FeedSizeRestoreTask implements Callable<FeedTaskResult> {
         int responseSize = 0;
 
         for (File file : allFiles) {
-            // skip files that have been unparsable before or that are tagged to be removable.
-            if (file.getName().endsWith("unparsable.gz") || file.getName().endsWith("removeable.gz")) {
+            // skip files that are tagged to be removable.
+            if (file.getName().endsWith("removeable.gz")) {
                 continue;
             }
             long pollTime = pollTimestamp.getTime() / 1000;
