@@ -2,6 +2,7 @@ package ws.palladian.extraction.date.evaluation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateConverter;
@@ -54,7 +55,7 @@ public class HttpEvaluator {
 			System.out.println(e.getValue().getUrl());
 			System.out.print("get dates... ");
 			
-			ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
+			List<MetaDate> dates = new ArrayList<MetaDate>();
 			ExtractedDate dateDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_DATE));
 			MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
 			if(tempDate != null){

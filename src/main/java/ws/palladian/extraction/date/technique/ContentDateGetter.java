@@ -59,7 +59,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
 	private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
 	private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>();
-	private HashMap<Node, Boolean> visibleNodeMap = new HashMap<Node, Boolean>();
+	// private HashMap<Node, Boolean> visibleNodeMap = new HashMap<Node, Boolean>();
 
 	@Override
 	public ArrayList<ContentDate> getDates() {
@@ -91,9 +91,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		mdg.setDocument(document);
 		mdg.setUrl(url);
 		udg.setUrl(url);
-		ArrayList<MetaDate> metaDates = DateArrayHelper.removeNull(mdg
+		List<MetaDate> metaDates = DateArrayHelper.removeNull(mdg
 				.getDates());
-		ArrayList<URLDate> urlDates = DateArrayHelper
+		List<URLDate> urlDates = DateArrayHelper
 				.removeNull(udg.getDates());
 
 		for (ContentDate date : dates) {
@@ -101,13 +101,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 			date.setRelSize(1.0 / dates.size());
 
 			double ordDocPos = Math
-					.round(((posOrder.indexOf(date) + 1.0) / posOrder
-							.size()) * 1000.0) / 1000.0;
+					.round((posOrder.indexOf(date) + 1.0) / posOrder
+							.size() * 1000.0) / 1000.0;
 			date.setOrdDocPos(ordDocPos);
 
 			double ordAgePos = Math
-					.round(((ageOrder.indexOf(date) + 1.0) / dates
-							.size()) * 1000.0) / 1000.0;
+					.round((ageOrder.indexOf(date) + 1.0) / dates
+							.size() * 1000.0) / 1000.0;
 			date.setOrdAgePos(ordAgePos);
 
 			if (metaDates.size() > 0
@@ -122,9 +122,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 			}
 
 			double relCntSame = Math
-					.round(((double) (DateArrayHelper.countDates(date, dates,
+					.round((double) (DateArrayHelper.countDates(date, dates,
 							DateComparator.STOP_DAY) + 1) / (double) dates
-							.size()) * 1000.0) / 1000.0;
+							.size() * 1000.0) / 1000.0;
 			date.setRelCntSame(relCntSame);
 
 			int datePosOrderAbsl = posOrder.indexOf(date);
@@ -288,8 +288,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 				date.set(ContentDate.DATEPOS_IN_DOC, ablsDocPos);
 				date
 						.setRelDocPos(Math
-								.round(((double) ablsDocPos / (double) doc
-										.length()) * 1000.0) / 1000.0);
+								.round((double) ablsDocPos / (double) doc
+										.length() * 1000.0) / 1000.0);
 			}
 
 			// String keyword = DateGetterHelper.findNodeKeywordPart(tag,
@@ -412,7 +412,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 					date.setKeyDiff(0.0);
 				} else {
 					date
-							.setKeyDiff(1 - Math.round((diff / 30.0) * 1000.0) / 1000.0);
+							.setKeyDiff(1 - Math.round(diff / 30.0 * 1000.0) / 1000.0);
 				}
 			}
 		}
@@ -471,7 +471,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		this.nodeIndexMap = new HashMap<String, Integer>();
 		this.lookedUpNodeMap = new HashMap<Node, Boolean>();
 		this.structDateMap = new HashMap<Node, StructureDate>();
-		this.visibleNodeMap = new HashMap<Node, Boolean>();
+		// this.visibleNodeMap = new HashMap<Node, Boolean>();
 	}
 
 	/**

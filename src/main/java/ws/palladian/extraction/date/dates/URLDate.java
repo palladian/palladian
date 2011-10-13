@@ -8,20 +8,15 @@ package ws.palladian.extraction.date.dates;
  */
 public class URLDate extends ExtractedDate {
 
-    private DateType dateType = DateType.UrlDate;
-
     public URLDate() {
-        // TODO Auto-generated constructor stub
     }
 
     public URLDate(String dateString) {
         super(dateString);
-        // TODO Auto-generated constructor stub
     }
 
     public URLDate(String dateString, String format) {
         super(dateString, format);
-        // TODO Auto-generated constructor stub
     }
 
     @Override

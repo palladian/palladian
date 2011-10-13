@@ -5,21 +5,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateComparator;
 
 public class EvaluationHelper {
 
 	private static File file = new File("data/evaluation/daterecognition/datasets/dataset.txt");
-	private static String separator = EvaluationHelper.SEPARATOR;
+	// private static String separator = EvaluationHelper.SEPARATOR;
 	
 	public static final String SEPARATOR = " *;_;* ";
 	/**
@@ -180,8 +178,8 @@ public class EvaluationHelper {
 	
 	
 
-	public void setFile(File file) {
-		this.file = file;
+	public static void setFile(File file) {
+		EvaluationHelper.file = file;
 	}
 
 	public File getFile() {
@@ -209,7 +207,7 @@ public class EvaluationHelper {
 				returnValue = EvaluationHelper.ANF;
 			}else{
 				DateComparator dc = new DateComparator();
-				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),dc.STOP_DAY)) == 0){
+				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),DateComparator.STOP_DAY)) == 0){
 					returnValue = EvaluationHelper.AFR;
 				}else{
 					returnValue = EvaluationHelper.AFW;

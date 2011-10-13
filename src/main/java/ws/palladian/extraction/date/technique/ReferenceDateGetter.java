@@ -1,8 +1,9 @@
 package ws.palladian.extraction.date.technique;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 
@@ -66,8 +67,8 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
             while (linksTo.hasNext()) {
                 String link = linksTo.next();
                 dateGetter.setURL(link);
-                ArrayList<ExtractedDate> referenceDates = dateGetter.getDate();
-                HashMap<ExtractedDate, Double> evaluatedDates = de.rate(referenceDates);
+                List<ExtractedDate> referenceDates = dateGetter.getDate();
+                Map<ExtractedDate, Double> evaluatedDates = de.rate(referenceDates);
                 double rate = DateArrayHelper.getHighestRate(evaluatedDates);
                 referenceDates = DateArrayHelper.getRatedDates(evaluatedDates, rate);
                 ReferenceDate refDate = DateConverter.convert(dc.getOldestDate(referenceDates), DateType.ReferenceDate);

@@ -1,7 +1,7 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
@@ -12,11 +12,10 @@ public class MetaDateRater extends TechniqueDateRater<MetaDate> {
 	
 	public MetaDateRater(PageDateType dateType) {
 		super(dateType);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public HashMap<MetaDate, Double> rate(ArrayList<MetaDate> list) {
+	public Map<MetaDate, Double> rate(List<MetaDate> list) {
 		HeadDateRater hdr = new HeadDateRater(dateType);
 		hdr.setActualDate(actualDate);
 		return hdr.rate(list);

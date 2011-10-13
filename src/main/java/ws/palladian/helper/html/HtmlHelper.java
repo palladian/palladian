@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -54,6 +53,7 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.StringOutputStream;
+import ws.palladian.helper.nlp.StringHelper;
 
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
@@ -1067,23 +1067,23 @@ public class HtmlHelper {
      * Sometimes texts in webpages have special code for character.<br>
      * E.g. <i>&ampuuml;</i> or whitespace. <br>
      * To evaluate this text reasonably you need to convert this code.<br>
-     * This code and equivalent text is hold in {@link HTMLSymbols}.<br>
      * 
      * @param text
      * @return
      */
+    // TODO very specific and only used by date recognition
     public static String replaceHtmlSymbols(String text) {
-        String result = text;
-        if (result != null) {
-            Iterator<String[]> htmlSymbols = HtmlSymbols.getHTMLSymboles().iterator();
-            while (htmlSymbols.hasNext()) {
-                String[] symbol = htmlSymbols.next();
-                result = result.replaceAll(symbol[0], symbol[1]);
-            }
-        }
 
-        result = StringEscapeUtils.unescapeHtml(result);
-
+        String result = StringEscapeUtils.unescapeHtml(text);
+        result = StringHelper.replaceProtectedSpace(result);
+        
+        // remove undesired characters
+        result = result.replace("&#8203;", " "); // empty whitespace
+        result = result.replace("\n", " ");
+        result = result.replace("&#09;", " "); // html tabulator
+        result = result.replace("\t", " ");
+        result = result.replace(" ,", " ");
+        
         return result;
     }
 

@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.technique;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
@@ -47,7 +48,7 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
         if (document != null) {
             ContentDateGetter cdg = new ContentDateGetter();
             cdg.setDocument(document);
-            ArrayList<ContentDate> contentDates = cdg.getDates();
+            List<ContentDate> contentDates = cdg.getDates();
             contentDates = DateArrayHelper.filter(contentDates, DateArrayHelper.FILTER_FULL_DATE);
             DateComparator dc = new DateComparator();
             ContentDate cDate = dc.getOldestDate(contentDates);

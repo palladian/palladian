@@ -33,7 +33,7 @@ public class UrlEvaluator {
 
 	}
 
-	private static <T> void evaluate(int pub_mod, TechniqueDateGetter<T> dg,
+	private static <T extends ExtractedDate> void evaluate(int pub_mod, TechniqueDateGetter<T> dg,
 			TechniqueDateRater<T> dr, String file) {
 
 		Evaluator.evaluate(pub_mod, dg, dr, file);

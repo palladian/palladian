@@ -2,6 +2,7 @@ package ws.palladian.extraction.date;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -69,9 +70,9 @@ public class DateEvaluator {
      * @return HashMap of dates, with rate as value.
      */
     @SuppressWarnings("unchecked")
-    public <T> HashMap<T, Double> rate(ArrayList<T> extractedDates) {
+    public <T> Map<T, Double> rate(List<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
-        ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+        List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> contResult = new HashMap<T, Double>();
 
         ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates, DateType.ContentDate);

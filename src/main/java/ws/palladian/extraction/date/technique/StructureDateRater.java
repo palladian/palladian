@@ -1,7 +1,8 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
@@ -37,8 +38,8 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 	}
 
 	@Override
-    public HashMap<StructureDate, Double> rate(ArrayList<StructureDate> list) {
-    	HashMap<StructureDate, Double> returnDates = evaluateStructDate(list); 
+    public Map<StructureDate, Double> rate(List<StructureDate> list) {
+    	Map<StructureDate, Double> returnDates = evaluateStructDate(list); 
     	this.ratedDates = returnDates;
     	return returnDates;
     }
@@ -52,7 +53,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @param structDates
      * @return
      */
-    private HashMap<StructureDate, Double> evaluateStructDate(ArrayList<StructureDate> structDates) {
+    private Map<StructureDate, Double> evaluateStructDate(List<StructureDate> structDates) {
         HashMap<StructureDate, Double> result = new HashMap<StructureDate, Double>();
         double rate;
         for (int i = 0; i < structDates.size(); i++) {
@@ -72,9 +73,9 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
             result.put(date, rate);
         }
 
-        ArrayList<StructureDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1);
-        ArrayList<StructureDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1);
-        ArrayList<StructureDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2);
+        List<StructureDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1);
+        List<StructureDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1);
+        List<StructureDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2);
         if (highRatedDates.size() > 0) {
             DateRaterHelper.setRateWhightedByGroups(highRatedDates, result, DateComparator.STOP_MINUTE);
 

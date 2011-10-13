@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
@@ -42,7 +43,7 @@ public class DateArrayHelper {
      * @param filter
      * @return
      */
-    public static <T> ArrayList<T> filter(ArrayList<T> dates, int filter) {
+    public static <T> List<T> filter(List<T> dates, int filter) {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
         Iterator<T> iterator = dates.iterator();
@@ -81,7 +82,7 @@ public class DateArrayHelper {
 
     }
 
-    public static <T> ArrayList<T> filter(List<T> dates, DateType filter) {
+    public static <T> List<T> filter(List<T> dates, DateType filter) {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
         Iterator<T> iterator = dates.iterator();
@@ -103,7 +104,7 @@ public class DateArrayHelper {
      * @param filter
      * @return
      */
-    public static <T> HashMap<T, Double> filter(HashMap<T, Double> dates, int filter) {
+    public static <T> Map<T, Double> filter(Map<T, Double> dates, int filter) {
         HashMap<T, Double> temp = new HashMap<T, Double>();
         T date;
         Double rate;
@@ -132,7 +133,7 @@ public class DateArrayHelper {
      * @param filter
      * @return
      */
-    public static <T> HashMap<T, Double> filter(HashMap<T, Double> dates, DateType filter) {
+    public static <T> Map<T, Double> filter(Map<T, Double> dates, DateType filter) {
         HashMap<T, Double> temp = new HashMap<T, Double>();
         T date;
         Double rate;
@@ -147,7 +148,7 @@ public class DateArrayHelper {
 
     }
 
-    public static <T> ArrayList<T> filterFormat(ArrayList<T> dates, String format) {
+    public static <T> List<T> filterFormat(List<T> dates, String format) {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
         Iterator<T> iterator = dates.iterator();
@@ -172,8 +173,8 @@ public class DateArrayHelper {
      *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
-    public static <T> ArrayList<ArrayList<T>> arrangeByDate(ArrayList<T> dates, int stopFlag) {
-        ArrayList<ArrayList<T>> result = new ArrayList<ArrayList<T>>();
+    public static <T> List<List<T>> arrangeByDate(List<T> dates, int stopFlag) {
+        ArrayList<List<T>> result = new ArrayList<List<T>>();
         DateComparator dc = new DateComparator();
         for (int datesIndex = 0; datesIndex < dates.size(); datesIndex++) {
             boolean sameDatestamp = false;
@@ -208,7 +209,7 @@ public class DateArrayHelper {
      *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
-    public static <T> ArrayList<ArrayList<T>> arrangeByDate(ArrayList<T> dates) {
+    public static <T> List<List<T>> arrangeByDate(List<T> dates) {
         return arrangeByDate(dates, DateComparator.STOP_DAY);
     }
 
@@ -219,7 +220,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates) {
+    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates) {
         return arrangeMapByDate(dates, DateComparator.STOP_DAY);
     }
 
@@ -232,8 +233,8 @@ public class DateArrayHelper {
      *            At what exactness a comparison should stop. Use {@link DateComparator} static fields.
      * @return
      */
-    public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates, int stopFlag) {
-        ArrayList<HashMap<T, Double>> result = new ArrayList<HashMap<T, Double>>();
+    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates, int stopFlag) {
+        ArrayList<Map<T, Double>> result = new ArrayList<Map<T, Double>>();
         DateComparator dc = new DateComparator();
         for (Entry<T, Double> e : dates.entrySet()) {
             boolean sameDatestamp = false;
@@ -273,7 +274,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T, V> int countDates(T date, ArrayList<V> dates) {
+    public static <T, V> int countDates(T date, List<V> dates) {
 
         return countDates(date, dates, -1);
         /*
@@ -300,7 +301,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T, V> int countDates(T date, ArrayList<V> dates, int stopFlag) {
+    public static <T, V> int countDates(T date, List<V> dates, int stopFlag) {
         int count = 0;
         DateComparator dc = new DateComparator();
         for (int i = 0; i < dates.size(); i++) {
@@ -331,11 +332,11 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> int countDates(T date, HashMap<T, Double> dates) {
+    public static <T> int countDates(T date, Map<T, Double> dates) {
         return countDates(date, dates, DateComparator.STOP_DAY);
     }
 
-    public static <T> int countDates(T date, HashMap<T, Double> dates, int stopFlag) {
+    public static <T> int countDates(T date, Map<T, Double> dates, int stopFlag) {
         int count = 0;
         DateComparator dc = new DateComparator();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -364,8 +365,8 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
-    public static <T> void printDateArray(ArrayList<T> dates, DateType filterTechnique, String format) {
-        ArrayList<T> temp = dates;
+    public static <T> void printDateArray(List<T> dates, DateType filterTechnique, String format) {
+        List<T> temp = dates;
         if (filterTechnique != null) {
             temp = filter(dates, filterTechnique);
         }
@@ -393,8 +394,8 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
-    public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique, String format) {
-        ArrayList<T> temp = dates;
+    public static <T> void printDateArray(List<T> dates, int filterTechnique, String format) {
+        List<T> temp = dates;
         if (filterTechnique > 0) {
             temp = filter(dates, filterTechnique);
         }
@@ -418,7 +419,7 @@ public class DateArrayHelper {
      * 
      * @param dates
      */
-    public static <T> void printDateArray(ArrayList<T> dates) {
+    public static <T> void printDateArray(List<T> dates) {
         printDateArray(dates, 0);
     }
 
@@ -431,7 +432,7 @@ public class DateArrayHelper {
      * @param dates
      * @param filterTechnique
      */
-    public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique) {
+    public static <T> void printDateArray(List<T> dates, int filterTechnique) {
         printDateArray(dates, filterTechnique, null);
     }
 
@@ -444,7 +445,7 @@ public class DateArrayHelper {
      * @param dates
      * @param filterTechnique
      */
-    public static <T> void printDateArray(ArrayList<T> dates, DateType filterTechnique) {
+    public static <T> void printDateArray(List<T> dates, DateType filterTechnique) {
         printDateArray(dates, filterTechnique, null);
     }
 
@@ -456,7 +457,7 @@ public class DateArrayHelper {
      * @param format
      * @return
      */
-    public static <T> ArrayList<T> removeFormat(ArrayList<T> dates, String format) {
+    public static <T> List<T> removeFormat(List<T> dates, String format) {
         ArrayList<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
             T date = dates.get(i);
@@ -521,7 +522,7 @@ public class DateArrayHelper {
      * @param <T>
      * @param dateMap
      */
-    public static <T> void printDateMap(HashMap<T, Double> dateMap) {
+    public static <T> void printDateMap(Map<T, Double> dateMap) {
         printDateMap(dateMap, null);
     }
 
@@ -533,7 +534,7 @@ public class DateArrayHelper {
      * @param dateMap
      * @param filter
      */
-    public static <T> void printDateMap(HashMap<T, Double> dateMap, DateType filter) {
+    public static <T> void printDateMap(Map<T, Double> dateMap, DateType filter) {
         for (Entry<T, Double> e : dateMap.entrySet()) {
             T date = e.getKey();
             String dateString = ((ExtractedDate) date).getDateString();
@@ -572,7 +573,7 @@ public class DateArrayHelper {
      * @param rate
      * @return
      */
-    public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate) {
+    public static <T> List<T> getRatedDates(Map<T, Double> dates, double rate) {
         return getRatedDates(dates, rate, true);
     }
 
@@ -588,7 +589,7 @@ public class DateArrayHelper {
      * @param include
      * @return
      */
-    public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate, boolean include) {
+    public static <T> List<T> getRatedDates(Map<T, Double> dates, double rate, boolean include) {
         ArrayList<T> result = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (e.getValue() == rate == include) {
@@ -606,7 +607,7 @@ public class DateArrayHelper {
      * @param rate
      * @return
      */
-    public static <T> ArrayList<T> getRatedDates(ArrayList<T> dates, double rate) {
+    public static <T> List<T> getRatedDates(List<T> dates, double rate) {
         return getRatedDates(dates, rate, true);
     }
 
@@ -620,7 +621,7 @@ public class DateArrayHelper {
      *            True for dates with rate. False for dates without rate.
      * @return
      */
-    public static <T> ArrayList<T> getRatedDates(ArrayList<T> dates, double rate, boolean include) {
+    public static <T> List<T> getRatedDates(List<T> dates, double rate, boolean include) {
         ArrayList<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
             T date = dates.get(i);
@@ -639,7 +640,7 @@ public class DateArrayHelper {
      * @param rate
      * @return
      */
-    public static <T> HashMap<T, Double> getRatedDatesMap(HashMap<T, Double> dates, double rate) {
+    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate) {
         return getRatedDatesMap(dates, rate, true);
     }
 
@@ -655,7 +656,7 @@ public class DateArrayHelper {
      * @param include
      * @return
      */
-    public static <T> HashMap<T, Double> getRatedDatesMap(HashMap<T, Double> dates, double rate, boolean include) {
+    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate, boolean include) {
         HashMap<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (e.getValue() == rate == include) {
@@ -673,11 +674,11 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> ArrayList<T> getSameDates(ExtractedDate date, ArrayList<T> dates) {
+    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates) {
         return getSameDates(date, dates, DateComparator.STOP_DAY);
     }
 
-    public static <T> ArrayList<T> getSameDates(ExtractedDate date, ArrayList<T> dates, int stopFlag) {
+    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates, int stopFlag) {
         DateComparator dc = new DateComparator();
         ArrayList<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
@@ -696,7 +697,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> HashMap<T, Double> getSameDatesMap(ExtractedDate date, HashMap<T, Double> dates) {
+    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates) {
         return getSameDatesMap(date, dates, DateComparator.STOP_DAY);
     }
 
@@ -709,7 +710,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> HashMap<T, Double> getSameDatesMap(ExtractedDate date, HashMap<T, Double> dates, int stopFlag) {
+    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates, int stopFlag) {
         DateComparator dc = new DateComparator();
         HashMap<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -727,7 +728,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> Entry<T, Double>[] orderHashMap(HashMap<T, Double> dates) {
+    public static <T> Entry<T, Double>[] orderHashMap(Map<T, Double> dates) {
         return orderHashMap(dates, false);
     }
 
@@ -739,8 +740,8 @@ public class DateArrayHelper {
      * @param reverse
      * @return
      */
-    public static <T> Entry<T, Double>[] orderHashMap(HashMap<T, Double> dates, boolean reverse) {
-        Entry<T, Double>[] dateArray = hashMapToArray(dates);
+    public static <T> Entry<T, Double>[] orderHashMap(Map<T, Double> dates, boolean reverse) {
+        Entry<T, Double>[] dateArray = mapToArray(dates);
         quicksort(0, dateArray.length - 1, dateArray);
         if (reverse) {
             @SuppressWarnings("unchecked")
@@ -789,7 +790,7 @@ public class DateArrayHelper {
 
     /**
      * 
-     * Creates an array of entries of hashmap.
+     * Creates an array of entries of Map.
      * 
      * @param <T>
      * @param <V>
@@ -797,7 +798,7 @@ public class DateArrayHelper {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <T, V> Entry<T, V>[] hashMapToArray(HashMap<T, V> map) {
+    public static <T, V> Entry<T, V>[] mapToArray(Map<T, V> map) {
         Entry<T, V>[] array = new Entry[map.size()];
         int i = 0;
         for (Entry<T, V> e : map.entrySet()) {
@@ -816,7 +817,7 @@ public class DateArrayHelper {
      * @param map
      * @return
      */
-    public static <T, V> ArrayList<T> hashMapToArrayList(HashMap<T, V> map) {
+    public static <T, V> List<T> mapToList(Map<T, V> map) {
         ArrayList<T> array = new ArrayList<T>();
         for (Entry<T, V> e : map.entrySet()) {
             array.add(e.getKey());
@@ -831,7 +832,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> boolean isAllZero(HashMap<T, Double> dates) {
+    public static <T> boolean isAllZero(Map<T, Double> dates) {
         boolean isAllZero = true;
         for (Entry<T, Double> e : dates.entrySet()) {
             if (e.getValue() > 0) {
@@ -851,7 +852,7 @@ public class DateArrayHelper {
      * @param exactness
      * @return
      */
-    public static <T> HashMap<T, Double> getExacterDates(HashMap<T, Double> dates, int exactness) {
+    public static <T> Map<T, Double> getExacterDates(Map<T, Double> dates, int exactness) {
         HashMap<T, Double> resultDates = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (((ExtractedDate) e.getKey()).getExactness() >= exactness) {
@@ -869,7 +870,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> ArrayList<T> getExactestDates(HashMap<T, Double> dates) {
+    public static <T> List<T> getExactestDates(Map<T, Double> dates) {
         ArrayList<T> result = new ArrayList<T>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -895,7 +896,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> ArrayList<T> getExactestDates(ArrayList<T> dates) {
+    public static <T> List<T> getExactestDates(List<T> dates) {
         ArrayList<T> result = new ArrayList<T>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
         for (int i = 0; i < dates.size(); i++) {
@@ -921,7 +922,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> HashMap<T, Double> getExactestMap(HashMap<T, Double> dates) {
+    public static <T> Map<T, Double> getExactestMap(Map<T, Double> dates) {
         HashMap<T, Double> result = new HashMap<T, Double>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -946,7 +947,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> double getHighestRate(HashMap<T, Double> dates) {
+    public static <T> double getHighestRate(Map<T, Double> dates) {
         double result = 0;
         for (Entry<T, Double> e : dates.entrySet()) {
             result = Math.max(result, e.getValue());
@@ -961,7 +962,7 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> double getHighestRate(ArrayList<T> dates) {
+    public static <T> double getHighestRate(List<T> dates) {
         double result = 0;
         for (int i = 0; i < dates.size(); i++) {
             result = Math.max(result, ((ExtractedDate) dates.get(i)).getRate());
@@ -976,7 +977,7 @@ public class DateArrayHelper {
      * @param map
      * @return
      */
-    public static <T, V> T getFirstElement(HashMap<T, V> map) {
+    public static <T, V> T getFirstElement(Map<T, V> map) {
         T result = null;
         for (Entry<T, V> e : map.entrySet()) {
             result = e.getKey();
@@ -984,7 +985,7 @@ public class DateArrayHelper {
         return result;
     }
 
-    public static <T> ArrayList<T> removeNull(ArrayList<T> list) {
+    public static <T> List<T> removeNull(List<T> list) {
         ArrayList<T> returnList = new ArrayList<T>();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
@@ -1000,8 +1001,8 @@ public class DateArrayHelper {
      * @param <T>
      * @param dates
      */
-    public static <T> HashMap<T, Double> normalizeRate(HashMap<T, Double> dates) {
-        HashMap<T, Double> returnDates = dates;
+    public static <T> Map<T, Double> normalizeRate(Map<T, Double> dates) {
+        Map<T, Double> returnDates = dates;
         double highestRate = DateArrayHelper.getHighestRate(returnDates);
         if (highestRate > 1.0) {
             for (Entry<T, Double> e : returnDates.entrySet()) {

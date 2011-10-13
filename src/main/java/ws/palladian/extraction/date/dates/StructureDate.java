@@ -8,14 +8,11 @@ package ws.palladian.extraction.date.dates;
  * 
  */
 public class StructureDate extends AbstractBodyDate {
-
-	private DateType dateType = DateType.StructureDate;
 	
     /**
      * 
      */
     public StructureDate() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -23,7 +20,6 @@ public class StructureDate extends AbstractBodyDate {
      */
     public StructureDate(String dateString) {
         super(dateString);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -32,7 +28,6 @@ public class StructureDate extends AbstractBodyDate {
      */
     public StructureDate(String dateString, String format) {
         super(dateString, format);
-        // TODO Auto-generated constructor stub
     }
 
 }

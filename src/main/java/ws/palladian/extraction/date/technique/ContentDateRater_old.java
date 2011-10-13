@@ -1,7 +1,8 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
@@ -43,8 +44,8 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
 	}
 
 	@Override
-    public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
-    	HashMap<ContentDate, Double> returnDates = evaluateContentDate(list);
+    public Map<ContentDate, Double> rate(List<ContentDate> list) {
+    	Map<ContentDate, Double> returnDates = evaluateContentDate(list);
     	this.ratedDates = returnDates;
         return returnDates;
     }
@@ -58,16 +59,16 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
      * @param dates
      * @return
      */
-    private HashMap<ContentDate, Double> evaluateContentDate(ArrayList<ContentDate> dates) {
+    private Map<ContentDate, Double> evaluateContentDate(List<ContentDate> dates) {
         HashMap<ContentDate, Double> result = new HashMap<ContentDate, Double>();
 
-        ArrayList<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
-        ArrayList<ContentDate> contDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_CONT);
-        ArrayList<ContentDate> nokeywordDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_NO);
+        List<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
+        List<ContentDate> contDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_CONT);
+        List<ContentDate> nokeywordDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_NO);
 
-        HashMap<ContentDate, Double> attrResult = evaluateKeyLocAttr(attrDates);
-        HashMap<ContentDate, Double> contResult = evaluateKeyLocCont(contDates);
-        HashMap<ContentDate, Double> nokeywordResult = new HashMap<ContentDate, Double>();
+        Map<ContentDate, Double> attrResult = evaluateKeyLocAttr(attrDates);
+        Map<ContentDate, Double> contResult = evaluateKeyLocCont(contDates);
+        Map<ContentDate, Double> nokeywordResult = new HashMap<ContentDate, Double>();
 
         // Run through dates without keyword.
         double newRate;
@@ -107,7 +108,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
      * @param contDates
      * @return
      */
-    private HashMap<ContentDate, Double> evaluateKeyLocCont(ArrayList<ContentDate> contDates) {
+    private Map<ContentDate, Double> evaluateKeyLocCont(List<ContentDate> contDates) {
         HashMap<ContentDate, Double> contResult = new HashMap<ContentDate, Double>();
         double factor_keyword;
         double factor_content;
@@ -116,9 +117,9 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
             factor_content = calcContDateContent(date);
             contResult.put(date, factor_content);
         }
-        ArrayList<ContentDate> rate1dates = DateArrayHelper.getRatedDates(contResult, 1.0);
+        List<ContentDate> rate1dates = DateArrayHelper.getRatedDates(contResult, 1.0);
 
-        ArrayList<ContentDate> rateRestDates = DateArrayHelper.getRatedDates(contResult, 1.0, false);
+        List<ContentDate> rateRestDates = DateArrayHelper.getRatedDates(contResult, 1.0, false);
 
         ContentDate key;
 
@@ -128,7 +129,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
 
             factor_keyword = calcContDateAttr(key);
             int countSame = DateArrayHelper.countDates(key, rate1dates, -1) + 1;
-            double newRate = (1.0 * countSame / rate1dates.size());
+            double newRate = 1.0 * countSame / rate1dates.size();
             contResult.put(key, Math.round(newRate * factor_keyword * 10000) / 10000.0);
         }
 
@@ -136,7 +137,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
             key = rateRestDates.get(i);
             factor_keyword = calcContDateAttr(key);
             int countSame = DateArrayHelper.countDates(key, rateRestDates, -1) + 1;
-            double newRate = (1.0 * contResult.get(key) * countSame / contDates.size());
+            double newRate = 1.0 * contResult.get(key) * countSame / contDates.size();
             contResult.put(key, Math.round(newRate * factor_keyword * 10000) / 10000.0);
         }
         return contResult;
@@ -149,7 +150,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
      * @param attrDates
      * @return
      */
-    private HashMap<ContentDate, Double> evaluateKeyLocAttr(ArrayList<ContentDate> attrDates) {
+    private Map<ContentDate, Double> evaluateKeyLocAttr(List<ContentDate> attrDates) {
         HashMap<ContentDate, Double> attrResult = new HashMap<ContentDate, Double>();
         ContentDate date;
         double rate;
@@ -159,9 +160,9 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
             attrResult.put(date, rate);
         }
 
-        ArrayList<ContentDate> rate1Dates = DateArrayHelper.getRatedDates(attrResult, 1);
-        ArrayList<ContentDate> middleRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.7);
-        ArrayList<ContentDate> lowRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.5);
+        List<ContentDate> rate1Dates = DateArrayHelper.getRatedDates(attrResult, 1);
+        List<ContentDate> middleRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.7);
+        List<ContentDate> lowRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.5);
 
         if (rate1Dates.size() > 0) {
             attrResult.putAll(DateRaterHelper.setRateWhightedByGroups(rate1Dates, attrDates));
@@ -211,7 +212,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
     private double calcContDateContent(ContentDate date) {
         int distance = date.get(ContentDate.DISTANCE_DATE_KEYWORD);
         // f(x) = -1/17*x+20/17
-        double factor = ((-1.0 / 17.0) * distance) + (20.0 / 17.0);
+        double factor = -1.0 / 17.0 * distance + 20.0 / 17.0;
         factor = Math.max(0, Math.min(1.0, factor));
         return Math.round(factor * 10000) / 10000.0;
     }

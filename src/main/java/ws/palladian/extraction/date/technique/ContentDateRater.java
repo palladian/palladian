@@ -1,8 +1,9 @@
 package ws.palladian.extraction.date.technique;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
@@ -69,7 +70,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 	}
 
 	@Override
-	public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
+	public Map<ContentDate, Double> rate(List<ContentDate> list) {
 
 		int pubModCLassifierIndex;
 		HashMap<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();

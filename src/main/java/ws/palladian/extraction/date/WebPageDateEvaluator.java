@@ -2,7 +2,8 @@ package ws.palladian.extraction.date;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.w3c.dom.Document;
@@ -30,7 +31,7 @@ public class WebPageDateEvaluator {
 	/** Standard DateRater. */
 	private DateEvaluator dr = new DateEvaluator(PageDateType.publish);
 
-	private ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+	private List<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
 	private String url;
 	private Document document;
@@ -93,8 +94,8 @@ public class WebPageDateEvaluator {
 			}
 			dg.setURL(url);
 			ArrayList<ExtractedDate> dates = dg.getDate();
-			HashMap<ExtractedDate, Double> ratedDates = dr.rate(dates);
-			this.list = DateArrayHelper.hashMapToArrayList(ratedDates);
+			Map<ExtractedDate, Double> ratedDates = dr.rate(dates);
+			this.list = DateArrayHelper.mapToList(ratedDates);
 		}
 	}
 
@@ -122,7 +123,7 @@ public class WebPageDateEvaluator {
 	public ExtractedDate getBestRatedDate(double limit) {
 		ExtractedDate result = null;
 		if (list != null && list.size() > 0) {
-			ArrayList<ExtractedDate> orderedList = list;
+			List<ExtractedDate> orderedList = list;
 			Collections.sort(orderedList,
 					new RatedDateComparator<ExtractedDate>());
 			ExtractedDate date = orderedList.get(0);
@@ -165,7 +166,7 @@ public class WebPageDateEvaluator {
 	 * 
 	 * @return ArraylList of dates.
 	 */
-	public ArrayList<ExtractedDate> getAllBestRatedDate() {
+	public List<ExtractedDate> getAllBestRatedDate() {
 		return getAllBestRatedDate(false);
 	}
 
@@ -177,8 +178,8 @@ public class WebPageDateEvaluator {
 	 *            False for look at all dates.
 	 * @return ArraylList of dates.
 	 */
-	public ArrayList<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
-		ArrayList<ExtractedDate> dates = list;
+	public List<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
+		List<ExtractedDate> dates = list;
 		if (onlyFullDates) {
 			dates = DateArrayHelper.filter(dates,
 					DateArrayHelper.FILTER_FULL_DATE);
@@ -194,8 +195,8 @@ public class WebPageDateEvaluator {
 	 * 
 	 * @return all dates.
 	 */
-	public ArrayList<ExtractedDate> getAllDates() {
-		ArrayList<ExtractedDate> sorted = list;
+	public List<ExtractedDate> getAllDates() {
+		List<ExtractedDate> sorted = list;
 		Collections.sort(sorted, new RatedDateComparator<ExtractedDate>());
 		return sorted;
 	}

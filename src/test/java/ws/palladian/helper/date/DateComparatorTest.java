@@ -3,13 +3,12 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
 
 public class DateComparatorTest {
 
@@ -37,7 +36,7 @@ public class DateComparatorTest {
         unorderd.add(date9);// 9
         unorderd.add(date2);// 10
 
-        ArrayList<ExtractedDate> orderd = new ArrayList<ExtractedDate>();
+        List<ExtractedDate> orderd = new ArrayList<ExtractedDate>();
         DateComparator dc = new DateComparator();
         orderd = dc.orderDates(unorderd, true);
         DateArrayHelper.printDateArray(unorderd);
