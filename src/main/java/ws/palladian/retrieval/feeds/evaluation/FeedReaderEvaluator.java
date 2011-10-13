@@ -20,10 +20,12 @@ import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * <p>An evaluator for the FeedReader.</p>
+ * <p>
+ * An evaluator for the FeedReader.
+ * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Sandro Reichert
  */
 public class FeedReaderEvaluator {
 
@@ -61,20 +63,21 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "data/datasets/feedPosts/csv";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
 
-    /** The timestamp we started the dataset gathering. 28/09/2010 */
-    public static final long BENCHMARK_START_TIME_MILLISECOND = 1285689600000L;
+    /** The timestamp we started the dataset gathering. 08.07.2011 21:35 */
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310160900000L;
 
-    /** The timestamp we stopped the dataset gathering. 19/10/2010 */
-    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1287504000000L;
+    /** The timestamp we stopped the dataset gathering. 05.08.2011 13:49 */
+    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312552140000L;
 
     public FeedReaderEvaluator() {
         LOGGER.info("load benchmark dataset file list");
         benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
+        // benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH, ".csv", true, false);
     }
 
     public static int getBenchmarkPolicy() {
@@ -320,23 +323,25 @@ public class FeedReaderEvaluator {
         // System.exit(0);
 
         // if -1 => fixed learned
-        int checkInterval = -1;
+        int checkInterval = 60;
 
         UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
-        updateStrategy = new MavUpdateStrategy();
-        updateStrategy = new PostRateUpdateStrategy();
+        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval); // required by Fix strategies only!
+
+        // updateStrategy = new MavUpdateStrategy();
+        // updateStrategy = new PostRateUpdateStrategy();
         // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
 
-        FeedReaderEvaluator.benchmarkSample = 100;
+        FeedReaderEvaluator.benchmarkSample = 100; // use just a percentage of
 
-        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
-        fc.setUpdateStrategy(updateStrategy, true);
+        FeedReader feedReader = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
+                .getInstance().getConfig()));
+        feedReader.setUpdateStrategy(updateStrategy, true);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);
         // setBenchmarkMode(BENCHMARK_TIME);
-        fc.startContinuousReading(-1);
+        feedReader.startContinuousReading(-1);
     }
 
 }

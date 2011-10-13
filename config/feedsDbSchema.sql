@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
 --
 
 CREATE TABLE IF NOT EXISTS `feed_polls` (
-  `id` int(10) NOT NULL,
+  `id` INT(10) NOT NULL,
   `pollTimestamp` DATETIME NOT NULL,
   `httpETag` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The ETag element from the HTTP header. ',
   `httpDate` DATETIME DEFAULT NULL COMMENT 'The date element from the HTTP header. ',
@@ -166,7 +166,8 @@ CREATE TABLE IF NOT EXISTS `feed_polls` (
   `newestItemTimestamp` DATETIME DEFAULT NULL COMMENT 'The newest timestamp of the newest item (one item might have two timestamps).',
   `numberNewItems` INT(10) DEFAULT NULL COMMENT 'The number of new items.',
   `windowSize` INT(10) DEFAULT NULL COMMENT 'The current window size.',
-  `httpStatusCode` INT(10) NOT NULL COMMENT 'The http status code returned.'
+  `httpStatusCode` INT(10) NOT NULL COMMENT 'The http status code returned.',
+  `responseSize` INT(10) DEFAULT NULL COMMENT 'The size in bytes of the received HTTP response. Value has been restored from dataset. If httpStatusCode = 304, we used the HTTP header size from one poll, otherwise the size of the content of the current or previous gz file.'  
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --

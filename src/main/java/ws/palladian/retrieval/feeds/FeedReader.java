@@ -166,10 +166,15 @@ public final class FeedReader {
                     continue;
                 }
 
-                // we skip OTF feeds
-                if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
+                // custom sample: skip some feeds if we want to take a custom sample only
+                if (feed.getId() >= 10) {
                     continue;
                 }
+
+                // we skip OTF feeds
+                // if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
+                // continue;
+                // }
 
                 // int dbgid = 1;
                 // if (feed.getId() > dbgid) {
@@ -179,6 +184,8 @@ public final class FeedReader {
                 // continue;
                 // }
                 StopWatch swf = new StopWatch();
+
+                // TODO Sandro: auf DB umstellen
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
                 if (fbfr.getTotalEntries() == 0) {

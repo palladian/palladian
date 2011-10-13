@@ -53,12 +53,13 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
     private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
     private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
-    private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?";
-    private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ? WHERE id = ? AND pollTimestamp = ?";
+    private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
+    private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ? WHERE id = ? AND pollTimestamp = ?";
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
     private static final String ADD_EVALUATION_ITEMS = "INSERT IGNORE INTO feed_evaluation_items SET feedId = ?, pollTimestamp = ?, itemHash = ?, publishTime = ?";
+    private static final String GET_EVALUATION_ITEMS_BY_ID = "SELECT * FROM feed_evaluation_items WHERE feedId = ? ORDER BY feedId ASC, pollTimestamp ASC, publishTime ASC LIMIT ?, ?;";
 
     /**
      * @param connectionManager
@@ -438,6 +439,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(pollMetaInfo.getNumberNewItems());
         parameters.add(pollMetaInfo.getWindowSize());
         parameters.add(pollMetaInfo.getHttpStatusCode());
+        parameters.add(pollMetaInfo.getResponseSize());
 
         return runInsertReturnId(ADD_FEED_POLL, parameters) != -1;
     }
@@ -458,6 +460,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(pollMetaInfo.getNumberNewItems());
         parameters.add(pollMetaInfo.getWindowSize());
         parameters.add(pollMetaInfo.getHttpStatusCode());
+        parameters.add(pollMetaInfo.getResponseSize());
         parameters.add(pollMetaInfo.getFeedID());
         parameters.add(pollMetaInfo.getPollSQLTimestamp());
 
@@ -536,6 +539,18 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         int[] result = runBatchInsertReturnIds(ADD_EVALUATION_ITEMS, batchArgs);
 
         return (result.length == allItems.size());
+    }
+
+    /**
+     * Get items from table feed_evaluation_items by feedID.
+     * 
+     * @param feedID The feed to get items for
+     * @param from Use db's LIMIT command to limit number of results. LIMIT from, to
+     * @param to Use db's LIMIT command to limit number of results. LIMIT from, to
+     * @return
+     */
+    public List<FeedItem> getEvaluationItemsByID(int feedID, int from, int to) {
+        return runQuery(new FeedEvaluationItemRowConverter(), GET_EVALUATION_ITEMS_BY_ID, feedID, from, to);
     }
 
 }
