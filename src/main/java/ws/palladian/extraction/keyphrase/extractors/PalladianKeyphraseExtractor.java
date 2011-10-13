@@ -1,4 +1,4 @@
-package ws.palladian.extraction.keyphrase;
+package ws.palladian.extraction.keyphrase.extractors;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +19,15 @@ import org.tartarus.snowball.SnowballStemmer;
 import ws.palladian.classification.FeatureObject;
 import ws.palladian.classification.WekaClassifierWrapper;
 import ws.palladian.classification.WordCorrelation;
+import ws.palladian.extraction.keyphrase.Candidate;
+import ws.palladian.extraction.keyphrase.CandidateComparator;
+import ws.palladian.extraction.keyphrase.Corpus;
+import ws.palladian.extraction.keyphrase.DocumentModel;
+import ws.palladian.extraction.keyphrase.Keyphrase;
+import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings;
+import ws.palladian.extraction.keyphrase.Token;
+import ws.palladian.extraction.keyphrase.TokenizerPlus;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.ReRankingMode;
 import ws.palladian.helper.FileHelper;

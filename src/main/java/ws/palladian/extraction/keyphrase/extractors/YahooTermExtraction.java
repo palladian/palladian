@@ -1,4 +1,4 @@
-package ws.palladian.extraction.keyphrase;
+package ws.palladian.extraction.keyphrase.extractors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.extraction.keyphrase.Keyphrase;
+import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;

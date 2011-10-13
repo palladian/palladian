@@ -1,4 +1,4 @@
-package ws.palladian.extraction.keyphrase;
+package ws.palladian.extraction.keyphrase.extractors;
 
 /*
  * MauiTopicExtractor.java
@@ -43,6 +43,8 @@ import ws.palladian.external.maui.stemmers.PorterStemmer;
 import ws.palladian.external.maui.stemmers.Stemmer;
 import ws.palladian.external.maui.stopwords.Stopwords;
 import ws.palladian.external.maui.vocab.Vocabulary;
+import ws.palladian.extraction.keyphrase.Keyphrase;
+import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.helper.StopWatch;
 
 /**
