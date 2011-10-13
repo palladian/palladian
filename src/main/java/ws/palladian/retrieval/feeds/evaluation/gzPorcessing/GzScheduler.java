@@ -84,7 +84,11 @@ public class GzScheduler extends TimerTask {
                     continue;
                 }
 
-                scheduledTasks.put(feed.getId(), threadPool.submit(new GzFeedTask(feed, feedReader)));
+                // FIXME: remove dbug filter
+                if (feed.getId() == 8654) {
+                    scheduledTasks.put(feed.getId(), threadPool.submit(new GzFeedTask(feed, feedReader)));
+                }
+
                 newlyScheduledFeedsCount++;
             } else {
                 removeFeedTaskIfDone(feed.getId());

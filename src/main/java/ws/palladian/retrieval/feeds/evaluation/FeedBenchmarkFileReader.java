@@ -41,9 +41,9 @@ public class FeedBenchmarkFileReader {
         this.feedChecker = feedChecker;
 
         String safeFeedName = feed.getId()
-        + "_"
-        + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""),
-                30);
+                + "_"
+                + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""),
+                        30);
 
         this.historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -196,10 +196,10 @@ public class FeedBenchmarkFileReader {
                     }
 
                     if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                            && entryTimestamp > FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND && totalEntries - i + 1 == feed.getWindowSize()) {
+                            && entryTimestamp > FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND
+                            && totalEntries - i + 1 == feed.getWindowSize()) {
                         LOGGER.error("we disregard this feed (" + feed.getId()
-                                + ") since it does not comply with our start date "
-                                + entryTimestamp);
+                                + ") since it does not comply with our start date " + entryTimestamp);
                         feed.setHistoryFileCompletelyRead(true);
                         feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
                         return;
@@ -390,12 +390,10 @@ public class FeedBenchmarkFileReader {
 
             feedChecker.updateCheckIntervals(feed);
 
-
             pollData.setCheckInterval(feed.getUpdateInterval());
 
             // add poll data object to series of poll data
             feed.getPollDataSeries().add(pollData);
-
 
             feed.addToBenchmarkLookupTime(feed.getUpdateInterval() * DateHelper.MINUTE_MS);
 

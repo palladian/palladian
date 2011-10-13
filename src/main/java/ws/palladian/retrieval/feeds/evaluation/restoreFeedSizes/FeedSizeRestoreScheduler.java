@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.feeds.evaluation.csvToDb;
+package ws.palladian.retrieval.feeds.evaluation.restoreFeedSizes;
 
 import java.util.Map;
 import java.util.TimerTask;
@@ -17,15 +17,17 @@ import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
- * Scheduler to process all feeds in db once in a CsvToDbTask. Use to load csv data into database.
+ * Scheduler to process all feeds in db once in a {@link FeedSizeRestoreTask}. Use to restore feedSizes in database
+ * table feed_polls. The feedSize has not been calculated in realtime when creating the TUDCS6 dataset for performance
+ * reasons.
  * 
  * @author Sandro Reichert
  */
-public class CsvToDbScheduler extends TimerTask {
+public class FeedSizeRestoreScheduler extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      */
-    private static final Logger LOGGER = Logger.getLogger(CsvToDbScheduler.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedSizeRestoreScheduler.class);
 
     /**
      * The thread pool managing threads that read feeds from the feed sources
@@ -58,7 +60,7 @@ public class CsvToDbScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public CsvToDbScheduler(final FeedReader feedReader) {
+    public FeedSizeRestoreScheduler(final FeedReader feedReader) {
         super();
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
@@ -79,14 +81,14 @@ public class CsvToDbScheduler extends TimerTask {
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
 
-
                 // FIXME: remove dbug filter
-                // if (feed.getId() == 8654) {
-                scheduledTasks.put(feed.getId(),
-                        threadPool.submit(new CsvToDbTask(feed, (FeedDatabase) feedReader.getFeedStore())));
+                // if (feed.getId() < 1000) {
+                    scheduledTasks.put(feed.getId(),
+                            threadPool.submit(new FeedSizeRestoreTask(feed, (FeedDatabase) feedReader.getFeedStore())));
+                    newlyScheduledFeedsCount++;
                 // }
 
-                newlyScheduledFeedsCount++;
+
             } else {
                 removeFeedTaskIfDone(feed.getId());
             }
@@ -143,6 +145,5 @@ public class CsvToDbScheduler extends TimerTask {
             }
         }
     }
-
 
 }

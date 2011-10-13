@@ -23,7 +23,7 @@ public class FeedPollRowConverter implements RowConverter<PollMetaInformation> {
         pollMetaInfo.setNumberNewItems(SqlHelper.getInteger(resultSet, "numberNewItems"));
         pollMetaInfo.setWindowSize(SqlHelper.getInteger(resultSet, "windowSize"));
         pollMetaInfo.setHttpStatusCode(SqlHelper.getInteger(resultSet, "httpStatusCode"));
+        pollMetaInfo.setResponseSize(SqlHelper.getInteger(resultSet, "responseSize"));
         return pollMetaInfo;
     }
-
 }

@@ -34,6 +34,11 @@ public class PollMetaInformation {
     private int httpStatusCode = -1;
 
     /**
+     * The size in bytes of the received HTTP response. Null if unknown.
+     */
+    private Integer responseSize = null;
+
+    /**
      * @return the feedID
      */
     public final int getFeedID() {
@@ -228,6 +233,20 @@ public class PollMetaInformation {
         this.httpStatusCode = httpStatusCode;
     }
 
+    /**
+     * @return The size in bytes of the received HTTP response.
+     */
+    public final Integer getResponseSize() {
+        return responseSize;
+    }
+
+    /**
+     * @param responseSize The size in bytes of the received HTTP response.
+     */
+    public final void setResponseSize(Integer responseSize) {
+        this.responseSize = responseSize;
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#hashCode()
@@ -245,6 +264,7 @@ public class PollMetaInformation {
         result = prime * result + ((newestItemTimestamp == null) ? 0 : newestItemTimestamp.hashCode());
         result = prime * result + ((numberNewItems == null) ? 0 : numberNewItems.hashCode());
         result = prime * result + ((pollTimestamp == null) ? 0 : pollTimestamp.hashCode());
+        result = prime * result + ((responseSize == null) ? 0 : responseSize.hashCode());
         result = prime * result + ((windowSize == null) ? 0 : windowSize.hashCode());
         return result;
     }
@@ -301,6 +321,11 @@ public class PollMetaInformation {
                 return false;
         } else if (!pollTimestamp.equals(other.pollTimestamp))
             return false;
+        if (responseSize == null) {
+            if (other.responseSize != null)
+                return false;
+        } else if (!responseSize.equals(other.responseSize))
+            return false;
         if (windowSize == null) {
             if (other.windowSize != null)
                 return false;
@@ -336,6 +361,8 @@ public class PollMetaInformation {
         builder.append(windowSize);
         builder.append(", httpStatusCode=");
         builder.append(httpStatusCode);
+        builder.append(", responseSize=");
+        builder.append(responseSize);
         builder.append("]");
         return builder.toString();
     }

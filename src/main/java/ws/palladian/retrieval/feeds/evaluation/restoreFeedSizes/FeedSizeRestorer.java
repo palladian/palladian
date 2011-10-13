@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.feeds.evaluation.csvToDb;
+package ws.palladian.retrieval.feeds.evaluation.restoreFeedSizes;
 
 import java.util.Timer;
 
@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.csvToDb.CsvToDbTask;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
@@ -16,11 +17,11 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * @author Sandro Reichert
  * 
  */
-public class CsvToDbLoader {
+public class FeedSizeRestorer {
 
     /** The logger for this class. */
     @SuppressWarnings("unused")
-    private static final Logger LOGGER = Logger.getLogger(CsvToDbLoader.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedSizeRestorer.class);
 
     /**
      * Schedule all {@link CsvToDbTask}s
@@ -32,16 +33,16 @@ public class CsvToDbLoader {
      */
     private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
 
-    public CsvToDbLoader() {
+    public FeedSizeRestorer() {
         checkScheduler = new Timer();
     }
 
     @SuppressWarnings("deprecation")
-    public void loadDataToDb() {
+    public void restoreFeedSizes() {
 
         final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
         FeedReader feedChecker = new FeedReader(feedStore);
-        CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedChecker);
+        FeedSizeRestoreScheduler csvToDbScheduler = new FeedSizeRestoreScheduler(feedChecker);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);
     }
 
@@ -52,8 +53,8 @@ public class CsvToDbLoader {
      */
     public static void main(String[] args) {
 
-        CsvToDbLoader csvToDbLoader = new CsvToDbLoader();
-        csvToDbLoader.loadDataToDb();
+        FeedSizeRestorer feedSizeRestorer = new FeedSizeRestorer();
+        feedSizeRestorer.restoreFeedSizes();
     }
 
 }
