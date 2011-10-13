@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.RegExp;
 
 /**
@@ -15,14 +15,14 @@ import ws.palladian.helper.RegExp;
  * @author Martin Gregor
  * 
  */
-public class UrlDateRater extends TechniqueDateRater<URLDate> {
+public class UrlDateRater extends TechniqueDateRater<UrlDate> {
 
     public UrlDateRater(PageDateType dateType) {
 		super(dateType);
 	}
 
 	@Override
-    public Map<URLDate, Double> rate(List<URLDate> list) {
+    public Map<UrlDate, Double> rate(List<UrlDate> list) {
         return evaluateURLDate(list);
     }
 
@@ -33,11 +33,11 @@ public class UrlDateRater extends TechniqueDateRater<URLDate> {
      * @param dates
      * @return
      */
-    private Map<URLDate, Double> evaluateURLDate(List<URLDate> dates) {
-        HashMap<URLDate, Double> evaluate = new HashMap<URLDate, Double>();
+    private Map<UrlDate, Double> evaluateURLDate(List<UrlDate> dates) {
+        HashMap<UrlDate, Double> evaluate = new HashMap<UrlDate, Double>();
         for (int i = 0; i < dates.size(); i++) {
             double rate = 0;
-            URLDate date = dates.get(i);
+            UrlDate date = dates.get(i);
             if (date != null && DateRaterHelper.isDateInRange(date)) {
                 String format = date.getFormat();
                 if (format != null) {

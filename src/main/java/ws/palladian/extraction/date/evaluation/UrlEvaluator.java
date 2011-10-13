@@ -8,12 +8,12 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.URLDateGetter;
+import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.extraction.date.technique.UrlDateRater;
 import ws.palladian.helper.date.DateComparator;
 
@@ -24,8 +24,8 @@ public class UrlEvaluator {
 	 */
 	public static void main(String[] args) {
 
-		TechniqueDateGetter<URLDate> dg = new URLDateGetter();
-		TechniqueDateRater<URLDate> dr = new UrlDateRater(PageDateType.publish);
+		TechniqueDateGetter<UrlDate> dg = new UrlDateGetter();
+		TechniqueDateRater<UrlDate> dr = new UrlDateRater(PageDateType.publish);
 
 		String file = "data/evaluation/daterecognition/datasets/urldataset.txt";
 		evaluate(DBExport.PUB_DATE, dg, dr, file);
@@ -42,7 +42,7 @@ public class UrlEvaluator {
 
 	private static void countUrlsWithDate(String file) {
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
-		URLDateGetter dg = new URLDateGetter();
+		UrlDateGetter dg = new UrlDateGetter();
 		int count = 0;
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			if (dg.getFirstDate(e.getKey()) != null) {
@@ -57,7 +57,7 @@ public class UrlEvaluator {
 			String file) {
 
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
-		URLDateGetter dg = new URLDateGetter();
+		UrlDateGetter dg = new UrlDateGetter();
 		DateComparator dc = new DateComparator();
 		int countAll = 0;
 		int countTP = 0;
@@ -108,7 +108,7 @@ public class UrlEvaluator {
 		try {
 			FileWriter outw = new FileWriter(file, false);
 			BufferedWriter bw = new BufferedWriter(outw);
-			URLDateGetter dg = new URLDateGetter();
+			UrlDateGetter dg = new UrlDateGetter();
 			bw
 					.write("url *;_;* path *;_;* pub_date *;_;* pub_sureness *;_;* mod_date *;_;* mod_sureness *;_;* google_date *;_;* hakia_date *;_;* ask_date *;_;* header_last_mod *;_;* header_date *;_;* down_date");
 			for (Entry<String, DBExport> e : merged.entrySet()) {

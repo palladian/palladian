@@ -11,7 +11,7 @@ import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
-import ws.palladian.extraction.date.technique.HTTPDateGetter;
+import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.HttpDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -31,7 +31,7 @@ public class HttpEvaluator {
 		
 		//createHttpUrlList("", "");
 		
-		HTTPDateGetter dg = new HTTPDateGetter();
+		HttpDateGetter dg = new HttpDateGetter();
 		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
 		
 		String file = "data/evaluation/daterecognition/datasets/httpdataset.txt";
@@ -39,7 +39,7 @@ public class HttpEvaluator {
 		evaluate(DBExport.MOD_DATE, dg, dr,file);
 	}
 
-	private static void evaluate(int pub_mod, HTTPDateGetter dg, HttpDateRater dr, String file){
+	private static void evaluate(int pub_mod, HttpDateGetter dg, HttpDateRater dr, String file){
 		int rnf = 0;
 		int ff= 0;
 		int wnf= 0;

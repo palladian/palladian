@@ -14,7 +14,7 @@ import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.technique.ArchiveDateRater;
 import ws.palladian.extraction.date.technique.ContentDateRater_old;
 import ws.palladian.extraction.date.technique.MetaDateRater;
@@ -118,7 +118,7 @@ public class DateEvaluator_old {
 		HashMap<T, Double> structResult = new HashMap<T, Double>();
 		HashMap<T, Double> contResult = new HashMap<T, Double>();
 
-		ArrayList<URLDate> urlDates = (ArrayList<URLDate>) DateArrayHelper
+		ArrayList<UrlDate> urlDates = (ArrayList<UrlDate>) DateArrayHelper
 				.filter(dates, DateType.UrlDate);
 
 		ArrayList<MetaDate> metaDates = (ArrayList<MetaDate>) DateArrayHelper
@@ -353,7 +353,7 @@ public class DateEvaluator_old {
 			HashMap<T, Double> dates) {
 		HashMap<T, Double> result = dates;
 		for (Entry<T, Double> url : urlDates.entrySet()) {
-			URLDate urlDate = (URLDate) url.getKey();
+			UrlDate urlDate = (UrlDate) url.getKey();
 			double urlRate = url.getValue();
 			double urlFactor = Math.min(urlDate.getExactness(), 3) / 3.0;
 			Map<T, Double> temp = DateArrayHelper.getSameDatesMap(urlDate,
