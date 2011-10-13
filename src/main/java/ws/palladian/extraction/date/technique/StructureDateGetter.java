@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 import ws.palladian.extraction.date.DateConverter;
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.dates.AbstractBodyDate;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.StructureDate;
@@ -93,7 +94,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
             date = checkForDate(node);
         }
         if (date != null) {
-            date.set(StructureDate.STRUCTURE_DEPTH, depth);
+            date.set(AbstractBodyDate.STRUCTURE_DEPTH, depth);
             dates.add(date);
         }
         final NodeList nodeList = node.getChildNodes();

@@ -1,23 +1,18 @@
 package ws.palladian.extraction.date.dates;
 
 public class MetaDate extends KeywordDate {
-
-	private DateType dateType = DateType.MetaDate;
 	
 	private String tag = null;
 	
 	public MetaDate() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public MetaDate(String dateString) {
 		super(dateString);
-		// TODO Auto-generated constructor stub
 	}
 
 	public MetaDate(String dateString, String format) {
 		super(dateString, format);
-		// TODO Auto-generated constructor stub
 	}
 	
 	 /**

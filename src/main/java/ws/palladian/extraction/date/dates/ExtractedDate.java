@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,17 +18,9 @@ import ws.palladian.helper.RegExp;
  * 
  * @author Martin Gregor*
  */
-public class ExtractedDate extends AbstractDate{
+public class ExtractedDate implements AbstractDate {
 
     private DateType dateType = DateType.ExtractedDate;
-
-    public static final int YEAR = 1;
-    public static final int MONTH = 2;
-    public static final int DAY = 3;
-    public static final int HOUR = 4;
-    public static final int MINUTE = 5;
-    public static final int SECOND = 6;
-    public static final int EXACTENESS = 7;
 
     /**
      * Found date as string.
@@ -384,35 +377,23 @@ public class ExtractedDate extends AbstractDate{
         }
     }
 
-    /**
-     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
-     * 
-     * @param dateParts
-     * @return
-     */
     @Override
     public String getNormalizedDateString() {
         return getNormalizedDate(true);
     }
 
-    /**
-     * Converts this extracted-date in a {@link Date}. <br>
-     * Be careful, if a datepart is not given, it will be set to 0. (Except day will be set to 1). <br>
-     * 
-     * @return
-     */
     @Override
     public Date getNormalizedDate(){
         return new Date(getLongDate());
     }
 
     public long getLongDate(){
-        int year = (this.year == -1) ? 0 : this.year;
-        int month = (this.month == -1) ? 0 : this.month - 1;
-        int day = (this.day == -1) ? 1 : this.day;
-        int hour = (this.hour == -1) ? 0 : this.hour;
-        int minute = (this.minute == -1) ? 0 : this.minute;
-        int second = (this.second == -1) ? 0 : this.second;
+        int year = this.year == -1 ? 0 : this.year;
+        int month = this.month == -1 ? 0 : this.month - 1;
+        int day = this.day == -1 ? 1 : this.day;
+        int hour = this.hour == -1 ? 0 : this.hour;
+        int minute = this.minute == -1 ? 0 : this.minute;
+        int second = this.second == -1 ? 0 : this.second;
 
         Calendar cal = new GregorianCalendar();
         cal.set(year, month, day, hour, minute, second);
@@ -420,12 +401,6 @@ public class ExtractedDate extends AbstractDate{
         return cal.getTimeInMillis();
     }
 
-    /**
-     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
-     * 
-     * @param dateParts
-     * @return
-     */
     @Override
     public String getNormalizedDate(boolean time) {
         String normalizedDate;
@@ -729,16 +704,6 @@ public class ExtractedDate extends AbstractDate{
         return format;
     }
 
-    /**
-     * Returns date values. <br>
-     * To get a value use static date fields of this class.<br>
-     * <br>
-     * Only for date properties. For date-technique use getType(). <br>
-     * Use this static fields to define a property.
-     * 
-     * @param field
-     * @return
-     */
     @Override
     public int get(int field) {
         int value = -1;
@@ -775,7 +740,7 @@ public class ExtractedDate extends AbstractDate{
      * 
      * @return
      */
-    public ArrayList<Object> getAll() {
+    public List<Object> getAll() {
         ArrayList<Object> result = new ArrayList<Object>();
         result.add(this.dateString);
         result.add(this.format);
@@ -796,7 +761,7 @@ public class ExtractedDate extends AbstractDate{
      * 
      * @param values Enter returning array of getAll().
      */
-    public void setAll(ArrayList<Object> values) {
+    public void setAll(List<Object> values) {
         for (int i = 0; i < values.size(); i++) {
             switch (i) {
                 case 0:

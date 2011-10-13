@@ -3,6 +3,7 @@ package ws.palladian.extraction.date.technique.testtechniques;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -103,7 +104,7 @@ public class DateEvaluatorTest {
     public <T> HashMap<T, Double> rate(ArrayList<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
 
-        ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+        List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> urlResult = new HashMap<T, Double>();
         HashMap<T, Double> metaResult = new HashMap<T, Double>();
         HashMap<T, Double> structResult = new HashMap<T, Double>();
@@ -208,12 +209,12 @@ public class DateEvaluatorTest {
      * @param dates Dates to be rated.
      * @return
      */
-    public static <T> HashMap<T, Double> deployMetaDates(HashMap<T, Double> metaDates, HashMap<T, Double> dates) {
+    public static <T> Map<T, Double> deployMetaDates(Map<T, Double> metaDates, Map<T, Double> dates) {
 
-        HashMap<T, Double> result = dates;
-        HashMap<T, Double> temp = dates; // Where worked dates can be removed.
-        HashMap<T, Double> tempContentDates; // only dates that are equal to metaDate.
-        HashMap<T, Double> tempResult = new HashMap<T, Double>(); // worked dates can be put in.
+        Map<T, Double> result = dates;
+        Map<T, Double> temp = dates; // Where worked dates can be removed.
+        Map<T, Double> tempContentDates; // only dates that are equal to metaDate.
+        Map<T, Double> tempResult = new HashMap<T, Double>(); // worked dates can be put in.
 
         Entry<T, Double>[] orderedMetaDates = DateArrayHelper.orderHashMap(metaDates, true);
         for (int stopcounter = 0; stopcounter < 3; stopcounter++) {
@@ -227,10 +228,10 @@ public class DateEvaluatorTest {
                 double metaDateFactor = metaDates.get(metaDate);
                 tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) metaDate, temp, stopFlag);
                 for (Entry<T, Double> date : tempContentDates.entrySet()) {
-                    double weight = (1.0 * countFactor / metaDates.size());
+                    double weight = 1.0 * countFactor / metaDates.size();
                     double oldRate = date.getValue();
                     double excatnesFactor = stopFlag / (1.0 * ((ExtractedDate) date.getKey()).getExactness());
-                    double newRate = ((1 - oldRate) * metaDateFactor * weight * excatnesFactor) + oldRate;
+                    double newRate = (1 - oldRate) * metaDateFactor * weight * excatnesFactor + oldRate;
                     tempResult.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
                     temp.remove(date.getKey());
                 }
@@ -241,53 +242,53 @@ public class DateEvaluatorTest {
         return result;
     }
 
-    /**
-     * Returns joint map of head and http, where rates are recalculated by cross-dependency.
-     * 
-     * @param <T>
-     * @param httpMap
-     * @param headMap
-     * @return
-     */
-    private <T> HashMap<T, Double> influenceHttpAndHead(HashMap<T, Double> httpMap, HashMap<T, Double> headMap) {
-        HashMap<T, Double> result = new HashMap<T, Double>();
-        HashMap<T, Double> resultHTTP;
-        HashMap<T, Double> resultHead;
+//    /**
+//     * Returns joint map of head and http, where rates are recalculated by cross-dependency.
+//     * 
+//     * @param <T>
+//     * @param httpMap
+//     * @param headMap
+//     * @return
+//     */
+//    private <T> HashMap<T, Double> influenceHttpAndHead(HashMap<T, Double> httpMap, HashMap<T, Double> headMap) {
+//        HashMap<T, Double> result = new HashMap<T, Double>();
+//        HashMap<T, Double> resultHTTP;
+//        HashMap<T, Double> resultHead;
+//
+//        resultHead = recalc(httpMap, headMap);
+//        resultHTTP = recalc(headMap, httpMap);
+//
+//        result.putAll(resultHead);
+//        result.putAll(resultHTTP);
+//
+//        return result;
+//    }
 
-        resultHead = recalc(httpMap, headMap);
-        resultHTTP = recalc(headMap, httpMap);
-
-        result.putAll(resultHead);
-        result.putAll(resultHTTP);
-
-        return result;
-    }
-
-    /**
-     * Returns map2 with new values, calculated in dependency of map1.
-     * 
-     * @param <T>
-     * @param map1
-     * @param map2
-     * @return
-     */
-    private <T> HashMap<T, Double> recalc(HashMap<T, Double> map1, HashMap<T, Double> map2) {
-        HashMap<T, Double> result = new HashMap<T, Double>();
-        ArrayList<HashMap<T, Double>> arrangedMap1 = DateArrayHelper.arrangeMapByDate(map1, DateComparator.STOP_MINUTE);
-        for (int i = 0; i < arrangedMap1.size(); i++) {
-            HashMap<T, Double> tempMap1 = arrangedMap1.get(i);
-            double map1Rate = DateArrayHelper.getHighestRate(tempMap1);
-            T map1Date = DateArrayHelper.getFirstElement(tempMap1);
-            HashMap<T, Double> sameMap2 = DateArrayHelper.getSameDatesMap((ExtractedDate) map1Date, map2,
-                    DateComparator.STOP_DAY);
-
-            for (Entry<T, Double> e : sameMap2.entrySet()) {
-                double newRate = ((1 - e.getValue()) * map1Rate * (tempMap1.size() * 1.0 / map1.size())) + e.getValue();
-                result.put(e.getKey(), Math.round(newRate * 1000) / 10000.0);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Returns map2 with new values, calculated in dependency of map1.
+//     * 
+//     * @param <T>
+//     * @param map1
+//     * @param map2
+//     * @return
+//     */
+//    private <T> HashMap<T, Double> recalc(HashMap<T, Double> map1, HashMap<T, Double> map2) {
+//        HashMap<T, Double> result = new HashMap<T, Double>();
+//        List<Map<T, Double>> arrangedMap1 = DateArrayHelper.arrangeMapByDate(map1, DateComparator.STOP_MINUTE);
+//        for (int i = 0; i < arrangedMap1.size(); i++) {
+//            Map<T, Double> tempMap1 = arrangedMap1.get(i);
+//            double map1Rate = DateArrayHelper.getHighestRate(tempMap1);
+//            T map1Date = DateArrayHelper.getFirstElement(tempMap1);
+//            Map<T, Double> sameMap2 = DateArrayHelper.getSameDatesMap((ExtractedDate) map1Date, map2,
+//                    DateComparator.STOP_DAY);
+//
+//            for (Entry<T, Double> e : sameMap2.entrySet()) {
+//                double newRate = ((1 - e.getValue()) * map1Rate * (tempMap1.size() * 1.0 / map1.size())) + e.getValue();
+//                result.put(e.getKey(), Math.round(newRate * 1000) / 10000.0);
+//            }
+//        }
+//        return result;
+//    }
 
     /**
      * Recalculates dates in dependency of url-dates. <br>
@@ -302,10 +303,10 @@ public class DateEvaluatorTest {
         for (Entry<T, Double> url : urlDates.entrySet()) {
             URLDate urlDate = (URLDate) url.getKey();
             double urlRate = url.getValue();
-            double urlFactor = (Math.min(urlDate.getExactness(), 3)) / 3.0;
-            HashMap<T, Double> temp = DateArrayHelper.getSameDatesMap(urlDate, dates, urlDate.getExactness());
+            double urlFactor = Math.min(urlDate.getExactness(), 3) / 3.0;
+            Map<T, Double> temp = DateArrayHelper.getSameDatesMap(urlDate, dates, urlDate.getExactness());
             for (Entry<T, Double> date : temp.entrySet()) {
-                double newRate = ((1 - date.getValue()) * (urlRate * urlFactor)) + date.getValue();
+                double newRate = (1 - date.getValue()) * (urlRate * urlFactor) + date.getValue();
                 result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
             }
             /**
@@ -319,33 +320,33 @@ public class DateEvaluatorTest {
         return result;
     }
 
-    /**
-     * Recalculate rates, if all are zero.<br>
-     * First get the dates with most dateparts (year, month, day, hour, minute, second). Oldest get the rate of <br>
-     * (all oldest dates)/(all dates). <br>
-     * Second get the oldest dates of all. New rate is <br>
-     * ((1-value)*(all oldest dates)/(all dates))+(value). <br>
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    private <T> HashMap<T, Double> reRateIfAllZero(HashMap<T, Double> dates) {
-        HashMap<T, Double> result = dates;
-
-        HashMap<T, Double> exactestDates = DateArrayHelper.getExactestMap(dates);
-        DateComparator dc = new DateComparator();
-        T date = dc.getOldestDate(exactestDates);
-
-        HashMap<T, Double> sameDates = DateArrayHelper.getSameDatesMap((ExtractedDate) date, result);
-        for (Entry<T, Double> e : sameDates.entrySet()) {
-            double newRate = (0.1 * sameDates.size()) / result.size();
-            result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
-        }
-
-        return result;
-
-    }
+//    /**
+//     * Recalculate rates, if all are zero.<br>
+//     * First get the dates with most dateparts (year, month, day, hour, minute, second). Oldest get the rate of <br>
+//     * (all oldest dates)/(all dates). <br>
+//     * Second get the oldest dates of all. New rate is <br>
+//     * ((1-value)*(all oldest dates)/(all dates))+(value). <br>
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    private <T> HashMap<T, Double> reRateIfAllZero(HashMap<T, Double> dates) {
+//        HashMap<T, Double> result = dates;
+//
+//        Map<T, Double> exactestDates = DateArrayHelper.getExactestMap(dates);
+//        DateComparator dc = new DateComparator();
+//        T date = dc.getOldestDate(exactestDates);
+//
+//        Map<T, Double> sameDates = DateArrayHelper.getSameDatesMap((ExtractedDate) date, result);
+//        for (Entry<T, Double> e : sameDates.entrySet()) {
+//            double newRate = (0.1 * sameDates.size()) / result.size();
+//            result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
+//        }
+//
+//        return result;
+//
+//    }
 
     /**
      * This method calculates new rates for content-dates in dependency of position in document and age of date.
@@ -356,8 +357,8 @@ public class DateEvaluatorTest {
     private HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
         HashMap<ContentDate, Double> result = dates;
         if (result.size() > 0) {
-            ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
-            ArrayList<ContentDate> orderPosInDoc = orderAge;
+            List<ContentDate> orderAge = DateArrayHelper.mapToList(dates);
+            List<ContentDate> orderPosInDoc = orderAge;
 
             DateComparator dc = new DateComparator();
             Collections.sort(orderAge, dc);
@@ -382,8 +383,8 @@ public class DateEvaluatorTest {
                     temp = orderAge.get(i);
                     counter++;
                 }
-                factorAge = ((ageSize - counter) * 1.0) / (ageSize * 1.0);
-                factorPos = 1 - ((actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0) / (maxPos * 1.0));
+                factorAge = (ageSize - counter) * 1.0 / (ageSize * 1.0);
+                factorPos = 1 - actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0 / (maxPos * 1.0);
                 factorPos += 0.01;
                 factorRate = factorAge * factorPos;
                 oldRate = dates.get(actDate);
@@ -405,7 +406,7 @@ public class DateEvaluatorTest {
         double highestRate = DateArrayHelper.getHighestRate(dates);
         if (highestRate > 1.0) {
             for (Entry<T, Double> e : dates.entrySet()) {
-                dates.put(e.getKey(), Math.round((e.getValue() / highestRate) * 10000) / 10000.0);
+                dates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
             }
         }
 
@@ -422,28 +423,28 @@ public class DateEvaluatorTest {
     private <C> HashMap<C, Double> deployStructureDates(HashMap<C, Double> contentDates,
             HashMap<StructureDate, Double> structDates) {
         DateComparator dc = new DateComparator();
-        ArrayList<StructureDate> structureDates = dc.orderDates(structDates, true);
+        List<StructureDate> structureDates = dc.orderDates(structDates, true);
         HashMap<C, Double> result = contentDates;
         HashMap<C, Double> temp = contentDates;
-        HashMap<C, Double> tempContentDates = new HashMap<C, Double>();
+        Map<C, Double> tempContentDates = new HashMap<C, Double>();
         HashMap<C, Double> tempResult = new HashMap<C, Double>();
         for (int i = 0; i < structureDates.size(); i++) {
-            tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) structureDates.get(i), temp,
+            tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
                     DateComparator.STOP_MINUTE);
             if (tempContentDates.size() == 0) {
-                tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) structureDates.get(i), temp,
+                tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
                         DateComparator.STOP_HOUR);
             }
             if (tempContentDates.size() == 0) {
-                tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) structureDates.get(i), temp,
+                tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
                         DateComparator.STOP_DAY);
             }
             for (Entry<C, Double> cDate : tempContentDates.entrySet()) {
                 String cDateTag = ((ContentDate) cDate.getKey()).getTagNode();
-                String eTag = ((StructureDate) structureDates.get(i)).getTagNode();
+                String eTag = structureDates.get(i).getTagNode();
                 if (cDateTag.equalsIgnoreCase(eTag)) {
                     double structValue = structDates.get(structureDates.get(i));
-                    double newRate = ((1 - cDate.getValue()) * structValue) + cDate.getValue();
+                    double newRate = (1 - cDate.getValue()) * structValue + cDate.getValue();
                     tempResult.put(cDate.getKey(), Math.round(newRate * 10000) / 10000.0);
                     temp.remove(cDate.getKey());
                 }

@@ -2,6 +2,8 @@ package ws.palladian.extraction.date.technique;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.dates.DateType;
@@ -24,7 +26,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
     private String url;
 
     @Override
-    public HashMap<ReferenceDate, Double> rate(ArrayList<ReferenceDate> list) {
+    public Map<ReferenceDate, Double> rate(List<ReferenceDate> list) {
         HashMap<ReferenceDate, Double> evaluatedDates = new HashMap<ReferenceDate, Double>();
         ReferenceDate date = getYoungest(list);
         evaluatedDates.put(date, date.getRate());
@@ -39,7 +41,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      * @param url
      * @return
      */
-    public HashMap<ReferenceDate, Double> rate(String url) {
+    public Map<ReferenceDate, Double> rate(String url) {
         this.url = url;
         return getRefDates();
     }
@@ -49,12 +51,12 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      * 
      * @return
      */
-    private HashMap<ReferenceDate, Double> getRefDates() {
+    private Map<ReferenceDate, Double> getRefDates() {
         ReferenceDateGetter rdg = new ReferenceDateGetter();
         rdg.setUrl(url);
         ArrayList<ReferenceDate> newRefDates = rdg.getDates();
 
-        ArrayList<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
+        List<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
 
         return rate(refDates);
     }
@@ -73,7 +75,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      * @param refDates List of dates.
      * @return
      */
-    private ReferenceDate getYoungest(ArrayList<ReferenceDate> refDates) {
+    private ReferenceDate getYoungest(List<ReferenceDate> refDates) {
         DateComparator dc = new DateComparator();
         return dc.getYoungestDate(refDates);
     }

@@ -1,7 +1,8 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.dates.URLDate;
@@ -21,7 +22,7 @@ public class UrlDateRater extends TechniqueDateRater<URLDate> {
 	}
 
 	@Override
-    public HashMap<URLDate, Double> rate(ArrayList<URLDate> list) {
+    public Map<URLDate, Double> rate(List<URLDate> list) {
         return evaluateURLDate(list);
     }
 
@@ -32,7 +33,7 @@ public class UrlDateRater extends TechniqueDateRater<URLDate> {
      * @param dates
      * @return
      */
-    private HashMap<URLDate, Double> evaluateURLDate(ArrayList<URLDate> dates) {
+    private Map<URLDate, Double> evaluateURLDate(List<URLDate> dates) {
         HashMap<URLDate, Double> evaluate = new HashMap<URLDate, Double>();
         for (int i = 0; i < dates.size(); i++) {
             double rate = 0;

@@ -9,8 +9,6 @@ package ws.palladian.extraction.date.dates;
  * 
  */
 public class ContentDate extends AbstractBodyDate {
-
-	private DateType dateType = DateType.ContentDate;
 	
     /** Keyword found in attribute of surrounding tag. */
     public static final int KEY_LOC_ATTR = 201;
@@ -70,7 +68,6 @@ public class ContentDate extends AbstractBodyDate {
     private boolean hasStrucutreDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
-    private boolean inMainContent = false;
     
     /**
      * 

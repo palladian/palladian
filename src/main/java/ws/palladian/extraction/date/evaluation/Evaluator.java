@@ -1,7 +1,7 @@
 package ws.palladian.extraction.date.evaluation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateGetterHelper;
@@ -16,7 +16,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public abstract class Evaluator {
 	
-	public static <T> void evaluate(int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
+	public static <T extends ExtractedDate> void evaluate(int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
 		int rnf = 0;
 		int ff= 0;
 		int wnf= 0;
@@ -41,14 +41,14 @@ public abstract class Evaluator {
 			
 			System.out.print("get dates... ");
 			StopWatch timer = new StopWatch();
-			ArrayList<T> list = dg.getDates();
+			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
 			list = DateArrayHelper.removeNull(list);
 			
 			if(list.size() > 0){
 				
-				ArrayList<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
+				List<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
 				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
 				
 				if(dg instanceof URLDateGetter){

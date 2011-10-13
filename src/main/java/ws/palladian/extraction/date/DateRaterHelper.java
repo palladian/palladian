@@ -1,7 +1,8 @@
 package ws.palladian.extraction.date;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -30,9 +31,9 @@ public class DateRaterHelper {
         ExtractedDate end = ExtractedDateHelper.createActualDate();
         DateComparator comp = new DateComparator();
         int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
-        boolean gt = (comp.compare(begin, date, stopFlag) > -1);
-        boolean lt = (comp.compare(date, end, stopFlag) > -1);
-        return (gt && lt);
+        boolean gt = comp.compare(begin, date, stopFlag) > -1;
+        boolean lt = comp.compare(date, end, stopFlag) > -1;
+        return gt && lt;
     }
 
     /**
@@ -42,7 +43,7 @@ public class DateRaterHelper {
      * @param dates
      * @return Hashmap with a single entry.
      */
-    public static <T> HashMap<T, Double> getHighestRate(HashMap<T, Double> dates) {
+    public static <T> Map<T, Double> getHighestRate(Map<T, Double> dates) {
         HashMap<T, Double> map = new HashMap<T, Double>();
         T date = null;
         double temp = -1;
@@ -65,7 +66,7 @@ public class DateRaterHelper {
      * @param dates
      * @return Hashmap with a single entry.
      */
-    public static <T> Double getHighestRateValue(HashMap<T, Double> dates) {
+    public static <T> Double getHighestRateValue(Map<T, Double> dates) {
         double temp = -1;
         for (Entry<T, Double> e : dates.entrySet()) {
             double value = e.getValue();
@@ -82,8 +83,8 @@ public class DateRaterHelper {
      * @param contentDates
      * @return
      */
-    public static HashMap<ContentDate, Double> evaluateTag(HashMap<ContentDate, Double> contentDates) {
-        HashMap<ContentDate, Double> result = contentDates;
+    public static Map<ContentDate, Double> evaluateTag(Map<ContentDate, Double> contentDates) {
+        Map<ContentDate, Double> result = contentDates;
         for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
             if (HtmlHelper.isHeadlineTag(e.getKey().getTag())) {
                 double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
@@ -102,7 +103,7 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> HashMap<T, Double> setRateWhightedByGroups(ArrayList<T> datesToSet, ArrayList<T> dates) {
+    public static <T> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
         return setRateWhightedByDates(datesToSet, dates);
         // setRateWhightedByGroups(datesToSet, dates, DateComparator.STOP_DAY);
     }
@@ -116,11 +117,11 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> void setRateWhightedByGroups(ArrayList<T> datesToSet, HashMap<T, Double> dates, int stopFlag) {
-        ArrayList<ArrayList<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, stopFlag);
+    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, int stopFlag) {
+        List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, stopFlag);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
-                double newRate = (1.0 * groupedDates.get(k).size()) / datesToSet.size();
+                double newRate = 1.0 * groupedDates.get(k).size() / datesToSet.size();
                 dates.put(groupedDates.get(k).get(i), Math.round(newRate * 10000) / 10000.0);
             }
         }
@@ -135,11 +136,11 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    private static <T> HashMap<T, Double> setRateWhightedByDates(ArrayList<T> datesToSet, ArrayList<T> dates) {
+    private static <T> Map<T, Double> setRateWhightedByDates(List<T> datesToSet, List<T> dates) {
         HashMap<T, Double> resultDates = new HashMap<T, Double>();
         for (int k = 0; k < datesToSet.size(); k++) {
             int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
-            double newRate = (1.0 * contSame / dates.size());
+            double newRate = 1.0 * contSame / dates.size();
 
             resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);
 
@@ -154,7 +155,7 @@ public class DateRaterHelper {
      * @param datesToBeSetZero
      * @param map
      */
-    public static <T> void setRateToZero(ArrayList<T> datesToBeSetZero, HashMap<T, Double> map) {
+    public static <T> void setRateToZero(List<T> datesToBeSetZero, Map<T, Double> map) {
         setRat(datesToBeSetZero, map, 0.0);
 
     }
@@ -166,7 +167,7 @@ public class DateRaterHelper {
      * @param datesToBeSetZero
      * @param map
      */
-    public static <T> void setRat(ArrayList<T> datesToBeSetZero, HashMap<T, Double> map, double rate) {
+    public static <T> void setRat(List<T> datesToBeSetZero, Map<T, Double> map, double rate) {
         for (int i = 0; i < datesToBeSetZero.size(); i++) {
             map.put(datesToBeSetZero.get(i), 0.0);
         }
@@ -231,7 +232,7 @@ public class DateRaterHelper {
      * @param <T>
      * @param map
      */
-    public static <T> void writeRateInDate(HashMap<T, Double> map) {
+    public static <T> void writeRateInDate(Map<T, Double> map) {
         for (Entry<T, Double> e : map.entrySet()) {
             ((ExtractedDate) e.getKey()).setRate(e.getValue());
         }

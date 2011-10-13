@@ -1,18 +1,21 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.date.dates.ExtractedDate;
+
 /**
- * Template for getter techniques.<br>
- * Each technique, that found dates in or around webpages should implement this.
+ * <p>
+ * Template for getter techniques. Each technique, that found dates in or around webpages should implement this.
+ * </p>
  * 
  * @author Martin Gregor
  * 
- * @param <T>
+ * @param <T> subtype of {@link ExtractedDate} which concrete technique implementations extract.
  */
-public abstract class TechniqueDateGetter<T> {
+public abstract class TechniqueDateGetter<T extends ExtractedDate> {
 
     protected String url;
     protected Document document;
@@ -22,7 +25,7 @@ public abstract class TechniqueDateGetter<T> {
      * 
      * @return
      */
-    public abstract ArrayList<T> getDates();
+    public abstract List<T> getDates();
 
     public void setUrl(String url) {
         this.url = url;
@@ -31,15 +34,16 @@ public abstract class TechniqueDateGetter<T> {
     public void setDocument(Document document) {
         this.document = document;
     }
-    
-    public String getUrl(){
-    	return this.url;
+
+    public String getUrl() {
+        return this.url;
     }
-    
-    public Document getDocument(){
-    	return this.document;
+
+    public Document getDocument() {
+        return this.document;
     }
-    
-    public void reset(){}
+
+    public void reset() {
+    }
 
 }

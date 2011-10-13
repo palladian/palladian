@@ -2,6 +2,7 @@ package ws.palladian.extraction.date.technique.testtechniques;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
@@ -103,9 +104,9 @@ public class TestHeadDateRater extends HeadDateRater {
             }
             result.put(date, rate);
         }
-        ArrayList<MetaDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1, true);
-        ArrayList<MetaDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1, true);
-        ArrayList<MetaDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2, true);
+        List<MetaDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1, true);
+        List<MetaDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1, true);
+        List<MetaDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2, true);
         if (highRatedDates.size() > 0) {
             DateRaterHelper.setRateToZero(middleRatedDates, result);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
@@ -128,7 +129,7 @@ public class TestHeadDateRater extends HeadDateRater {
         }
 
         DateComparator dc = new DateComparator();
-        ArrayList<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result);
         MetaDate tempDate;
         if(old){
         	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
@@ -147,7 +148,7 @@ public class TestHeadDateRater extends HeadDateRater {
             }
             date = dates.get(i);
             oldRate = result.get(date);
-            newRate = oldRate - (oldRate * (diff / 24.0));
+            newRate = oldRate - oldRate * (diff / 24.0);
             result.put(date, Math.round(newRate * 10000) / 10000.0);
         }
         
@@ -157,9 +158,10 @@ public class TestHeadDateRater extends HeadDateRater {
 	
 	
 	
-	public MetaDate getBestDate(){
+	@Override
+    public MetaDate getBestDate(){
 		double rate = DateArrayHelper.getHighestRate(this.ratedDates);
-		ArrayList<MetaDate> list = DateArrayHelper.getRatedDates(this.ratedDates, rate);
+		List<MetaDate> list = DateArrayHelper.getRatedDates(this.ratedDates, rate);
 		DateComparator dc = new DateComparator();
 		MetaDate date;
 		if(old){

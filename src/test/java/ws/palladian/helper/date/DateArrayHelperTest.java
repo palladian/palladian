@@ -3,6 +3,7 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class DateArrayHelperTest {
             
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
+            List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
             assertEquals(6, filter.size());
         }
     }
@@ -76,7 +77,7 @@ public class DateArrayHelperTest {
         array.add(date);
         date = new ExtractedDate("2010-08-04", "YYYY-MM-DD");
         array.add(date);
-        ArrayList<ArrayList<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(array);
+        List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(array);
         DateComparator dc = new DateComparator();
         for (int i = 0; i < 5; i++) {
             // ExtractedDateHelper.printDateArray(arrangedArray.get(i));
@@ -100,7 +101,7 @@ public class DateArrayHelperTest {
 
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            ArrayList<ArrayList<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date);
+            List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date);
             for (int i = 0; i < arrangedArray.size(); i++) {
                 System.out.println("==============================================================================");
                 DateArrayHelper.printDateArray(arrangedArray.get(i));

@@ -1,7 +1,8 @@
 package ws.palladian.extraction.date.technique;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.ExtractedDateHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
@@ -23,8 +24,8 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 	}
 
 	@Override
-    public HashMap<MetaDate, Double> rate(ArrayList<MetaDate> list) {
-    	HashMap<MetaDate, Double> returnDates = evaluateHTTPDate(list);
+    public Map<MetaDate, Double> rate(List<MetaDate> list) {
+    	Map<MetaDate, Double> returnDates = evaluateHTTPDate(list);
     	this.ratedDates = returnDates;
         return returnDates;
     }
@@ -37,7 +38,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
      * @param httpDates
      * @return
      */
-    private HashMap<MetaDate, Double> evaluateHTTPDate(ArrayList<MetaDate> httpDates) {
+    private Map<MetaDate, Double> evaluateHTTPDate(List<MetaDate> httpDates) {
     	ExtractedDate current = actualDate;
     	if(current == null){
     		current = ExtractedDateHelper.createActualDate();
@@ -53,7 +54,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
      * @param httpDates
      * @return
      */
-    public HashMap<MetaDate, Double> evaluateHTTPDate(ArrayList<MetaDate> httpDates,ExtractedDate downloadedDate) {
+    public HashMap<MetaDate, Double> evaluateHTTPDate(List<MetaDate> httpDates,ExtractedDate downloadedDate) {
     	MetaDate date = null;
         HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
         double rate = 0;
@@ -74,7 +75,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
         }
 
         DateComparator dc = new DateComparator();
-        ArrayList<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result);
         MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
 
         double diff;
@@ -88,7 +89,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
             }
             date = dates.get(i);
             oldRate = result.get(date);
-            newRate = oldRate - (oldRate * (diff / 24.0));
+            newRate = oldRate - oldRate * (diff / 24.0);
             result.put(date, Math.round(newRate * 10000) / 10000.0);
         }
 

@@ -3,6 +3,8 @@ package ws.palladian.extraction.date.technique;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ExtractedDate;
@@ -41,7 +43,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
         if (highestRate == 0.0) {
             map.put(list.get(0), 1.0);
         } else {
-            ArrayList<T> sort = DateArrayHelper.hashMapToArrayList(allDates);
+            List<T> sort = DateArrayHelper.mapToList(allDates);
             DateComparator dc = new DateComparator();
             Collections.sort(sort, new RatedDateComparator<T>());
             if (dc.compare(list.get(0), (ExtractedDate) sort.get(0)) < 0) {
@@ -60,7 +62,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * Use {@link ArchiveDateRater#rate(ArrayList, HashMap)} instead.
      */
     @Override
-    public HashMap<ArchiveDate, Double> rate(ArrayList<ArchiveDate> list) {
+    public Map<ArchiveDate, Double> rate(List<ArchiveDate> list) {
         // TODO Auto-generated method stub
         return null;
     }

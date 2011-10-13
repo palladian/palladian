@@ -17,7 +17,6 @@ public abstract class KeywordDate extends ExtractedDate {
      * 
      */
     public KeywordDate() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -25,7 +24,6 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     public KeywordDate(String dateString) {
         super(dateString);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -34,7 +32,6 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     public KeywordDate(String dateString, String format) {
         super(dateString, format);
-        // TODO Auto-generated constructor stub
     }
 
     @Override

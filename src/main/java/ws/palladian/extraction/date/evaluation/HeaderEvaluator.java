@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateGetterHelper;
@@ -64,7 +65,7 @@ public class HeaderEvaluator {
 		} 
 	}
 
-	private static <T,V> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<V> dr, String file){
+	private static <T extends ExtractedDate,V extends ExtractedDate> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<V> dr, String file){
 		String table = EvaluationHelper.HEADEVAL;
 		int rnf = 0;
 		int ff= 0;
@@ -95,14 +96,14 @@ public class HeaderEvaluator {
 			
 			System.out.print("get dates... ");
 			StopWatch timer = new StopWatch();
-			ArrayList<T> list = dg.getDates();
+			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
 			list = DateArrayHelper.removeNull(list);
 			
 			if(list.size() > 0){
 				
-				ArrayList<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
+				List<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
 				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
 				
 				if(dg instanceof URLDateGetter){

@@ -7,14 +7,12 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
-import ws.palladian.extraction.date.dates.GoogleDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
- * 
- * @author Martin Gregor
  * This class is responsible for finding a google-date by using google-search on  an URL.
+ * @author Martin Gregor
  */
 public class GoogleDateGetter {
 

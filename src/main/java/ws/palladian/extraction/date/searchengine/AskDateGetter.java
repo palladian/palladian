@@ -1,7 +1,5 @@
 package ws.palladian.extraction.date.searchengine;
 
-import java.util.Map.Entry;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -12,7 +10,6 @@ import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.search.WebSearcher;
 
 public class AskDateGetter {
 	private String googleAPI ="http://de.ask.com/web?q=";

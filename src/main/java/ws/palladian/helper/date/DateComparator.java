@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.dates.AbstractDate;
@@ -274,7 +275,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> ArrayList<T> orderDates(ArrayList<T> dates) {
+    public <T> List<T> orderDates(List<T> dates) {
         return orderDates(dates, false);
     }
 
@@ -287,7 +288,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
-    public <T> ArrayList<T> orderDates(ArrayList<T> dates, boolean reverse) {
+    public <T> List<T> orderDates(List<T> dates, boolean reverse) {
         T[] result = orderDatesArray(dates);
         ArrayList<T> resultList = new ArrayList<T>();
         if (reverse) {
@@ -310,7 +311,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> ArrayList<T> orderDates(HashMap<T, Double> dates) {
+    public <T> List<T> orderDates(Map<T, Double> dates) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             temp.add(e.getKey());
@@ -327,7 +328,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
-    public <T> ArrayList<T> orderDates(HashMap<T, Double> dates, boolean reverse) {
+    public <T> List<T> orderDates(Map<T, Double> dates, boolean reverse) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             temp.add(e.getKey());
@@ -343,7 +344,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T[] orderDatesArray(ArrayList<T> dates) {
+    public <T> T[] orderDatesArray(List<T> dates) {
         T[] dateArray = (T[]) dates.toArray();
         quicksort(0, dateArray.length - 1, dateArray);
         return dateArray;
@@ -390,8 +391,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getOldestDate(HashMap<T, Double> dates) {
-        ArrayList<T> orderDates = orderDates(dates, false);
+    public <T> T getOldestDate(Map<T, Double> dates) {
+        List<T> orderDates = orderDates(dates, false);
         T date = null;
         if (orderDates.size() > 0) {
             date = orderDates.get(0);
@@ -407,8 +408,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getYoungestDate(HashMap<T, Double> dates) {
-        ArrayList<T> orderDates = orderDates(dates, true);
+    public <T> T getYoungestDate(Map<T, Double> dates) {
+        List<T> orderDates = orderDates(dates, true);
         T date = null;
         if (orderDates.size() > 0) {
             date = orderDates.get(0);
@@ -424,8 +425,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getOldestDate(ArrayList<T> dates) {
-        ArrayList<T> orderDates = orderDates(dates, false);
+    public <T> T getOldestDate(List<T> dates) {
+        List<T> orderDates = orderDates(dates, false);
         T date = null;
         if (orderDates.size() > 0) {
             date = orderDates.get(0);
@@ -441,8 +442,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getYoungestDate(ArrayList<T> dates) {
-        ArrayList<T> orderDates = orderDates(dates, true);
+    public <T> T getYoungestDate(List<T> dates) {
+        List<T> orderDates = orderDates(dates, true);
         T date = null;
         if (orderDates.size() > 0) {
             date = orderDates.get(0);

@@ -1,4 +1,4 @@
-package ws.palladian.preprocessing.tagging;
+package ws.palladian.preprocessing.nlp.ner;
 
 import junit.framework.Assert;
 

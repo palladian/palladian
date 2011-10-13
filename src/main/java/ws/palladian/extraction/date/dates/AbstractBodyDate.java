@@ -36,7 +36,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      * 
      */
     public AbstractBodyDate() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -44,7 +43,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      */
     public AbstractBodyDate(String dateString) {
         super(dateString);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -53,7 +51,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      */
     public AbstractBodyDate(String dateString, String format) {
         super(dateString, format);
-        // TODO Auto-generated constructor stub
     }
 
     /**

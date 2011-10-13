@@ -13,6 +13,6 @@ public class DateExactnessComparator implements Comparator<ExtractedDate> {
 	 */
 	@Override
 	public int compare(ExtractedDate ed1, ExtractedDate ed2) {
-		return (int) (ed2.getExactness() - ed1.getExactness());
+		return (ed2.getExactness() - ed1.getExactness());
 	}
 }
