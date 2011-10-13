@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition.weka;
+package ws.palladian.extraction.date.weka;
 
 import java.io.BufferedReader;
 import java.io.File;
