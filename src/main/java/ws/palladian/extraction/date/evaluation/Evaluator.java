@@ -9,7 +9,7 @@ import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.URLDateGetter;
+import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -51,7 +51,7 @@ public abstract class Evaluator {
 				List<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
 				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
 				
-				if(dg instanceof URLDateGetter){
+				if(dg instanceof UrlDateGetter){
 					filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_IS_IN_RANGE);
 				}
 				

@@ -10,17 +10,14 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.extraction.date.DateGetter;
-import ws.palladian.extraction.date.DateGetterHelper;
-import ws.palladian.extraction.date.ExtractedDateHelper;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.technique.HTTPDateGetter;
 import ws.palladian.extraction.date.technique.HeadDateGetter;
+import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.StructureDateGetter;
-import ws.palladian.extraction.date.technique.URLDateGetter;
+import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -50,7 +47,7 @@ public class DateGetterHelperTest {
 
             // Cases with given day
             String time = "2010-06-30";
-            URLDateGetter udg = new URLDateGetter();
+            UrlDateGetter udg = new UrlDateGetter();
             udg.setUrl(url1);
             assertEquals(url1, time, udg.getFirstDate().getNormalizedDateString());
             udg.setUrl(url3);
@@ -455,7 +452,7 @@ public class DateGetterHelperTest {
             // String url = "http://www.zeit.de/politik/ausland/2010-09/russland-waldbraende-siedlungen";
             String url = "http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/";
 
-            HTTPDateGetter hdg = new HTTPDateGetter();
+            HttpDateGetter hdg = new HttpDateGetter();
             hdg.setUrl(url);
 
             ArrayList<MetaDate> dates = hdg.getDates();

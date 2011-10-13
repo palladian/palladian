@@ -6,7 +6,7 @@ import ws.palladian.extraction.date.DateConverter;
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.RegExp;
 
 /**
@@ -17,11 +17,11 @@ import ws.palladian.helper.RegExp;
  * @author Martin Gregor
  * 
  */
-public class URLDateGetter extends TechniqueDateGetter<URLDate> {
+public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
 
     @Override
-    public ArrayList<URLDate> getDates() {
-        ArrayList<URLDate> result = new ArrayList<URLDate>();
+    public ArrayList<UrlDate> getDates() {
+        ArrayList<UrlDate> result = new ArrayList<UrlDate>();
         if (url != null) {
             result.add(getURLDate(url));
         }
@@ -33,9 +33,9 @@ public class URLDateGetter extends TechniqueDateGetter<URLDate> {
      * Use setUrl before.
      * @return
      */
-    public URLDate getFirstDate() {
+    public UrlDate getFirstDate() {
 
-        URLDate date = new URLDate();
+        UrlDate date = new UrlDate();
         if (url != null) {
             date = getURLDate(url);
         }
@@ -47,9 +47,9 @@ public class URLDateGetter extends TechniqueDateGetter<URLDate> {
      * 
      * @return
      */
-    public URLDate getFirstDate(String url) {
+    public UrlDate getFirstDate(String url) {
 
-        URLDate date = new URLDate();
+        UrlDate date = new UrlDate();
         if (url != null) {
             date = getURLDate(url);
         }
@@ -63,9 +63,9 @@ public class URLDateGetter extends TechniqueDateGetter<URLDate> {
      * @param url
      * @return a extracted Date
      */
-    private URLDate getURLDate(String url) {
+    private UrlDate getURLDate(String url) {
         ExtractedDate date = null;
-        URLDate temp = null;
+        UrlDate temp = null;
         Object[] regExpArray = RegExp.getURLRegExp();
         int index = 0;
         while (date == null && index < regExpArray.length) {

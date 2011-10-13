@@ -9,7 +9,7 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 
 	private boolean lookHttpDates = true;
 	
-	private HTTPDateGetter httpDateGetter = new HTTPDateGetter();
+	private HttpDateGetter httpDateGetter = new HttpDateGetter();
 	private HeadDateGetter headDateGetter = new HeadDateGetter();
 	
 	@Override
@@ -26,11 +26,11 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 		return dates;
 	}
 
-	public void setHttpDateGetter(HTTPDateGetter httpDateGetter) {
+	public void setHttpDateGetter(HttpDateGetter httpDateGetter) {
 		this.httpDateGetter = httpDateGetter;
 	}
 
-	public HTTPDateGetter getHttpDateGetter() {
+	public HttpDateGetter getHttpDateGetter() {
 		return httpDateGetter;
 	}
 

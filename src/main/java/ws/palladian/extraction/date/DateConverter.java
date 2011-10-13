@@ -7,7 +7,7 @@ import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 
 public class DateConverter {
     
@@ -30,7 +30,7 @@ public class DateConverter {
                     ((ExtractedDate)newDate).setType(DateType.ArchiveDate);
                     break;
                 case UrlDate:
-                    newDate = (T) new URLDate();
+                    newDate = (T) new UrlDate();
                     ((ExtractedDate)newDate).setType(DateType.UrlDate);
                     break;
                 case MetaDate:

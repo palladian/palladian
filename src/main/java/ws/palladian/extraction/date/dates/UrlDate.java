@@ -6,16 +6,16 @@ package ws.palladian.extraction.date.dates;
  * @author Martin Greogr
  * 
  */
-public class URLDate extends ExtractedDate {
+public class UrlDate extends ExtractedDate {
 
-    public URLDate() {
+    public UrlDate() {
     }
 
-    public URLDate(String dateString) {
+    public UrlDate(String dateString) {
         super(dateString);
     }
 
-    public URLDate(String dateString, String format) {
+    public UrlDate(String dateString, String format) {
         super(dateString, format);
     }
 

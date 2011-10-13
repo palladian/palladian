@@ -22,7 +22,7 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author Martin Gregor
  * 
  */
-public class HTTPDateGetter extends TechniqueDateGetter<MetaDate> {
+public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
     public ArrayList<MetaDate> getDates() {

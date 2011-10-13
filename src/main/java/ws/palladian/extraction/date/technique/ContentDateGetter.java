@@ -22,7 +22,7 @@ import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ContentDateComparator;
 import ws.palladian.helper.date.DateArrayHelper;
@@ -87,13 +87,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 		Collections.sort(ageOrder, new DateComparator());
 
 		MetaDateGetter mdg = new MetaDateGetter();
-		URLDateGetter udg = new URLDateGetter();
+		UrlDateGetter udg = new UrlDateGetter();
 		mdg.setDocument(document);
 		mdg.setUrl(url);
 		udg.setUrl(url);
 		List<MetaDate> metaDates = DateArrayHelper.removeNull(mdg
 				.getDates());
-		List<URLDate> urlDates = DateArrayHelper
+		List<UrlDate> urlDates = DateArrayHelper
 				.removeNull(udg.getDates());
 
 		for (ContentDate date : dates) {

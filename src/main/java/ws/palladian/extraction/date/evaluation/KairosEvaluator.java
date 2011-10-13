@@ -13,7 +13,7 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
-import ws.palladian.extraction.date.dates.URLDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.ContentDateGetter;
 import ws.palladian.extraction.date.technique.ContentDateRater;
@@ -21,7 +21,7 @@ import ws.palladian.extraction.date.technique.MetaDateGetter;
 import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.URLDateGetter;
+import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateComparator;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -56,7 +56,7 @@ public class KairosEvaluator {
 	private static void countUrlHeadDates(String file) {
 		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
 
-		URLDateGetter urlDateGetter = new URLDateGetter();
+		UrlDateGetter urlDateGetter = new UrlDateGetter();
 		MetaDateGetter metaDateGetter = new MetaDateGetter();
 
 		int cntAllUrlDates = 0;
@@ -74,7 +74,7 @@ public class KairosEvaluator {
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
 			urlDateGetter.setUrl(e.getValue().getUrl());
-			ArrayList<URLDate> urlDates = urlDateGetter.getDates();
+			ArrayList<UrlDate> urlDates = urlDateGetter.getDates();
 
 			DocumentRetriever dr = new DocumentRetriever();
 			Document doc = dr.getWebDocument(e.getValue().getFilePath());
