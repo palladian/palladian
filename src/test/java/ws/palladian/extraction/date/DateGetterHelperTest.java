@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition;
+package ws.palladian.extraction.date;
 
 import static org.junit.Assert.assertEquals;
 

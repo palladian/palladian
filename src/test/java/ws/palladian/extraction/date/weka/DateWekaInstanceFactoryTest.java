@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition.weka;
+package ws.palladian.extraction.date.weka;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

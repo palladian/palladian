@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition;
+package ws.palladian.extraction.date;
 
 import java.io.BufferedReader;
 import java.io.File;

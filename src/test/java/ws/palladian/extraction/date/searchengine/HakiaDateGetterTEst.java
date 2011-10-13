@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition.searchEngine;
+package ws.palladian.extraction.date.searchengine;
 
 import org.apache.log4j.Logger;
 import org.junit.Ignore;

@@ -1,4 +1,4 @@
-package ws.palladian.daterecognition.searchEngine;
+package ws.palladian.extraction.date.searchengine;
 
 import static org.junit.Assert.*;
 
