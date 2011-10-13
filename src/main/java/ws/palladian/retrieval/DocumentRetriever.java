@@ -248,8 +248,7 @@ public class DocumentRetriever {
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
     public HttpResult httpGet(String url) throws HttpException {
-        Map<String, String> headers = Collections.emptyMap();
-        return httpGet(url, headers);
+        return httpGet(url, Collections.<String, String>emptyMap());
     }
 
     /**
@@ -303,8 +302,7 @@ public class DocumentRetriever {
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
      */
     public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
-        Map<String, String> headers = Collections.emptyMap();
-        return httpPost(url, headers, content);
+        return httpPost(url, Collections.<String, String>emptyMap(), content);
     }
 
     /**
