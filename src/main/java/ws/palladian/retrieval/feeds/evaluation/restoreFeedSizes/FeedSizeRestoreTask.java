@@ -125,6 +125,9 @@ public class FeedSizeRestoreTask implements Callable<FeedTaskResult> {
 
                 // write responseSize to database
                 feedDatabase.updateFeedPoll(feedPoll);
+
+                // free memory
+                feedPoll = null;
             }
             resultSet.add(FeedTaskResult.SUCCESS);
 
