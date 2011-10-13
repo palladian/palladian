@@ -15,7 +15,7 @@ import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.TrainingDataSeparation;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.PalladianKeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.PalladianKeyphraseExtractor;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
 import ws.palladian.helper.StopWatch;
