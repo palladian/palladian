@@ -262,16 +262,6 @@ public class StringHelper {
         return modText;
     }
 
-//    /**
-//     * Make name for view.
-//     * 
-//     * @param name The name.
-//     * @return The view name.
-//     */
-//    public static String makeViewName(String name) {
-//        return name.replaceAll("_", " ");
-//    }
-
     /**
      * Check whether a given string contains a proper noun.
      * 

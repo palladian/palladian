@@ -12,28 +12,12 @@ import ws.palladian.retrieval.semantics.Word;
 import ws.palladian.retrieval.semantics.WordDB;
 
 /**
- * The WordTransformer transforms an input word.
- * Currently it can transform English singular to plural and vice versa.
+ * <p>
+ * The WordTransformer transforms an input word. Currently it can transform English singular to plural and vice versa.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
- * 
- */
-/**
- * @author David
- * 
- */
-/**
- * @author David
- * 
- */
-/**
- * @author David
- * 
- */
-/**
- * @author David
- * 
  */
 public class WordTransformer {
 
@@ -322,9 +306,7 @@ public class WordTransformer {
             }
         }
 
-
         String plural = singular;
-
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsKey(singular)) {
