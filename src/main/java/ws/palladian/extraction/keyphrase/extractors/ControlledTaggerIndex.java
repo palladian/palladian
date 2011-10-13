@@ -1,4 +1,4 @@
-package ws.palladian.extraction.keyphrase;
+package ws.palladian.extraction.keyphrase.extractors;
 
 import java.io.Serializable;
 import java.util.HashMap;
