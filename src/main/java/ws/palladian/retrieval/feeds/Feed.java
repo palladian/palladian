@@ -514,6 +514,9 @@ public class Feed {
         }
     }
 
+    /**
+     * Time in minutes until it is expected to find at least one new entry in the feed.
+     */
     public int getUpdateInterval() {
         return updateInterval;
     }

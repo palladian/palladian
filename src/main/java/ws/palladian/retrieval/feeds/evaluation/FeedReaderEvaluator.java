@@ -68,11 +68,14 @@ public class FeedReaderEvaluator {
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
 
-    /** The timestamp we started the dataset gathering. 08.07.2011 21:35 */
-    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310160900000L;
+    /** The timestamp almost all (but 500) feeds have been polled at least once. 09.07.2011 00:00 */
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310169600000L;
 
-    /** The timestamp we stopped the dataset gathering. 05.08.2011 13:49 */
-    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312552140000L;
+    /**
+     * The timestamp we stopped the dataset gathering, minus a buffer to make sure all items published before the stop
+     * time have been received. Dataset creation ran till 05.08.2011 13:49, we set stop time to 05.08.2011 07:45
+     */
+    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312527600000L;
 
     public FeedReaderEvaluator() {
         LOGGER.info("load benchmark dataset file list");
