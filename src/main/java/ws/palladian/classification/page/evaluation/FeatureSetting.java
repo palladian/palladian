@@ -9,7 +9,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 /**
- * Save the settings which text features should be used for a classifier.
+ * <p>Save the settings which text features should be used for a classifier.</p>
  * 
  * @author David Urbansky
  * 
