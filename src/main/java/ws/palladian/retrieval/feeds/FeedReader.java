@@ -20,13 +20,12 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.feeds.evaluation.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.evaluation.disssandro.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -86,7 +85,7 @@ public final class FeedReader {
      * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
      * be read.
      */
-    private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
+    private final long wakeUpInterval = (long) (0.01 * DateHelper.SECOND_MS);
 
     /** The constructor. */
     public FeedReader(FeedStore feedStore) {
@@ -145,113 +144,116 @@ public final class FeedReader {
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
 
         } else {
+
+            EvaluationSchedulerTask schedulerTask = new EvaluationSchedulerTask(this);
+            checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
+
             // SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
             // checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
 
-            StopWatch sw = new StopWatch();
-            int feedHistoriesCompletelyRead = 0;
-            int feedCounter = 0;
-            boolean modSkip = FeedReaderEvaluator.benchmarkSample > 50 && FeedReaderEvaluator.benchmarkSample < 100;
-            int mod = 100 / FeedReaderEvaluator.benchmarkSample;
-            if (modSkip) {
-                mod = 100 / (100 - FeedReaderEvaluator.benchmarkSample);
-            }
-
-            for (Feed feed : getFeeds()) {
-
-                feedCounter++;
-
-                // skip some feeds if we want to take a sample only
-                if (!modSkip && feedCounter % mod != 0 || modSkip && feedCounter % mod == 0) {
-                    continue;
-                }
-
-                // custom sample: skip some feeds if we want to take a custom sample only
-                if (feed.getId() >= 10) {
-                    continue;
-                }
-
-                // we skip OTF feeds
-                // if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
-                // continue;
-                // }
-
-                // int dbgid = 1;
-                // if (feed.getId() > dbgid) {
-                // break;
-                // }
-                // if (feed.getId() < dbgid) {
-                // continue;
-                // }
-                StopWatch swf = new StopWatch();
-
-                // TODO Sandro: auf DB umstellen
-                FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
-
-                if (fbfr.getTotalEntries() == 0) {
-                    LOGGER.info("no entries in feed (file not found?): " + feed.getId() + " (" + feed.getFeedUrl()
-                            + ")");
-                    continue;
-                }
-
-                // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
-                // first real poll that is available
-                if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
-                    feed.setBenchmarkLookupTime(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND);
-                }
-
-                int loopCount = 0;
-                boolean keepLooping = true;
-                while (keepLooping) {
-
-                    fbfr.updateEntriesFromDisk();
-                    loopCount++;
-
-                    // we do not include all empty polls in fixed mode because the evaluation files would get too big,
-                    // since the interval is fixed we can simply copy the last poll until we reach the end
-                    if (feed.historyFileCompletelyRead() && getUpdateStrategy() instanceof FixUpdateStrategy) {
-                        break;
-                    }
-
-                    keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                            && feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
-                    if (!keepLooping) {
-                        keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
-                                && !feed.historyFileCompletelyRead();
-                    }
-                }
-
-                feedHistoriesCompletelyRead++;
-
-                if (feedHistoriesCompletelyRead == getFeeds().size()) {
-                    LOGGER.info("all feed history files read");
-                }
-
-                long timePerFeed = sw.getElapsedTime() / feedHistoriesCompletelyRead;
-
-                LOGGER.info(loopCount + " loops in " + swf.getElapsedTime() + "ms in feed " + feed.getId());
-
-                if (feedHistoriesCompletelyRead % 100 == 0) {
-                    LOGGER.info(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
-                            + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
-                    LOGGER.info("time per feed: " + timePerFeed);
-                }
-                if (feedHistoriesCompletelyRead % 500 == 0) {
-                    FeedReaderEvaluator.writeRecordedMaps(this);
-                }
-
-                // save the feed back to the database
-                // fa.updateFeed(feed);
-
-                feed.freeMemory();
-                feed.setMeticulousPostDistribution(null);
-            }
-
-            LOGGER.info("finished reading feeds from disk in " + sw.getElapsedTimeString());
-            LOGGER.info("writing evaluation results...");
-            FeedReaderEvaluator.writeRecordedMaps(this);
-            LOGGER.info("...done");
-            setStopped(true);
+            /**
+             * StopWatch sw = new StopWatch();
+             * int feedHistoriesCompletelyRead = 0;
+             * int feedCounter = 0;
+             * boolean modSkip = FeedReaderEvaluator.benchmarkSample > 50 && FeedReaderEvaluator.benchmarkSample < 100;
+             * int mod = 100 / FeedReaderEvaluator.benchmarkSample;
+             * if (modSkip) {
+             * mod = 100 / (100 - FeedReaderEvaluator.benchmarkSample);
+             * }
+             * 
+             * for (Feed feed : getFeeds()) {
+             * 
+             * feedCounter++;
+             * 
+             * // skip some feeds if we want to take a sample only
+             * if (!modSkip && feedCounter % mod != 0 || modSkip && feedCounter % mod == 0) {
+             * continue;
+             * }
+             * // custom sample: skip some feeds if we want to take a custom sample only
+             * if (feed.getId() >= 10) {
+             * continue;
+             * }
+             * 
+             * StopWatch swf = new StopWatch();
+             * 
+             * // TODO Sandro: auf DB umstellen
+             * FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
+             * 
+             * if (fbfr.getTotalEntries() == 0) {
+             * LOGGER.info("no entries in feed (file not found?): " + feed.getId() + " (" + feed.getFeedUrl()
+             * + ")");
+             * continue;
+             * }
+             * 
+             * // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
+             * // first real poll that is available
+             * if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
+             * feed.setBenchmarkLookupTime(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND);
+             * }
+             * 
+             * // The magic per feed happens here
+             * int loopCount = 0;
+             * boolean keepLooping = true;
+             * while (keepLooping) {
+             * 
+             * fbfr.updateEntriesFromDisk();
+             * loopCount++;
+             * 
+             * // stop time reached?
+             * keepLooping = feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
+             * 
+             * // Sandro: entfernt, ich schreibe das lieber jetzt als im Nachgang, irgendwann muss ich es sowieso
+             * // machen...
+             * // we do not include all empty polls in fixed mode because the evaluation files would get too big,
+             * // since the interval is fixed we can simply copy the last poll until we reach the end
+             * // if (feed.historyFileCompletelyRead() && getUpdateStrategy() instanceof FixUpdateStrategy) {
+             * // break;
+             * // }
+             * 
+             * // stop criteria for looping: stop time reached or complete history read
+             * // keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
+             * // && feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
+             * //
+             * // if (!keepLooping) {
+             * // keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
+             * // && !feed.historyFileCompletelyRead();
+             * // }
+             * }
+             * 
+             * feedHistoriesCompletelyRead++;
+             * 
+             * // --- Logging ---
+             * if (feedHistoriesCompletelyRead == getFeeds().size()) {
+             * LOGGER.info("all feed history files read");
+             * }
+             * long timePerFeed = sw.getElapsedTime() / feedHistoriesCompletelyRead;
+             * LOGGER.info(loopCount + " loops in " + swf.getElapsedTime() + "ms in feed " + feed.getId());
+             * if (feedHistoriesCompletelyRead % 100 == 0) {
+             * LOGGER.info(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
+             * + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
+             * LOGGER.info("time per feed: " + timePerFeed);
+             * }
+             * 
+             * // write results to csv file in chunks of 500 feeds
+             * // TODO Sandro: mit den Feeds mit 12M Einträgen muss das häufiger passieren, vermutlich mehrfach pro
+             * // Feed!
+             * if (feedHistoriesCompletelyRead % 500 == 0) {
+             * FeedReaderEvaluator.writeRecordedMaps(this);
+             * }
+             * 
+             * // save the feed back to the database
+             * // fa.updateFeed(feed);
+             * 
+             * feed.freeMemory();
+             * feed.setMeticulousPostDistribution(null);
+             * }
+             * 
+             * LOGGER.info("finished reading feeds from disk in " + sw.getElapsedTimeString());
+             * LOGGER.info("writing evaluation results...");
+             * FeedReaderEvaluator.writeRecordedMaps(this);
+             * LOGGER.info("...done");
+             */
+            // setStopped(true);
         }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval

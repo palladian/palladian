@@ -32,7 +32,7 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
  * @author Sandro Reichert
  * 
  */
-class EvaluationSchedulerTask extends TimerTask {
+public class EvaluationSchedulerTask extends TimerTask {
 
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
@@ -258,7 +258,7 @@ class EvaluationSchedulerTask extends TimerTask {
         } else {
             LOGGER.info(" " + logMsg); // whitespace required to align lines in log file.
         }
-
+        
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
             if (alreadyScheduledFeedCount > 0) {
@@ -272,6 +272,13 @@ class EvaluationSchedulerTask extends TimerTask {
         blockedCounter = 0;
         lastWakeUpTime = currentWakeupTime;
         feedResults.clear();
+
+        if (scheduledTasks.isEmpty()){
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.info("All EvaluationFeedTasks done. Goodbye.");
+            }
+            feedReader.setStopped(true);
+        }        
     }
 
     /**

@@ -173,6 +173,7 @@ public class FeedStatisticCreator {
         Logger.getRootLogger().info("logs written to data/temp/feedEvaluationMaxCoverage.csv");
     }
 
+    // TODO Sandro: für Evaluation Diss benötigt, missedItems sollte aber nicht in Berechnung eingehen
     private static double calculateMedianDelay(int avgStyle, int activityPattern, String tableName) throws SQLException {
 
         List<Double> valueList = new ArrayList<Double>();
