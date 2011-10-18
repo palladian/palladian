@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.feeds.evaluation.disssandro;
+package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -54,7 +55,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Direct access to the {@link FeedDatabase} is required to not extend the {@link FeedStore} interface by (temporary)
      * evaluation methods.
      */
-    private final FeedDatabase feedDatabase;
+    private final EvaluationFeedDatabase feedDatabase;
 
     /**
      * Remember the last simulated time the feed has been polled.
@@ -82,7 +83,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         this.lastPollTime = feed.getLastPollTimeSQLTimestamp();
         this.lastNewestItemHash = feed.getNewestItemHash();
         this.feedReader = feedChecker;
-        this.feedDatabase = (FeedDatabase) feedReader.getFeedStore();
+        this.feedDatabase = (EvaluationFeedDatabase) feedReader.getFeedStore();
     }
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */

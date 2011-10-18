@@ -1,23 +1,24 @@
-package ws.palladian.retrieval.feeds.evaluation.disssandro;
+package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.persistence.DatabaseManager;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * Starting Point to evaluate an {@link UpdateStrategy} on the TUDCS6 dataset.
+ * Starting Point to evaluate an {@link UpdateStrategy} on the TUDCS6 dataset. This class has similar functionalities
+ * to {@link FeedReaderEvaluator}, both will be merged soon.
  * 
  * @author Sandro Reichert
  */
@@ -34,28 +35,29 @@ public class DatasetEvaluator {
     /**
      * The name of the database table to write evaluation results to.
      */
-    private final String currentDbTable;
+    private String currentDbTable;
 
     public DatasetEvaluator() {
-        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance()
-                .getConfig());
-
+        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
+                .getInstance().getConfig());
         feedReader = new FeedReader(feedStore);
-
-        currentDbTable = "feed_evaluation_" + feedReader.getUpdateStrategyName() + "_"
-                + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
-                + FeedReaderEvaluator.benchmarkSample + System.currentTimeMillis();
     }
 
     /**
      * @return The name of the database table to write evaluation results to.
      */
-    public String getCurrentDbTableName() {
+    public String getEvaluationDbTableName() {
         return currentDbTable;
     }
 
+    /**
+     * Creates the database table to write evaluation data into. Uses {@link #getEvaluationDbTableName()} to get the
+     * name. In case creation of table is impossible, evaluation is aborted.
+     */
     private void createEvaluationDbTable() {
-        final String sql = "CREATE TABLE `" + getCurrentDbTableName() + "` ("
+        final String sql = "CREATE TABLE `"
+                + getEvaluationDbTableName()
+                + "` ("
                 + "`feedID` INT(10) UNSIGNED NOT NULL,"
                 + "`numberOfPoll` INT(10) UNSIGNED NOT NULL COMMENT 'how often has this feed been polled (retrieved AND READ)',"
                 + "`activityPattern` INT(11) NOT NULL COMMENT 'activity pattern of the feed',"
@@ -69,41 +71,60 @@ public class DatasetEvaluator {
                 + ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
 
         Logger.getRootLogger().info(sql);
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance()
-                .getConfig());
-        dbm.runUpdate(sql);
+        int rows = ((EvaluationFeedDatabase) feedReader.getFeedStore()).runUpdate(sql);
+        if (rows == -1) {
+            LOGGER.fatal("Database table " + getEvaluationDbTableName()
+                    + " could not be created. Evaluation is impossible. Processing aborted.");
+            System.exit(-1);
+        }
     }
 
     /**
      * Run evaluation of the given strategy on dataset TUDCS6.
      */
-    public void evaluate(UpdateStrategy updateStrategy) {
+    public void runEvaluation() {
+        LOGGER.debug("start reading feeds");
+        feedReader.startContinuousReading();
+    }
 
-
-        initializeFeeds();
-
-        FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_TIME);
+    /**
+     * Does the initialization:
+     * <ul>
+     * <li>
+     * Initializes all {@link Feed}s so that their lastPollTime is equal to
+     * {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} and updateInterval is 0 and update feeds in
+     * database.</li>
+     * <li>
+     * Set benchmark policy.</li>
+     * <li>
+     * Set {@link UpdateStrategy}.</li>
+     * <li>
+     * Set (database) table name to store evaluation information into.</li>
+     * <li>
+     * Creates this table.</li>
+     * </ul>
+     */
+    private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
+            UpdateStrategy updateStrategy) {
+        for (Feed feed : feedReader.getFeeds()) {
+            feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
+            feed.setUpdateInterval(0);
+            feedReader.updateFeed(feed);
+        }
+        FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
+        FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
+        FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
         feedReader.setUpdateStrategy(updateStrategy, true);
 
         // TODO do we need a processing action???
         // FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
         // feedChecker.setFeedProcessingAction(fpa);
 
-        LOGGER.debug("start reading feeds");
-        feedReader.startContinuousReading();
-    }
+        currentDbTable = "feed_evaluation_" + feedReader.getUpdateStrategyName() + "_"
+                + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
+                + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
-    /**
-     * Initializes all {@link Feed}s so that their lastPollTime is equal to
-     * {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} and updateInterval is 0 and update feeds in
-     * database.
-     */
-    private void initializeFeeds() {
-        for (Feed feed : feedReader.getFeeds()) {
-            feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
-            feed.setUpdateInterval(0);
-            feedReader.updateFeed(feed);
-        }
+        createEvaluationDbTable();
     }
 
     /**
@@ -116,12 +137,17 @@ public class DatasetEvaluator {
         // UpdateStrategy updateStrategy = new MavStrategyDatasetCreation();
         // updateStrategy.setHighestUpdateInterval(360); // 6hrs
         // updateStrategy.setLowestUpdateInterval(0);
+        int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
+        int benchmarkMode = FeedReaderEvaluator.BENCHMARK_TIME;
+        int benchmarkSampleSize = 100;
 
         UpdateStrategy updateStrategy = new FixUpdateStrategy();
         ((FixUpdateStrategy) updateStrategy).setCheckInterval(60); // required by Fix strategies only!
 
+
         DatasetEvaluator evaluator = new DatasetEvaluator();
-        evaluator.evaluate(updateStrategy);
+        evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy);
+        evaluator.runEvaluation();
     }
 
 }

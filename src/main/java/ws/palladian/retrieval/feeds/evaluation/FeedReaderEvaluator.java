@@ -60,7 +60,7 @@ public class FeedReaderEvaluator {
     public static int benchmarkMode = BENCHMARK_POLL;
 
     /** We just take a certain percentage of the feed benchmark data for performance reasons. */
-    public static int benchmarkSample = 10;
+    public static int benchmarkSamplePercentage = 10;
 
     /** The path to the folder with the feed post history files. */
     private static final String BENCHMARK_DATASET_PATH = "data/datasets/feedPosts/csv";
@@ -165,7 +165,7 @@ public class FeedReaderEvaluator {
         String separator = ";";
 
         String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
-                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_" + FeedReaderEvaluator.benchmarkSample
+                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_" + FeedReaderEvaluator.benchmarkSamplePercentage
                 + ".csv";
 
         try {
@@ -272,7 +272,7 @@ public class FeedReaderEvaluator {
      */
     public void createAllEvaluations(int benchmarkSample) {
 
-        FeedReaderEvaluator.benchmarkSample = benchmarkSample;
+        FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
         UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
                 new MavUpdateStrategy(), new PostRateUpdateStrategy() };
@@ -346,7 +346,7 @@ public class FeedReaderEvaluator {
         // updateStrategy = new PostRateUpdateStrategy();
         // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
 
-        FeedReaderEvaluator.benchmarkSample = 100; // use just a percentage of
+        FeedReaderEvaluator.benchmarkSamplePercentage = 100; // use just a percentage of
 
         FeedReader feedReader = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
                 .getInstance().getConfig()));
