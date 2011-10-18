@@ -82,7 +82,7 @@ public class FeedSizeRestoreScheduler extends TimerTask {
             if (firstRun) {
 
                 // FIXME: remove dbug filter
-                // if (feed.getId() < 1000) {
+                // if (feed.getId() == 1074) {
                     scheduledTasks.put(feed.getId(),
                             threadPool.submit(new FeedSizeRestoreTask(feed, (FeedDatabase) feedReader.getFeedStore())));
                     newlyScheduledFeedsCount++;

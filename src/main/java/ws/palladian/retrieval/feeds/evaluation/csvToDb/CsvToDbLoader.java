@@ -4,10 +4,11 @@ import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -39,7 +40,9 @@ public class CsvToDbLoader {
     @SuppressWarnings("deprecation")
     public void loadDataToDb() {
 
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
+                ConfigHolder.getInstance().getConfig());
+
         FeedReader feedChecker = new FeedReader(feedStore);
         CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedChecker);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);

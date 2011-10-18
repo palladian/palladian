@@ -25,7 +25,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.evaluation.disssandro.EvaluationSchedulerTask;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;

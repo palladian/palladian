@@ -16,7 +16,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetMerger;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -42,7 +42,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
     /**
      * The feed DB.
      */
-    private final FeedDatabase feedDatabase;
+    private final EvaluationFeedDatabase feedDatabase;
 
     /**
      * Warn if processing of a feed takes longer than this.
@@ -60,7 +60,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
      * 
      * @param feed The feed retrieved by this task.
      */
-    public CsvToDbTask(Feed dbFeed, FeedDatabase feedDatabase) {
+    public CsvToDbTask(Feed dbFeed, EvaluationFeedDatabase feedDatabase) {
         this.feed = dbFeed;
         this.feedDatabase = feedDatabase;
     }

@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * Scheduler to process all feeds in db once in a CsvToDbTask. Use to load csv data into database.
@@ -83,7 +83,7 @@ public class CsvToDbScheduler extends TimerTask {
                 // FIXME: remove dbug filter
                 // if (feed.getId() == 8654) {
                 scheduledTasks.put(feed.getId(),
-                        threadPool.submit(new CsvToDbTask(feed, (FeedDatabase) feedReader.getFeedStore())));
+                        threadPool.submit(new CsvToDbTask(feed, (EvaluationFeedDatabase) feedReader.getFeedStore())));
                 // }
 
                 newlyScheduledFeedsCount++;
