@@ -61,7 +61,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
     private static final String ADD_EVALUATION_ITEMS = "INSERT IGNORE INTO feed_evaluation_items SET feedId = ?, pollTimestamp = ?, itemHash = ?, publishTime = ?";
     private static final String GET_EVALUATION_ITEMS_BY_ID = "SELECT * FROM feed_evaluation_items WHERE feedId = ? ORDER BY feedId ASC, pollTimestamp ASC, publishTime ASC LIMIT ?, ?;";
-
+    private static final String GET_EVALUATION_ITEMS_BY_ID_PUBLISHTIME_LIMIT = "SELECT * FROM feed_evaluation_items WHERE feedId = ? AND publishTime <= ? ORDER BY pollTimestamp DESC, publishTime DESC LIMIT 0, ?";
+    
+    
     /**
      * @param connectionManager
      */
@@ -315,7 +317,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getLastFeedEntry());
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getId() + ""));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
-        parameters.add(feed.getLastFeedTaskResult().toString());
+        if (feed.getLastFeedTaskResult() != null) {
+            parameters.add(feed.getLastFeedTaskResult().toString());
+        } else {
+            parameters.add(null);
+        }
         parameters.add(feed.getLastPollTime());
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getTotalProcessingTime());
@@ -565,6 +571,20 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     public List<FeedItem> getEvaluationItemsByID(int feedID, int from, int to) {
         return runQuery(new FeedEvaluationItemRowConverter(), GET_EVALUATION_ITEMS_BY_ID, feedID, from, to);
+    }
+
+    /**
+     * Get a simulated window from table feed_evaluation_items by feedID. Items are ordered by pollTimestamp DESC and
+     * publishTime DESC, we start with the provided publishTime and load the next #window items (that are older).
+     * 
+     * @param feedID The feed to get items for
+     * @param publishTime The pollTimestamp
+     * @param window Use db's LIMIT command to limit number of results. LIMIT 0, window
+     * @return
+     */
+    public List<FeedItem> getEvaluationItemsByIDPollTimeLimit(int feedID, Timestamp publishTime, int window) {
+        return runQuery(new FeedEvaluationItemRowConverter(), GET_EVALUATION_ITEMS_BY_ID_PUBLISHTIME_LIMIT, feedID,
+                publishTime, window);
     }
 
 }

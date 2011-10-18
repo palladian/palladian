@@ -143,6 +143,10 @@ public class FeedBenchmarkFileReader {
 
             boolean windowStartIndexFound = false;
 
+            
+            
+
+            // ---------- Start of main loop -----------
             for (int i = lastStartIndex; i <= totalEntries; i++) {
 
                 String line = historyFileLines.get(i - 1);
@@ -297,6 +301,7 @@ public class FeedBenchmarkFileReader {
 
                 lastItemTimestamp = entryTimestamp;
             }
+            // ---------- End of main loop -----------
 
             // if no new entry was found, we add the delay to the next new post entry
             if (numberNewItems == 0 && nextItemBeforeWindowTimestamp != 0l && feed.getChecks() > 0) {
@@ -371,7 +376,7 @@ public class FeedBenchmarkFileReader {
                 pollData.setCumulatedLateDelay(cumulatedPollDelay);
             }
 
-            pollData.setTimestamp(feed.getBenchmarkLookupTime());
+            pollData.setPollTimestamp(feed.getBenchmarkLookupTime());
             pollData.setNewWindowItems(numberNewItems);
             pollData.setMisses(misses);
 

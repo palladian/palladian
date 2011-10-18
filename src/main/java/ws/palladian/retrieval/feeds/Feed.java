@@ -480,7 +480,7 @@ public class Feed {
     }
 
     /**
-     * Increase the number of times the feed has been retrieved and successfully read or polled and has not been
+     * Increase the number of times the feed has a) been retrieved and successfully read or b) polled and has not been
      * modified.
      */
     public void increaseChecks() {

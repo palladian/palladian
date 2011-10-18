@@ -68,14 +68,18 @@ public class FeedReaderEvaluator {
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
 
-    /** The timestamp almost all (but 500) feeds have been polled at least once. 09.07.2011 00:00 */
-    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310169600000L;
+    /**
+     * The timestamp almost all (but 500) feeds have been polled at least once. 2011-07-09 00:00 CEST. Be careful with
+     * time zones since, Unix timestamp assumes GMT.
+     */
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310162400000L;
 
     /**
      * The timestamp we stopped the dataset gathering, minus a buffer to make sure all items published before the stop
-     * time have been received. Dataset creation ran till 05.08.2011 13:49, we set stop time to 05.08.2011 07:45
+     * time have been received. Dataset creation ran till 2011-08-05 13:49 CEST, we set stop time to 2011-08-05 07:45
+     * CEST. Be careful with time zones since, Unix timestamp assumes GMT.
      */
-    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312527600000L;
+    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312520400000L;
 
     public FeedReaderEvaluator() {
         LOGGER.info("load benchmark dataset file list");
@@ -99,12 +103,25 @@ public class FeedReaderEvaluator {
         FeedReaderEvaluator.benchmarkMode = benchmarkMode;
     }
 
-    private static String getBenchmarkName() {
+    public static String getBenchmarkName() {
         return FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_MIN_DELAY ? "min" : "max";
     }
 
     public String getBenchmarkDatasetPath() {
         return BENCHMARK_DATASET_PATH;
+    }
+
+    /**
+     * @return The name of the benchmark mode: poll or time.
+     */
+    public static String getBenchmarkModeString() {
+        String benchmarkModeString = "0";
+        if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL) {
+            benchmarkModeString = "poll";
+        } else if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
+            benchmarkModeString = "time";
+        }
+        return benchmarkModeString;
     }
 
     /**
@@ -147,15 +164,9 @@ public class FeedReaderEvaluator {
 
         String separator = ";";
 
-        String benchmarkModeString = "0";
-        if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL) {
-            benchmarkModeString = "poll";
-        } else if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
-            benchmarkModeString = "time";
-        }
-
         String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
-                + getBenchmarkName() + "_" + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
+                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_" + FeedReaderEvaluator.benchmarkSample
+                + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
@@ -181,7 +192,7 @@ public class FeedReaderEvaluator {
 
                     // poll related values
                     csv.append(pollData.getDownloadSize()).append(separator);
-                    csv.append(pollData.getTimestamp() / 1000l).append(separator);
+                    csv.append(pollData.getPollTimestamp() / 1000l).append(separator);
                     // csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
                     csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
                     csv.append(pollData.getNewWindowItems()).append(separator);
