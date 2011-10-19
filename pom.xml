@@ -113,9 +113,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>uk.ac.shef.wit</groupId>
-			<artifactId>simmetrics</artifactId>
-			<version>1.6.2</version>
+		  <groupId>uk.ac.shef.wit.simmetrics</groupId>
+		  <artifactId>similaritymetrics</artifactId>
+		  <version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
