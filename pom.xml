@@ -113,8 +113,8 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>uk.ac.shef.wit.simmetrics</groupId>
-			<artifactId>similaritymetrics</artifactId>
+			<groupId>uk.ac.shef.wit</groupId>
+			<artifactId>simmetrics</artifactId>
 			<version>1.6.2</version>
 		</dependency>
 		<dependency>
@@ -135,9 +135,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>edu.umass.cs</groupId>
+			<groupId>cc.mallet</groupId>
 			<artifactId>mallet</artifactId>
-			<version>0.4</version>
+			<version>2.0.7-RC2</version>
 		</dependency>
 		<dependency>
 			<groupId>jaxen</groupId>
@@ -154,9 +154,6 @@
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.twitter4j</groupId> <artifactId>twitter4j</artifactId> 
-			<version>2.1.1</version> <type>pom</type> </dependency> <dependency> <groupId>twitter4j</groupId> 
-			<artifactId>twitter4j</artifactId> <version>2.0.10</version> </dependency> -->
 		<dependency>
 			<groupId>com.temesoft</groupId>
 			<artifactId>google-pagerank-api</artifactId>
@@ -193,10 +190,6 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- <dependency> <groupId>com.representqueens.lingua.en</groupId> <artifactId>java_fathom</artifactId> 
-			<version>1.1.0</version> </dependency> -->
-		<!-- <dependency> <groupId>org.jyaml</groupId> <artifactId>jyaml</artifactId> 
-			<version>1.3</version> <type>jar</type> <scope>compile</scope> </dependency> -->
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
@@ -209,8 +202,6 @@
 			<artifactId>stanfordner</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
-			<version>1.0</version> </dependency> -->
 		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
@@ -240,7 +231,6 @@
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
-			<!-- <version>1.9.11</version> -->
 			<version>1.9.14</version>
 			<type>jar</type>
 			<scope>compile</scope>
@@ -266,7 +256,6 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<!-- <version>1.2.135</version> -->
 			<version>1.3.154</version>
 		</dependency>
 		<dependency>
@@ -289,8 +278,6 @@
 			<artifactId>oro</artifactId>
 			<version>2.0.8</version>
 		</dependency>
-		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
-			<version>1.2</version> </dependency> -->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
@@ -313,8 +300,6 @@
 			<artifactId>juliener</artifactId>
 			<version>1.5</version>
 		</dependency>
-		<!-- <dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
-			<version>2.1.1</version> </dependency> -->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
@@ -373,8 +358,6 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- <dependency> <groupId>apache-httpclient</groupId> <artifactId>commons-httpclient</artifactId> 
-			<version>3.1</version> </dependency> -->
 		<dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>jwbf</artifactId>
@@ -387,21 +370,11 @@
 			<artifactId>snakeyaml</artifactId>
 			<version>1.7</version>
 		</dependency>
-		<!-- <dependency> <groupId>jivesoftware</groupId> <artifactId>smack</artifactId> 
-			<version>3.1.0</version> </dependency> <dependency> <groupId>jivesoftware</groupId> 
-			<artifactId>smackx</artifactId> <version>3.1.0</version> </dependency> -->
 		<dependency>
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>
 			<version>0.7.0</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.prefuse</groupId>
-			<artifactId>prefuse</artifactId>
-			<version>beta-20071021</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency -->
 		<dependency>
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
@@ -415,7 +388,6 @@
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
-			<!--<version>[2.1,)</version> -->
 			<version>2.2.4</version>
 		</dependency>
 		<dependency>
@@ -429,6 +401,22 @@
 	</properties>
 	<repositories>
 		<repository>
+			<id>MVN Repository</id>
+			<url>http://mvnrepository.com/</url>
+		</repository>
+		<repository>
+			<id>weka</id>
+			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
+		</repository>
+		<repository>
+			<id>Maven HUB</id>
+			<url>http://mavenhub.com/mvn/central</url>
+		</repository>
+		<repository>
+			<id>Maven MSE</id>
+			<url>http://maven.mse.jhu.edu/m2repository/</url>
+		</repository>
+		<repository>
 			<id>releases</id>
 			<url>http://effingo.de/nexus/content/groups/public</url>
 		</repository>
@@ -436,28 +424,10 @@
 			<id>snapshots</id>
 			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
 		</repository>
-		<repository>
-			<id>weka</id>
-			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
-		</repository>
-		<repository>
-			<id>twitter4j.org</id>
-			<name>twitter4j.org Repository</name>
-			<url>http://twitter4j.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+		<!-- <repository> <id>twitter4j.org</id> <name>twitter4j.org Repository</name> 
+			<url>http://twitter4j.org/maven2</url> <releases> <enabled>true</enabled> 
+			</releases> <snapshots> <enabled>true</enabled> </snapshots> </repository> -->
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>onejar-maven-plugin.googlecode.com</id>
-			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-		</pluginRepository>
-	</pluginRepositories>
 	<distributionManagement>
 		<repository>
 			<id>releases</id>
@@ -471,3 +441,4 @@
 		</snapshotRepository>
 	</distributionManagement>
 </project>
+
