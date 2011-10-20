@@ -226,21 +226,27 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
      */
     private Date correctPublishDate(Date origPublishDate, Date currentPollTime, Date lastPolltime) {
         Date correctedPublishDate = origPublishDate;
+        boolean correctionDone = false;
         if (correctedPublishDate == null) {
             correctedPublishDate = currentPollTime;
+            correctionDone = true;
         } else {
             if (correctedPublishDate.before(MIN_ITEM_PUBDATE)) {
                 correctedPublishDate = MIN_ITEM_PUBDATE;
+                correctionDone = true;
             }
             if (lastPolltime != null && correctedPublishDate.before(lastPolltime)) {
                 correctedPublishDate = currentPollTime;
+                correctionDone = true;
             } else if (correctedPublishDate.after(currentPollTime)) {
                 correctedPublishDate = currentPollTime;
+                correctionDone = true;
             }
         }
 
-        if (LOGGER.isDebugEnabled() && !origPublishDate.equals(correctedPublishDate)) {
-            LOGGER.debug("Feed id " + feed.getId() + " corrected " + origPublishDate + " to " + correctedPublishDate);
+        if (LOGGER.isDebugEnabled() && correctionDone) {
+            LOGGER.debug("Feed id " + feed.getId() + " corrected publish date \"" + origPublishDate + "\" to \""
+                    + correctedPublishDate + "\"");
         }
 
         return correctedPublishDate;

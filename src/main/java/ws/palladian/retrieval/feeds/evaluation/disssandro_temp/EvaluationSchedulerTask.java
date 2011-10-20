@@ -305,7 +305,8 @@ public class EvaluationSchedulerTask extends TimerTask {
         long lastSimulatedPollTime = feed.getLastPollTime().getTime();
         long nextSimulatedPollTime = lastSimulatedPollTime + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
 
-        Boolean needsLookup = nextSimulatedPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
+        Boolean needsLookup = nextSimulatedPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
+                && !feed.isBlocked();
 
         final long now = System.currentTimeMillis();
         LOGGER.trace("Checking if feed with id: "
@@ -327,7 +328,8 @@ public class EvaluationSchedulerTask extends TimerTask {
         if (needsLookup == true) {
             LOGGER.trace("Feed with id: " + feed.getId() + " need lookup.");
         } else {
-            LOGGER.trace("Feed with id: " + feed.getId() + " needs no lookup, BENCHMARK_STOP_TIME has been reached.");
+            LOGGER.trace("Feed with id: " + feed.getId() + " needs no lookup, BENCHMARK_STOP_TIME has been reached "
+                    + "(or feed has been blocked when creating the dataset).");
         }
         return needsLookup;
     }
