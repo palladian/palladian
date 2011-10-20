@@ -198,11 +198,13 @@ CREATE TABLE IF NOT EXISTS `feed_item_cache` (
 -- Tabellenstruktur für Tabelle `feed_evaluation_items`
 --
 
-CREATE TABLE IF NOT EXISTS `feed_evaluation_items` (  
-  `feedId` int(10) unsigned NOT NULL COMMENT 'The feeds internal identifier.',
+CREATE TABLE IF NOT EXISTS `feed_evaluation_items` (
+  `feedId` INT(10) UNSIGNED NOT NULL COMMENT 'The feeds internal identifier.',
+  `sequenceNumber` INT(10) NOT NULL COMMENT 'A sequence number of the item to imitate line numbers.',
   `pollTimestamp` DATETIME NOT NULL COMMENT 'At this timestamp, the item has been received.',
-  `itemHash` CHAR(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of a item (in xml) of the last poll.',
-  `publishTime` DATETIME COMMENT 'Original publish date of this item.'
+  `extendedItemHash` CHAR(60) COLLATE utf8_unicode_ci NOT NULL COMMENT 'An extended item hash made of pollTimestamp_itemHash where itemHash is a sha-1(id,title,link).',
+  `publishTime` DATETIME DEFAULT NULL COMMENT 'Original publish date of this item.',
+  `correctedPublishTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.',
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 --

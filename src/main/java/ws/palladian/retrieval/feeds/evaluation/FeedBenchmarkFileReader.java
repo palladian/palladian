@@ -97,7 +97,7 @@ public class FeedBenchmarkFileReader {
      * For benchmarking purposes, we created a dataset of feed post histories and stored it on disk. We can now run the
      * feed reader on this dataset and evaluate the updateInterval techniques.
      * </p>
-     * 
+     * FIXME: calculation of delay may be broken due to refactoring of PollData
      * <p>
      * We need to handle "On-The-Fly" feeds special (we disregard them here), because their timestamps should be at
      * simulation time.
@@ -309,6 +309,7 @@ public class FeedBenchmarkFileReader {
                 cumulatedEarlyDelay += feed.getBenchmarkLookupTime() - nextItemBeforeWindowTimestamp;
             }
 
+
             cumulatedDelay += Math.abs(cumulatedPollDelay);
 
             feed.setItems(entries);
@@ -349,11 +350,11 @@ public class FeedBenchmarkFileReader {
 
                     c++;
                 }
-                Double timeliness = null;
-                if (c > 0) {
-                    timeliness = totalSum / c;
-                }
-                pollData.setTimeliness(timeliness);
+                // Double timeliness = null;
+                // if (c > 0) {
+                // timeliness = totalSum / c;
+                // }
+                // pollData.setTimeliness(timeliness);
 
                 // calculate timeliness late
                 totalSum = 0.0;
@@ -367,20 +368,20 @@ public class FeedBenchmarkFileReader {
                     totalSum += 1 / (newItem[1] / (double) newItem[2] + 1);
                     c++;
                 }
-                Double timelinessLate = null;
-                if (c > 0) {
-                    timelinessLate = totalSum / c;
-                }
-                pollData.setTimelinessLate(timelinessLate);
+                // Double timelinessLate = null;
+                // if (c > 0) {
+                // timelinessLate = totalSum / c;
+                // }
+                // pollData.setTimelinessLate(timelinessLate);
 
-                pollData.setCumulatedLateDelay(cumulatedPollDelay);
+                pollData.setCumulatedDelay(cumulatedPollDelay);
             }
 
             pollData.setPollTimestamp(feed.getBenchmarkLookupTime());
             pollData.setNewWindowItems(numberNewItems);
             pollData.setMisses(misses);
 
-            pollData.setCumulatedDelay(cumulatedDelay);
+            // pollData.setCumulatedDelay(cumulatedDelay);
 
             // reset cumulated delay for next new item
             if (numberNewItems > 0) {

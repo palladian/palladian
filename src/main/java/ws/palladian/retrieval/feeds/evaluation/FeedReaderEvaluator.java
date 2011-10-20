@@ -149,11 +149,6 @@ public class FeedReaderEvaluator {
      * <li>number of missed news items</li>
      * <li>window size</li>
      * <li>cumulated delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>cumulated late delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>timeliness, averaged over all new and missed items in the poll including early polls, NULL if no new item has
-     * been discovered (only for evaluation mode MIN interesting)</li>
-     * <li>timeliness late, averaged over all new and missed items in the poll, NULL if no new item has been discovered
-     * (only for evaluation mode MIN interesting)</li>
      * </ul>
      * </p>
      * 
@@ -199,19 +194,19 @@ public class FeedReaderEvaluator {
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(pollData.getWindowSize()).append(separator);
                     csv.append(pollData.getCumulatedDelay() / 1000l).append(separator);
-                    csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
+                    // csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
 
-                    if (pollData.getTimeliness() != null) {
-                        csv.append(MathHelper.round(pollData.getTimeliness(), 4)).append(separator);
-                    } else {
-                        csv.append("\\N").append(separator);
-                    }
-
-                    if (pollData.getTimelinessLate() != null) {
-                        csv.append(MathHelper.round(pollData.getTimelinessLate(), 4)).append(separator);
-                    } else {
-                        csv.append("\\N").append(separator);
-                    }
+                    // if (pollData.getTimeliness() != null) {
+                    // csv.append(MathHelper.round(pollData.getTimeliness(), 4)).append(separator);
+                    // } else {
+                    // csv.append("\\N").append(separator);
+                    // }
+                    //
+                    // if (pollData.getTimelinessLate() != null) {
+                    // csv.append(MathHelper.round(pollData.getTimelinessLate(), 4)).append(separator);
+                    // } else {
+                    // csv.append("\\N").append(separator);
+                    // }
 
                     csv.append("\n");
 

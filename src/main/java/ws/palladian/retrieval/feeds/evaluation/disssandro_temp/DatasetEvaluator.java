@@ -35,48 +35,22 @@ public class DatasetEvaluator {
     /**
      * The name of the database table to write evaluation results to.
      */
-    private String currentDbTable;
+    private static String currentDbTable;
 
     public DatasetEvaluator() {
         final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
                 .getInstance().getConfig());
+        // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
+        // table when creating the FeedReader. Any subsequent changes are ignored...
+        ((EvaluationFeedDatabase) feedStore).resetTableFeeds();
         feedReader = new FeedReader(feedStore);
     }
 
     /**
      * @return The name of the database table to write evaluation results to.
      */
-    public String getEvaluationDbTableName() {
+    public static String getEvaluationDbTableName() {
         return currentDbTable;
-    }
-
-    /**
-     * Creates the database table to write evaluation data into. Uses {@link #getEvaluationDbTableName()} to get the
-     * name. In case creation of table is impossible, evaluation is aborted.
-     */
-    private void createEvaluationDbTable() {
-        final String sql = "CREATE TABLE `"
-                + getEvaluationDbTableName()
-                + "` ("
-                + "`feedID` INT(10) UNSIGNED NOT NULL,"
-                + "`numberOfPoll` INT(10) UNSIGNED NOT NULL COMMENT 'how often has this feed been polled (retrieved AND READ)',"
-                + "`activityPattern` INT(11) NOT NULL COMMENT 'activity pattern of the feed',"
-                + "`sizeOfPoll` INT(11) NOT NULL COMMENT 'the estimated amount of bytes to transfer: HTTP header + XML document',"
-                + "`pollTimestamp` BIGINT(20) UNSIGNED NOT NULL COMMENT 'the feed has been pooled AT this TIMESTAMP',"
-                + "`checkInterval` INT(11) UNSIGNED DEFAULT NULL COMMENT 'TIME IN minutes we waited betwen LAST AND this CHECK',"
-                + "`newWindowItems` INT(10) UNSIGNED NOT NULL COMMENT 'number of NEW items IN the window',"
-                + "`missedItems` INT(10) NOT NULL COMMENT 'the number of NEW items we missed because there more NEW items since the LAST poll THAN fit INTO the window',"
-                + "`windowSize` INT(10) UNSIGNED NOT NULL COMMENT 'the current size of the feed''s window (number of items FOUND)',"
-                + "`cumulatedDelay` DOUBLE DEFAULT NULL COMMENT 'cumulated delay IN seconds, adds absolute delay of polls that were too late'"
-                + ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-
-        Logger.getRootLogger().info(sql);
-        int rows = ((EvaluationFeedDatabase) feedReader.getFeedStore()).runUpdate(sql);
-        if (rows == -1) {
-            LOGGER.fatal("Database table " + getEvaluationDbTableName()
-                    + " could not be created. Evaluation is impossible. Processing aborted.");
-            System.exit(-1);
-        }
     }
 
     /**
@@ -124,7 +98,13 @@ public class DatasetEvaluator {
                 + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
-        createEvaluationDbTable();
+        boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .createEvaluationDbTable(getEvaluationDbTableName());
+        if (!created) {
+            LOGGER.fatal("Database table " + getEvaluationDbTableName()
+                    + " could not be created. Evaluation is impossible. Processing aborted.");
+            System.exit(-1);
+        }
     }
 
     /**
@@ -133,6 +113,14 @@ public class DatasetEvaluator {
      * @param args
      */
     public static void main(String[] args) {
+        // long a = 1510L;
+        // long b = 8L;
+        // long c = a - b;
+        // long d = Math.round((double) (a - b) / 1000);
+        // System.out.println(c);
+        // System.out.println(d);
+        // System.exit(0);
+
         // TODO: get Strategy and parameters from command line args
         // UpdateStrategy updateStrategy = new MavStrategyDatasetCreation();
         // updateStrategy.setHighestUpdateInterval(360); // 6hrs
@@ -142,7 +130,7 @@ public class DatasetEvaluator {
         int benchmarkSampleSize = 100;
 
         UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(60); // required by Fix strategies only!
+        ((FixUpdateStrategy) updateStrategy).setCheckInterval(1440); // required by Fix strategies only!
 
 
         DatasetEvaluator evaluator = new DatasetEvaluator();

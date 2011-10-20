@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -18,37 +19,38 @@ public class PollData {
      */
     private int benchmarkType = FeedReaderEvaluator.BENCHMARK_OFF;
 
+    /** All polls have a sequential number starting from 1 at the first poll. */
+    private Integer numberOfPoll = -1;
+
     /** The time of the poll. */
     private long pollTimestamp = -1l;
 
     /** Number of new items in the window. */
     private int newWindowItems = -1;
 
-    /** The cumulated delay from all early and late lookups. */
+    /**
+     * The cumulated delay: the sum of the time difference in seconds between pollTime and publishTime of all new items.
+     */
     private long cumulatedDelay = -1;
 
-    /** The cumulated late delays for the current poll. */
-    private long cumulatedLateDelay = -1;
-
-    /**
-     * The averaged timeliness for the poll if at least one new item has been found. This adds up all delays from early
-     * polls and late polls.
-     */
-    private Double timeliness = null;
-
-    /**
-     * The averaged timeliness for the poll if at least one new item has been found. This adds up all delays from late
-     * polls.
-     */
-    private Double timelinessLate = null;
-
-    /**
-     * The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE this time.
-     */
-    private double afterDelayWeight = 1.0;
-
-    /** Number of posts that have been missed (not read early enough). */
+    /** Number of items that have been missed (not read early enough). */
     private int misses = 0;
+
+    /**
+     * The number of items whos publishTime is newer than the last simulated poll that is within the benchmark interval.
+     * This is relevant to the very last poll only.
+     */
+    private Integer pendingItems = null;
+
+    /**
+     * 
+     * The number of items that have not been seen in evaluation mode. This is relevant to the first and last poll only.
+     * Usually, {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} is set a couple of hours later than the
+     * creation of the dataset was started. Therefore, for some feeds we have more than one window at the first
+     * simulated poll. The same is true for {@link FeedReaderEvaluator#BENCHMARK_STOP_TIME_MILLISECOND}: For some feeds,
+     * we have items that are newer than the end of the benchmark period.
+     */
+    private Integer droppedItems = null;
 
     /** The check interval when the feed was polled. */
     private double checkInterval = -1;
@@ -63,6 +65,20 @@ public class PollData {
      * A list containing the delays to all items.
      */
     private List<Long> itemDelays = null;
+
+    /**
+     * @return All polls have a sequential number starting from 1 at the first poll.
+     */
+    public final Integer getNumberOfPoll() {
+        return numberOfPoll;
+    }
+
+    /**
+     * @param numberOfPoll All polls have a sequential number starting from 1 at the first poll.
+     */
+    public final void setNumberOfPoll(Integer numberOfPoll) {
+        this.numberOfPoll = numberOfPoll;
+    }
 
     /**
      * <p>
@@ -103,48 +119,28 @@ public class PollData {
     }
 
     /**
-     * @param cumulatedDelay The cumulated delay from all early and late lookups.
+     * @return The time of the poll as {@link Timestamp}.
+     */
+    public Timestamp getPollSQLTimestamp() {
+        return new Timestamp(getPollTimestamp());
+    }
+
+    /**
+     * @param cumulatedDelay The cumulated delay: the sum of the time difference in seconds between pollTime and
+     *            publishTime of all new items.
      */
     public void setCumulatedDelay(long cumulatedDelay) {
         this.cumulatedDelay = cumulatedDelay;
     }
 
     /**
-     * @return The cumulated delay from all early and late lookups.
+     * @return The cumulated delay: the sum of the time difference in seconds between pollTime and publishTime of all
+     *         new items.
      */
     public long getCumulatedDelay() {
         return cumulatedDelay;
     }
 
-    /**
-     * @param cumulatedLateDelay The cumulated late delays for the current poll.
-     */
-    public void setCumulatedLateDelay(long cumulatedLateDelay) {
-        this.cumulatedLateDelay = cumulatedLateDelay;
-    }
-
-    /**
-     * @return The cumulated late delays for the current poll.
-     */
-    public long getCumulatedLateDelay() {
-        return cumulatedLateDelay;
-    }
-
-    /**
-     * @param afterDelayWeight The factor by which delays AFTER the actual new post publish date are weighted more than
-     *            delays BEFORE this time.
-     */
-    public void setAfterDelayWeight(double afterDelayWeight) {
-        this.afterDelayWeight = afterDelayWeight;
-    }
-
-    /**
-     * @return The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE
-     *         this time.
-     */
-    public double getAfterDelayWeight() {
-        return afterDelayWeight;
-    }
 
     /**
      * @return Number of posts that have been missed (not read early enough).
@@ -158,6 +154,54 @@ public class PollData {
      */
     public void setMisses(int misses) {
         this.misses = misses;
+    }
+
+    /**
+     * The number of items whos publishTime is newer than the last simulated poll that is within the benchmark interval.
+     * This is relevant to the very last poll only.
+     * 
+     * @return The number of pending items.
+     */
+    public final Integer getPendingItems() {
+        return pendingItems;
+    }
+
+    /**
+     * The number of items whos publishTime is newer than the last simulated poll that is within the benchmark interval.
+     * This is relevant to the very last poll only.
+     * 
+     * @param pendingItems The number of pending items.
+     */
+    public final void setPendingItems(Integer pendingItems) {
+        this.pendingItems = pendingItems;
+    }
+
+    /**
+     * The number of items that have not been seen in evaluation mode. This is relevant to the first and last poll only.
+     * Usually, {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} is set a couple of hours later than the
+     * creation of the dataset was started. Therefore, for some feeds we have more than one window at the first
+     * simulated poll. The same is true for {@link FeedReaderEvaluator#BENCHMARK_STOP_TIME_MILLISECOND}: For some feeds,
+     * we have items that are newer than the end of the benchmark period.
+     * 
+     * @return The number of items that have not been seen in evaluation mode. This is relevant to the
+     *         first and last poll only.
+     */
+    public final Integer getPreBenchmarkItems() {
+        return droppedItems;
+    }
+
+    /**
+     * The number of items that have not been seen in evaluation mode. This is relevant to the first and last poll only.
+     * Usually, {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} is set a couple of hours later than the
+     * creation of the dataset was started. Therefore, for some feeds we have more than one window at the first
+     * simulated poll. The same is true for {@link FeedReaderEvaluator#BENCHMARK_STOP_TIME_MILLISECOND}: For some feeds,
+     * we have items that are newer than the end of the benchmark period.
+     * 
+     * @param droppedItems The number of items that have not been seen in evaluation mode. This is relevant to the
+     *            first and last poll only.
+     */
+    public final void setDroppedItems(Integer droppedItems) {
+        this.droppedItems = droppedItems;
     }
 
     /**
@@ -217,38 +261,6 @@ public class PollData {
     }
 
     /**
-     * @return The averaged timeliness for the poll if at least one new item has been found. This adds up all delays
-     *         from early polls and late polls.
-     */
-    public Double getTimeliness() {
-        return timeliness;
-    }
-
-    /**
-     * @param timeliness The averaged timeliness for the poll if at least one new item has been found. This adds up all
-     *            delays from early polls and late polls.
-     */
-    public void setTimeliness(Double timeliness) {
-        this.timeliness = timeliness;
-    }
-
-    /**
-     * @return The averaged timeliness for the poll if at least one new item has been found. This adds up all delays
-     *         from late polls.
-     */
-    public Double getTimelinessLate() {
-        return timelinessLate;
-    }
-
-    /**
-     * @param timelinessLate The averaged timeliness for the poll if at least one new item has been found. This adds up
-     *            all delays from late polls.
-     */
-    public void setTimelinessLate(Double timelinessLate) {
-        this.timelinessLate = timelinessLate;
-    }
-
-    /**
      * @return A list containing the delays to all items.
      */
     public final List<Long> getItemDelays() {
@@ -271,20 +283,14 @@ public class PollData {
         StringBuilder builder = new StringBuilder();
         builder.append("PollData [benchmarkType=");
         builder.append(benchmarkType);
+        builder.append(", numberOfPoll=");
+        builder.append(numberOfPoll);
         builder.append(", pollTimestamp=");
         builder.append(pollTimestamp);
         builder.append(", newWindowItems=");
         builder.append(newWindowItems);
         builder.append(", cumulatedDelay=");
         builder.append(cumulatedDelay);
-        builder.append(", cumulatedLateDelay=");
-        builder.append(cumulatedLateDelay);
-        builder.append(", timeliness=");
-        builder.append(timeliness);
-        builder.append(", timelinessLate=");
-        builder.append(timelinessLate);
-        builder.append(", afterDelayWeight=");
-        builder.append(afterDelayWeight);
         builder.append(", misses=");
         builder.append(misses);
         builder.append(", checkInterval=");

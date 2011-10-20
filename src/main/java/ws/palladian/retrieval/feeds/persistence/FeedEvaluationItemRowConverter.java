@@ -3,27 +3,30 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import ws.palladian.helper.SqlHelper;
 import ws.palladian.persistence.RowConverter;
-import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 
 /**
  * Load data from table feed_evaluation_items
  * 
  * @author Sandro Reichert
  */
-public class FeedEvaluationItemRowConverter implements RowConverter<FeedItem> {
+public class FeedEvaluationItemRowConverter implements RowConverter<EvaluationFeedItem> {
 
     @Override
-    public FeedItem convert(ResultSet resultSet) throws SQLException {
+    public EvaluationFeedItem convert(ResultSet resultSet) throws SQLException {
 
-        FeedItem entry = new FeedItem();
+        EvaluationFeedItem item = new EvaluationFeedItem();
 
-        entry.setFeedId(resultSet.getInt("feedId"));
-        entry.setPollTimestamp(resultSet.getTimestamp("pollTimestamp"));
-        entry.setPublished(resultSet.getTimestamp("publishTime"));
-        entry.setHash(resultSet.getString("itemHash"), true);
+        item.setFeedId(resultSet.getInt("feedId"));
+        item.setSequenceNumber(SqlHelper.getInteger(resultSet, "sequenceNumber"));
+        item.setPollTimestamp(resultSet.getTimestamp("pollTimestamp"));
+        item.setPublished(resultSet.getTimestamp("publishTime"));
+        item.setCorrectedPublishedDate(resultSet.getTimestamp("correctedPublishTime"));
+        item.setHash(resultSet.getString("extendedItemHash"), true);
 
-        return entry;
+        return item;
 
     }
 
