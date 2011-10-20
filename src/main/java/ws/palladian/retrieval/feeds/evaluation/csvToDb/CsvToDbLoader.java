@@ -37,7 +37,6 @@ public class CsvToDbLoader {
         checkScheduler = new Timer();
     }
 
-    @SuppressWarnings("deprecation")
     public void loadDataToDb() {
 
         final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
