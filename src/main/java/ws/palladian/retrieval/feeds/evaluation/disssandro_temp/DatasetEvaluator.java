@@ -91,10 +91,6 @@ public class DatasetEvaluator {
         feedReader.setUpdateStrategy(updateStrategy, true);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
-        // TODO do we need a processing action???
-        // FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
-        // feedChecker.setFeedProcessingAction(fpa);
-
         currentDbTable = "feed_evaluation_" + feedReader.getUpdateStrategyName() + "_"
                 + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();

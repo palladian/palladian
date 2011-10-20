@@ -55,8 +55,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
 
     private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
-    // private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME =
-    // "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp >= ? ORDER BY pollTimestamp ASC LIMIT 0,1";
     private static final String GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp < ? ORDER BY pollTimestamp DESC LIMIT 0,1";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
     private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ? WHERE id = ? AND pollTimestamp = ?";
