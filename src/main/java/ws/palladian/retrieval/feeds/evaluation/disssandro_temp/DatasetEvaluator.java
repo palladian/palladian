@@ -79,7 +79,7 @@ public class DatasetEvaluator {
      * </ul>
      */
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy) {
+            UpdateStrategy updateStrategy, long wakeUpInterval) {
         for (Feed feed : feedReader.getFeeds()) {
             feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
             feed.setUpdateInterval(0);
@@ -89,6 +89,7 @@ public class DatasetEvaluator {
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
         feedReader.setUpdateStrategy(updateStrategy, true);
+        feedReader.setWakeUpInterval(wakeUpInterval);
 
         // TODO do we need a processing action???
         // FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
@@ -130,11 +131,11 @@ public class DatasetEvaluator {
         int benchmarkSampleSize = 100;
 
         UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(1440); // required by Fix strategies only!
+        ((FixUpdateStrategy) updateStrategy).setCheckInterval(360); // required by Fix strategies only!
 
-
+        long wakeUpInterval = (long) (1 * DateHelper.SECOND_MS);
         DatasetEvaluator evaluator = new DatasetEvaluator();
-        evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy);
+        evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
         evaluator.runEvaluation();
     }
 

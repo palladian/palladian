@@ -82,10 +82,16 @@ public final class FeedReader {
     private FeedStore feedStore;
 
     /**
+     * Defines the default time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds
+     * should be read.
+     */
+    private static final long DEFAULT_WAKEUP_INTERVAL = 60 * DateHelper.SECOND_MS;
+
+    /**
      * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
      * be read.
      */
-    private final long wakeUpInterval = (long) (0.01 * DateHelper.SECOND_MS);
+    private long wakeUpInterval = DEFAULT_WAKEUP_INTERVAL;
 
     /** The constructor. */
     public FeedReader(FeedStore feedStore) {
@@ -571,6 +577,14 @@ public final class FeedReader {
      */
     public final long getWakeUpInterval() {
         return wakeUpInterval;
+    }
+
+    /**
+     * @param wakeUpInterval The time in milliseconds when the FeedReader should wake up the checkScheduler to see which
+     *            feeds should be read.
+     */
+    public final void setWakeUpInterval(long wakeUpInterval) {
+        this.wakeUpInterval = wakeUpInterval;
     }
 
 }

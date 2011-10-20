@@ -33,6 +33,8 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
  * will run every time the feed is checked and also performs all set {@link FeedProcessingAction}s.
  * </p>
  * This class is based on the {@link FeedTask}.
+ * Http header information are discarded since they can't be confidently restored from dataset (they may have changed
+ * between two polls when creating the dataset).
  * 
  * @author Sandro Reichert
  * @see FeedReader
@@ -175,13 +177,20 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             int recentMisses = feed.getMisses();
             boolean storeMetadata = false;
 
-            // bis hier: alle Items des aktuellen Fensters wurden dem downloadedFeed übergeben
-            // http header information are discarded since they can't be confidently restored from dataset (they
-            // may have changed between two polls when creating the dataset)
-
             // the simulated download of the feed.
             Feed downloadedFeed = getSimulatedWindowFromDataset();
             
+            if (downloadedFeed == null) {
+                LOGGER.debug("Feed id " + feed.getId()
+                        + ": we don't have any poll data about this feed. Stop processing immediately.");
+                // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
+                feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
+                resultSet.add(FeedTaskResult.SUCCESS);
+                doFinalLogging(timer);
+                return getResult();
+
+            }
+
             // remember item sequence numbers
             determineItemSequenceNumbers(downloadedFeed);
 
@@ -206,8 +215,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             if (currentNumberOfPoll > 1) {
                 for (FeedItem item : feed.getNewItems()) {
                     // delay per new item in seconds
-                    Long delay = Math
-                            .round((double) (feed.getLastPollTime().getTime() - item.getPublished().getTime()) / 1000);
+                    Long delay = Math.round((double) (feed.getLastPollTime().getTime() - item
+                            .getCorrectedPublishedDate().getTime()) / 1000);
                     cumulatedDelay += delay;
                     itemDelays.add(delay);
                 }
@@ -348,7 +357,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
+            LOGGER.fatal("Error processing feedID " + feed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();
@@ -368,12 +377,24 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         // get closed real poll that is in past of the simulated time.
         PollMetaInformation realPoll = feedDatabase.getEqualOrPreviousFeedPoll(feed.getId(), feed.getLastPollTimeSQLTimestamp());
 
+        // In few cases, we don't have any PollMetaInformation. This happens for feeds that were unparsable at all
+        // polls.
+        if (realPoll == null) {
+            return null;
+        }
+
         // this is the size of the poll we did when creating the dataset. Since we did not stored the sizes of all
         // single items, we do not know the size of the current simulated poll but use the real poll as an approximation
-        downloadSize = realPoll.getResponseSize();
+        downloadSize = 0;
+        if (realPoll.getResponseSize() != null) {
+            downloadSize = realPoll.getResponseSize();
+        }
 
         // assume that the windowSize has not changed between current and previous poll
-        int windowSize = realPoll.getWindowSize();
+        int windowSize = 0;
+        if (realPoll.getWindowSize() != null) {
+            windowSize = realPoll.getWindowSize();
+        }
 
         // TODO use feedID 1297 for debugging since feed does not provide item timestamps
         // load the last window from dataset
