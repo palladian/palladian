@@ -1,23 +1,9 @@
 
 # /
 /.settings
-/ds.bat
-/target
-/testIndex
-/test_dictionary.h2.db
-/test_dictionary.trace.db
-/mod
-
-# /config/
-/config/apikeys.conf
-/config/db.conf
-/config/log4j.properties
-/config/palladian.properties
 
 # /data/
-/data/crawler_discovered_feeds.txt
 /data/datasets
-/data/discovered_feeds.txt
 /data/knowledgeBase
 /data/logs
 /data/models
@@ -30,40 +16,15 @@
 /data/evaluation/feedPaper
 
 # /documentation/book/
-/documentation/book/*.log
-/documentation/book/*.out
-/documentation/book/book.aux
-/documentation/book/book.bbl
-/documentation/book/book.blg
-/documentation/book/book.log
-/documentation/book/book.out
-/documentation/book/toolkit.bbl
-/documentation/book/toolkit.blg
-/documentation/book/toolkit.synctex.gz
-/documentation/book/*.aux
-/documentation/book/*.synctex.gz
-/documentation/book/*.toc
-/documentation/book/*.fdb_latexmk
-
-# /documentation/book/chapters/
-/documentation/book/chapters/*.aux
-
-# /src/
-/src/log4j.properties
-/src/tud
-
-# /src/main/java/
-/src/main/java/log4j.properties
+*.log
+*.out
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+*.toc
+*.fdb_latexmk
 
 # /src/main/resources/
 /src/main/resources/palladian.properties
 /src/main/resources/log4j.properties
-
-# /src/test/resources/ner/
-/src/test/resources/ner/test_temp.txt
-/src/test/resources/ner/stanfordNEROutput.txt
-
-# /src/test/resources/testIndex/
-/src/test/resources/testIndex/segments.gen
-/src/test/resources/testIndex/segments_3
-/src/test/resources/testIndex/_2.cfs
