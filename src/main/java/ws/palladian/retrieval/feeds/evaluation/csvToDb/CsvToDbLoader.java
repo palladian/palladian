@@ -31,7 +31,7 @@ public class CsvToDbLoader {
     /**
      * Defines the time in milliseconds when the checkScheduler should wake up to see if all feeds processed.
      */
-    private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
+    private final long wakeUpInterval = 10 * DateHelper.SECOND_MS;
 
     public CsvToDbLoader() {
         checkScheduler = new Timer();
