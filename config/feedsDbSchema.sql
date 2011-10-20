@@ -205,7 +205,10 @@ CREATE TABLE IF NOT EXISTS `feed_evaluation_items` (
   `extendedItemHash` CHAR(60) COLLATE utf8_unicode_ci NOT NULL COMMENT 'An extended item hash made of pollTimestamp_itemHash where itemHash is a sha-1(id,title,link).',
   `publishTime` DATETIME DEFAULT NULL COMMENT 'Original publish date of this item.',
   `correctedPublishTime` DATETIME NOT NULL COMMENT 'Corrected publish date of this item.',
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+  PRIMARY KEY (`feedId`,`sequenceNumber`),
+  KEY `pollTimestamp_idx` (`pollTimestamp`),
+  KEY `correctedPublishTime_idx` (`correctedPublishTime`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 --
 -- Daten für Tabelle `feed_items`
