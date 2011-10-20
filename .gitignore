@@ -1,0 +1,30 @@
+
+# /
+/.settings
+
+# /data/
+/data/datasets
+/data/knowledgeBase
+/data/logs
+/data/models
+/data/queue
+/data/status
+/data/temp
+/data/test
+
+# /data/evaluation/
+/data/evaluation/feedPaper
+
+# /documentation/book/
+*.log
+*.out
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+*.toc
+*.fdb_latexmk
+
+# /src/main/resources/
+/src/main/resources/palladian.properties
+/src/main/resources/log4j.properties
