@@ -431,7 +431,7 @@ public final class FeedReader {
      * Update feed in database.
      * 
      * @param feed The feed to update
-     * @param updateMetaInformation If <code>true</code>, the feed'd meta information are updated.
+     * @param updateMetaInformation If <code>true</code>, the feed's meta information are updated.
      * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return <code>true</code> if (all) update(s) successful.
      */
