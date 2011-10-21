@@ -101,7 +101,7 @@ public class DatasetEvaluator {
         for (Feed feed : feedReader.getFeeds()) {
             feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
             feed.setUpdateInterval(0);
-            feedReader.updateFeed(feed);
+            feedReader.updateFeed(feed, false, false);
         }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
