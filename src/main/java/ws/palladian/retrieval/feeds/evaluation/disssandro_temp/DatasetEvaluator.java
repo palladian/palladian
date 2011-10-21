@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.util.Date;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
@@ -19,6 +20,23 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 /**
  * Starting Point to evaluate an {@link UpdateStrategy} on the TUDCS6 dataset. This class has similar functionalities
  * to {@link FeedReaderEvaluator}, both will be merged soon.
+ * <p>
+ * The evaluation is required be configured using palladian.properties:
+ * <ul>
+ * <li>
+ * datasetEvaluator.updateStrategy = Fix</li>
+ * <li>
+ * datasetEvaluator.fixCheckInterval = 60</li>
+ * <li>
+ * datasetEvaluator.minCheckInterval = 1</li>
+ * <li>
+ * datasetEvaluator.maxCheckInterval = 1440</li>
+ * <li>
+ * datasetEvaluator.benchmarkMode = time</li>
+ * <li>
+ * feedReader.threadPoolSize = 250</li>
+ * </ul>
+ * </p>
  * 
  * @author Sandro Reichert
  */
@@ -110,29 +128,90 @@ public class DatasetEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        // long a = 1510L;
-        // long b = 8L;
-        // long c = a - b;
-        // long d = Math.round((double) (a - b) / 1000);
-        // System.out.println(c);
-        // System.out.println(d);
-        // System.exit(0);
 
-        // TODO: get Strategy and parameters from command line args
-        // UpdateStrategy updateStrategy = new MavStrategyDatasetCreation();
-        // updateStrategy.setHighestUpdateInterval(360); // 6hrs
-        // updateStrategy.setLowestUpdateInterval(0);
-        int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
-        int benchmarkMode = FeedReaderEvaluator.BENCHMARK_TIME;
-        int benchmarkSampleSize = 100;
+        // load configuration from palladian.properies
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        UpdateStrategy updateStrategy = null;
+        int benchmarkMode = -1;
+        boolean fatalErrorOccurred = false;
+        StringBuilder logMsg = new StringBuilder();
+        logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
+        
+        try {
+            // read update strategy and interval in case of "Fix"
+            String strategy = config.getString("datasetEvaluator.updateStrategy");
+            // Fix
+            if (strategy.equalsIgnoreCase("Fix")) {
+                updateStrategy = new FixUpdateStrategy();
+                int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
+                ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
+                logMsg.append("Fix").append(fixInterval).append(" ");
+            }
+            // Fix Learned
+            else if (strategy.equalsIgnoreCase("FixLearned")) {
+                updateStrategy = new FixUpdateStrategy();
+                ((FixUpdateStrategy) updateStrategy).setCheckInterval(-1);
+                logMsg.append("Fix Learned");
+            }
+            // Unknown strategy
+            else {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Cant read updateStrategy from config.");
+            }
 
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(360); // required by Fix strategies only!
 
-        long wakeUpInterval = (long) (1 * DateHelper.SECOND_MS);
-        DatasetEvaluator evaluator = new DatasetEvaluator();
-        evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
-        evaluator.runEvaluation();
+            // read interval bounds
+            int minInterval = config.getInt("datasetEvaluator.minCheckInterval");
+            int maxInterval = config.getInt("datasetEvaluator.maxCheckInterval");
+
+            // validate interval bounds
+            if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Please set interval bounds bounds properly.");
+            }
+            // set interval bounds
+            else {
+            updateStrategy.setLowestUpdateInterval(minInterval);
+            updateStrategy.setHighestUpdateInterval(maxInterval);
+                logMsg.append(",minCheckInterval = ");
+                logMsg.append(minInterval);
+                logMsg.append(", maxCheckInterval = ");
+                logMsg.append(maxInterval);
+            }
+
+            // read and set benchmark mode
+            String mode = config.getString("datasetEvaluator.benchmarkMode");
+            if (mode.equalsIgnoreCase("time")) {
+                benchmarkMode = FeedReaderEvaluator.BENCHMARK_TIME;
+            } else if (mode.equalsIgnoreCase("poll")) {
+                benchmarkMode = FeedReaderEvaluator.BENCHMARK_POLL;
+            } else {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Cant read benchmarkMode from config.");
+            }
+            logMsg.append(", benchmarkMode = ");
+            logMsg.append(mode);
+            
+        } catch (Exception e) {
+            fatalErrorOccurred = true;
+            LOGGER.fatal("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
+        }
+
+        if (!fatalErrorOccurred) {
+
+            // set some defaults not provided by config file
+            int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
+            int benchmarkSampleSize = 100;
+            // FeedReader wakeupInterval, used for debugging
+            long wakeUpInterval = (long) (1 * DateHelper.SECOND_MS);
+
+
+            DatasetEvaluator evaluator = new DatasetEvaluator();
+            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
+            evaluator.runEvaluation();
+        }
+
+        LOGGER.fatal("Exiting.");
     }
 
 }
