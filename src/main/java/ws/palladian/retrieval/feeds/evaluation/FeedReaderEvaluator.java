@@ -152,7 +152,10 @@ public class FeedReaderEvaluator {
      * </ul>
      * </p>
      * 
+     * @deprecated Recorded evaluation results can be written to database, see
+     *             {@link EvaluationFeedDatabase#addPollData(PollData, int, int, String)}
      */
+    @Deprecated
     public static void writeRecordedMaps(FeedReader feedReader) {
 
         StopWatch sw = new StopWatch();
@@ -160,8 +163,8 @@ public class FeedReaderEvaluator {
         String separator = ";";
 
         String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
-                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_" + FeedReaderEvaluator.benchmarkSamplePercentage
-                + ".csv";
+                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_"
+                + FeedReaderEvaluator.benchmarkSamplePercentage + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
@@ -238,7 +241,9 @@ public class FeedReaderEvaluator {
      * 
      * @param id The id of the feed.
      * @return The path to the file with the feed post history.
+     * @deprecated The history files are written to db feed_evaluation_items
      */
+    @Deprecated
     public static String findHistoryFile(String safeFeedName) {
 
         // read feed history file

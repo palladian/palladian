@@ -28,3 +28,5 @@
 # /src/main/resources/
 /src/main/resources/palladian.properties
 /src/main/resources/log4j.properties
+
+/target
