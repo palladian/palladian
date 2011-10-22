@@ -841,78 +841,76 @@ System.out.println(date);
 \end{lstlisting}
 \end{codelisting}
 
-\subsection{FAQ Extractor}
-\textit{ FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
-\begin{enumerate}
-\item \textbf{ Internal Link} In the beginning of the page, there is a list of questions that each link to the corresponding answer in on the same page.
-\item \textbf{ External Link} In the beginning of the page, there is a list of questions that each link to the the web page that contains the answer.
-\item \textbf{ No Link} Each question is immediately followed by its answer.
-\end{enumerate}
+%\subsection{FAQ Extractor}
+%\textit{ FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
+%\begin{enumerate}
+%\item \textbf{ Internal Link} In the beginning of the page, there is a list of questions that each link to the corresponding answer in on the same page.
+%\item \textbf{ External Link} In the beginning of the page, there is a list of questions that each link to the the web page that contains the answer.
+%\item \textbf{ No Link} Each question is immediately followed by its answer.
+%\end{enumerate}
+%
+%Palladian can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
+%
+%Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#extractFAQ}.
+%
+%\begin{codelisting}
+%\begin{lstlisting}[label=listing:faqExtractor,caption=Extract an FAQ from a web page.,frame=tb]
+%// create a list of question answer pairs
+%ArrayList<QA> qas = null;
+%
+%// the URL that contains the FAQ
+%String url = "http://blog.pandora.com/faq/";
+%
+%// start extracting question and answers from the URL
+%qas = QAExtractor.getInstance().extractFAQ(url);
+%
+%// print the extracted questions and answers
+%CollectionHelper.print(qas);
+%\end{lstlisting}
+%\end{codelisting}
 
-Palladian can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
-
-Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#extractFAQ}.
-
-\begin{codelisting}
-\begin{lstlisting}[label=listing:faqExtractor,caption=Extract an FAQ from a web page.,frame=tb]
-// create a list of question answer pairs
-ArrayList<QA> qas = null;
-
-// the URL that contains the FAQ
-String url = "http://blog.pandora.com/faq/";
-
-// start extracting question and answers from the URL
-qas = QAExtractor.getInstance().extractFAQ(url);
-
-// print the extracted questions and answers
-CollectionHelper.print(qas);
-\end{lstlisting}
-\end{codelisting}
-
-\subsection{Fact Extraction}
-The FactExtractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor. The FactExtractor constructs all XPaths to the seed attributes and compares them. If it recognizes a similarity it concludes that the XPaths that are similar for the seed attributes might also point to other attributes on the page. In case of attributes that are listed in simple tables this approach works pretty well, if the attributes are presented in a more complicated way, the fact extractor might not find anything.
-
-You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#extractFacts}.
-
-\begin{codelisting}
-\begin{lstlisting}[label=listing:factExtraction,caption=Extract a list of facts from a web page.,frame=tb]
-// the URL of the facts
-String url = "http://en.wikipedia.org/wiki/Nokia_N95";
-
-// the concept of the attributes
-Concept concept = new Concept("Mobile Phone");
-
-// a small list of seed attributes
-Set<Attribute> seeds = new HashSet<Attribute>();
-int attributeType = Attribute.VALUE_STRING;
-seeds.add(new Attribute("Second camera", attributeType, concept));
-seeds.add(new Attribute("Memory card", attributeType, concept));
-seeds.add(new Attribute("Form factor", attributeType, concept));
-
-// detect the facts using the seeds from the URL
-ArrayList<Fact> detectedFacts = null;
-detectedFacts = FactExtractor.extractFacts(url, seeds);
-		
-// print the extracted facts
-CollectionHelper.print(detectedFacts);
-\end{lstlisting}
-\end{codelisting}
+%\subsection{Fact Extraction}
+%The FactExtractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor. The FactExtractor constructs all XPaths to the seed attributes and compares them. If it recognizes a similarity it concludes that the XPaths that are similar for the seed attributes might also point to other attributes on the page. In case of attributes that are listed in simple tables this approach works pretty well, if the attributes are presented in a more complicated way, the fact extractor might not find anything.
+%
+%You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#extractFacts}.
+%
+%\begin{codelisting}
+%\begin{lstlisting}[label=listing:factExtraction,caption=Extract a list of facts from a web page.,frame=tb]
+%// the URL of the facts
+%String url = "http://en.wikipedia.org/wiki/Nokia_N95";
+%
+%// the concept of the attributes
+%Concept concept = new Concept("Mobile Phone");
+%
+%// a small list of seed attributes
+%Set<Attribute> seeds = new HashSet<Attribute>();
+%int attributeType = Attribute.VALUE_STRING;
+%seeds.add(new Attribute("Second camera", attributeType, concept));
+%seeds.add(new Attribute("Memory card", attributeType, concept));
+%seeds.add(new Attribute("Form factor", attributeType, concept));
+%
+%// detect the facts using the seeds from the URL
+%ArrayList<Fact> detectedFacts = null;
+%detectedFacts = FactExtractor.extractFacts(url, seeds);
+%		
+%// print the extracted facts
+%CollectionHelper.print(detectedFacts);
+%\end{lstlisting}
+%\end{codelisting}
 
 \section{Retrieval}
 
 \subsection{Web Searcher}
-The \verb#WebSearcher# is a class that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
+The \texttt{WebSearcher} is a class that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
 
 \subsubsection{Basic Features}
 Basic features are:
 \begin{itemize}
 \item Query the Google search engine (unlimited queries, top 64 results only).
-\item Query Yahoo search engine (5000 queries per IP and day, top 1000 results).
 \item Query Bing search engine (unlimited)
 \item Query Hakia search engine.
 \item Query Twitter.
 \item Query Google Blog search.
-\item Query Textrunner web page.
 \end{itemize}
 
 Some of the search APIs require API keys which can be specified in the config/palladian.properties file or set programmatically.

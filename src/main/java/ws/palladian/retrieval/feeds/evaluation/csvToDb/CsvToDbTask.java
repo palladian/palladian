@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.feeds.evaluation.csvToDb;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -12,11 +14,11 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetMerger;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 
 /**
  * TUDCS6 specific.<br />
@@ -50,10 +52,20 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
     public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
 
     /**
-     * All items that have ever been seen in this feed. Remember to call {@link FeedItem#freeMemory()} on all items
-     * since there may be MANY items.
+     * 1999-03-01, It is very unlikely that the an item is older than the RSS 0.9 spec introduced by Netscape
+     * (http://backend.userland.com/rss091)
      */
-    List<FeedItem> allItems = new ArrayList<FeedItem>();
+    private static final Date MIN_ITEM_PUBDATE = new Date(920246400000L);
+
+    /**
+     * The number of items processed.
+     */
+    private int itemCounter = 0;
+
+    /**
+     * The sequence number written to each item.
+     */
+    private int sequenceNumber = 0;
 
     /**
      * Creates a new gz processing task for a provided feed.
@@ -103,9 +115,11 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
 
             int batchSize = 1000;
             int listCapacity = Math.max(items.size(), batchSize);
-            List<FeedItem> allItems = new ArrayList<FeedItem>(listCapacity);
+            List<EvaluationFeedItem> allItems = new ArrayList<EvaluationFeedItem>(listCapacity);
 
-            int itemCounter = 0;
+            // we need 2 variables to a) remember the time of the last poll and b) notice that a new poll is written
+            Date lastPolltime = null;
+            Date pollTimeLastIteration = null;
             for (String[] splitItem : splitItems) {
 
                 // ignore MISS line
@@ -115,6 +129,8 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
 
                 try {
                     itemCounter++;
+
+                    // ----- read data from csv -----
                     // get timestamps and windowSize from csv
                     String csvPublishDate = splitItem[0];
 
@@ -125,30 +141,52 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                         publishDate = new Date(Long.parseLong(csvPublishDate));
                     }
 
-                    Date pollTime = new Date(Long.parseLong(splitItem[1]));
+                    // get pollTimestamp from csv
+                    Date currentPollTime = new Date(Long.parseLong(splitItem[1]));
+
+                    // get item hash from csv
                     String hash = splitItem[2];
 
+                    // ----- process data -----
+
+                    // check for new poll, write previous poll data to db
+                    if (pollTimeLastIteration == null) { // first poll
+                        pollTimeLastIteration = currentPollTime;
+                    } else if (pollTimeLastIteration.before(currentPollTime)) { // all subsequent polls
+                        // we need to load lastPollTime from table feed_polls since we might have polled without finding
+                        // a new entry
+                        lastPolltime = feedDatabase.getPreviousFeedPoll(feed.getId(),
+                                new Timestamp(currentPollTime.getTime())).getPollTimestamp();
+                        pollTimeLastIteration = currentPollTime;
+                        addItemsToDb(allItems);
+                        allItems = new ArrayList<EvaluationFeedItem>(listCapacity);
+                    }
+
+                    Date correctedPublishDate = correctPublishDate(publishDate, currentPollTime, lastPolltime);
+
                     // create new, minimal item and add to feed
-                    FeedItem item = new FeedItem();
+                    EvaluationFeedItem item = new EvaluationFeedItem();
                     item.setFeedId(feed.getId());
                     item.setHash(hash, true);
                     item.setPublished(publishDate);
-                    item.setPollTimestamp(pollTime);
+                    item.setCorrectedPublishedDate(correctedPublishDate);
+                    item.setPollTimestamp(currentPollTime);
 
                     // keep all items locally
                     allItems.add(item);
 
-                    // do not waste memory: collect only 1000 items, add them to db and continue. TUDCS6 had up to
-                    // 12 million items per feed...
-                    if (allItems.size() == batchSize) {
-                        addItemsToDb(allItems);
-                        allItems = new ArrayList<FeedItem>(listCapacity);
-                    }
+                    // // do not waste memory: collect only 1000 items, add them to db and continue. TUDCS6 had up to
+                    // // 12 million items per feed...
+                    // if (allItems.size() == batchSize) {
+                    // addItemsToDb(allItems);
+                    // allItems = new ArrayList<EvaluationFeedItem>(listCapacity);
+                    // }
 
                 } catch (NumberFormatException e) {
                     LOGGER.fatal("Could not get number from csv: " + e.getLocalizedMessage());
                 }
             }
+
 
             if (itemCounter != feed.getNumberOfItemsReceived()) {
                 LOGGER.error("Feed id " + feed.getId() + ": feed.getNumberOfItemsReceived() = "
@@ -173,6 +211,46 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
 
     }
 
+    /**
+     * Correct publish date. multiple, consecutive corrections may occur.
+     * 1) if no publish date is present, set to current pollTime
+     * 2) if publishDate < 1999-03-01, set to 1999-03-01 00:00:00. It is very unlikely that the
+     * post is older than the RSS 0.9 spec introduced by Netscape (http://backend.userland.com/rss091)
+     * 3) if publishDate < lastPolltime, set to current pollTime.
+     * 4) if publishDate > pollTime, set to current pollTime.
+     * 
+     * @param origPublishDate The item's original publish date.
+     * @param currentPollTime The time of the current poll (that contains the item).
+     * @param lastPolltime The time of the last poll, i.e. the newest poll in the past of the current poll.
+     * @return The corrected publish date, never <code>null</code>.
+     */
+    private Date correctPublishDate(Date origPublishDate, Date currentPollTime, Date lastPolltime) {
+        Date correctedPublishDate = origPublishDate;
+        boolean correctionDone = false;
+        if (correctedPublishDate == null) {
+            correctedPublishDate = currentPollTime;
+            correctionDone = true;
+        } else {
+            if (correctedPublishDate.before(MIN_ITEM_PUBDATE)) {
+                correctedPublishDate = MIN_ITEM_PUBDATE;
+                correctionDone = true;
+            }
+            if (lastPolltime != null && correctedPublishDate.before(lastPolltime)) {
+                correctedPublishDate = currentPollTime;
+                correctionDone = true;
+            } else if (correctedPublishDate.after(currentPollTime)) {
+                correctedPublishDate = currentPollTime;
+                correctionDone = true;
+            }
+        }
+
+        if (LOGGER.isDebugEnabled() && correctionDone) {
+            LOGGER.debug("Feed id " + feed.getId() + " corrected publish date \"" + origPublishDate + "\" to \""
+                    + correctedPublishDate + "\"");
+        }
+
+        return correctedPublishDate;
+    }
 
     /**
      * Sets the feed task result and processing time of this task, saves the feed to database, does the final logging
@@ -180,7 +258,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
      * 
      * @param timer The {@link StopWatch} to estimate processing time
      */
-    private void doFinalStuff(StopWatch timer, List<FeedItem> allItems) {
+    private void doFinalStuff(StopWatch timer, List<EvaluationFeedItem> allItems) {
         if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
             LOGGER.warn("Processing feed id " + feed.getId() + " took very long: "
                     + timer.getElapsedTimeString());
@@ -239,11 +317,18 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
      * 
      * @param allItems The list of all items to add.
      */
-    private void addItemsToDb(List<FeedItem> allItems) {
+    private void addItemsToDb(List<EvaluationFeedItem> allItems) {
+        Collections.sort(allItems);
+        for (EvaluationFeedItem item : allItems) {
+            sequenceNumber++;
+            item.setSequenceNumber(sequenceNumber);
+        }
+
         boolean dbSuccess = feedDatabase.addEvaluationItems(allItems);
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }
     }
+
 
 }

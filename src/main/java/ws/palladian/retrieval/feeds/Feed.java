@@ -110,6 +110,12 @@ public class Feed {
     /** Timestamp of the last feed entry found in this feed. */
     private Date lastFeedEntry = null;
 
+    /**
+     * The publish timestamp of the oldest entry in the most recent window. Value is not persisted in database.
+     */
+    private Date oldestFeedEntryCurrentWindow = null;
+
+
     /** The HTTP header's last-modified value of the last poll. */
     private Date httpLastModified = null;
 
@@ -244,15 +250,20 @@ public class Feed {
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
         setNewestItemHash(null);
         setLastFeedEntry(null);
+        setOldestFeedEntryCurrentWindow(null);
 
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
             String hash = feedItem.getHash();
             if (isNewItem(hash)) {
-                Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
-                        feedItem.toString(), false);
-                feedItem.setCorrectedPublishedTimestamp(correctedTimestamp);
-                itemCacheTemp.put(hash, correctedTimestamp);
+                // correct timestamp only in case this hasn't been done before.
+                if (feedItem.getCorrectedPublishedDate() == null) {
+                    Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
+                            feedItem.toString(), false);
+                    feedItem.setCorrectedPublishedDate(correctedTimestamp);
+                }
+                
+                itemCacheTemp.put(hash, feedItem.getCorrectedPublishedDate());
                 newItemsTemp.add(feedItem);
             } else {
                 itemCacheTemp.put(hash, getCachedItemTimestamp(hash));
@@ -276,14 +287,19 @@ public class Feed {
         }
         setNewestItemHash(null);
         setLastFeedEntry(null);
+        setOldestFeedEntryCurrentWindow(null);
         items.add(item);
         item.setFeed(this);
 
         String hash = item.getHash();
         if (isNewItem(hash)) {
-            Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(), item.toString(), false);
-            item.setCorrectedPublishedTimestamp(correctedTimestamp);
-            addCacheItem(hash, correctedTimestamp);
+            // correct timestamp only in case this hasn't been done before.
+            if (item.getCorrectedPublishedDate() == null) {
+                Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(), item.toString(),
+                        false);
+                item.setCorrectedPublishedDate(correctedTimestamp);
+            }
+            addCacheItem(hash, item.getCorrectedPublishedDate());
             addNewItem(item);
         } else {
             addCacheItem(hash, getCachedItemTimestamp(hash));
@@ -534,28 +550,33 @@ public class Feed {
      */
     public String getNewestItemHash() {
         if (newestItemHash == null) {
-            calculateNewestItemHashAndDate();
+            calculateNewestAndOldestItemHashAndDate();
         }
         return newestItemHash;
     }
 
     /**
-     * Calculates and sets the hash of the newest item and its corrected publish date. In case we haven't seen any items
-     * so far, there is no hash or date so we set them to <code>null</code>.
+     * Calculates and sets the hash of the newest and oldest item and its corrected publish date. In case we haven't
+     * seen any items so far, there is no hash or date so we set them to <code>null</code>.
      */
-    private void calculateNewestItemHashAndDate() {
+    private void calculateNewestAndOldestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
-        String tempHash = null;
-        Date tempDate = null;
+        String tempNewestHash = null;
+        Date tempNewestDate = null;
+        Date tempOldestDate = null;
 
         for (String hash : cache.keySet()) {
-            if (tempDate == null || tempDate.getTime() < cache.get(hash).getTime()) {
-                tempDate = cache.get(hash);
-                tempHash = hash;
+            if (tempNewestDate == null || tempNewestDate.getTime() < cache.get(hash).getTime()) {
+                tempNewestDate = cache.get(hash);
+                tempNewestHash = hash;
+            }
+            if (tempOldestDate == null || tempOldestDate.getTime() > cache.get(hash).getTime()) {
+                tempOldestDate = cache.get(hash);
             }
         }
-        setLastFeedEntry(tempDate);
-        setNewestItemHash(tempHash);
+        setLastFeedEntry(tempNewestDate);
+        setNewestItemHash(tempNewestHash);
+        setOldestFeedEntryCurrentWindow(tempOldestDate);
     }
 
     public void setUnreachableCount(Integer unreachableCount) {
@@ -601,7 +622,7 @@ public class Feed {
      */
     public Date getLastFeedEntry() {
         if (lastFeedEntry == null) {
-            calculateNewestItemHashAndDate();
+            calculateNewestAndOldestItemHashAndDate();
         }
         return lastFeedEntry;
     }
@@ -611,13 +632,48 @@ public class Feed {
      */
     public Timestamp getLastFeedEntrySQLTimestamp() {
         if (lastFeedEntry == null) {
-            calculateNewestItemHashAndDate();
+            calculateNewestAndOldestItemHashAndDate();
         }
 
         if (lastFeedEntry != null) {
             return new Timestamp(lastFeedEntry.getTime());
         }
         return null;
+    }
+
+    /**
+     * @return The publish timestamp of the oldest entry in the most recent window.
+     */
+    public final Date getOldestFeedEntryCurrentWindow() {
+        if (oldestFeedEntryCurrentWindow == null) {
+            calculateNewestAndOldestItemHashAndDate();
+        }
+        return oldestFeedEntryCurrentWindow;
+    }
+
+    /**
+     * @return The publish timestamp of the oldest entry in the most recent window as sql timestamp.
+     */
+    public Timestamp getOldestFeedEntryCurrentWindowSqlTimestamp() {
+        if (oldestFeedEntryCurrentWindow == null) {
+            calculateNewestAndOldestItemHashAndDate();
+        }
+
+        if (oldestFeedEntryCurrentWindow != null) {
+            return new Timestamp(oldestFeedEntryCurrentWindow.getTime());
+        }
+        return null;
+    }
+
+    /**
+     * The publish timestamp of the oldest entry in the most recent window. If date's year is > 9999, we set it to null!
+     * Do not set this value, it is calculated by the feed itself. The setter is to be used by the persistence layer
+     * only!
+     * 
+     * @param oldestFeedEntryCurrentWindow The publish timestamp of the oldest entry in the most recent window.
+     */
+    public final void setOldestFeedEntryCurrentWindow(Date oldestFeedEntryCurrentWindow) {
+        this.oldestFeedEntryCurrentWindow = DateHelper.validateYear(oldestFeedEntryCurrentWindow, 9999);
     }
 
     /**

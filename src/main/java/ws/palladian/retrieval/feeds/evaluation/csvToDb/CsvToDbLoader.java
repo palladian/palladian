@@ -29,7 +29,7 @@ public class CsvToDbLoader {
     private Timer checkScheduler;
 
     /**
-     * Defines the time in milliseconds when the checkScheduler should wake up to see if all feeds processed.
+     * Defines the time in milliseconds when the checkScheduler should wake up to see if all feeds are processed.
      */
     private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
 
@@ -37,7 +37,6 @@ public class CsvToDbLoader {
         checkScheduler = new Timer();
     }
 
-    @SuppressWarnings("deprecation")
     public void loadDataToDb() {
 
         final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,

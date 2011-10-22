@@ -82,10 +82,16 @@ public final class FeedReader {
     private FeedStore feedStore;
 
     /**
+     * Defines the default time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds
+     * should be read.
+     */
+    private static final long DEFAULT_WAKEUP_INTERVAL = 60 * DateHelper.SECOND_MS;
+
+    /**
      * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
      * be read.
      */
-    private final long wakeUpInterval = (long) (0.01 * DateHelper.SECOND_MS);
+    private long wakeUpInterval = DEFAULT_WAKEUP_INTERVAL;
 
     /** The constructor. */
     public FeedReader(FeedStore feedStore) {
@@ -282,7 +288,7 @@ public final class FeedReader {
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
                 + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
-        // System.out.println("abc");
+        System.exit(0);
     }
 
     /** Start continuous reading without a time limit. */
@@ -425,7 +431,7 @@ public final class FeedReader {
      * Update feed in database.
      * 
      * @param feed The feed to update
-     * @param updateMetaInformation If <code>true</code>, the feed'd meta information are updated.
+     * @param updateMetaInformation If <code>true</code>, the feed's meta information are updated.
      * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return <code>true</code> if (all) update(s) successful.
      */
@@ -571,6 +577,14 @@ public final class FeedReader {
      */
     public final long getWakeUpInterval() {
         return wakeUpInterval;
+    }
+
+    /**
+     * @param wakeUpInterval The time in milliseconds when the FeedReader should wake up the checkScheduler to see which
+     *            feeds should be read.
+     */
+    public final void setWakeUpInterval(long wakeUpInterval) {
+        this.wakeUpInterval = wakeUpInterval;
     }
 
 }

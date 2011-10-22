@@ -74,7 +74,7 @@ public class FeedItem {
      * The item's corrected published date. In contrast to {@link #published}, this value may be modified at the time of
      * the poll this item has been received the first time.
      */
-    private Date correctedPublishedTimestamp = null;
+    private Date correctedPublishedDate = null;
 
     public FeedItem() {
 
@@ -329,18 +329,32 @@ public class FeedItem {
      * 
      * @return the correctedPublishedTimestamp
      */
-    public final Date getCorrectedPublishedTimestamp() {
-        return correctedPublishedTimestamp;
+    public final Date getCorrectedPublishedDate() {
+        return correctedPublishedDate;
+    }
+
+    /**
+     * The item's corrected published date. In contrast to {@link #getCorrectedPublishedDate()}, this value may be
+     * modified at the
+     * time of the poll this item has been received the first time.
+     * 
+     * @return The corrected publish date
+     */
+    public Timestamp getCorrectedPublishedSQLTimestamp() {
+        if (correctedPublishedDate != null) {
+            return new Timestamp(correctedPublishedDate.getTime());
+        }
+        return null;
     }
 
     /**
      * The item's corrected published date. In contrast to {@link #setPublished(Date)}, this value may be modified at
      * the time of the poll this item has been received the first time.
      * 
-     * @param correctedPublishedTimestamp the correctedPublishedTimestamp to set
+     * @param correctedPublishedDate the correctedPublishedTimestamp to set
      */
-    public final void setCorrectedPublishedTimestamp(Date correctedPublishedTimestamp) {
-        this.correctedPublishedTimestamp = correctedPublishedTimestamp;
+    public final void setCorrectedPublishedDate(Date correctedPublishedDate) {
+        this.correctedPublishedDate = correctedPublishedDate;
     }
 
     /**
@@ -390,7 +404,7 @@ public class FeedItem {
     /**
      * <p>
      * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
-     * the dates {@link #published}, {@link #correctedPublishedTimestamp}, {@link #httpDate} and the {@link #itemHash}.
+     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}.
      * Use with caution :)
      * </p>
      * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
