@@ -121,7 +121,14 @@ public class Matrix implements Serializable {
             for (String xKey : keysX) {
                 Number currentNumber = (Number) get(xKey,yKey);
                 double value = currentNumber.doubleValue();
-                value += ((Number)matrix.get(xKey, yKey)).doubleValue();
+                Number number = (Number)matrix.get(xKey, yKey);
+
+                // in that case one matrix did not have that cell and we create it starting from zero
+                if (number == null) {
+                    number = 0;
+                }
+
+                value += number.doubleValue();
                 set(xKey,yKey,value);
             }
         }

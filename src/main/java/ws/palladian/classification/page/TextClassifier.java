@@ -504,7 +504,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
     private void readTestData(final Dataset dataset) {
 
-        // reset training and testing urls as well as learned categories
+        // reset training and testing documents as well as learned categories
         setTestDocuments(new ClassificationDocuments());
 
         final List<String[]> documentInformationList = new ArrayList<String[]>();
@@ -596,8 +596,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             }
         }
 
-        // calculate the prior for all categories classifier.categories.calculatePriors(trainingUrls.size() +
-        // testUrls.size());
+        // calculate the prior for all categories
         getCategories().calculatePriors();
     }
 
