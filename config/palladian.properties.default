@@ -1,5 +1,6 @@
-config.version = 10
+config.version = 11
 ### version history:
+### 11: added DatasetEvaluator to config
 ### 10: added date extraction model to config
 ### 9: SchedulerTask fine tuning monitoring 
 ### 8: model path to English and German wiktionary DB
@@ -195,6 +196,23 @@ schedulerTask.maxUnparsablePercentage = 2
 
 # This many percent of the feeds processed per interval are allowed to be unreachable.
 schedulerTask.maxUnreachablePercentage = 2
+
+# Choose update strategy to evaluate. Supported values are: 
+# Fix, FixLearned, 
+datasetEvaluator.updateStrategy = Fix
+
+# If datasetEvaluator.updateStrategy = Fix, choose a fix check interval in minutes >0, e.g. 60 for Fix1h
+datasetEvaluator.fixCheckInterval = 60
+
+# Set min check interval in minutes > 0. Update strategies must not poll more often than this interval. 
+datasetEvaluator.minCheckInterval = 1
+
+# Set max check interval in minutes > 0. Update strategies must not poll less often than this interval. 
+datasetEvaluator.maxCheckInterval = 1440
+
+# Choose benchmark mode. Supported values are: 
+# poll, time 
+datasetEvaluator.benchmarkMode = time
 
 ######################## Page Segmentation ########################
 

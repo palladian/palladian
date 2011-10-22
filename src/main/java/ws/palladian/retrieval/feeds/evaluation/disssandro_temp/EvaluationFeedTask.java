@@ -3,8 +3,10 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -18,6 +20,7 @@ import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -30,6 +33,8 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
  * will run every time the feed is checked and also performs all set {@link FeedProcessingAction}s.
  * </p>
  * This class is based on the {@link FeedTask}.
+ * Http header information are discarded since they can't be confidently restored from dataset (they may have changed
+ * between two polls when creating the dataset).
  * 
  * @author Sandro Reichert
  * @see FeedReader
@@ -68,6 +73,44 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     private final String lastNewestItemHash;
 
     /**
+     * Remember the publish time of the newest item from the previous poll.
+     */
+    private final Timestamp lastNewestItemPublishTime;
+
+    /**
+     * Identifier to load the lastNumberOfPoll from the feed.
+     */
+    private static final String LAST_NUMBER_OF_POLL = "lastNumberOfPoll";
+
+    /**
+     * The number of the previous poll. All polls have an incremental counter starting at 1 for the first poll.
+     */
+    private final int lastNumberOfPoll;
+
+    /**
+     * Identifier to load the highest item sequence number of the previous poll from the feed.
+     */
+    private static final String LAST_POLL_HIGHEST_ITEM_SEQUENCE_NUMBER = "lastPollHighestItemSequenceNumber";
+
+    /**
+     * The highest item sequence number of the previous poll. All items have an sequence number (in chronological
+     * order).
+     */
+    private final int lastPollHighestItemSequenceNumber;
+
+    /**
+     * The highest item sequence number of the current window. All items have an sequence number (in chronological
+     * order).
+     */
+    private int currentPollHighestItemSequenceNumber = 0;
+
+    /**
+     * The lowest item sequence number of the current window. All items have an sequence number (in chronological
+     * order).
+     */
+    private int currentPollLowestItemSequenceNumber = 0;
+
+    /**
      * Warn if processing of a feed takes longer than this.
      */
     public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
@@ -82,6 +125,32 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         this.feed = feed;
         this.lastPollTime = feed.getLastPollTimeSQLTimestamp();
         this.lastNewestItemHash = feed.getNewestItemHash();
+                Date lastFeedEntry = feed.getLastFeedEntry();
+        if (lastFeedEntry != null) {
+            this.lastNewestItemPublishTime = new Timestamp(lastFeedEntry.getTime());
+        } else {
+            this.lastNewestItemPublishTime = null;
+        }
+
+        // load arbitrary, additional data from feed
+        Map<String, Object> additionalData = feed.getAdditionalData();
+        Object lastNumberOfPoll = null;
+        Object lastPollHighestItemSequenceNumber = null;
+        if (additionalData != null) {
+            lastNumberOfPoll = additionalData.get(LAST_NUMBER_OF_POLL);
+            lastPollHighestItemSequenceNumber = additionalData.get(LAST_POLL_HIGHEST_ITEM_SEQUENCE_NUMBER);
+        }
+        if (lastNumberOfPoll != null) {
+            this.lastNumberOfPoll = (Integer) lastNumberOfPoll;
+        } else {
+            this.lastNumberOfPoll = 0;
+        }
+        if (lastPollHighestItemSequenceNumber != null) {
+            this.lastPollHighestItemSequenceNumber = (Integer) lastPollHighestItemSequenceNumber;
+        } else {
+            this.lastPollHighestItemSequenceNumber = 0;
+        }
+
         this.feedReader = feedChecker;
         this.feedDatabase = (EvaluationFeedDatabase) feedReader.getFeedStore();
     }
@@ -108,12 +177,22 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             int recentMisses = feed.getMisses();
             boolean storeMetadata = false;
 
-            // bis hier: alle Items des aktuellen Fensters wurden dem downloadedFeed übergeben
-            // http header information are discarded since they can't be confidently restored from dataset (they
-            // may have changed between two polls when creating the dataset)
-
             // the simulated download of the feed.
             Feed downloadedFeed = getSimulatedWindowFromDataset();
+            
+            if (downloadedFeed == null) {
+                LOGGER.debug("Feed id " + feed.getId()
+                        + ": we don't have any poll data about this feed. Stop processing immediately.");
+                // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
+                feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
+                resultSet.add(FeedTaskResult.SUCCESS);
+                doFinalLogging(timer);
+                return getResult();
+
+            }
+
+            // remember item sequence numbers
+            determineItemSequenceNumbers(downloadedFeed);
 
             // TODO: do we really need HttpDate? This information is not provided by some feeds and we need
             // simulate/assume that all servers provide this date and that all have synchronized clocks.
@@ -128,13 +207,19 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
             feed.setWindowSize(downloadedFeed.getItems().size());
 
+            // calculate number of current poll
+            int currentNumberOfPoll = lastNumberOfPoll + 1;
+
             List<Long> itemDelays = new ArrayList<Long>();
             Long cumulatedDelay = 0L;
-            for (FeedItem item : feed.getNewItems()) {
-                // delay per new item in millisecond
-                Long delay = feed.getLastPollTime().getTime() - item.getPublished().getTime();
-                cumulatedDelay += delay;
-                itemDelays.add(delay);
+            if (currentNumberOfPoll > 1) {
+                for (FeedItem item : feed.getNewItems()) {
+                    // delay per new item in seconds
+                    Long delay = Math.round((double) (feed.getLastPollTime().getTime() - item
+                            .getCorrectedPublishedDate().getTime()) / 1000);
+                    cumulatedDelay += delay;
+                    itemDelays.add(delay);
+                }
             }
 
 
@@ -147,21 +232,13 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 itemTimestamps.append("\n");
                 for (FeedItem item : downloadedFeed.getItems()) {
                     itemTimestamps.append(index).append(": ");
-                    itemTimestamps.append(item.getPublished());
+                    itemTimestamps.append(((EvaluationFeedItem) item).getSequenceNumber()).append(": ");
+                    itemTimestamps.append(item.getCorrectedPublishedDate());
                     itemTimestamps.append("\n");
                     index++;
                 }
                 LOGGER.debug(itemTimestamps.toString());
             }
-
-            // if (LOGGER.isDebugEnabled()) {
-            // LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
-            // LOGGER.debug("Current time: " + System.currentTimeMillis());
-            // LOGGER.debug("Last poll time: " + feed.getLastPollTime().getTime());
-            // LOGGER.debug("Current time - last poll time: "
-            // + (System.currentTimeMillis() - feed.getLastPollTime().getTime()));
-            // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
-            // }
 
             // TODO: in sumulation required??
             // storeMetadata = generateMetaInformation(httpResult, downloadedFeed);
@@ -170,6 +247,13 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
             LOGGER.debug("New checkinterval: " + feed.getUpdateInterval());
 
+            Integer numPrePostBenchmarkItems = null;
+            if (feed.getChecks() == 1){
+                numPrePostBenchmarkItems = feedDatabase.getNumberOfPreBenchmarkItems(feed.getId(),
+                        feed.getLastPollTimeSQLTimestamp(), feed.getOldestFeedEntryCurrentWindowSqlTimestamp());
+            }
+            
+            
             // if all entries are new, we might have checked to late and missed some entries, we mark that by a
             // special line
             // TODO copied notice from DatasetProcessingAction, might be obsolete
@@ -180,24 +264,31 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             // 10.08.2011
 
             int numberNewItems = feed.getNewItems().size();
+            int currentMisses = 0;
+
             if (numberNewItems == feed.getWindowSize() && feed.getChecks() > 1 && numberNewItems > 0) {
 
-                // FIXME: count real number of misses here
-                // get Entries between #lastNewestItemHash and oldest Item from current poll
+                currentMisses = feedDatabase.getNumberOfMissedItems(feed.getId(), lastPollHighestItemSequenceNumber,
+                        currentPollLowestItemSequenceNumber);
 
                 feed.increaseMisses();
-                LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
-                        + feed.getChecks() + ", misses: " + feed.getMisses());
+                LOGGER.debug("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
+                        + feed.getChecks() + ", new misses: " + currentMisses);
+
+                // if (LOGGER.isDebugEnabled()) {
+                // StringBuilder itemTimestamps = new StringBuilder();
+                // int index = 1;
+                // itemTimestamps.append("Missed items: \n");
+                // for (FeedItem item : missedItems) {
+                // itemTimestamps.append(index).append(": ");
+                // itemTimestamps.append(item.getCorrectedPublishedDate());
+                // itemTimestamps.append("\n");
+                // index++;
+                // }
+                // LOGGER.debug(itemTimestamps.toString());
+                // }
+
             }
-
-            // TODO: in sumulation required??
-            // perform actions on this feeds entries.
-            // LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
-            // boolean actionSuccess = feedReader.getFeedProcessingAction().performAction(feed, httpResult);
-            // if (!actionSuccess) {
-            // resultSet.add(FeedTaskResult.ERROR);
-            // }
-
 
             if (recentMisses < feed.getMisses()) {
                 resultSet.add(FeedTaskResult.MISS);
@@ -206,30 +297,67 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 resultSet.add(FeedTaskResult.SUCCESS);
             }
 
+            /**
+             * Check whether we will poll the feed again. If not, determine the number of pending items. An item is
+             * pending if its publishTime is newer than the last simulated poll that is within the benchmark interval.
+             */
+            long nextSimulatedPollTime = feed.getLastPollTimeSQLTimestamp().getTime() + feed.getUpdateInterval()
+                    * DateHelper.MINUTE_MS;
+            Boolean noMorePolls = nextSimulatedPollTime > FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
+            Integer pendingItems = null;
+            if (noMorePolls){
+                // List<FeedItem> pendingItemsList = feedDatabase.getPendingItems(feed.getId(),
+                // feed.getLastPollTimeSQLTimestamp(),
+                // feed.getLastFeedEntrySQLTimestamp());
+                pendingItems = feedDatabase.getNumberOfPendingItems(feed.getId(), feed.getLastPollTimeSQLTimestamp(),
+                        feed.getLastFeedEntrySQLTimestamp());
+                numPrePostBenchmarkItems = feedDatabase.getNumberOfPostBenchmarkItems(feed.getId());
+            }
+            
+            
+            // TODO pending items ermitteln: alle die neuer als aktuelles Fenster sind. nur ermitteln, wenn nächster
+            // Poll nach Ende Simulationsdauer ist
 
+            // summarize the simulated poll and store in database.
             PollData pollData = new PollData();
-            pollData.setCheckInterval(feed.getUpdateInterval());
-            pollData.setCumulatedLateDelay(cumulatedDelay);
+            pollData.setNumberOfPoll(currentNumberOfPoll);
             pollData.setDownloadSize(downloadSize);
-            pollData.setItemDelays(itemDelays);
-            pollData.setNewWindowItems(numberNewItems);
             pollData.setPollTimestamp(simulatedCurrentPollTime);
+            pollData.setCheckInterval(feed.getUpdateInterval());
+            pollData.setNewWindowItems(numberNewItems);
+            pollData.setMisses(currentMisses);
             pollData.setWindowSize(feed.getWindowSize());
+            pollData.setCumulatedDelay(cumulatedDelay);
+            pollData.setItemDelays(itemDelays);
+            pollData.setPendingItems(pendingItems);
+            pollData.setDroppedItems(numPrePostBenchmarkItems);
+
+            feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
+                    DatasetEvaluator.getEvaluationDbTableName());
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(pollData.toString());
             }
+
+            // store number of current poll and highest sequence number in feed
+            Map<String, Object> additionalData = new HashMap<String, Object>();
+            additionalData.put(LAST_NUMBER_OF_POLL, currentNumberOfPoll);
+
+            // if window size was 0, remember the highest sequence number seen so far.
+            if (feed.getWindowSize() > 0) {
+                additionalData.put(LAST_POLL_HIGHEST_ITEM_SEQUENCE_NUMBER, currentPollHighestItemSequenceNumber);
+            } else {
+                additionalData.put(LAST_POLL_HIGHEST_ITEM_SEQUENCE_NUMBER, lastPollHighestItemSequenceNumber);
+            }
+            feed.setAdditionalData(additionalData);
             
-            
-            
-            feed.getPollDataSeries().add(pollData);
             doFinalStuff(timer, storeMetadata);
             return getResult();
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
+            LOGGER.fatal("Error processing feedID " + feed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();
@@ -246,24 +374,59 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         simulatedFeed.setId(feed.getId());
         
-        // get closed poll that is in future of the simulated time.
-        PollMetaInformation futurePoll = feedDatabase.getNextFeedPoll(feed.getId(), feed.getLastPollTimeSQLTimestamp());
+        // get closed real poll that is in past of the simulated time.
+        PollMetaInformation realPoll = feedDatabase.getEqualOrPreviousFeedPoll(feed.getId(), feed.getLastPollTimeSQLTimestamp());
+
+        // In few cases, we don't have any PollMetaInformation. This happens for feeds that were unparsable at all
+        // polls.
+        if (realPoll == null) {
+            return null;
+        }
 
         // this is the size of the poll we did when creating the dataset. Since we did not stored the sizes of all
         // single items, we do not know the size of the current simulated poll but use the real poll as an approximation
-        downloadSize = futurePoll.getResponseSize();
+        downloadSize = 0;
+        if (realPoll.getResponseSize() != null) {
+            downloadSize = realPoll.getResponseSize();
+        }
 
-        // assume that the windowSize has not changed between current and future poll
-        int windowSize = futurePoll.getWindowSize();
+        // assume that the windowSize has not changed between current and previous poll
+        int windowSize = 0;
+        if (realPoll.getWindowSize() != null) {
+            windowSize = realPoll.getWindowSize();
+        }
 
         // TODO use feedID 1297 for debugging since feed does not provide item timestamps
         // load the last window from dataset
-        List<FeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDPollTimeLimit(feed.getId(),
+        List<EvaluationFeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(
+                feed.getId(),
                 feed.getLastPollTimeSQLTimestamp(),
                 windowSize);
-        simulatedFeed.setItems(simulatedWindow);
+
+        // a bit ugly: Feed takes lists of FeedItem only...
+        List<FeedItem> castedList = new ArrayList<FeedItem>(simulatedWindow.size());
+        castedList.addAll(simulatedWindow);
+
+        simulatedFeed.setItems(castedList);
         
         return simulatedFeed;
+    }
+
+    /**
+     * Determine {@link #currentPollHighestItemSequenceNumber} and {@link #currentPollLowestItemSequenceNumber} from
+     * feed.
+     */
+    private void determineItemSequenceNumbers(Feed feed) {
+        for (FeedItem item : feed.getItems()) {
+            if (((EvaluationFeedItem) item).getSequenceNumber() > currentPollHighestItemSequenceNumber) {
+                currentPollHighestItemSequenceNumber = ((EvaluationFeedItem) item).getSequenceNumber();
+            }
+            if (currentPollLowestItemSequenceNumber == 0
+                    || ((EvaluationFeedItem) item).getSequenceNumber() < currentPollLowestItemSequenceNumber) {
+                currentPollLowestItemSequenceNumber = ((EvaluationFeedItem) item).getSequenceNumber();
+            }
+        }
+
     }
 
     /**

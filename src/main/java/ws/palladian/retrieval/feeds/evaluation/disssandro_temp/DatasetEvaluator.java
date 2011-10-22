@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.util.Date;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
@@ -19,6 +20,23 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 /**
  * Starting Point to evaluate an {@link UpdateStrategy} on the TUDCS6 dataset. This class has similar functionalities
  * to {@link FeedReaderEvaluator}, both will be merged soon.
+ * <p>
+ * The evaluation is required be configured using palladian.properties:
+ * <ul>
+ * <li>
+ * datasetEvaluator.updateStrategy = Fix</li>
+ * <li>
+ * datasetEvaluator.fixCheckInterval = 60</li>
+ * <li>
+ * datasetEvaluator.minCheckInterval = 1</li>
+ * <li>
+ * datasetEvaluator.maxCheckInterval = 1440</li>
+ * <li>
+ * datasetEvaluator.benchmarkMode = time</li>
+ * <li>
+ * feedReader.threadPoolSize = 250</li>
+ * </ul>
+ * </p>
  * 
  * @author Sandro Reichert
  */
@@ -35,48 +53,22 @@ public class DatasetEvaluator {
     /**
      * The name of the database table to write evaluation results to.
      */
-    private String currentDbTable;
+    private static String currentDbTable;
 
     public DatasetEvaluator() {
         final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
                 .getInstance().getConfig());
+        // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
+        // table when creating the FeedReader. Any subsequent changes are ignored...
+        ((EvaluationFeedDatabase) feedStore).resetTableFeeds();
         feedReader = new FeedReader(feedStore);
     }
 
     /**
      * @return The name of the database table to write evaluation results to.
      */
-    public String getEvaluationDbTableName() {
+    public static String getEvaluationDbTableName() {
         return currentDbTable;
-    }
-
-    /**
-     * Creates the database table to write evaluation data into. Uses {@link #getEvaluationDbTableName()} to get the
-     * name. In case creation of table is impossible, evaluation is aborted.
-     */
-    private void createEvaluationDbTable() {
-        final String sql = "CREATE TABLE `"
-                + getEvaluationDbTableName()
-                + "` ("
-                + "`feedID` INT(10) UNSIGNED NOT NULL,"
-                + "`numberOfPoll` INT(10) UNSIGNED NOT NULL COMMENT 'how often has this feed been polled (retrieved AND READ)',"
-                + "`activityPattern` INT(11) NOT NULL COMMENT 'activity pattern of the feed',"
-                + "`sizeOfPoll` INT(11) NOT NULL COMMENT 'the estimated amount of bytes to transfer: HTTP header + XML document',"
-                + "`pollTimestamp` BIGINT(20) UNSIGNED NOT NULL COMMENT 'the feed has been pooled AT this TIMESTAMP',"
-                + "`checkInterval` INT(11) UNSIGNED DEFAULT NULL COMMENT 'TIME IN minutes we waited betwen LAST AND this CHECK',"
-                + "`newWindowItems` INT(10) UNSIGNED NOT NULL COMMENT 'number of NEW items IN the window',"
-                + "`missedItems` INT(10) NOT NULL COMMENT 'the number of NEW items we missed because there more NEW items since the LAST poll THAN fit INTO the window',"
-                + "`windowSize` INT(10) UNSIGNED NOT NULL COMMENT 'the current size of the feed''s window (number of items FOUND)',"
-                + "`cumulatedDelay` DOUBLE DEFAULT NULL COMMENT 'cumulated delay IN seconds, adds absolute delay of polls that were too late'"
-                + ") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-
-        Logger.getRootLogger().info(sql);
-        int rows = ((EvaluationFeedDatabase) feedReader.getFeedStore()).runUpdate(sql);
-        if (rows == -1) {
-            LOGGER.fatal("Database table " + getEvaluationDbTableName()
-                    + " could not be created. Evaluation is impossible. Processing aborted.");
-            System.exit(-1);
-        }
     }
 
     /**
@@ -105,26 +97,29 @@ public class DatasetEvaluator {
      * </ul>
      */
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy) {
+            UpdateStrategy updateStrategy, long wakeUpInterval) {
         for (Feed feed : feedReader.getFeeds()) {
             feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
             feed.setUpdateInterval(0);
-            feedReader.updateFeed(feed);
+            feedReader.updateFeed(feed, false, false);
         }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
         feedReader.setUpdateStrategy(updateStrategy, true);
-
-        // TODO do we need a processing action???
-        // FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
-        // feedChecker.setFeedProcessingAction(fpa);
+        feedReader.setWakeUpInterval(wakeUpInterval);
 
         currentDbTable = "feed_evaluation_" + feedReader.getUpdateStrategyName() + "_"
                 + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
-        createEvaluationDbTable();
+        boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .createEvaluationDbTable(getEvaluationDbTableName());
+        if (!created) {
+            LOGGER.fatal("Database table " + getEvaluationDbTableName()
+                    + " could not be created. Evaluation is impossible. Processing aborted.");
+            System.exit(-1);
+        }
     }
 
     /**
@@ -133,21 +128,90 @@ public class DatasetEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO: get Strategy and parameters from command line args
-        // UpdateStrategy updateStrategy = new MavStrategyDatasetCreation();
-        // updateStrategy.setHighestUpdateInterval(360); // 6hrs
-        // updateStrategy.setLowestUpdateInterval(0);
-        int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
-        int benchmarkMode = FeedReaderEvaluator.BENCHMARK_TIME;
-        int benchmarkSampleSize = 100;
 
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(60); // required by Fix strategies only!
+        // load configuration from palladian.properies
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        UpdateStrategy updateStrategy = null;
+        int benchmarkMode = -1;
+        boolean fatalErrorOccurred = false;
+        StringBuilder logMsg = new StringBuilder();
+        logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
+        
+        try {
+            // read update strategy and interval in case of "Fix"
+            String strategy = config.getString("datasetEvaluator.updateStrategy");
+            // Fix
+            if (strategy.equalsIgnoreCase("Fix")) {
+                updateStrategy = new FixUpdateStrategy();
+                int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
+                ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
+                logMsg.append("Fix").append(fixInterval).append(" ");
+            }
+            // Fix Learned
+            else if (strategy.equalsIgnoreCase("FixLearned")) {
+                updateStrategy = new FixUpdateStrategy();
+                ((FixUpdateStrategy) updateStrategy).setCheckInterval(-1);
+                logMsg.append("Fix Learned");
+            }
+            // Unknown strategy
+            else {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Cant read updateStrategy from config.");
+            }
 
 
-        DatasetEvaluator evaluator = new DatasetEvaluator();
-        evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy);
-        evaluator.runEvaluation();
+            // read interval bounds
+            int minInterval = config.getInt("datasetEvaluator.minCheckInterval");
+            int maxInterval = config.getInt("datasetEvaluator.maxCheckInterval");
+
+            // validate interval bounds
+            if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Please set interval bounds bounds properly.");
+            }
+            // set interval bounds
+            else {
+            updateStrategy.setLowestUpdateInterval(minInterval);
+            updateStrategy.setHighestUpdateInterval(maxInterval);
+                logMsg.append(",minCheckInterval = ");
+                logMsg.append(minInterval);
+                logMsg.append(", maxCheckInterval = ");
+                logMsg.append(maxInterval);
+            }
+
+            // read and set benchmark mode
+            String mode = config.getString("datasetEvaluator.benchmarkMode");
+            if (mode.equalsIgnoreCase("time")) {
+                benchmarkMode = FeedReaderEvaluator.BENCHMARK_TIME;
+            } else if (mode.equalsIgnoreCase("poll")) {
+                benchmarkMode = FeedReaderEvaluator.BENCHMARK_POLL;
+            } else {
+                fatalErrorOccurred = true;
+                LOGGER.fatal("Cant read benchmarkMode from config.");
+            }
+            logMsg.append(", benchmarkMode = ");
+            logMsg.append(mode);
+            
+        } catch (Exception e) {
+            fatalErrorOccurred = true;
+            LOGGER.fatal("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
+        }
+
+        if (!fatalErrorOccurred) {
+
+            // set some defaults not provided by config file
+            int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
+            int benchmarkSampleSize = 100;
+            // FeedReader wakeupInterval, used for debugging
+            long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
+
+
+            DatasetEvaluator evaluator = new DatasetEvaluator();
+            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
+            evaluator.runEvaluation();
+        }
+
+        LOGGER.fatal("Exiting.");
     }
 
 }

@@ -118,6 +118,8 @@ public class CsvToDbScheduler extends TimerTask {
         feedResults.clear();
         if (scheduledTasks.isEmpty()) {
             LOGGER.info("All tasks done. Exiting.");
+
+            // FIXME: find better way to exit since we loose some log messages when using buffered logj4
             System.exit(0);
         }
     }
