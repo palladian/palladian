@@ -1,7 +1,10 @@
 package ws.palladian.classification;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.Matrix;
 
 public class ClassifierPerformanceResult {
 
@@ -19,6 +22,34 @@ public class ClassifierPerformanceResult {
     private double superiority = -1.0;
     
     private ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+
+    /**
+     * Hold the thresholds in buckets 0-0.1,0.1-0.2... with the buckets correctlyClassified. We will be able to see how
+     * correct classified items are when having a trust within the bucket's threshold.
+     * 
+     * <pre>
+     * threshold bucket | correctly classified % | number of documents in the bucket 
+     * -----------------|------------------------|---------------------------------
+     * 0.1-0.2          |                        |
+     * ...              |                        |
+     * 0.9-1.00         |                        |
+     * </pre>
+     */
+    private Map<Double, Double[]> thresholdBucketMap = new TreeMap<Double, Double[]>();
+
+    /**
+     * Hold the thresholds in .01 steps with the correctlyClassified value of all documents with a threshold >= the
+     * threshold.
+     * 
+     * <pre>
+     * threshold    | correctly classified  | number of documents >= threshold 
+     * -------------|-----------------------|---------------------------------
+     * 0.01         |                       |
+     * ...          |                       |
+     * 1.00         |                       |
+     * </pre>
+     */
+    private Map<Double, Double[]> thresholdAccumulativeMap = new TreeMap<Double, Double[]>();
 
     public double getPrecision() {
         return precision;
@@ -92,6 +123,54 @@ public class ClassifierPerformanceResult {
         return confusionMatrix;
     }
     
+    public void setThresholdBucketMap(Map<Double, Double[]> thresholdBucketMap) {
+        this.thresholdBucketMap = thresholdBucketMap;
+    }
+
+    public Map<Double, Double[]> getThresholdBucketMap() {
+        return thresholdBucketMap;
+    }
+
+    public String getThresholdBucketMapAsCsv() {
+        StringBuilder csv = new StringBuilder();
+
+        for (Entry<Double, Double[]> bucket : thresholdBucketMap.entrySet()) {
+            csv.append(bucket.getKey());
+
+            for (Double value : bucket.getValue()) {
+                csv.append(";").append(value);
+            }
+
+            csv.append("\n");
+        }
+
+        return csv.toString();
+    }
+
+    public void setThresholdAccumulativeMap(Map<Double, Double[]> thresholdAccumulativeMap) {
+        this.thresholdAccumulativeMap = thresholdAccumulativeMap;
+    }
+
+    public Map<Double, Double[]> getThresholdAccumulativeMap() {
+        return thresholdAccumulativeMap;
+    }
+
+    public String getThresholdAccumulativeMapAsCsv() {
+        StringBuilder csv = new StringBuilder();
+
+        for (Entry<Double, Double[]> bucket : thresholdAccumulativeMap.entrySet()) {
+            csv.append(bucket.getKey());
+
+            for (Double value : bucket.getValue()) {
+                csv.append(";").append(value);
+            }
+
+            csv.append("\n");
+        }
+
+        return csv.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder csv = new StringBuilder();

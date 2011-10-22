@@ -1,6 +1,10 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -14,7 +18,6 @@ import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.Matrix;
 
 /**
  * This class calculates scores for a given classifier such as precision, recall, and F1 on one given dataset.
@@ -36,6 +39,12 @@ public class ClassifierPerformance implements Serializable {
 
     /** The test documents that can be used to calculate recall, precision, and F-score. */
     private ClassificationDocuments testDocuments = null;
+
+    /**
+     * A list of pairs of [correct,threshold] where correct is 0 or 1 and the threshold is the threshold of the document
+     * that was classified. From this list we can later calculate threshold analysis charts.
+     */
+    private List<Double[]> correctThresholds = null;
 
     /**
      * Create a new ClassifierPerformance for a given classifier.
@@ -673,10 +682,14 @@ public class ClassifierPerformance implements Serializable {
 
         return accuracy / count;
     }
-    
+
     /**
-     * <p>Calculate a confusion matrix.</p>
-     * <p>On such matrix could look like this:</p>
+     * <p>
+     * Calculate a confusion matrix.
+     * </p>
+     * <p>
+     * One such matrix could look like this:
+     * </p>
      * 
      * <pre>
      * classified\actual    | mobile phone  | camera | tv set
@@ -731,7 +744,132 @@ public class ClassifierPerformance implements Serializable {
 
         classifierPerformanceResult.setConfusionMatrix(getConfusionMatrix());
         
+        classifierPerformanceResult.setThresholdBucketMap(getThresholdBucketMap());
+        classifierPerformanceResult.setThresholdAccumulativeMap(getThresholdAccumulativeMap());
+
         return classifierPerformanceResult;
+    }
+
+    private List<Double[]> getCorrectThresholds() {
+
+        if (correctThresholds == null) {
+
+            correctThresholds = new ArrayList<Double[]>();
+
+            for (TextInstance document : getTestDocuments()) {
+                TestDocument testDocument = (TestDocument)document;
+
+                // pair containing correct (0 or 1) and the threshold [0,1]
+                Double[] pair = new Double[2];
+
+                pair[0] = 0.0;
+                if (testDocument.isCorrectClassified()) {
+                    pair[0] = 1.0;
+                }
+
+                pair[1] = testDocument.getMainCategoryEntry().getRelevance();
+
+                correctThresholds.add(pair);
+            }
+
+        }
+
+        return correctThresholds;
+    }
+
+    /**
+     * <p>
+     * Get a map holding the thresholds in .01 steps with the correctlyClassified value of all documents with a
+     * threshold >= the threshold.
+     * </p>
+     * 
+     * <pre>
+     * threshold    | correctly classified % | number of documents >= threshold 
+     * -------------|------------------------|---------------------------------
+     * 0.01         |                        |
+     * ...          |                        |
+     * 1.00         |                        |
+     * </pre>
+     * 
+     * @return A map with 101 entries (0.00 - 1.00) of thresholds, the percentage ofdocuments that were classified
+     *         correctly having this or a greater threshold and the number of documents greater or equal the threshold.
+     */
+    private Map<Double, Double[]> getThresholdAccumulativeMap() {
+
+        TreeMap<Double, Double[]> map = new TreeMap<Double, Double[]>();
+
+        List<Double[]> ct = getCorrectThresholds();
+
+        for (double t = 0.00; t <= 1.00; t += 0.01) {
+            int correctlyClassified = 0;
+            int numberOverThreshold = 0;
+
+            for (Double[] doubles : ct) {
+
+                if (doubles[1] >= t) {
+                    numberOverThreshold++;
+                    if (doubles[0] > 0.0) {
+                        correctlyClassified++;
+                    }
+                }
+
+            }
+
+            Double[] entry = new Double[2];
+            entry[0] = correctlyClassified / (double)numberOverThreshold;
+            entry[1] = (double)numberOverThreshold;
+            map.put(t, entry);
+        }
+
+        return map;
+    }
+
+    /**
+     * <p>
+     * Get a map holding the thresholds in buckets 0-0.1,0.1-0.2... with the buckets correctlyClassified. We will be
+     * able to see how correct classified items are when having a trust within the bucket's threshold.
+     * </p>
+     * 
+     * <pre>
+     * threshold bucket | correctly classified % | number of documents in the bucket 
+     * -----------------|------------------------|---------------------------------
+     * 0.1-0.2          |                        |
+     * ...              |                        |
+     * 0.9-1.00         |                        |
+     * </pre>
+     * 
+     * @return A map with threshold buckets, the correctly classified documents in the bucket and the total number of
+     *         documents in the bucket.
+     */
+    private Map<Double, Double[]> getThresholdBucketMap() {
+
+        TreeMap<Double, Double[]> map = new TreeMap<Double, Double[]>();
+
+        List<Double[]> ct = getCorrectThresholds();
+
+        for (double t = 0.00; t <= 0.90; t += 0.1) {
+            int correctlyClassified = 0;
+            int numberInBucket = 0;
+
+            for (Double[] doubles : ct) {
+
+                if (doubles[1] > t && doubles[1] <= t + 0.1) {
+                    numberInBucket++;
+                    if (doubles[0] > 0.0) {
+                        correctlyClassified++;
+                    }
+                }
+
+            }
+
+            Double[] entry = new Double[2];
+            entry[0] = correctlyClassified / (double)numberInBucket;
+            entry[1] = (double)numberInBucket;
+            map.put(t, entry);
+        }
+
+        return map;
+
     }
 
     public String toReadableString() {

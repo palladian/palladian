@@ -2,7 +2,10 @@ package ws.palladian.classification.page.evaluation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -152,6 +155,23 @@ public class ClassifierEvaluator {
             results.append("\n");
         }
 
+        // add data for threshold analysis for all classifier-dataset combinations
+        for (TextClassifier classifier : classifiers) {
+            for (Dataset dataset : datasets) {
+                ClassifierPerformanceResult classificationResult = (ClassifierPerformanceResult)evaluationMatrix.get(
+                        dataset.getName(), classifier.getName());
+
+                results.append(classifier.toString() + " - " + dataset.getName() + " threshold bucket analysis\n");
+                results.append(classificationResult.getThresholdBucketMapAsCsv());
+                results.append("\n\n");
+
+                results.append(classifier.toString() + " - " + dataset.getName() + " threshold accumulative analysis\n");
+                results.append(classificationResult.getThresholdAccumulativeMapAsCsv());
+                results.append("\n\n");
+            }
+            results.append("\n");
+        }
+
         results.append("\nAll scores are averaged over all classes in the dataset and weighted by their priors.");
         FileHelper.writeToFile(evaluationOutputPath, results);
 
@@ -178,6 +198,9 @@ public class ClassifierEvaluator {
         
         ConfusionMatrix confusionMatrix = null;
 
+        Map<Double, Double[]> thresholdBucketMap = null;
+        Map<Double, Double[]> thresholdAccMap = null;
+
         for (ClassifierPerformanceResult classifierPerformanceResult : performances) {
             precision += classifierPerformanceResult.getPrecision();
             recall += classifierPerformanceResult.getRecall();
@@ -188,14 +211,52 @@ public class ClassifierEvaluator {
             correctness += classifierPerformanceResult.getCorrectlyClassified();
             superiority += classifierPerformanceResult.getSuperiority();
             
+            // merge confusion matrix
             if (confusionMatrix == null) {
                 confusionMatrix = classifierPerformanceResult.getConfusionMatrix();
             } else {
                 confusionMatrix.add(classifierPerformanceResult.getConfusionMatrix());
             }
             
+            // merge threshold bucket map
+            if (thresholdBucketMap == null) {
+                thresholdBucketMap = classifierPerformanceResult.getThresholdBucketMap();
+            } else {
+
+                // add all entries
+                Iterator<Double[]> iterator1 = thresholdBucketMap.values().iterator();
+                Iterator<Double[]> iterator2 = classifierPerformanceResult.getThresholdBucketMap().values().iterator();
+                while (iterator1.hasNext() && iterator2.hasNext()) {
+                    Double[] valuesCurrent = iterator1.next();
+                    Double[] valuesToAdd = iterator2.next();
+
+                    for (int i = 0; i < valuesCurrent.length; i++) {
+                        valuesCurrent[i] += valuesToAdd[i];
+                    }
+                }
+            }
+
+            // merge threshold accumulative map
+            if (thresholdAccMap == null) {
+                thresholdAccMap = classifierPerformanceResult.getThresholdAccumulativeMap();
+            } else {
+                // add all entries
+                Iterator<Double[]> iterator1 = thresholdAccMap.values().iterator();
+                Iterator<Double[]> iterator2 = classifierPerformanceResult.getThresholdAccumulativeMap().values()
+                        .iterator();
+                while (iterator1.hasNext() && iterator2.hasNext()) {
+                    Double[] valuesCurrent = iterator1.next();
+                    Double[] valuesToAdd = iterator2.next();
+
+                    for (int i = 0; i < valuesCurrent.length; i++) {
+                        valuesCurrent[i] += valuesToAdd[i];
+                    }
+                }
+            }
+
         }
 
+        // divide all summed up values by the number of performances
         precision /= performances.size();
         recall /= performances.size();
         f1 /= performances.size();
@@ -216,6 +277,26 @@ public class ClassifierEvaluator {
         result.setSuperiority(superiority);
         result.setConfusionMatrix(confusionMatrix);
         
+        for (Entry<Double, Double[]> entry : thresholdBucketMap.entrySet()) {
+
+            Double[] values = entry.getValue();
+
+            for (int i = 0; i < values.length; i++) {
+                values[i] /= (double)performances.size();
+            }
+        }
+        result.setThresholdBucketMap(thresholdBucketMap);
+
+        for (Entry<Double, Double[]> entry : thresholdAccMap.entrySet()) {
+
+            Double[] values = entry.getValue();
+
+            for (int i = 0; i < values.length; i++) {
+                values[i] /= (double)performances.size();
+            }
+        }
+        result.setThresholdAccumulativeMap(thresholdAccMap);
+
         return result;
     }
 
@@ -253,7 +334,7 @@ public class ClassifierEvaluator {
         dictionaryClassifier1.getFeatureSetting().setMinNGramLength(3);
         dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(5);
         dictionaryClassifier1.setProcessingPipeline(pipeline);
-//         dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
         DictionaryClassifier dictionaryClassifier2 = new DictionaryClassifier();
         dictionaryClassifier2.setName("D2");
@@ -281,12 +362,12 @@ public class ClassifierEvaluator {
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         //dataset.setPath("data/datasets/classification/SentimentSentences.csv");
-        dataset.setPath("data/datasets/classification/pr_amazon_selected170.csv");
+        dataset.setPath("data/temp/products_clean_id.csv");
         
-        Dataset dataset2 = new Dataset("PreisroboterSmall");
+        Dataset dataset2 = new Dataset("Schottenland");
         dataset2.setFirstFieldLink(false);
         dataset2.setSeparationString("<###>");
-        dataset2.setPath("data/temp/schottenland/schottenland.txt"); 
+        dataset2.setPath("data/temp/products_clean_id.csv");
         
         // dataset.setPath("data/temp/articles_small.csv");
         // dataset.setPath("data/temp/trainingCollection.csv");
@@ -302,7 +383,8 @@ public class ClassifierEvaluator {
 //        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
 
         //datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionFull.csv");
-        datasetManager.calculateClassDistribution(dataset2, "data/datasets/classification/pr_amazon_distribution.csv");
+        datasetManager.calculateClassDistribution(dataset2,
+                "data/datasets/classification/schottenland_distribution.csv");
         
         int countClasses = datasetManager.countClasses(dataset);
         System.out.println("The dataset " + dataset.getName() + " contains " + countClasses + " classes");
