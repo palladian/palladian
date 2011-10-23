@@ -16,6 +16,7 @@ import ws.palladian.classification.page.ClassificationDocuments;
 import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -767,7 +768,7 @@ public class ClassifierPerformance implements Serializable {
                     pair[0] = 1.0;
                 }
 
-                pair[1] = testDocument.getMainCategoryEntry().getRelevance();
+                pair[1] = testDocument.getMainCategoryEntry().getTrust();
 
                 correctThresholds.add(pair);
             }
@@ -870,6 +871,31 @@ public class ClassifierPerformance implements Serializable {
 
         return map;
 
+    }
+
+    public void save(String evaluationOutputPath) {
+        StringBuilder results = new StringBuilder();
+
+        ClassifierPerformanceResult cpr = getClassifierPerformanceResult();
+
+        // get the main measurements such as precision, recall, and F1
+        results.append(toReadableString());
+        results.append("\n\n");
+
+        // add the confusion matrix
+        results.append("confusion matrix\n");
+        results.append(cpr.getConfusionMatrix().asCsv());
+        results.append("\n\n");
+
+        // add data for threshold analysis
+        results.append(cpr.getThresholdBucketMapAsCsv());
+        results.append("\n\n");
+
+        results.append(cpr.getThresholdAccumulativeMapAsCsv());
+        results.append("\n\n");
+
+        results.append("\nAll scores are averaged over all classes in the dataset and weighted by their priors.");
+        FileHelper.writeToFile(evaluationOutputPath, results);
     }
 
     public String toReadableString() {

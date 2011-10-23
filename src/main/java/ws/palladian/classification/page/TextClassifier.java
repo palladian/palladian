@@ -247,9 +247,60 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
      * classified.
      */
     public void classifyTestDocuments() {
+        // CountMap cmPos = new CountMap();
+        // CountMap cmPosC = new CountMap();
+        // CountMap cmNeg = new CountMap();
+        // CountMap cmNegC = new CountMap();
+        // double posMax = 0;
+        // double negMax = 0;
+        // double c = 0;
+        // double negD = 0;
+
         for (TextInstance testDocument : testDocuments) {
             classify(testDocument);
+            // TextInstance result = classify(testDocument);
+            // if (((TestDocument)testDocument).isCorrectClassified()) {
+            // // int t = (int)(10000.0 * result.getMainCategoryEntry().getRelevance());
+            // cmPos.increment(result.getMainCategoryEntry().getCategory().getName(),
+            // (int)(10000.0 * result
+            // .getMainCategoryEntry().getRelevance()));
+            // if (result.getMainCategoryEntry().getRelevance() > posMax) {
+            // posMax = result.getMainCategoryEntry().getRelevance();
+            // }
+            // cmPosC.increment(result.getMainCategoryEntry().getCategory().getName());
+            // } else {
+            // cmNeg.increment(result.getMainCategoryEntry().getCategory().getName(),
+            // (int)(10000.0 * result
+            // .getMainCategoryEntry().getRelevance()));
+            // if (result.getMainCategoryEntry().getRelevance() > negMax) {
+            // negMax = result.getMainCategoryEntry().getRelevance();
+            // }
+            // cmNegC.increment(result.getMainCategoryEntry().getCategory().getName());
+            // }
+            // c++;
+            // if (c % 100 == 0) {
+            // System.out.println(MathHelper.round(100 * c / testDocuments.size(), 2) + "%");
+            // }
         }
+
+        // CountMap avgPos = new CountMap();
+        // CountMap avgNeg = new CountMap();
+        // System.out.println("posMax:" + posMax);
+        // System.out.println("negMax:" + negMax);
+        // for (Entry<Object, Integer> entry : cmPos.entrySet()) {
+        // int v = (int)(entry.getValue() / (double)cmPosC.get(entry.getKey()));
+        // System.out.println(entry.getKey() + " - " + v);
+        // avgPos.put(entry.getKey(), v);
+        // }
+        // System.out.println("----");
+        // for (Entry<Object, Integer> entry : cmNeg.entrySet()) {
+        // int v = (int)(entry.getValue() / (double)cmNegC.get(entry.getKey()));
+        // System.out.println(entry.getKey() + " - " + v);
+        // avgNeg.put(entry.getKey(), v);
+        // }
+        //
+        // FileHelper.serialize(avgPos, "data/posAvg.gz");
+        // FileHelper.serialize(avgNeg, "data/negAvg.gz");
     }
 
     /**

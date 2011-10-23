@@ -7,9 +7,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import ws.palladian.classification.BayesClassifier;
-import ws.palladian.classification.UniversalInstance;
-
 public class BayesClassifierTest {
 
     @Test
@@ -46,5 +43,78 @@ public class BayesClassifierTest {
         Assert.assertEquals("No", newInstance.getMainCategoryEntry().getCategory().getName());
 
     }
+
+    @Test
+    public void testBayesClassifierNumeric() {
+
+        BayesClassifier bc = new BayesClassifier();
+        
+        Instances<Object> instances = new Instances<Object>();
+        
+        UniversalInstance instance = new UniversalInstance(instances);
+        ArrayList<Double> numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(3.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Case");
+        bc.addTrainingInstance(instance);
+        
+        instance = new UniversalInstance(instances);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(6.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Case");
+        bc.addTrainingInstance(instance);
+        
+        instance = new UniversalInstance(instances);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(20.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Case");
+        bc.addTrainingInstance(instance);
+        
+        instance = new UniversalInstance(instances);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(18.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Phone");
+        bc.addTrainingInstance(instance);
+        
+        instance = new UniversalInstance(instances);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(66.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Phone");
+        bc.addTrainingInstance(instance);
+        
+        instance = new UniversalInstance(instances);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(290.0);
+        instance.setNumericFeatures(numericFeatures);
+        instance.setInstanceCategory("Phone");
+        bc.addTrainingInstance(instance);
+
+        bc.train();
+
+        // test saving and loading
+        bc.setName("testBayesClassifier");
+        bc.save("data/temp/");
+        BayesClassifier loadedBC = BayesClassifier.load("data/temp/testBayesClassifier.gz");
+
+        // create an instance to classify
+        UniversalInstance newInstance = new UniversalInstance(null);
+        numericFeatures = new ArrayList<Double>();
+        numericFeatures.add(16.0);
+        newInstance.setNumericFeatures(numericFeatures);
+
+        // classify
+        loadedBC.classify(newInstance);
+
+        // System.out.println(newInstance);
+
+        Assert.assertEquals(0.944137944486995, newInstance.getMainCategoryEntry().getRelevance());
+        Assert.assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
+
+    }
+
 
 }
