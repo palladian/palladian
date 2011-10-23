@@ -79,6 +79,13 @@ public abstract class Classifier<T> implements Serializable {
         getPossibleCategories(trainingInstances);
     }
 
+    /**
+     * <p>
+     * Add a single training instance, consider using {@link addTrainingInstances} because that is <b>a lot</b> faster.
+     * </p>
+     * 
+     * @param instance The instance to add.
+     */
     public void addTrainingInstance(T instance) {
         if (this.trainingInstances == null) {
             this.trainingInstances = new Instances<T>();

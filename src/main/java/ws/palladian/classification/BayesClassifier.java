@@ -16,6 +16,11 @@ import ws.palladian.helper.math.Tensor;
  * A simple implementation of the Bayes Classifier. This classifier supports
  * nominal and numeric input. The output is nominal.
  * 
+ * <p>
+ * More information about Naive Bayes can be found here:
+ * http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf
+ * </p>
+ * 
  * @author David Urbansky
  * 
  */
@@ -28,15 +33,29 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
     protected static final Logger LOGGER = Logger.getLogger(BayesClassifier.class);
 
     /**
+     * <p>
      * A table holding the learned probabilities for each feature and class:<br>
-     * Integer (feature index) | class1 (value1,value2,...,valueN), class2, ...
-     * , classN<br>
-     * 1 | 0.3 (...), 0.6, ... , 0.1<br>
-     * x = featureIndex<br>
-     * y = classValue<br>
-     * z = featureValue<br>
+     * Integer (feature index) | class1 (value1,value2,...,valueN), class2, ... , classN
+     * </p>
+     * 
+     * <pre>
+     * 1 | 0.3 (...), 0.6, ... , 0.1
+     * x = featureIndex
+     * y = classValue
+     * z = featureValue
+     * </pre>
      * */
     private Tensor bayesProbabilityTensor;
+
+    /**
+     * <p>
+     * The Bayes classifier is capable of classifying instances with numeric features too. For all learned numeric
+     * features we need to store the mean and standard deviation. The probability tensor holds the index of this list in
+     * the field for the numeric feature. We then need to lookup this list to find the mean in the first entry and the
+     * standard deviation in the second entry of the array at the given index.
+     * </p>
+     */
+    private List<Double[]> meansAndStandardDeviations = new ArrayList<Double[]>();
 
     /**
      * Build the bayesProbabilityMap for nominal and numeric features.
@@ -56,8 +75,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             int featureIndex = 0;
             Category classValue = instance.getInstanceCategory();
 
-            // add the counts of the values of the nominal features to the
-            // tensor
+            // add the counts of the values of the nominal features to the tensor
             List<String> nominalFeatures = instance.getNominalFeatures();
 
             for (String nominalFeatureValue : nominalFeatures) {
@@ -74,8 +92,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                 featureIndex++;
             }
 
-            // add the counts of the values of the numeric features to the
-            // tensor
+            // add the counts of the values of the numeric features to the tensor
             List<Double> numericFeatures = instance.getNumericFeatures();
 
             for (Double numericFeatureValue : numericFeatures) {
@@ -95,8 +112,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
         }
 
-        // now we can transform the counts to actual probabilities for nominal
-        // values or density functions for numeric features
+        // now we can transform the counts to actual probabilities for nominal values or pointers to mean and standard
+        // deviation for numeric features (can be used in density function later on)
         for (Entry<Object, Map<Object, Map<Object, Object>>> featureAxis : bayesProbabilityTensor.getTensor()
                 .entrySet()) {
 
@@ -105,55 +122,58 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                 if ((Integer) featureAxis.getKey() < firstNumericFeatureIndex) {
                     // use probability calculation for nominal attributes
 
-                    // count total number of values for current feature - class
-                    // combination
+                    // count total number of values for current feature - class combination
                     int total = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         total += (Double) valueAxis.getValue();
                     }
 
                     // replace each count with the real probability for the
-                    // featureValue - class combination:
-                    // p(value|Class)
+                    // featureValue - class combination: p(value|Class)
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
                         valueAxis.setValue((Double) valueAxis.getValue() / (double) total);
                     }
 
                 } else {
                     // use density function calculation for numeric attributes,
-                    // we need the sampleMean and the
-                    // standardDeviation to calculate the density function f(x)
-                    // = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
+                    // we need the sampleMean and the standardDeviation to calculate the density function f(x) =
+                    // 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
 
-                    // count total number of values for current feature - class
-                    // combination
+                    // count total number of values for current feature - class combination
                     int totalCount = 0;
                     int totalValues = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        totalCount += (Double) valueAxis.getValue();
+                        totalCount += (Double)valueAxis.getKey() * (Double)valueAxis.getValue();
                         totalValues++;
                     }
 
-                    double mean = totalValues / (double) totalCount;
+                    double mean = totalCount / (double)totalValues;
 
                     // calculate the standard deviation
                     double squaredSum = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        squaredSum += Math.pow(((Double) valueAxis.getValue() - mean), 2);
+                        squaredSum += Math.pow((((Double)valueAxis.getKey() * (Double)valueAxis.getValue()) - mean), 2);
                     }
 
-                    double standardDeviation = squaredSum / (totalCount - 1);
+                    double standardDeviation = Math.sqrt(squaredSum / totalValues);
 
-                    // replace each count with the density function for the
-                    // featureValue - class combination:
-                    // f(x) = 1/(sqrt(2*PI)*sd)*e^-(x-mean)²/2sd²
-                    for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        double densityFunctionValue = 1
-                                / (Math.sqrt(2 * Math.PI) * standardDeviation)
-                                * Math.pow(Math.E, -(Math.pow((Double) valueAxis.getValue() - mean, 2) / (2 * Math.pow(
-                                        standardDeviation, 2))));
-                        valueAxis.setValue(densityFunctionValue);
-                    }
+                    Double[] entry = new Double[2];
+                    entry[0] = mean;
+                    entry[1] = standardDeviation;
+
+                    // get the index on which we enter the entry
+                    int indexPointer = meansAndStandardDeviations.size();
+                    meansAndStandardDeviations.add(entry);
+
+                    // save the index in the probability tensor at position 0 by convention
+                    bayesProbabilityTensor.set(featureAxis.getKey(), classAxis.getKey(), 0, indexPointer);
+
+                    // replace each count with the pointer (index) of mean and standard deviation for the feature -
+                    // class combination
+                    // for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
+                    // // save the index in the probability tensor
+                    // valueAxis.setValue(indexPointer);
+                    // }
 
                 }
 
@@ -246,7 +266,9 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             probabilities.put(category, category.getPrior());
         }
 
-        // multiply the probabilities from the probability/density tensor
+        // // multiply the probabilities from the probability/density tensor
+
+        // do this for nominal features
         List<String> nominalFeatures = instance.getNominalFeatures();
 
         int featureIndex = 0;
@@ -266,8 +288,39 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             featureIndex++;
         }
 
-        // create category entries
+        // do this for numeric features
+        List<Double> numericFeatures = instance.getNumericFeatures();
 
+        featureIndex = 0;
+        for (Double numericFeatureValue : numericFeatures) {
+
+            for (Category category : categories) {
+                // get the index to the mean and standard deviation that is stored for the feature class combination
+                int index = (Integer)bayesProbabilityTensor.get(featureIndex, category.getName(), 0);
+
+                Double[] entry = meansAndStandardDeviations.get(index);
+
+                // ignore if there was nothing learned for the featureValue class combination
+                if (entry == null) {
+                    continue;
+                }
+
+                double mean = entry[0];
+                double standardDeviation = entry[1];
+
+                // calculate the probability using the density function
+                double densityFunctionValue = 1
+                        / (Math.sqrt(2 * Math.PI) * standardDeviation)
+                        * Math.pow(Math.E,
+                                -(Math.pow(numericFeatureValue - mean, 2) / (2 * Math.pow(standardDeviation, 2))));
+
+                probabilities.put(category, probabilities.get(category) * densityFunctionValue);
+            }
+
+            featureIndex++;
+        }
+
+        // create category entries
         CategoryEntries assignedEntries = new CategoryEntries();
         for (Category category : categories) {
             assignedEntries.add(new CategoryEntry(assignedEntries, category, probabilities.get(category)));
