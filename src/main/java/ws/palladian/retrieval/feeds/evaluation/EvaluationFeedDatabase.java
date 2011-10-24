@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -42,9 +44,18 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     private static final String GET_NUMBER_PRE_BENCHMARK_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp < ? AND correctedPublishTime < ?";
     private static final String GET_NUMBER_POST_BENCHMARK_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ?";
 
+    /** Queue batch inserts into evaluation tables. Structure: Map<SQL statement,list of batchArgs> */
+    private static final Map<String, List<List<Object>>> BATCH_INSERT_QUEUE = new HashMap<String, List<List<Object>>>();
+
+    /**
+     * Capacity of {@link #BATCH_INSERT_QUEUE}. Size of the queue is defined as sum of all insert operation, i.e. the
+     * sum
+     * over the sizes of all outer lists of all SQL statements.
+     */
+    private static final int QUEUE_CAPACITY = 10000;
+    
     protected EvaluationFeedDatabase(ConnectionManager connectionManager) {
         super(connectionManager);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -78,7 +89,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
         return (result.length == allItems.size());
     }
-
+    
+    
     /**
      * Get items from table feed_evaluation_items by feedID.
      * 
@@ -157,9 +169,9 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param feedId The id of the feed the pollData belongs to.
      * @param activityPattern The feed's activityPattern.
      * @param tableName The name of the table to add the information to.
-     * @return true if all pollData has been added.
+     * @param useQueue If set to <code>true</code>, do not add poll now but put to a queue for batch insert.
      */
-    public boolean addPollData(PollData pollData, int feedId, int activityPattern, String tableName) {
+    public void addPollData(PollData pollData, int feedId, int activityPattern, String tableName, boolean useQueue) {
 
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(feedId);
@@ -176,9 +188,61 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         parameters.add(pollData.getPreBenchmarkItems());
 
         String replacedSqlStatement = replaceTableName(ADD_EVALUATION_POLL, tableName);
-        int result = runInsertReturnId(replacedSqlStatement, parameters);
+        if (useQueue) {
+            addPollDataToQueue(replacedSqlStatement, parameters);
+        } else {
+            int result = runInsertReturnId(replacedSqlStatement, parameters);
+        }
 
-        return (result != -1);
+        // return (result != -1);
+    }
+
+    /**
+     * Determine whether {@link #BATCH_INSERT_QUEUE} is full or not. Size of the queue is defined as sum of all insert
+     * operation, * i.e. the sum over the sizes of all outer lists of all SQL statements.
+     * 
+     * @return <code>true</code> if current size of {@link #BATCH_INSERT_QUEUE} equals (or exceeds)
+     *         {@link EvaluationFeedDatabase#QUEUE_CAPACITY}
+     */
+    private synchronized boolean isBatchInsertQueueFull() {
+        int size = 0;
+        for (List<List<Object>> batchArgs : BATCH_INSERT_QUEUE.values()) {
+            size += batchArgs.size();
+        }
+        return size >= QUEUE_CAPACITY;
+    }
+
+    /**
+     * Add the list of parameters to {@link #BATCH_INSERT_QUEUE}. In case the queue's capacity is reached, all batch
+     * inserts are executed. Therefore, the thread that adds the last element has to "pay".
+     * 
+     * @param sql The sql statement to be executed.
+     * @param parameters The parameters to be filled in this statement.
+     */
+    private synchronized void addPollDataToQueue(String sql, List<Object> parameters) {
+        // get current batchArgs for this sql statement
+        List<List<Object>> batchArgs = BATCH_INSERT_QUEUE.get(sql);
+
+        // null if sql statement not in queue, create blanc list
+        if (batchArgs == null) {
+            batchArgs = new ArrayList<List<Object>>();
+        }
+        batchArgs.add(parameters);
+        BATCH_INSERT_QUEUE.put(sql, batchArgs);
+        if (isBatchInsertQueueFull()) {
+            processBatchInsertQueue();
+        }
+    }
+
+    /**
+     * Process all queued batch inserts and drain queue.
+     */
+    public synchronized void processBatchInsertQueue() {
+        for (String sqlStatement : BATCH_INSERT_QUEUE.keySet()) {
+            List<List<Object>> batchArgs = BATCH_INSERT_QUEUE.get(sqlStatement);
+            runBatchInsertReturnIds(sqlStatement, batchArgs);
+            BATCH_INSERT_QUEUE.remove(sqlStatement);
+        }
     }
 
     /**
@@ -190,45 +254,6 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         return runUpdate(RESET_TABLE_FEEDS) != -1 ? true : false;
     }
 
-    // /**
-    // *
-    // * FIXME: update description: Items on border are not included anymore.
-    // * Get all items that are between the two items specified by publishDate and pollTimestamp, including the items on
-    // * those borders. See example post history:
-    // * <p>
-    // *
-    // * <pre>
-    // * pollTimestamp ; publishTime ; itemHash
-    // * ...
-    // * 2011-07-12 17:22:32 ; 2011-07-12 12:56:13 ; be9881cc41862c98cacba3211c940eecf53728a4
-    // * 2011-07-11 19:38:11 ; 2011-07-11 11:22:49 ; fb1987e2e0534f0d2decc37c5e14c2666f7b4d7c
-    // * 2011-07-10 20:09:11 ; 2011-07-10 13:55:55 ; d0243d5f548205f5d23faf107f6b211609e8969b
-    // * 2011-07-09 21:30:10 ; 2011-07-09 13:55:08 ; dc84301cfb00b14e7c997227617278b3f974dcf0
-    // * 2011-07-09 03:09:10 ; 2011-07-08 19:02:06 ; 3b8c62a72be27000aa6dfa642b8e8f0193dcbff7
-    // * ...
-    // * </pre>
-    // *
-    // * </p>
-    // *
-    // * Assume the current <i>simulated</i> poll was at 2011-07-23 00:00:00 and the oldest item in the window has been
-    // * published at 2011-07-12 12:56:13. The previous <i>simulated</i> poll was at 2011-07-09 00:00:00 and the newest
-    // * item in this poll has been published at 2011-07-08 19:02:06. We now search for all items within these borders.
-    // * In the example, the three items in between were missed. <br />
-    // * TODO : Do we need to include the items at the borders? Some feeds did not provide publishTimes so there may be
-    // * multiple items at the borders.
-    // *
-    // * @param feedId The feed to get missed items for.
-    // * @param lastPoll The timestamp of the last poll.
-    // * @param currentPoll The timestamp of the current poll.
-    // * @param newestCorrectedPublishLastPoll The corrected publish date of the newest item from the last poll.
-    // * @param oldestCorrectedPublishCurrentPoll The corrected publish date of the oldest item from the current poll.
-    // * @return All items that have been missed between to simulated polls.
-    // */
-    // public List<EvaluationFeedItem> getMissedItemsBetweenPolls(int feedId, Timestamp lastPoll, Timestamp currentPoll,
-    // Timestamp newestCorrectedPublishLastPoll, Timestamp oldestCorrectedPublishCurrentPoll) {
-    // return runQuery(new FeedEvaluationItemRowConverter(), GET_MISSED_ITEMS_BETWEEN_POLLS, feedId, lastPoll,
-    // currentPoll, newestCorrectedPublishLastPoll, oldestCorrectedPublishCurrentPoll);
-    // }
 
     /**
      * Get all pending items that will not be downloaded in simulation. The number of items whos publishTime is newer
