@@ -267,7 +267,7 @@ public final class FeedReader {
 
         while (!stopWatch.timeIsUp() && !isStopped()) {
 
-            if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
+            // if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
                 LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
                         + " MB");
@@ -279,7 +279,7 @@ public final class FeedReader {
                     setStopped(true);
                     break;
                 }
-            }
+            // }
 
         }
         LOGGER.info("stopped reading feeds after " + stopWatch.getElapsedTimeString());

@@ -343,7 +343,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             pollData.setDroppedItems(numPrePostBenchmarkItems);
 
             feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
-                    DatasetEvaluator.getEvaluationDbTableName());
+                    DatasetEvaluator.getEvaluationDbTableName(), true);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(pollData.toString());
