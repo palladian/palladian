@@ -4,9 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -34,28 +33,55 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     private static final String ADD_EVALUATION_POLL = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, numberOfPoll = ?, activityPattern = ?, sizeOfPoll = ?, pollTimestamp = ?, checkInterval = ?, newWindowItems = ?, missedItems = ?, windowSize = ?, cumulatedDelay = ?, pendingItems = ?, droppedItems = ?";
     /** reset table feeds except activityPattern and blocked. */
     private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, totalItems = DEFAULT, windowSize = DEFAULT, hasVariableWindowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, isAccessibleFeed = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, hasItemIds = DEFAULT, hasPubDate = DEFAULT, hasCloud = DEFAULT, ttl = DEFAULT, hasSkipHours = DEFAULT, hasSkipDays = DEFAULT, hasUpdated = DEFAULT, hasPublished = DEFAULT, supportsPubSubHubBub = DEFAULT, httpHeaderSize = DEFAULT";
-    private static final String GET_MISSED_ITEMS_BETWEEN_POLLS = "SELECT * FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND pollTimestamp < ? AND correctedPublishTime > ? AND correctedPublishTime < ?";
 
     private static final String GET_NUMBER_MISSED_ITEMS_BY_ID_SEQUENCE_NUMBERS = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND sequenceNumber > ? AND sequenceNumber < ?";
-
-    private static final String GET_PENDING_ITEMS_BY_ID = "SELECT * FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ? ORDER BY pollTimestamp ASC, correctedPublishTime ASC";
 
     private static final String GET_NUMBER_PENDING_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ? AND correctedPublishTime <= ?";
     private static final String GET_NUMBER_PRE_BENCHMARK_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp < ? AND correctedPublishTime < ?";
     private static final String GET_NUMBER_POST_BENCHMARK_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ?";
 
+    private static final String GET_EVALUATION_NEWEST_ITEM_HASHES = "SELECT f1.`feedId` , f1.`extendedItemHash` FROM `feed_evaluation_items` f1 JOIN (SELECT `feedId` , MAX( `sequenceNumber` ) AS maxsn FROM `feed_evaluation_items` GROUP BY `feedId`) AS f2 ON f1.`feedId` = f2.`feedId` AND f1.`sequenceNumber` = f2.maxsn";
+
     /** Queue batch inserts into evaluation tables. Structure: Map<SQL statement,list of batchArgs> */
-    private static final Map<String, List<List<Object>>> BATCH_INSERT_QUEUE = new HashMap<String, List<List<Object>>>();
+    private static final ConcurrentHashMap<String, List<List<Object>>> BATCH_INSERT_QUEUE = new ConcurrentHashMap<String, List<List<Object>>>();
+
+    /**
+     * Contains for each feedId the extendedItemHash from table feed_evaluation_items that has the highest
+     * sequenceNumber within this feed. Used to simulate the last item in csv file.
+     */
+    private static final ConcurrentHashMap<Integer, String> NEWEST_ITEM_HASHES = new ConcurrentHashMap<Integer, String>();
+
+    /**
+     * This is an optimization cache to prevent unnecessary data base accesses when searching for a simulated window. If
+     * we know that we found the item with the highest sequence number for a feed, we cache this window and return it on
+     * every subsequent query for simulated windows since those query results can't contain a newer window than this
+     * one. This can't be directly done by db (query) caching since queries differ.
+     */
+    private static final ConcurrentHashMap<Integer, List<EvaluationFeedItem>> CACHED_NEWEST_WINDOWS = new ConcurrentHashMap<Integer, List<EvaluationFeedItem>>();
 
     /**
      * Capacity of {@link #BATCH_INSERT_QUEUE}. Size of the queue is defined as sum of all insert operation, i.e. the
      * sum
      * over the sizes of all outer lists of all SQL statements.
      */
-    private static final int QUEUE_CAPACITY = 10000;
+    private static final int QUEUE_CAPACITY = 1000;
     
     protected EvaluationFeedDatabase(ConnectionManager connectionManager) {
         super(connectionManager);
+        initializeNewestItemHashes();
+    }
+
+    /**
+     * Initialize/load {@link #NEWEST_ITEM_HASHES} from db.
+     */
+    private void initializeNewestItemHashes() {
+        List<EvaluationFeedItem> newestHashes = runQuery(new FeedEvalNewestItemHashRowConverter(),
+                GET_EVALUATION_NEWEST_ITEM_HASHES);
+
+        for (EvaluationFeedItem item : newestHashes) {
+            NEWEST_ITEM_HASHES.put(item.getFeedId(), item.getHash());
+        }
+
     }
 
     /**
@@ -108,16 +134,77 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * correctedPublishTime DESC, we start with the provided correctedPublishTime and load the last #window items (that
      * are older).
      * 
-     * @param feedID The feed to get items for
+     * @param feedId The feed to get items for
      * @param correctedPublishTime The pollTimestamp
      * @param window Use db's LIMIT command to limit number of results. LIMIT 0, window
-     * @return
+     * @return a simulated window.
      */
-    public List<EvaluationFeedItem> getEvaluationItemsByIDCorrectedPublishTimeLimit(int feedID,
-            Timestamp correctedPublishTime,
-            int window) {
-        return runQuery(new FeedEvaluationItemRowConverter(), GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_LIMIT,
-                feedID, correctedPublishTime, window);
+    public List<EvaluationFeedItem> getEvaluationItemsByIDCorrectedPublishTimeLimit(int feedId,
+            Timestamp correctedPublishTime, int window) {
+
+        // try to get simulated window from local cache
+        List<EvaluationFeedItem> simulatedWindow = getSimulatedWindowFromCache(feedId);
+
+        // if we didn't found it, load it from db and cache the response.
+        if (simulatedWindow == null) {
+
+            simulatedWindow = runQuery(new FeedEvaluationItemRowConverter(),
+                    GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_LIMIT, feedId, correctedPublishTime, window);
+
+            putSimulatedWindowToCache(feedId, simulatedWindow);
+        } else {
+            // LOGGER.info("FeedId " + feedId + ": got simulated window from cache.");
+        }
+        return simulatedWindow;
+    }
+
+    /**
+     * Load the simulatedWindow from cache if it has been cached.
+     * <p>
+     * This is an optimization to prevent unnecessary data base accesses when searching for a simulated window. If we
+     * know that we found the item with the highest sequence number for a feed, we cache this window and return it on
+     * every subsequent query for simulated windows since those query results can't contain a newer window than this
+     * one. This can't be directly done by db (query) caching since queries differ.
+     * </p>
+     * 
+     * @param feedId The feedId the window belongs to.
+     * @return The cached window or <code>null</code> if there is no cached window yet.
+     */
+    private List<EvaluationFeedItem> getSimulatedWindowFromCache(Integer feedId) {
+        return CACHED_NEWEST_WINDOWS.get(feedId);
+    }
+
+    /**
+     * Checks whether the window contains the newest item we have in dataset. If so, ad window to the internal cache.
+     * <p>
+     * This is an optimization to prevent unnecessary data base accesses when searching for a simulated window. If we
+     * know that we found the item with the highest sequence number for a feed, we cache this window and return it on
+     * every subsequent query for simulated windows since those query results can't contain a newer window than this
+     * one. This can't be directly done by db (query) caching since queries differ.
+     * </p>
+     * 
+     * @param feedId The feedId the window belongs to.
+     * @param simulatedWindow The window to check and add to cache.
+     * @return <code>true</code> if simulatedWindow has been cached or <code>false</code> if not.
+     */
+    private boolean putSimulatedWindowToCache(Integer feedId, List<EvaluationFeedItem> simulatedWindow) {
+        boolean cached = false;
+
+        String newestHash = null;
+        newestHash = NEWEST_ITEM_HASHES.get(feedId);
+
+        if (newestHash != null) {
+            for (EvaluationFeedItem item : simulatedWindow) {
+
+                // check whether window can be cached
+                if (item.getHash().equals(newestHash)) {
+                    LOGGER.debug("Found newestItemHash " + " in window, putting window to cache.");
+                    CACHED_NEWEST_WINDOWS.put(feedId, simulatedWindow);
+                    cached = true;
+                }
+            }
+        }
+        return cached;
     }
 
     /**
@@ -163,7 +250,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Add the provided PolLData to the provided table.
+     * Add the provided PolLData to the provided database table.
      * 
      * @param pollData The data of one simulated poll to add.
      * @param feedId The id of the feed the pollData belongs to.
@@ -191,10 +278,9 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         if (useQueue) {
             addPollDataToQueue(replacedSqlStatement, parameters);
         } else {
-            int result = runInsertReturnId(replacedSqlStatement, parameters);
+            runInsertReturnId(replacedSqlStatement, parameters);
         }
 
-        // return (result != -1);
     }
 
     /**
@@ -204,7 +290,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if current size of {@link #BATCH_INSERT_QUEUE} equals (or exceeds)
      *         {@link EvaluationFeedDatabase#QUEUE_CAPACITY}
      */
-    private synchronized boolean isBatchInsertQueueFull() {
+    private boolean isBatchInsertQueueFull() {
         int size = 0;
         for (List<List<Object>> batchArgs : BATCH_INSERT_QUEUE.values()) {
             size += batchArgs.size();
@@ -221,6 +307,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private synchronized void addPollDataToQueue(String sql, List<Object> parameters) {
         // get current batchArgs for this sql statement
+        // this method is required to be synchronized since reading batchArgs, adding own parameters and writing it back
+        // to queue is a transaction!
         List<List<Object>> batchArgs = BATCH_INSERT_QUEUE.get(sql);
 
         // null if sql statement not in queue, create blanc list
