@@ -264,9 +264,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             }
             
             
-            // if all entries are new, we might have checked to late and missed some entries, we mark that by a
-            // special line
-            // TODO copied notice from DatasetProcessingAction, might be obsolete
+            // if all entries are new, we might have checked to late and missed some entries
+            // TODO copied notice from DatasetProcessingAction, might be obsolete:
             // feed.getChecks()>1 may be replaced by newItems<feed.getNumberOfItemsReceived() to avoid writing a
             // MISS if a feed was empty and we now found one or more items. We have to define the MISS. If we say we
             // write a MISS every time it can happen that we missed a item, feed.getChecks()>1 is correct. If we say
@@ -406,7 +405,6 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             windowSize = realPoll.getWindowSize();
         }
 
-        // TODO use feedID 1297 for debugging since feed does not provide item timestamps
         // load the last window from dataset
         List<EvaluationFeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(
                 feed.getId(),
@@ -528,6 +526,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(msg);
         }
+        // LOGGER.info(msg);
     }
 
     /**
