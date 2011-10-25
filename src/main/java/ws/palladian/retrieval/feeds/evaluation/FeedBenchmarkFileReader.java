@@ -14,6 +14,11 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
 
+/**
+ * @author David Urbansky
+ * @deprecated Class was used by evaluation of first feed paper. For TUDCS6,
+ */
+@Deprecated
 public class FeedBenchmarkFileReader {
 
     protected static final Logger LOGGER = Logger.getLogger(FeedBenchmarkFileReader.class);
