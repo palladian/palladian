@@ -88,6 +88,11 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     private final int lastNumberOfPoll;
 
     /**
+     * The total number of items received till the last poll.
+     */
+    private final int lastTotalItems;
+
+    /**
      * Identifier to load the highest item sequence number of the previous poll from the feed.
      */
     private static final String LAST_POLL_HIGHEST_ITEM_SEQUENCE_NUMBER = "lastPollHighestItemSequenceNumber";
@@ -131,6 +136,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         } else {
             this.lastNewestItemPublishTime = null;
         }
+        this.lastTotalItems = feed.getNumberOfItemsReceived();
+
 
         // load arbitrary, additional data from feed
         Map<String, Object> additionalData = feed.getAdditionalData();
@@ -210,9 +217,12 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             // calculate number of current poll
             int currentNumberOfPoll = lastNumberOfPoll + 1;
 
+            // Calculate cumulated delay. Ignore first poll that returned items. Important: use lastTotalItems, not
+            // the current number of poll since some feeds like id 1270905 in TUDCS6 had an initial empty window, 
+            // that was likely to be caused by a server error. 
             List<Long> itemDelays = new ArrayList<Long>();
-            Long cumulatedDelay = 0L;
-            if (currentNumberOfPoll > 1) {
+            Long cumulatedDelay = 0L;            
+            if (lastTotalItems > 0) {
                 for (FeedItem item : feed.getNewItems()) {
                     // delay per new item in seconds
                     Long delay = Math.round((double) (feed.getLastPollTime().getTime() - item
@@ -254,9 +264,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             }
             
             
-            // if all entries are new, we might have checked to late and missed some entries, we mark that by a
-            // special line
-            // TODO copied notice from DatasetProcessingAction, might be obsolete
+            // if all entries are new, we might have checked to late and missed some entries
+            // TODO copied notice from DatasetProcessingAction, might be obsolete:
             // feed.getChecks()>1 may be replaced by newItems<feed.getNumberOfItemsReceived() to avoid writing a
             // MISS if a feed was empty and we now found one or more items. We have to define the MISS. If we say we
             // write a MISS every time it can happen that we missed a item, feed.getChecks()>1 is correct. If we say
@@ -333,7 +342,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             pollData.setDroppedItems(numPrePostBenchmarkItems);
 
             feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
-                    DatasetEvaluator.getEvaluationDbTableName());
+                    DatasetEvaluator.getEvaluationDbTableName(), true);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(pollData.toString());
@@ -396,7 +405,6 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             windowSize = realPoll.getWindowSize();
         }
 
-        // TODO use feedID 1297 for debugging since feed does not provide item timestamps
         // load the last window from dataset
         List<EvaluationFeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(
                 feed.getId(),
@@ -518,6 +526,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(msg);
         }
+        // LOGGER.info(msg);
     }
 
     /**
