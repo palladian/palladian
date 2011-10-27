@@ -20,6 +20,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
@@ -274,11 +275,12 @@ public class EvaluationSchedulerTask extends TimerTask {
         feedResults.clear();
 
         if (scheduledTasks.isEmpty()){
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.info("All EvaluationFeedTasks done. Goodbye.");
-            }
+            // important! empty queue!!
+            ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
+
+            LOGGER.info("All EvaluationFeedTasks done. Goodbye.");
             feedReader.setStopped(true);
-        }        
+        }
     }
 
     /**
