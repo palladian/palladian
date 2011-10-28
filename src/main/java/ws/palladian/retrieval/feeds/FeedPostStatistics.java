@@ -304,6 +304,9 @@ public class FeedPostStatistics {
         return averagePostInterval;
     }
 
+    /**
+     * @param averagePostGap arithmet. average
+     */
     public void setAveragePostGap(double averagePostGap) {
         this.averagePostInterval = averagePostGap;
     }
