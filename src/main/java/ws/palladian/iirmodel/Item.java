@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -27,6 +28,7 @@ import javax.persistence.TemporalType;
  * @version 3.1
  */
 @Entity
+@Table(name = "ITEM")
 public class Item implements Serializable {
 
     /**

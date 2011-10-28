@@ -8,8 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.TypedQuery;
 
 /**
  * <p>
@@ -175,12 +174,15 @@ public abstract class AbstractPersistenceLayer {
      */
     public final <T> List<T> loadAll(Class<T> classToLoad) {
         Boolean openedTransaction = openTransaction();
-        EntityManager entityManager = getManager();
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<T> query = criteriaBuilder.createQuery(classToLoad);
-        List<T> result = entityManager.createQuery(query).getResultList();
-        commitTransaction(openedTransaction);
-        return result;
+        try {
+            EntityManager entityManager = getManager();
+            String loadQuery = "SELECT o FROM " + classToLoad.getName() + " o";
+            TypedQuery<T> query = entityManager.createQuery(loadQuery, classToLoad);
+            List<T> result = query.getResultList();
+            return result;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     /**

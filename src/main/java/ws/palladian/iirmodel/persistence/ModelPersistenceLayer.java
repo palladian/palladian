@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.log4j.Logger;
@@ -103,29 +103,35 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
 
     public void saveStreamSource(StreamSource streamSource) {
         Boolean openedTransaction = openTransaction();
-        streamSource.accept(new DefaultStreamVisitor() {
+        try {
+            streamSource.accept(new DefaultStreamVisitor() {
 
-            @Override
-            public void visitStreamGroup(StreamGroup streamGroup, int depth) {
-                saveStreamGroup(streamGroup);
-            }
+                @Override
+                public void visitStreamGroup(StreamGroup streamGroup, int depth) {
+                    saveStreamGroup(streamGroup);
+                }
 
-            @Override
-            public void visitItemStream(ItemStream itemStream, int depth) {
-                saveItemStream(itemStream);
-            }
-        });
-        commitTransaction(openedTransaction);
+                @Override
+                public void visitItemStream(ItemStream itemStream, int depth) {
+                    saveItemStream(itemStream);
+                }
+            });
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     protected void saveStreamGroup(final StreamGroup streamGroup) {
         Boolean openedTransaction = openTransaction();
-        Collection<Author> authors = getAllAuthors(streamGroup);
-        for (Author author : authors) {
-            getManager().persist(author);
+        try {
+            Collection<Author> authors = getAllAuthors(streamGroup);
+            for (Author author : authors) {
+                getManager().persist(author);
+            }
+            getManager().persist(streamGroup);
+        } finally {
+            commitTransaction(openedTransaction);
         }
-        getManager().persist(streamGroup);
-        commitTransaction(openedTransaction);
     }
 
     /**
@@ -143,19 +149,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      */
     protected void saveItemStream(final ItemStream itemStream) {
         Boolean openedTransaction = openTransaction();
-        StreamSource existingStreamSource = loadStreamSourceByAddress(itemStream.getSourceAddress());
+        try {
+            StreamSource existingStreamSource = loadStreamSourceByAddress(itemStream.getSourceAddress());
 
-        for (Item item : itemStream.getItems()) {
-            getManager().persist(item.getAuthor());
-        }
+            for (Item item : itemStream.getItems()) {
+                getManager().persist(item.getAuthor());
+            }
 
-        if (existingStreamSource == null) {
-            getManager().persist(itemStream);
-        } else {
-            itemStream.setIdentifier(existingStreamSource.getIdentifier());
-            getManager().merge(itemStream);
+            if (existingStreamSource == null) {
+                getManager().persist(itemStream);
+            } else {
+                itemStream.setIdentifier(existingStreamSource.getIdentifier());
+                getManager().merge(itemStream);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
-        commitTransaction(openedTransaction);
     }
 
     // /**
@@ -251,8 +260,11 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      */
     public void removeItem(Item item) {
         final Boolean openedTransaction = openTransaction();
-        getManager().remove(item);
-        commitTransaction(openedTransaction);
+        try {
+            getManager().remove(item);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     // /**
@@ -272,14 +284,17 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         Author savedAuthor = saveAuthor(item.getAuthor());
         item.setAuthor(savedAuthor);
         Item existingItem = loadItem(item.getIdentifier());
-        final Boolean openedTransaction = openTransaction();
-        if (existingItem == null) {
-            getManager().persist(item);
-        } else {
-            item.setIdentifier(existingItem.getIdentifier());
-            getManager().merge(item);
+        Boolean openedTransaction = openTransaction();
+        try {
+            if (existingItem == null) {
+                getManager().persist(item);
+            } else {
+                item.setIdentifier(existingItem.getIdentifier());
+                getManager().merge(item);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
-        commitTransaction(openedTransaction);
     }
 
     /**
@@ -292,17 +307,20 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
     public Author saveAuthor(final Author author) {
         // final Author existingUser = loadAuthor(author.getUsername(), author.getStreamSource());
         final Boolean openedTransaction = openTransaction();
+        try {
+            Author result;
+            // if (existingUser == null) {
+            getManager().persist(author);
+            result = author;
+            // } else {
+            // author.setIdentifier(existingUser.getIdentifier());
+            // result = getManager().merge(author);
+            // }
 
-        Author result;
-        // if (existingUser == null) {
-        getManager().persist(author);
-        result = author;
-        // } else {
-        // author.setIdentifier(existingUser.getIdentifier());
-        // result = getManager().merge(author);
-        // }
-        commitTransaction(openedTransaction);
-        return result;
+            return result;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     /**
@@ -331,10 +349,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         query.setParameter("streamSourceAddress", streamSourceAddress);
 
         Boolean openedTransaction = openTransaction();
-        List<Author> authors = query.getResultList();
-        Author ret = getFirst(authors);
-        commitTransaction(openedTransaction);
-        return ret;
+        try {
+            List<Author> authors = query.getResultList();
+            Author ret = getFirst(authors);
+            return ret;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+
     }
 
     public void saveItemRelation(ItemRelation itemRelation) {
@@ -346,27 +368,33 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         relationExistsQuery.setParameter("secondItem", itemRelation.getSecondItem());
         relationExistsQuery.setParameter("type", itemRelation.getType());
         Boolean openedTransaction = openTransaction();
-        List<ItemRelation> relations = relationExistsQuery.getResultList();
-        if (relations.isEmpty()) {
-            getManager().persist(itemRelation);
-        } else {
-            ItemRelation existingRelation = relations.get(0);
-            existingRelation.setType(itemRelation.getType());
-            existingRelation.setComment(itemRelation.getComment());
+        try {
+            List<ItemRelation> relations = relationExistsQuery.getResultList();
+            if (relations.isEmpty()) {
+                getManager().persist(itemRelation);
+            } else {
+                ItemRelation existingRelation = relations.get(0);
+                existingRelation.setType(itemRelation.getType());
+                existingRelation.setComment(itemRelation.getComment());
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
-        commitTransaction(openedTransaction);
     }
 
     public void saveRelationType(RelationType relationType) {
         RelationType existingRelationType = loadRelationType(relationType.getName());
         final Boolean openedTransaction = openTransaction();
-        if (existingRelationType == null) {
-            getManager().persist(relationType);
-        } else {
-            relationType.setIdentifier(relationType.getIdentifier());
-            getManager().merge(relationType);
+        try {
+            if (existingRelationType == null) {
+                getManager().persist(relationType);
+            } else {
+                relationType.setIdentifier(relationType.getIdentifier());
+                getManager().merge(relationType);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
-        commitTransaction(openedTransaction);
     }
 
     /**
@@ -406,9 +434,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
     public Item loadItem(final Integer identifier) {
         if (identifier != null) {
             Boolean openedTransaction = openTransaction();
-            Item ret = getManager().find(Item.class, identifier);
-            commitTransaction(openedTransaction);
-            return ret;
+            try {
+                Item ret = getManager().find(Item.class, identifier);
+                return ret;
+            } finally {
+                commitTransaction(openedTransaction);
+            }
         } else {
             return null;
         }
@@ -467,10 +498,13 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @return
      */
     public ItemRelation loadRelation(String relationIdentifier) {
-        getManager().getTransaction().begin();
-        ItemRelation ret = getManager().find(ItemRelation.class, relationIdentifier);
-        getManager().getTransaction().commit();
-        return ret;
+        Boolean openedTransaction = openTransaction();
+        try {
+            ItemRelation ret = getManager().find(ItemRelation.class, relationIdentifier);
+            return ret;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     /**
@@ -481,14 +515,16 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
     }
 
     private RelationType loadRelationType(String name) {
-        EntityManager em = getManager();
-        TypedQuery<RelationType> query = em.createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name",
+        TypedQuery<RelationType> query = getManager().createQuery("SELECT rt FROM RelationType rt WHERE rt.name=:name",
                 RelationType.class);
         query.setParameter("name", name);
-        em.getTransaction().begin();
-        List<RelationType> resultList = query.getResultList();
-        em.getTransaction().commit();
-        return getFirst(resultList);
+        Boolean openedTransaction = openTransaction();
+        try {
+            List<RelationType> resultList = query.getResultList();
+            return getFirst(resultList);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     /**
@@ -500,23 +536,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         return loadAll(RelationType.class);
     }
 
-    // /**
-    // * @param identifier
-    // * the unique identifer (primary key) of a thread in the
-    // * database.
-    // * @return the {@link DiscussionThread} corresponding to the provided
-    // * identifier or null if no such thread exists in the database.
-    // */
-    // public StreamSource loadItemStream(final String identifier) {
-    // if (identifier == null) {
-    // return null;
-    // }
-    // final Boolean openedTransaction = openTransaction();
-    // final StreamSource ret = getManager().find(ItemStream.class, identifier);
-    // commitTransaction(openedTransaction);
-    // return ret;
-    // }
-
     /**
      * Load and {@link ItemStream} by its source address.
      * 
@@ -525,12 +544,15 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      */
     public StreamSource loadStreamSourceByAddress(String sourceAddress) {
         final Boolean openedTransaction = openTransaction();
-        TypedQuery<StreamSource> query = getManager().createQuery(
-                "select t from StreamSource t where t.sourceAddress=:sourceAddress", StreamSource.class);
-        query.setParameter("sourceAddress", sourceAddress);
-        List<StreamSource> result = query.getResultList();
-        commitTransaction(openedTransaction);
-        return getFirst(result);
+        try {
+            TypedQuery<StreamSource> query = getManager().createQuery(
+                    "select t from StreamSource t where t.sourceAddress=:sourceAddress", StreamSource.class);
+            query.setParameter("sourceAddress", sourceAddress);
+            List<StreamSource> result = query.getResultList();
+            return getFirst(result);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     // /**
@@ -567,7 +589,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @return
      */
     public Collection<StreamSource> loadStreamSources() {
-        return loadAll(StreamSource.class);
+        Query query = getManager().createQuery("SELECT ss FROM StreamSource ss");
+        Boolean openedTransaction = openTransaction();
+        try {
+            Collection<StreamSource> results = query.getResultList();
+            return results;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 
     /**
@@ -585,16 +614,18 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         query.setParameter("sourceName", streamSourceName);
 
         final Boolean openedTransaction = openTransaction();
-        List<StreamSource> result = query.getResultList();
-        commitTransaction(openedTransaction);
-
-        if (result.size() > 1) {
-            throw new IllegalStateException("There are " + result.size() + " stream sources named " + streamSourceName
-                    + ". There should be only one.");
-        } else if (result.size() == 1) {
-            return result.get(0);
-        } else {
-            return null;
+        try {
+            List<StreamSource> result = query.getResultList();
+            if (result.size() > 1) {
+                throw new IllegalStateException("There are " + result.size() + " stream sources named "
+                        + streamSourceName + ". There should be only one.");
+            } else if (result.size() == 1) {
+                return result.get(0);
+            } else {
+                return null;
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
     }
 
@@ -610,13 +641,16 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         query.setParameter("sourceInternalIdentifier", forumInternalIdentifier);
         query.setParameter("parent", parentStream);
         final Boolean openedTransaction = openTransaction();
-        List<Item> result = query.getResultList();
-        commitTransaction(openedTransaction);
-        if (result.size() == 1) {
-            return result.get(0);
-        } else {
-            throw new IllegalStateException("Found " + result.size() + " items with internal identifier "
-                    + forumInternalIdentifier + "in item stream " + parentStream);
+        try {
+            List<Item> result = query.getResultList();
+            if (result.size() == 1) {
+                return result.get(0);
+            } else {
+                throw new IllegalStateException("Found " + result.size() + " items with internal identifier "
+                        + forumInternalIdentifier + "in item stream " + parentStream);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
         }
     }
 
@@ -626,16 +660,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * </p>
      */
     public void deleteAll() {
-        EntityManager entityManager = getManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        entityManager.createQuery("DELETE FROM Item").executeUpdate();
-        entityManager.createQuery("DELETE FROM StreamSource").executeUpdate();
-        entityManager.createQuery("DELETE FROM ItemStream").executeUpdate();
-        entityManager.createQuery("DELETE FROM StreamGroup").executeUpdate();
-        entityManager.createQuery("DELETE FROM Author").executeUpdate();
-        entityManager.createQuery("DELETE FROM ItemRelation").executeUpdate();
-        entityManager.createQuery("DELETE FROM RelationType").executeUpdate();
-        transaction.commit();
+        Boolean openedTransaction = openTransaction();
+        getManager().createQuery("DELETE FROM Item").executeUpdate();
+        getManager().createQuery("DELETE FROM StreamSource").executeUpdate();
+        getManager().createQuery("DELETE FROM ItemStream").executeUpdate();
+        getManager().createQuery("DELETE FROM StreamGroup").executeUpdate();
+        getManager().createQuery("DELETE FROM Author").executeUpdate();
+        getManager().createQuery("DELETE FROM ItemRelation").executeUpdate();
+        getManager().createQuery("DELETE FROM RelationType").executeUpdate();
+        commitTransaction(openedTransaction);
     }
 }

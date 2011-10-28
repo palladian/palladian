@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * A generic relation between two {@link Item}s. This relation is an unordered pair of items, see
@@ -25,6 +26,7 @@ import javax.persistence.OneToOne;
  * @since 1.0
  */
 @Entity
+@Table(name = "ITEMRELATION")
 public class ItemRelation implements Serializable {
 
     private static final long serialVersionUID = 9163914602749435760L;
@@ -110,7 +112,7 @@ public class ItemRelation implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ItemRelation other = (ItemRelation) obj;
+        ItemRelation other = (ItemRelation)obj;
         if (firstItem == null) {
             if (other.firstItem != null && other.secondItem != null) {
                 return false;
@@ -126,8 +128,9 @@ public class ItemRelation implements Serializable {
             return false;
         }
         if (type == null) {
-            if (other.type != null)
+            if (other.type != null) {
                 return false;
+            }
         } else if (!type.equals(other.type)) {
             return false;
         }

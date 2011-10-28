@@ -46,7 +46,7 @@ public class PersistenceLayerTest {
 
     private ModelPersistenceLayer persistenceLayer;
     private EntityManagerFactory emFactory;
-    private static final String TEST_PERSISTENCE_UNIT_NAME = "iirmodel";
+    private static final String TEST_PERSISTENCE_UNIT_NAME = System.getProperty("persistenceunitname");
 
     /**
      * @throws java.lang.Exception
@@ -222,12 +222,17 @@ public class PersistenceLayerTest {
         assertThat(authors.size(), is(1));
     }
 
-    @Test(expected = javax.persistence.RollbackException.class)
-    public void testSaveSameAuthorTwice() {
-        Author firstAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
-        Author secondAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
-        persistenceLayer.saveAuthor(firstAuthorObject);
-        persistenceLayer.saveAuthor(secondAuthorObject);
+    @Test
+    public void testSaveSameAuthorTwice() throws Exception {
+        try {
+            Author firstAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
+            Author secondAuthorObject = new Author("test", 10, 2, 3, new Date(), "http://testGroup.de");
+            persistenceLayer.saveAuthor(firstAuthorObject);
+            persistenceLayer.saveAuthor(secondAuthorObject);
+            fail("Saving the same author twice should throw a RuntimeException.");
+        } catch (RuntimeException e) {
+            // Do nothing! This exception is expected in this case.
+        }
     }
 
     // TODO automatic merging of authors is not working at the moment.

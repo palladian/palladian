@@ -2,7 +2,7 @@
 <persistence version="2.0"
 	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-	<persistence-unit name="iirmodel" transaction-type="RESOURCE_LOCAL">
+	<persistence-unit name="eclipselink" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>ws.palladian.iirmodel.Item</class>
 		<class>ws.palladian.iirmodel.StreamSource</class>
@@ -22,8 +22,8 @@
 			<property name="eclipselink.logging.level" value="FINEST" /> <!-- Possible values: FINEST, SEVERE -->
 		</properties>
 	</persistence-unit>
-	<persistence-unit name="iirmodel.production" transaction-type="RESOURCE_LOCAL">
-		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+	<persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<class>ws.palladian.iirmodel.Item</class>
 		<class>ws.palladian.iirmodel.StreamSource</class>
 		<class>ws.palladian.iirmodel.ItemStream</class>
@@ -32,16 +32,13 @@
 		<class>ws.palladian.iirmodel.ItemRelation</class>
 		<class>ws.palladian.iirmodel.RelationType</class>
 		<properties>
-			<property name="eclipselink.ddl-generation" value="create-tables" />
-			<property name="eclipselink.ddl-generation.output-mode"
-				value="database" />
-			<property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/iirmodel" />
-			<property name="eclipselink.jdbc.user" value="effingo" />
-			<property name="eclipselink.jdbc.password" value="effingo" />
-			<property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
-			<property name="eclipselink.weaving.lazy" value="false" />
-			<property name="eclipselink.logging.level" value="SEVERE" /> <!-- Possible values: FINEST, SEVERE -->
-			<property name="eclipselink.target-database" value="MySQL" />
+			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+			<property name="hibernate.connection.username" value="sa" />
+			<property name="hibernate.connection.password" value="" />
+			<property name="hibernate.connection.url" value="jdbc:hsqldb:mem:testdb" />
+			<property name="hibernate.show_sql" value="true" />
 		</properties>
 	</persistence-unit>
 </persistence>

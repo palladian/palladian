@@ -8,8 +8,8 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -25,7 +25,7 @@ import ws.palladian.iirmodel.helper.StreamVisitor;
  * @since 3.0
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"), name = "STREAMSOURCE")
 public abstract class StreamSource implements Serializable {
 
     /**
@@ -84,7 +84,7 @@ public abstract class StreamSource implements Serializable {
      * The authors contributing to this {@link StreamSource}.
      * </p>
      */
-    @OneToMany
+    @ManyToMany
     private Set<Author> authors;
 
     //
