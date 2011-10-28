@@ -189,7 +189,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             
             if (downloadedFeed == null) {
                 LOGGER.info("Feed id " + feed.getId()
-                        + ": we don't have any poll data about this feed. Stop processing immediately.");
+                        + ": can't load the simulated window for this feed. The first successful poll done when "
+                        + "creating the dataset was later than this simulated poll. Stop processing immediately.");
                 // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
                 feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
                 resultSet.add(FeedTaskResult.SUCCESS);
