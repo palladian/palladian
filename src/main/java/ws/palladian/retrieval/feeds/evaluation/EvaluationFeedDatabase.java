@@ -208,7 +208,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Creates a table to write evaluation data into. Uses {@link #getEvaluationDbTableName()} to get the
+     * Creates a table to write evaluation data into. Uses {@link #simulatedPollsDbTableName()} to get the
      * name. In case creation of table is impossible, evaluation is aborted.
      * 
      * @param The name of the table to create.
@@ -236,6 +236,86 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             LOGGER.debug(sql);
         }
         return runUpdate(sql) != -1 ? true : false;
+    }
+
+    /**
+     * Create a table to write evaluation results such as average delay or polls per item of a single strategy to.
+     * 
+     * @param tableName The name of the table to create.
+     * @param modeFeeds If <code>true</code>, add column feedId as first row.
+     * @return <code>true</code> table has been successfully created, <code>false</code> otherwise.
+     */
+    private boolean createEvaluationResultsPerStrategyTable(String tableName, boolean modeFeeds) {
+    
+        StringBuilder sqlBuilder = new StringBuilder(); 
+        sqlBuilder.append("CREATE TABLE `");
+        sqlBuilder.append(tableName);
+        sqlBuilder.append("` (");
+        if (modeFeeds) {
+            sqlBuilder.append("`feedId` INT(10) UNSIGNED NOT NULL COMMENT 'The feeds internal identifier.',");
+        }
+        sqlBuilder.append("`PPI` DOUBLE DEFAULT NULL COMMENT 'Arithmetic average of polls per newly found item.',");
+        sqlBuilder
+                .append("`avgDelayMinutes` DOUBLE DEFAULT NULL COMMENT 'Arithmetic average delay to a newly found item in minutes.',");
+        sqlBuilder.append("`totalMisses` INT DEFAULT NULL COMMENT 'Cumulated number of items that have been missed.',");
+        sqlBuilder
+                .append("`recall` DOUBLE DEFAULT NULL COMMENT 'tp/(tp+fn) where tp is sum of items found by the algorithm and fn is the sum of misses and pending items (that are in the time span between the last simulated poll and the end of the benchmark period.'");
+        sqlBuilder.append(") ENGINE=MYISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+    }
+
+    /**
+     * Creates evaluation results such as average delay, polls per item for a given strategy.
+     * 
+     * @param sourceTableName The name of the table to read simulated poll data from.
+     * @param modeFeeds If <code>true</code>, average over all items per feed and subsequently over all feeds. If
+     *            <code>false</code>, directly average over all items.
+     * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
+     *         error.
+     */
+    public boolean generateEvaluationResultsPerStrategy(String sourceTableName, boolean modeFeeds) {
+        final String postFix = modeFeeds ? "_feeds" : "_items";
+        final String outputTableName = sourceTableName + postFix;
+        boolean created = createEvaluationResultsPerStrategyTable(outputTableName, modeFeeds);
+
+        if (!created) {
+            LOGGER.error("Could not create table " + outputTableName);
+            return false;
+        }
+
+        StringBuilder sqlBuilder = new StringBuilder(); 
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(outputTableName);
+        sqlBuilder.append("`");
+        sqlBuilder.append("SELECT ");
+        if (modeFeeds) {
+            sqlBuilder.append("feedId,");
+        }
+        sqlBuilder.append("COUNT(*)/SUM(newWindowItems) AS 'PPI',");
+        sqlBuilder.append("SUM(cumulatedDelay)/(60*SUM(newWindowItems)) AS 'avgDelayMinutes',");
+        sqlBuilder.append("SUM(missedItems) AS 'totalMisses',");
+        sqlBuilder.append("SUM(newWindowItems)/(SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)) AS 'recall'");
+        sqlBuilder.append("FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("`");
+        if (modeFeeds) {
+            sqlBuilder.append("GROUP BY feedId");
+        }
+        sqlBuilder.append(";");
+
+        final String sql = sqlBuilder.toString();
+        
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+
     }
 
     /**

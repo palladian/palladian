@@ -188,7 +188,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             Feed downloadedFeed = getSimulatedWindowFromDataset();
             
             if (downloadedFeed == null) {
-                LOGGER.debug("Feed id " + feed.getId()
+                LOGGER.info("Feed id " + feed.getId()
                         + ": we don't have any poll data about this feed. Stop processing immediately.");
                 // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
                 feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
@@ -342,7 +342,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             pollData.setDroppedItems(numPrePostBenchmarkItems);
 
             feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
-                    DatasetEvaluator.getEvaluationDbTableName(), true);
+                    DatasetEvaluator.simulatedPollsDbTableName(), true);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(pollData.toString());
@@ -405,7 +405,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             windowSize = realPoll.getWindowSize();
         }
 
-        // load the last window from dataset
+        // load the simulated window from dataset. We can use feed.getLastPollTimeSQLTimestamp() only because we set it
+        // to the current simulated poll before.
         List<EvaluationFeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(
                 feed.getId(),
                 feed.getLastPollTimeSQLTimestamp(),
