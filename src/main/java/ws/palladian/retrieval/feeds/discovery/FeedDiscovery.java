@@ -289,6 +289,9 @@ public class FeedDiscovery {
                 + " results per query = max. " + numResults * queryQueue.size()
                 + " URLs to check for feeds; number of threads = " + numThreads);
 
+        // prevent running through the discovery step when no search results are available yet.
+        final Object lock = new Object();
+
         // do the search
         Thread searchThread = new Thread() {
             @Override
@@ -298,6 +301,11 @@ public class FeedDiscovery {
                 int currentQuery = 0;
                 while ((query = queryQueue.poll()) != null) {
                     Set<String> foundSites = searchSites(query, numResults);
+                    if (foundSites.size() > 0) {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
+                    }
                     urlQueue.addAll(foundSites);
 
                     currentQuery++;
@@ -309,9 +317,21 @@ public class FeedDiscovery {
 
                 }
                 LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
+                synchronized (lock) {
+                    lock.notify();
+                }
             }
         };
         searchThread.start();
+
+        // wait here, until the first query iteration has finished
+        try {
+            synchronized (lock) {
+                lock.wait();
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error(e);
+        }
 
         // do the autodiscovery in parallel
         Thread[] threads = new Thread[numThreads];
