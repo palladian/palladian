@@ -113,8 +113,6 @@ public class BayesClassifierTest {
 
         Assert.assertEquals(0.944137944486995, newInstance.getMainCategoryEntry().getRelevance());
         Assert.assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
-
     }
-
 
 }
