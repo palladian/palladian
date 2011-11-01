@@ -60,9 +60,9 @@ public class HtmlHelperTest {
         String content = crawler.getTextDocument(HtmlHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
-        System.out.println(result);
-        // System.out.println(DigestUtils.md5Hex(result));
-        Assert.assertEquals("ecf0720bd7f9afc0dc40ec100ca8e96f", DigestUtils.md5Hex(result));
+//        System.out.println(result);
+//        System.out.println(DigestUtils.md5Hex(result));
+        Assert.assertEquals("c0c945f6c051e19d55178f645a587898", DigestUtils.md5Hex(result));
     }
 
     @Test
