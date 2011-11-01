@@ -95,8 +95,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             // add the counts of the values of the numeric features to the tensor
             List<Double> numericFeatures = instance.getNumericFeatures();
 
+            firstNumericFeatureIndex = featureIndex;
             for (Double numericFeatureValue : numericFeatures) {
-                firstNumericFeatureIndex = featureIndex;
 
                 Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, classValue.getName(),
                         numericFeatureValue);
@@ -291,7 +291,6 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
         // do this for numeric features
         List<Double> numericFeatures = instance.getNumericFeatures();
 
-        featureIndex = 0;
         for (Double numericFeatureValue : numericFeatures) {
 
             for (Category category : categories) {
@@ -306,7 +305,7 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                 }
 
                 double mean = entry[0];
-                double standardDeviation = entry[1];
+                double standardDeviation = entry[1] + 0.01;
 
                 // calculate the probability using the density function
                 double densityFunctionValue = 1
