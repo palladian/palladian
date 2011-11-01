@@ -278,7 +278,7 @@ public class EvaluationSchedulerTask extends TimerTask {
             // important! empty queue!!
             ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
 
-            LOGGER.info("All EvaluationFeedTasks done. Goodbye.");
+            LOGGER.info("All EvaluationFeedTasks done.");
             feedReader.setStopped(true);
         }
     }

@@ -127,21 +127,39 @@ public class DatasetEvaluator {
      * postfix "_feeds" or "_items" for these two different averaging modes.
      */
     private void writeResultsToDB() {
-        boolean createdFeeds = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateEvaluationResultsPerStrategy(simulatedPollsDbTableName(), true);
-        boolean createdItems = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateEvaluationResultsPerStrategy(simulatedPollsDbTableName(), false);
+        String modeFeedsName = simulatedPollsDbTableName() + "_feeds";
+        boolean tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .createEvaluationResultsPerStrategyTable(modeFeedsName, true);
+        boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), modeFeedsName, true);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
+                modeFeedsName, true);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
+                modeFeedsName, true);
 
-        if (createdFeeds) {
+        modeFeedsName = simulatedPollsDbTableName() + "_items";
+        tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore()).createEvaluationResultsPerStrategyTable(
+                modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).generateBasicEvaluationResultsPerStrategy(
+                simulatedPollsDbTableName(), modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
+                modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
+                modeFeedsName, false);
+
+        // boolean createdItems = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+        // .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), false);
+
+        if (dataWritten) {
             LOGGER.info("Evaluation results for averaging mode feeds have been written to database.");
         } else {
             LOGGER.fatal("Evaluation results for averaging mode feeds have NOT been written to database.");
         }
-        if (createdItems) {
-            LOGGER.info("Evaluation results for averaging mode items have been written to database.");
-        } else {
-            LOGGER.fatal("Evaluation results for averaging mode items have NOT been written to database.");
-        }
+        // if (createdItems) {
+        // LOGGER.info("Evaluation results for averaging mode items have been written to database.");
+        // } else {
+        // LOGGER.fatal("Evaluation results for averaging mode items have NOT been written to database.");
+        // }
 
     }
 
