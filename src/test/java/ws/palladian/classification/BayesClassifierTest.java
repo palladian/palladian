@@ -7,6 +7,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import ws.palladian.helper.math.MathHelper;
+
 public class BayesClassifierTest {
 
     @Test
@@ -111,10 +113,8 @@ public class BayesClassifierTest {
 
         // System.out.println(newInstance);
 
-        Assert.assertEquals(0.944137944486995, newInstance.getMainCategoryEntry().getRelevance());
+        Assert.assertEquals(0.944, MathHelper.round(newInstance.getMainCategoryEntry().getRelevance(),3));
         Assert.assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
-
     }
-
 
 }

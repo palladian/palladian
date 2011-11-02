@@ -216,7 +216,7 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
+			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.0.1</version>
 		</dependency>
@@ -428,6 +428,18 @@
          <name>BoneCP Repository</name>
          <url>http://jolbox.com/bonecp/downloads/maven</url>
       </repository>
+		<repository>
+			<id>Apache Repository</id>
+			<url>https://repository.apache.org</url>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<id>bonecp-repo</id>
+			<name>BoneCP Repository</name>
+			<url>http://jolbox.com/bonecp/downloads/maven</url>
+		</repository>
 		<repository>
 			<id>MVN Repository</id>
 			<url>http://mvnrepository.com/</url>
