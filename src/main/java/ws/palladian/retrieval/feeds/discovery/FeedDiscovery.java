@@ -39,7 +39,8 @@ import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
- * <p>FeedDiscovery works like the following:
+ * <p>
+ * FeedDiscovery works like the following:
  * <ol>
  * <li>Query search engine with some terms (see {@link WebSearcherManager} for available search engines)</li>
  * <li>Get root URLs for each hit</li>
@@ -91,7 +92,7 @@ public class FeedDiscovery {
 
     /** The number of pages we checked. */
     private AtomicInteger pageCounter = new AtomicInteger();
-    
+
     /** The number of errors, i.e. unreachable and unparsable pages. */
     private AtomicInteger errorCounter = new AtomicInteger();
 
@@ -118,7 +119,9 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Search for Sites by specified query.
+     * </p>
      * 
      * @param query
      * @param totalResults
@@ -148,10 +151,12 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Discovers feed links in supplied page URL.
+     * </p>
      * 
      * @param pageUrl
-     * @return list of discovered feed URLs, empty list if no feeds are available, <code>null</code> if page could not
+     * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if page could not
      *         be parsed.
      */
     public List<DiscoveredFeed> discoverFeeds(String pageUrl) {
@@ -177,8 +182,10 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Uses autodiscovery feature with MIME types "application/atom+xml" and "application/rss+xml" to find linked feeds
      * in the specified Document.
+     * </p>
      * 
      * @param document
      * @return list of discovered feed URLs or empty list.
@@ -270,7 +277,9 @@ public class FeedDiscovery {
     }
 
     /**
-     * Find feeds in all pages on the urlQueue tack. We use threading here to check multiple pages simultaneously.
+     * <p>
+     * Find feeds in all pages in the urlQueue. We use threading here to check multiple pages simultaneously.
+     * </p>
      */
     public void findFeeds() {
 
@@ -279,6 +288,9 @@ public class FeedDiscovery {
         LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
                 + " results per query = max. " + numResults * queryQueue.size()
                 + " URLs to check for feeds; number of threads = " + numThreads);
+
+        // prevent running through the discovery step when no search results are available yet.
+        final Object lock = new Object();
 
         // do the search
         Thread searchThread = new Thread() {
@@ -289,19 +301,37 @@ public class FeedDiscovery {
                 int currentQuery = 0;
                 while ((query = queryQueue.poll()) != null) {
                     Set<String> foundSites = searchSites(query, numResults);
+                    if (foundSites.size() > 0) {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
+                    }
                     urlQueue.addAll(foundSites);
-                    
+
                     currentQuery++;
                     float percentage = (float) 100 * currentQuery / totalQueries;
                     float querySpeed = (float) currentQuery / stopWatch.getElapsedTime() * DateHelper.MINUTE_MS;
-                    LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: " + foundSites.size() +
-                            "; progress: " + percentage + "%" + "; query speed: " + querySpeed + " queries/min");
-                    
+                    LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: "
+                            + foundSites.size() + "; progress: " + percentage + "%" + "; query speed: " + querySpeed
+                            + " queries/min");
+
                 }
                 LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
+                synchronized (lock) {
+                    lock.notify();
+                }
             }
         };
         searchThread.start();
+
+        // wait here, until the first query iteration has finished
+        try {
+            synchronized (lock) {
+                lock.wait();
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error(e);
+        }
 
         // do the autodiscovery in parallel
         Thread[] threads = new Thread[numThreads];
@@ -339,13 +369,11 @@ public class FeedDiscovery {
                                 float elapsedMinutes = (float) stopWatch.getElapsedTime() / DateHelper.MINUTE_MS;
                                 float pageThroughput = pageCounter.get() / elapsedMinutes;
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
-                                LOGGER.info("# checked pages: " + pageCounter.intValue() + 
-                                        "; # discovered feeds: " + feedCounter.intValue() + 
-                                        "; # errors: " + errorCounter.intValue() +
-                                        "; elapsed time: " + stopWatch.getElapsedTimeString() + 
-                                        "; throughput: " + pageThroughput + " pages/min" +
-                                        "; discovery speed: " + feedThroughput + " feeds/min" +
-                                        "; url queue size: " + urlQueue.size());
+                                LOGGER.info("# checked pages: " + pageCounter.intValue() + "; # discovered feeds: "
+                                        + feedCounter.intValue() + "; # errors: " + errorCounter.intValue()
+                                        + "; elapsed time: " + stopWatch.getElapsedTimeString() + "; throughput: "
+                                        + pageThroughput + " pages/min" + "; discovery speed: " + feedThroughput
+                                        + " feeds/min" + "; url queue size: " + urlQueue.size());
                             }
 
                         } catch (Throwable t) {
@@ -379,9 +407,10 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Specify the path for the result file. If file already exists, new entries will be appended. The result file will
-     * be written continuously. If <code>null</code>, no result file will be written, the result can be retrieved via
-     * {@link #getFeeds()}.
+     * be written continuously. If <code>null</code>, no result file will be written.
+     * </p>
      * 
      * @param resultFilePath
      */
@@ -394,7 +423,9 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Add a query for the search engine.
+     * </p>
      * 
      * @param query The query to add.
      */
@@ -403,7 +434,9 @@ public class FeedDiscovery {
     }
 
     /**
-     * Add queryQueue for the search engine.
+     * <p>
+     * Add multiple queries for the search engine.
+     * </p>
      * 
      * @param queries A collection of queries.
      */
@@ -412,7 +445,9 @@ public class FeedDiscovery {
     }
 
     /**
-     * Add multiple queries from a query file.
+     * <p>
+     * Add multiple queries from a newline separeted query file.
+     * </p>
      * 
      * @param filePath
      */
@@ -421,12 +456,10 @@ public class FeedDiscovery {
         addQueries(queries);
     }
 
-    public Collection<String> getQueryQueue() {
-        return queryQueue;
-    }
-
     /**
+     * <p>
      * Set max number of concurrent autodiscovery requests.
+     * </p>
      * 
      * @param maxThreads
      */
@@ -435,7 +468,9 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Set number of results to retrieve for each query.
+     * </p>
      * 
      * @param numResults The number of results for one query.
      */
@@ -443,6 +478,13 @@ public class FeedDiscovery {
         this.numResults = numResults;
     }
 
+    /**
+     * <p>
+     * Set the search engine to use. See {@link WebSearcherManager} for available constants.
+     * </p>
+     * 
+     * @param searchEngine
+     */
     public void setSearchEngine(int searchEngine) {
         LOGGER.trace("using " + WebSearcherManager.getName(searchEngine));
         this.searchEngine = searchEngine;
@@ -453,7 +495,9 @@ public class FeedDiscovery {
     }
 
     /**
+     * <p>
      * Use the given queries and combine them, to get the specified targetCount of queries.
+     * </p>
      * 
      * <ul>
      * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
@@ -507,6 +551,14 @@ public class FeedDiscovery {
 
     }
 
+    /**
+     * <p>
+     * Set to <code>true</code> to write a full CSV file with additional information, like feed title, type, page link.
+     * If <code>false</code> only the feed's URL will be written.
+     * </p>
+     * 
+     * @param csvOutput
+     */
     public void setCsvOutput(boolean csvOutput) {
         this.csvOutput = csvOutput;
     }
