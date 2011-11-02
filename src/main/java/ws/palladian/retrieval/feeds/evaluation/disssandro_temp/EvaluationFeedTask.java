@@ -123,8 +123,9 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Warn if processing of a feed takes longer than this.
+     * TODO: align warning time to the feed's number of items in the dataset.
      */
-    public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+    public static final long EXECUTION_WARN_TIME = 10 * DateHelper.MINUTE_MS;
 
     /**
      * Creates a new retrieval task for a provided feed.
@@ -149,6 +150,9 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         simulatedCurrentPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
     }
 
+    /**
+     * Backup some parameter values from the previous poll to be used in the next poll.
+     */
     private void backupFeed() {
         this.lastPollTime = feed.getLastPollTimeSQLTimestamp();
         this.lastNewestItemHash = feed.getNewestItemHash();

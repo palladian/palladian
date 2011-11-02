@@ -186,7 +186,9 @@ public class DatasetEvaluator {
                 updateStrategy = new FixUpdateStrategy();
                 int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
                 ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
-                logMsg.append("Fix").append(fixInterval).append(" ");
+                logMsg.append("Fix");
+                logMsg.append(fixInterval);
+                logMsg.append(" ");
             }
             // Fix Learned
             else if (strategy.equalsIgnoreCase("FixLearned")) {
@@ -239,6 +241,8 @@ public class DatasetEvaluator {
         }
 
         if (!fatalErrorOccurred) {
+
+            LOGGER.info(logMsg.toString());
 
             // set some defaults not provided by config file
             int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
