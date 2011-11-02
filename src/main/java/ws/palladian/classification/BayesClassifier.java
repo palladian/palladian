@@ -277,10 +277,10 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
             for (Category category : categories) {
                 Double prob = (Double) bayesProbabilityTensor
                         .get(featureIndex, category.getName(), nominalFeatureValue);
-                // ignore if there was nothing learned for the featureValue
-                // class combination
+
+                // if there was nothing learned for the featureValue class combination, we set the probability to 0
                 if (prob == null) {
-                    continue;
+                    prob = 0.0;
                 }
                 probabilities.put(category, probabilities.get(category) * prob);
             }
