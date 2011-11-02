@@ -661,13 +661,29 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      */
     public void deleteAll() {
         Boolean openedTransaction = openTransaction();
-        getManager().createQuery("DELETE FROM Item").executeUpdate();
-        getManager().createQuery("DELETE FROM StreamSource").executeUpdate();
-        getManager().createQuery("DELETE FROM ItemStream").executeUpdate();
-        getManager().createQuery("DELETE FROM StreamGroup").executeUpdate();
-        getManager().createQuery("DELETE FROM Author").executeUpdate();
-        getManager().createQuery("DELETE FROM ItemRelation").executeUpdate();
-        getManager().createQuery("DELETE FROM RelationType").executeUpdate();
-        commitTransaction(openedTransaction);
+        try {
+            getManager().createQuery("DELETE FROM Item").executeUpdate();
+            getManager().createQuery("DELETE FROM StreamSource").executeUpdate();
+            getManager().createQuery("DELETE FROM ItemStream").executeUpdate();
+            getManager().createQuery("DELETE FROM StreamGroup").executeUpdate();
+            getManager().createQuery("DELETE FROM Author").executeUpdate();
+            getManager().createQuery("DELETE FROM ItemRelation").executeUpdate();
+            getManager().createQuery("DELETE FROM RelationType").executeUpdate();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @return
+     */
+    public Integer countItems() {
+        Query query = getManager().createQuery("SELECT COUNT(i) FROM Item i");
+        Boolean openedTransaction = openTransaction();
+        try {
+            return (Integer)query.getSingleResult();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 }
