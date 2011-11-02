@@ -113,9 +113,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-		  <groupId>uk.ac.shef.wit.simmetrics</groupId>
-		  <artifactId>similaritymetrics</artifactId>
-		  <version>1.6.2</version>
+			<groupId>uk.ac.shef.wit.simmetrics</groupId>
+			<artifactId>similaritymetrics</artifactId>
+			<version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -213,7 +213,7 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
+			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.0.1</version>
 		</dependency>
@@ -400,6 +400,18 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
+		<repository>
+			<id>Apache Repository</id>
+			<url>https://repository.apache.org</url>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<id>bonecp-repo</id>
+			<name>BoneCP Repository</name>
+			<url>http://jolbox.com/bonecp/downloads/maven</url>
+		</repository>
 		<repository>
 			<id>MVN Repository</id>
 			<url>http://mvnrepository.com/</url>
