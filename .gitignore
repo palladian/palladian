@@ -30,3 +30,4 @@
 /src/main/resources/log4j.properties
 
 /target
+/.classpath
