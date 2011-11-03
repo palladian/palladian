@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -609,7 +610,20 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        new Temp().getPaginationFromGoogle("http://www.google.de/search?sourceid=chrome&ie=UTF-8&q=test");
+
+        List<String> collection = new ArrayList<String>();
+        for (int i = 0; i < 500; i++) {
+                collection.add(LoremIpsumGenerator.getRandomText(80));
+        }
+        
+        for (int i = 0; i < 20; i++) {
+            Collection<String> randomSample = MathHelper.randomSample(collection, 400);
+            CollectionHelper.print(randomSample);
+        }
+        
+        System.out.println("done");
+        
+        //new Temp().getPaginationFromGoogle("http://www.google.de/search?sourceid=chrome&ie=UTF-8&q=test");
         System.exit(0);
         //args = new String[]{"data/temp/feedgz","data/temp/feedgz/copy/","100"};
         new Temp().createSubset(args[0],args[1], Integer.valueOf(args[2]));
