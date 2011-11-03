@@ -109,7 +109,7 @@ public class DatasetEvaluator {
         feedReader.setUpdateStrategy(updateStrategy, true);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
-        simulatedPollsDbTable = "feed_eval_" + feedReader.getUpdateStrategyName() + "_"
+        simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
                 + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
