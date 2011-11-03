@@ -436,14 +436,6 @@
 			<url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
 		</repository>
 		<repository>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<id>bonecp-repo</id>
-			<name>BoneCP Repository</name>
-			<url>http://jolbox.com/bonecp/downloads/maven</url>
-		</repository>
-		<repository>
 			<id>MVN Repository</id>
 			<url>http://mvnrepository.com/</url>
 		</repository>
