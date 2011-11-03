@@ -62,7 +62,8 @@ public class HtmlHelperTest {
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
 //        System.out.println(result);
 //        System.out.println(DigestUtils.md5Hex(result));
-        Assert.assertEquals("c0c945f6c051e19d55178f645a587898", DigestUtils.md5Hex(result));
+//        System.out.println(DigestUtils.sha256Hex(result));
+        Assert.assertEquals("98f78a30560c5562b82985f4ce1f9455675d56138c948cbc36360c41994ea008", DigestUtils.sha256Hex(result));
     }
 
     @Test
