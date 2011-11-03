@@ -60,9 +60,10 @@ public class HtmlHelperTest {
         String content = crawler.getTextDocument(HtmlHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
-//        System.out.println(result);
-//        System.out.println(DigestUtils.md5Hex(result));
-        Assert.assertEquals("c0c945f6c051e19d55178f645a587898", DigestUtils.md5Hex(result));
+        System.out.println(result);
+        String stripped = "Samsung S8500 Wave 3D view, 360&deg; spin GSMArena.com HomeNewsReviewsBlogRankingsCoverageSoftwareGlossaryFAQLinksContact us Advanced search Samsung S8500 Wave 3D view - 360&deg; spin Samsung S8500 Wave review: Hello, world!Samsung S8500 Wave preview: First lookMWC 2010: Samsung overviewSpecifications Read opinions Compare Pictures Related &nbsp;(new) Manual Check Price WElectronicsPlemixOmio (UK)Mobile City OnlineSelectGSM Popularity Daily interest 48% Total hits: 1266454 Voting results Design 9.1 Features 9.1 Performance 9.1 12345678910 12345678910 12345678910 Votes: 38011 &nbsp; Drag to rotate, double-click to spin 360&deg;. In order to see the 360&deg; rotation the Flash plugin is required. &nbsp; &nbsp; NokiaSamsungMotorolaSony EricssonLGAppleHTCi-mateO2EtenHPGarmin- AsusGigabyteAcerPalmBlackBerryMicrosoftVodafoneT-MobileSagemAlcatelPhilipsSharpToshibaBenQHuaweiPantechi-mobileZTEiNQMicromaxVertu more rumor mill Phone finder Home News Reviews Blog Forum Compare Links Glossary &nbsp;RSS feed &nbsp;Facebook Privacy policy Contact us &copy; 2000 - 2010 GSMArena.com team. Terms of use.";
+//        System.out.println(DigestUtils.md5Hex(stripped));
+        Assert.assertEquals(DigestUtils.md5Hex(stripped), DigestUtils.md5Hex(result));
     }
 
     @Test
