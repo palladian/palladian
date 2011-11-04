@@ -34,10 +34,11 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     private static final String GET_FEEDS_WITH_TIMESTAMPS = "SELECT * FROM feeds WHERE hasPubDate = 1 OR hasUpdated = 1 OR hasPublished = 1 OR totalItems = 0";
     private static final String ADD_EVALUATION_ITEMS = "INSERT IGNORE INTO feed_evaluation_items SET feedId = ?, sequenceNumber = ?, pollTimestamp = ?, extendedItemHash = ?, publishTime = ?, correctedPublishTime = ?";
     private static final String GET_EVALUATION_ITEMS_BY_ID = "SELECT * FROM feed_evaluation_items WHERE feedId = ? ORDER BY feedId ASC, sequenceNumber ASC LIMIT ?, ?;";
-    private static final String GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_LIMIT = "SELECT * FROM feed_evaluation_items WHERE feedId = ? AND correctedPublishTime <= ? ORDER BY sequenceNumber DESC LIMIT 0, ?";
+    private static final String GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_LIMIT = "SELECT * FROM feed_evaluation_items FORCE INDEX (PRIMARY, correctedPublishTime_idx) WHERE feedId = ? AND correctedPublishTime <= ? ORDER BY sequenceNumber DESC LIMIT 0, ?";
+    private static final String GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_RANGE_LIMIT = "SELECT * FROM feed_evaluation_items FORCE INDEX (PRIMARY, correctedPublishTime_idx) WHERE feedId = ? AND correctedPublishTime <= ? AND correctedPublishTime >= ? ORDER BY sequenceNumber DESC LIMIT 0, ?";
     private static final String ADD_EVALUATION_POLL = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, numberOfPoll = ?, numPollNewItem = ?, activityPattern = ?, sizeOfPoll = ?, pollTimestamp = ?, checkInterval = ?, newWindowItems = ?, missedItems = ?, windowSize = ?, cumulatedDelay = ?, pendingItems = ?, droppedItems = ?";
     /** reset table feeds except activityPattern and blocked. */
-    private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, windowSize = DEFAULT, hasVariableWindowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, httpHeaderSize = DEFAULT";
+    private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, windowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, httpHeaderSize = DEFAULT";
 
     private static final String GET_NUMBER_MISSED_ITEMS_BY_ID_SEQUENCE_NUMBERS = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND sequenceNumber > ? AND sequenceNumber < ?";
 
@@ -193,6 +194,41 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         return simulatedWindow;
     }
 
+    /**
+     * Get a simulated window from table feed_evaluation_items by feedID. Use if you know that the feeds has no variable
+     * windowSize and you got at least one window before the current simulated poll. This is much faster than
+     * {@link #getEvaluationItemsByIDCorrectedPublishTimeLimit(int, Timestamp, int)}. <br />
+     * <br />
+     * Items are ordered by pollTimestamp DESC and correctedPublishTime DESC, we start with the provided
+     * correctedPublishTime and load the last #window items (that are older).
+     * 
+     * @param feedId The feed to get items for
+     * @param correctedPublishTime The timestamp of the simulated poll
+     * @param correctedPublishTimeLowerBound The timestamp of the oldest item from the previous poll
+     * @param window Use db's LIMIT command to limit number of results. LIMIT 0, window
+     * @return a simulated window.
+     */
+    public List<EvaluationFeedItem> getEvaluationItemsByIDCorrectedPublishTimeRangeLimit(int feedId,
+            Timestamp correctedPublishTime, Timestamp correctedPublishTimeLowerBound, int window) {
+
+        // try to get simulated window from local cache
+        List<EvaluationFeedItem> simulatedWindow = getSimulatedWindowFromCache(feedId);
+
+        // if we didn't found it, load it from db and cache the response.
+        if (simulatedWindow == null) {
+
+            simulatedWindow = runQuery(new FeedEvaluationItemRowConverter(),
+                    GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_RANGE_LIMIT, feedId, correctedPublishTime, 
+                    correctedPublishTimeLowerBound, window); 
+
+            putSimulatedWindowToCache(feedId, simulatedWindow);
+        } else {
+            // LOGGER.info("FeedId " + feedId + ": got simulated window from cache.");
+        }
+        return simulatedWindow;
+    }
+
+    
     /**
      * Load the simulatedWindow from cache if it has been cached.
      * <p>
@@ -765,8 +801,9 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Reset all rows of table feeds to default values except totalItems, activityPattern, isAccessibleFeed, hasItemIds,
-     * hasPubDate, hasCloud, ttl, hasSkipHours, hasSkipDays, hasUpdated, hasPublished and supportsPubSubHubBub.
+     * Reset all rows of table feeds to default values except totalItems, hasVariableWindowSize, activityPattern,
+     * isAccessibleFeed, hasItemIds, hasPubDate, hasCloud, ttl, hasSkipHours, hasSkipDays, hasUpdated, hasPublished and
+     * supportsPubSubHubBub.
      * 
      * @return <code>true</code> if successful, <code>false</code> otherwise.
      */

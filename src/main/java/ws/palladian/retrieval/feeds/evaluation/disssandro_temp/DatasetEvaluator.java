@@ -129,7 +129,7 @@ public class DatasetEvaluator {
 
     /**
      * Get evaluation results from {@link #simulatedPollsDbTable} and write to two tables with the same name plus
-     * postfix "_feeds" or "_items" for these two different averaging modes.
+     * postfix "_feeds" and "_avg" for intermediate und final results.
      */
     private void generateEvaluationSummary() {
         boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
