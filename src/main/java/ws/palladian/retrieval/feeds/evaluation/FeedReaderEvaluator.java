@@ -67,12 +67,19 @@ public class FeedReaderEvaluator {
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
+    //
+    // /**
+    // * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00 CEST. Be careful with
+    // * time zones since, Unix timestamp assumes GMT.
+    // */
+    // public static final long BENCHMARK_START_TIME_MILLISECOND = 1310187600000L;
 
     /**
-     * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00 CEST. Be careful with
+     * The timestamp almost all feeds have been polled at least once. 2011-07-16 07:00 CEST. Be careful with
      * time zones since, Unix timestamp assumes GMT.
      */
-    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310187600000L;
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310792400000L;
+
 
     /**
      * The timestamp we stopped the dataset gathering, minus a buffer to make sure all items published before the stop
