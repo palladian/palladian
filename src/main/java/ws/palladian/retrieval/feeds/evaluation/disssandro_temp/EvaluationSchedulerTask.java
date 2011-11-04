@@ -137,8 +137,9 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         }
 
-        // on average, one thread should process at least 3 feeds per minute
-        HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
+        // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
+        // more than 10k polls
+        HIGH_LOAD_THROUGHPUT = (int) (0.2 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
     }
 
     /*
@@ -278,7 +279,7 @@ public class EvaluationSchedulerTask extends TimerTask {
             // important! empty queue!!
             ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
 
-            LOGGER.info("All EvaluationFeedTasks done. Goodbye.");
+            LOGGER.info("All EvaluationFeedTasks done.");
             feedReader.setStopped(true);
         }
     }

@@ -50,7 +50,7 @@ public class WebSearcherManager {
     private int numberOfHakiaRequests = 0;
     private int numberOfBingRequests = 0;
     private int numberOfTwitterRequests = 0;
-    private int numberOfGoogleBlogsRequests = 0;
+    // private int numberOfGoogleBlogsRequests = 0;
     private int numberOfTextRunnerRequests = 0;
     private int numberOfClueWebRequests = 0;
 
@@ -105,6 +105,8 @@ public class WebSearcherManager {
     public int getRequestCount(int source) {
         switch (source) {
             case GOOGLE:
+            case GOOGLE_BLOGS:
+            case GOOGLE_NEWS:
                 return numberOfGoogleRequests;
             case HAKIA:
                 return numberOfHakiaRequests;
@@ -112,8 +114,6 @@ public class WebSearcherManager {
                 return numberOfBingRequests;
             case TWITTER:
                 return numberOfTwitterRequests;
-            case GOOGLE_BLOGS:
-                return numberOfGoogleBlogsRequests;
             case CLUEWEB:
                 return numberOfClueWebRequests;
         }
@@ -129,6 +129,8 @@ public class WebSearcherManager {
     public void addRequest(int source) {
         switch (source) {
             case GOOGLE:
+            case GOOGLE_BLOGS:
+            case GOOGLE_NEWS:
                 numberOfGoogleRequests++;
                 break;
             case HAKIA:
@@ -140,11 +142,9 @@ public class WebSearcherManager {
             case TWITTER:
                 numberOfTwitterRequests++;
                 break;
-            case GOOGLE_BLOGS:
-                numberOfGoogleBlogsRequests++;
-                break;
             case CLUEWEB:
                 numberOfClueWebRequests++;
+                break;
             default:
                 break;
         }
@@ -164,7 +164,6 @@ public class WebSearcherManager {
         logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests).append("\n");
         logs.append("Number of Bing requests: ").append(numberOfBingRequests).append("\n");
         logs.append("Number of Twitter requests: ").append(numberOfTwitterRequests).append("\n");
-        logs.append("Number of Google Blogs requests: ").append(numberOfGoogleBlogsRequests).append("\n");
         logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
         logs.append("Number of ClueWeb requests: ").append(numberOfClueWebRequests).append("\n");
 

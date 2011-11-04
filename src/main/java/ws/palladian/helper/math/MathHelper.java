@@ -454,17 +454,15 @@ public class MathHelper {
             return collection;
         }
 
+        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
+        
+        Set<Integer> indicesUsed = new HashSet<Integer>();
         Set<T> sampledCollection = new HashSet<T>();
 
-        while (sampledCollection.size() < sampleSize) {
-            int collectionSize = collection.size();
+        for (int randomIndex : randomNumbers) {
 
-            // pick a random entry from the collection
-            int randomIndex = (int) (Math.random() * collectionSize + 1);
             int currentIndex = 0;
-            Iterator<T> cIterator = collection.iterator();
-            while (cIterator.hasNext()) {
-                T o = cIterator.next();
+            for (T o : collection) {
 
                 if (currentIndex < randomIndex) {
                     currentIndex++;
@@ -472,7 +470,7 @@ public class MathHelper {
                 }
 
                 sampledCollection.add(o);
-                collection.remove(o);
+                indicesUsed.add(randomIndex);
                 break;
             }
 

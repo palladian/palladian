@@ -288,7 +288,6 @@ public final class FeedReader {
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
                 + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
-        System.exit(0);
     }
 
     /** Start continuous reading without a time limit. */
