@@ -677,11 +677,11 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
     /**
      * @return
      */
-    public Integer countItems() {
+    public Long countItems() {
         Query query = getManager().createQuery("SELECT COUNT(i) FROM Item i");
         Boolean openedTransaction = openTransaction();
         try {
-            return (Integer)query.getSingleResult();
+            return (Long)query.getSingleResult();
         } finally {
             commitTransaction(openedTransaction);
         }
