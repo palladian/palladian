@@ -51,7 +51,8 @@ public class DatasetEvaluator {
     private final FeedReader feedReader;
 
     /**
-     * The name of the database table to write simulated poll data to.
+     * The name of the database table to write simulated poll data to. This name is specific for an update strategy,
+     * its parameters and the time it has been created, e.g. "eval_fixLearned_min_time_100_2011-11-02_14-59-58".
      */
     private static String simulatedPollsDbTable;
 
@@ -65,7 +66,9 @@ public class DatasetEvaluator {
     }
 
     /**
-     * @return The name of the database table to write simulated poll data to.
+     * @return The name of the database table to write simulated poll data to. This name is specific for an update
+     *         strategy, its parameters and the time it has been created, e.g.
+     *         "eval_fixLearned_min_time_100_2011-11-02_14-59-58".
      */
     public static String simulatedPollsDbTableName() {
         return simulatedPollsDbTable;
@@ -126,41 +129,14 @@ public class DatasetEvaluator {
      * Get evaluation results from {@link #simulatedPollsDbTable} and write to two tables with the same name plus
      * postfix "_feeds" or "_items" for these two different averaging modes.
      */
-    private void writeResultsToDB() {
-        String modeFeedsName = simulatedPollsDbTableName() + "_feeds";
-        boolean tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationResultsPerStrategyTable(modeFeedsName, true);
+    private void generateEvaluationSummary() {
         boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), modeFeedsName, true);
-        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
-                modeFeedsName, true);
-        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
-                modeFeedsName, true);
-
-        modeFeedsName = simulatedPollsDbTableName() + "_items";
-        tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore()).createEvaluationResultsPerStrategyTable(
-                modeFeedsName, false);
-        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).generateBasicEvaluationResultsPerStrategy(
-                simulatedPollsDbTableName(), modeFeedsName, false);
-        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
-                modeFeedsName, false);
-        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
-                modeFeedsName, false);
-
-        // boolean createdItems = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-        // .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), false);
-
+                .generateEvaluationSummary(simulatedPollsDbTableName());
         if (dataWritten) {
-            LOGGER.info("Evaluation results for averaging mode feeds have been written to database.");
+            LOGGER.info("Evaluation results have been written to database.");
         } else {
-            LOGGER.fatal("Evaluation results for averaging mode feeds have NOT been written to database.");
+            LOGGER.fatal("Evaluation results have NOT been written to database!");
         }
-        // if (createdItems) {
-        // LOGGER.info("Evaluation results for averaging mode items have been written to database.");
-        // } else {
-        // LOGGER.fatal("Evaluation results for averaging mode items have NOT been written to database.");
-        // }
-
     }
 
     /**
@@ -254,7 +230,7 @@ public class DatasetEvaluator {
             DatasetEvaluator evaluator = new DatasetEvaluator();
             evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
             evaluator.runEvaluation();
-            evaluator.writeResultsToDB();
+            evaluator.generateEvaluationSummary();
             // this is a normal exit
             System.exit(0);
         } else {

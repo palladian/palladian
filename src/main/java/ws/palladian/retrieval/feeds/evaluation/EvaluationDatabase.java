@@ -13,7 +13,7 @@ import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator.Policy;
 
 /**
- * A database for feed reading evaluation.
+ * A database for feed reading evaluation of first feed paper.
  * 
  * @author Sandro Reichert
  */
