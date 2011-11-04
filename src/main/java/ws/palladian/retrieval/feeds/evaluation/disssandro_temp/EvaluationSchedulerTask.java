@@ -121,8 +121,8 @@ public class EvaluationSchedulerTask extends TimerTask {
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
 
-        // configure monitoring and logging
 
+        // configure monitoring and logging
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         errorMailNotification = ERROR_MAIL_NOTIFICATION_DEFAULT;
         if (config != null) {
@@ -291,8 +291,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      * @return
      */
     private Collection<Feed> getFeeds() {
-
-            return feedReader.getFeeds();
+        return ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
     }
 
     /**
