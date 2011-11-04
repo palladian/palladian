@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
+import java.util.Collection;
 import java.util.Date;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -60,7 +61,7 @@ public class DatasetEvaluator {
         final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
                 .getInstance().getConfig());
         // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
-        // table when creating the FeedReader. Any subsequent changes are ignored...
+        // table in it's constructor. Any subsequent changes are ignored...
         ((EvaluationFeedDatabase) feedStore).resetTableFeeds();
         feedReader = new FeedReader(feedStore);
     }
@@ -88,7 +89,7 @@ public class DatasetEvaluator {
      * <li>
      * Initializes all {@link Feed}s so that their lastPollTime is equal to
      * {@link FeedReaderEvaluator#BENCHMARK_START_TIME_MILLISECOND} and updateInterval is 0 and update feeds in
-     * database.</li>
+     * database. furthermore, removes all feeds that do not contain publish timestamps</li>
      * <li>
      * Set benchmark policy.</li>
      * <li>
@@ -101,10 +102,11 @@ public class DatasetEvaluator {
      */
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
             UpdateStrategy updateStrategy, long wakeUpInterval) {
-        for (Feed feed : feedReader.getFeeds()) {
+        Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
+        for (Feed feed : feeds) {
+            feed.setNumberOfItemsReceived(0);
             feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
             feed.setUpdateInterval(0);
-            // feedReader.updateFeed(feed, false, false);
         }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);

@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,9 +13,11 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedEvaluationItemRowConverter;
+import ws.palladian.retrieval.feeds.persistence.FeedRowConverter;
 
 /**
  * TUDCS6 specific evaluation code.
@@ -28,12 +31,13 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     private static final Logger LOGGER = Logger.getLogger(EvaluationFeedDatabase.class);
 
     private static final String TABLE_REPLACEMENT = "###TABLE_NAME###";
+    private static final String GET_FEEDS_WITH_TIMESTAMPS = "SELECT * FROM feeds WHERE hasPubDate = 1 OR hasUpdated = 1 OR hasPublished = 1 OR totalItems = 0";
     private static final String ADD_EVALUATION_ITEMS = "INSERT IGNORE INTO feed_evaluation_items SET feedId = ?, sequenceNumber = ?, pollTimestamp = ?, extendedItemHash = ?, publishTime = ?, correctedPublishTime = ?";
     private static final String GET_EVALUATION_ITEMS_BY_ID = "SELECT * FROM feed_evaluation_items WHERE feedId = ? ORDER BY feedId ASC, sequenceNumber ASC LIMIT ?, ?;";
     private static final String GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_LIMIT = "SELECT * FROM feed_evaluation_items WHERE feedId = ? AND correctedPublishTime <= ? ORDER BY sequenceNumber DESC LIMIT 0, ?";
     private static final String ADD_EVALUATION_POLL = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, numberOfPoll = ?, numPollNewItem = ?, activityPattern = ?, sizeOfPoll = ?, pollTimestamp = ?, checkInterval = ?, newWindowItems = ?, missedItems = ?, windowSize = ?, cumulatedDelay = ?, pendingItems = ?, droppedItems = ?";
     /** reset table feeds except activityPattern and blocked. */
-    private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, totalItems = DEFAULT, windowSize = DEFAULT, hasVariableWindowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, isAccessibleFeed = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, hasItemIds = DEFAULT, hasPubDate = DEFAULT, hasCloud = DEFAULT, ttl = DEFAULT, hasSkipHours = DEFAULT, hasSkipDays = DEFAULT, hasUpdated = DEFAULT, hasPublished = DEFAULT, supportsPubSubHubBub = DEFAULT, httpHeaderSize = DEFAULT";
+    private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, windowSize = DEFAULT, hasVariableWindowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, httpHeaderSize = DEFAULT";
 
     private static final String GET_NUMBER_MISSED_ITEMS_BY_ID_SEQUENCE_NUMBERS = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND sequenceNumber > ? AND sequenceNumber < ?";
 
@@ -59,6 +63,11 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * Used as postfix for table names; table contains final evaluation results for mode items and feeds.
      */
     private static final String AVG_POSTFIX = "_avg";
+
+    /**
+     * All feeds from database that do have item timestamps or no items at all.
+     */
+    private final Collection<Feed> feeds;
 
     /** Queue batch inserts into evaluation tables. Structure: Map<SQL statement,list of batchArgs> */
     private static final ConcurrentHashMap<String, List<List<Object>>> BATCH_INSERT_QUEUE = new ConcurrentHashMap<String, List<List<Object>>>();
@@ -86,6 +95,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     
     protected EvaluationFeedDatabase(ConnectionManager connectionManager) {
         super(connectionManager);
+        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
         initializeNewestItemHashes();
     }
 
@@ -100,6 +110,13 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             NEWEST_ITEM_HASHES.put(item.getFeedId(), item.getHash());
         }
 
+    }
+
+    /**
+     * @return All feeds from database that do have item timestamps or no items at all.
+     */
+    public Collection<Feed> getFeedsWithTimestamps() {
+        return feeds;
     }
 
     /**
@@ -748,7 +765,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Reset all rows of table feeds to default values except activityPattern.
+     * Reset all rows of table feeds to default values except totalItems, activityPattern, isAccessibleFeed, hasItemIds,
+     * hasPubDate, hasCloud, ttl, hasSkipHours, hasSkipDays, hasUpdated, hasPublished and supportsPubSubHubBub.
      * 
      * @return <code>true</code> if successful, <code>false</code> otherwise.
      */
