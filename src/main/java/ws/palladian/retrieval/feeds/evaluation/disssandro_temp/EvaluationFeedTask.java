@@ -16,7 +16,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
@@ -38,6 +37,10 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
  * 
  * @author Sandro Reichert
  * @see FeedReader
+ * 
+ */
+/**
+ * @author Sandro Reichert
  * 
  */
 public class EvaluationFeedTask implements Callable<FeedTaskResult> {
@@ -212,7 +215,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 boolean storeMetadata = false;
 
                 // the simulated download of the feed.
-                Feed downloadedFeed = getSimulatedWindowFromDataset();
+                Feed downloadedFeed = getSimulatedWindowFromDataset(new Timestamp(simulatedCurrentPollTime));
 
                 if (downloadedFeed == null) {
                     LOGGER.info("Feed id " + feed.getId()
@@ -412,16 +415,24 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     /**
      * Load the simulated window from database that is likely to be available at this point in time.
      * 
+     * @param simulatedCurrentPollTimestamp The current simulated time.
      * @return A {@link Feed} that contains the simulated window
      */
-    private Feed getSimulatedWindowFromDataset() {
+    private Feed getSimulatedWindowFromDataset(Timestamp simulatedCurrentPollTimestamp) {
         Feed simulatedFeed = new Feed();
 
         simulatedFeed.setId(feed.getId());
 
         // get closed real poll that is in past of the simulated time.
-        PollMetaInformation realPoll = feedDatabase.getEqualOrPreviousFeedPoll(feed.getId(),
-                feed.getLastPollTimeSQLTimestamp());
+        PollMetaInformation realPoll = new PollMetaInformation();
+        if (lastNumberOfPoll == 0) {
+            realPoll = feedDatabase.getEqualOrPreviousFeedPoll(feed.getId(), simulatedCurrentPollTimestamp);
+        } else {
+            realPoll = feedDatabase.getEqualOrPreviousFeedPollByTimeRange(feed.getId(), simulatedCurrentPollTimestamp,
+                    lastPollTime);
+
+        }
+        
 
         // In few cases, we don't have any PollMetaInformation. This happens for feeds that were unparsable at all
         // polls.
@@ -444,9 +455,19 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         // load the simulated window from dataset. We can use feed.getLastPollTimeSQLTimestamp() only because we set it
         // to the current simulated poll before.
-        List<EvaluationFeedItem> simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(
-                feed.getId(), feed.getLastPollTimeSQLTimestamp(), windowSize);
+        List<EvaluationFeedItem> simulatedWindow = new ArrayList<EvaluationFeedItem>();
 
+        // if feed has a variableWindowSize or we haven't received an item so far, do expensive search
+        if (feed.hasVariableWindowSize() == null || feed.hasVariableWindowSize()
+                || feed.getOldestFeedEntryCurrentWindowSqlTimestamp() == null) {
+            simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(feed.getId(),
+                    simulatedCurrentPollTimestamp, windowSize);
+        }
+        // the else statement is much faster for large feeds since we can make better use database indices
+        else {
+            simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeRangeLimit(feed.getId(),
+                    simulatedCurrentPollTimestamp, feed.getOldestFeedEntryCurrentWindowSqlTimestamp(), windowSize);
+        }
         // a bit ugly: Feed takes lists of FeedItem only...
         List<FeedItem> castedList = new ArrayList<FeedItem>(simulatedWindow.size());
         castedList.addAll(simulatedWindow);
