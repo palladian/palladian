@@ -586,7 +586,7 @@ public class DocumentRetriever {
                 try {
                     jsonOBJ = new JSONObject(json);
                 } catch (JSONException e) {
-                    LOGGER.error(url + ", " + e.getMessage());
+                    LOGGER.error(url + ", " + e.getMessage(), e);
                 }
             }
 
@@ -615,7 +615,7 @@ public class DocumentRetriever {
                 try {
                     jsonAR = new JSONArray(json);
                 } catch (JSONException e) {
-                    LOGGER.error(url + ", " + e.getMessage());
+                    LOGGER.error(url + ", " + e.getMessage(), e);
                 }
             }
 
@@ -652,7 +652,8 @@ public class DocumentRetriever {
                     contentString = new String(httpResult.getContent());
                 }
             } catch (IOException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+                LOGGER.error(url + ", " + e.getMessage(), e);
+                throw new IllegalStateException(e);
             } finally {
                 IOUtils.closeQuietly(reader);
             }
@@ -698,13 +699,13 @@ public class DocumentRetriever {
                 callRetrieverCallback(document);
 
             } catch (FileNotFoundException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+                LOGGER.error(url + ", " + e.getMessage(), e);
             } catch (DOMException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+                LOGGER.error(url + ", " + e.getMessage(), e);
             } catch (ParserException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+                LOGGER.error(url + ", " + e.getMessage(), e);
             } catch (HttpException e) {
-                LOGGER.error(url + ", " + e.getMessage());
+                LOGGER.error(url + ", " + e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
@@ -931,7 +932,7 @@ public class DocumentRetriever {
                         statusCodeString = statusCodeString.trim();
                         statusCode = Integer.valueOf(statusCodeString);
                     } catch (Exception e) {
-                        LOGGER.error(e.getMessage());
+                        LOGGER.error(e);
                     }
                 } else {
 
