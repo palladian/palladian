@@ -51,9 +51,9 @@ public class DatasetEvaluator {
     private final FeedReader feedReader;
 
     /**
-     * The name of the database table to write evaluation results to.
+     * The name of the database table to write simulated poll data to.
      */
-    private static String currentDbTable;
+    private static String simulatedPollsDbTable;
 
     public DatasetEvaluator() {
         final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
@@ -65,10 +65,10 @@ public class DatasetEvaluator {
     }
 
     /**
-     * @return The name of the database table to write evaluation results to.
+     * @return The name of the database table to write simulated poll data to.
      */
-    public static String getEvaluationDbTableName() {
-        return currentDbTable;
+    public static String simulatedPollsDbTableName() {
+        return simulatedPollsDbTable;
     }
 
     /**
@@ -109,17 +109,58 @@ public class DatasetEvaluator {
         feedReader.setUpdateStrategy(updateStrategy, true);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
-        currentDbTable = "feed_evaluation_" + feedReader.getUpdateStrategyName() + "_"
+        simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
                 + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationDbTable(getEvaluationDbTableName());
+                .createEvaluationDbTable(simulatedPollsDbTableName());
         if (!created) {
-            LOGGER.fatal("Database table " + getEvaluationDbTableName()
+            LOGGER.fatal("Database table " + simulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
             System.exit(-1);
         }
+    }
+
+    /**
+     * Get evaluation results from {@link #simulatedPollsDbTable} and write to two tables with the same name plus
+     * postfix "_feeds" or "_items" for these two different averaging modes.
+     */
+    private void writeResultsToDB() {
+        String modeFeedsName = simulatedPollsDbTableName() + "_feeds";
+        boolean tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .createEvaluationResultsPerStrategyTable(modeFeedsName, true);
+        boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+                .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), modeFeedsName, true);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
+                modeFeedsName, true);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
+                modeFeedsName, true);
+
+        modeFeedsName = simulatedPollsDbTableName() + "_items";
+        tableCreated = ((EvaluationFeedDatabase) feedReader.getFeedStore()).createEvaluationResultsPerStrategyTable(
+                modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).generateBasicEvaluationResultsPerStrategy(
+                simulatedPollsDbTableName(), modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setAvgDelay(simulatedPollsDbTableName(),
+                modeFeedsName, false);
+        dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore()).setPPI(simulatedPollsDbTableName(),
+                modeFeedsName, false);
+
+        // boolean createdItems = ((EvaluationFeedDatabase) feedReader.getFeedStore())
+        // .generateBasicEvaluationResultsPerStrategy(simulatedPollsDbTableName(), false);
+
+        if (dataWritten) {
+            LOGGER.info("Evaluation results for averaging mode feeds have been written to database.");
+        } else {
+            LOGGER.fatal("Evaluation results for averaging mode feeds have NOT been written to database.");
+        }
+        // if (createdItems) {
+        // LOGGER.info("Evaluation results for averaging mode items have been written to database.");
+        // } else {
+        // LOGGER.fatal("Evaluation results for averaging mode items have NOT been written to database.");
+        // }
+
     }
 
     /**
@@ -145,7 +186,9 @@ public class DatasetEvaluator {
                 updateStrategy = new FixUpdateStrategy();
                 int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
                 ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
-                logMsg.append("Fix").append(fixInterval).append(" ");
+                logMsg.append("Fix");
+                logMsg.append(fixInterval);
+                logMsg.append(" ");
             }
             // Fix Learned
             else if (strategy.equalsIgnoreCase("FixLearned")) {
@@ -199,6 +242,8 @@ public class DatasetEvaluator {
 
         if (!fatalErrorOccurred) {
 
+            LOGGER.info(logMsg.toString());
+
             // set some defaults not provided by config file
             int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
             int benchmarkSampleSize = 100;
@@ -209,9 +254,13 @@ public class DatasetEvaluator {
             DatasetEvaluator evaluator = new DatasetEvaluator();
             evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
             evaluator.runEvaluation();
-        }
+            evaluator.writeResultsToDB();
+            // this is a normal exit
+            System.exit(0);
+        } else {
 
-        LOGGER.fatal("Exiting.");
+            LOGGER.fatal("Exiting.");
+        }
     }
 
 }

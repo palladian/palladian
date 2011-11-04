@@ -4,7 +4,6 @@ import java.util.List;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedClassifier;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -29,72 +28,54 @@ public class FixUpdateStrategy extends UpdateStrategy {
     public void update(Feed feed, FeedPostStatistics fps) {
 
         int fixedMinCheckInterval = 0;
+        // int fixedMaxCheckInterval = 0;
 
+        // determine check interval
         // if fixed learned (checkInterval = -1, we only set the interval at the very first poll)
         if (getCheckInterval() == -1) {
 
             // if fixed learned (checkInterval = -1, we only set the interval at the very first poll)
             if (feed.getChecks() == 0) {
 
-                List<FeedItem> entries = feed.getItems();
-
                 // the checkInterval for the feed must be determined now
-                fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME / 2;
-                int fixedMaxCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
+                fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
+                // int fixedMaxCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
 
+                List<FeedItem> entries = feed.getItems();
                 if (entries.size() > 1) {
-                    // use average distance between pub dates and total difference
-                    // between first and last entry
-                    fixedMinCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-                    fixedMaxCheckInterval = entries.size() * fixedMinCheckInterval;
-
-                    // is this first check ever true? if feed has entries, it can't be dead...?
-                    if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
-                        fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);
-                        fixedMaxCheckInterval = 10 * 1440 + (int) (Math.random() * 600);
-                    } else if (feed.getActivityPattern() == FeedClassifier.CLASS_CHUNKED) {
-
-                        // for chunked entries the median post gap is likely to be zero so we set it to the time to the
-                        // last post
-                        fixedMinCheckInterval = (int) (fps.getTimeNewestPost() / DateHelper.MINUTE_MS);
-                        fixedMaxCheckInterval = fixedMinCheckInterval;
-
-                    } else if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
-
-                        fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME / 2;
-                        fixedMaxCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
-
+                    // use average distance between pub dates and total difference between first and last entry
+                    double avgPostGap = fps.getAveragePostGap();
+                    if (avgPostGap != 0D) {
+                        fixedMinCheckInterval = (int) (avgPostGap / DateHelper.MINUTE_MS);
+                        // fixedMaxCheckInterval = entries.size() * fixedMinCheckInterval;
                     }
-
-                } else {
-                    fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME / 2;
-                    fixedMaxCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
                 }
-
-                if (feed.getUpdateMode() == Feed.MIN_DELAY) {
-                    feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
-                } else {
-                    feed.setUpdateInterval(getAllowedUpdateInterval(fixedMaxCheckInterval));
-                }
-
             }
             // any subsequent poll
             else {
                 fixedMinCheckInterval = feed.getUpdateInterval();
             }
-
         }
         // set fix interval, independent of feed, e.g. fix60 (fix1h)
         else {
             fixedMinCheckInterval = getCheckInterval();
         }
 
-        feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
+        // set the (new) check interval to feed
+        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+            feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
+            // } else {
+            // feed.setUpdateInterval(getAllowedUpdateInterval(fixedMaxCheckInterval));
+        }
     }
 
     @Override
     public String getName() {
-        return "fix" + getCheckInterval();
+        if (getCheckInterval() == -1) {
+            return "fixLearned";
+        } else {
+            return "fix" + getCheckInterval();
+        }
     }
 
     /**
