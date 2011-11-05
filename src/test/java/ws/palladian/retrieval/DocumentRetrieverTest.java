@@ -1,7 +1,9 @@
 package ws.palladian.retrieval;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.PageAnalyzer;
@@ -14,12 +16,9 @@ import ws.palladian.helper.html.XPathHelper;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public class DocumentRetrieverTest extends TestCase {
+public class DocumentRetrieverTest {
 
-    public DocumentRetrieverTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testLinkHandling() {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         Document doc = documentRetriever.getWebDocument(DocumentRetrieverTest.class.getResource(
@@ -31,6 +30,7 @@ public class DocumentRetrieverTest extends TestCase {
         assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
     }
 
+    @Test
     public void testNekoBugs() {
 
         // produces a StackOverflowError -- see
@@ -46,6 +46,7 @@ public class DocumentRetrieverTest extends TestCase {
      * Test undesired behavior from NekoHTML for which we introduced workarounds/fixes.
      * See {@link TBODYFix}.
      */
+    @Test
     public void testNekoWorkarounds() {
 
         DocumentRetriever crawler = new DocumentRetriever();
@@ -72,6 +73,7 @@ public class DocumentRetrieverTest extends TestCase {
 
     }
 
+    @Test
     public void testParseXml() {
 
         DocumentRetriever crawler = new DocumentRetriever();

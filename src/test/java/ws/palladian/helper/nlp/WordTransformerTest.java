@@ -1,6 +1,6 @@
 package ws.palladian.helper.nlp;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -9,11 +9,7 @@ import org.junit.Test;
  * 
  * @author David Urbansky
  */
-public class WordTransformerTest extends TestCase {
-
-    public WordTransformerTest(String name) {
-        super(name);
-    }
+public class WordTransformerTest {
 
     @Test
     public void testWordToSingular() {

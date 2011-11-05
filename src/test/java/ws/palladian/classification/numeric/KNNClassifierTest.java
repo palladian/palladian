@@ -1,22 +1,15 @@
 package ws.palladian.classification.numeric;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.junit.Test;
 
 import ws.palladian.classification.Instances;
 
-public class KNNClassifierTest extends TestCase {
-
-    // private static final Logger LOGGER = Logger.getLogger(KNNClassifierTest.class);
-
-    public KNNClassifierTest(String name) {
-        super(name);
-    }
+public class KNNClassifierTest {
 
     @Test
     public void testKNNClassifier() {
@@ -75,8 +68,8 @@ public class KNNClassifierTest extends TestCase {
         // classify
         knn.classify(newInstance);
 
-        Assert.assertEquals(0.4743704726540487, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
-        Assert.assertEquals("A", newInstance.getMainCategoryEntry().getCategory().getName());
+        assertEquals(0.4743704726540487, newInstance.getMainCategoryEntry().getAbsoluteRelevance(), 0);
+        assertEquals("A", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 
     @Test
@@ -109,8 +102,8 @@ public class KNNClassifierTest extends TestCase {
         // classify
         knn.classify(newInstance);
 
-        Assert.assertEquals(1.0000000001339825E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
-        Assert.assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
+        assertEquals(1.0000000001339825E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance(), 0);
+        assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 
     @Test
@@ -149,8 +142,8 @@ public class KNNClassifierTest extends TestCase {
         // classify
         loadedKnn.classify(newInstance);
 
-        Assert.assertEquals(1.0000000054326154E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
-        Assert.assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
+        assertEquals(1.0000000054326154E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance(), 0);
+        assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 
 }

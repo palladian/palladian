@@ -1,8 +1,8 @@
 package ws.palladian.extraction.entity.ner;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.Assert;
+import java.net.URL;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,15 +77,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(1504, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 21);
-        Assert.assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(1504, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 21);
+        assertEquals(annotations.get(0).getLength(), 14);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 25542);
-        Assert.assertEquals(annotations.get(500).getLength(), 7);
+        assertEquals(annotations.get(500).getOffset(), 25542);
+        assertEquals(annotations.get(500).getLength(), 7);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
 
         // English
         tagger = new PalladianNer();
@@ -112,15 +112,15 @@ public class NERTest {
         System.out.println(annotations.get(500));
         System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(2241, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 21);
-        Assert.assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(2241, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 21);
+        assertEquals(annotations.get(0).getLength(), 14);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 15212);
-        Assert.assertEquals(annotations.get(500).getLength(), 8);
+        assertEquals(annotations.get(500).getOffset(), 15212);
+        assertEquals(annotations.get(500).getLength(), 8);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
     }
 
     @Test
@@ -146,15 +146,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(2048, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 21);
-        Assert.assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(2048, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 21);
+        assertEquals(annotations.get(0).getLength(), 14);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 17692);
-        Assert.assertEquals(annotations.get(500).getLength(), 4);
+        assertEquals(annotations.get(500).getOffset(), 17692);
+        assertEquals(annotations.get(500).getLength(), 4);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
     }
 
     /**
@@ -186,15 +186,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(21.0, MathHelper.round(annotations.size() / 100, 0));
-        Assert.assertEquals(annotations.get(0).getOffset(), 21);
-        Assert.assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(21.0, MathHelper.round(annotations.size() / 100, 0), 0);
+        assertEquals(annotations.get(0).getOffset(), 21);
+        assertEquals(annotations.get(0).getLength(), 14);
 
-        // Assert.assertEquals(annotations.get(500).getOffset(), 14506);
-        // Assert.assertEquals(annotations.get(500).getLength(), 10);
+        // assertEquals(annotations.get(500).getOffset(), 14506);
+        // assertEquals(annotations.get(500).getLength(), 10);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
     }
 
     @Test
@@ -218,15 +218,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(1906, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 21);
-        Assert.assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(1906, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 21);
+        assertEquals(annotations.get(0).getLength(), 14);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 17108);
-        Assert.assertEquals(annotations.get(500).getLength(), 5);
+        assertEquals(annotations.get(500).getOffset(), 17108);
+        assertEquals(annotations.get(500).getLength(), 5);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105048);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 6);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105048);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 6);
     }
 
     @Test
@@ -256,15 +256,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(1988, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 2);
-        Assert.assertEquals(annotations.get(0).getLength(), 8);
+        assertEquals(1988, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 2);
+        assertEquals(annotations.get(0).getLength(), 8);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 16902);
-        Assert.assertEquals(annotations.get(500).getLength(), 3);
+        assertEquals(annotations.get(500).getOffset(), 16902);
+        assertEquals(annotations.get(500).getLength(), 3);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
     }
 
     /**
@@ -292,15 +292,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(2035, annotations.size());
-        Assert.assertEquals(annotations.get(0).getOffset(), 76);
-        Assert.assertEquals(annotations.get(0).getLength(), 6);
+        assertEquals(2035, annotations.size());
+        assertEquals(annotations.get(0).getOffset(), 76);
+        assertEquals(annotations.get(0).getLength(), 6);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 17768);
-        Assert.assertEquals(annotations.get(500).getLength(), 7);
+        assertEquals(annotations.get(500).getOffset(), 17768);
+        assertEquals(annotations.get(500).getLength(), 7);
 
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
+        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
     }
 
 }

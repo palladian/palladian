@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.feeds;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -12,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
@@ -21,8 +23,8 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
-import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
 public class FeedRetrieverTest {
 
@@ -127,28 +129,29 @@ public class FeedRetrieverTest {
         // verify, if author information is parsed correctly
 
         // //////////// Atom feeds ////////////
-        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample1.xml").getFile()));
+        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample1.xml")
+                .getFile()));
         FeedItem feedItem = feed.getItems().iterator().next();
         // FIXME time offset since Atom bug fixed.
-        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
+        // assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        // assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
         feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample2.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
-        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
+        // assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        // assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
 
         // //////////// RSS feeds ////////////
         feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rss20Sample1.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
-        Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
-        Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
+        assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
+        assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
 
         // RDF Site Summary 1.0; Content Module
         // http://web.resource.org/rss/1.0/modules/content/
         feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rssRdf10.xml").getFile()));
         feedItem = feed.getItems().iterator().next();
-        Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
+        assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
 
     }
 
@@ -168,14 +171,14 @@ public class FeedRetrieverTest {
         // arabic characters
         Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed100.xml").getFile()));
         FeedItem item = feed.getItems().iterator().next();
-        Assert.assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
-        Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
-        Assert.assertEquals(80, feed.getItems().size());
+        assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
+        assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
+        assertEquals(80, feed.getItems().size());
 
         // japanese characters
         feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed101.xml").getFile()));
         item = feed.getItems().iterator().next();
-        Assert.assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
+        assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
 
     }
 
@@ -321,10 +324,10 @@ public class FeedRetrieverTest {
 
             // we always test the feed's first entry
             Date itemDate = feed.getItems().iterator().next().getPublished();
-            Assert.assertEquals(feedFile, expectedDate, itemDate);
+            assertEquals(feedFile, expectedDate, itemDate);
 
         } catch (FeedParserException e) {
-            Assert.fail("feed " + feedFile + " could not be read : " + e.getMessage());
+            fail("feed " + feedFile + " could not be read : " + e.getMessage());
         }
 
     }
@@ -400,7 +403,7 @@ public class FeedRetrieverTest {
 
         RomeFeedParser romeFeedParser = new RomeFeedParser();
         int numIterations = 100;
-        File feed= new File(RomeFeedParser.class.getResource("/feeds/feed014.xml").getFile());
+        File feed = new File(RomeFeedParser.class.getResource("/feeds/feed014.xml").getFile());
 
         StopWatch sw = new StopWatch();
         romeFeedParser.setUseDateRecognition(false);
