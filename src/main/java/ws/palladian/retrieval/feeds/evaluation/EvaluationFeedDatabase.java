@@ -68,7 +68,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     /**
      * All feeds from database that do have item timestamps or no items at all.
      */
-    private final Collection<Feed> feeds;
+    private Collection<Feed> feeds;
 
     /** Queue batch inserts into evaluation tables. Structure: Map<SQL statement,list of batchArgs> */
     private static final ConcurrentHashMap<String, List<List<Object>>> BATCH_INSERT_QUEUE = new ConcurrentHashMap<String, List<List<Object>>>();
@@ -803,12 +803,16 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     /**
      * Reset all rows of table feeds to default values except totalItems, hasVariableWindowSize, activityPattern,
      * isAccessibleFeed, hasItemIds, hasPubDate, hasCloud, ttl, hasSkipHours, hasSkipDays, hasUpdated, hasPublished and
-     * supportsPubSubHubBub.
+     * supportsPubSubHubBub. <br />
+     * <br />
+     * After reseting, the local feed collection is reloaded from data base.
      * 
      * @return <code>true</code> if successful, <code>false</code> otherwise.
      */
     public boolean resetTableFeeds() {
-        return runUpdate(RESET_TABLE_FEEDS) != -1 ? true : false;
+        boolean success = runUpdate(RESET_TABLE_FEEDS) != -1 ? true : false;
+        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
+        return success;
     }
 
 
