@@ -232,15 +232,6 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 // remember item sequence numbers
                 determineItemSequenceNumbers(downloadedFeed);
 
-                // TODO: do we really need HttpDate? This information is not provided by some feeds and we need
-                // simulate/assume that all servers provide this date and that all have synchronized clocks.
-                // feed.setHttpDateLastPoll(downloadedFeed.getLastPollTime());
-
-                // TODO: do we really need the httpDate?
-                // for (FeedItem item : downloadedFeed.getItems()) {
-                // item.setHttpDate(feed.getHttpDateLastPoll());
-                // }
-
                 feed.setItems(downloadedFeed.getItems());
                 feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                 feed.setWindowSize(downloadedFeed.getItems().size());
