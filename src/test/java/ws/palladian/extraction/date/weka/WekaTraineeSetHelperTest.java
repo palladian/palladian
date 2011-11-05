@@ -13,12 +13,12 @@ import org.junit.Test;
 
 import weka.core.Instances;
 import ws.palladian.extraction.date.evaluation.weka.WekaTraineeSetHelper;
+import ws.palladian.helper.ResourceHelper;
 
 public class WekaTraineeSetHelperTest {
     
     @Test
     public void testGetXFoldSets() {
-        WekaTraineeSetHelper wtsh = new WekaTraineeSetHelper();
         Instances[] instances;
         String path = "/wekaClassifier/allDates.arff";
         instances = WekaTraineeSetHelper.getXFoldSets(path, 5);
@@ -29,11 +29,11 @@ public class WekaTraineeSetHelperTest {
             cntNewInstances += instances[i].numInstances();
         }
 
-        File file = new File(wtsh.getClass().getResource(path).getFile());
         FileReader in;
         BufferedReader bufferedReader;
         int cntOrgInstances = 0;
         try {
+        	File file = new File(ResourceHelper.getResourcePath(path));
             in = new FileReader(file);
             bufferedReader = new BufferedReader(in);
             String line;
