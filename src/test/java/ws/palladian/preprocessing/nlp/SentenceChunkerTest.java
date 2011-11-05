@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.LingPipeSentenceDetector;
@@ -56,7 +57,7 @@ public class SentenceChunkerTest {
 
     @Test
     public void testOpenNLPSentenceChunker() throws Exception {
-        String modelPath = this.getClass().getResource("/model/en-sent.bin").getFile();
+        String modelPath = ResourceHelper.getResourcePath("/model/en-sent.bin");
         objectOfClassUnderTest = new OpenNlpSentenceDetector(modelPath);
         objectOfClassUnderTest.detect(fixture);
         Annotation[] sentences = objectOfClassUnderTest.getSentences();
