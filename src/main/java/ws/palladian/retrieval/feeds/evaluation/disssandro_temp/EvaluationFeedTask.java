@@ -67,9 +67,15 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     private final EvaluationFeedDatabase feedDatabase;
 
     /**
-     * Remember the last simulated time the feed has been polled.
+     * the timestamp of the real poll done when creating the dataset. this timestamp is the closesd smaller or equal to
+     * current simulation time.
      */
-    private Timestamp lastPollTime;
+    private Timestamp currentRealPollTime;
+
+    /**
+     * Remember the last real poll time we go.
+     */
+    private Timestamp lastRealPollTime;
 
     /**
      * The time of the currenty simulated poll.
@@ -101,6 +107,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * items.
      */
     private Integer lastNumberOfPollWithNewItem = 0;
+
 
     /**
      * The total number of items received till the last poll.
@@ -163,7 +170,6 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Backup some parameter values from the previous poll to be used in the next poll.
      */
     private void backupFeed() {
-        this.lastPollTime = feed.getLastPollTimeSQLTimestamp();
         this.lastNewestItemHash = feed.getNewestItemHash();
         Date lastFeedEntry = feed.getLastFeedEntry();
         if (lastFeedEntry != null) {
@@ -200,6 +206,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * An approximation of the size of the poll in bytes.
      */
     private double downloadSize;
+
 
     @Override
     public FeedTaskResult call() {
@@ -383,9 +390,12 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
                 // estimate time of next poll
                 setSimulatedPollTime();
+
+                // store stuff for next iteration
                 if (numberOfPollWithNewItem != null) {
                     lastNumberOfPollWithNewItem = numberOfPollWithNewItem;
                 }
+                lastRealPollTime = currentRealPollTime;
                 backupFeed();
 
 
@@ -420,7 +430,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             realPoll = feedDatabase.getEqualOrPreviousFeedPoll(feed.getId(), simulatedCurrentPollTimestamp);
         } else {
             realPoll = feedDatabase.getEqualOrPreviousFeedPollByTimeRange(feed.getId(), simulatedCurrentPollTimestamp,
-                    lastPollTime);
+                    lastRealPollTime);
 
         }
         
@@ -428,8 +438,14 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         // In few cases, we don't have any PollMetaInformation. This happens for feeds that were unparsable at all
         // polls.
         if (realPoll == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Feed id " + feed.getId() + " Unable to load PollMetaInformation at simulated timestamp "
+                        + simulatedCurrentPollTimestamp.toString() + " lastPollTime was " + lastRealPollTime);
+            }
             return null;
         }
+
+        currentRealPollTime = realPoll.getPollSQLTimestamp();
 
         // this is the size of the poll we did when creating the dataset. Since we did not stored the sizes of all
         // single items, we do not know the size of the current simulated poll but use the real poll as an approximation
