@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.ResourceHelper;
 
 public class MathHelperTest {
 
@@ -144,16 +145,16 @@ public class MathHelperTest {
     }
 
     @Test
-    public void testCalculateListSimilarity() {
+    public void testCalculateListSimilarity() throws FileNotFoundException {
 
         // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getShiftSimilartiy(), 2));
         // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getSquaredShiftSimilartiy(), 2));
         // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getRmse(), 2));
 
         List<String> list1 = new ArrayList<String>();
@@ -177,21 +178,20 @@ public class MathHelperTest {
         assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy(), 0);
 
         assertEquals(0.37, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
                         .getShiftSimilartiy(), 2), 0);
 
         assertEquals(0.57, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
                         .getSquaredShiftSimilartiy(), 2), 0);
 
         assertEquals(4.16, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                        .getRmse(), 2), 0);
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2), 0);
 
     }
 
     @Test
-    public void testCalculateRMSE() {
+    public void testCalculateRMSE() throws FileNotFoundException {
 
         List<double[]> values = new ArrayList<double[]>();
 
@@ -203,11 +203,8 @@ public class MathHelperTest {
 
         assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3), 0);
 
-        assertEquals(
-                3.607,
-                MathHelper.round(
-                        MathHelper.calculateRMSE(MathHelperTest.class.getResource("/rmseInput.csv").getFile(), ";"), 3),
-                0);
+        assertEquals(3.607,
+                MathHelper.round(MathHelper.calculateRMSE(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
     }
 
     @Test

@@ -5,6 +5,7 @@ package ws.palladian.extraction.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.junit.Test;
@@ -12,9 +13,9 @@ import org.junit.Test;
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
 import ws.palladian.control.AllTests;
-import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.ResourceHelper;
 
 /**
  * FIXME {@link #testGetAllBestRatedDate()} and {@link #testGetAllDates()} fail, after Document parser has been changed
@@ -23,27 +24,27 @@ import ws.palladian.helper.Cache;
  * @author Martin Gregor
  * @author Klemens Muthmann
  */
-public class WebPageDatEvaluatorTest {
+public class WebPageDateEvaluatorTest {
 
     /**
      * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getBestRatedDate()}.
+     * @throws FileNotFoundException 
      */
-
     @Test
-    public void testGetBestRatedDate() {
+    public void testGetBestRatedDate() throws FileNotFoundException {
     if (AllTests.ALL_TESTS) {
-            String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
+            String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
             WebPageDateEvaluator wpde = new WebPageDateEvaluator();
             wpde.setUrl(url);
             wpde.evaluate();
             assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
 
-            url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
+            url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
             wpde.setUrl(url);
             wpde.evaluate();
             assertEquals("2010-08-22", wpde.getBestRatedDate().getNormalizedDateString());
 
-            // url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
+            // url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
             // wpde.setUrl(url);
             // wpde.evaluate();
             // assertEquals("2010-05-28 22:41", wpde.getBestRatedDate().getNormalizedDateString());
@@ -52,21 +53,22 @@ public class WebPageDatEvaluatorTest {
 
     /**
      * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getAllBestRatedDate()}.
+     * @throws FileNotFoundException 
      */
     @Test
-    public void testGetAllBestRatedDate() {
-        String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
+    public void testGetAllBestRatedDate() throws FileNotFoundException {
+        String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
 //        assertEquals(1, wpde.getAllBestRatedDate().size());
 
-        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
+        url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
         wpde.setUrl(url);
         wpde.evaluate();
 //        assertEquals(1, wpde.getAllBestRatedDate().size());
 
-        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
+        url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
         wpde.setUrl(url);
         wpde.evaluate();
         // System.out.println(wpde.getAllDates());
@@ -87,22 +89,22 @@ public class WebPageDatEvaluatorTest {
     public void testGetAllDates() throws Exception {
 
         // we need to load the model into the cache for the test case
-        InputStream stream = WebPageDatEvaluatorTest.class.getResourceAsStream("/model/pubClassifierFinal.model");
+        InputStream stream = WebPageDateEvaluatorTest.class.getResourceAsStream("/model/pubClassifierFinal.model");
         Classifier classifier = (Classifier) SerializationHelper.read(stream);
         Cache.getInstance().putDataObject(ContentDateRater.DATE_CLASSIFIER_IDENTIFIER, classifier);
 
-        String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
+        String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(2, wpde.getAllDates().size());
 
-        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
+        url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(5, wpde.getAllDates().size());
 
-        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
+        url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(12, wpde.getAllDates().size());
