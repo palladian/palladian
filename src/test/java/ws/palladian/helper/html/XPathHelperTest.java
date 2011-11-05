@@ -10,12 +10,11 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class XPathHelperTest {
 
-    DocumentRetriever crawler = new DocumentRetriever();
+    private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     @Test
     public void testAddNamespaceToXPath() {
@@ -34,7 +33,7 @@ public class XPathHelperTest {
     @Test
     public void testGetXhtmlChildNodes() {
 
-        Document doc = crawler.getWebDocument(XPathHelperTest.class.getResource("/webPages/NekoTableTestcase1.html")
+        Document doc = documentRetriever.getWebDocument(XPathHelperTest.class.getResource("/webPages/NekoTableTestcase1.html")
                 .getFile());
 
         List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//table/tr");
@@ -53,7 +52,7 @@ public class XPathHelperTest {
 
     @Test
     public void testGetElementById() {
-        Document doc = crawler.getXMLDocument(XPathHelperTest.class.getResource("/xmlDocuments/events.xml").getFile());
+        Document doc = documentRetriever.getXMLDocument(XPathHelperTest.class.getResource("/xmlDocuments/events.xml").getFile());
 
         assertEquals("event", XPathHelper.getNodeByID(doc, "e01").getNodeName());
         assertEquals("events", XPathHelper.getParentNodeByID(doc, "e01").getNodeName());
@@ -61,7 +60,7 @@ public class XPathHelperTest {
     
     @Test
     public void testNamespace() {
-        Document doc = crawler.getXMLDocument(XPathHelperTest.class.getResource("/feeds/atomSample1.xml").getFile());
+        Document doc = documentRetriever.getXMLDocument(XPathHelperTest.class.getResource("/feeds/atomSample1.xml").getFile());
         
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("atom", "http://www.w3.org/2005/Atom");

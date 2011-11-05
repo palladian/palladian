@@ -1,6 +1,6 @@
 package ws.palladian.persistence;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,8 +19,8 @@ public class DatabaseManagerTest {
     @Test
     public void testInsert() {
         String sql = "INSERT INTO test (name) VALUES (?)";
-        Assert.assertEquals(1, databaseManager.runInsertReturnId(sql, "bob"));
-        Assert.assertEquals(2, databaseManager.runInsertReturnId(sql, "mary"));
+        assertEquals(1, databaseManager.runInsertReturnId(sql, "bob"));
+        assertEquals(2, databaseManager.runInsertReturnId(sql, "mary"));
     }
 
 }

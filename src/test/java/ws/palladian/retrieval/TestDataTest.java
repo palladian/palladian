@@ -1,10 +1,10 @@
 package ws.palladian.retrieval;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 
@@ -18,8 +18,8 @@ public class TestDataTest {
         String filePath1 = "src/test/resources/feeds/feed102.xml";
         String filePath2 = TestDataTest.class.getResource("/feeds/feed102.xml").getFile();
 
-        Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath1));
-        Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath2));
+        assertEquals("UTF-16LE", getXmlEncoding(filePath1));
+        assertEquals("UTF-16LE", getXmlEncoding(filePath2));
 
     }
 

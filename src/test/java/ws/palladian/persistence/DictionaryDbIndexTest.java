@@ -1,14 +1,18 @@
 package ws.palladian.persistence;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 
-public class DictionaryDbIndexTest extends TestCase {
+public class DictionaryDbIndexTest {
 
+    @Test
     public void testDBIndex() {
 
         DictionaryDbIndexH2 dbIndex = new DictionaryDbIndexH2("test_dictionary", "root", "", "");
@@ -45,12 +49,12 @@ public class DictionaryDbIndexTest extends TestCase {
         assertEquals(2, ces.size());
 
         // absolute relevance
-        assertEquals(absoluteRelevance1, ces.getCategoryEntry("test1").getAbsoluteRelevance());
-        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance());
+        assertEquals(absoluteRelevance1, ces.getCategoryEntry("test1").getAbsoluteRelevance(), 0);
+        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance(), 0);
 
         // relative relevance
-        assertEquals(1.0 / 3.0, ces.getCategoryEntry("test1").getRelevance());
-        assertEquals(2.0 / 3.0, ces.getCategoryEntry("test2").getRelevance());
+        assertEquals(1.0 / 3.0, ces.getCategoryEntry("test1").getRelevance(), 0);
+        assertEquals(2.0 / 3.0, ces.getCategoryEntry("test2").getRelevance(), 0);
 
         // category priors
         // assertEquals(0.5,ces.getCategoryEntry("test1").getCategory().getPrior());
@@ -62,8 +66,8 @@ public class DictionaryDbIndexTest extends TestCase {
 
         // read updated values
         ces = dbIndex.read("abc");
-        assertEquals(101.0, ces.getCategoryEntry("test1").getAbsoluteRelevance());
-        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance());
+        assertEquals(101.0, ces.getCategoryEntry("test1").getAbsoluteRelevance(), 0);
+        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance(), 0);
 
         // System.out.println(ces);
 

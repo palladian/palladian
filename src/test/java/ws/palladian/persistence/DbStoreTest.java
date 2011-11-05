@@ -1,18 +1,15 @@
 package ws.palladian.persistence;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
- * Test cases for the xPath handling.
- * 
  * @author David Urbansky
  */
-public class DbStoreTest extends TestCase {
+public class DbStoreTest {
 
-    public DbStoreTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testDbStore() {
         DbStore dbStore = new DbStore("test");
         dbStore.clear();

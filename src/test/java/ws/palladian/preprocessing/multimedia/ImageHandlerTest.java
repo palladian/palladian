@@ -1,12 +1,15 @@
 package ws.palladian.preprocessing.multimedia;
 
+import static org.junit.Assert.assertEquals;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
+import org.apache.log4j.Logger;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -14,12 +17,12 @@ import org.junit.Test;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
-public class ImageHandlerTest extends TestCase {
+public class ImageHandlerTest {
 
-    public ImageHandlerTest(String name) {
-        super(name);
-    }
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ImageHandlerTest.class);
 
     /**
      * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is
@@ -28,13 +31,13 @@ public class ImageHandlerTest extends TestCase {
      * 
      * Philipp, 2010-06-28.
      */
-    @Override
-    protected void runTest() throws Throwable {
-        if (System.getProperty("os.name").contains("Mac OS X")) {
-            System.out.println("skipping ImageHandlerTest due to bugs in Mac OS X.");
-        } else {
-            super.runTest();
+    @Before
+    public void checkOperatingSystem() {
+        boolean macOsX = System.getProperty("os.name").contains("Mac OS X");
+        if (macOsX) {
+            LOGGER.warn("skipping ImageHandlerTest due to bugs in Mac OS X.");
         }
+        Assume.assumeTrue(!macOsX);
     }
 
     @Test
@@ -62,6 +65,7 @@ public class ImageHandlerTest extends TestCase {
 
     }
 
+    @Test
     public void testRescaleImage() {
         BufferedImage bufferedImage = null;
 
@@ -82,30 +86,39 @@ public class ImageHandlerTest extends TestCase {
         assertEquals(200, bufferedImage.getWidth());
     }
 
-//    public void testSaveImage() {
-//        BufferedImage bufferedImage = null;
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk1.jpg").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg", ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk5.jpg").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg", ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/batman3.png").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "png", ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/homer.gif").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "gif", ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//    }
+    // public void testSaveImage() {
+    // BufferedImage bufferedImage = null;
+    //
+    // bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk1.jpg").getFile());
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
+    // ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
+    // assertEquals(true,
+    // FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
+    // assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
+    //
+    // bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk5.jpg").getFile());
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
+    // ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
+    // assertEquals(true,
+    // FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
+    // assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
+    //
+    // bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/batman3.png").getFile());
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "png",
+    // ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
+    // assertEquals(true,
+    // FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
+    // assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
+    //
+    // bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/homer.gif").getFile());
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "gif",
+    // ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
+    // assertEquals(true,
+    // FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
+    // assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
+    // }
 
+    @Test
     public void testIsDuplicate() {
         BufferedImage image1;
         BufferedImage image2;
