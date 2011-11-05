@@ -2,17 +2,19 @@ package ws.palladian.classification;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 
 public class BayesClassifierTest {
 
     @Test
-    public void testBayesClassifierNominal() {
+    public void testBayesClassifierNominal() throws FileNotFoundException {
 
         // create training instances from the "Play Dataset", see here on page 34
         // http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf
@@ -20,7 +22,7 @@ public class BayesClassifierTest {
         List<String> nominalFeatures = null;
 
         BayesClassifier bc = new BayesClassifier();
-        bc.trainFromCSV(BayesClassifierTest.class.getResource("/classifier/playData.txt").getFile());
+        bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"));
 
         // create an instance to classify
         UniversalInstance newInstance = new UniversalInstance(null);

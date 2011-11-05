@@ -2,12 +2,14 @@ package ws.palladian.classification.numeric;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.classification.Instances;
+import ws.palladian.helper.ResourceHelper;
 
 public class KNNClassifierTest {
 
@@ -73,11 +75,11 @@ public class KNNClassifierTest {
     }
 
     @Test
-    public void testKNNClassifierLoadFromFile() {
+    public void testKNNClassifierLoadFromFile() throws FileNotFoundException {
 
         // create the KNN classifier and add the training instances
         KNNClassifier knn = new KNNClassifier();
-        knn.trainFromCSV(KNNClassifierTest.class.getResource("/classifier/wineData.txt").getFile());
+        knn.trainFromCSV(ResourceHelper.getResourcePath("/classifier/wineData.txt"));
 
         // create an instance to classify
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 => this is an actual instance from the
@@ -107,11 +109,11 @@ public class KNNClassifierTest {
     }
 
     @Test
-    public void testKNNClassifierLoadFromFileNormalize() {
+    public void testKNNClassifierLoadFromFileNormalize() throws FileNotFoundException {
 
         // create the KNN classifier and add the training instances
         KNNClassifier knn = new KNNClassifier();
-        knn.trainFromCSV(KNNClassifierTest.class.getResource("/classifier/wineData.txt").getFile());
+        knn.trainFromCSV(ResourceHelper.getResourcePath("/classifier/wineData.txt"));
         knn.getTrainingInstances().normalize();
 
         knn.setName("testKNN");

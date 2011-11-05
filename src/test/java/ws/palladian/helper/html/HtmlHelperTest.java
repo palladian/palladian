@@ -1,6 +1,9 @@
 package ws.palladian.helper.html;
 
 import static org.junit.Assert.assertEquals;
+
+import java.io.FileNotFoundException;
+
 import junit.framework.Assert;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -8,6 +11,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -20,13 +24,11 @@ import ws.palladian.retrieval.DocumentRetriever;
  */
 public class HtmlHelperTest {
 
-
     // @Test
     // public void testGetHTMLContent() {
     //
     // Crawler crawler = new Crawler();
-    // Document document = crawler.getWebDocument(HTMLHelperTest.class.getResource("/webPages/newsPage1.html")
-    // .getFile());
+    // Document document = crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/newsPage1.html"));
     //
     // // System.out.println(PageAnalyzer.getRawMarkup(document));
     // System.out.println(HTMLHelper.htmlToReadableText(document));
@@ -51,26 +53,24 @@ public class HtmlHelperTest {
     }
 
     @Test
-    public void testStripTags() {
+    public void testStripTags() throws FileNotFoundException {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        assertEquals("this is relevant",
-                HtmlHelper.stripHtmlTags(htmlContent, true, true, true, true).trim());
+        assertEquals("this is relevant", HtmlHelper.stripHtmlTags(htmlContent, true, true, true, true).trim());
 
         DocumentRetriever crawler = new DocumentRetriever();
-        String content = crawler.getTextDocument(HtmlHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
-                .getFile());
+        String content = crawler.getTextDocument(ResourceHelper
+                .getResourcePath("/webPages/removeHTMLContentTest1.html"));
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
         System.out.println(result);
         String stripped = "Samsung S8500 Wave 3D view, 360&deg; spin GSMArena.com HomeNewsReviewsBlogRankingsCoverageSoftwareGlossaryFAQLinksContact us Advanced search Samsung S8500 Wave 3D view - 360&deg; spin Samsung S8500 Wave review: Hello, world!Samsung S8500 Wave preview: First lookMWC 2010: Samsung overviewSpecifications Read opinions Compare Pictures Related &nbsp;(new) Manual Check Price WElectronicsPlemixOmio (UK)Mobile City OnlineSelectGSM Popularity Daily interest 48% Total hits: 1266454 Voting results Design 9.1 Features 9.1 Performance 9.1 12345678910 12345678910 12345678910 Votes: 38011 &nbsp; Drag to rotate, double-click to spin 360&deg;. In order to see the 360&deg; rotation the Flash plugin is required. &nbsp; &nbsp; NokiaSamsungMotorolaSony EricssonLGAppleHTCi-mateO2EtenHPGarmin- AsusGigabyteAcerPalmBlackBerryMicrosoftVodafoneT-MobileSagemAlcatelPhilipsSharpToshibaBenQHuaweiPantechi-mobileZTEiNQMicromaxVertu more rumor mill Phone finder Home News Reviews Blog Forum Compare Links Glossary &nbsp;RSS feed &nbsp;Facebook Privacy policy Contact us &copy; 2000 - 2010 GSMArena.com team. Terms of use.";
-//        System.out.println(DigestUtils.md5Hex(stripped));
+        // System.out.println(DigestUtils.md5Hex(stripped));
         Assert.assertEquals(DigestUtils.md5Hex(stripped), DigestUtils.md5Hex(result));
     }
 
     @Test
-    public void testHtmlToString() {
+    public void testHtmlToString() throws FileNotFoundException {
         DocumentRetriever c = new DocumentRetriever();
-        Document doc = c.getWebDocument(HtmlHelperTest.class.getResource("/pageContentExtractor/test001.html")
-                .getFile());
+        Document doc = c.getWebDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html"));
         String result = HtmlHelper.documentToReadableText(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }

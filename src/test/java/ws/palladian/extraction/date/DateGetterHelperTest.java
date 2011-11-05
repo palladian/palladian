@@ -2,6 +2,7 @@ package ws.palladian.extraction.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -19,6 +20,7 @@ import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.StructureDateGetter;
 import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -463,8 +465,8 @@ public class DateGetterHelperTest {
     }
 
     @Test
-    public void testGetStructureDate() {
-        String url = DateGetterHelperTest.class.getResource("/webPages/webPageW3C.htm").getFile();
+    public void testGetStructureDate() throws FileNotFoundException {
+        String url = ResourceHelper.getResourcePath("/webPages/webPageW3C.htm");
         String[] urlDates = { "2010-07-08T08:02:04-05:00", "2010-07-20T11:50:47-05:00", "2010-07-13T14:55:57-05:00",
                 "2010-07-13T14:46:56-05:00", "2010-07-20", "2010-07-16", "2010-07-07" };
         if (!AllTests.ALL_TESTS) {
@@ -538,8 +540,8 @@ public class DateGetterHelperTest {
 
     @Ignore
     @Test
-    public void testGetContentDates2() {
-        final String url = DateGetterHelperTest.class.getResource("/webpages/dateExtraction/Bangkok.htm").getFile();
+    public void testGetContentDates2() throws FileNotFoundException {
+        final String url = ResourceHelper.getResourcePath("/webpages/dateExtraction/Bangkok.htm");
 
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper

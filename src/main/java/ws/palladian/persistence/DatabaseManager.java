@@ -476,7 +476,8 @@ public class DatabaseManager {
             // do not buffer the whole ResultSet in memory, but use streaming to save memory
             // http://webmoli.com/2009/02/01/jdbc-performance-tuning-with-optimal-fetch-size/
             // TODO make this a global option?
-            ps.setFetchSize(Integer.MIN_VALUE);
+            // ps.setFetchSize(Integer.MIN_VALUE);
+            ps.setFetchSize(1);
 
             fillPreparedStatement(ps, args);
 
