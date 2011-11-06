@@ -1,10 +1,8 @@
 package ws.palladian.helper.collection;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import ws.palladian.helper.collection.CountMap;
 
 public class CountMapTest {
 
@@ -23,12 +21,12 @@ public class CountMapTest {
         countMap.increment("three");
         countMap.increment("three");
 
-        Assert.assertEquals(3, (int) countMap.get("one"));
-        Assert.assertEquals(5, (int) countMap.get("two"));
-        Assert.assertEquals(2, (int) countMap.get("three"));
+        assertEquals(3, (int) countMap.get("one"));
+        assertEquals(5, (int) countMap.get("two"));
+        assertEquals(2, (int) countMap.get("three"));
 
-        Assert.assertEquals(3, countMap.size());
-        Assert.assertEquals(10, countMap.totalSize());
+        assertEquals(3, countMap.size());
+        assertEquals(10, countMap.totalSize());
 
     }
 

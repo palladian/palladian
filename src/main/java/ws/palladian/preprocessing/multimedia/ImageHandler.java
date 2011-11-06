@@ -942,7 +942,7 @@ public class ImageHandler {
         // URL urlLocation;
         try {
 
-            Collection<String> imageUrls = new ArrayList();
+            Collection<String> imageUrls = new ArrayList<String>();
             imageUrls.add("imageA1.jpg");
             imageUrls.add("imageA2.jpg");
             imageUrls.add("imageB1.jpg");

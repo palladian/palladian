@@ -1,25 +1,31 @@
 package ws.palladian.preprocessing.multimedia;
 
+import static org.junit.Assert.assertEquals;
+
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
+import org.apache.log4j.Logger;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
+
+import ws.palladian.helper.ResourceHelper;
 
 /**
  * Test cases for the image handler.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
-public class ImageHandlerTest extends TestCase {
+public class ImageHandlerTest {
 
-    public ImageHandlerTest(String name) {
-        super(name);
-    }
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ImageHandlerTest.class);
 
     /**
      * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is
@@ -28,119 +34,126 @@ public class ImageHandlerTest extends TestCase {
      * 
      * Philipp, 2010-06-28.
      */
-    @Override
-    protected void runTest() throws Throwable {
-        if (System.getProperty("os.name").contains("Mac OS X")) {
-            System.out.println("skipping ImageHandlerTest due to bugs in Mac OS X.");
-        } else {
-            super.runTest();
+    @Before
+    public void checkOperatingSystem() {
+        boolean macOsX = System.getProperty("os.name").contains("Mac OS X");
+        if (macOsX) {
+            LOGGER.warn("skipping ImageHandlerTest due to bugs in Mac OS X.");
         }
+        Assume.assumeTrue(!macOsX);
     }
 
     @Test
-    public void testClusterImages() {
+    public void testClusterImages() throws FileNotFoundException {
 
         Collection<String> imageUrls = new ArrayList<String>();
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA1.jpg").getFile());
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA2.jpg").getFile());
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageB1.jpg").getFile());
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageA3.jpg").getFile());
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageC1.jpg").getFile());
-        imageUrls.add(ImageHandlerTest.class.getResource("/images/imageB2.jpg").getFile());
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageA1.jpg"));
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageA2.jpg"));
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageB1.jpg"));
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageA3.jpg"));
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageC1.jpg"));
+        imageUrls.add(ResourceHelper.getResourcePath("/images/imageB2.jpg"));
 
         Set<String> representatives = ImageHandler.clusterImagesAndPickRepresentatives(imageUrls);
 
         // CollectionHelper.print(representatives);
 
         assertEquals(3, representatives.size());
-        assertEquals(true,
-                representatives.contains(ImageHandlerTest.class.getResource("/images/imageA3.jpg").getFile()));
-        assertEquals(true,
-                representatives.contains(ImageHandlerTest.class.getResource("/images/imageB2.jpg").getFile()));
-        assertEquals(true,
-                representatives.contains(ImageHandlerTest.class.getResource("/images/imageC1.jpg").getFile()));
+        assertEquals(true, representatives.contains(ResourceHelper.getResourcePath("/images/imageA3.jpg")));
+        assertEquals(true, representatives.contains(ResourceHelper.getResourcePath("/images/imageB2.jpg")));
+        assertEquals(true, representatives.contains(ResourceHelper.getResourcePath("/images/imageC1.jpg")));
 
     }
 
-    public void testRescaleImage() {
+    @Test
+    public void testRescaleImage() throws FileNotFoundException {
         BufferedImage bufferedImage = null;
 
-        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk1.jpg").getFile());
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk1.jpg"));
         bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
         assertEquals(200, bufferedImage.getWidth());
 
-        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk5.jpg").getFile());
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk5.jpg"));
         bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
         assertEquals(200, bufferedImage.getWidth());
 
-        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/batman3.png").getFile());
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
         bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
         assertEquals(200, bufferedImage.getWidth());
 
-        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/homer.gif").getFile());
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/homer.gif"));
         bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
         assertEquals(200, bufferedImage.getWidth());
     }
 
-//    public void testSaveImage() {
-//        BufferedImage bufferedImage = null;
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk1.jpg").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg", ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated0.jpg").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk5.jpg").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg", ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated1.jpg").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/batman3.png").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "png", ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated2.png").getFile()));
-//
-//        bufferedImage = ImageHandler.load(ImageHandlerTest.class.getResource("/images/homer.gif").getFile());
-//        assertEquals(true, ImageHandler.saveImage(bufferedImage, "gif", ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//        assertEquals(true, FileHelper.fileExists(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//        assertEquals(true, FileHelper.delete(ImageHandlerTest.class.getResource("/images/generated3.gif").getFile()));
-//    }
+    // public void testSaveImage() {
+    // BufferedImage bufferedImage = null;
+    //
+    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk1.jpg"));
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
+    // ResourceHelper.getResourcePath("/images/generated0.jpg")));
+    // assertEquals(true,
+    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated0.jpg")));
+    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated0.jpg")));
+    //
+    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk5.jpg"));
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
+    // ResourceHelper.getResourcePath("/images/generated1.jpg")));
+    // assertEquals(true,
+    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated1.jpg")));
+    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated1.jpg")));
+    //
+    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "png",
+    // ResourceHelper.getResourcePath("/images/generated2.png")));
+    // assertEquals(true,
+    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated2.png")));
+    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated2.png")));
+    //
+    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/homer.gif"));
+    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "gif",
+    // ResourceHelper.getResourcePath("/images/generated3.gif")));
+    // assertEquals(true,
+    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated3.gif")));
+    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated3.gif")));
+    // }
 
-    public void testIsDuplicate() {
+    @Test
+    public void testIsDuplicate() throws FileNotFoundException {
         BufferedImage image1;
         BufferedImage image2;
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/jc1.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/jc2.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/jc1.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/jc2.jpg"));
         assertEquals(true, ImageHandler.isDuplicate(image1, image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk1.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk2.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk1.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk2.jpg"));
         assertEquals(false, ImageHandler.isDuplicate(image1, image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk3.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk4.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk3.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk4.jpg"));
         assertEquals(true, ImageHandler.isDuplicate(image1, image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk4.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/tdk5.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk4.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk5.jpg"));
         assertEquals(true, ImageHandler.isDuplicate(image1, image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/af1.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/af2.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/af2.jpg"));
         assertEquals(true, ImageHandler.isDuplicate(image1, image2));
 
         // image1 = ImageHandler.load("data/test/images/af2.jpg");
         // image2 = ImageHandler.load("data/test/images/af3.gif");
         // assertEquals(true, ImageHandler.isDuplicate(image1,image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/af3.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/af4.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/af3.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/af4.jpg"));
         // TODO? gif colors are different (af3.gif compared with af4.jpg)
         assertEquals(true, ImageHandler.isDuplicate(image1, image2));
 
-        image1 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/af1.jpg").getFile());
-        image2 = ImageHandler.load(ImageHandlerTest.class.getResource("/images/gf1.jpg").getFile());
+        image1 = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
+        image2 = ImageHandler.load(ResourceHelper.getResourcePath("/images/gf1.jpg"));
         assertEquals(false, ImageHandler.isDuplicate(image1, image2));
 
         // TODO flags too similar
