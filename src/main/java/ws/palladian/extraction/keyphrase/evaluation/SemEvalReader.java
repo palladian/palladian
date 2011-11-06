@@ -28,7 +28,14 @@ public class SemEvalReader {
             public void performAction(String line, int lineNumber) {
                 String[] split = line.split(" : ");
                 Set<String> k = new HashSet<String>();
-                k.addAll(Arrays.asList(split[1].split(",")));
+                for (String s : split) {
+                    String[] split2 = s.split(",");
+                    for (String s2 : split2) {
+                        String[] split3 = s2.split("\\+");
+                        k.addAll(Arrays.asList(split3));
+                    }
+                }
+                //k.addAll(Arrays.asList(split[1].split(",")));
                 keyphrases.put(split[0],k);
             }
         });
@@ -52,6 +59,8 @@ public class SemEvalReader {
 //            System.out.println("=======");
             extractor.train(content, assignedKeyphrases, 0);
             System.out.println("finished: " + (float)counter++/documentsSet.size());
+            System.out.println("---");
+            System.exit(0);
         }
         
         extractor.endTraining();

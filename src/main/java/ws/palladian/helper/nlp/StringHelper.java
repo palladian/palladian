@@ -583,6 +583,10 @@ public class StringHelper {
     public static int numberCount(String string) {
         return string.replaceAll("[^0-9]", "").length();
     }
+    
+    public static int letterCount(String string) {
+        return string.replaceAll("[^a-zA-Z]", "").length();
+    }
 
     /**
      * Capitalized word count.

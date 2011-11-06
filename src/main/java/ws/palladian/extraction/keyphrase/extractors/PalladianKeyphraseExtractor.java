@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.tartarus.snowball.ext.porterStemmer;
 
 import ws.palladian.classification.page.Stopwords;
 import ws.palladian.classification.page.Stopwords.Predefined;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PerformanceCheckProcessingPipeline;
@@ -21,6 +23,7 @@ import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
 import ws.palladian.preprocessing.featureextraction.AnnotationGroup;
+import ws.palladian.preprocessing.featureextraction.CountCalculator;
 import ws.palladian.preprocessing.featureextraction.DuplicateTokenRemover;
 import ws.palladian.preprocessing.featureextraction.FrequencyCalculator;
 import ws.palladian.preprocessing.featureextraction.NGramCreator;
@@ -58,9 +61,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         final Stopwords stopwords = new Stopwords(Predefined.EN);
         
         pipeline.add(new Tokenizer());
-        pipeline.add(new NGramCreator(2, 4));
         pipeline.add(new RegExTokenRemover("\\p{Punct}"));
         pipeline.add(new RegExTokenRemover(".{1,2}"));
+        pipeline.add(new NGramCreator(2, 4));
         
         // remove those NGrams, which start or end with a stopword; this
         // helps to reduce the number of training instances by about 50 percent
@@ -84,11 +87,46 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             }
         });
         
-        pipeline.add(new StopTokenRemover(Predefined.EN));
-        pipeline.add(new StemmerAnnotator());
+        // remove Tokens with many numbers
+        pipeline.add(new TokenRemover() {
+            
+            @Override
+            protected boolean remove(Annotation annotation) {
+                String value = annotation.getValue();
+                int numberLetters = StringHelper.letterCount(value);
+                return ((float) numberLetters / value.length() < 0.5);
+            }
+        });
         
+        // remove Token which start/end with punctation
+        pipeline.add(new TokenRemover() {
+            
+            @Override
+            protected boolean remove(Annotation annotation) {
+                if (annotation instanceof AnnotationGroup) {
+                    AnnotationGroup group = (AnnotationGroup) annotation;
+                    List<Annotation> annotations = group.getAnnotations();
+                    Annotation firstAnnotation = annotations.get(0);
+                    if (firstAnnotation.getValue().matches("\\p{Punct}")) {
+                        return true;
+                    }
+                    Annotation lastAnnotation = annotations.get(annotations.size() - 1);
+                    if (lastAnnotation.getValue().matches("\\p{Punct}")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        
+        pipeline.add(new StopTokenRemover(Predefined.EN));
+        pipeline.add(new StemmerAnnotator(new porterStemmer()));
+        
+        pipeline.add(new CountCalculator());
         pipeline.add(new TokenSpreadCalculator());
         pipeline.add(new FrequencyCalculator());
+        pipeline.add(new PhrasenessAnnotator());
+        
         
         pipeline.add(new DuplicateTokenRemover());
         corpus = new TermCorpus();
@@ -115,12 +153,15 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     public void startTraining() {
         
     }
+    
+    int totalAnnotations = 0;
+    int mappedAnnotations = 0;
 
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
         
         // System.out.println("inTrain");
-        // System.out.println(keyphrases);
+        System.out.println(keyphrases);
         
         PipelineDocument document = pipeline.process(new PipelineDocument(inputText));
         // LOGGER.debug(pipeline);
@@ -140,18 +181,38 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             
             annotation.getFeatureVector().add(new Feature<Boolean>("isKeyphrase", isCandidate));
             if (isCandidate) {
+                // System.out.println("** positive ** " + annotation);
                 positiveCounter++;
             }
         }
         
         LOGGER.debug("# tokens " + tokenList.getValue().size());
         LOGGER.debug("# positive examples " + positiveCounter);
+        LOGGER.debug("detected positive examples from training " + (float) positiveCounter / keyphrases.size());
         // LOGGER.debug(tokenList.toStringList());
+        totalAnnotations += keyphrases.size();
+        mappedAnnotations += positiveCounter;
         
         // trainingAnnotations.addAll(tokenList.getValue());
+        // createFeatureList(tokenList);
 
     }
     
+
+    private void createFeatureList(AnnotationFeature tokenList) {
+        
+        List<Annotation> annotations = tokenList.getValue();
+        for (Annotation annotation : annotations) {
+            FeatureVector featureVector = annotation.getFeatureVector();
+            Feature<?>[] valueArray = featureVector.toValueArray();
+            for (Feature<?> feature : valueArray) {
+                System.out.println(feature.getName() + " " + feature.getValue());
+            }
+        }
+        
+        // TODO Auto-generated method stub
+        
+    }
 
     @Override
     public void endTraining() {
@@ -160,6 +221,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         System.out.println(pipeline);
         
         corpus.save("/Users/pk/Desktop/corpus.txt");
+        
+        
+        System.out.println("detection coverage " + (float) mappedAnnotations / totalAnnotations);
 
         
 //        // XXX

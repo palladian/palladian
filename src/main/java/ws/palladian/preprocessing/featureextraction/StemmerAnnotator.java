@@ -2,6 +2,7 @@ package ws.palladian.preprocessing.featureextraction;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
@@ -13,7 +14,7 @@ import ws.palladian.preprocessing.PipelineProcessor;
 public class StemmerAnnotator implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
-    public static final String PROVIDED_FEATURE = "ws.palladian.features.stem";
+    public static final String PROVIDED_FEATURE = "ws.palladian.features.unstemed";
     private SnowballStemmer stemmer;
     
     public StemmerAnnotator() {
@@ -33,17 +34,35 @@ public class StemmerAnnotator implements PipelineProcessor {
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
-            String stem = stem(annotation);
-            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE, stem);
+            String unstemmed = annotation.getValue();
+            String stem = stem(unstemmed);
+            annotation.setValue(stem);
+            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE, unstemmed);
             annotation.getFeatureVector().add(stemFeature);
         }
     }
 
-    private String stem(Annotation annotation) {
-        stemmer.setCurrent(annotation.getValue());
-        stemmer.stem();
-        String stem = stemmer.getCurrent();
-        return stem;
+    private String stem(String string) {
+//        stemmer.setCurrent(annotation.getValue());
+//        stemmer.stem();
+//        String stem = stemmer.getCurrent();
+//        return stem;
+        String[] split = string.split("\\s|\\-");
+        for (int i = 0; i < split.length; i++) {
+            stemmer.setCurrent(split[i].toLowerCase());
+            stemmer.stem();
+            split[i] = stemmer.getCurrent();
+        }
+        return StringUtils.join(split, " ");
+        
+    }
+    
+    public static void main(String[] args) {
+        SnowballStemmer st = new englishStemmer();
+        st.setCurrent("criterion");
+        st.stem();
+        System.out.println(st.getCurrent());
+        
     }
 
 }

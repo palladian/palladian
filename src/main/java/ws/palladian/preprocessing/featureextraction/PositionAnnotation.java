@@ -116,6 +116,11 @@ public final class PositionAnnotation extends Annotation {
     public String getValue() {
         return value;
     }
+    
+    @Override
+    public void setValue(String value) {
+        this.value = value;
+    }
 
     @Override
     public String toString() {
