@@ -7,9 +7,8 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.classification.page.Stopwords;
-import ws.palladian.extraction.keyphrase.TokenizerPlus.TokenizerSettings;
 
-public class KeyphraseExtractorSettings implements TokenizerSettings {
+public class KeyphraseExtractorSettings {
 
     public enum ReRankingMode {
         NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
@@ -79,7 +78,6 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
         this.pattern = pattern;
     }*/
 
-    @Override
     public SnowballStemmer getStemmer() {
         return stemmer;
     }
@@ -88,7 +86,6 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
         this.stemmer = stemmer;
     }
 
-    @Override
     public Set<String> getStopwords() {
         return stopwords;
     }

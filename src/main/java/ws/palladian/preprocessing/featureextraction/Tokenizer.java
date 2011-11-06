@@ -9,6 +9,8 @@ import ws.palladian.preprocessing.PipelineProcessor;
 
 public class Tokenizer implements PipelineProcessor {
     
+    private static final long serialVersionUID = 1L;
+
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens";
 
     private static final Pattern TOKENIZE_REGEXP = Pattern
@@ -24,7 +26,8 @@ public class Tokenizer implements PipelineProcessor {
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();
-            Annotation annotation = new PositionAnnotation(document,startPosition,endPosition);
+            String value = matcher.group();
+            Annotation annotation = new PositionAnnotation(document, startPosition, endPosition, value);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

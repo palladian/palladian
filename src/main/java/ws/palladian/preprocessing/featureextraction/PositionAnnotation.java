@@ -28,6 +28,13 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
+     * The text value of this {@link Annotation}.
+     * </p>
+     */
+    private String value;
+
+    /**
+     * <p>
      * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
      * provided {@code PipelineDocument}.
      * </p>
@@ -42,6 +49,21 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
+     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
+     * provided {@code PipelineDocument}.
+     * </p>
+     * 
+     * @param document The document this {@code Annotation} points to.
+     * @param startPosition The index of the first character of this {@code Annotation}.
+     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param value The text value of this {@link Annotation}.
+     */
+    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, String value) {
+        this(document, "originalContent", startPosition, endPosition, value);
+    }
+
+    /**
+     * <p>
      * Creates a new {@code PositionAnnotation} completely initialized.
      * </p>
      * 
@@ -52,9 +74,32 @@ public final class PositionAnnotation extends Annotation {
      * @param endPosition The index of the first character after the end of this {@code Annotation}.
      */
     public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition) {
+        // return a copy of the String, elsewise we will run into memory problems,
+        // as the original String from the document might never get GC'ed, as long
+        // as we keep its Tokens in memory
+        // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
+        this(document, viewName, startPosition, endPosition, new String(document.getOriginalContent().substring(
+                startPosition, endPosition)));
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code PositionAnnotation} completely initialized.
+     * </p>
+     * 
+     * @param document The document this {@code Annotation} points to.
+     * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
+     *            to.
+     * @param startPosition The index of the first character of this {@code Annotation}.
+     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param value The text value of this {@link Annotation}.
+     */
+    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition,
+            String value) {
         super(document, viewName);
         this.startPosition = startPosition;
         this.endPosition = endPosition;
+        this.value = value;
     }
 
     @Override
@@ -69,14 +114,7 @@ public final class PositionAnnotation extends Annotation {
 
     @Override
     public String getValue() {
-        String text = getDocument().getOriginalContent();
-        // return text.substring(getStartPosition(), getEndPosition());
-
-        // return a copy of the String, elsewise we will run into memory problems,
-        // as the original String from the document might never get GC'ed, as long
-        // as we keep its Tokens in memory
-        // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-        return new String(text.substring(getStartPosition(), getEndPosition()));
+        return value;
     }
 
     @Override
@@ -117,7 +155,7 @@ public final class PositionAnnotation extends Annotation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PositionAnnotation other = (PositionAnnotation)obj;
+        PositionAnnotation other = (PositionAnnotation) obj;
         if (endPosition != other.endPosition)
             return false;
         if (startPosition != other.startPosition)

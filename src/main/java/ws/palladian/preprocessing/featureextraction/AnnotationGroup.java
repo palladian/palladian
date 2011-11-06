@@ -99,16 +99,16 @@ public class AnnotationGroup extends Annotation {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("AnnotationGroup [getTokens()=");
-        builder.append(getAnnotations());
-        builder.append(", getStartPosition()=");
-        builder.append(getStartPosition());
-        builder.append(", getEndPosition()=");
-        builder.append(getEndPosition());
-        builder.append(", getValue()=");
+        builder.append("AnnotationGroup [value=");
         builder.append(getValue());
-        builder.append(", getFeatureVector()=");
+        builder.append(", startPosition=");
+        builder.append(getStartPosition());
+        builder.append(", endPosition=");
+        builder.append(getEndPosition());
+        builder.append(", featureVector()=");
         builder.append(getFeatureVector());
+        builder.append(", annotations=");
+        builder.append(getAnnotations());
         builder.append("]");
         return builder.toString();
     }
