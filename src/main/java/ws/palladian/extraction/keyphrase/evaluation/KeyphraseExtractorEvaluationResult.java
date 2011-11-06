@@ -15,7 +15,7 @@ import ws.palladian.helper.StopWatch;
  * @author Philipp Katz
  * 
  */
-public class ControlledTaggerEvaluationResult {
+public class KeyphraseExtractorEvaluationResult {
 
     private int taggedEntryCount;
     private double precisionSum;
@@ -81,7 +81,7 @@ public class ControlledTaggerEvaluationResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ControlledTaggerEvaluationResult:");
+        sb.append("KeyphraseExtractorEvaluationResult:");
         sb.append("taggedEntries:").append(taggedEntryCount);
         if (trainStop != null) sb.append(",timeForTraining:").append(trainStop.getElapsedTimeString());
         if (testStop != null) sb.append(",timeForTesting:").append(testStop.getElapsedTimeString());

@@ -4,7 +4,8 @@ import java.util.regex.Pattern;
 
 public class RegExTokenRemover extends TokenRemover {
     
-    private Pattern pattern;
+    private static final long serialVersionUID = 1L;
+    private final Pattern pattern;
 
     public RegExTokenRemover(Pattern pattern) {
         this.pattern = pattern;

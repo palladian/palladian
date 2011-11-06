@@ -10,10 +10,11 @@ import ws.palladian.preprocessing.PipelineProcessor;
 
 public class TermCorpusBuilder implements PipelineProcessor {
     
+    private static final long serialVersionUID = 1L;
     private final TermCorpus termCorpus;
     
     public TermCorpusBuilder() {
-        this(new TroveTermCorpus());
+        this(new TermCorpus());
     }
     
     public TermCorpusBuilder(TermCorpus termCorpus) {

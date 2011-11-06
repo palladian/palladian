@@ -9,6 +9,8 @@ import ws.palladian.preprocessing.PipelineProcessor;
 
 public class IdfAnnotator implements PipelineProcessor {
 
+    private static final long serialVersionUID = 1L;
+
     public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.idf";
 
     private final TermCorpus termCorpus;

@@ -84,7 +84,7 @@ public class KeyphraseExtractorEvaluator {
         testingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
 
         // evaluation
-        ControlledTaggerEvaluationResult result = test(extractor, testingDataset, testLimit);
+        KeyphraseExtractorEvaluationResult result = test(extractor, testingDataset, testLimit);
 
         // write result file
         FileHelper.appendFile(EVALUATION_RESULT, result.toString() + "\n");
@@ -113,12 +113,12 @@ public class KeyphraseExtractorEvaluator {
 
     }
 
-    public ControlledTaggerEvaluationResult test(final KeyphraseExtractor extractor, final Dataset dataset,
+    public KeyphraseExtractorEvaluationResult test(final KeyphraseExtractor extractor, final Dataset dataset,
             final int limit) {
 
         LOGGER.info("testing ...");
 
-        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
+        final KeyphraseExtractorEvaluationResult evaluationResult = new KeyphraseExtractorEvaluationResult();
         extractor.startExtraction();
 
         StopWatch sw = new StopWatch();
@@ -199,23 +199,23 @@ public class KeyphraseExtractorEvaluator {
 
     }
 
-    public ControlledTaggerEvaluationResult test(KeyphraseExtractor extractor, Dataset dataset) {
+    public KeyphraseExtractorEvaluationResult test(KeyphraseExtractor extractor, Dataset dataset) {
         return test(extractor, dataset, -1);
     }
 
-    public ControlledTaggerEvaluationResult test(KeyphraseExtractor extractor, String filePath, final int limit) {
+    public KeyphraseExtractorEvaluationResult test(KeyphraseExtractor extractor, String filePath, final int limit) {
 
         Dataset dataset = new Dataset();
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("#");
 
-        ControlledTaggerEvaluationResult evaluationResult = test(extractor, dataset, limit);
+        KeyphraseExtractorEvaluationResult evaluationResult = test(extractor, dataset, limit);
 
         return evaluationResult;
 
     }
 
-    // public ControlledTaggerEvaluationResult test() {
+    // public KeyphraseExtractorEvaluationResult test() {
     // return test(TEMP_TESTING_DATA, -1);
     // }
 

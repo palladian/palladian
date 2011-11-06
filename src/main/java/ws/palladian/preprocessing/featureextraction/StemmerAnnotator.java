@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
-import org.tartarus.snowball.ext.germanStemmer;
 
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;

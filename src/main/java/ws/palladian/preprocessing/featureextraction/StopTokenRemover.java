@@ -6,7 +6,8 @@ import ws.palladian.classification.page.Stopwords.Predefined;
 
 public class StopTokenRemover extends TokenRemover {
     
-    private Stopwords stopwords;
+    private static final long serialVersionUID = 1L;
+    private final Stopwords stopwords;
 
     public StopTokenRemover(Predefined predefined) {
         stopwords = new Stopwords(predefined);
