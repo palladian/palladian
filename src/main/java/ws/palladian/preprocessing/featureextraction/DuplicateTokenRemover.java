@@ -22,7 +22,7 @@ public class DuplicateTokenRemover implements PipelineProcessor {
         }
         List<Annotation> annotations = annotationFeature.getValue();
         Set<String> tokenValues = new HashSet<String>();
-        
+
         List<Annotation> resultTokens = new ArrayList<Annotation>();
         for (Annotation annotation : annotations) {
             String tokenValue = annotation.getValue().toLowerCase();

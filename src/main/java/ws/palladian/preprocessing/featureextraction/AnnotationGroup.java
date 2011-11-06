@@ -31,6 +31,13 @@ public class AnnotationGroup extends Annotation {
 
     /**
      * <p>
+     * The value of this {@link AnnotationGroup}, in case it is overridden manually.
+     * </p>
+     */
+    private String value;
+
+    /**
+     * <p>
      * Creates a new {@link AnnotationGroup} for the specified {@link PipelineDocument}. {@link Annotation}s can be
      * added to this group using the {@link #add(Annotation)} method.
      * </p>
@@ -40,6 +47,7 @@ public class AnnotationGroup extends Annotation {
      */
     public AnnotationGroup(PipelineDocument document) {
         super(document);
+        value = null;
     }
 
     @Override
@@ -62,12 +70,20 @@ public class AnnotationGroup extends Annotation {
 
     @Override
     public String getValue() {
-        StringBuilder valueBuilder = new StringBuilder();
-        for (Annotation annotation : annotations) {
-            valueBuilder.append(annotation.getValue()).append(TOKEN_SEPARATOR);
+        if (value == null) {
+            StringBuilder valueBuilder = new StringBuilder();
+            for (Annotation annotation : annotations) {
+                valueBuilder.append(annotation.getValue()).append(TOKEN_SEPARATOR);
+            }
+            valueBuilder.deleteCharAt(valueBuilder.length() - 1);
+            value = valueBuilder.toString();
         }
-        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
-        return valueBuilder.toString();
+        return value;
+    }
+
+    @Override
+    public void setValue(String value) {
+        this.value = value;
     }
 
     /**
@@ -107,8 +123,8 @@ public class AnnotationGroup extends Annotation {
         builder.append(getEndPosition());
         builder.append(", featureVector()=");
         builder.append(getFeatureVector());
-        builder.append(", annotations=");
-        builder.append(getAnnotations());
+        // builder.append(", annotations=");
+        // builder.append(getAnnotations());
         builder.append("]");
         return builder.toString();
     }
@@ -135,7 +151,7 @@ public class AnnotationGroup extends Annotation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AnnotationGroup other = (AnnotationGroup)obj;
+        AnnotationGroup other = (AnnotationGroup) obj;
         if (annotations == null) {
             if (other.annotations != null)
                 return false;

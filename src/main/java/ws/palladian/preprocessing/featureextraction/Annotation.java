@@ -91,12 +91,23 @@ public abstract class Annotation {
 
     /**
      * <p>
-     * Provides the value of this {@link Annotation} from the underlying {@link PipelineDocument}.
+     * Provides the value of this {@link Annotation}, usually from the underlying {@link PipelineDocument}.
      * </p>
      * 
      * @return The value of this {@link Annotation} as a {@link String}.
      */
     public abstract String getValue();
+
+    /**
+     * <p>
+     * Set the value of this {@link Annotation}. Usually, the value depends on supplied positions and is determined
+     * directly from the associated {@link PipelineDocument}. This method provides the possibility to manually override
+     * the value, which is necessary e.g. when stemming or lemmatization is applied.
+     * </p>
+     * 
+     * @param value
+     */
+    public abstract void setValue(String value);
 
     /**
      * <p>
