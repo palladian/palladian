@@ -2,7 +2,7 @@ package ws.palladian.helper;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +52,7 @@ public final class ConfigHolder {
 
     /**
      * <p>
-     * The name of the palladian configuration properties file.
+     * The name of the Palladian configuration properties file.
      * </p>
      */
     private static final String CONFIG_NAME = "palladian.properties";
@@ -66,7 +66,7 @@ public final class ConfigHolder {
 
     /**
      * <p>
-     * Name of the environment variable denoting the palladian home directory.
+     * Name of the environment variable denoting the Palladian home directory.
      * </p>
      */
     private static final String PALLADIAN_HOME_ENV = "PALLADIAN_HOME";
@@ -111,11 +111,18 @@ public final class ConfigHolder {
             if (palladianHomeEnvironment != null) {
                 configCandidates.add(palladianHomeEnvironment + File.separatorChar + CONFIG_PATH);
             }
-            URL configResource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
-            if (configResource != null) {
-                configCandidates.add(configResource.getFile());
+            try {
+                String classpathConfig = ResourceHelper.getResourcePath(CONFIG_NAME);
+                configCandidates.add(classpathConfig);
+            } catch (FileNotFoundException e) {
+                LOGGER.trace("No configuration file in classpath.");
             }
+//            URL configResource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
+//            if (configResource != null) {
+//                configCandidates.add(configResource.getFile());
+//            }
             configCandidates.add(CONFIG_PATH);
+            LOGGER.info("config candidates : " + configCandidates);
             
             File configFile = null;
             for (String candidate : configCandidates) {
