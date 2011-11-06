@@ -61,18 +61,18 @@ public class WebPageDateEvaluatorTest {
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
-//        assertEquals(1, wpde.getAllBestRatedDate().size());
+        assertEquals(1, wpde.getAllBestRatedDate().size());
 
         url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
         wpde.setUrl(url);
         wpde.evaluate();
-//        assertEquals(1, wpde.getAllBestRatedDate().size());
+        assertEquals(1, wpde.getAllBestRatedDate().size());
 
         url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
         wpde.setUrl(url);
         wpde.evaluate();
         // System.out.println(wpde.getAllDates());
-//        assertEquals(1, wpde.getAllBestRatedDate().size());
+        assertEquals(1, wpde.getAllBestRatedDate().size());
         
         url = "http://www.spiegel.de/sport/formel1/0,1518,770789,00.html";
         wpde.setUrl(url);
