@@ -1,12 +1,10 @@
 package ws.palladian.classification;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.classification.Term;
-import ws.palladian.classification.WordCorrelationMatrix;
 import ws.palladian.helper.FileHelper;
 
 /**
@@ -56,7 +54,7 @@ public class WordCorrelationMatrixTest {
     private Term term3 = new Term("goldengatebridge");
     private Term term4 = new Term("california");
     private Term term5 = new Term("cali" + "fornia"); // to test proper handling of String equality
-    
+
     /** get the class under test. */
     protected WordCorrelationMatrix getMatrix() {
         return new WordCorrelationMatrix();
@@ -100,30 +98,30 @@ public class WordCorrelationMatrixTest {
     public void testWordCorrelationMatrix() {
 
         // check absolute correlations
-        Assert.assertEquals(5.0, wcm.getCorrelation(term1, term2).getAbsoluteCorrelation());
-        Assert.assertEquals(5.0, wcm.getCorrelation(term2, term1).getAbsoluteCorrelation());
-        Assert.assertEquals(3.0, wcm.getCorrelation(term1, term3).getAbsoluteCorrelation());
-        Assert.assertEquals(7.0, wcm.getCorrelation(term1, term4).getAbsoluteCorrelation());
-        Assert.assertEquals(7.0, wcm.getCorrelation(term1, term5).getAbsoluteCorrelation());
-        Assert.assertEquals(2.0, wcm.getCorrelation(term2, term3).getAbsoluteCorrelation());
+        assertEquals(5.0, wcm.getCorrelation(term1, term2).getAbsoluteCorrelation(), 0);
+        assertEquals(5.0, wcm.getCorrelation(term2, term1).getAbsoluteCorrelation(), 0);
+        assertEquals(3.0, wcm.getCorrelation(term1, term3).getAbsoluteCorrelation(), 0);
+        assertEquals(7.0, wcm.getCorrelation(term1, term4).getAbsoluteCorrelation(), 0);
+        assertEquals(7.0, wcm.getCorrelation(term1, term5).getAbsoluteCorrelation(), 0);
+        assertEquals(2.0, wcm.getCorrelation(term2, term3).getAbsoluteCorrelation(), 0);
         // TODO can't we return a Correlation object with 0.0 when we have no correlation?
-        Assert.assertEquals(null, wcm.getCorrelation(term3, term4));
+        assertEquals(null, wcm.getCorrelation(term3, term4));
 
-        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term2, term1).getRelativeCorrelation());
-        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term1, term2).getRelativeCorrelation());
-        Assert.assertEquals(3.0 / (15.0 + 5.0 - 3.0), wcm.getCorrelation(term1, term3).getRelativeCorrelation());
-        Assert.assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term4).getRelativeCorrelation());
-        Assert.assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term5).getRelativeCorrelation());
-        Assert.assertEquals(2.0 / (7.0 + 5.0 - 2.0), wcm.getCorrelation(term2, term3).getRelativeCorrelation());
+        assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term2, term1).getRelativeCorrelation(), 0);
+        assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term1, term2).getRelativeCorrelation(), 0);
+        assertEquals(3.0 / (15.0 + 5.0 - 3.0), wcm.getCorrelation(term1, term3).getRelativeCorrelation(), 0);
+        assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term4).getRelativeCorrelation(), 0);
+        assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term5).getRelativeCorrelation(), 0);
+        assertEquals(2.0 / (7.0 + 5.0 - 2.0), wcm.getCorrelation(term2, term3).getRelativeCorrelation(), 0);
 
-        Assert.assertEquals(3, wcm.getCorrelations("sanfrancisco", -1).size());
-        Assert.assertEquals(2, wcm.getCorrelations("cablecar", -1).size());
-        Assert.assertEquals(1, wcm.getCorrelations("california", -1).size());
-        Assert.assertEquals(0, wcm.getCorrelations("losangeles", -1).size());
-        
+        assertEquals(3, wcm.getCorrelations("sanfrancisco", -1).size());
+        assertEquals(2, wcm.getCorrelations("cablecar", -1).size());
+        assertEquals(1, wcm.getCorrelations("california", -1).size());
+        assertEquals(0, wcm.getCorrelations("losangeles", -1).size());
+
         // we have 4 correlations in total (term1, term2) == (term2, term1)
-        Assert.assertEquals(4, wcm.getCorrelations().size());
-        
+        assertEquals(4, wcm.getCorrelations().size());
+
     }
 
     @Test
@@ -133,8 +131,7 @@ public class WordCorrelationMatrixTest {
         FileHelper.serialize(wcm, fileName);
 
         WordCorrelationMatrix deserialized = (WordCorrelationMatrix) FileHelper.deserialize(fileName);
-        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), deserialized.getCorrelation(term1, term2)
-                .getRelativeCorrelation());
+        assertEquals(5.0 / (15.0 + 7.0 - 5.0), deserialized.getCorrelation(term1, term2).getRelativeCorrelation(), 0);
 
         // clean up
         FileHelper.delete(fileName);

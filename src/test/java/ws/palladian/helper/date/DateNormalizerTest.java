@@ -1,12 +1,14 @@
 package ws.palladian.helper.date;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import ws.palladian.preprocessing.normalization.DateNormalizer;
 
-;
+public class DateNormalizerTest {
 
-public class DateNormalizerTest extends TestCase {
-
+    @Test
     public void testNormalizeDate() {
         assertEquals(DateNormalizer.normalizeDate("17.01.1956"), "1956-01-17");
         assertEquals(DateNormalizer.normalizeDate("17.1.1956"), "1956-01-17");

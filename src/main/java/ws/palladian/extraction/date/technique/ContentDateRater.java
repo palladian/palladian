@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Logger;
 
 import weka.classifiers.Classifier;
 import weka.core.Instance;
@@ -17,89 +18,87 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateWekaInstanceFactory;
 
 /**
- *This class evaluates content-dates. <br>
- *Doing this by dividing dates in three parts: Keyword in attribute, in text
- * and no keyword.<br>
- * Each part will be rate different.<br>
- * Part one by keyword classes, see {@link KeyWords#getKeywordPriority(String)}
- * and age. Part two by distance of keyword an date, keyword classes and age.
- * Part three by age.
+ * <p>
+ * This class evaluates content-dates. Doing this by dividing dates in three parts: Keyword in attribute, in text and no
+ * keyword; each part will be rated different. Part one by keyword classes, see
+ * {@link KeyWords#getKeywordPriority(String)} and age. Part two by distance of keyword an date, keyword classes and
+ * age. Part three by age.
+ * </p>
  * 
  * @author Martin Gregor
- * 
+ * @author Philipp Katz
  */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
-	Classifier classifier = null;
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ContentDateRater.class);
 
     public static final String DATE_CLASSIFIER_IDENTIFIER = "wekaRandomCommitteeObjectModel";
 
-	public ContentDateRater(PageDateType dateType) {
-		super(dateType);
-		loadClasifier();
-	}
+    private Classifier classifier = null;
 
-	private void loadClasifier() {
+    public ContentDateRater(PageDateType dateType) {
+        super(dateType);
+        loadClassifier();
+    }
+
+    private void loadClassifier() {
         final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 
-		String classifierFile;
-		if (this.dateType.equals(PageDateType.publish)) {
-            classifierFile = config.getString("models.root") + config.getString("models.palladian.date.published");
-            // classifierFile = "/wekaClassifier/pubClassifierFinal.model";
-		} else {
-            classifierFile = config.getString("models.root") + config.getString("models.palladian.date.modified");
-            // classifierFile = "/wekaClassifier/modClassifierFinal.model";
-		}
-		try {
-			// String modelPath = ContentDate.class.getResource(classifierFile)
-			// .getFile();
-			// this.classifier = (Classifier)
-			// SerializationHelper.read(modelPath);
-            this.classifier = (Classifier) Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
-			if (this.classifier == null) {
-				System.out.println("load classifier");
-				InputStream stream = ContentDateRater.class
-						.getResourceAsStream(classifierFile);
-				this.classifier = (Classifier) SerializationHelper.read(stream);
+        String classifierFile;
+        String modelsRoot = config.getString("models.root");
+        String modelPublished = config.getString("models.palladian.date.published");
+        String modelModified = config.getString("models.palladian.date.modified");
+        if (modelsRoot == null || modelPublished == null || modelModified == null) {
+            throw new IllegalStateException("Path to the models has not been set.");
+        }
+        
+        if (this.dateType.equals(PageDateType.publish)) {
+            classifierFile = modelsRoot + modelPublished;
+        } else {
+            classifierFile = modelsRoot + modelModified;
+        }
+        
+        try {
+            this.classifier = (Classifier)Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
+            if (this.classifier == null) {
+                LOGGER.debug("load classifier from " + classifierFile);
+                InputStream stream = ContentDateRater.class.getResourceAsStream(classifierFile);
+                this.classifier = (Classifier)SerializationHelper.read(stream);
                 Cache.getInstance().putDataObject(DATE_CLASSIFIER_IDENTIFIER, this.classifier);
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not load the classifier from " + classifierFile, e);
+        }
+    }
 
-	}
+    @Override
+    public Map<ContentDate, Double> rate(List<ContentDate> list) {
 
-	@Override
-	public Map<ContentDate, Double> rate(List<ContentDate> list) {
+        int pubModCLassifierIndex;
+        Map<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
+        DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(this.dateType);
 
-		int pubModCLassifierIndex;
-		HashMap<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
-		DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(
-				this.dateType);
+        if (this.dateType.equals(PageDateType.publish)) {
+            pubModCLassifierIndex = 0;
+        } else {
+            pubModCLassifierIndex = 0;
+        }
 
-		if(this.dateType.equals(PageDateType.publish)){
-			pubModCLassifierIndex = 0;
-		}else{
-			pubModCLassifierIndex = 0;
-		}
-		
-		for (ContentDate date : list) {
-			if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
-				returnDates.put(date, 1.0);
-			} else{
-				Instance instance = dwif.getDateInstanceByArffTemplate(date);
-				try {
-					double[] dbl = this.classifier
-							.distributionForInstance(instance);
-					returnDates.put(date, dbl[pubModCLassifierIndex]);
-				} catch (Exception e) {
-					System.out.println(date.getDateString());
-					System.out.println(instance);
-					e.printStackTrace();
-				}
-			}
+        for (ContentDate date : list) {
+            if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
+                returnDates.put(date, 1.0);
+            } else {
+                Instance instance = dwif.getDateInstanceByArffTemplate(date);
+                try {
+                    double[] dbl = this.classifier.distributionForInstance(instance);
+                    returnDates.put(date, dbl[pubModCLassifierIndex]);
+                } catch (Exception e) {
+                    LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
+                }
+            }
 
-		}
-		return returnDates;
-	}
+        }
+        return returnDates;
+    }
 }

@@ -1,8 +1,8 @@
 package ws.palladian.helper.nlp;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -11,11 +11,7 @@ import org.junit.Test;
  * 
  * @author David Urbansky
  */
-public class TokenizerTest extends TestCase {
-
-    public TokenizerTest(String name) {
-        super(name);
-    }
+public class TokenizerTest {
 
     @Test
     public void testCalculateCharNGrams() {
@@ -69,28 +65,30 @@ public class TokenizerTest extends TestCase {
     public void testGetSentence() {
 
         assertEquals(Tokenizer.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"),
-        "Although, many of them (30.2%) are good.");
+                "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
-        "Although, many of them (30.2%) are good");
+                "Although, many of them (30.2%) are good");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
-        "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
-        "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
-        "Although, many of them (30.2%) are good.");
+                "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40),
-        "Although, many of them (30.2%) are good.");
+                "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good.As long as", 40),
-        "Although, many of them (30.2%) are good.");
-        assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,",
-                12), "What is the largest city in usa, (30.2%) in population. - Yahoo!");
-        assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,",
-                12), "What is the largest city in usa, (30.2%) in population?");
+                "Although, many of them (30.2%) are good.");
+        assertEquals(
+                Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,", 12),
+                "What is the largest city in usa, (30.2%) in population. - Yahoo!");
+        assertEquals(
+                Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12),
+                "What is the largest city in usa, (30.2%) in population?");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
-        "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
+                "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
     }
 
     @Test
@@ -138,13 +136,13 @@ public class TokenizerTest extends TestCase {
         assertEquals(2, sentences.size());
         assertEquals("Dont repeat yourself.", sentences.get(0));
         assertEquals("Dont repeat yourself.", sentences.get(1));
-        
+
         inputText = "Mr. T's kill count is ca. 4,500. Right?";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
         assertEquals("Mr. T's kill count is ca. 4,500.", sentences.get(0));
         assertEquals("Right?", sentences.get(1));
-        
+
         inputText = "You can't have a rainbow without rain ... think about it! Did you...think about it?";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());

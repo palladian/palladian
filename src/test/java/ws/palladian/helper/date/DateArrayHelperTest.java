@@ -2,6 +2,7 @@ package ws.palladian.helper.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +13,13 @@ import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.helper.ResourceHelper;
 
 public class DateArrayHelperTest {
 
     @Test
-    public void testFilter() {
-        final String url = DateArrayHelperTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
+    public void testFilter() throws FileNotFoundException {
+        final String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
 
         //
         // not working (size of list is 6, not 5):
@@ -93,8 +95,8 @@ public class DateArrayHelperTest {
 
     @Ignore
     @Test
-    public void testArrangeByDate2() {
-        final String url = DateArrayHelperTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
+    public void testArrangeByDate2() throws FileNotFoundException {
+        final String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
