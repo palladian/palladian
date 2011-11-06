@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.util.Collection;
-import java.util.Date;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
@@ -103,11 +102,11 @@ public class DatasetEvaluator {
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
             UpdateStrategy updateStrategy, long wakeUpInterval) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
-        for (Feed feed : feeds) {
-            feed.setNumberOfItemsReceived(0);
-            feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
-            feed.setUpdateInterval(0);
-        }
+        // for (Feed feed : feeds) {
+        // feed.setNumberOfItemsReceived(0);
+        // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
+        // feed.setUpdateInterval(0);
+        // }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
@@ -119,7 +118,7 @@ public class DatasetEvaluator {
                 + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
 
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationDbTable(simulatedPollsDbTableName());
+                .createEvaluationBaseTable(simulatedPollsDbTableName());
         if (!created) {
             LOGGER.fatal("Database table " + simulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
@@ -132,6 +131,7 @@ public class DatasetEvaluator {
      * postfix "_feeds" and "_avg" for intermediate und final results.
      */
     private void generateEvaluationSummary() {
+        LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
         boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
                 .generateEvaluationSummary(simulatedPollsDbTableName());
         if (dataWritten) {
@@ -157,12 +157,25 @@ public class DatasetEvaluator {
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
         
         try {
+
+            // read interval bounds
+            int minInterval = config.getInt("datasetEvaluator.minCheckInterval");
+            int maxInterval = config.getInt("datasetEvaluator.maxCheckInterval");
+
             // read update strategy and interval in case of "Fix"
             String strategy = config.getString("datasetEvaluator.updateStrategy");
             // Fix
             if (strategy.equalsIgnoreCase("Fix")) {
                 updateStrategy = new FixUpdateStrategy();
                 int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
+
+                // check for conflicting interval bounds
+                if (fixInterval < minInterval || fixInterval > maxInterval) {
+                    fatalErrorOccurred = true;
+                    LOGGER.fatal("Defined fixInterval and interval bounds have conflict! "
+                            + "Make sure minInterval <= fixInterval <= maxInterval.");
+                }
+
                 ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
                 logMsg.append("Fix");
                 logMsg.append(fixInterval);
@@ -180,10 +193,6 @@ public class DatasetEvaluator {
                 LOGGER.fatal("Cant read updateStrategy from config.");
             }
 
-
-            // read interval bounds
-            int minInterval = config.getInt("datasetEvaluator.minCheckInterval");
-            int maxInterval = config.getInt("datasetEvaluator.maxCheckInterval");
 
             // validate interval bounds
             if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
