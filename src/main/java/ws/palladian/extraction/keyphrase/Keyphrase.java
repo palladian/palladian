@@ -1,6 +1,6 @@
 package ws.palladian.extraction.keyphrase;
 
-public class Keyphrase {
+public class Keyphrase implements Comparable<Keyphrase>{
     
     public Keyphrase(String value) {
         this.value = value;
@@ -66,6 +66,11 @@ public class Keyphrase {
         // builder.append(weight);
         // builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(Keyphrase o) {
+        return Double.compare(this.getWeight(), o.getWeight());
     }
     
 }
