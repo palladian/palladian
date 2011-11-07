@@ -10,10 +10,17 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.ext.porterStemmer;
 
+import weka.classifiers.Classifier;
+import weka.core.Attribute;
+import weka.core.FastVector;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.SerializationHelper;
 import ws.palladian.classification.page.Stopwords;
 import ws.palladian.classification.page.Stopwords.Predefined;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
@@ -26,12 +33,14 @@ import ws.palladian.preprocessing.featureextraction.AnnotationGroup;
 import ws.palladian.preprocessing.featureextraction.CountCalculator;
 import ws.palladian.preprocessing.featureextraction.DuplicateTokenRemover;
 import ws.palladian.preprocessing.featureextraction.FrequencyCalculator;
+import ws.palladian.preprocessing.featureextraction.IdfAnnotator;
 import ws.palladian.preprocessing.featureextraction.NGramCreator;
 import ws.palladian.preprocessing.featureextraction.RegExTokenRemover;
 import ws.palladian.preprocessing.featureextraction.StemmerAnnotator;
 import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
 import ws.palladian.preprocessing.featureextraction.TermCorpus;
 import ws.palladian.preprocessing.featureextraction.TermCorpusBuilder;
+import ws.palladian.preprocessing.featureextraction.TfIdfAnnotator;
 import ws.palladian.preprocessing.featureextraction.TokenRemover;
 import ws.palladian.preprocessing.featureextraction.TokenSpreadCalculator;
 import ws.palladian.preprocessing.featureextraction.Tokenizer;
@@ -125,11 +134,15 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         pipeline.add(new CountCalculator());
         pipeline.add(new TokenSpreadCalculator());
         pipeline.add(new FrequencyCalculator());
+        corpus = new TermCorpus();
+        corpus.load("/Users/pk/Desktop/corpus.txt");
+        pipeline.add(new IdfAnnotator(corpus));
+        pipeline.add(new TfIdfAnnotator());
         pipeline.add(new PhrasenessAnnotator());
         
         
         pipeline.add(new DuplicateTokenRemover());
-        corpus = new TermCorpus();
+        //corpus = new TermCorpus();
         pipeline.add(new TermCorpusBuilder(corpus));
         
         // additional features to extract
@@ -163,25 +176,26 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // System.out.println("inTrain");
         System.out.println(keyphrases);
         
-        PipelineDocument document = pipeline.process(new PipelineDocument(inputText));
-        // LOGGER.debug(pipeline);
-        
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature tokenList = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature tokenList = extractFeatures(inputText);
 
         int positiveCounter = 0;
         
         // mark positive candidates, i.e. those which were manually assigned in the training data
         // TODO need to consider stems and composite terms here
         for (Annotation annotation : tokenList.getValue()) {
-            boolean isCandidate = keyphrases.contains(annotation.getValue().toLowerCase());
-            isCandidate = isCandidate || keyphrases.contains(annotation.getValue().replace(" ", "").toLowerCase());
-            isCandidate = isCandidate || keyphrases.contains(((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue()).toLowerCase());
-            isCandidate = isCandidate || keyphrases.contains(((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue()).replace(" ", "").toLowerCase());
+            String annotationValue = annotation.getValue();
+            String unstemmedValue = (String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue();
+            
+            boolean isCandidate = false;
+            isCandidate = isCandidate || keyphrases.contains(annotationValue.toLowerCase());
+            isCandidate = isCandidate || keyphrases.contains(annotationValue.replace(" ", "").toLowerCase());
+            isCandidate = isCandidate || keyphrases.contains(unstemmedValue.toLowerCase());
+            isCandidate = isCandidate || keyphrases.contains(unstemmedValue.replace(" ", "").toLowerCase());
             
             annotation.getFeatureVector().add(new Feature<Boolean>("isKeyphrase", isCandidate));
+            
             if (isCandidate) {
-                // System.out.println("** positive ** " + annotation);
+                System.out.println("** positive ** " + annotation);
                 positiveCounter++;
             }
         }
@@ -194,21 +208,43 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         mappedAnnotations += positiveCounter;
         
         // trainingAnnotations.addAll(tokenList.getValue());
-        // createFeatureList(tokenList);
+        createFeatureList(tokenList.getValue());
 
+    }
+
+    private AnnotationFeature extractFeatures(String inputText) {
+        PipelineDocument document = pipeline.process(new PipelineDocument(inputText));
+        // LOGGER.debug(pipeline);
+        
+        FeatureVector featureVector = document.getFeatureVector();
+        AnnotationFeature tokenList = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        return tokenList;
     }
     
 
-    private void createFeatureList(AnnotationFeature tokenList) {
+    private void createFeatureList(List<Annotation> annotations) {
         
-        List<Annotation> annotations = tokenList.getValue();
+        final String fileName = "/Users/pk/Desktop/data.txt";
+        StringBuilder lineBuilder = new StringBuilder();
+        
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            Feature<?>[] valueArray = featureVector.toValueArray();
-            for (Feature<?> feature : valueArray) {
-                System.out.println(feature.getName() + " " + feature.getValue());
-            }
+            
+            lineBuilder.append(featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get("isKeyphrase").getValue());
+            lineBuilder.append("\n");
+            
         }
+        FileHelper.appendFile(fileName, lineBuilder);
         
         // TODO Auto-generated method stub
         
@@ -224,67 +260,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         
         System.out.println("detection coverage " + (float) mappedAnnotations / totalAnnotations);
-
         
-//        // XXX
-//        corpus.makeRelativeScores();
-//
-//        // keep the CSV training data in memory for now
-//        StringBuilder csvBuilder = new StringBuilder();
-//
-//        // Set<String> featureNames = trainData.iterator().next().getFeatures().keySet();
-//        Map<String, Object> features = trainDocuments.iterator().next().iterator().next().getFeatures();
-//        Map<String, Double> numericFeatures = getNumericFeatures(features);
-//        //Set<String> featureNames = features.keySet();
-//        Set<String> featureNames = numericFeatures.keySet();
-//        // trainData.append("#");
-//        csvBuilder.append(StringUtils.join(featureNames, ";")).append("\n");
-//
-//        // write all values
-//        for (DocumentModel trainData : trainDocuments) {
-//            
-//            trainData.calculateCorrelations();
-//            
-//            for (Candidate candidate : trainData) {
-//                // Collection<Object> featureValues = candidate.getFeatures().values();
-//                Collection<Double> featureValues = getNumericFeatures(candidate.getFeatures()).values();
-//                csvBuilder.append(StringUtils.join(featureValues, ";")); //.append("\n");
-//                // csvBuilder.append(";").append(candidate.getFeatures().get("positive")).append(";").append("\n");
-//                csvBuilder.append("\n");
-//            }
-//        }
-//
-//        final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
-//        FileHelper.writeToFile(trainDataPath, csvBuilder);
-//        ///// trainData.clear();
-//        trainDocuments.clear();
-//
-//        // save memory; this is necessary, as the corpus consumes great amounts of memory, but
-//        // fortunately we don't need the corpus for the training process
-//        saveCorpus();
-//        corpus = null;
-//
-//        // train a new Classifier using the CSV data from above
-//        classifier.trainClassifier(trainDataPath, true);
-//
-//        // save the trained classifier
-//        saveClassifier();
-//
-//        // load the corpus again which has been removed from memory
-//        loadCorpus();
+//        createFeatureList(trainingAnnotations);
 
     }
 
-//    private void saveCorpus() {
-//        //String filePath = settings.getModelPath() + "/corpus.ser";
-//        String filePath = settings.getModelPath() + "/corpus.ser.gz";
-//
-//        LOGGER.info("saving corpus to " + filePath + " ...");
-//        StopWatch sw = new StopWatch();
-//        // corpus.makeRelativeScores(); // XXX
-//        FileHelper.serialize(corpus, filePath);
-//        LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
-//    }
 
     @Override
     public void startExtraction() {
@@ -293,52 +273,68 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String text) {
-
-//        addToCorpus(text);
-//
-//        DocumentModel candidates = createDocumentModel(text);
-//        
-//        /// XXX
-//        candidates.calculateCorrelations();
-//
-//        // eliminate undesired candidates in advance
-//        ListIterator<Candidate> listIterator = candidates.listIterator();
-//        while (listIterator.hasNext()) {
-//            Candidate candidate = listIterator.next();
-//
-//            boolean ignore = settings.getStopwords().contains(candidate.getValue());
-//            ignore = ignore || !settings.getPattern().matcher(candidate.getValue()).matches();
-//            ignore = ignore || (settings.isControlledMode() && candidate.getPrior() == 0);
-//            ignore = ignore || candidate.getCount() < settings.getMinOccurenceCount();
-//
-//            if (ignore) {
-//                listIterator.remove();
-//            }
-//        }
-//
-//        // perform the regression for ranking the candidates
-//        classify(candidates);
-//
-//        // Collections.sort(candidates, new CandidateComparator());
-//        // for (Candidate candidate : candidates) {
-//        // LOGGER.debug(candidate.getRegressionValue() + "\t" + candidate);
-//        // }
-//
-//        // do the correlation based re-ranking
-//        reRankCandidates(candidates);
-//
-//        // create the final result, take the top n candidates
-//        limitResult(candidates);
-//
-//        // return candidates;
-//        List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
-//        for (Candidate candidate : candidates) {
-//            keyphrases.add(new Keyphrase(candidate.getValue(), candidate.getRegressionValue()));
-//        }
-//
-//        return keyphrases;
         
-        return Collections.emptyList();
+        List<Keyphrase> ret = new ArrayList<Keyphrase>();
+        AnnotationFeature extractFeatures = extractFeatures(text);
+        List<Annotation> annotations = extractFeatures.getValue();
+        
+        try {
+            
+            Classifier classifier = (Classifier) SerializationHelper.read("/Users/pk/Desktop/keyphraseClassifier");
+
+
+            for (Annotation annotation : annotations) {
+                
+                
+                Attribute attribute1 = new Attribute("frequency");
+                Attribute attribute2 = new Attribute("spread");
+                Attribute attribute3 = new Attribute("phraseness");
+                Attribute attribute4 = new Attribute("idf");
+                Attribute attribute5 = new Attribute("tfidf");
+                Attribute attribute6 = new Attribute("class");
+                FastVector fvWekaAttributes = new FastVector(5);
+                fvWekaAttributes.addElement(attribute1);
+                fvWekaAttributes.addElement(attribute2);
+                fvWekaAttributes.addElement(attribute3);
+                fvWekaAttributes.addElement(attribute4);
+                fvWekaAttributes.addElement(attribute5);
+                fvWekaAttributes.addElement(attribute6);
+                Instances isTrainingSet = new Instances("Rel", fvWekaAttributes, 1);
+                isTrainingSet.setClassIndex(5);
+
+                
+                FeatureVector featureVector = annotation.getFeatureVector();
+                double freq = (Double) featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue();
+                double spread = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE).getValue();
+                double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
+                double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
+                double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue();
+                
+                Instance instance = new Instance(5);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(0), freq);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(1), spread);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(2), phraseness);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(3), idf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), tfidf);
+                
+                double[] distributionForInstance = classifier.distributionForInstance(instance);
+                //System.out.println(distributionForInstance[0]);
+                //System.out.println(distributionForInstance[1]);
+                
+                if (distributionForInstance[1] > distributionForInstance[0]) {
+                    // System.out.println(annotation);
+                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), distributionForInstance[0]));
+                }
+            }
+            
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //return Collections.emptyList();
+        Collections.sort(ret);
+        return ret;
 
     }
 
@@ -520,8 +516,12 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 //    }
 
     @SuppressWarnings("unused")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+
         
+        
+        
+        System.exit(0);        
         
         PalladianKeyphraseExtractor extractor = new PalladianKeyphraseExtractor();
         extractor.train("the quick brown fox jumps over the lazy dog", new HashSet<String>(Arrays.asList("fox", "dog", "lazy dog", "brown fox")), 0);

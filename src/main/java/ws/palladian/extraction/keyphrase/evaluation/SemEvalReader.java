@@ -4,13 +4,16 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.extractors.PalladianKeyphraseExtractor;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public class SemEvalReader {
     
@@ -57,10 +60,13 @@ public class SemEvalReader {
 //            System.out.println("content: " + content);
 //            System.out.println("keyphrases: " + assignedKeyphrases);
 //            System.out.println("=======");
-            extractor.train(content, assignedKeyphrases, 0);
+            //extractor.train(content, assignedKeyphrases, 0);
+            List<Keyphrase> extract = extractor.extract(content);
+            CollectionHelper.print(extract);
+            System.exit(0);
             System.out.println("finished: " + (float)counter++/documentsSet.size());
             System.out.println("---");
-            System.exit(0);
+//            System.exit(0);
         }
         
         extractor.endTraining();

@@ -27,7 +27,7 @@ import ws.palladian.preprocessing.featureextraction.Tokenizer;
 public class PhrasenessAnnotator implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
-    private static final String PROVIDED_FEATURE = "phraseness";
+    public static final String PROVIDED_FEATURE = "phraseness";
 
     private static final double SINGLE_WORD_TERM_FACTOR = 0.1;
 
@@ -69,8 +69,8 @@ public class PhrasenessAnnotator implements PipelineProcessor {
 
     private double getCount(Annotation annotation) {
         if (annotation.getFeatureVector().get(FrequencyCalculator.PROVIDED_FEATURE) == null) {
-            System.err.println("something is wrong for " + annotation);
-            return 0;
+            // System.err.println("something is wrong for " + annotation);
+            return 1;
         }
         double frequency = (Double) annotation.getFeatureVector().get(CountCalculator.PROVIDED_FEATURE).getValue();
         return frequency;
