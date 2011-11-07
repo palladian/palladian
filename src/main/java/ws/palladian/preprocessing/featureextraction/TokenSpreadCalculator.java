@@ -9,13 +9,15 @@ import ws.palladian.model.features.NumericFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
 
-// TODO rename to TokenDistributionCalculator
+// TODO rename to TokenDistributionCalculator/TokenMetricsCalculator
 public class TokenSpreadCalculator implements PipelineProcessor {
     
     private static final long serialVersionUID = 1L;
     public static final String PROVIDED_FEATURE_FIRST = "ws.palladian.features.tokens.first";
     public static final String PROVIDED_FEATURE_LAST = "ws.palladian.features.tokens.last";
     public static final String PROVIDED_FEATURE_SPREAD = "ws.palladian.features.tokens.spread";
+    public static final String PROVIDED_FEATURE_CHAR_LENGTH = "ws.palladian.features.tokens.length.char";
+    public static final String PROVIDED_FEATURE_WORD_LENGTH = "ws.palladian.features.tokens.length.word";
 
     @Override
     public void process(PipelineDocument document) {
@@ -53,6 +55,11 @@ public class TokenSpreadCalculator implements PipelineProcessor {
             annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_FIRST, first));
             annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_LAST, last));
             annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_SPREAD, spread));
+            
+            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_CHAR_LENGTH, (double) annotation.getValue().length()));
+            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_WORD_LENGTH, (double) annotation.getValue().split(" ").length));
+            
+            
         }
     }
 
