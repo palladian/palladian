@@ -55,6 +55,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     private static final String GET_EVALUATION_NEWEST_ITEM_HASHES = "SELECT f1.`feedId` , f1.`extendedItemHash` FROM `feed_evaluation_items` f1 JOIN (SELECT `feedId` , MAX( `sequenceNumber` ) AS maxsn FROM `feed_evaluation_items` GROUP BY `feedId`) AS f2 ON f1.`feedId` = f2.`feedId` AND f1.`sequenceNumber` = f2.maxsn";
 
+    private static final String OPTIMIZE_TABLE = "OPTIMIZE TABLE `###TABLE_NAME###`;";
+    
     private static final String ADD_INDEX_TO_EVALUATION_TABLE = "ALTER TABLE `###TABLE_NAME###` ADD INDEX `feedId_idx` (`feedId`);";
 
     private static final String ADD_SINGLE_DELAY = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, singleDelay = ?";
@@ -956,28 +958,6 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         // generate average for PPI, avgDelay recall and sum total misses over all feeds
         result = result && createPerStrategyAveragesModeFeeds(baseTableName);
 
-        // String sourceTableName = baseTableName + "_" + MODE_FEEDS;
-        // String outputTableName = baseTableName + AVG_POSTFIX;
-        //
-        // StringBuilder sqlBuilder = new StringBuilder();
-        // sqlBuilder.append("INSERT INTO `");
-        // sqlBuilder.append(outputTableName);
-        // sqlBuilder.append("` ");
-        // sqlBuilder.append("SELECT '");
-        // sqlBuilder.append(MODE_FEEDS);
-        // sqlBuilder.append("', AVG(PPI), AVG(avgDelayMinutes), null, SUM(totalMisses), AVG(recall) ");
-        // sqlBuilder.append("FROM `");
-        // sqlBuilder.append(sourceTableName);
-        // sqlBuilder.append("` ");
-        // sqlBuilder.append("WHERE PPI IS NOT NULL AND avgDelayMinutes IS NOT NULL AND recall IS NOT NULL;");
-        //
-        // final String sql = sqlBuilder.toString();
-        //
-        // if (LOGGER.isDebugEnabled()) {
-        // LOGGER.debug(sql);
-        // }
-        // result = result && runUpdate(sql) != -1 ? true : false;
-
         // finally, calculate median delay in mode feeds
         result = result && setMedianDelayModeFeeds(baseTableName);
 
@@ -1017,6 +997,24 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
+     * Run SQL optimize on table. This can give a dramatically performance boost if large amounts if data have been
+     * written to more than one innodb table in parallel and table has many fragments. <br />
+     * Example: Evaluating TUDCS6, two tables were filled with data in parallel, one had 85 million entries, the other
+     * one 10 million. After optimizing, speedup was 100 (!) for a query with sum(), avg() and group by.
+     * 
+     * @param tableName The name of the table to optimize.
+     * @return
+     */
+    private boolean optimizeTable(String tableName) {
+        final String sql = replaceTableName(OPTIMIZE_TABLE, tableName);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+    }
+
+    /**
      * Generate evaluation results average delay, polls per item, (average) recall and total misses for the two
      * averaging modes "feeds" and "items".
      * 
@@ -1028,8 +1026,13 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         boolean success = true;
         // make sure all data is written to db
         processBatchInsertQueue();
-        // create summary
+
+        // do some optimization
+        success = success && optimizeTable(baseTableName);
+        success = success && optimizeTable(baseTableName + DELAY_POSTFIX);
         success = success && addIndexToEvalTable(baseTableName);
+
+        // create summary
         success = success && createEvaluationResultTables(baseTableName);
         success = success && createModeFeedsSummary(baseTableName);
         success = success && createModeItemSummary(baseTableName);
