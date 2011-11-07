@@ -395,7 +395,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("of misses and pending items (that are in the time span between the last simulated poll ");
         sqlBuilder.append("and the end of the benchmark period.'");
         sqlBuilder.append(", PRIMARY KEY (`feedId`)");
-        sqlBuilder.append(") ENGINE=MYISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+        sqlBuilder.append(") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
         final String sql = sqlBuilder.toString();
         if (LOGGER.isDebugEnabled()) {
@@ -422,7 +422,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("COMMENT 'tp/(tp+fn) where tp is sum of items found by the algorithm and fn is the sum ");
         sqlBuilder.append("of misses and pending items (that are in the time span between the last simulated poll ");
         sqlBuilder.append("and the end of the benchmark period.'");
-        sqlBuilder.append(") ENGINE=MYISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+        sqlBuilder.append(") ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
         final String sqlAvg = sqlBuilder.toString();
 
@@ -459,10 +459,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("SELECT ");
         sqlBuilder.append("feedId,");
         sqlBuilder.append("SUM(missedItems) AS 'totalMisses',");
-        sqlBuilder.append("SUM(newWindowItems)/(SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)) AS 'recall'");
+        sqlBuilder.append("SUM(newWindowItems)/(SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)) AS 'recall' ");
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
-        sqlBuilder.append("`");
+        sqlBuilder.append("` ");
         sqlBuilder.append("GROUP BY feedId;");
 
         final String sql = sqlBuilder.toString();
@@ -609,6 +609,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
         String outputTableName = baseTableName + AVG_POSTFIX;
         String delayTableName = baseTableName + DELAY_POSTFIX;
+
+        // make sure to set variables on same connection where they are used.
+        final String initializeVariablesSQL = "SET @rownum:=0;";
+
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("update `");
         sqlBuilder.append(outputTableName);
@@ -627,12 +631,12 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append(MODE_ITEMS);
         sqlBuilder.append("%';");
 
-        final String sql = sqlBuilder.toString();
+        final String getMedianSQL = sqlBuilder.toString();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sql);
+            LOGGER.debug(getMedianSQL);
         }
-        return runUpdate(sql) != -1 ? true : false;
+        return runTwoUpdates(initializeVariablesSQL, getMedianSQL) != -1 ? true : false;
     }
 
     /**
@@ -754,6 +758,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
         String outputTableName = baseTableName + AVG_POSTFIX;
         String feedsTableName = baseTableName + "_" + MODE_FEEDS;
+
+        // make sure to set variables on same connection where they are used.
+        final String initializeVariablesSQL = "SET @rownum:=0;";
+
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("UPDATE `");
         sqlBuilder.append(outputTableName);
@@ -772,12 +780,12 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append(MODE_FEEDS);
         sqlBuilder.append("%';");
 
-        final String sql = sqlBuilder.toString();
+        final String getMedianSQL = sqlBuilder.toString();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sql);
+            LOGGER.debug(getMedianSQL);
         }
-        return runUpdate(sql) != -1 ? true : false;
+        return runTwoUpdates(initializeVariablesSQL, getMedianSQL) != -1 ? true : false;
     }
 
     /**
