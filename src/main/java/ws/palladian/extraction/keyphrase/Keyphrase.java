@@ -62,15 +62,15 @@ public class Keyphrase implements Comparable<Keyphrase>{
         StringBuilder builder = new StringBuilder();
         // builder.append("Keyphrase [value=");
         builder.append(value);
-        // builder.append(", weight=");
-        // builder.append(weight);
-        // builder.append("]");
+         builder.append(", weight=");
+         builder.append(weight);
+         builder.append("]");
         return builder.toString();
     }
 
     @Override
     public int compareTo(Keyphrase o) {
-        return Double.compare(this.getWeight(), o.getWeight());
+        return Double.compare(o.getWeight(), this.getWeight());
     }
     
 }

@@ -232,7 +232,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             
             lineBuilder.append(featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
-            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_SPREAD).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
@@ -288,34 +292,43 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 
                 Attribute attribute1 = new Attribute("frequency");
                 Attribute attribute2 = new Attribute("spread");
-                Attribute attribute3 = new Attribute("phraseness");
-                Attribute attribute4 = new Attribute("idf");
-                Attribute attribute5 = new Attribute("tfidf");
-                Attribute attribute6 = new Attribute("class");
-                FastVector fvWekaAttributes = new FastVector(5);
+                Attribute attribute3 = new Attribute("first");
+                Attribute attribute4 = new Attribute("last");
+                Attribute attribute5 = new Attribute("phraseness");
+                Attribute attribute6 = new Attribute("idf");
+                Attribute attribute7 = new Attribute("tfidf");
+                Attribute attribute8 = new Attribute("class");
+                FastVector fvWekaAttributes = new FastVector(7);
                 fvWekaAttributes.addElement(attribute1);
                 fvWekaAttributes.addElement(attribute2);
                 fvWekaAttributes.addElement(attribute3);
                 fvWekaAttributes.addElement(attribute4);
                 fvWekaAttributes.addElement(attribute5);
                 fvWekaAttributes.addElement(attribute6);
+                fvWekaAttributes.addElement(attribute7);
+                fvWekaAttributes.addElement(attribute8);
                 Instances isTrainingSet = new Instances("Rel", fvWekaAttributes, 1);
-                isTrainingSet.setClassIndex(5);
+                isTrainingSet.setClassIndex(8);
 
                 
                 FeatureVector featureVector = annotation.getFeatureVector();
                 double freq = (Double) featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue();
-                double spread = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE).getValue();
+                double spread = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_SPREAD).getValue();
+                double first = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue();
+                double last = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue();
                 double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
                 double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
                 double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue();
                 
-                Instance instance = new Instance(5);
+                
+                Instance instance = new Instance(7);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(0), freq);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(1), spread);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(2), phraseness);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(3), idf);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), tfidf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(2), first);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(3), last);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), phraseness);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(5), idf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(6), tfidf);
                 
                 double[] distributionForInstance = classifier.distributionForInstance(instance);
                 //System.out.println(distributionForInstance[0]);
@@ -323,7 +336,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 
                 if (distributionForInstance[1] > distributionForInstance[0]) {
                     // System.out.println(annotation);
-                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), distributionForInstance[0]));
+                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), distributionForInstance[1]));
                 }
             }
             
