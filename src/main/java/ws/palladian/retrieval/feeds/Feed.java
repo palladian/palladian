@@ -265,7 +265,7 @@ public class Feed {
                 // correct timestamp only in case this hasn't been done before.
                 // if (feedItem.getCorrectedPublishedDate() == null) {
                     Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
-                        getLastButOnePollTime(), feedItem.toString(), true);
+                        getLastButOnePollTime(), feedItem.toString(), false);
                     feedItem.setCorrectedPublishedDate(correctedTimestamp);
                 // }
                 

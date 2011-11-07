@@ -300,7 +300,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                     Timestamp oldestKnownTimestamp = feed.getOldestFeedEntryCurrentWindowSqlTimestamp();
                     if (oldestKnownTimestamp == null) {
                         oldestKnownTimestamp = feed.getLastPollTimeSQLTimestamp();
-                        LOGGER.warn("FeedId " + feed.getId()
+                        LOGGER.debug("FeedId " + feed.getId()
                                 + " had no item at first poll, using alternative identification of dropped items.");
                     }
                     numPrePostBenchmarkItems = feedDatabase.getNumberOfPreBenchmarkItems(feed.getId(),
