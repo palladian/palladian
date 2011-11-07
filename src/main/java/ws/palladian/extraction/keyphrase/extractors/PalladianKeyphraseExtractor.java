@@ -146,19 +146,10 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         pipeline.add(new TermCorpusBuilder(corpus));
         
         // additional features to extract
-        // count
         // uppercaseCount, uppercasePercentage
         // totalUppercaseCount, totalUppercasePercentage
-        // firstPosition, relativeFirstPosition
-        // lastPosition, relativeLastPosition
         // correlationStats: Sum, Max, Min, Mean, Count
         // posTag
-        // wordCount
-        // frequency
-        // inverseDocumentFrequency
-        // frequencyInverseDocumentFrequency
-        // spread, relativeSpread
-        // length
         // prior ("keyphraseness")
     }
 
@@ -237,6 +228,10 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_CHAR_LENGTH).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_WORD_LENGTH).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
