@@ -953,13 +953,15 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         result = result && generateBasicEvaluationResultsPerStrategyModeFeeds(baseTableName);
         result = result && setAvgDelayModeFeeds(baseTableName);
         result = result && setPPIModeFeeds(baseTableName);
-        result = result && setMedianDelayPerFeed(baseTableName);
+
+        // FIXME: this is deactivated since it taks years to compute...
+        // result = result && setMedianDelayPerFeed(baseTableName);
 
         // generate average for PPI, avgDelay recall and sum total misses over all feeds
         result = result && createPerStrategyAveragesModeFeeds(baseTableName);
 
         // finally, calculate median delay in mode feeds
-        result = result && setMedianDelayModeFeeds(baseTableName);
+        // result = result && setMedianDelayModeFeeds(baseTableName);
 
         return result;
     }
