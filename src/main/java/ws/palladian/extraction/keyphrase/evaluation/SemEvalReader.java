@@ -58,12 +58,12 @@ public class SemEvalReader {
             Set<String> assignedKeyphrases = keyphrases.get(documentId);
             System.out.println("docId:" + documentId);
 //            System.out.println("content: " + content);
-//            System.out.println("keyphrases: " + assignedKeyphrases);
+            System.out.println("keyphrases: " + assignedKeyphrases);
 //            System.out.println("=======");
             //extractor.train(content, assignedKeyphrases, 0);
             List<Keyphrase> extract = extractor.extract(content);
             CollectionHelper.print(extract);
-            System.exit(0);
+//            System.exit(0);
             System.out.println("finished: " + (float)counter++/documentsSet.size());
             System.out.println("---");
 //            System.exit(0);

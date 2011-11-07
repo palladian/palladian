@@ -9,10 +9,13 @@ import ws.palladian.model.features.NumericFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
 
-
+// TODO rename to TokenDistributionCalculator
 public class TokenSpreadCalculator implements PipelineProcessor {
     
-    public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens.spread";
+    private static final long serialVersionUID = 1L;
+    public static final String PROVIDED_FEATURE_FIRST = "ws.palladian.features.tokens.first";
+    public static final String PROVIDED_FEATURE_LAST = "ws.palladian.features.tokens.last";
+    public static final String PROVIDED_FEATURE_SPREAD = "ws.palladian.features.tokens.spread";
 
     @Override
     public void process(PipelineDocument document) {
@@ -44,9 +47,12 @@ public class TokenSpreadCalculator implements PipelineProcessor {
         }
         for (Annotation annotation : tokenList) {
             String value = annotation.getValue();
-            double spread = (double) (lastOccurences.get(value) - firstOccurences.get(value)) / lastPosition;
-            NumericFeature spreadFeature = new NumericFeature(PROVIDED_FEATURE, spread);
-            annotation.getFeatureVector().add(spreadFeature);
+            double first = (double) firstOccurences.get(value) / lastPosition;
+            double last = (double) lastOccurences.get(value) / lastPosition;
+            double spread = first - last;
+            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_FIRST, first));
+            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_LAST, last));
+            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_SPREAD, spread));
         }
     }
 
