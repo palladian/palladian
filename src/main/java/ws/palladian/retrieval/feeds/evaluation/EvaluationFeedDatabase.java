@@ -954,7 +954,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         result = result && setAvgDelayModeFeeds(baseTableName);
         result = result && setPPIModeFeeds(baseTableName);
 
-        // FIXME: this is deactivated since it taks years to compute...
+        // FIXME: this is deactivated since it takes years to compute...
+        // adding an index to table _delays dosn't solve the problem
         // result = result && setMedianDelayPerFeed(baseTableName);
 
         // generate average for PPI, avgDelay recall and sum total misses over all feeds
