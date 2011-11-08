@@ -14,6 +14,7 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
@@ -189,6 +190,13 @@ public class DatasetEvaluator {
                 ((FixLearnedUpdateStrategy) updateStrategy).setFixLearnedMode(fixLearnedMode);
                 logMsg.append("Fix Learned");
                 logMsg.append(fixLearnedMode);
+            }
+            // Adaptive TTL
+            else if (strategy.equalsIgnoreCase("AdaptiveTTL")) {
+                updateStrategy = new AdaptiveTTLUpdateStrategy();
+                double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
+                ((AdaptiveTTLUpdateStrategy) updateStrategy).setWeightM(weightM);
+                logMsg.append(updateStrategy.getName());
             }
             // Unknown strategy
             else {

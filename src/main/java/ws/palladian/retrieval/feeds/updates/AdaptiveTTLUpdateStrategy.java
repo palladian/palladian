@@ -59,7 +59,7 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
         if (weight.length() > 4) {
             weight = weight.substring(0, 4);
         }
-        return "adaptiveTTL_" + weight;
+        return "AdaptiveTTL_" + weight;
     }
 
     /**
@@ -77,7 +77,7 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
      * A positive, nonzero weight that is multiplied with the interval pollTime-newestItem. In Web caching, this is
      * usually set to 0,1 or 0,2.
      * 
-     * @param weightM the weightM to set
+     * @param weightM the weight M > 0 to set
      * @throws IllegalArgumentException In case the value is smaller or equal to zero.
      */
     public final void setWeightM(double weightM) throws IllegalArgumentException {
