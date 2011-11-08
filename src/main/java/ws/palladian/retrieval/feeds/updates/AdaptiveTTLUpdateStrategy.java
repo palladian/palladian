@@ -22,7 +22,7 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
      * A positive, nonzero weight that is multiplied with the interval pollTime-newestItem. In Web caching, this is
      * usually set to 0,1 or 0,2.
      */
-    private double weightM = 0.1D;
+    private double weightM = 0.2D;
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
@@ -40,6 +40,8 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
             intervalLength = upperBoundOfInterval.getTime() - lowerBoundOfInterval.getTime();
         }
 
+        // make sure we have an interval > 0, do not set checkInterval to 0 if (corrected) publish date and pollTime are
+        // equal.
         if (intervalLength > 0) {
             checkInterval = (int) (weightM * intervalLength / (DateHelper.MINUTE_MS));
         }
