@@ -377,6 +377,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean createEvaluationResultTables(String baseTableName) {
     
+        LOGGER.info("Creating evaluation result tables.");
+
         String tableName = baseTableName + "_" + MODE_FEEDS;
         StringBuilder sqlBuilder = new StringBuilder();
 
@@ -451,6 +453,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean generateBasicEvaluationResultsPerStrategyModeFeeds(String sourceTableName) {
 
+        LOGGER.info("Calculating totalMisses, recall in mode feeds.");
+
         String outputTableName = sourceTableName + "_" + MODE_FEEDS;
 
         // estimate totalMisses and recall and insert into table
@@ -489,6 +493,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      *         error.
      */
     private boolean generateBasicEvaluationResultsPerStrategyModeItems(String sourceTableName) {
+
+        LOGGER.info("Calculating totalMisses and recall in mode items.");
 
         String outputTableName = sourceTableName + AVG_POSTFIX;
 
@@ -538,6 +544,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean setAvgDelayModeFeeds(String sourceTableName) {
 
+        LOGGER.info("Calculating avgDelayMinutes in mode feeds.");
+        
         String outputTableName = sourceTableName + "_" + MODE_FEEDS;
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("update `");
@@ -574,6 +582,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean setAvgDelayModeItems(String sourceTableName) {
 
+        LOGGER.info("Calculating avgDelay in mode items.");
+
         String outputTableName = sourceTableName + AVG_POSTFIX;
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("update `");
@@ -608,6 +618,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      *         error.
      */
     private boolean setMedianDelayModeItems(String baseTableName) {
+
+        LOGGER.info("Calculating median delay in mode items.");
 
         String outputTableName = baseTableName + AVG_POSTFIX;
         String delayTableName = baseTableName + DELAY_POSTFIX;
@@ -654,6 +666,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean setMedianDelayPerFeed(String baseTableName) {
         boolean success = true;
+
+        LOGGER.info("Calculating median delay per feed.");
 
         // everything is done in 4 steps
         // 1: create temp table to store medians per feed
@@ -758,6 +772,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean setMedianDelayModeFeeds(String baseTableName) {
 
+        LOGGER.info("Calculating median delay from all medians per feed in mode feeds.");
+
         String outputTableName = baseTableName + AVG_POSTFIX;
         String feedsTableName = baseTableName + "_" + MODE_FEEDS;
 
@@ -846,6 +862,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean setPPIModeFeeds(String sourceTableName) {
 
+        LOGGER.info("Calculating PPI in mode feeds.");
+
         String outputTableName = sourceTableName + "_" + MODE_FEEDS;
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("update `");
@@ -881,7 +899,9 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      *         error.
      */
     private boolean setPPIModeItems(String sourceTableName) {
-        
+
+        LOGGER.info("Calculating PPI in mode items.");
+
         String outputTableName = sourceTableName + AVG_POSTFIX;
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("update `");
@@ -912,6 +932,9 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if table with average values has been updated, <code>false</code> on any error.
      */
     private boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
+
+        LOGGER.info("Calculating global average for PPI, avgDelay recall and sum total misses over all feeds.");
+
         // generate global average for PPI, avgDelay recall and sum total misses over all feeds
         String sourceTableName = baseTableName + "_" + MODE_FEEDS;
         String outputTableName = baseTableName + AVG_POSTFIX;
@@ -945,7 +968,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param baseTableName The name of the table that contains simulated poll data.
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
-     */         
+     */
     private boolean createModeFeedsSummary(String baseTableName) {
         boolean result = true;
 
@@ -996,6 +1019,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sql);
         }
+        LOGGER.info("Adding index to table " + baseTableName);
         return runUpdate(sql) != -1 ? true : false;
     }
 
@@ -1014,6 +1038,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sql);
         }
+
+        LOGGER.info("Optimizing table " + tableName);
         return runUpdate(sql) != -1 ? true : false;
     }
 
