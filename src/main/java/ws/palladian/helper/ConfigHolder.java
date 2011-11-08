@@ -77,7 +77,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 12;
+    private static final int VERSION = 13;
 
     /**
      * <p>
