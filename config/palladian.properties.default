@@ -200,7 +200,7 @@ schedulerTask.maxUnparsablePercentage = 2
 schedulerTask.maxUnreachablePercentage = 2
 
 # Choose update strategy to evaluate. Supported values are: 
-# Fix, FixLearned, AdaptiveTTL
+# Fix, FixLearned, AdaptiveTTL, LRU2
 datasetEvaluator.updateStrategy = Fix
 
 # If datasetEvaluator.updateStrategy = Fix, choose a fix check interval in minutes >0, e.g. 60 for Fix1h

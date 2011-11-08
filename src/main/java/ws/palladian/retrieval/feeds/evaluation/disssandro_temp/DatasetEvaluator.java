@@ -17,6 +17,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -198,6 +199,11 @@ public class DatasetEvaluator {
                 ((AdaptiveTTLUpdateStrategy) updateStrategy).setWeightM(weightM);
                 logMsg.append(updateStrategy.getName());
             }
+            // LRU-2
+            else if (strategy.equalsIgnoreCase("LRU2")) {
+                updateStrategy = new LRU2UpdateStrategy();
+                logMsg.append(updateStrategy.getName());
+            }
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;
@@ -214,7 +220,7 @@ public class DatasetEvaluator {
             else {
             updateStrategy.setLowestUpdateInterval(minInterval);
             updateStrategy.setHighestUpdateInterval(maxInterval);
-                logMsg.append(",minCheckInterval = ");
+                logMsg.append(", minCheckInterval = ");
                 logMsg.append(minInterval);
                 logMsg.append(", maxCheckInterval = ");
                 logMsg.append(maxInterval);
