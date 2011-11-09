@@ -4,13 +4,16 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.extractors.PalladianKeyphraseExtractor;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LineAction;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public class SemEvalReader {
     
@@ -28,13 +31,11 @@ public class SemEvalReader {
             public void performAction(String line, int lineNumber) {
                 String[] split = line.split(" : ");
                 Set<String> k = new HashSet<String>();
-                for (String s : split) {
-                    String[] split2 = s.split(",");
+                    String[] split2 = split[1].split(",");
                     for (String s2 : split2) {
                         String[] split3 = s2.split("\\+");
                         k.addAll(Arrays.asList(split3));
                     }
-                }
                 //k.addAll(Arrays.asList(split[1].split(",")));
                 keyphrases.put(split[0],k);
             }
@@ -57,16 +58,16 @@ public class SemEvalReader {
 //            System.out.println("content: " + content);
             System.out.println("keyphrases: " + assignedKeyphrases);
 //            System.out.println("=======");
-            extractor.train(content, assignedKeyphrases, 0);
-//            List<Keyphrase> extract = extractor.extract(content);
-//            CollectionHelper.print(extract);
-//            System.exit(0);
+//  XXX          extractor.train(content, assignedKeyphrases, 0);
+            List<Keyphrase> extract = extractor.extract(content);
+            CollectionHelper.print(extract);
+            System.exit(0);
             System.out.println("finished: " + (float)counter++/documentsSet.size());
             System.out.println("---");
 //            System.exit(0);
         }
         
-        extractor.endTraining();
+//  XXX      extractor.endTraining();
         
     }
 
