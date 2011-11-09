@@ -158,23 +158,17 @@ public class EvaluationSchedulerTask extends TimerTask {
         // schedule all feeds
         for (Feed feed : getFeeds()) {
 
-            // remove completed FeedTasks
-            removeFeedTaskIfDone(feed.getId());
-            if (needsLookup(feed)) {
-                if (scheduledTasks.containsKey(feed.getId())) {
-                    alreadyScheduledFeedCount++;
+            // schedule only once
+            if (lastWakeUpTime == null) {
+                scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, feedReader)));
+                newlyScheduledFeedsCount++;
 
-                    if (LOGGER.isDebugEnabled()) {
-                        alreadyScheduledFeedIDs.append(feed.getId()).append(",");
-                    }
-                } else {
-                    scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, feedReader)));
-                    newlyScheduledFeedsCount++;
-
-                    if (LOGGER.isDebugEnabled()) {
-                        scheduledFeedIDs.append(feed.getId()).append(",");
-                    }
+                if (LOGGER.isDebugEnabled()) {
+                    scheduledFeedIDs.append(feed.getId()).append(",");
                 }
+            } else {
+                // remove completed FeedTasks
+                removeFeedTaskIfDone(feed.getId());
             }
         }
 
