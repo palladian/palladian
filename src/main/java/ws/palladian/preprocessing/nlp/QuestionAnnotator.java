@@ -10,7 +10,6 @@ import ws.palladian.preprocessing.PipelineProcessor;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
-import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 
 /**
  * <p>
