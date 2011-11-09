@@ -19,7 +19,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
-import ws.palladian.retrieval.feeds.evaluation.encodingFix.EncodingFixer2;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -35,7 +34,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 public class ClassifyFromCsv extends Thread {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(EncodingFixer2.class);
+    private static final Logger LOGGER = Logger.getLogger(ClassifyFromCsv.class);
 
     private Feed originalFeed;
 

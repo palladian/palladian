@@ -34,7 +34,7 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 public class CsvCleaner extends Thread {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(EncodingFixer2.class);
+    private static final Logger LOGGER = Logger.getLogger(CsvCleaner.class);
 
     private Feed feed;
 

@@ -8,6 +8,8 @@ import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
+import ws.palladian.preprocessing.nlp.sentencedetection.LingPipeSentenceDetector;
 
 public class QuestionAnnotatorTest {
     private String fixture = "Who is the nicest question without question mark. The last was! Or was it? How about no.";

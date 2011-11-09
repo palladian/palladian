@@ -24,7 +24,6 @@ import ws.palladian.classification.WordCorrelationMatrix;
 import ws.palladian.extraction.keyphrase.evaluation.DeliciousDatasetReader;
 import ws.palladian.extraction.keyphrase.evaluation.DeliciousDatasetReader.DatasetCallback;
 import ws.palladian.extraction.keyphrase.evaluation.DeliciousDatasetReader.DatasetEntry;
-import ws.palladian.helper.Counter;
 import ws.palladian.helper.StopWatch;
 
 @SuppressWarnings("serial")
@@ -318,7 +317,7 @@ public class PersistentWordCorrelationMatrix extends WordCorrelationMatrix {
         
         StopWatch sw = new StopWatch();
         final PersistentWordCorrelationMatrix wcm = new PersistentWordCorrelationMatrix();
-        final Counter counter = new Counter();
+        //final Counter counter = new Counter();
         DeliciousDatasetReader reader = new DeliciousDatasetReader();
         reader.read(new DatasetCallback() {
             
@@ -332,8 +331,8 @@ public class PersistentWordCorrelationMatrix extends WordCorrelationMatrix {
                         wcm.updatePair(tagArray[i], tagArray[j]);
                     }
                 }
-                counter.increment();
-                System.out.println(counter);
+                //counter.increment();
+                //System.out.println(counter);
                 
             }
         }, 10000);
