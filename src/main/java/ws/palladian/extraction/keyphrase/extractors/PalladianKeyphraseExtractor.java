@@ -24,8 +24,10 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.NumericFeature;
 import ws.palladian.preprocessing.PerformanceCheckProcessingPipeline;
 import ws.palladian.preprocessing.PipelineDocument;
+import ws.palladian.preprocessing.PipelineProcessor;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
@@ -39,7 +41,6 @@ import ws.palladian.preprocessing.featureextraction.RegExTokenRemover;
 import ws.palladian.preprocessing.featureextraction.StemmerAnnotator;
 import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
 import ws.palladian.preprocessing.featureextraction.TermCorpus;
-import ws.palladian.preprocessing.featureextraction.TermCorpusBuilder;
 import ws.palladian.preprocessing.featureextraction.TfIdfAnnotator;
 import ws.palladian.preprocessing.featureextraction.TokenRemover;
 import ws.palladian.preprocessing.featureextraction.TokenSpreadCalculator;
@@ -60,10 +61,14 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     private List<Annotation> trainingAnnotations = new ArrayList<Annotation>();
 
     private TermCorpus corpus;
+    private TermCorpus keyphraseCorpus;
 
 
     @SuppressWarnings("serial")
     public PalladianKeyphraseExtractor() {
+        
+        keyphraseCorpus = new TermCorpus();
+        keyphraseCorpus.load("/Users/pk/Desktop/KEX/keyphraseCorpus.txt");
         
         pipeline = new PerformanceCheckProcessingPipeline();
         
@@ -135,15 +140,30 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         pipeline.add(new TokenSpreadCalculator());
         pipeline.add(new FrequencyCalculator());
         corpus = new TermCorpus();
-        corpus.load("/Users/pk/Desktop/corpus.txt");
+        corpus.load("/Users/pk/Desktop/KEX/corpus.txt");
         pipeline.add(new IdfAnnotator(corpus));
         pipeline.add(new TfIdfAnnotator());
         pipeline.add(new PhrasenessAnnotator());
         
+        // keyphraseness annotation; i.e. the "prior probability" of a keyphrase occurence in the training corpus
+        pipeline.add(new PipelineProcessor() {
+            public static final String PROVIDED_FEATURE = "keyphraseness";
+            @Override
+            public void process(PipelineDocument document) {
+                
+                FeatureVector featureVector = document.getFeatureVector();
+                AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+                List<Annotation> annotations = annotationFeature.getValue();
+                for (Annotation annotation : annotations) {
+                    double keyprhaseness = keyphraseCorpus.getDf(annotation.getValue());
+                    annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE, keyprhaseness));
+                }
+            }
+        });
         
         pipeline.add(new DuplicateTokenRemover());
         //corpus = new TermCorpus();
-        pipeline.add(new TermCorpusBuilder(corpus));
+//        pipeline.add(new TermCorpusBuilder(corpus));
         
         // additional features to extract
         // uppercaseCount, uppercasePercentage
@@ -200,6 +220,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         // trainingAnnotations.addAll(tokenList.getValue());
         createFeatureList(tokenList.getValue());
+//        keyphraseCorpus.addTermsFromDocument(keyphrases);
 
     }
 
@@ -215,7 +236,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     private void createFeatureList(List<Annotation> annotations) {
         
-        final String fileName = "/Users/pk/Desktop/data.txt";
+        final String fileName = "/Users/pk/Desktop/KEX/data.txt";
         StringBuilder lineBuilder = new StringBuilder();
         
         for (Annotation annotation : annotations) {
@@ -239,6 +260,8 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
+            lineBuilder.append(featureVector.get("keyphraseness").getValue());
+            lineBuilder.append(";");
             lineBuilder.append(featureVector.get("isKeyphrase").getValue());
             lineBuilder.append("\n");
             
@@ -255,8 +278,8 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         System.out.println("----");
         System.out.println(pipeline);
         
-        corpus.save("/Users/pk/Desktop/corpus.txt");
-        
+//        corpus.save("/Users/pk/Desktop/KEX/corpus.txt");
+//        keyphraseCorpus.save("/Users/pk/Desktop/KEX/keyphraseCorpus.txt");
         
         System.out.println("detection coverage " + (float) mappedAnnotations / totalAnnotations);
         
@@ -279,21 +302,24 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         try {
             
-            Classifier classifier = (Classifier) SerializationHelper.read("/Users/pk/Desktop/keyphraseClassifier");
-
+            Classifier classifier = (Classifier) SerializationHelper.read("/Users/pk/Desktop/KEX/keyphraseClassifier");
 
             for (Annotation annotation : annotations) {
                 
                 
-                Attribute attribute1 = new Attribute("frequency");
-                Attribute attribute2 = new Attribute("spread");
-                Attribute attribute3 = new Attribute("first");
-                Attribute attribute4 = new Attribute("last");
-                Attribute attribute5 = new Attribute("phraseness");
-                Attribute attribute6 = new Attribute("idf");
-                Attribute attribute7 = new Attribute("tfidf");
-                Attribute attribute8 = new Attribute("class");
-                FastVector fvWekaAttributes = new FastVector(7);
+                Attribute attribute0 = new Attribute("frequency");
+                Attribute attribute1 = new Attribute("spread");
+                Attribute attribute2 = new Attribute("first");
+                Attribute attribute3 = new Attribute("last");
+                Attribute attribute4 = new Attribute("charLength");
+                Attribute attribute5 = new Attribute("wordLength");
+                Attribute attribute6 = new Attribute("phraseness");
+                Attribute attribute7 = new Attribute("idf");
+                Attribute attribute8 = new Attribute("tfidf");
+                Attribute attribute9 = new Attribute("keyphraseness");
+                Attribute attribute10 = new Attribute("class");
+                FastVector fvWekaAttributes = new FastVector(11);
+                fvWekaAttributes.addElement(attribute0);
                 fvWekaAttributes.addElement(attribute1);
                 fvWekaAttributes.addElement(attribute2);
                 fvWekaAttributes.addElement(attribute3);
@@ -302,8 +328,10 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 fvWekaAttributes.addElement(attribute6);
                 fvWekaAttributes.addElement(attribute7);
                 fvWekaAttributes.addElement(attribute8);
+                fvWekaAttributes.addElement(attribute9);
+                fvWekaAttributes.addElement(attribute10);
                 Instances isTrainingSet = new Instances("Rel", fvWekaAttributes, 1);
-                isTrainingSet.setClassIndex(8);
+                isTrainingSet.setClassIndex(10);
 
                 
                 FeatureVector featureVector = annotation.getFeatureVector();
@@ -311,27 +339,37 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 double spread = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_SPREAD).getValue();
                 double first = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue();
                 double last = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue();
+                double charLength= (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_CHAR_LENGTH).getValue();
+                double wordLength= (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_WORD_LENGTH).getValue();
                 double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
                 double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
                 double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue();
+                double keyphraseness= (Double) featureVector.get("keyphraseness").getValue();
                 
                 
-                Instance instance = new Instance(7);
+                Instance instance = new Instance(10);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(0), freq);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(1), spread);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(2), first);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(3), last);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), phraseness);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(5), idf);
-                instance.setValue((Attribute) fvWekaAttributes.elementAt(6), tfidf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), charLength);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(5), wordLength);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(6), phraseness);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(7), idf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(8), tfidf);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(9), keyphraseness);
+                instance.setDataset(isTrainingSet);
                 
                 double[] distributionForInstance = classifier.distributionForInstance(instance);
                 //System.out.println(distributionForInstance[0]);
                 //System.out.println(distributionForInstance[1]);
                 
-                if (distributionForInstance[1] > distributionForInstance[0]) {
+                
+                
+                //if (distributionForInstance[1] > distributionForInstance[0]) {
+                if (distributionForInstance[0] < 0.5) {
                     // System.out.println(annotation);
-                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), distributionForInstance[1]));
+                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), 1-distributionForInstance[0]));
                 }
             }
             
