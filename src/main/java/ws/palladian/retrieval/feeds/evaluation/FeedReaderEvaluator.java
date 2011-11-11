@@ -14,6 +14,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
@@ -281,33 +282,18 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
-                new MavUpdateStrategy(), new PostRateUpdateStrategy() };
+        UpdateStrategy[] strategies = { new FixUpdateStrategy(60), new FixUpdateStrategy(1440),
+                new FixLearnedUpdateStrategy(), new MavUpdateStrategy(), new PostRateUpdateStrategy() };
 
         Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
 
-        int fixNumber = 0;
-
         for (UpdateStrategy strategy : strategies) {
-
-            // set the fix interval for the FIX strategies, if -1 => fixed learned
-            int checkInterval = -1;
-            if (fixNumber == 0) {
-                checkInterval = 60;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            } else if (fixNumber == 1) {
-                checkInterval = 1440;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            } else if (fixNumber == 2) {
-                checkInterval = -1;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            }
 
             for (Integer policy : policies) {
 
                 // for FIX with a preset interval min_delay and max_coverage are the same and we skip one
-                if (fixNumber < 2 && strategy instanceof FixUpdateStrategy && policy == BENCHMARK_MIN_DELAY) {
+                if (strategy instanceof FixUpdateStrategy && policy == BENCHMARK_MIN_DELAY) {
                     continue;
                 }
 
@@ -320,18 +306,13 @@ public class FeedReaderEvaluator {
                     FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
                     fc.setUpdateStrategy(strategy, false);
 
-                    LOGGER.info("start evaluation for strategy " + strategy + " (" + checkInterval + "min), policy "
+                    LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
                     fc.startContinuousReading(-1);
 
                 }
-
             }
-
-            fixNumber++;
-
         }
-
     }
 
     /**
@@ -346,8 +327,7 @@ public class FeedReaderEvaluator {
         // if -1 => fixed learned
         int checkInterval = 60;
 
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval); // required by Fix strategies only!
+        UpdateStrategy updateStrategy = new FixUpdateStrategy(checkInterval);
 
         // updateStrategy = new MavUpdateStrategy();
         // updateStrategy = new PostRateUpdateStrategy();
