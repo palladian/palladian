@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.semantics;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -31,6 +32,9 @@ public class Word {
 
     /** A set of hypernyms for this word. */
     private Set<Word> hypernyms = new LinkedHashSet<Word>();
+
+    /** A set of hyponyms for this word. */
+    private Set<Word> hyponyms = new LinkedHashSet<Word>();
 
     public Word(int id, String word, String plural, String type, String language) {
         super();
@@ -95,6 +99,56 @@ public class Word {
 
     public void setHypernyms(Set<Word> hypernyms) {
         this.hypernyms = hypernyms;
+    }
+
+    public Set<Word> getHyponyms() {
+        return hyponyms;
+    }
+
+    public void setHyponyms(Set<Word> hyponyms) {
+        this.hyponyms = hyponyms;
+    }
+
+    /**
+     * <p>
+     * Generate the path from this word to the root by following the hypernyms.
+     * </p>
+     * <p>
+     * For example, the path to "banana" could be [fruit,food,thing]
+     * </p>
+     * 
+     * @return A sorted list of words where each entry is the hypernym of the preceding entry.
+     */
+    public LinkedList<String> getPath(WordDB wordDb) {
+        return getPath(wordDb, 0);
+    }
+
+    public LinkedList<String> getPath(WordDB wordDb, int depth) {
+
+        LinkedList<String> path = new LinkedList<String>();
+
+        if (depth > 10) {
+            return path;
+        }
+
+        Set<Word> hypernyms = getHypernyms();
+
+        for (Word hypernym : hypernyms) {
+            if (hypernym.getWord().equalsIgnoreCase(getWord())) {
+                continue;
+            }
+            wordDb.aggregateInformation(hypernym);
+            LinkedList<String> currentPath = hypernym.getPath(wordDb, depth + 1);
+            if (currentPath.size() > path.size()) {
+                path = currentPath;
+            }
+        }
+
+        if (!path.contains(getWord())) {
+            path.addFirst(getWord());
+        }
+
+        return path;
     }
 
     @Override

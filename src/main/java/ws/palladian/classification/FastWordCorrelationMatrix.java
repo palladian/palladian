@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +63,30 @@ public class FastWordCorrelationMatrix extends WordCorrelationMatrix {
 
         LOGGER.trace("correlations for " + word + " " + correlations);
         return correlations;
+    }
+
+    /**
+     * <p>
+     * Get the top k correlations for a given word.
+     * </p>
+     * 
+     * @param word The word.
+     * @param k The number of top correlations we are looking for.
+     * @return The top k correlations sorted for the given word.
+     */
+    @Override
+    public List<WordCorrelation> getTopCorrelations(String word, int k) {
+
+        List<WordCorrelation> correlations = new ArrayList<WordCorrelation>();
+
+        Map<String, WordCorrelation> termCorrelations = termTermCorrelations.get(word);
+        if (termCorrelations != null) {
+            correlations.addAll(termCorrelations.values());
+        }
+
+        Collections.sort(correlations, new WordCorrelationComparator());
+
+        return correlations.subList(0, Math.min(correlations.size(), k));
     }
 
     @Override
