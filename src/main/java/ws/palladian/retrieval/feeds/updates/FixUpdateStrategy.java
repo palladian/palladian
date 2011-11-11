@@ -23,7 +23,21 @@ public class FixUpdateStrategy extends UpdateStrategy {
     /**
      * The check interval in minutes.
      */
-    private int checkInterval = -1;
+    private final int checkInterval;
+
+    /**
+     * Create strategy and set a fixed check interval in minutes larger than zero.
+     * 
+     * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
+     * @throws IllegalArgumentException In case the value is smaller or equal to zero.
+     */
+    public FixUpdateStrategy(int checkInterval) {
+        super();
+        if (checkInterval <= 0) {
+            throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
+        }
+        this.checkInterval = checkInterval;
+    }
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
@@ -50,18 +64,8 @@ public class FixUpdateStrategy extends UpdateStrategy {
     }
 
     /**
-     * Set a fixed check interval in minutes.
-     * 
-     * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
-     * @throws IllegalArgumentException In case the value is smaller or equal to zero.
+     * @return The strategy's fixed check interval in minutes, larger than zero.
      */
-    public void setCheckInterval(int checkInterval) throws IllegalArgumentException {
-        if (checkInterval <= 0) {
-            throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
-        }
-        this.checkInterval = checkInterval;
-    }
-
     public int getCheckInterval() {
         return checkInterval;
     }

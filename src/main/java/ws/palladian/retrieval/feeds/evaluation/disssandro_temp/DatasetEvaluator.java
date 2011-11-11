@@ -169,7 +169,6 @@ public class DatasetEvaluator {
             String strategy = config.getString("datasetEvaluator.updateStrategy");
             // Fix
             if (strategy.equalsIgnoreCase("Fix")) {
-                updateStrategy = new FixUpdateStrategy();
                 int fixInterval = config.getInt("datasetEvaluator.fixCheckInterval");
 
                 // check for conflicting interval bounds
@@ -178,8 +177,7 @@ public class DatasetEvaluator {
                     LOGGER.fatal("Defined fixInterval and interval bounds have conflict! "
                             + "Make sure minInterval <= fixInterval <= maxInterval.");
                 }
-
-                ((FixUpdateStrategy) updateStrategy).setCheckInterval(fixInterval);
+                updateStrategy = new FixUpdateStrategy(fixInterval);
                 logMsg.append("Fix");
                 logMsg.append(fixInterval);
                 logMsg.append(" ");

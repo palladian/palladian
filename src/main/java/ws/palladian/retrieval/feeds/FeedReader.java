@@ -30,6 +30,7 @@ import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
@@ -67,7 +68,7 @@ public final class FeedReader {
     public static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
-    private UpdateStrategy updateStrategy = new FixUpdateStrategy();
+    private UpdateStrategy updateStrategy = new FixLearnedUpdateStrategy();
 
     /**
      * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A
@@ -397,6 +398,11 @@ public final class FeedReader {
         this.updateStrategy = updateStrategy;
     }
 
+    /**
+     * Get the UpdateStrategy. If none has been set before, {@link FixLearnedUpdateStrategy} is used by default.
+     * 
+     * @return
+     */
     public UpdateStrategy getUpdateStrategy() {
         return updateStrategy;
     }
@@ -453,12 +459,12 @@ public final class FeedReader {
         System.exit(0);
 
         FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
-        fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
+        fchecker.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
         fchecker.startContinuousReading();
         System.exit(0);
 
         FeedReader fch = new FeedReader(new CollectionFeedSource());
-        fch.setUpdateStrategy(new FixUpdateStrategy(), true);
+        fch.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
 
@@ -495,7 +501,7 @@ public final class FeedReader {
         }
 
         int runtime = -1;
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
+        UpdateStrategy updateStrategy = new FixLearnedUpdateStrategy();
         int checkInterval = -1;
 
         if (cmd.hasOption("r")) {
@@ -503,16 +509,19 @@ public final class FeedReader {
         } else {
             formatter.printHelp("FeedReader", options);
         }
+        if (cmd.hasOption("ci")) {
+            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
+        }
         if (cmd.hasOption("cf")) {
-            updateStrategy = new FixUpdateStrategy();
-            ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
+            if (checkInterval == -1) { // emulate old usage of FixLearned as checkInterval = -1
+                updateStrategy = new FixLearnedUpdateStrategy();
+            } else {
+                updateStrategy = new FixUpdateStrategy(checkInterval);
+            }
         } else if (cmd.hasOption("ca")) {
             updateStrategy = new MavUpdateStrategy();
         } else if (cmd.hasOption("cp")) {
             updateStrategy = new PostRateUpdateStrategy();
-        }
-        if (cmd.hasOption("ci")) {
-            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
         }
 
         FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
