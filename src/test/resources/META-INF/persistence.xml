@@ -11,6 +11,8 @@
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
 		<class>ws.palladian.iirmodel.RelationType</class>
+		<class>ws.palladian.iirmodel.Label</class>
+		<class>ws.palladian.iirmodel.LabelType</class>
 		<properties>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
 			<!-- <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:temp/testdb"/> -->
@@ -31,6 +33,8 @@
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
 		<class>ws.palladian.iirmodel.RelationType</class>
+		<class>ws.palladian.iirmodel.Label</class>
+		<class>ws.palladian.iirmodel.LabelType</class>
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
