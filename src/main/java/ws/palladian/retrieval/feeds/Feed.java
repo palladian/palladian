@@ -110,6 +110,9 @@ public class Feed {
     /** Timestamp of the last feed entry found in this feed. */
     private Date lastFeedEntry = null;
 
+    /** Timestamp of the last but one feed entry found in this feed. */
+    private Date lastButOneFeedEntry = null;
+
     /**
      * The publish timestamp of the oldest entry in the most recent window. Value is not persisted in database.
      */
@@ -149,6 +152,12 @@ public class Feed {
      * The date this feed was checked for updates the last time. This can be used to send last modified since requests.
      */
     private Date lastPollTime;
+
+    /**
+     * The date this feed was checked for updates the last but one time. This can be used to correct item timestamps.
+     * It should be in the past of {@link #lastPollTime}.
+     */
+    private Date lastButOnePollTime = null;
 
     private double targetPercentageOfNewEntries = -1.0;
 
@@ -250,6 +259,7 @@ public class Feed {
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
         setNewestItemHash(null);
         setLastFeedEntry(null);
+        setLastButOneFeedEntry(null);
         setOldestFeedEntryCurrentWindow(null);
 
         for (FeedItem feedItem : items) {
@@ -257,11 +267,11 @@ public class Feed {
             String hash = feedItem.getHash();
             if (isNewItem(hash)) {
                 // correct timestamp only in case this hasn't been done before.
-                if (feedItem.getCorrectedPublishedDate() == null) {
+                // if (feedItem.getCorrectedPublishedDate() == null) {
                     Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
-                            feedItem.toString(), false);
+                        getLastButOnePollTime(), feedItem.toString(), false);
                     feedItem.setCorrectedPublishedDate(correctedTimestamp);
-                }
+                // }
                 
                 itemCacheTemp.put(hash, feedItem.getCorrectedPublishedDate());
                 newItemsTemp.add(feedItem);
@@ -287,6 +297,7 @@ public class Feed {
         }
         setNewestItemHash(null);
         setLastFeedEntry(null);
+        setLastButOneFeedEntry(null);
         setOldestFeedEntryCurrentWindow(null);
         items.add(item);
         item.setFeed(this);
@@ -294,11 +305,11 @@ public class Feed {
         String hash = item.getHash();
         if (isNewItem(hash)) {
             // correct timestamp only in case this hasn't been done before.
-            if (item.getCorrectedPublishedDate() == null) {
-                Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(), item.toString(),
-                        false);
+            // if (item.getCorrectedPublishedDate() == null) {
+                Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(),
+                        getLastButOnePollTime(), item.toString(), false);
                 item.setCorrectedPublishedDate(correctedTimestamp);
-            }
+            // }
             addCacheItem(hash, item.getCorrectedPublishedDate());
             addNewItem(item);
         } else {
@@ -328,20 +339,28 @@ public class Feed {
 
     /**
      * TODO remove param logWarnings, put to config file and set to true by default?
+     * Correct publish dates of entries. It is assumed, that the entry to check has been fetched at lastPollTimeFeed
+     * and it has not been seen before (not identified as duplicate). Therefore, it's timestamp has to be older than
+     * the last poll, and if we already polled the feed twice or more, the item timestamp must be newer than the last
+     * but one poll (otherwise we would have seen the item before).<br />
+     * <br />
      * 
-     * Get the publish date from the entry. In case an entry has no timestamp, its timestamp is in the future or older
-     * than 01.01.1990 00:00 (Unix 631152000), the poll timestamp is used instead.
+     * Get the publish date from the entry. In case an entry has no timestamp, its timestamp is in the future of
+     * lastPollTimeFeed, older than the the last but one poll (lastButOnePollTimeFeed) or older than 01.01.1990 00:00
+     * (Unix 631152000), the last poll timestamp (lastPollTimeFeed) is used instead.
      * 
      * @param entryPublishDate The entry's publish date to correct.
-     * @param lastPollTimeFeed The time the feed has been polled the last time.
+     * @param lastPollTimeFeed The time the feed has been polled the last time, that is, the time of the current poll
+     * @param lastButOnePollTimeFeed The time of the last but one poll. This is the poll done before lastPollTimeFeed.
+     *            May be <code>null</code> if there was no such poll.
      * @param logMessage Message to write to logfile in case the date has been corrected. Useful to know which item has
      *            been corrected when reading the logfile.
      * @param logWarnings If <code>true</code>, warnings are logged in case the entry has no or an illegal timestamp.
      *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
-    public static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, String logMessage,
-            boolean logWarnings) {
+    public static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed, 
+            String logMessage, boolean logWarnings) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
@@ -360,11 +379,21 @@ public class Feed {
         Date pubDate = null;
         if (entryPublishDate != null) {
             pubDate = new Date(entryPublishDate.getTime());
+
+            // check for date in future of last (=current) poll
             if (pubDate.getTime() > pollTime) {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date in the future, feed entry : ").append(logMessage)
                         .append(timestampUsed);
-            } else if (pubDate.getTime() < 631152000) {
+                // is entry older than last but one poll? If so, we should have seen it before so pubDate must be wrong.
+            } else if (lastButOnePollTimeFeed != null && !pubDate.after(lastButOnePollTimeFeed)) {
+                pubDate = new Date(pollTime);
+                warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ")
+                        .append(logMessage)
+                        .append(timestampUsed);
+                
+            // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
+            }else if (pubDate.getTime() < 631152000) {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ")
                         .append(logMessage)
@@ -556,17 +585,19 @@ public class Feed {
     }
 
     /**
-     * Calculates and sets the hash of the newest and oldest item and its corrected publish date. In case we haven't
-     * seen any items so far, there is no hash or date so we set them to <code>null</code>.
+     * Calculates and sets the hash of the newest, second newest and oldest item and its corrected publish date. In case
+     * we haven't seen any items so far, there is no hash or date so we set them to <code>null</code>.
      */
     private void calculateNewestAndOldestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
         String tempNewestHash = null;
         Date tempNewestDate = null;
+        Date tempNewestButOneDate = null;
         Date tempOldestDate = null;
 
         for (String hash : cache.keySet()) {
-            if (tempNewestDate == null || tempNewestDate.getTime() < cache.get(hash).getTime()) {
+            if (tempNewestDate == null || tempNewestDate.getTime() <= cache.get(hash).getTime()) {
+                tempNewestButOneDate = tempNewestDate;
                 tempNewestDate = cache.get(hash);
                 tempNewestHash = hash;
             }
@@ -575,6 +606,7 @@ public class Feed {
             }
         }
         setLastFeedEntry(tempNewestDate);
+        setLastButOneFeedEntry(tempNewestButOneDate);
         setNewestItemHash(tempNewestHash);
         setOldestFeedEntryCurrentWindow(tempOldestDate);
     }
@@ -642,6 +674,29 @@ public class Feed {
     }
 
     /**
+     * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
+     * have the same publish date.
+     * 
+     * @param lastButOneFeedEntry
+     */
+    private void setLastButOneFeedEntry(Date lastButOneFeedEntry) {
+        this.lastButOneFeedEntry = DateHelper.validateYear(lastButOneFeedEntry, 9999);
+    }
+
+    /**
+     * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
+     * have the same publish date.
+     * 
+     * @return The Date of the second newest entry.
+     */
+    public Date getLastButOneFeedEntry() {
+        if (lastButOneFeedEntry == null) {
+            calculateNewestAndOldestItemHashAndDate();
+        }
+        return lastButOneFeedEntry;
+    }
+
+    /**
      * @return The publish timestamp of the oldest entry in the most recent window.
      */
     public final Date getOldestFeedEntryCurrentWindow() {
@@ -652,7 +707,8 @@ public class Feed {
     }
 
     /**
-     * @return The publish timestamp of the oldest entry in the most recent window as sql timestamp.
+     * @return The publish timestamp of the oldest entry in the most recent window as sql timestamp or <code>null</code>
+     *         if there is no entry at all.
      */
     public Timestamp getOldestFeedEntryCurrentWindowSqlTimestamp() {
         if (oldestFeedEntryCurrentWindow == null) {
@@ -858,9 +914,12 @@ public class Feed {
     }
 
     /**
+     * Sets the time as lastPollTime and sets the old value as {@link #setLastButOnePollTime(Date)}.
+     * 
      * @param lastChecked The date this feed was checked for updates the last time.
      */
     public final void setLastPollTime(Date lastPollTime) {
+        setLastButOnePollTime(this.lastPollTime);
         this.lastPollTime = lastPollTime;
     }
 
@@ -868,6 +927,27 @@ public class Feed {
     // public void setNewItem(Boolean newItem) {
     // this.newItem = newItem;
     // }
+
+    /**
+     * 
+     * The date this feed was checked for updates the last but one time. This can be used to correct item timestamps.
+     * It should be in the past of {@link #getLastPollTime()}.
+     * 
+     * @return the lastButOnePollTime, might be <code>null</code> if there was no such poll.
+     */
+    public final Date getLastButOnePollTime() {
+        return lastButOnePollTime;
+    }
+
+    /**
+     * The date this feed was checked for updates the last but one time. This can be used to correct item timestamps.
+     * It should be in the past of {@link #getLastPollTime()}.
+     * 
+     * @param lastButOnePollTime the lastButOnePollTime to set
+     */
+    public final void setLastButOnePollTime(Date lastButOnePollTime) {
+        this.lastButOnePollTime = lastButOnePollTime;
+    }
 
     public Boolean hasNewItem() {
         // if (newItem == null) {

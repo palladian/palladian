@@ -151,7 +151,11 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     public EvaluationFeedTask(Feed feed, FeedReader feedChecker) {
         // setName("FeedTask:" + feed.getFeedUrl());
         this.feed = feed;
-        setSimulatedPollTime();
+
+        feed.setNumberOfItemsReceived(0);
+        simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+        feed.setUpdateInterval(0);
+
         backupFeed();
 
         this.feedReader = feedChecker;
@@ -293,8 +297,17 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
                 Integer numPrePostBenchmarkItems = null;
                 if (feed.getChecks() == 1) {
+                    Timestamp oldestKnownTimestamp = feed.getOldestFeedEntryCurrentWindowSqlTimestamp();
+                    if (oldestKnownTimestamp == null) {
+                        oldestKnownTimestamp = feed.getLastPollTimeSQLTimestamp();
+                        LOGGER.debug("FeedId " + feed.getId()
+                                + " had no item at first poll, using alternative identification of dropped items.");
+                    }
                     numPrePostBenchmarkItems = feedDatabase.getNumberOfPreBenchmarkItems(feed.getId(),
-                            feed.getLastPollTimeSQLTimestamp(), feed.getOldestFeedEntryCurrentWindowSqlTimestamp());
+                            oldestKnownTimestamp);
+                    // workaround variable window size: if we dropped some items and have misses in the first poll,
+                    // the dropped items are excluded form calculating missed items.
+                    lastPollHighestItemSequenceNumber = numPrePostBenchmarkItems;
                 }
 
                 // if all entries are new, we might have checked to late and missed some entries
@@ -371,6 +384,11 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
                 feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
                         DatasetEvaluator.simulatedPollsDbTableName(), true);
+
+                if (!itemDelays.isEmpty()) {
+                    feedDatabase.addSingleDelaysByFeed(feed.getId(), itemDelays,
+                            DatasetEvaluator.simulatedPollsDbTableName(), true);
+                }
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(pollData.toString());

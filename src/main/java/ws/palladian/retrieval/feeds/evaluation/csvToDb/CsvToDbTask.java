@@ -150,9 +150,12 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                     // ----- process data -----
 
                     // check for new poll, write previous poll data to db
-                    if (pollTimeLastIteration == null) { // first poll
+                    // first poll
+                    if (pollTimeLastIteration == null) {
                         pollTimeLastIteration = currentPollTime;
-                    } else if (pollTimeLastIteration.before(currentPollTime)) { // all subsequent polls
+                    }
+                    // all subsequent polls
+                    else if (pollTimeLastIteration.before(currentPollTime)) {
                         // we need to load lastPollTime from table feed_polls since we might have polled without finding
                         // a new entry
                         lastPolltime = feedDatabase.getPreviousFeedPoll(feed.getId(),

@@ -207,6 +207,7 @@ public class FeedItem {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("FeedItem");
+        sb.append(" feedId:").append(feedId);
         sb.append(" id:").append(id);
         sb.append(" title:").append(title);
         sb.append(" link:").append(link);
@@ -224,6 +225,7 @@ public class FeedItem {
 
     public void setFeed(Feed feed) {
         this.feed = feed;
+        setFeedId(feed.getId());
     }
 
     public Feed getFeed() {
