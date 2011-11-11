@@ -52,10 +52,14 @@ public class WordDB {
     private PreparedStatement psAddWord = null;
     private PreparedStatement psUpdateWord = null;
     private PreparedStatement psAddSynonym = null;
+    private PreparedStatement psDeleteSynonyms = null;
     private PreparedStatement psAddHypernym = null;
+    private PreparedStatement psDeleteHypernyms = null;
     private PreparedStatement psGetSynonyms1 = null;
     private PreparedStatement psGetSynonyms2 = null;
     private PreparedStatement psGetHypernyms = null;
+    private PreparedStatement psGetHyponyms = null;
+    private PreparedStatement psDeleteHyponyms = null;
 
     public WordDB(String databasePath) {
         this.databasePath = FileHelper.addTrailingSlash(databasePath);
@@ -149,13 +153,20 @@ public class WordDB {
             psUpdateWord = connection
                     .prepareStatement("UPDATE words SET `plural` = ?, `type` = ?, `language`= ? WHERE id = ?");
 
-            psAddSynonym = connection.prepareStatement("MERGE INTO synonyms KEY(wordId1,wordId2) VALUES(?,?,?)");
+            // hypernyms
             psAddHypernym = connection.prepareStatement("MERGE INTO hypernyms KEY(wordId1,wordId2) VALUES(?,?,?)");
+            psDeleteHypernyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId2` = ?");
+            psGetHypernyms = connection.prepareStatement("SELECT wordId2 FROM hypernyms WHERE wordId1 = ?");
 
+            // synonyms
+            psAddSynonym = connection.prepareStatement("MERGE INTO synonyms KEY(wordId1,wordId2) VALUES(?,?,?)");
+            psDeleteSynonyms = connection.prepareStatement("DELETE FROM synonyms WHERE `wordId1` = ? OR `wordId2` = ?");
             psGetSynonyms1 = connection.prepareStatement("SELECT wordId1 FROM synonyms WHERE wordId2 = ?");
             psGetSynonyms2 = connection.prepareStatement("SELECT wordId2 FROM synonyms WHERE wordId1 = ?");
 
-            psGetHypernyms = connection.prepareStatement("SELECT wordId2 FROM hypernyms WHERE wordId1 = ?");
+            // hyponyms
+            psGetHyponyms = connection.prepareStatement("SELECT wordId1 FROM hypernyms WHERE wordId2 = ?");
+            psDeleteHyponyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId1` = ?");
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
@@ -379,6 +390,15 @@ public class WordDB {
         return runUpdate(psUpdateWord);
     }
 
+    /**
+     * <p>
+     * Add a list of synonyms for a word.
+     * </p>
+     * 
+     * @param word The word to add synonyms for.
+     * @param synonyms The synonyms for the given word.
+     * @throws SQLException
+     */
     public void addSynonyms(Word word, List<String> synonyms) throws SQLException {
 
         synonyms.add(word.getWord());
@@ -422,6 +442,34 @@ public class WordDB {
         }
     }
 
+    /**
+     * <p>
+     * Set a list of synonyms for a word.
+     * </p>
+     * <p>
+     * <b>Note: All existing synonyms will be deleted! If you just want to add synonyms, use addSynonyms() instead</b>
+     * </p>
+     * 
+     * @param word The word to add synonyms for.
+     * @param synonyms The synonyms for the given word.
+     * @throws SQLException
+     */
+    public void setSynonyms(Word word, List<String> synonyms) throws SQLException {
+
+        // delete all synonyms for the given word
+        deleteAllSynonyms(word);
+
+        // add all synonyms given
+        addSynonyms(word, synonyms);
+    }
+
+    private void deleteAllSynonyms(Word word) throws SQLException {
+        psDeleteSynonyms.setInt(1, word.getId());
+        psDeleteSynonyms.setInt(2, word.getId());
+
+        runUpdate(psDeleteSynonyms);
+    }
+
     public void addHypernyms(Word word, List<String> hypernyms) throws SQLException {
 
         // get all synonyms for the given word
@@ -462,6 +510,34 @@ public class WordDB {
 
     }
 
+    /**
+     * <p>
+     * Set a list of hypernyms for a word.
+     * </p>
+     * <p>
+     * <b>Note: All existing hypernyms will be deleted! If you just want to add hypernyms, use addHypernyms()
+     * instead</b>
+     * </p>
+     * 
+     * @param word The word to add synonyms for.
+     * @param hypernyms The hypernyms for the given word.
+     * @throws SQLException
+     */
+    public void setHypernyms(Word word, List<String> hypernyms) throws SQLException {
+
+        // delete all synonyms for the given word
+        deleteAllHypernyms(word);
+
+        // add all synonyms given
+        addHypernyms(word, hypernyms);
+    }
+
+    private void deleteAllHypernyms(Word word) throws SQLException {
+        psDeleteHypernyms.setInt(1, word.getId());
+
+        runUpdate(psDeleteHypernyms);
+    }
+
     public void addHyponyms(Word word, List<String> hyponyms) throws SQLException {
 
         // get all synonyms for the given word
@@ -500,6 +576,33 @@ public class WordDB {
             }
         }
 
+    }
+
+    /**
+     * <p>
+     * Set a list of hyponyms for a word.
+     * </p>
+     * <p>
+     * <b>Note: All existing hyponyms will be deleted! If you just want to add hyponyms, use addHyponyms() instead</b>
+     * </p>
+     * 
+     * @param word The word to add synonyms for.
+     * @param hyponyms The hyponyms for the given word.
+     * @throws SQLException
+     */
+    public void setHyponyms(Word word, List<String> hyponyms) throws SQLException {
+
+        // delete all synonyms for the given word
+        deleteAllHyponyms(word);
+
+        // add all synonyms given
+        addHyponyms(word, hyponyms);
+    }
+
+    private void deleteAllHyponyms(Word word) throws SQLException {
+        psDeleteHyponyms.setInt(1, word.getId());
+
+        runUpdate(psDeleteHyponyms);
     }
 
     public Set<Word> getSynonyms(Word word) {
@@ -559,6 +662,27 @@ public class WordDB {
         return hypernyms;
     }
 
+    public Set<Word> getHyponyms(Word word) {
+
+        Set<Word> hyponyms = new LinkedHashSet<Word>();
+
+        if (word == null) {
+            return hyponyms;
+        }
+
+        try {
+            psGetHyponyms.setInt(1, word.getId());
+            ResultSet rs = runQuery(psGetHyponyms);
+            while (rs.next()) {
+                hyponyms.add(getWordById(rs.getInt(1)));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hyponyms;
+    }
+
     public Word aggregateInformation(String wordString) {
         return aggregateInformation(getWord(wordString));
     }
@@ -570,9 +694,11 @@ public class WordDB {
         }
         Set<Word> synonyms = getSynonyms(word);
         Set<Word> hypernyms = getHypernyms(word);
+        Set<Word> hyponyms = getHyponyms(word);
 
         word.setSynonyms(synonyms);
         word.setHypernyms(hypernyms);
+        word.setHyponyms(hyponyms);
 
         return word;
     }
