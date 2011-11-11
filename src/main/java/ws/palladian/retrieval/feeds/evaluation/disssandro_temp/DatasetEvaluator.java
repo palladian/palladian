@@ -178,17 +178,14 @@ public class DatasetEvaluator {
                             + "Make sure minInterval <= fixInterval <= maxInterval.");
                 }
                 updateStrategy = new FixUpdateStrategy(fixInterval);
-                logMsg.append("Fix");
-                logMsg.append(fixInterval);
-                logMsg.append(" ");
+                logMsg.append(updateStrategy.getName());
             }
             // Fix Learned
             else if (strategy.equalsIgnoreCase("FixLearned")) {
                 updateStrategy = new FixLearnedUpdateStrategy();
                 int fixLearnedMode = config.getInt("datasetEvaluator.fixLearnedMode");
                 ((FixLearnedUpdateStrategy) updateStrategy).setFixLearnedMode(fixLearnedMode);
-                logMsg.append("Fix Learned");
-                logMsg.append(fixLearnedMode);
+                logMsg.append(updateStrategy.getName());
             }
             // Adaptive TTL
             else if (strategy.equalsIgnoreCase("AdaptiveTTL")) {
