@@ -189,6 +189,22 @@ public class DateHelper {
         return sb.toString();
     }
 
+    /**
+     * Get interval in millisecond between two dates. Dates are not checked correct order: in case intervalStartTime >
+     * intervalStopTime, a negative value is returned. In case date(s) are <code>null</code>, 0 is returned.
+     * 
+     * @param intervalStartTime the older date.
+     * @param intervalStopTime the newer date.
+     * @return interval in millisecond between two Dates. In case date(s) are <code>null</code>, 0 is returned.
+     */
+    public static long getIntervalLength(Date intervalStartTime, Date intervalStopTime) {
+        long intervalLength = 0;
+        if (intervalStartTime != null && intervalStopTime != null) {
+            intervalLength = intervalStopTime.getTime() - intervalStartTime.getTime();
+        }
+        return intervalLength;
+    }
+
     public static String getTimeString(long time) {
         return getRuntime(0, time);
     }
