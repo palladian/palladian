@@ -24,6 +24,7 @@ import ws.palladian.retrieval.feeds.evaluation.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * <p>
@@ -153,7 +154,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         this.feed = feed;
 
         feed.setNumberOfItemsReceived(0);
-        simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+        simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_TRAINING_START_TIME_MILLISECOND;
         feed.setUpdateInterval(0);
 
         backupFeed();
@@ -211,11 +212,24 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      */
     private double downloadSize;
 
+    /**
+     * Some update strategies require an explicit training phase. If set to <code>true</code>, {@link UpdateStrategy} is
+     * in training mode, if <code>false</code>, in normal mode.
+     */
+    private boolean trainingMode = false;
+
 
     @Override
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
         try {
+            if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
+                // while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_TRAINING_STOP_TIME_MILLISECOND) {
+                // // TODO: do something here :)
+                // }
+            }
+            simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+
             while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND) {
 
                 feed.setLastPollTime(new Date(simulatedCurrentPollTime));
@@ -291,7 +305,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 }
 
 
-                feedReader.updateCheckIntervals(feed);
+                feedReader.updateCheckIntervals(feed, trainingMode);
 
                 LOGGER.debug("New checkinterval: " + feed.getUpdateInterval());
 

@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.EnumHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.BoundedStack;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
@@ -29,6 +32,9 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
  * 
  */
 public class Feed {
+
+    /** The logger for this class. */
+    public static final Logger LOGGER = Logger.getLogger(Feed.class);
 
     /** Internal database identifier. */
     private int id = -1;
@@ -45,6 +51,17 @@ public class Feed {
      * conditional get request and the feed has not been changed since the last request.
      */
     private Map<String, Date> itemCache = new HashMap<String, Date>();
+
+    /**
+     * Default capacity of {@link #itemBuffer} is two elements.
+     */
+    public static final int ITEM_BUFFER_DEFAULT_CAPACITY = 2;
+
+    /**
+     * This buffer holds the last X feed items received, independent of the feed's window size. The buffer is not
+     * deleted when {@link #freeMemory()} is called.
+     */
+    private BoundedStack<FeedItem> itemBuffer = new BoundedStack<FeedItem>(ITEM_BUFFER_DEFAULT_CAPACITY);
 
     /**
      * The items that were new in the most recent poll.
@@ -112,6 +129,12 @@ public class Feed {
 
     /** Timestamp of the last but one feed entry found in this feed. */
     private Date lastButOneFeedEntry = null;
+
+    /**
+     * If set to true, {@link #calculateNewestAndOldestItemHashAndDate()} has to be called to refresh
+     * {@link #lastFeedEntry} etc.
+     */
+    private boolean recalculateDates = true;
 
     /**
      * The publish timestamp of the oldest entry in the most recent window. Value is not persisted in database.
@@ -211,6 +234,17 @@ public class Feed {
         setFeedUrl(feedUrl, true);
     }
 
+    /**
+     * Create a feed that buffers the last X items independent from its window size. Be careful with large values since
+     * the buffer is not reset when calling {@link #freeMemory()}.
+     * 
+     * @param itemBufferCapacity Number of feed items to store in a FIFO buffer. Use value <= 0 to deactivate buffer.
+     */
+    public Feed(int itemBufferCapacity) {
+        super();
+        itemBuffer = new BoundedStack<FeedItem>(itemBufferCapacity);
+    }
+
     public int getId() {
         return id;
     }
@@ -257,10 +291,7 @@ public class Feed {
 
         List<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
-        setNewestItemHash(null);
-        setLastFeedEntry(null);
-        setLastButOneFeedEntry(null);
-        setOldestFeedEntryCurrentWindow(null);
+        recalculateDates = true;
 
         for (FeedItem feedItem : items) {
             feedItem.setFeed(this);
@@ -295,10 +326,7 @@ public class Feed {
         if (items == null) {
             items = new ArrayList<FeedItem>();
         }
-        setNewestItemHash(null);
-        setLastFeedEntry(null);
-        setLastButOneFeedEntry(null);
-        setOldestFeedEntryCurrentWindow(null);
+        recalculateDates = true;
         items.add(item);
         item.setFeed(this);
 
@@ -578,7 +606,7 @@ public class Feed {
      * @return
      */
     public String getNewestItemHash() {
-        if (newestItemHash == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
         return newestItemHash;
@@ -591,24 +619,37 @@ public class Feed {
     private void calculateNewestAndOldestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
         String tempNewestHash = null;
-        Date tempNewestDate = null;
-        Date tempNewestButOneDate = null;
+        Date tempNewestDate = lastFeedEntry;
+        Date tempSecondNewestDate = lastButOneFeedEntry;
         Date tempOldestDate = null;
 
         for (String hash : cache.keySet()) {
-            if (tempNewestDate == null || tempNewestDate.getTime() <= cache.get(hash).getTime()) {
-                tempNewestButOneDate = tempNewestDate;
+            long currentElement = cache.get(hash).getTime();
+
+            if (tempNewestDate == null) {
                 tempNewestDate = cache.get(hash);
                 tempNewestHash = hash;
             }
+            if (tempNewestDate.getTime() < currentElement) {
+                tempSecondNewestDate = tempNewestDate;
+                tempNewestDate = cache.get(hash);
+                tempNewestHash = hash;
+            }
+            if (tempNewestDate != null && currentElement < tempNewestDate.getTime() 
+                    && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
+                tempSecondNewestDate = cache.get(hash);
+            }
+
             if (tempOldestDate == null || tempOldestDate.getTime() > cache.get(hash).getTime()) {
                 tempOldestDate = cache.get(hash);
             }
+
         }
         setLastFeedEntry(tempNewestDate);
-        setLastButOneFeedEntry(tempNewestButOneDate);
+        setLastButOneFeedEntry(tempSecondNewestDate);
         setNewestItemHash(tempNewestHash);
         setOldestFeedEntryCurrentWindow(tempOldestDate);
+        recalculateDates = false;
     }
 
     public void setUnreachableCount(Integer unreachableCount) {
@@ -653,7 +694,7 @@ public class Feed {
      * @return The timestamp of the most recent item.
      */
     public Date getLastFeedEntry() {
-        if (lastFeedEntry == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
         return lastFeedEntry;
@@ -663,7 +704,7 @@ public class Feed {
      * @return The timestamp of the most recent item.
      */
     public Timestamp getLastFeedEntrySQLTimestamp() {
-        if (lastFeedEntry == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
 
@@ -684,13 +725,21 @@ public class Feed {
     }
 
     /**
-     * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
-     * have the same publish date.
+     * The Date of the second newest entry. It is guaranteed that the returned value is before
+     * {@link #getLastFeedEntry()} or <code>null</code> if there is no such date. The returned date might be from a
+     * previous poll. Example with two poll and windowSize of 2:<br />
+     * <br />
+     * Poll 1, Entry A: 01.01.2000 00:00<br />
+     * Poll 1, Entry B: 01.01.2000 00:30<br />
+     * Poll 2, Entry C: 01.01.2000 01:00<br />
+     * Poll 2, Entry D: 01.01.2000 01:00<br />
+     * <br />
+     * Since distinct dates are forced, entry B is returned.
      * 
-     * @return The Date of the second newest entry.
+     * @return The Date of the second newest entry or <code>null</code> if there is no such date.
      */
     public Date getLastButOneFeedEntry() {
-        if (lastButOneFeedEntry == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
         return lastButOneFeedEntry;
@@ -700,7 +749,7 @@ public class Feed {
      * @return The publish timestamp of the oldest entry in the most recent window.
      */
     public final Date getOldestFeedEntryCurrentWindow() {
-        if (oldestFeedEntryCurrentWindow == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
         return oldestFeedEntryCurrentWindow;
@@ -711,7 +760,7 @@ public class Feed {
      *         if there is no entry at all.
      */
     public Timestamp getOldestFeedEntryCurrentWindowSqlTimestamp() {
-        if (oldestFeedEntryCurrentWindow == null) {
+        if (recalculateDates) {
             calculateNewestAndOldestItemHashAndDate();
         }
 
@@ -1503,6 +1552,119 @@ public class Feed {
      */
     public final void setHttpDateLastPoll(Date httpDateLastPoll) {
         this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
+    }
+
+    /**
+     * Add an item to the buffer. It is assumed that the item is new (in the curent poll) and therefore its corrected
+     * publish date is newer or equal to the newest item stored in the buffer. In case the item to add is older, nothing
+     * is done.
+     * 
+     * @param item The new item to add.
+     * @return <code>true</code> if item has been added, <code>false</code> on any error.
+     */
+    private boolean addItemToBuffer(FeedItem itemToAdd) {
+        boolean added = false;
+        if (itemToAdd != null) {
+            FeedItem topItem = itemBuffer.getFirst();
+
+            // if stack is not empty, compare timestamps to not add an older item accidently.
+            if (topItem != null) {
+                Date topItemTime = topItem.getCorrectedPublishedDate();
+                Date newItemTime = itemToAdd.getCorrectedPublishedDate();
+
+                if (topItemTime != null && newItemTime != null && !newItemTime.before(topItemTime)) {
+                    itemBuffer.push(itemToAdd);
+                    added = true;
+                } else {
+                    LOGGER.warn("Feed id " + getId() + ", could not add item \"" + itemToAdd
+                            + "\" to item buffer since it is older than the newest item in the buffer.");
+                }
+            }
+            // if stack is empty, push item.
+            else {
+                itemBuffer.push(itemToAdd);
+                added = true;
+            }
+        }
+        return added;
+    }
+
+    public static void main(String[] args) {
+
+        // test distinct dates of feed.getLastButOneFeedEntry() and feed.getLastFeedEntry()
+        Feed feed = new Feed();
+        ArrayList<FeedItem> items = new ArrayList<FeedItem>();
+        long baseTime = 1310792400000L;
+        Date date = null;
+
+        // add 4 items, dates differ by one hour each
+        for (int i = 1; i <= 4; i++) {
+            FeedItem item = new FeedItem();
+            item.setId(i);
+            item.setHash(i + "", true);
+            date = new Date(baseTime + (i * 3600000));
+            item.setPublished(date);
+            items.add(item);
+            System.out.println("i :" + i + " " + date);
+        }
+
+        // add item equal to last item
+        FeedItem item = new FeedItem();
+        item.setId(5);
+        item.setHash(4 + "", true);
+        date = new Date(baseTime + (4 * 3600000));
+        item.setPublished(date);
+        items.add(item);
+        System.out.println("i :" + 5 + " " + date);
+
+        // add items to feed
+        feed.setLastPollTime(new Date());
+        feed.setItems(items);
+        System.out.println("feed.getLastButOneFeedEntry(): " + feed.getLastButOneFeedEntry());
+        System.out.println("feed.getLastFeedEntry(): " + feed.getLastFeedEntry());
+
+        // add another four items that are older
+        items = new ArrayList<FeedItem>();
+        for (int i = 1; i <= 4; i++) {
+            item = new FeedItem();
+            item.setId(i);
+            item.setHash(i + "", true);
+            date = new Date(baseTime - (i * 3600000));
+            item.setPublished(date);
+            items.add(item);
+            System.out.println("i :" + i + " " + date);
+        }
+
+        // add items to feed
+        feed.setLastPollTime(new Date());
+        feed.setItems(items);
+
+        System.out.println("feed.getLastButOneFeedEntry(): " + feed.getLastButOneFeedEntry());
+        System.out.println("feed.getLastFeedEntry(): " + feed.getLastFeedEntry());
+        
+        
+
+        // BoundedStack<FeedItem> stack = new BoundedStack<FeedItem>(-4);
+        // for (int i = 1; i <= 1000; i++) {
+        // FeedItem item = new FeedItem();
+        // item.setId(i);
+        // stack.push(item);
+        // }
+        // stack.pop();
+        // FeedItem item2 = new FeedItem();
+        // item2.setId(5000);
+        // stack.push(item2);
+        //
+        // for (FeedItem item : stack) {
+        // System.out.println(item.getId());
+        // }
+        //
+        // System.out.println("First Element: " + stack.getFirst());
+        // System.out.println("Last Element: " + stack.getLast());
+        //
+        // System.out.println("Element at position 2: " + stack.getElement(0));
+
+
     }
 
 }

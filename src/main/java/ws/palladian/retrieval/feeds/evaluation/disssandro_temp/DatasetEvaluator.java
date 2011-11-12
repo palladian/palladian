@@ -18,6 +18,7 @@ import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -197,6 +198,11 @@ public class DatasetEvaluator {
             // LRU-2
             else if (strategy.equalsIgnoreCase("LRU2")) {
                 updateStrategy = new LRU2UpdateStrategy();
+                logMsg.append(updateStrategy.getName());
+            }
+            // MAV
+            else if (strategy.equalsIgnoreCase("MAV")) {
+                updateStrategy = new MAVSynchronizationUpdateStrategy();
                 logMsg.append(updateStrategy.getName());
             }
             // Unknown strategy
