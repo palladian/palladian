@@ -22,6 +22,7 @@ import org.h2.tools.RunScript;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.LoremIpsumGenerator;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>This is a class for accessing an embedded H2 database holding {@link Word}s.</p>
@@ -155,7 +156,7 @@ public class WordDB {
 
             // hypernyms
             psAddHypernym = connection.prepareStatement("MERGE INTO hypernyms KEY(wordId1,wordId2) VALUES(?,?,?)");
-            psDeleteHypernyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId2` = ?");
+            psDeleteHypernyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId1` = ?");
             psGetHypernyms = connection.prepareStatement("SELECT wordId2 FROM hypernyms WHERE wordId1 = ?");
 
             // synonyms
@@ -166,7 +167,7 @@ public class WordDB {
 
             // hyponyms
             psGetHyponyms = connection.prepareStatement("SELECT wordId1 FROM hypernyms WHERE wordId2 = ?");
-            psDeleteHyponyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId1` = ?");
+            psDeleteHyponyms = connection.prepareStatement("DELETE hypernyms WHERE `wordId2` = ?");
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
@@ -320,7 +321,17 @@ public class WordDB {
         return rs;
     }
 
-    public Word getWord(String word) {
+    /**
+     * <p>
+     * Get a word object from the db. The word can be in singular or plural, i.e. "bed" and "beds" will return the same
+     * word object.
+     * </p>
+     * 
+     * @param word The string of the word we are searching for.
+     * @param caseInsensitive If true, we search for upper-, and lower-case versions, i.e. bed,Bed,beds,Beds.
+     * @return The word object.
+     */
+    public Word getWord(String word, boolean caseInsensitive) {
 
         Word wordObject = null;
 
@@ -338,11 +349,22 @@ public class WordDB {
             if (rs.next()) {
                 wordObject = new Word(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
             }
+
+            if (wordObject == null && caseInsensitive) {
+                word = StringHelper.upperCaseFirstLetter(word);
+                return getWord(word, false);
+            }
+
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
         }
 
+
         return wordObject;
+    }
+
+    public Word getWord(String word) {
+        return getWord(word, false);
     }
 
     private Word getWordById(int wordId) throws SQLException {
