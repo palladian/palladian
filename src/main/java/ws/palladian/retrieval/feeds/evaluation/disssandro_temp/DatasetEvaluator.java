@@ -104,13 +104,14 @@ public class DatasetEvaluator {
      * </ul>
      */
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy, long wakeUpInterval) {
+            UpdateStrategy updateStrategy, long wakeUpInterval, int feedItemBufferSize) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
-        // for (Feed feed : feeds) {
+        for (Feed feed : feeds) {
+            feed.resizeItemBuffer(feedItemBufferSize);
         // feed.setNumberOfItemsReceived(0);
         // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
         // feed.setUpdateInterval(0);
-        // }
+        }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
@@ -159,6 +160,7 @@ public class DatasetEvaluator {
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
+        int feedItemBufferSize = 10;
         
         try {
 
@@ -200,10 +202,13 @@ public class DatasetEvaluator {
                 updateStrategy = new LRU2UpdateStrategy();
                 logMsg.append(updateStrategy.getName());
             }
-            // MAV
-            else if (strategy.equalsIgnoreCase("MAV")) {
+            // MAVSync
+            else if (strategy.equalsIgnoreCase("MAVSync")) {
                 updateStrategy = new MAVSynchronizationUpdateStrategy();
                 logMsg.append(updateStrategy.getName());
+
+                // TODO: read feedItemBufferSize from config
+
             }
             // Unknown strategy
             else {
@@ -257,7 +262,8 @@ public class DatasetEvaluator {
 
 
             DatasetEvaluator evaluator = new DatasetEvaluator();
-            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
+            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
+                    feedItemBufferSize);
             evaluator.runEvaluation();
             evaluator.generateEvaluationSummary();
             // this is a normal exit

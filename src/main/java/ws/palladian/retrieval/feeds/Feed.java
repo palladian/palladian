@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +141,6 @@ public class Feed {
      * The publish timestamp of the oldest entry in the most recent window. Value is not persisted in database.
      */
     private Date oldestFeedEntryCurrentWindow = null;
-
 
     /** The HTTP header's last-modified value of the last poll. */
     private Date httpLastModified = null;
@@ -289,7 +289,7 @@ public class Feed {
      */
     public void setItems(List<FeedItem> items) {
 
-        List<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
+        ArrayList<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
         Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
         recalculateDates = true;
 
@@ -299,11 +299,11 @@ public class Feed {
             if (isNewItem(hash)) {
                 // correct timestamp only in case this hasn't been done before.
                 // if (feedItem.getCorrectedPublishedDate() == null) {
-                    Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
+                Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
                         getLastButOnePollTime(), feedItem.toString(), false);
-                    feedItem.setCorrectedPublishedDate(correctedTimestamp);
+                feedItem.setCorrectedPublishedDate(correctedTimestamp);
                 // }
-                
+
                 itemCacheTemp.put(hash, feedItem.getCorrectedPublishedDate());
                 newItemsTemp.add(feedItem);
             } else {
@@ -319,6 +319,7 @@ public class Feed {
         }
 
         setNewItems(newItemsTemp);
+        addItemsToBuffer(newItemsTemp);
         this.items = items;
     }
 
@@ -334,12 +335,13 @@ public class Feed {
         if (isNewItem(hash)) {
             // correct timestamp only in case this hasn't been done before.
             // if (item.getCorrectedPublishedDate() == null) {
-                Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(),
-                        getLastButOnePollTime(), item.toString(), false);
-                item.setCorrectedPublishedDate(correctedTimestamp);
+            Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(),
+                    getLastButOnePollTime(), item.toString(), false);
+            item.setCorrectedPublishedDate(correctedTimestamp);
             // }
             addCacheItem(hash, item.getCorrectedPublishedDate());
             addNewItem(item);
+            addItemToBuffer(item);
         } else {
             addCacheItem(hash, getCachedItemTimestamp(hash));
         }
@@ -387,7 +389,7 @@ public class Feed {
      *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
-    public static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed, 
+    public static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed,
             String logMessage, boolean logWarnings) {
         StringBuilder warnings = new StringBuilder();
 
@@ -417,15 +419,13 @@ public class Feed {
             } else if (lastButOnePollTimeFeed != null && !pubDate.after(lastButOnePollTimeFeed)) {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ")
-                        .append(logMessage)
-                        .append(timestampUsed);
-                
-            // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
-            }else if (pubDate.getTime() < 631152000) {
+                        .append(logMessage).append(timestampUsed);
+
+                // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
+            } else if (pubDate.getTime() < 631152000) {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ")
-                        .append(logMessage)
-                        .append(timestampUsed);
+                        .append(logMessage).append(timestampUsed);
             }
 
             // no pubDate provided, use poll timestamp
@@ -540,10 +540,16 @@ public class Feed {
     /**
      * Free the memory because feed objects might be held in memory. Free the memory whenever you get the feed only once
      * and won't let the garbage collector take care of it.
+     * 
+     * @param resetItemBuffer if <code>true</code>, also reset the item buffer. Do not reset buffer if items prior to
+     *            the last window are required in future.
      */
-    public void freeMemory() {
+    public void freeMemory(boolean resetItemBuffer) {
         this.items = new ArrayList<FeedItem>();
         this.newItems = new ArrayList<FeedItem>();
+        if (resetItemBuffer) {
+            this.itemBuffer.clear();
+        }
     }
 
     public void setChecks(Integer checks) {
@@ -635,7 +641,7 @@ public class Feed {
                 tempNewestDate = cache.get(hash);
                 tempNewestHash = hash;
             }
-            if (tempNewestDate != null && currentElement < tempNewestDate.getTime() 
+            if (tempNewestDate != null && currentElement < tempNewestDate.getTime()
                     && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
                 tempSecondNewestDate = cache.get(hash);
             }
@@ -1555,6 +1561,16 @@ public class Feed {
     }
 
     /**
+     * Change the maxSize of the item buffer to this value. In case the buffer's size was larger than this value, the
+     * oldest elements are removed.
+     * 
+     * @param newMaxSize New maximum size of the buffer.
+     */
+    public void resizeItemBuffer(int newMaxSize) {
+        itemBuffer.resizeTo(newMaxSize);
+    }
+
+    /**
      * Add an item to the buffer. It is assumed that the item is new (in the curent poll) and therefore its corrected
      * publish date is newer or equal to the newest item stored in the buffer. In case the item to add is older, nothing
      * is done.
@@ -1587,6 +1603,28 @@ public class Feed {
             }
         }
         return added;
+    }
+
+    /**
+     * Add a list of {@link FeedItem}s to the buffer. It is assumed that all items are newly found in the last
+     * poll. Collection is sorted by correctedPublishTime and added to buffer.
+     * 
+     * @param newItems Items to add.
+     * @return Number of items that have been added.
+     */
+    private int addItemsToBuffer(ArrayList<FeedItem> newItems) {
+        int numItemsAdded = 0;
+        if (itemBuffer.maxSize() > 0) {
+            Collections.sort(newItems, new FeedItemComperator());
+            boolean added = false;
+            for (FeedItem item : newItems) {
+                added = addItemToBuffer(item);
+                if (added) {
+                    numItemsAdded++;
+                }
+            }
+        }
+        return numItemsAdded;
     }
 
     public static void main(String[] args) {
@@ -1641,8 +1679,6 @@ public class Feed {
 
         System.out.println("feed.getLastButOneFeedEntry(): " + feed.getLastButOneFeedEntry());
         System.out.println("feed.getLastFeedEntry(): " + feed.getLastFeedEntry());
-        
-        
 
         // BoundedStack<FeedItem> stack = new BoundedStack<FeedItem>(-4);
         // for (int i = 1; i <= 1000; i++) {
@@ -1663,7 +1699,6 @@ public class Feed {
         // System.out.println("Last Element: " + stack.getLast());
         //
         // System.out.println("Element at position 2: " + stack.getElement(0));
-
 
     }
 

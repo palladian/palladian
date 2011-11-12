@@ -20,7 +20,7 @@ public class BoundedStack<T> implements Iterable<T> {
     /**
      * The stack has a maximum of that many elements.
      */
-    private final int bound;
+    private int bound;
 
     public BoundedStack(int bound) {
         this.bound = bound;
@@ -102,6 +102,26 @@ public class BoundedStack<T> implements Iterable<T> {
         return linkedList.size();
     }
 
+    /**
+     * Removes all of the elements from the stack.
+     */
+    public void clear() {
+        linkedList.clear();
+    }
+
+    /**
+     * Change the maxSize of the buffer to this value. In case the buffer's size was larger than this value, the
+     * oldest elements are removed.
+     * 
+     * @param newMaxSize New maximum size of the buffer.
+     */
+    public void resizeTo(int newMaxSize) {
+        bound = newMaxSize;
+        while (linkedList.size() > bound) {
+            linkedList.remove(linkedList.size() - 1);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Iterable#iterator()
@@ -109,6 +129,7 @@ public class BoundedStack<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         return linkedList.iterator();
     }
+
 
     // public static void main(String[] args) {
     // BoundedStack<FeedItem> stack = new BoundedStack<FeedItem>(10);
@@ -129,7 +150,14 @@ public class BoundedStack<T> implements Iterable<T> {
     // System.out.println("First Element: " + stack.getFirst());
     // System.out.println("Last Element: " + stack.getLast());
     //
-    // System.out.println("Element at position 2: " + stack.getElement(0));
+    // System.out.println("Element at position 2: " + stack.getElement(1));
+    //
+    // int newSize = 5;
+    // stack.resizeTo(newSize);
+    // System.out.println("resize to " + newSize);
+    // for (FeedItem item : stack) {
+    // System.out.println(item.getId());
+    // }
     //
     // // CircularFifoBuffer<FeedItem> itemBuffer = new CircularFifoBuffer<FeedItem>(1000);
     // // for (int i = 1; i <= 1000; i++) {
