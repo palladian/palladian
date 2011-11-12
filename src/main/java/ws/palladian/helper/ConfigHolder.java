@@ -122,7 +122,7 @@ public final class ConfigHolder {
 //                configCandidates.add(configResource.getFile());
 //            }
             configCandidates.add(CONFIG_PATH);
-            LOGGER.info("config candidates : " + configCandidates);
+            LOGGER.debug("config candidates : " + configCandidates);
             
             File configFile = null;
             for (String candidate : configCandidates) {
@@ -131,7 +131,7 @@ public final class ConfigHolder {
             }
 
             if (configFile.exists()) {
-                LOGGER.info("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
+                LOGGER.debug("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
             } else {
 //                throw new IllegalStateException(
 //                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
