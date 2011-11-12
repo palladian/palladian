@@ -88,7 +88,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
 
     @Override
     public String getName() {
-        return "MAV";
+        return "MAVSync";
 
     }
 
