@@ -2,6 +2,8 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -18,8 +20,24 @@ import ws.palladian.retrieval.feeds.FeedReader;
  */
 public class MavUpdateStrategy extends UpdateStrategy {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(MavUpdateStrategy.class);
+
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
+
+        if (trainingMode) {
+            LOGGER.warn("Update strategy " + getName() + " does not support an explicit training mode.");
+        }
 
         List<FeedItem> entries = feed.getItems();
 
@@ -238,4 +256,8 @@ public class MavUpdateStrategy extends UpdateStrategy {
         return "mav";
     }
 
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
+    }
 }

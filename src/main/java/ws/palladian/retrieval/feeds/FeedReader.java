@@ -306,19 +306,18 @@ public final class FeedReader {
     }
 
     /**
-     * Update the check interval depending on the chosen approach. Update the feed accordingly and return it. TODO this
-     * method is insanely long, break it down!
+     * Update the check interval depending on the chosen approach. Update the feed accordingly and return it.
      * 
      * @param feed The feed to update.
-     * @param entries A list of entries of that feed. They are given in order to save the time here to retrieve them
-     *            first.
-     * @return The updated feed.
+     * @param trainingMode If the {@link UpdateStrategy} distinguishes between training and normal mode, set to
+     *            <code>true</code> to use training mode. For normal mode, or if you don't know, set
+     *            to <code>false</code>.
      */
-    public synchronized void updateCheckIntervals(Feed feed) {
+    public synchronized void updateCheckIntervals(Feed feed, boolean trainingMode) {
 
         FeedPostStatistics fps = new FeedPostStatistics(feed);
 
-        updateStrategy.update(feed, fps);
+        updateStrategy.update(feed, fps, trainingMode);
 
         // don't do this here, fps might be invalid. The Feed does this himself
         // feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
@@ -471,7 +470,7 @@ public final class FeedReader {
         // FeedParser feedParser = new RomeFeedParser();
         // feedRetriever.updateFeed(feed);
         // feed.increaseChecks();
-        fch.updateCheckIntervals(feed);
+        fch.updateCheckIntervals(feed, false);
         System.exit(0);
 
         Options options = new Options();

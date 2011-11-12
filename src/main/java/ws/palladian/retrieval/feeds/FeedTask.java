@@ -148,7 +148,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
-                    feedReader.updateCheckIntervals(feed);
+                    feedReader.updateCheckIntervals(feed, false);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed,
                             httpResult);
@@ -204,7 +204,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
                     storeMetadata = generateMetaInformation(httpResult, downloadedFeed);
 
-                    feedReader.updateCheckIntervals(feed);
+                    feedReader.updateCheckIntervals(feed, false);
 
                     // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
