@@ -1,5 +1,8 @@
 package ws.palladian.helper.math;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -7,11 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.ResourceHelper;
 
 public class MathHelperTest {
 
@@ -31,11 +32,22 @@ public class MathHelperTest {
 
         collection = (Set<Integer>) MathHelper.randomSample(collection, 5);
         // CollectionHelper.print(collection);
-        Assert.assertEquals(5, collection.size());
+        assertEquals(5, collection.size());
 
         collection = (Set<Integer>) MathHelper.randomSample(collection, 1);
-        Assert.assertEquals(1, collection.size());
+        assertEquals(1, collection.size());
 
+    }
+
+    @Test
+    public void testComputeCosineSimilarity() {
+
+        Double[] vector1 = { 10.0, 50.0 };
+        Double[] vector2 = { 8.0, 66.0 };
+
+        // System.out.println(MathHelper.computeCosineSimilarity(vector1, vector2));
+
+        assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
     }
 
     @Test
@@ -50,7 +62,7 @@ public class MathHelperTest {
         values.add(5l);
         values.add(7l);
         values.add(9l);
-        Assert.assertEquals(2l, MathHelper.getStandardDeviation(values));
+        assertEquals(2l, MathHelper.getStandardDeviation(values));
     }
 
     @Test
@@ -63,7 +75,49 @@ public class MathHelperTest {
         values.add(9l);
         values.add(16l);
         values.add(24l);
-        Assert.assertEquals(5l, MathHelper.getMedianDifference(values));
+        assertEquals(5l, MathHelper.getMedianDifference(values));
+    }
+
+    @Test
+    public void testCalculateJaccardSimilarity() {
+
+        Set<String> setA = new HashSet<String>();
+        Set<String> setB = new HashSet<String>();
+
+        setA.add("1");
+        setA.add("2");
+        setA.add("3");
+        setA.add("4");
+        setB.add("1");
+        setB.add("2");
+        setB.add("3");
+        setB.add("6");
+        assertEquals(0.6, MathHelper.computeJaccardSimilarity(setA, setB), 0);
+
+        setA.clear();
+        setB.clear();
+        setA.add("1");
+        setA.add("2");
+        setA.add("3");
+        setA.add("4");
+        setB.add("1");
+        setB.add("2");
+        setB.add("3");
+        setB.add("4");
+        assertEquals(1.0, MathHelper.computeJaccardSimilarity(setA, setB), 0);
+
+        setA.clear();
+        setB.clear();
+        setA.add("1");
+        setA.add("2");
+        setA.add("3");
+        setA.add("4");
+        setB.add("5");
+        setB.add("6");
+        setB.add("7");
+        setB.add("8");
+        assertEquals(0.0, MathHelper.computeJaccardSimilarity(setA, setB), 0);
+
     }
 
     @Test
@@ -75,7 +129,7 @@ public class MathHelperTest {
         values.add(9l);
         values.add(16l);
         values.add(24l);
-        Assert.assertEquals(8l, MathHelper.getLongestGap(values));
+        assertEquals(8l, MathHelper.getLongestGap(values));
     }
 
     @Test
@@ -86,22 +140,21 @@ public class MathHelperTest {
                 72.19, 74.46 };
 
         double[] alphaBeta = MathHelper.performLinearRegression(weights, heights);
-        Assert.assertEquals(-39.062, MathHelper.round(alphaBeta[0], 3));
-        Assert.assertEquals(61.272, MathHelper.round(alphaBeta[1], 3));
+        assertEquals(-39.062, MathHelper.round(alphaBeta[0], 3), 0);
+        assertEquals(61.272, MathHelper.round(alphaBeta[1], 3), 0);
     }
 
     @Test
-    public void testCalculateListSimilarity() {
+    public void testCalculateListSimilarity() throws FileNotFoundException {
 
         // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getShiftSimilartiy(), 2));
         // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getSquaredShiftSimilartiy(), 2));
-        // System.out
-        // .println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+        // System.out.println(MathHelper.round(
+        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
         // .getRmse(), 2));
 
         List<String> list1 = new ArrayList<String>();
@@ -112,7 +165,7 @@ public class MathHelperTest {
         list2.add("c");
         list2.add("b");
         list2.add("a");
-        Assert.assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy());
+        assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy(), 0);
 
         list1 = new ArrayList<String>();
         list2 = new ArrayList<String>();
@@ -122,24 +175,23 @@ public class MathHelperTest {
         list2.add("a");
         list2.add("b");
         list2.add("c");
-        Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy());
+        assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy(), 0);
 
-        Assert.assertEquals(0.37, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                .getShiftSimilartiy(), 2));
+        assertEquals(0.37, MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                        .getShiftSimilartiy(), 2), 0);
 
-        Assert.assertEquals(0.57, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                .getSquaredShiftSimilartiy(), 2));
+        assertEquals(0.57, MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                        .getSquaredShiftSimilartiy(), 2), 0);
 
-        Assert.assertEquals(4.16, MathHelper.round(
-                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
-                .getRmse(), 2));
+        assertEquals(4.16, MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2), 0);
 
     }
 
     @Test
-    public void testCalculateRMSE() {
+    public void testCalculateRMSE() throws FileNotFoundException {
 
         List<double[]> values = new ArrayList<double[]>();
 
@@ -149,12 +201,10 @@ public class MathHelperTest {
         values.add(new double[] { 10, 8 });
         values.add(new double[] { 22, 7 });
 
-        Assert.assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3));
+        assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3), 0);
 
-        Assert.assertEquals(
-                3.607,
-                MathHelper.round(
-                        MathHelper.calculateRMSE(MathHelperTest.class.getResource("/rmseInput.csv").getFile(), ";"), 3));
+        assertEquals(3.607,
+                MathHelper.round(MathHelper.calculateRMSE(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
     }
 
     @Test
@@ -167,8 +217,8 @@ public class MathHelperTest {
         double prAtK = ap[k][0];
         double apAtK = ap[k][1];
 
-        Assert.assertEquals(5./7, prAtK);
-        Assert.assertEquals((1 + 2./3 + 3./4 + 4./5 + 5./6) / 5, apAtK);
+        assertEquals(5. / 7, prAtK, 0);
+        assertEquals((1 + 2. / 3 + 3. / 4 + 4. / 5 + 5. / 6) / 5, apAtK, 0);
 
     }
 

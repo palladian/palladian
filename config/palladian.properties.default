@@ -1,5 +1,7 @@
-config.version = 11
+config.version = 13
 ### version history:
+### 13: added AdaptiveTTL update strategies
+### 12: added new mode for feed update strategy fix learned 
 ### 11: added DatasetEvaluator to config
 ### 10: added date extraction model to config
 ### 9: SchedulerTask fine tuning monitoring 
@@ -198,11 +200,18 @@ schedulerTask.maxUnparsablePercentage = 2
 schedulerTask.maxUnreachablePercentage = 2
 
 # Choose update strategy to evaluate. Supported values are: 
-# Fix, FixLearned, 
+# Fix, FixLearned, AdaptiveTTL, LRU2, MAVSync
 datasetEvaluator.updateStrategy = Fix
 
 # If datasetEvaluator.updateStrategy = Fix, choose a fix check interval in minutes >0, e.g. 60 for Fix1h
 datasetEvaluator.fixCheckInterval = 60
+
+# If datasetEvaluator.updateStrategy = FixLearned, choose mode 0 to average over first window or 1 to also use 
+# timestamp of first poll 
+datasetEvaluator.fixLearnedMode = 0
+
+# If datasetEvaluator.updateStrategy = AdaptiveTTL, choose weight M > 0, common values are 0.1 or 0.2
+datasetEvaluator.adaptiveTTLweightM = 0.1
 
 # Set min check interval in minutes > 0. Update strategies must not poll more often than this interval. 
 datasetEvaluator.minCheckInterval = 1

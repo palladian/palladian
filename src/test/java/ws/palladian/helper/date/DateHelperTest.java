@@ -1,14 +1,12 @@
 package ws.palladian.helper.date;
 
-import ws.palladian.helper.date.DateHelper;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-public class DateHelperTest extends TestCase {
+import org.junit.Test;
 
-    public DateHelperTest(String name) {
-        super(name);
-    }
+public class DateHelperTest {
 
+    @Test
     public void testGetTimeStamp() throws Exception {
 
         assertEquals(1273795200000l, DateHelper.getTimestamp("2010-05-14 00:00:00"));
@@ -16,10 +14,12 @@ public class DateHelperTest extends TestCase {
 
     }
 
+    @Test
     public void testGetDatetime() {
         assertEquals("20.05.2010", DateHelper.getDatetime("dd.MM.yyyy", 1274313600000l));
     }
 
+    @Test
     public void testGetTimeString() {
         assertEquals("0ms", DateHelper.getTimeString(0));
         assertEquals("76h:3m:43s:872ms", DateHelper.getTimeString(273823872));

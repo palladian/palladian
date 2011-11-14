@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.ResourceHelper;
 
 /**
  * Test cases for the StringHelper class.
@@ -81,11 +83,11 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testRename() {
+    public void testRename() throws FileNotFoundException {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
         String renamedFile = FileHelper.getRenamedFilename(
-                new File(StringHelperTest.class.getResource("/sampleTextForTagging.txt").getFile()),
+                new File(ResourceHelper.getResourcePath("/sampleTextForTagging.txt")),
                 "sampleTextForTagging_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("sampleTextForTagging_tagged.txt", renamedFile);

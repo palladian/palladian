@@ -1,25 +1,25 @@
 package ws.palladian.persistence;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.FileHelper;
 
-public class DictionaryFileIndexTest extends TestCase {
+public class DictionaryFileIndexTest {
 
-    public DictionaryFileIndexTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testFileIndex() {
 
         // create the dictionary index and empty the existing one
         File dictionaryFile = new File("data/temp/testIndex");
-        if(!dictionaryFile.exists()) {
+        if (!dictionaryFile.exists()) {
             dictionaryFile.mkdir();
         }
         DictionaryFileIndex di = new DictionaryFileIndex(dictionaryFile.getAbsolutePath());
@@ -58,12 +58,12 @@ public class DictionaryFileIndexTest extends TestCase {
         assertEquals(2, ces.size());
 
         // absolute relevance
-        assertEquals(absoluteRelevance1, ces.getCategoryEntry("test1").getAbsoluteRelevance());
-        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance());
+        assertEquals(absoluteRelevance1, ces.getCategoryEntry("test1").getAbsoluteRelevance(), 0);
+        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance(), 0);
 
         // relative relevance
-        assertEquals(1.0 / 3.0, ces.getCategoryEntry("test1").getRelevance());
-        assertEquals(2.0 / 3.0, ces.getCategoryEntry("test2").getRelevance());
+        assertEquals(1.0 / 3.0, ces.getCategoryEntry("test1").getRelevance(), 0);
+        assertEquals(2.0 / 3.0, ces.getCategoryEntry("test2").getRelevance(), 0);
 
         // category priors
         // assertEquals(0.5,ces.getCategoryEntry("test1").getCategory().getPrior());
@@ -78,8 +78,8 @@ public class DictionaryFileIndexTest extends TestCase {
         // read updated values
         di.openReader();
         ces = di.read("abc");
-        assertEquals(101.0, ces.getCategoryEntry("test1").getAbsoluteRelevance());
-        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance());
+        assertEquals(101.0, ces.getCategoryEntry("test1").getAbsoluteRelevance(), 0);
+        assertEquals(absoluteRelevance2, ces.getCategoryEntry("test2").getAbsoluteRelevance(), 0);
 
         // System.out.println(ces);
 
@@ -94,11 +94,11 @@ public class DictionaryFileIndexTest extends TestCase {
         ces = di.read(".Com L_d");
         // System.out.println(ces);
         assertEquals(2, ces.size());
-        
+
         di.close();
-        
+
         FileHelper.delete(dictionaryFile.getPath());
-//        assertEquals(true, FileHelper.delete(dictionaryFile.getPath()));
+        // assertEquals(true, FileHelper.delete(dictionaryFile.getPath()));
     }
 
 }

@@ -55,6 +55,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
 
     private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
+    private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? AND pollTimestamp >= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
     private static final String GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp < ? ORDER BY pollTimestamp DESC LIMIT 0,1";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
     private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ? WHERE id = ? AND pollTimestamp = ?";
@@ -443,6 +444,24 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
     }
 
+    /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
+     * poll timestamp is older or equal to {@code simulatedPoll}. To speedup query, use the timestamp of the last poll
+     * since the requested poll is newer or equal to the last poll.
+     * 
+     * @param feedID The feed to get information about.
+     * @param simulatedPoll The timestamp to get the poll that was done at the same time or chronologically previous to
+     *            the simulated poll.
+     * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
+     * @see #getPreviousFeedPoll(int, Timestamp)
+     */
+    public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll, Timestamp lastPoll) {
+        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID, simulatedPoll, lastPoll);
+    }
+
+    
+    
     /**
      * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
      * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose

@@ -14,6 +14,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
@@ -69,15 +70,30 @@ public class FeedReaderEvaluator {
     private static File[] benchmarkDatasetFiles;
 
     /**
-     * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00 CEST. Be careful with
-     * time zones since, Unix timestamp assumes GMT.
+     * The time to start training update strategies in evaluation.
+     * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00:00 CEST. Be careful with
+     * time zones since Unix timestamp assumes GMT.
      */
-    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310187600000L;
+    public static final long BENCHMARK_TRAINING_START_TIME_MILLISECOND = 1310187600000L;
 
     /**
+     * The time to stop training update strategies in evaluation.
+     * 2011-07-16 06:59:59 CEST. Be careful with time zones since Unix timestamp assumes GMT.
+     */
+    public static final long BENCHMARK_TRAINING_STOP_TIME_MILLISECOND = 1310792399000L;
+
+    /**
+     * The time to start the 'real' evaluation.
+     * The timestamp almost all feeds have been polled at least once. 2011-07-16 07:00:00 CEST. Be careful with
+     * time zones since Unix timestamp assumes GMT.
+     */
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1310792400000L;
+
+    /**
+     * The time to stop the 'real' evaluation.
      * The timestamp we stopped the dataset gathering, minus a buffer to make sure all items published before the stop
-     * time have been received. Dataset creation ran till 2011-08-05 13:49 CEST, we set stop time to 2011-08-05 07:00
-     * CEST. Be careful with time zones since, Unix timestamp assumes GMT.
+     * time have been received. Dataset creation ran till 2011-08-05 13:49 CEST, we set stop time to 2011-08-05 07:00:00
+     * CEST. Be careful with time zones since Unix timestamp assumes GMT.
      */
     public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312520400000L;
 
@@ -274,33 +290,18 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
-                new MavUpdateStrategy(), new PostRateUpdateStrategy() };
+        UpdateStrategy[] strategies = { new FixUpdateStrategy(60), new FixUpdateStrategy(1440),
+                new FixLearnedUpdateStrategy(), new MavUpdateStrategy(), new PostRateUpdateStrategy() };
 
         Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
 
-        int fixNumber = 0;
-
         for (UpdateStrategy strategy : strategies) {
-
-            // set the fix interval for the FIX strategies, if -1 => fixed learned
-            int checkInterval = -1;
-            if (fixNumber == 0) {
-                checkInterval = 60;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            } else if (fixNumber == 1) {
-                checkInterval = 1440;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            } else if (fixNumber == 2) {
-                checkInterval = -1;
-                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
-            }
 
             for (Integer policy : policies) {
 
                 // for FIX with a preset interval min_delay and max_coverage are the same and we skip one
-                if (fixNumber < 2 && strategy instanceof FixUpdateStrategy && policy == BENCHMARK_MIN_DELAY) {
+                if (strategy instanceof FixUpdateStrategy && policy == BENCHMARK_MIN_DELAY) {
                     continue;
                 }
 
@@ -313,18 +314,13 @@ public class FeedReaderEvaluator {
                     FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
                     fc.setUpdateStrategy(strategy, false);
 
-                    LOGGER.info("start evaluation for strategy " + strategy + " (" + checkInterval + "min), policy "
+                    LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
                     fc.startContinuousReading(-1);
 
                 }
-
             }
-
-            fixNumber++;
-
         }
-
     }
 
     /**
@@ -339,8 +335,7 @@ public class FeedReaderEvaluator {
         // if -1 => fixed learned
         int checkInterval = 60;
 
-        UpdateStrategy updateStrategy = new FixUpdateStrategy();
-        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval); // required by Fix strategies only!
+        UpdateStrategy updateStrategy = new FixUpdateStrategy(checkInterval);
 
         // updateStrategy = new MavUpdateStrategy();
         // updateStrategy = new PostRateUpdateStrategy();

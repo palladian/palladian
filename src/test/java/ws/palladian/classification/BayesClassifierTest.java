@@ -1,18 +1,20 @@
 package ws.palladian.classification;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 
 public class BayesClassifierTest {
 
     @Test
-    public void testBayesClassifierNominal() {
+    public void testBayesClassifierNominal() throws FileNotFoundException {
 
         // create training instances from the "Play Dataset", see here on page 34
         // http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf
@@ -20,7 +22,7 @@ public class BayesClassifierTest {
         List<String> nominalFeatures = null;
 
         BayesClassifier bc = new BayesClassifier();
-        bc.trainFromCSV(BayesClassifierTest.class.getResource("/classifier/playData.txt").getFile());
+        bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"));
 
         // create an instance to classify
         UniversalInstance newInstance = new UniversalInstance(null);
@@ -41,8 +43,8 @@ public class BayesClassifierTest {
         // classify
         loadedBC.classify(newInstance);
 
-        Assert.assertEquals(0.795417348608838, newInstance.getMainCategoryEntry().getRelevance());
-        Assert.assertEquals("No", newInstance.getMainCategoryEntry().getCategory().getName());
+        assertEquals(0.795417348608838, newInstance.getMainCategoryEntry().getRelevance(), 0);
+        assertEquals("No", newInstance.getMainCategoryEntry().getCategory().getName());
 
     }
 
@@ -50,44 +52,44 @@ public class BayesClassifierTest {
     public void testBayesClassifierNumeric() {
 
         BayesClassifier bc = new BayesClassifier();
-        
+
         Instances<Object> instances = new Instances<Object>();
-        
+
         UniversalInstance instance = new UniversalInstance(instances);
         ArrayList<Double> numericFeatures = new ArrayList<Double>();
         numericFeatures.add(3.0);
         instance.setNumericFeatures(numericFeatures);
         instance.setInstanceCategory("Case");
         bc.addTrainingInstance(instance);
-        
+
         instance = new UniversalInstance(instances);
         numericFeatures = new ArrayList<Double>();
         numericFeatures.add(6.0);
         instance.setNumericFeatures(numericFeatures);
         instance.setInstanceCategory("Case");
         bc.addTrainingInstance(instance);
-        
+
         instance = new UniversalInstance(instances);
         numericFeatures = new ArrayList<Double>();
         numericFeatures.add(20.0);
         instance.setNumericFeatures(numericFeatures);
         instance.setInstanceCategory("Case");
         bc.addTrainingInstance(instance);
-        
+
         instance = new UniversalInstance(instances);
         numericFeatures = new ArrayList<Double>();
         numericFeatures.add(18.0);
         instance.setNumericFeatures(numericFeatures);
         instance.setInstanceCategory("Phone");
         bc.addTrainingInstance(instance);
-        
+
         instance = new UniversalInstance(instances);
         numericFeatures = new ArrayList<Double>();
         numericFeatures.add(66.0);
         instance.setNumericFeatures(numericFeatures);
         instance.setInstanceCategory("Phone");
         bc.addTrainingInstance(instance);
-        
+
         instance = new UniversalInstance(instances);
         numericFeatures = new ArrayList<Double>();
         numericFeatures.add(290.0);
@@ -113,8 +115,8 @@ public class BayesClassifierTest {
 
         // System.out.println(newInstance);
 
-        Assert.assertEquals(0.944, MathHelper.round(newInstance.getMainCategoryEntry().getRelevance(),3));
-        Assert.assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
+        assertEquals(0.944, MathHelper.round(newInstance.getMainCategoryEntry().getRelevance(), 3), 0);
+        assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
     }
 
 }
