@@ -4,9 +4,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -31,6 +29,11 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
     private static final Logger LOGGER = Logger.getLogger(IndHistUpdateStrategy.class);
 
     /**
+     * The data base to load the model from.
+     */
+    private final EvaluationFeedDatabase feedDb;
+
+    /**
      * Identifier to be used to store the trained model as additional date with the feed.
      */
     private static final String MODEL_IDENTIFIER = "IndHistModel";
@@ -47,10 +50,12 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      *            See [BGR2006] Bright, L.; Gal, A. &amp; Raschid, L. Adaptive pull-based policies for wide area data
      *            delivery ACM Transactions on Database Systems, ACM, 2006, 31, 631-671,
      *            http://doi.acm.org/10.1145/1138394.1138399
+     * @param feedDb The db to load the model from.
      */
-    public IndHistUpdateStrategy(double thresholdTheta) {
+    public IndHistUpdateStrategy(double thresholdTheta, EvaluationFeedDatabase feedDb) {
         super();
         this.thresholdTheta = thresholdTheta;
+        this.feedDb = feedDb;
     }
 
     /**
@@ -174,9 +179,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
         double[] hourlyRates;
 
         // step 1: Load model from db. The model has been trained externally since this is much faster.
-        final EvaluationFeedDatabase feedDB = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
-                .getInstance().getConfig());
-        hourlyRates = feedDB.getIndHistModel(feed.getId());
+        hourlyRates = feedDb.getIndHistModel(feed.getId());
 
         // step 2: store model in feed to load it in normal mode.
         Map<String, Object> additionalData = feed.getAdditionalData();

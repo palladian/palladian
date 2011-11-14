@@ -61,12 +61,10 @@ public class DatasetEvaluator {
      */
     private static String simulatedPollsDbTable;
 
-    public DatasetEvaluator() {
-        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
-                .getInstance().getConfig());
+    public DatasetEvaluator(EvaluationFeedDatabase feedStore) {
         // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
         // table in it's constructor. Any subsequent changes are ignored...
-        ((EvaluationFeedDatabase) feedStore).resetTableFeeds();
+        feedStore.resetTableFeeds();
         feedReader = new FeedReader(feedStore);
     }
 
@@ -163,6 +161,9 @@ public class DatasetEvaluator {
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
         int feedItemBufferSize = 10;
         
+        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
+                .getInstance().getConfig());
+
         try {
 
             // read interval bounds
@@ -214,7 +215,7 @@ public class DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta);
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (EvaluationFeedDatabase) feedStore);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -270,7 +271,7 @@ public class DatasetEvaluator {
             long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
 
 
-            DatasetEvaluator evaluator = new DatasetEvaluator();
+            DatasetEvaluator evaluator = new DatasetEvaluator((EvaluationFeedDatabase) feedStore);
             evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
                     feedItemBufferSize);
             evaluator.runEvaluation();
