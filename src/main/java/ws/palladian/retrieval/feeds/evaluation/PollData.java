@@ -22,6 +22,12 @@ public class PollData {
     /** All polls have a sequential number starting from 1 at the first poll. */
     private Integer numberOfPoll = -1;
 
+    /**
+     * All polls that have at least one new item ha a sequential number starting from 1 at the first poll that contains
+     * items.
+     */
+    private Integer numberOfPollWithNewItem = null;
+
     /** The time of the poll. */
     private long pollTimestamp = -1l;
 
@@ -30,8 +36,9 @@ public class PollData {
 
     /**
      * The cumulated delay: the sum of the time difference in seconds between pollTime and publishTime of all new items.
+     * <code>null</code> if there are no new items.
      */
-    private long cumulatedDelay = -1;
+    private Long cumulatedDelay = -1L;
 
     /** Number of items that have been missed (not read early enough). */
     private int misses = 0;
@@ -81,6 +88,22 @@ public class PollData {
     }
 
     /**
+     * @return the numberOfPollWithNewItem All polls that have at least one new item ha a sequential number starting
+     *         from 1 at the first poll that contains items.
+     */
+    public final Integer getNumberOfPollWithNewItem() {
+        return numberOfPollWithNewItem;
+    }
+
+    /**
+     * @param numberOfPollWithNewItem All polls that have at least one new item ha a sequential number starting from 1
+     *            at the first poll that contains items.
+     */
+    public final void setNumberOfPollWithNewItem(Integer numberOfPollWithNewItem) {
+        this.numberOfPollWithNewItem = numberOfPollWithNewItem;
+    }
+
+    /**
      * <p>
      * The type of benchmark where this poll data belongs to. The check interval for example is either min or max check
      * interval time depending on the benchmark type. Type may be FeedReaderEvaluator.BENCHMARK_OFF;
@@ -127,17 +150,17 @@ public class PollData {
 
     /**
      * @param cumulatedDelay The cumulated delay: the sum of the time difference in seconds between pollTime and
-     *            publishTime of all new items.
+     *            publishTime of all new items. <code>null</code> if there are no new items.
      */
-    public void setCumulatedDelay(long cumulatedDelay) {
+    public void setCumulatedDelay(Long cumulatedDelay) {
         this.cumulatedDelay = cumulatedDelay;
     }
 
     /**
      * @return The cumulated delay: the sum of the time difference in seconds between pollTime and publishTime of all
-     *         new items.
+     *         new items. <code>null</code> if there are no new items.
      */
-    public long getCumulatedDelay() {
+    public Long getCumulatedDelay() {
         return cumulatedDelay;
     }
 

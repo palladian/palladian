@@ -1,6 +1,10 @@
 package ws.palladian.retrieval.feeds;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -12,17 +16,17 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
-import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
 public class FeedRetrieverTest {
 
@@ -49,64 +53,65 @@ public class FeedRetrieverTest {
      * {@link FeedParserException}s.
      * 
      * @throws FeedParserException
+     * @throws FileNotFoundException
      */
     @Test
-    public void testFeedParsing() throws FeedParserException {
+    public void testFeedParsing() throws FeedParserException, FileNotFoundException {
 
         FeedParser romeFeedParser = new RomeFeedParser();
 
         // Content is not allowed in prolog.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed004.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed004.xml"));
 
         // The processing instruction target matching "[xX][mM][lL]" is not allowed.
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed009.xml").getFile()));
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed085.xml").getFile()));
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed086.xml").getFile()));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed009.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed085.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed086.xml")));
 
         // The reference to entity "L" must end with the ';' delimiter.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed010.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed010.xml"));
 
         // The markup declarations contained or pointed to by the document type declaration must be well-formed.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed013.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed013.xml"));
 
         // The reference to entity "F" must end with the ';' delimiter.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed030.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed030.xml"));
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed035.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed035.xml"));
 
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed055.xml").getFile()));
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed063.xml").getFile()));
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed065.xml").getFile()));
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed067.xml").getFile()));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed055.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed063.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed065.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed067.xml")));
 
         // The reference to entity "M" must end with the ';' delimiter.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed068.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed068.xml"));
 
         // The entity "nbsp" was referenced, but not declared.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed069.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed069.xml"));
 
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed070.xml").getFile()));
-
-        // The entity name must immediately follow the '&' in the entity reference.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed078.xml").getFile());
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed070.xml")));
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed081.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed078.xml"));
+
+        // The entity name must immediately follow the '&' in the entity reference.
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed081.xml"));
 
         // The entity "eacute" was referenced, but not declared.
-        // RomeFeedParser.getFeed(RomeFeedParser.class.getResource("/feeds/feed082.xml").getFile());
+        // RomeFeedParser.getFeed(ResourceHelper.getResourcePath("/feeds/feed082.xml"));
 
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed084.xml").getFile()));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed084.xml")));
 
         // Sourceforge feeds; sourceforge02.xml failed because of illegal XML characters
         // An invalid XML character (Unicode: 0x4) was found in the CDATA section.
-        romeFeedParser.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile()));
-        romeFeedParser.getFeed(new File(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/sourceforge01.xml")));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/sourceforge02.xml")));
 
         // UTF-16
         // feedRetriever.setCleanStrings(false);
-        romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed102.xml").getFile()));
+        romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed102.xml")));
 
     }
 
@@ -117,9 +122,10 @@ public class FeedRetrieverTest {
      * 
      * @throws FeedParserException
      * @throws ParseException
+     * @throws FileNotFoundException
      */
     @Test
-    public void testFeedParsing2() throws FeedParserException, ParseException {
+    public void testFeedParsing2() throws FeedParserException, ParseException, FileNotFoundException {
 
         FeedParser romeFeedParser = new RomeFeedParser();
         // feedRetriever.setCleanStrings(false);
@@ -127,28 +133,28 @@ public class FeedRetrieverTest {
         // verify, if author information is parsed correctly
 
         // //////////// Atom feeds ////////////
-        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample1.xml").getFile()));
+        Feed feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/atomSample1.xml")));
         FeedItem feedItem = feed.getItems().iterator().next();
         // FIXME time offset since Atom bug fixed.
-        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
+        // assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        // assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
-        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/atomSample2.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/atomSample2.xml")));
         feedItem = feed.getItems().iterator().next();
-        //        Assert.assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-        //        Assert.assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
+        // assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
+        // assertEquals(df.parse("2003-12-13 18:30:02.000 GMT"), feedItem.getPublished());
 
         // //////////// RSS feeds ////////////
-        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rss20Sample1.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/rss20Sample1.xml")));
         feedItem = feed.getItems().iterator().next();
-        Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
-        Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
+        assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
+        assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
 
         // RDF Site Summary 1.0; Content Module
         // http://web.resource.org/rss/1.0/modules/content/
-        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/rssRdf10.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/rssRdf10.xml")));
         feedItem = feed.getItems().iterator().next();
-        Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
+        assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getText());
 
     }
 
@@ -156,9 +162,10 @@ public class FeedRetrieverTest {
      * Test parsing of exotic "real world" feeds with foreign characters.
      * 
      * @throws FeedParserException
+     * @throws FileNotFoundException 
      */
     @Test
-    public void testFeedParsing3() throws FeedParserException {
+    public void testFeedParsing3() throws FeedParserException, FileNotFoundException {
 
         FeedParser romeFeedParser = new RomeFeedParser();
 
@@ -166,25 +173,26 @@ public class FeedRetrieverTest {
         // feedRetriever.setCleanStrings(false);
 
         // arabic characters
-        Feed feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed100.xml").getFile()));
+        Feed feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed100.xml")));
         FeedItem item = feed.getItems().iterator().next();
-        Assert.assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
-        Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
-        Assert.assertEquals(80, feed.getItems().size());
+        assertEquals("الجزيرة نت", feed.getMetaInformation().getTitle());
+        assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
+        assertEquals(80, feed.getItems().size());
 
         // japanese characters
-        feed = romeFeedParser.getFeed(new File(RomeFeedParser.class.getResource("/feeds/feed101.xml").getFile()));
+        feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/feed101.xml")));
         item = feed.getItems().iterator().next();
-        Assert.assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
+        assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
 
     }
 
     /**
      * Test date parsing mechanism. For the following feeds, the publish dates of the entries cannot be parsed by ROME
      * itself, but some dates can be retrieved using {@link DateGetterHelper}. Commented lines still cannot be parsed.
+     * @throws FileNotFoundException 
      */
     @Test
-    public void testDateParsing() throws ParseException {
+    public void testDateParsing() throws ParseException, FileNotFoundException {
 
         // Wed, 02 Feb 2011 12:11:00 GMT
         checkDate("2011-02-02 12:11:00.000 CET", "/feeds/feed001.xml");
@@ -308,8 +316,9 @@ public class FeedRetrieverTest {
      * @param expected
      * @param feedFile
      * @throws ParseException
+     * @throws FileNotFoundException 
      */
-    private void checkDate(String expected, String feedFile) throws ParseException {
+    private void checkDate(String expected, String feedFile) throws ParseException, FileNotFoundException {
 
         FeedParser romeFeedParser = new RomeFeedParser();
         // DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
@@ -317,14 +326,14 @@ public class FeedRetrieverTest {
         try {
 
             Date expectedDate = df.parse(expected);
-            Feed feed = romeFeedParser.getFeed(new File(FeedRetrieverTest.class.getResource(feedFile).getFile()));
+            Feed feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath(feedFile)));
 
             // we always test the feed's first entry
             Date itemDate = feed.getItems().iterator().next().getPublished();
-            Assert.assertEquals(feedFile, expectedDate, itemDate);
+            assertEquals(feedFile, expectedDate, itemDate);
 
         } catch (FeedParserException e) {
-            Assert.fail("feed " + feedFile + " could not be read : " + e.getMessage());
+            fail("feed " + feedFile + " could not be read : " + e.getMessage());
         }
 
     }
@@ -394,13 +403,14 @@ public class FeedRetrieverTest {
 
     /**
      * Performance test concerning date recognition.
+     * @throws FileNotFoundException 
      */
     @SuppressWarnings("unused")
-    private void evaluateDateParsing() throws FeedParserException {
+    private void evaluateDateParsing() throws FeedParserException, FileNotFoundException {
 
         RomeFeedParser romeFeedParser = new RomeFeedParser();
         int numIterations = 100;
-        File feed= new File(RomeFeedParser.class.getResource("/feeds/feed014.xml").getFile());
+        File feed = new File(ResourceHelper.getResourcePath("/feeds/feed014.xml"));
 
         StopWatch sw = new StopWatch();
         romeFeedParser.setUseDateRecognition(false);

@@ -1,21 +1,15 @@
 package ws.palladian.helper;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import ws.palladian.helper.FileHelper;
 
 /**
  * Test cases for the FileHelper class.
  * 
  * @author David Urbansky
  */
-public class FileHelperTest extends TestCase {
-
-    public FileHelperTest(String name) {
-        super(name);
-    }
+public class FileHelperTest {
 
     @Test
     public void testGetFileName() {

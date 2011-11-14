@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -121,8 +122,8 @@ public class EvaluationSchedulerTask extends TimerTask {
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
 
-        // configure monitoring and logging
 
+        // configure monitoring and logging
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         errorMailNotification = ERROR_MAIL_NOTIFICATION_DEFAULT;
         if (config != null) {
@@ -137,8 +138,9 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         }
 
-        // on average, one thread should process at least 3 feeds per minute
-        HIGH_LOAD_THROUGHPUT = (int) (3 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
+        // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
+        // more than 10k polls
+        HIGH_LOAD_THROUGHPUT = (int) (0.2 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
     }
 
     /*
@@ -157,22 +159,19 @@ public class EvaluationSchedulerTask extends TimerTask {
         // schedule all feeds
         for (Feed feed : getFeeds()) {
 
-            // remove completed FeedTasks
-            removeFeedTaskIfDone(feed.getId());
-            if (needsLookup(feed)) {
-                if (scheduledTasks.containsKey(feed.getId())) {
-                    alreadyScheduledFeedCount++;
+            // schedule only once
+            if (lastWakeUpTime == null) {
+                scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, feedReader)));
+                newlyScheduledFeedsCount++;
 
-                    if (LOGGER.isDebugEnabled()) {
-                        alreadyScheduledFeedIDs.append(feed.getId()).append(",");
-                    }
-                } else {
-                    scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, feedReader)));
-                    newlyScheduledFeedsCount++;
-
-                    if (LOGGER.isDebugEnabled()) {
-                        scheduledFeedIDs.append(feed.getId()).append(",");
-                    }
+                if (LOGGER.isDebugEnabled()) {
+                    scheduledFeedIDs.append(feed.getId()).append(",");
+                }
+            } else {
+                // remove completed FeedTasks
+                boolean completed = removeFeedTaskIfDone(feed.getId());
+                if (completed) {
+                    feed.freeMemory(true);
                 }
             }
         }
@@ -290,8 +289,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      * @return
      */
     private Collection<Feed> getFeeds() {
-
-            return feedReader.getFeeds();
+        return ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
     }
 
     /**
@@ -340,22 +338,26 @@ public class EvaluationSchedulerTask extends TimerTask {
      * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
      * 
      * @param feedId The feed to check and remove if the {@link FeedTask} is done.
+     * @return <code>true</code> if task is completed and has been removed.
      */
-    private void removeFeedTaskIfDone(final Integer feedId) {
+    private boolean removeFeedTaskIfDone(final Integer feedId) {
+        boolean completed = false;
         final Future<FeedTaskResult> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);
             processedCounter++;
+            completed = true;
             try {
                 feedResults.add(future.get());
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
             } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
+            } catch (CancellationException e) {
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
             }
         }
+        return completed;
     }
 
 

@@ -1,25 +1,28 @@
 package ws.palladian.retrieval;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-
-import junit.framework.Assert;
+import java.io.FileNotFoundException;
 
 import org.junit.Test;
+
+import ws.palladian.helper.ResourceHelper;
 
 import com.sun.syndication.io.XmlReader;
 
 public class TestDataTest {
 
     @Test
-    public void checkTestDataEncoding() {
+    public void checkTestDataEncoding() throws FileNotFoundException {
 
         String filePath1 = "src/test/resources/feeds/feed102.xml";
-        String filePath2 = TestDataTest.class.getResource("/feeds/feed102.xml").getFile();
+        String filePath2 = ResourceHelper.getResourcePath("/feeds/feed102.xml");
 
-        Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath1));
-        Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath2));
+        assertEquals("UTF-16LE", getXmlEncoding(filePath1));
+        assertEquals("UTF-16LE", getXmlEncoding(filePath2));
 
     }
 

@@ -148,7 +148,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
-                    feedReader.updateCheckIntervals(feed);
+                    feedReader.updateCheckIntervals(feed, false);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed,
                             httpResult);
@@ -204,7 +204,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
                     storeMetadata = generateMetaInformation(httpResult, downloadedFeed);
 
-                    feedReader.updateCheckIntervals(feed);
+                    feedReader.updateCheckIntervals(feed, false);
 
                     // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
@@ -281,7 +281,9 @@ class FeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        feed.freeMemory();
+        // FIXME: should we really empty the buffer here? Currently no-one using the FeedTask is using the buffer but
+        // this may change over time. This maybe needs to be configurable. -- Sandro 2011-11-12
+        feed.freeMemory(true);
     }
 
     /**

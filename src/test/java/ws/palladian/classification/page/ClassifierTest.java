@@ -1,7 +1,10 @@
 package ws.palladian.classification.page;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.FileNotFoundException;
+
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -12,13 +15,10 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Term;
-import ws.palladian.classification.page.TextInstance;
-import ws.palladian.classification.page.ClassifierManager;
-import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.helper.ResourceHelper;
 
 /**
  * <p>
@@ -29,7 +29,7 @@ import ws.palladian.classification.page.evaluation.FeatureSetting;
  * @author Klemens Muthmann
  * 
  */
-public class ClassifierTest extends TestCase {
+public class ClassifierTest {
 
     /**
      * <p>
@@ -38,20 +38,23 @@ public class ClassifierTest extends TestCase {
      */
     private static final Logger LOGGER = Logger.getLogger(ClassifierTest.class);
 
-    public ClassifierTest(String name) {
-        super(name);
-    }
-
-    @Test
     /**
-     * Build a simple dictionary of 4 documents and test regression:<br>
+     * <p>
+     * Build a simple dictionary of 4 documents and test regression:
+     * </p>
+     * 
+     * <pre>
      * document (class/value)    | words
      * 1 (1)                     | a b c
      * 2 (4)                     |     c d e
      * 3 (5)                     |          f g h
-     * 4 (10)                    |   b c          i 
+     * 4 (10)                    |   b c          i
+     * </pre>
+     * 
+     * @throws FileNotFoundException
      */
-    public void testRegressionTextClassifier() {
+    @Test
+    public void testRegressionTextClassifier() throws FileNotFoundException {
 
         // create a classifier mananger object
         ClassifierManager classifierManager = new ClassifierManager();
@@ -60,7 +63,7 @@ public class ClassifierTest extends TestCase {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset
-        dataset.setPath(ClassifierTest.class.getResource("/classifier/index_learning.txt").getFile());
+        dataset.setPath(ResourceHelper.getResourcePath("/classifier/index_learning.txt"));
 
         // tell the preprocessor that the first field in the file is a link to the actual document
         dataset.setFirstFieldLink(true);
@@ -118,6 +121,7 @@ public class ClassifierTest extends TestCase {
         Assert.assertEquals("1.9999999999999996", classifiedDocument.getMainCategoryEntry().getCategory().getName());
     }
 
+    @Test
     public void testClassifier() {
 
         Category c1 = new Category("category1");
@@ -135,8 +139,8 @@ public class ClassifierTest extends TestCase {
         categories.calculatePriors();
 
         // check priors
-        assertEquals(0.75, c1.getPrior());
-        assertEquals(0.25, c2.getPrior());
+        assertEquals(0.75, c1.getPrior(), 0);
+        assertEquals(0.25, c2.getPrior(), 0);
 
         LOGGER.info(categories);
 
@@ -176,30 +180,31 @@ public class ClassifierTest extends TestCase {
         dictionary.calculateCategoryPriors();
 
         // check priors
-        assertEquals(0.4, dictionary.get(word1).getCategoryEntry("category1").getCategory().getPrior());
-        assertEquals(0.6, dictionary.get(word4).getCategoryEntry("category2").getCategory().getPrior());
+        assertEquals(0.4, dictionary.get(word1).getCategoryEntry("category1").getCategory().getPrior(), 0);
+        assertEquals(0.6, dictionary.get(word4).getCategoryEntry("category2").getCategory().getPrior(), 0);
 
         // check dictionary
-        assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance());
-        assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance());
-        assertEquals(1.0, dictionary.get(word2).getCategoryEntry("category2").getRelevance());
-        assertEquals(0.75, dictionary.get(word3).getCategoryEntry("category1").getRelevance());
-        assertEquals(0.25, dictionary.get(word3).getCategoryEntry("category2").getRelevance());
-        assertEquals(1.0, dictionary.get(word4).getCategoryEntry("category2").getRelevance());
+        assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance(), 0);
+        assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance(), 0);
+        assertEquals(1.0, dictionary.get(word2).getCategoryEntry("category2").getRelevance(), 0);
+        assertEquals(0.75, dictionary.get(word3).getCategoryEntry("category1").getRelevance(), 0);
+        assertEquals(0.25, dictionary.get(word3).getCategoryEntry("category2").getRelevance(), 0);
+        assertEquals(1.0, dictionary.get(word4).getCategoryEntry("category2").getRelevance(), 0);
 
         // check term weights
         CategoryEntries ces = new CategoryEntries();
         ces.add(dictionary.get(word1).getCategoryEntry("category1"));
         ces.add(dictionary.get(word2).getCategoryEntry("category1"));
-        assertEquals(66.0 / 84.0, ces.getTermWeight(dictionary.get(word1).getCategoryEntry("category1").getCategory()));
+        assertEquals(66.0 / 84.0, ces.getTermWeight(dictionary.get(word1).getCategoryEntry("category1").getCategory()),
+                0);
 
         ces = new CategoryEntries();
         ces.add(dictionary.get(word1).getCategoryEntry("category1"));
         ces.add(dictionary.get(word3).getCategoryEntry("category1"));
-        assertEquals(1.0, ces.getTermWeight(dictionary.get(word1).getCategoryEntry("category1").getCategory()));
+        assertEquals(1.0, ces.getTermWeight(dictionary.get(word1).getCategoryEntry("category1").getCategory()), 0);
 
-        assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance());
-        assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance());
+        assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance(), 0);
+        assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance(), 0);
 
         LOGGER.info(dictionary);
 
