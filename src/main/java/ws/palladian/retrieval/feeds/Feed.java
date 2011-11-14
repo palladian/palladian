@@ -1615,7 +1615,7 @@ public class Feed {
     private int addItemsToBuffer(ArrayList<FeedItem> newItems) {
         int numItemsAdded = 0;
         if (itemBuffer.maxSize() > 0) {
-            Collections.sort(newItems, new FeedItemComperator());
+            Collections.sort(newItems, new FeedItemComparator());
             boolean added = false;
             for (FeedItem item : newItems) {
                 added = addItemToBuffer(item);
