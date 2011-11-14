@@ -17,6 +17,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
@@ -210,6 +211,14 @@ public class DatasetEvaluator {
                 // TODO: read feedItemBufferSize from config
 
             }
+            // IndHist
+            else if (strategy.equalsIgnoreCase("IndHist")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta);
+                logMsg.append(updateStrategy.getName());
+
+            }
+
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;
