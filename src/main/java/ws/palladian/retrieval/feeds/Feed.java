@@ -23,7 +23,7 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
  * <p>
- * Represents a news feed.
+ * Represents a news feed. (A feed should be processed by a single thread only.)
  * </p>
  * 
  * @author Philipp Katz
@@ -217,7 +217,7 @@ public class Feed {
     // private Boolean newItem = null;
 
     /** Allows to keep arbitrary, additional information. */
-    private Map<String, Object> additionalData;
+    private Map<String, Object> additionalData = null;
 
     /** The feed's meta information. */
     private FeedMetaInformation feedMetaInfo = new FeedMetaInformation();
@@ -722,11 +722,11 @@ public class Feed {
 
     /**
      * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
-     * have the same publish date.
+     * have the same publish date. Use with caution, this value is automatically updated.
      * 
      * @param lastButOneFeedEntry
      */
-    private void setLastButOneFeedEntry(Date lastButOneFeedEntry) {
+    public void setLastButOneFeedEntry(Date lastButOneFeedEntry) {
         this.lastButOneFeedEntry = DateHelper.validateYear(lastButOneFeedEntry, 9999);
     }
 
@@ -1495,11 +1495,21 @@ public class Feed {
         this.additionalData = additionalData;
     }
 
+    /**
+     * @return The feed's additional data or a empty map if there is none
+     */
     public Map<String, Object> getAdditionalData() {
+        if (additionalData == null) {
+            return new HashMap<String, Object>();
+        }
         return additionalData;
     }
 
+
     public Object getAdditionalData(String key) {
+        if (additionalData == null) {
+            return null;
+        }
         return additionalData.get(key);
     }
 
