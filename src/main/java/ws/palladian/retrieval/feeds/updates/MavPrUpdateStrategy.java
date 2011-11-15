@@ -26,7 +26,7 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
     private boolean usePostRate = false;
 
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // determine winner of last prediction
         double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * DateHelper.MINUTE_MS
@@ -44,22 +44,22 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
 
         int mavInterval = FeedReader.DEFAULT_CHECK_TIME;
         UpdateStrategy mav = new MavUpdateStrategy();
-        mav.update(feed, fps);
+        mav.update(feed, fps, trainingMode);
         mavInterval = feed.getUpdateInterval();
         mavCheckIntervalPrediction = feed.getUpdateInterval();
 
         int prInterval = FeedReader.DEFAULT_CHECK_TIME;
         UpdateStrategy pr = new PostRateUpdateStrategy();
-        pr.update(feed, fps);
+        pr.update(feed, fps, trainingMode);
         prInterval = feed.getUpdateInterval();
         prCheckIntervalPrediction = feed.getUpdateInterval();
 
         if (usePostRate) {
-            pr.update(feed, fps);
+            pr.update(feed, fps, trainingMode);
             feed.setUpdateInterval(getAllowedUpdateInterval(mavInterval));
 
         } else {
-            mav.update(feed, fps);
+            mav.update(feed, fps, trainingMode);
             feed.setUpdateInterval(getAllowedUpdateInterval(prInterval));
         }
 
@@ -68,6 +68,11 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
     @Override
     public String getName() {
         return "mavpr";
+    }
+
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
 }

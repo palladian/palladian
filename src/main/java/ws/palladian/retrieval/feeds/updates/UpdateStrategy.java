@@ -43,13 +43,19 @@ public abstract class UpdateStrategy {
      * Update the minimal and maximal update interval for the feed given the post statistics.
      * </p>
      * 
-     * @param feed
-     * @param fps
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode If the {@link UpdateStrategy} distinguishes between training and normal mode, set to
+     *            <code>true</code> to use training mode. For normal mode, or if you don't know, set
+     *            to <code>false</code>.
      */
-    abstract public void update(Feed feed, FeedPostStatistics fps);
+    abstract public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode);
 
     /** Get the name of the strategy. */
     abstract public String getName();
+
+    /** Does the strategy has an explicit training mode to learn a model? */
+    abstract public boolean hasExplicitTrainingMode();
 
     /**
      * <p>

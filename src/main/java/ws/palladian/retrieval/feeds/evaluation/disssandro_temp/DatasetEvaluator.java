@@ -17,7 +17,9 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -59,12 +61,10 @@ public class DatasetEvaluator {
      */
     private static String simulatedPollsDbTable;
 
-    public DatasetEvaluator() {
-        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
-                .getInstance().getConfig());
+    public DatasetEvaluator(EvaluationFeedDatabase feedStore) {
         // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
         // table in it's constructor. Any subsequent changes are ignored...
-        ((EvaluationFeedDatabase) feedStore).resetTableFeeds();
+        feedStore.resetTableFeeds();
         feedReader = new FeedReader(feedStore);
     }
 
@@ -103,13 +103,14 @@ public class DatasetEvaluator {
      * </ul>
      */
     private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy, long wakeUpInterval) {
+            UpdateStrategy updateStrategy, long wakeUpInterval, int feedItemBufferSize) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
-        // for (Feed feed : feeds) {
+        for (Feed feed : feeds) {
+            feed.resizeItemBuffer(feedItemBufferSize);
         // feed.setNumberOfItemsReceived(0);
         // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
         // feed.setUpdateInterval(0);
-        // }
+        }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
@@ -158,7 +159,11 @@ public class DatasetEvaluator {
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
+        int feedItemBufferSize = 10;
         
+        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
+                .getInstance().getConfig());
+
         try {
 
             // read interval bounds
@@ -199,6 +204,22 @@ public class DatasetEvaluator {
                 updateStrategy = new LRU2UpdateStrategy();
                 logMsg.append(updateStrategy.getName());
             }
+            // MAVSync
+            else if (strategy.equalsIgnoreCase("MAVSync")) {
+                updateStrategy = new MAVSynchronizationUpdateStrategy();
+                logMsg.append(updateStrategy.getName());
+
+                // TODO: read feedItemBufferSize from config
+
+            }
+            // IndHist
+            else if (strategy.equalsIgnoreCase("IndHist")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (EvaluationFeedDatabase) feedStore);
+                logMsg.append(updateStrategy.getName());
+
+            }
+
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;
@@ -250,8 +271,9 @@ public class DatasetEvaluator {
             long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
 
 
-            DatasetEvaluator evaluator = new DatasetEvaluator();
-            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
+            DatasetEvaluator evaluator = new DatasetEvaluator((EvaluationFeedDatabase) feedStore);
+            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
+                    feedItemBufferSize);
             evaluator.runEvaluation();
             evaluator.generateEvaluationSummary();
             // this is a normal exit

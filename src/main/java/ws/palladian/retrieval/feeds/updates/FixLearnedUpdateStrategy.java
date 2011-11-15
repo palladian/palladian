@@ -34,8 +34,18 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
      */
     private int fixLearnedMode = 0;
 
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode. The checkInterval
+     *            is automatically learned at the first poll.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         int fixedCheckInterval = 0;
 
@@ -91,6 +101,11 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
         } else {
             return "fixLearnedP";
         }
+    }
+
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
     /**

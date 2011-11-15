@@ -209,7 +209,7 @@ public class FeedSizeRestoreTask implements Callable<FeedTaskResult> {
         }
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        feed.freeMemory();
+        feed.freeMemory(true);
     }
 
     /**

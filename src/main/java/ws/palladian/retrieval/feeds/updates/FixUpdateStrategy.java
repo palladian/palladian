@@ -39,8 +39,17 @@ public class FixUpdateStrategy extends UpdateStrategy {
         this.checkInterval = checkInterval;
     }
 
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // default value
         int fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
@@ -61,6 +70,11 @@ public class FixUpdateStrategy extends UpdateStrategy {
     @Override
     public String getName() {
             return "fix" + getCheckInterval();
+    }
+
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
     /**
