@@ -2,6 +2,8 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -18,9 +20,24 @@ import ws.palladian.retrieval.feeds.FeedReader;
  */
 public class LRU2UpdateStrategy extends UpdateStrategy {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(LRU2UpdateStrategy.class);
 
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
+
+        if (trainingMode) {
+            LOGGER.warn("Update strategy " + getName() + " does not support an explicit training mode.");
+        }
 
         int checkInterval = 0;
 
@@ -53,6 +70,11 @@ public class LRU2UpdateStrategy extends UpdateStrategy {
     @Override
     public String getName() {
         return "LRU2";
+    }
+
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
 }

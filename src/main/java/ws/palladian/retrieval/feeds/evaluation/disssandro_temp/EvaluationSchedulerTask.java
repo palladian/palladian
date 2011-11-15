@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -168,7 +169,10 @@ public class EvaluationSchedulerTask extends TimerTask {
                 }
             } else {
                 // remove completed FeedTasks
-                removeFeedTaskIfDone(feed.getId());
+                boolean completed = removeFeedTaskIfDone(feed.getId());
+                if (completed) {
+                    feed.freeMemory(true);
+                }
             }
         }
 
@@ -334,22 +338,26 @@ public class EvaluationSchedulerTask extends TimerTask {
      * Removes the feed's {@link FeedTask} from the queue if it is contained and already done.
      * 
      * @param feedId The feed to check and remove if the {@link FeedTask} is done.
+     * @return <code>true</code> if task is completed and has been removed.
      */
-    private void removeFeedTaskIfDone(final Integer feedId) {
+    private boolean removeFeedTaskIfDone(final Integer feedId) {
+        boolean completed = false;
         final Future<FeedTaskResult> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);
             processedCounter++;
+            completed = true;
             try {
                 feedResults.add(future.get());
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
             } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
+            } catch (CancellationException e) {
+                LOGGER.error("Cant get FeedTaskResult of feedId " + feedId + ". Error: " + e.getLocalizedMessage());
             }
         }
+        return completed;
     }
 
 

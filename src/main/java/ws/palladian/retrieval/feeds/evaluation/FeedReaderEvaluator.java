@@ -68,24 +68,32 @@ public class FeedReaderEvaluator {
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
-    //
-    // /**
-    // * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00 CEST. Be careful with
-    // * time zones since, Unix timestamp assumes GMT.
-    // */
-    // public static final long BENCHMARK_START_TIME_MILLISECOND = 1310187600000L;
 
     /**
-     * The timestamp almost all feeds have been polled at least once. 2011-07-16 07:00 CEST. Be careful with
-     * time zones since, Unix timestamp assumes GMT.
+     * The time to start training update strategies in evaluation.
+     * The timestamp almost all (but 172) feeds have been polled at least once. 2011-07-09 7:00:00 CEST. Be careful with
+     * time zones since Unix timestamp assumes GMT.
+     */
+    public static final long BENCHMARK_TRAINING_START_TIME_MILLISECOND = 1310187600000L;
+
+    /**
+     * The time to stop training update strategies in evaluation.
+     * 2011-07-16 06:59:59 CEST. Be careful with time zones since Unix timestamp assumes GMT.
+     */
+    public static final long BENCHMARK_TRAINING_STOP_TIME_MILLISECOND = 1310792399000L;
+
+    /**
+     * The time to start the 'real' evaluation.
+     * The timestamp almost all feeds have been polled at least once. 2011-07-16 07:00:00 CEST. Be careful with
+     * time zones since Unix timestamp assumes GMT.
      */
     public static final long BENCHMARK_START_TIME_MILLISECOND = 1310792400000L;
 
-
     /**
+     * The time to stop the 'real' evaluation.
      * The timestamp we stopped the dataset gathering, minus a buffer to make sure all items published before the stop
-     * time have been received. Dataset creation ran till 2011-08-05 13:49 CEST, we set stop time to 2011-08-05 07:00
-     * CEST. Be careful with time zones since, Unix timestamp assumes GMT.
+     * time have been received. Dataset creation ran till 2011-08-05 13:49 CEST, we set stop time to 2011-08-05 07:00:00
+     * CEST. Be careful with time zones since Unix timestamp assumes GMT.
      */
     public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1312520400000L;
 
