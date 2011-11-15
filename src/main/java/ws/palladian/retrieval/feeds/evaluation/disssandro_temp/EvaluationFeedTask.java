@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -223,15 +222,34 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
         try {
-            if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
-                // while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_TRAINING_STOP_TIME_MILLISECOND) {
-                // // TODO: do something here :)
-                // }
-            }
-            simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
 
+            // do training if required by update strategy.
+            if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
+                trainingMode = true;
+                while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_TRAINING_STOP_TIME_MILLISECOND) {
+                    // set time of current poll to feed
+                    feed.setLastPollTime(new Date(simulatedCurrentPollTime));
+
+                    feedReader.updateCheckIntervals(feed, trainingMode);
+
+                    // estimate time of next poll
+                    setSimulatedPollTime();
+                }
+            }
+
+            // training has been finished. reset all parameters that influence 'real' evaluation
+            trainingMode = false;
+            simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+            feed.setChecks(0);
+            feed.setLastPollTime(null);
+            feed.setLastButOnePollTime(null);
+            feed.setLastFeedEntry(null);
+            feed.setLastButOneFeedEntry(null);
+
+            // start 'real' evaluation
             while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND) {
 
+                // set time of current poll to feed
                 feed.setLastPollTime(new Date(simulatedCurrentPollTime));
 
                 LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl()
@@ -409,7 +427,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 // store number of current poll and highest sequence number in feed
-                Map<String, Object> additionalData = new HashMap<String, Object>();
+                Map<String, Object> additionalData = feed.getAdditionalData();
                 additionalData.put(LAST_NUMBER_OF_POLL, currentNumberOfPoll);
 
                 // if window size was 0, remember the highest sequence number seen so far.

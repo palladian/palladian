@@ -756,11 +756,11 @@ public class FileHelper {
             ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
             obj = (T) ois.readObject();
         } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage() + ", file path:" + filePath);
         } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage() + ", file path:" + filePath);
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage() + ", file path:" + filePath);
         } finally {
             close(ois);
         }
@@ -1699,7 +1699,7 @@ public class FileHelper {
     public static void shuffleLines(String filePath) {
         List<String> lines = FileHelper.readFileToArray(filePath);
         Collections.shuffle(lines);
-        FileHelper.writeToFile(filePath, lines);        
+        FileHelper.writeToFile(filePath, lines);
     }
 
 }

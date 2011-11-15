@@ -61,6 +61,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     private static final String ADD_SINGLE_DELAY = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, singleDelay = ?";
 
+    private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
+
     /**
      * Used as postfix for table names; table contains evaluation results per feed averaged over all items of this feed.
      */
@@ -1283,6 +1285,41 @@ public class EvaluationFeedDatabase extends FeedDatabase {
                 FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND));
 
         return numItems == null ? 0 : numItems;
+    }
+
+    /**
+     * Load the average change rates for algorithm IndHist. For each hour of the day 0-23, there is a single value
+     * representing the feeds average change rate in this hour.
+     * 
+     * @param feedId The feed the load the model for.
+     * @return Array containing the average change rate per hour
+     */
+    public double[] getIndHistModel(int feedId) {
+        // store hourly change rates, default is 0.0D
+        double[] changeRate = new double[24];
+
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[3];
+
+                hourlyData[0] = resultSet.getInt("hourOfDay");
+                hourlyData[1] = resultSet.getInt("newItems");
+                hourlyData[2] = resultSet.getInt("observationPeriodDays");
+                
+                return hourlyData;
+            }
+        };
+        
+        List<int[]> hourlyData = runQuery(converter, GET_INDHIST_MODEL_BY_ID, feedId);
+
+        for (int[] oneHour : hourlyData) {
+            // estimate changeRate per Hour as newItems/observationPeriod
+            changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
+        }
+        return changeRate;
     }
 
     public static void main(String[] args) {
