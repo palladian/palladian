@@ -307,7 +307,7 @@ public class FileHelper {
     }
 
     /**
-     * Create a list with each line of the given file as an element.
+     * <p>Create a list with each line of the given file as an element.</p>
      * 
      * @param path The path of the file.
      * @return A list with the lines as elements.
@@ -371,15 +371,34 @@ public class FileHelper {
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(contentFile), DEFAULT_ENCODING));
 
-            String line = null;
-            while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
-                list.add(line);
-            }
+            list = readFileToArray(reader, numberOfLines);
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
+        } finally {
+            close(reader);
+        }
+
+        return list;
+    }
+    
+    public static List<String> readFileToArray(BufferedReader reader) {
+        return readFileToArray(reader,-1);
+    }
+    public static List<String> readFileToArray(BufferedReader reader, int numberOfLines) {
+        List<String> list = new ArrayList<String>();
+       
+        try {
+            
+            String line = null;
+            while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
+                list.add(line);
+            }
+
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         } finally {
             close(reader);
         }
