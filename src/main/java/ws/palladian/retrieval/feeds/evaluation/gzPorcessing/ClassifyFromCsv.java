@@ -136,7 +136,7 @@ public class ClassifyFromCsv extends Thread {
 
                         // get corrected publish date
                         String logMessage = "Feed id " + originalFeed.getId() + " line " + lineCounter;
-                        Date correctedPublishDate = Feed.correctedTimestamp(publishDate, pollTime, logMessage, false);
+                        Date correctedPublishDate = Feed.correctedTimestamp(publishDate, pollTime, null, logMessage, false);
 
                         // set pollTime if entry has no publish time. In case the item had no publish date, we wrote
                         // 0000000000000 to the csv file to indicate a not existing publish date
@@ -153,7 +153,7 @@ public class ClassifyFromCsv extends Thread {
                         item.setFeed(tempFeed);
                         item.setHash(hash, true);
                         item.setPublished(publishDate);
-                        item.setCorrectedPublishedTimestamp(correctedPublishDate);
+                        item.setCorrectedPublishedDate(correctedPublishDate);
                         item.setHttpDate(pollMap.get(pollTimeWithoutMillisecond));
                         item.setWindowSize(windowSize);
                         tempFeed.addItem(item);

@@ -27,14 +27,42 @@
 	</build>
 	<dependencies>
 		<dependency>
-	<groupId>ws.palladian</groupId>
-	<artifactId>palladian</artifactId>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian</artifactId>
 			<version>[0.10-SNAPSHOT,)</version>
 		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
 			<artifactId>api</artifactId>
 			<version>0.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>jdbm</groupId>
+			<artifactId>jdbm</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>wb</groupId>
+			<artifactId>wb</artifactId>
+			<version>2b1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.planetj.math</groupId>
+			<artifactId>rabinhash</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.prefuse</groupId>
+			<artifactId>prefuse</artifactId>
+			<version>beta-20071021</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<properties>
