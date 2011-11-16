@@ -39,6 +39,10 @@ public class StringHelper {
 
     /** Used to replace a double quote " in a string to store it in csv file that uses double quotes to enclose fields. */
     private static final String DOUBLE_QUOTES_REPLACEMENT = "###putDoubleQuotesHere###";
+    
+    private StringHelper() {
+        
+    }
 
     /**
      * In ontologies names can not have certain characters so they have to be changed.
