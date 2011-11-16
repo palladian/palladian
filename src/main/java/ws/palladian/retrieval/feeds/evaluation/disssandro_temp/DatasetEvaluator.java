@@ -10,6 +10,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -132,7 +133,8 @@ public class DatasetEvaluator {
 
     /**
      * Get evaluation results from {@link #simulatedPollsDbTable} and write to two tables with the same name plus
-     * postfix "_feeds" and "_avg" for intermediate und final results.
+     * postfix "_feeds" and "_avg" for intermediate und final results. Additionally, a csv file with cumulated transfer
+     * volumes per hour is written.
      */
     private void generateEvaluationSummary() {
         LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
@@ -143,6 +145,10 @@ public class DatasetEvaluator {
         } else {
             LOGGER.fatal("Evaluation results have NOT been written to database!");
         }
+        ChartCreator chartCreator = new ChartCreator(200, 200);
+        String[] dbTable = { simulatedPollsDbTableName() };
+        chartCreator.transferVolumeCreator((EvaluationFeedDatabase) feedReader.getFeedStore(), dbTable);
+
     }
 
     /**

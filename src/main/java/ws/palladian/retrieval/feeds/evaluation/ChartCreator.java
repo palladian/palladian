@@ -523,25 +523,25 @@ public class ChartCreator {
     }
 
     /**
-     * Create csv with cumulated transfer volume per hour per strategy. Used for evaluation of TUDCS6.
+     * Create csv file with cumulated transfer volume per hour per strategy. Used for evaluation of TUDCS6.
      * 
+     * @param feedStore The database to get data from.
+     * @param dbTables The database tables to generate the cumulated transfer volume statistics for.
      */
-    private void transferVolumeCreator() {
-        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
-                ConfigHolder.getInstance().getConfig());
+    public void transferVolumeCreator(EvaluationFeedDatabase feedStore, String[] dbTables) {
 
         int[] singleHourVolumes = null;
         StringBuilder csvSB = null;
 
         // loop over all strategies to generate vsc files for
-        for (int strategyRow = 0; strategyRow < tableNames.length; strategyRow++) {
+        for (int strategyRow = 0; strategyRow < dbTables.length; strategyRow++) {
 
             // create header of table representing the csv
             csvSB = new StringBuilder();
-            csvSB.append("hourOfExperiment;").append(tableNames[strategyRow]).append(";\n");
+            csvSB.append("hourOfExperiment;").append(dbTables[strategyRow]).append(";\n");
 
             // get data per strategy
-            singleHourVolumes = feedStore.getTransferVolumePerHour(tableNames[strategyRow], totalExperimentHours + 1);
+            singleHourVolumes = feedStore.getTransferVolumePerHour(dbTables[strategyRow], totalExperimentHours + 1);
             int cumulatedVolumeLastHour = 0;
             
             // calculate cumulated values, fill hours that are skipped by algorithm
@@ -551,7 +551,7 @@ public class ChartCreator {
             }
 
             // write csvSB to csv file
-            String fileName = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + tableNames[strategyRow] + ".csv";
+            String fileName = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + dbTables[strategyRow] + ".csv";
             boolean outputWritten = FileHelper.writeToFile(fileName, csvSB);
             if (outputWritten) {
                 LOGGER.info(fileName + " has been written");
@@ -571,8 +571,10 @@ public class ChartCreator {
          * 200 polls for scoreMax
          */
         ChartCreator cc = new ChartCreator(200, 200);
+        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
+                ConfigHolder.getInstance().getConfig());
 
-        cc.transferVolumeCreator();
+        cc.transferVolumeCreator(feedStore, tableNames);
 
         // cc.printFeedPolls();
         // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test2 12.11. DB Schema v2
