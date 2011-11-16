@@ -1,6 +1,7 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,10 +13,12 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.preprocessing.ProcessingPipeline;
 
@@ -363,6 +366,8 @@ public class ClassifierEvaluator {
         dataset.setPath("data/temp/amazon/amazonElectronicDE_selectedCats.csv");
         //dataset.setPath("data/datasets/classification/SentimentSentences.csv");
         dataset.setPath("data/temp/products_clean_id.csv");
+        dataset.setPath("C:\\My Dropbox\\brainware\\articles.csv");
+        
         
         Dataset dataset2 = new Dataset("Schottenland");
         dataset2.setFirstFieldLink(false);
@@ -378,7 +383,7 @@ public class ClassifierEvaluator {
         
         // create an excerpt (optional)
 //        String dsExcerpt = datasetManager.createIndexExcerptRandom(dataset2.getPath(), dataset2.getSeparationString(), 5000);
-        String dsExcerpt = datasetManager.createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), 100);
+        String dsExcerpt = datasetManager.createIndexExcerpt(dataset.getPath(), dataset.getSeparationString(), 500);
         dataset2.setPath(dsExcerpt);
 //        datasetManager.calculateClassDistribution(dataset, "data/temp/schottenland/distributionExcerpt.csv");
 
@@ -393,6 +398,12 @@ public class ClassifierEvaluator {
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
         evaluator.setCrossValidation(3);
         // evaluator.setNumberOfInstancesPerClass(50);
+        
+        dictionaryClassifier1.train(dataset2);
+        FileHelper.serialize(dictionaryClassifier1,"dc2.gz");
+//        ClassifierPerformance evaluate = dictionaryClassifier1.evaluate(dataset);
+//        System.out.println(evaluate);
+        System.exit(0);
 
         evaluator.addClassifier(dictionaryClassifier1);
         //evaluator.addClassifier(dictionaryClassifier2);
@@ -425,7 +436,24 @@ public class ClassifierEvaluator {
     public static void main(String[] args) throws IOException {
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
 
-        evaluator.evaluateClassifierPlayground();
+//        evaluator.evaluateClassifierPlayground();
+        
+        StringBuilder results = new StringBuilder();
+        DictionaryClassifier dc2 = FileHelper.deserialize("dc2.gz");
+        List<String> articles = FileHelper.readFileToArray("C:\\My Dropbox\\brainware\\articles.csv");
+        int total = articles.size();
+        int c = 0;
+        for (String line : articles) {
+            String[] parts = line.split("<###>");
+            TextInstance result = dc2.classify(parts[0]);
+            result.getMainCategoryEntry().getRelevance();
+            results.append(parts[1]).append("\t").append(result.getMainCategoryEntry().getCategory().getName()).append("\n");
+            c++;
+            if (c % 1000 == 0) {
+                System.out.println(MathHelper.round(100*c/(double) total, 2));
+            }
+        }
+        FileHelper.writeToFile("results.csv", results);
         System.exit(0);
 
         evaluator.setCrossValidation(2);

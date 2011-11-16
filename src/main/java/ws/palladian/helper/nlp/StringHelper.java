@@ -39,6 +39,10 @@ public class StringHelper {
 
     /** Used to replace a double quote " in a string to store it in csv file that uses double quotes to enclose fields. */
     private static final String DOUBLE_QUOTES_REPLACEMENT = "###putDoubleQuotesHere###";
+    
+    private StringHelper() {
+        
+    }
 
     /**
      * In ontologies names can not have certain characters so they have to be changed.
@@ -48,11 +52,26 @@ public class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name, int maxLength) {
-        String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
-        .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll(
-                "\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll(
-                        "\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
-                        .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+        String safeName = name.replace(" ", "_");
+        safeName = safeName.replace("/", "_");
+        safeName = safeName.replace("'", "");
+        safeName = safeName.replace("%", "");
+        safeName = safeName.replace("&", "_");
+        safeName = safeName.replace("\"", "");
+        safeName = safeName.replace(",", "_");
+        safeName = safeName.replace("*", "_");
+        safeName = safeName.replace(".", "_");
+        safeName = safeName.replace(";", "_");
+        safeName = safeName.replace(":", "_");
+        safeName = safeName.replace("!", "");
+        safeName = safeName.replace("?", "");
+        safeName = safeName.replace("ä", "ae");
+        safeName = safeName.replace("Ä", "Ae");
+        safeName = safeName.replace("ö", "oe");
+        safeName = safeName.replace("Ö", "Oe");
+        safeName = safeName.replace("ü", "ue");
+        safeName = safeName.replace("Ü", "Ue");
+        safeName = safeName.replace("ß", "ss");
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
@@ -243,9 +262,9 @@ public class StringHelper {
             if (i > 0 && noUppercaseSet.contains(part)) {
             	normalizedName += part + " ";
             } else {
-            	normalizedName += upperCaseFirstLetter(part) + " ";            	
+            	normalizedName += upperCaseFirstLetter(part) + " ";
             }
-        }   
+        }
 
         return normalizedName.trim();
     }
@@ -313,9 +332,11 @@ public class StringHelper {
     /**
      * Clean the given string from stop words, i.e. words that appear often but have no meaning itself.
      * 
+     * @deprecated use StopWordRemover instead.
      * @param string The string.
      * @return The string without the stop words.
      */
+    @Deprecated
     public static String removeStopWords(String string) {
         String[] stopWords = { "the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
                 "at", "up", "what", "how", "why", "when", "where" };
@@ -713,8 +734,10 @@ public class StringHelper {
         // remove all control characters from string
         string = removeControlCharacters(string);
 
+        string = replaceProtectedSpace(string);
+
         // close spaces gap that might have arisen
-        string = string.replaceAll("(\\s){1,}", " ");
+        string = removeDoubleWhitespaces(string);
 
         // string = string.replaceAll("'\\)\\)","").replaceAll("'\\)",""); //
         // values are in javascript text sometimes e.g. ...('80GB')
@@ -740,7 +763,7 @@ public class StringHelper {
 
 //    /**
 //     * Trim.
-//     * 
+//     *
 //     * @param strings the strings
 //     * @return the hash set
 //     */
@@ -1196,33 +1219,27 @@ public class StringHelper {
     }
 
     /**
+     * <p>
      * Replaces two or more trailing white spaces by one.
+     * </p>
      * 
-     * @param text
-     * @return
+     * @param text The text to remove multiple white spaces from.
+     * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        String temp = text;
-        while (temp.indexOf("  ") != -1) {
-            temp = temp.replaceAll("  ", " ");
-        }
-        return temp;
+        return text.replaceAll("\\s{1,}", " ");
     }
 
     /**
+     * <p>
      * Counts whitespace in a text.
+     * </p>
      * 
-     * @param text
-     * @return
+     * @param text The text to count white spaces in.
+     * @return The number of white spaces in the text.
      */
     public static int countWhitespaces(String text) {
-        int count = 0;
-        String t = text;
-
-        String[] temp = t.split(" ");
-        count= temp.length - 1;
-
-        return count;
+        return countOccurences(text, " ", true);
     }
 
     /**

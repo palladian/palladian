@@ -34,6 +34,10 @@ public class UrlHelper {
 
     /** The compiled pattern for all sessionIDs. */
     private static Pattern sessionIDPattern;
+    
+    private UrlHelper() {
+        
+    }
 
     /**
      * Compiles the {@link #sessionIDPattern} pattern. Pattern should look like
@@ -369,14 +373,14 @@ public class UrlHelper {
      * @return
      */
     public static String urlDecode(String string) {
+        String result;
         try {
-            string = URLDecoder.decode(string, "UTF-8");
+            result = URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            Logger.getRootLogger().error("unsupportedEncodingException for " + string + ", " + e.getMessage());
-        } catch (Exception e) {
-            Logger.getRootLogger().error("exception at Crawler for " + string + ", " + e.getMessage());
+            // this will not happen, as we always use UTF-8 as encoding
+            throw new IllegalStateException("houston, we have a problem");
         }
-        return string;
+        return result;
     }
 
     /**
@@ -390,8 +394,8 @@ public class UrlHelper {
         try {
             result = URLEncoder.encode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            Logger.getRootLogger().error("urlEncodeUtf8 " + e.getMessage());
-            result = string;
+            // this will not happen, as we always use UTF-8 as encoding
+            throw new IllegalStateException("houston, we have a problem");
         }
         return result;
     }
