@@ -1,17 +1,29 @@
 \chapter{Conventions}
+
 \section{Coding Standards}
 To keep the code readable and easy to understand for other developers, we use the following coding guidelines.
 %http://geosoft.no/development/javastyle.html
+
 \begin{enumerate}
-\item All text is written in (American) English (\texttt{color} instead of \texttt{colour}).
-\item Variables and method names should be camel cased and not abbreviated (\texttt{computeAverage} instead of \texttt{comp\_avg}). To improve legibility, also use camel case for uppercased terms, like \texttt{getHtmlContent} instead of \texttt{getHTMLContent}.
-\item There must be a space after a comma.
-\item There must be a line break after opening \texttt{\{} braces.
-\item Static fields must be all uppercase. There should be an \texttt{\_} for longer names like \texttt{STATIC\_FIELD}.
-\item Each class must have a comment including the author name. Use one \texttt{@author} annotation for each author.
-\item Methods with very simple, short code do not need to have comments (getters and setters) all other methods should have an explaining comment with \texttt{@param} explanation and \texttt{@return}.
-\item Avoid assignments (\texttt{=}) inside if and while conditions.
-\item Statements after conditions should always be in braces (\texttt{\{\}})
+
+	\item All text is written in (American) English (\texttt{color} instead of \texttt{colour}).
+
+	\item Variables and method names should be camel cased and not abbreviated (\texttt{computeAverage} instead of \texttt{comp\_avg}). To improve legibility, also use camel case for uppercased terms, like \texttt{getHtmlContent} instead of \texttt{getHTMLContent}.
+
+	\item There must be a space after a comma.
+
+	\item There must be a line break after opening \texttt{\{} braces.
+
+	\item Static fields must be all uppercase. There should be an \texttt{\_} for longer names like \texttt{STATIC\_FIELD}.
+
+	\item Each class must have a comment including the author name. Use one \texttt{@author} annotation for each author.
+
+	\item Methods with very simple, short code do not need to have comments (getters and setters) all other methods should have an explaining comment with \texttt{@param} explanation and \texttt{@return}.
+
+	\item Avoid assignments (\texttt{=}) inside if and while conditions.
+
+	\item Statements after conditions should always be in braces (\texttt{\{\}})
+	
 \end{enumerate}
 
 Listing~\ref{lst:CodingStandards} shows an example class with applied coding standards. Please also have a look at \cite{JavaCodeConventions, JavaAntiPatterns} for a quick overview of best practices and common mistakes.
@@ -48,12 +60,19 @@ public class ExampleClass implements Example {
 
 \section{Eclipse Plugins for better Coding}
 \label{sec:eclipseCodingPlugins}
-It is a very good practice to install the following eclipse plugins to check ones own code before committing:
+
+It is a very good practice to install the following Eclipse plugins to check ones own code before committing:
+
 \begin{enumerate}
-\item CodeFormatter is a simple file that can be loaded into Eclipse to format the source code correctly. Go to Eclipse $\blacktriangleright$ Window $\blacktriangleright$ Preferences $\blacktriangleright$ Java $\blacktriangleright$ Code Style $\blacktriangleright$ Formatter and import the ``tudiir\_eclipse\_formatter.xml'' from the dev folder. Pressing Control+F formats the source code of a selected class.
-\item Checkstyle\footnote{\url{http://eclipse-cs.sourceforge.net/downloads.html}} checks styles of the code, whether JavaDoc comments are set etc. After installing you should go to the preferences section of Checkstyle in Enclipse and load the ``checkstyle\_config.xml'' from the dev folder.
-\item PMD\footnote{\url{http://pmd.sourceforge.net/eclipse/}} tells you what is wrong with your code in terms of common violations, forgotten initializations and much more. After installing you should go into the preferences of PMD and load the ruleset file ``pmd\_ruleset'' from the dev folder.
-\item FindBugs\footnote{\url{http://findbugs.cs.umd.edu/eclipse/}} is similar to PMD but focuses on severe errors only. After installing you don't need to configure anything.
+
+	\item CodeFormatter is a simple file that can be loaded into Eclipse to format the source code correctly. Go to Eclipse $\blacktriangleright$ Window $\blacktriangleright$ Preferences $\blacktriangleright$ Java $\blacktriangleright$ Code Style $\blacktriangleright$ Formatter and import the \texttt{tudiir\_eclipse\_formatter.xml} from the \texttt{dev} directory. Pressing Control+Shift+F formats the source code of a selected class.
+
+	\item Checkstyle\footnote{\url{http://eclipse-cs.sourceforge.net/downloads.html}} checks styles of the code, whether JavaDoc comments are set etc. After installing you should go to the preferences section of Checkstyle in Enclipse and load the \texttt{checkstyle\_config.xml} from the \texttt{dev} directory.
+
+	\item PMD\footnote{\url{http://pmd.sourceforge.net/eclipse/}} tells you what is wrong with your code in terms of common violations, forgotten initializations and much more. After installing you should go into the preferences of PMD and load the ruleset file \texttt{pmd\_ruleset} from the \texttt{dev} directory.
+
+	\item FindBugs\footnote{\url{http://findbugs.cs.umd.edu/eclipse/}} is similar to PMD but focuses on severe errors only. After installing you don't need to configure anything.
+
 \end{enumerate}
 
 Checkstyle, PMD, and FindBugs can be initiated by right clicking a package or class file and selecting the plugin. The violations will be shown so that you can eliminate them.
@@ -63,5 +82,5 @@ Using these plugins raises the chances to win in the continuous integration game
 And follow a quote from Martin Golding: ``Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.''.
 
 \subsection{Tests}
-To guarantee that all components work as expected, we use jUnit tests. Before major check-ins to the repository, all jUnit Tests must run successfully. Run the ws.palladian.control.AllTests.java to make sure all components work correctly.
-After finishing a new component, new testing code must be written.
+
+To guarantee that all components work as expected, we use jUnit tests. Before check-ins to the repository, all jUnit Tests must run successfully. You can run all JUnit tests at once, by right clicking on the \texttt{src/test/java} source directory in Eclipse's package explorer and selecting Run As $\blacktriangleright$ JUnit Test. After finishing a new component, new testing code must be written.
