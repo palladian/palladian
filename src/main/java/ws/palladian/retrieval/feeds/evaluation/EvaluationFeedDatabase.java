@@ -63,6 +63,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
 
+    private static final String GET_TRANSFER_VOLUME_BY_STRATEGY = "SELECT CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp)) AS 'hourOfExperiment', CEIL(SUM(sizeOfPoll)/1048576) AS 'hourlyVolumeMB' FROM `###TABLE_NAME###` GROUP BY CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp));";
+
     /**
      * Used as postfix for table names; table contains evaluation results per feed averaged over all items of this feed.
      */
@@ -1320,6 +1322,38 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
         }
         return changeRate;
+    }
+
+    /**
+     * Load the hourly transfer volume from the given table.
+     * 
+     * @param tableName The table to load data from
+     * @return An array containing the our of the experiment as index and as object the respective data volume in Mb
+     *         that has been transferred in this hour
+     */
+    public int[] getTransferVolumePerHour(String tableName, int totalExperimentHours) {
+        // using hourOfExperiment as index and transferred volume as value
+        int[] volumes = new int[totalExperimentHours];
+
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[2];
+
+                hourlyData[0] = resultSet.getInt("hourOfExperiment");
+                hourlyData[1] = resultSet.getInt("hourlyVolumeMB");
+
+                return hourlyData;
+            }
+        };
+
+        List<int[]> hourlyData = runQuery(converter, replaceTableName(GET_TRANSFER_VOLUME_BY_STRATEGY, tableName));
+        for (int[] oneHour : hourlyData) {
+            volumes[oneHour[0]] = oneHour[1];
+        }
+        return volumes;
     }
 
     public static void main(String[] args) {
