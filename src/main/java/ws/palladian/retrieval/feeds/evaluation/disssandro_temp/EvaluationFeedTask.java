@@ -415,11 +415,11 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 pollData.setDroppedItems(numPrePostBenchmarkItems);
 
                 feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
-                        DatasetEvaluator.simulatedPollsDbTableName(), true);
+                        DatasetEvaluator.getSimulatedPollsDbTableName(), true);
 
                 if (!itemDelays.isEmpty()) {
                     feedDatabase.addSingleDelaysByFeed(feed.getId(), itemDelays,
-                            DatasetEvaluator.simulatedPollsDbTableName(), true);
+                            DatasetEvaluator.getSimulatedPollsDbTableName(), true);
                 }
 
                 if (LOGGER.isDebugEnabled()) {

@@ -74,7 +74,7 @@ public class DatasetEvaluator {
      *         strategy, its parameters and the time it has been created, e.g.
      *         "eval_fixLearned_min_time_100_2011-11-02_14-59-58".
      */
-    public static String simulatedPollsDbTableName() {
+    public static String getSimulatedPollsDbTableName() {
         return simulatedPollsDbTable;
     }
 
@@ -102,8 +102,10 @@ public class DatasetEvaluator {
      * <li>
      * Creates this table.</li>
      * </ul>
+     * 
+     * @return The current timestamp added to the table's name.
      */
-    private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
+    protected String initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
             UpdateStrategy updateStrategy, long wakeUpInterval, int feedItemBufferSize) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
         for (Feed feed : feeds) {
@@ -118,17 +120,20 @@ public class DatasetEvaluator {
         feedReader.setUpdateStrategy(updateStrategy, true);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
+        String timestamp = DateHelper.getCurrentDatetime();
+
         simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
                 + updateStrategy.getLowestUpdateInterval() + "_" + updateStrategy.getHighestUpdateInterval() + "_"
-                + DateHelper.getCurrentDatetime();
+                + timestamp;
 
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationBaseTable(simulatedPollsDbTableName());
+                .createEvaluationBaseTable(getSimulatedPollsDbTableName());
         if (!created) {
-            LOGGER.fatal("Database table " + simulatedPollsDbTableName()
+            LOGGER.fatal("Database table " + getSimulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
             System.exit(-1);
         }
+        return timestamp;
     }
 
     /**
@@ -136,17 +141,17 @@ public class DatasetEvaluator {
      * postfix "_feeds" and "_avg" for intermediate und final results. Additionally, a csv file with cumulated transfer
      * volumes per hour is written.
      */
-    private void generateEvaluationSummary() {
+    protected void generateEvaluationSummary() {
         LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
         boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateEvaluationSummary(simulatedPollsDbTableName());
+                .generateEvaluationSummary(getSimulatedPollsDbTableName());
         if (dataWritten) {
             LOGGER.info("Evaluation results have been written to database.");
         } else {
             LOGGER.fatal("Evaluation results have NOT been written to database!");
         }
         ChartCreator chartCreator = new ChartCreator(200, 200);
-        String[] dbTable = { simulatedPollsDbTableName() };
+        String[] dbTable = { getSimulatedPollsDbTableName() };
         chartCreator.transferVolumeCreator((EvaluationFeedDatabase) feedReader.getFeedStore(), dbTable);
 
     }
