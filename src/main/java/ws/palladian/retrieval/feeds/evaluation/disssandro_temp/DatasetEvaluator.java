@@ -119,8 +119,8 @@ public class DatasetEvaluator {
         feedReader.setWakeUpInterval(wakeUpInterval);
 
         simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
-                + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
-                + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
+                + updateStrategy.getLowestUpdateInterval() + "_" + updateStrategy.getHighestUpdateInterval() + "_"
+                + DateHelper.getCurrentDatetime();
 
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
                 .createEvaluationBaseTable(simulatedPollsDbTableName());
