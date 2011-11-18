@@ -869,7 +869,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * SET PPI = (
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI'
      * FROM `feed_eval_fix1440_min_time_100_2011-10-28_22-09-45_OK` s
-     * WHERE numPollNewItem > 1 OR numPollNewItem IS NULL
+     * WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL)
      * AND u.feedId = s.feedId
      * GROUP BY s.feedId
      * );
@@ -879,7 +879,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeFeeds(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeFeeds(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode feeds.");
 
@@ -893,7 +894,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE numPollNewItem > 1 OR numPollNewItem IS NULL ");
+        sqlBuilder.append("WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("AND u.feedId = s.feedId ");
         sqlBuilder.append("GROUP BY s.feedId);");
 
@@ -917,7 +918,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeItems(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeItems(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode items.");
 
@@ -950,7 +952,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param baseTableName The name of the table that contains simulated poll data.
      * @return <code>true</code> if table with average values has been updated, <code>false</code> on any error.
      */
-    private boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
 
         LOGGER.info("Calculating global average for PPI, avgDelay recall and sum total misses over all feeds.");
 
@@ -1505,6 +1508,19 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             LOGGER.debug(sql);
         }
         return runUpdate(sql);
+    }
+
+    // FIXME: remove when #PPIBugFixer is done.
+    public boolean removeEvaluationSummaryFeeds(String baseTableName) {
+        String outputTableName = baseTableName + AVG_POSTFIX;
+
+        String sqlBase = "DELETE FROM `###TABLE_NAME###` WHERE MODE LIKE '%feeds%'";
+        String sql = replaceTableName(sqlBase, outputTableName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+
     }
 
     public static void main(String[] args) {
