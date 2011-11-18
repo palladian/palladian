@@ -64,7 +64,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      * </p>
      * 
      * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     * @param fps This feeds feed post statistics. Ignored.
      * @param trainingMode Flag to indicate whether the update model should be trained or not.
      */
     @Override
@@ -74,99 +74,88 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
             getModelFromDB(feed);
             setTrainingCompleted(feed);
         } else {
-            // The trained model for the current feed
-            double[] hourlyRates = getModelFromFeed(feed);
+            updateCheckInterval(feed);
+        }
+    }
 
+    /**
+     * Update the feed's check interval in normal (non-training) mode, using the trained model.
+     * 
+     * @param feed The feed to update.
+     */
+    protected void updateCheckInterval(Feed feed) {
+        if (feed.getLastPollTime() == null) {
+            LOGGER.fatal("Feed id " + feed.getId()
+                    + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
+            feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+
+        } else {
             int checkInterval = FeedReader.DEFAULT_CHECK_TIME;
 
-            if (feed.getLastPollTime() == null) {
-                LOGGER.fatal("Feed id " + feed.getId()
-                        + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
-                feed.setUpdateMode(getAllowedUpdateInterval(checkInterval));
+            // The trained model for the current feed
+            double[] hourlyRates = getModelFromFeed(feed);
+            double dailyRate = getDailyRate(hourlyRates);
+
+            // empty feeds
+            if (dailyRate == 0.0) {
+                feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
 
             } else {
-                double dailyRate = getDailyRate(hourlyRates);
 
-                // empty feeds
-                if (dailyRate == 0.0) {
-                    feed.setUpdateMode(getAllowedUpdateInterval(checkInterval));
+                // normal case
+                int pollHourOfDay = feed.getLastPollTime().getHours();
+                int simulatedHour = pollHourOfDay;
+                double pendingItems = 0.0;
+                checkInterval = 0;
+
+                // ---- Do we need to perform the next poll in the same hour the current poll has been done?
+                // number of seconds already passed in the current hour
+                int currentSeconds = feed.getLastPollTime().getMinutes() * 60 + feed.getLastPollTime().getSeconds();
+                int remainingSeconds = 3600 - currentSeconds;
+                // number of new elements
+                double remainingHourPendingItems = hourlyRates[simulatedHour] * remainingSeconds / 3600;
+
+                // we expect more new items in the current hour than our threshold, so we only have a look at this
+                // hour
+                if (remainingHourPendingItems >= getThresholdTheta()) {
+
+                    checkInterval += (60 * getThresholdTheta() / hourlyRates[simulatedHour]);
 
                 } else {
+                    // add remaining part of current hour
+                    pendingItems += remainingHourPendingItems;
+                    checkInterval += (int) (remainingSeconds / 60);
+                    simulatedHour = (simulatedHour + 1) % 24;
 
-                    // normal case
-                    int pollHourOfDay = feed.getLastPollTime().getHours();
-                    int simulatedHour = pollHourOfDay;
-                    double pendingItems = 0.0;
-                    checkInterval = 0;
-
-                    // ---- Do we need to perform the next poll in the same hour the current poll has been done?
-                    // number of seconds already passed in the current hour
-                    int currentSeconds = feed.getLastPollTime().getMinutes() * 60 + feed.getLastPollTime().getSeconds();
-                    int remainingSeconds = 3600 - currentSeconds;
-                    // number of new elements
-                    double remainingHourPendingItems = hourlyRates[simulatedHour] * remainingSeconds / 3600;
-
-                    // we expect more new items in the current hour than our threshold, so we only have a look at this
-                    // hour
-                    if (remainingHourPendingItems >= thresholdTheta) {
-
-                        checkInterval += (60 * thresholdTheta / hourlyRates[simulatedHour]);
-
-                    } else {
-                        // add remaining part of current hour
-                        pendingItems += remainingHourPendingItems;
-                        checkInterval += (int) (remainingSeconds / 60);
-                        simulatedHour = (simulatedHour + 1) % 24;
-
-                        // loop complete days if possible. stop looping if we would exceed the threshold in this hour or
-                        // if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case there
-                        // is no upper bound)
-                        while (pendingItems + dailyRate < thresholdTheta
-                                && (checkInterval + 1440 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
-                            pendingItems += dailyRate;
-                            checkInterval += 1440;
-                        }
-
-                        // loop over hours, add full hours only. stop looping if we would exceed the threshold in this
-                        // hour or if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case
-                        // there is no upper bound)
-                        while (pendingItems + hourlyRates[simulatedHour] < thresholdTheta
-                                && (checkInterval + 60 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
-                            pendingItems += hourlyRates[simulatedHour];
-                            simulatedHour = (simulatedHour + 1) % 24;
-                            checkInterval += 60;
-                        }
-
-                        // add part of last hour
-                        checkInterval += (60 * (thresholdTheta - pendingItems) / hourlyRates[simulatedHour]);
+                    // loop complete days if possible. stop looping if we would exceed the threshold in this hour or
+                    // if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case there
+                    // is no upper bound)
+                    while (pendingItems + dailyRate < getThresholdTheta()
+                            && (checkInterval + 1440 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                        pendingItems += dailyRate;
+                        checkInterval += 1440;
                     }
 
-                    // finally, set the feed's interval
-                    feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
+                    // loop over hours, add full hours only. stop looping if we would exceed the threshold in this
+                    // hour or if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case
+                    // there is no upper bound)
+                    while (pendingItems + hourlyRates[simulatedHour] < getThresholdTheta()
+                            && (checkInterval + 60 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                        pendingItems += hourlyRates[simulatedHour];
+                        simulatedHour = (simulatedHour + 1) % 24;
+                        checkInterval += 60;
+                    }
+
+                    // add part of last hour
+                    checkInterval += (60 * (getThresholdTheta() - pendingItems) / hourlyRates[simulatedHour]);
                 }
+
+                // finally, set the feed's interval
+                feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
             }
         }
     }
 
-    @Override
-    public String getName() {
-        return "IndHist_" + thresholdTheta;
-
-    }
-
-    @Override
-    public boolean hasExplicitTrainingMode() {
-        return true;
-    }
-
-    /**
-     * The threshold theta currently used.
-     * 
-     * @return The threshold theta currently used.
-     */
-    public double getThresholdTheta() {
-        return thresholdTheta;
-    }
 
     /**
      * Loads the feed's model from db and stores model as additional data with the feed. The model has been trained
@@ -247,6 +236,33 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
             dailyRate += hourlyRate;
         }
         return dailyRate;
+    }
+
+    /**
+     * @return always <code>true</code>.
+     */
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return true;
+    }
+
+    /**
+     * The threshold theta currently used.
+     * 
+     * @return The threshold theta currently used.
+     */
+    public double getThresholdTheta() {
+        return thresholdTheta;
+    }
+
+    /**
+     * Returns the update strategy's name "IndHist", followed by an underscore and the used threshold theta, e.g.
+     * "IndHist_0.4"
+     */
+    @Override
+    public String getName() {
+        return "IndHist_" + getThresholdTheta();
+
     }
 
     public static void main(String[] args) {

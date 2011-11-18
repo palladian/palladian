@@ -14,10 +14,10 @@ import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.IndHistTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
@@ -172,8 +172,7 @@ public class DatasetEvaluator {
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
         int feedItemBufferSize = 10;
         
-        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
-                .getInstance().getConfig());
+        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
         try {
 
@@ -226,7 +225,17 @@ public class DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (EvaluationFeedDatabase) feedStore);
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, feedStore);
+                logMsg.append(updateStrategy.getName());
+
+            }
+            // IndHistTTL
+            else if (strategy.equalsIgnoreCase("IndHistTTL")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                double tBurst = config.getDouble("datasetEvaluator.indHistTTLburst");
+                int timeWindowHours = config.getInt("datasetEvaluator.indHistTTLtimeWindowHours");
+                double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
+                updateStrategy = new IndHistTTLUpdateStrategy(indHistTheta, feedStore, tBurst, timeWindowHours, weightM);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -282,7 +291,7 @@ public class DatasetEvaluator {
             long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
 
 
-            DatasetEvaluator evaluator = new DatasetEvaluator((EvaluationFeedDatabase) feedStore);
+            DatasetEvaluator evaluator = new DatasetEvaluator(feedStore);
             evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
                     feedItemBufferSize);
             evaluator.runEvaluation();
