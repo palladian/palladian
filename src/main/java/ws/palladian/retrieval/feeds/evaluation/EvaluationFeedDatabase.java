@@ -869,7 +869,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * SET PPI = (
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI'
      * FROM `feed_eval_fix1440_min_time_100_2011-10-28_22-09-45_OK` s
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)
+     * WHERE numPollNewItem > 1 OR numPollNewItem IS NULL
      * AND u.feedId = s.feedId
      * GROUP BY s.feedId
      * );
@@ -893,7 +893,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0) ");
+        sqlBuilder.append("WHERE numPollNewItem > 1 OR numPollNewItem IS NULL ");
         sqlBuilder.append("AND u.feedId = s.feedId ");
         sqlBuilder.append("GROUP BY s.feedId);");
 
@@ -911,7 +911,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * e.g.<br />
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI_polls'
      * FROM `eval_fixlearned_min_time_100_2011-11-03_18-40-41`
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0);
+     * WHERE numPollNewItem > 1 OR numPollNewItem IS NULL;
      * 
      * @param sourceTableName The name of the table to read simulated poll data from.
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
@@ -931,7 +931,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)) ");
+        sqlBuilder.append("WHERE numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("WHERE MODE LIKE '%");
         sqlBuilder.append(MODE_ITEMS);
         sqlBuilder.append("%';");
