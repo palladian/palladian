@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
@@ -48,31 +47,43 @@ public class PPIBugFixer {
                 "eval_indhist_0.5_min_time_100_2011-11-14_23-15-19", 
                 "eval_mav_min_time_100_2011-11-12_18-59-01",
                 "eval_mav_old_min_time_100_2011-11-12_18-00-05" };
-
-        String[] tables = feed11;
         
+        String[] feed104 = { "z_eval_AdaptiveTTL_0.1_min_time_100_2011-11-10_21-14-37",
+                "z_eval_AdaptiveTTL_0.1_min_time_100_2011-11-10_21-14-37",
+                "z_eval_AdaptiveTTL_0.5_min_time_100_2011-11-09_13-25-56",
+                "z_eval_AdaptiveTTL_0.6_min_time_100_2011-11-09_22-51-03",
+                "z_eval_AdaptiveTTL_0.8_min_time_100_2011-11-10_11-04-55",
+                "z_eval_AdaptiveTTL_0.9_min_time_100_2011-11-11_16-13-54",
+                "z_eval_AdaptiveTTL_1.0_min_time_100_2011-11-12_16-54-36",
+                "z_eval_fix10080_min_time_100_2011-11-07_21-10-40",
+                "z_eval_fix60_min_time_100_2011-11-07_00-56-55",
+                "z_eval_fixLearnedW_min_time_100_2011-11-11_23-15-53",
+                "z_eval_IndHist_0.15_min_time_100_2011-11-15_14-13-07",
+                "z_eval_IndHist_0.4_min_time_100_2011-11-16_17-31-50",
+                "z_eval_IndHist_0.5_min_time_100_2011-11-14_23-22-52",
+                "z_eval_MAVSync_min_time_100_2011-11-13_00-56-23",
+                "eval_MAVSync_1_10080_2011-11-17_23-32-53",
+                "eval_MAVSync_1_1440_2011-11-17_22-29-45",
+                "eval_MAVSync_15_10080_2011-11-18_16-24-14",
+                "eval_MAVSync_15_1440_2011-11-18_13-38-16",
+                "eval_MAVSync_15_43200_2011-11-18_18-52-22",
+                "eval_MAVSync_5_10080_2011-11-18_04-59-41",
+                "eval_MAVSync_5_1440_2011-11-18_00-13-13",
+                "eval_MAVSync_5_43200_2011-11-18_09-20-34",
+                "eval_MAVSync_60_1440_2011-11-18_21-24-06",
+                "eval_MAVSync_60_10080_2011-11-18",
+                "eval_MAVSync_60_43200_2011-11-19"};
 
-        // for (String table : tables){
-        // LOGGER.info("Processing table " + table);
-        // feedStore.setPPIModeItems(table);
-        // feedStore.setPPIModeFeeds(table);
-        // feedStore.removeEvaluationSummaryFeeds(table);
-        // feedStore.createPerStrategyAveragesModeFeeds(table);
-        // }
-
-        LOGGER.info("Additionally, adding evaluation results for eval_fixLearnedP_5_43200_2011-11-18_10-52-30");
-        String missingEvalTab = "eval_fixLearnedP_5_43200_2011-11-18_10-52-30";
-
-        LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
-        boolean dataWritten = feedStore.generateEvaluationSummary(missingEvalTab);
-        if (dataWritten) {
-            LOGGER.info("Evaluation results have been written to database.");
-        } else {
-            LOGGER.fatal("Evaluation results have NOT been written to database!");
+        String[] tables = feed104;
+        
+        for (String table : tables) {
+            LOGGER.info("Processing table " + table);
+            feedStore.setPPIModeItems(table);
+            feedStore.setPPIModeFeeds(table);
+            feedStore.removeEvaluationSummaryFeeds(table);
+            feedStore.createPerStrategyAveragesModeFeeds(table);
         }
-        ChartCreator chartCreator = new ChartCreator(200, 200);
-        String[] dbTable = { missingEvalTab };
-        chartCreator.transferVolumeCreator(feedStore, dbTable);
+
 
     }
 
