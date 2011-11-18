@@ -51,13 +51,14 @@ public class PPIBugFixer {
 
         String[] tables = feed11;
         
-        for (String table : tables){
-            LOGGER.info("Processing table " + table);
-            feedStore.setPPIModeItems(table);
-            feedStore.setPPIModeFeeds(table);
-            feedStore.removeEvaluationSummaryFeeds(table);
-            feedStore.createPerStrategyAveragesModeFeeds(table);
-        }
+
+        // for (String table : tables){
+        // LOGGER.info("Processing table " + table);
+        // feedStore.setPPIModeItems(table);
+        // feedStore.setPPIModeFeeds(table);
+        // feedStore.removeEvaluationSummaryFeeds(table);
+        // feedStore.createPerStrategyAveragesModeFeeds(table);
+        // }
 
         LOGGER.info("Additionally, adding evaluation results for eval_fixLearnedP_5_43200_2011-11-18_10-52-30");
         String missingEvalTab = "eval_fixLearnedP_5_43200_2011-11-18_10-52-30";
