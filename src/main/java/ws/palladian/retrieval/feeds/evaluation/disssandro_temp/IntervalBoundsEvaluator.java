@@ -148,11 +148,15 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                     String timestamp = evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize,
                             updateStrategy, wakeUpInterval, feedItemBufferSize);
 
+
                     // since we have done one evaluation without interval bounds (lower bound 1 minute, no upper bound),
                     // we can re-use some evaluation results from this run. we only need to evaluate feeds that are
                     // affected by the current interval bounds. This saves a lot of processing time!
                     String intervalBoundsTable = updateStrategy.getName() + "_" + lowerBound + "_" + upperBound + "_"
                             + timestamp;
+
+                    LOGGER.info("Start copying data from prior run \"" + sourceTableName
+                            + "\". This may take several hours.");
 
                     // create empty table to store feed ids to process
                     feedStore.createIntervalBoundsTable(intervalBoundsTable);
@@ -169,7 +173,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                     int numCopiedDelays = feedStore.copySimulatedSingleDelays(getSimulatedPollsDbTableName(),
                             sourceTableName, intervalBoundsTable);
 
-                    LOGGER.info(numFeeds + " need to be processed. Copied " + numFeedsCopied
+                    LOGGER.info(numFeeds + " feeds need to be processed. Copied " + numFeedsCopied
                             + " feeds to table feeds, " + numCopiedPolls + " simulated polls and " + numCopiedDelays
                             + " delays from table " + getSimulatedPollsDbTableName());
 
