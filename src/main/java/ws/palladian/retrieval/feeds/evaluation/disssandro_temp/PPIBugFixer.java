@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
@@ -57,6 +58,20 @@ public class PPIBugFixer {
             feedStore.removeEvaluationSummaryFeeds(table);
             feedStore.createPerStrategyAveragesModeFeeds(table);
         }
+
+        LOGGER.info("Additionally, adding evaluation results for eval_fixLearnedP_5_43200_2011-11-18_10-52-30");
+        String missingEvalTab = "eval_fixLearnedP_5_43200_2011-11-18_10-52-30";
+
+        LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
+        boolean dataWritten = feedStore.generateEvaluationSummary(missingEvalTab);
+        if (dataWritten) {
+            LOGGER.info("Evaluation results have been written to database.");
+        } else {
+            LOGGER.fatal("Evaluation results have NOT been written to database!");
+        }
+        ChartCreator chartCreator = new ChartCreator(200, 200);
+        String[] dbTable = { missingEvalTab };
+        chartCreator.transferVolumeCreator(feedStore, dbTable);
 
     }
 
