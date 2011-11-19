@@ -71,8 +71,8 @@ public class PPIBugFixer {
                 "eval_MAVSync_5_1440_2011-11-18_00-13-13",
                 "eval_MAVSync_5_43200_2011-11-18_09-20-34",
                 "eval_MAVSync_60_1440_2011-11-18_21-24-06",
-                "eval_MAVSync_60_10080_2011-11-18",
-                "eval_MAVSync_60_43200_2011-11-19"};
+                "eval_MAVSync_60_10080_2011-11-18_23-11-36",
+                "eval_MAVSync_60_43200_2011-11-19_00-39-09" };
 
         String[] tables = feed104;
         
