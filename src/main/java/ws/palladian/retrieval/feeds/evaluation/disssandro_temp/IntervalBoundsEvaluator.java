@@ -175,7 +175,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
 
                     LOGGER.info(numFeeds + " feeds need to be processed. Copied " + numFeedsCopied
                             + " feeds to table feeds, " + numCopiedPolls + " simulated polls and " + numCopiedDelays
-                            + " delays from table " + getSimulatedPollsDbTableName());
+                            + " delays from table " + sourceTableName);
 
                     // since we modified table feeds, we need to reload it from db
                     feedStore.reloadFeedsFromDB();

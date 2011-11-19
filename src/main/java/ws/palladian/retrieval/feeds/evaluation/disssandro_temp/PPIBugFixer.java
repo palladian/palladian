@@ -8,7 +8,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
- * Temp class to recalculate PPI in evaluation result tables that cave been created with bug: all polls with
+ * Temp class to recalculate PPI in evaluation result tables that ave been created with bug: all polls with
  * windowSize=0 were ignored
  * 
  * @author Sandro Reichert
