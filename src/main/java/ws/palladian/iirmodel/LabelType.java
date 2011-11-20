@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ANNOTATIONTYPE")
-public final class LabelType {
+public final class LabelType implements Comparable<LabelType> {
     @Id
     @GeneratedValue
     private final Integer identifier;
@@ -57,5 +57,14 @@ public final class LabelType {
     @Override
     public String toString() {
         return typeName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(LabelType labelType) {
+        return this.getTypeName().compareTo(labelType.getTypeName());
     }
 }

@@ -282,6 +282,18 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         }
     }
 
+    public List<LabelType> loadLabelTypes() {
+        Query query = getManager().createQuery("SELECT lt FROM LabelType lt");
+        Boolean openedTransaction = openTransaction();
+        try {
+            @SuppressWarnings("unchecked")
+            List<LabelType> ret = query.getResultList();
+            return ret;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
     /**
      * @param labelType
      */
