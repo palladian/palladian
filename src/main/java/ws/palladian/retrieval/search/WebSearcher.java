@@ -27,16 +27,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import twitter4j.Query;
-import twitter4j.QueryResult;
-import twitter4j.Tweet;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.local.LocalIndexResult;
 import ws.palladian.retrieval.search.local.QueryProcessor;
 import ws.palladian.retrieval.search.local.ScoredDocument;
@@ -217,7 +214,7 @@ public class WebSearcher {
 
         return images;
     }
-    
+
     /**
      * <p>
      * Return number of hits for a given query.
@@ -588,6 +585,7 @@ public class WebSearcher {
                         if (currentResult.has("Description")) {
                             webResult.setSummary(currentResult.getString("Description"));
                         }
+                        webResult.setRank(rank);
 
                         rank++;
 
@@ -758,8 +756,9 @@ public class WebSearcher {
     private List<WebResult> getWebResultsFromTwitter(String searchQuery) {
 
         List<WebResult> webresults = new ArrayList<WebResult>();
+        DocumentRetriever retriever = new DocumentRetriever();
 
-        Twitter twitter = new TwitterFactory().getInstance();
+        // Twitter twitter = new TwitterFactory().getInstance();
 
         // FIXME dirty; WebSearcher surrounds query string with %22 when in "exact mode" ..
         // remove them here, as twitter will give no results ...
@@ -767,59 +766,143 @@ public class WebSearcher {
             searchQuery = searchQuery.replace("%22", "");
         }
 
-        Query query = new Query(searchQuery);
-        query.setRpp(Math.min(getResultCount(), 100));
-
+        int resultsPerPage = Math.min(100, getResultCount());
+        int numRequests = (int) Math.ceil(getResultCount() / 100.0);
         int rank = 1;
-        int urlsCollected = 0;
-        int grabSize = (int) Math.ceil(getResultCount() / 100.0);
-        for (int i = 0; i < grabSize; i++) {
 
-            query.setPage(i + 1);
+        for (int page = 1; page <= numRequests; page++) {
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append("http://search.twitter.com/search.json");
+            urlBuilder.append("?q=").append(UrlHelper.urlEncode(searchQuery));
+            urlBuilder.append("&page=").append(page);
+            urlBuilder.append("&rpp=").append(resultsPerPage);
+
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(urlBuilder.toString());
+            } catch (HttpException e) {
+                LOGGER.error(e);
+                break;
+            }
+
+            srManager.addRequest(WebSearcherManager.TWITTER);
+
+            int statusCode = httpResult.getStatusCode();
+            if (statusCode == 420) {
+                LOGGER.error("twitter is currently blocked due to rate limit");
+                break;
+            }
+            if (statusCode >= 400) {
+                LOGGER.error("http error " + statusCode);
+                break;
+            }
 
             try {
-                QueryResult result = twitter.search(query);
 
-                for (Tweet tweet : result.getTweets()) {
-                    String title = null;
-                    String summary = tweet.getText();
+                String responseString = new String(httpResult.getContent());
+                LOGGER.debug("response for " + urlBuilder + " : " + responseString);
 
-                    if (summary.contains("http:")) {
+                JSONObject jsonObject = new JSONObject(responseString);
+                JSONArray jsonResults = jsonObject.getJSONArray("results");
+                int numResults = jsonResults.length();
 
-                        // Date currentCreatedAt = tweet.getCreatedAt();
-                        // webresult.setCreatedAt(currentCreatedAt);
+                // stop, if we got no results
+                if (numResults == 0) {
+                    break;
+                }
 
-                        String currentURL = summary.replaceAll("(.+)http:", "http:");
+                for (int i = 0; i < numResults; i++) {
+
+                    JSONObject jsonResult = jsonResults.getJSONObject(i);
+
+                    String text = jsonResult.getString("text");
+                    String dateString = jsonResult.getString("created_at");
+
+                    // strange code from old implementation
+                    if (text.contains("http:")) {
+
+                        String currentURL = text.replaceAll("(.+)http:", "http:");
 
                         if (currentURL.contains(" ")) {
                             currentURL = currentURL.split(" ", 2)[0];
                         }
 
-                        // Logger.getInstance().log("twitter retrieved url "+currentURL,true);
-
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, title,
-                                    summary);
+                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, null,
+                                    text, dateString);
                             rank++;
-
-                            LOGGER.info("twitter retrieved url " + tweet.getSource());
                             webresults.add(webresult);
-
-                            ++urlsCollected;
                         }
                     }
                 }
-            } catch (TwitterException e) {
-                LOGGER.error(searchQuery, e);
+            } catch (JSONException e) {
+                LOGGER.error("error parsing the JSON response", e);
             }
         }
 
-        srManager.addRequest(WebSearcherManager.TWITTER);
         LOGGER.info("twitter requests: " + srManager.getRequestCount(WebSearcherManager.TWITTER));
-
         return webresults;
+        //
+        //
+        //
+        //
+        // Query query = new Query(searchQuery);
+        // query.setRpp(Math.min(getResultCount(), 100));
+        //
+        // int rank = 1;
+        // int urlsCollected = 0;
+        // int grabSize = (int) Math.ceil(getResultCount() / 100.0);
+        // for (int i = 0; i < grabSize; i++) {
+        //
+        // query.setPage(i + 1);
+        //
+        // try {
+        // QueryResult result = twitter.search(query);
+        //
+        // for (Tweet tweet : result.getTweets()) {
+        // String title = null;
+        // String summary = tweet.getText();
+        //
+        // if (summary.contains("http:")) {
+        //
+        // // Date currentCreatedAt = tweet.getCreatedAt();
+        // // webresult.setCreatedAt(currentCreatedAt);
+        //
+        // String currentURL = summary.replaceAll("(.+)http:", "http:");
+        //
+        // if (currentURL.contains(" ")) {
+        // currentURL = currentURL.split(" ", 2)[0];
+        // }
+        //
+        // // Logger.getInstance().log("twitter retrieved url "+currentURL,true);
+        //
+        // // Assigning the url format regular expression
+        // String urlPattern =
+        // "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
+        // if (currentURL.matches(urlPattern)) {
+        // WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, title,
+        // summary);
+        // rank++;
+        //
+        // LOGGER.info("twitter retrieved url " + tweet.getSource());
+        // webresults.add(webresult);
+        //
+        // ++urlsCollected;
+        // }
+        // }
+        // }
+        // } catch (TwitterException e) {
+        // LOGGER.error(searchQuery, e);
+        // }
+        // }
+        //
+        // srManager.addRequest(WebSearcherManager.TWITTER);
+        // LOGGER.info("twitter requests: " + srManager.getRequestCount(WebSearcherManager.TWITTER));
+        //
+        // return webresults;
     }
 
     private List<WebResult> getWebResultsFromGoogleBlogs(String searchQuery) {
