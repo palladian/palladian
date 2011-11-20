@@ -90,7 +90,7 @@ public interface FeedStore {
      */
     FeedItem getFeedItemByRawId(int feedId, String rawId);
 
-    Feed getFeedByID(int feedID);
+    Feed getFeedById(int feedID);
 
     /**
      * <p>Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
