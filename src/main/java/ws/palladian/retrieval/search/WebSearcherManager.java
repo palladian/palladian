@@ -16,14 +16,12 @@ import ws.palladian.helper.ConfigHolder;
  */
 public class WebSearcherManager {
 
-    // extracting knowledge from other sources (xml, rdf, owl, rss etc.)
     private final static WebSearcherManager INSTANCE = new WebSearcherManager();
     public static final int GOOGLE = 2;
     public static final int HAKIA = 4;
     public static final int BING = 6;
     public static final int TWITTER = 7;
     public static final int GOOGLE_BLOGS = 8;
-    public static final int YAHOO_BOSS_NEWS = 10;
     public static final int GOOGLE_NEWS = 11;
     public static final int HAKIA_NEWS = 12;
     public static final int CLUEWEB = 13;
@@ -32,8 +30,6 @@ public class WebSearcherManager {
     // TODO automatically shift between extraction sources once too many queries
     // have been sent
 
-    protected String yahooApiKey;
-    protected String yahooBossApiKey;
     protected String hakiaApiKey;
     protected String googleApiKey;
     protected String bingApiKey;
@@ -50,8 +46,6 @@ public class WebSearcherManager {
     private int numberOfHakiaRequests = 0;
     private int numberOfBingRequests = 0;
     private int numberOfTwitterRequests = 0;
-    // private int numberOfGoogleBlogsRequests = 0;
-    private int numberOfTextRunnerRequests = 0;
     private int numberOfClueWebRequests = 0;
 
     private WebSearcherManager() {
@@ -60,14 +54,10 @@ public class WebSearcherManager {
         PropertiesConfiguration config = configHolder.getConfig();
 
         if (config != null) {
-            yahooApiKey = config.getString("api.yahoo.key");
-            yahooBossApiKey = config.getString("api.yahoo_boss.key");
             hakiaApiKey = config.getString("api.hakia.key");
             googleApiKey = config.getString("api.google.key");
             bingApiKey = config.getString("api.bing.key");
         } else {
-            yahooApiKey = "";
-            yahooBossApiKey = "";
             hakiaApiKey = "";
             googleApiKey = "";
             bingApiKey = "";
@@ -164,7 +154,6 @@ public class WebSearcherManager {
         logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests).append("\n");
         logs.append("Number of Bing requests: ").append(numberOfBingRequests).append("\n");
         logs.append("Number of Twitter requests: ").append(numberOfTwitterRequests).append("\n");
-        logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
         logs.append("Number of ClueWeb requests: ").append(numberOfClueWebRequests).append("\n");
 
         return logs.toString();
@@ -188,8 +177,6 @@ public class WebSearcherManager {
                 return "Twitter";
             case GOOGLE_BLOGS:
                 return "Google Blogs";
-            case YAHOO_BOSS_NEWS:
-                return "Yahoo! Boss News";
             case GOOGLE_NEWS:
                 return "Google News";
             case CLUEWEB:
@@ -197,22 +184,6 @@ public class WebSearcherManager {
             default:
                 return "<unknown>";
         }
-    }
-
-    public String getYahooApiKey() {
-        return yahooApiKey;
-    }
-
-    public void setYahooApiKey(String yahooApiKey) {
-        this.yahooApiKey = yahooApiKey;
-    }
-
-    public String getYahooBossApiKey() {
-        return yahooBossApiKey;
-    }
-
-    public void setYahooBossApiKey(String yahooBossApiKey) {
-        this.yahooBossApiKey = yahooBossApiKey;
     }
 
     public String getHakiaApiKey() {
