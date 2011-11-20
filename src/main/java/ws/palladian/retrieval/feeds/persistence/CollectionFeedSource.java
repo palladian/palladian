@@ -67,7 +67,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public Feed getFeedByID(int feedID) {
+    public Feed getFeedById(int feedID) {
         // TODO Auto-generated method stub
         return null;
     }

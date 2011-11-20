@@ -49,6 +49,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
+    private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
     private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
@@ -197,8 +198,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     @Override
-    public Feed getFeedByID(int feedID) {
-        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedID);
+    public Feed getFeedById(int feedId) {
+        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedId);
     }
 
     @Override
@@ -222,6 +223,17 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     public ResultIterator<FeedItem> getFeedItems() {
         return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
+    }
+    
+    /**
+     * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
+     * items first.
+     * 
+     * @param feedId
+     * @return
+     */
+    public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
+        return runQueryWithIterator(new FeedItemRowConverter(), GET_ITEMS_FOR_FEED, feedId);
     }
 
     /**
