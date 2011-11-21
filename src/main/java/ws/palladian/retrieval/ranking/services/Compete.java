@@ -35,11 +35,11 @@ public class Compete extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "compete";
 
     /** The ranking value types of this service **/
-    static RankingType UNIQUE_VISITORS = new RankingType("compete_unique_visitors", "Compete Unique Visitors", "");
-    static RankingType VISITS = new RankingType("compete_visits", "Compete Visits", "");
-    static RankingType RANK = new RankingType("compete_rank", "Compete Rank", "");
+    public static final RankingType UNIQUE_VISITORS = new RankingType("compete_unique_visitors", "Compete Unique Visitors", "");
+    public static final RankingType VISITS = new RankingType("compete_visits", "Compete Visits", "");
+    public static final RankingType RANK = new RankingType("compete_rank", "Compete Rank", "");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(UNIQUE_VISITORS);
         RANKING_TYPES.add(VISITS);
