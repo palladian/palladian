@@ -48,14 +48,13 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
     private static final String SERVICE_ID = "bibsonomy";
 
     /** The ranking value types of this service **/
-    static RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks",
+    public static final RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks",
             "The number of bookmarks users have created for this url.");
-    
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(BOOKMARKS);
     }
-    
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
