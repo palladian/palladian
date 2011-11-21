@@ -33,3 +33,4 @@
 /.classpath
 /test_dictionary.h2.db
 /test_dictionary.trace.db
+.pmd
