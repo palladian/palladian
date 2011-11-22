@@ -17,6 +17,7 @@ import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.IntervalBoundsEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedEvaluationItemRowConverter;
 import ws.palladian.retrieval.feeds.persistence.FeedRowConverter;
@@ -47,6 +48,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     /** reset table feeds except activityPattern and blocked. */
     private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, windowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, httpHeaderSize = DEFAULT";
 
+    private static final String TRUNCATE_TABLE_FEEDS = "TRUNCATE TABLE feeds;";
+
     private static final String GET_NUMBER_MISSED_ITEMS_BY_ID_SEQUENCE_NUMBERS = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND sequenceNumber > ? AND sequenceNumber < ?";
 
     private static final String GET_NUMBER_PENDING_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ? AND correctedPublishTime <= ?";
@@ -63,6 +66,16 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
 
+    private static final String GET_TRANSFER_VOLUME_BY_STRATEGY = "SELECT CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp)) AS 'hourOfExperiment', CEIL(SUM(sizeOfPoll)/1048576) AS 'hourlyVolumeMB' FROM `###TABLE_NAME###` GROUP BY CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp));";
+
+    private static final String CREATE_INTERVAL_BOUNDS_TABLE = "CREATE TABLE `###TABLE_NAME###` (`feedId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The feeds internal identifier.', PRIMARY KEY (`feedId`)) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+
+    /**
+     * It is assumed that table feeds_TUDCS6 contains all feeds and their meta data.
+     */
+    private static final String COPY_FEEDS_INTERVAL_BOUNDS = "INSERT INTO feeds SELECT * FROM feeds_TUDCS6 WHERE id IN (SELECT feedId FROM `###TABLE_NAME###`);";
+
+    private static final String RESTORE_ALL_FEEDS_FROM_BACKUP = "INSERT INTO feeds SELECT * FROM feeds_TUDCS6";
     /**
      * Used as postfix for table names; table contains evaluation results per feed averaged over all items of this feed.
      */
@@ -104,7 +117,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * every subsequent query for simulated windows since those query results can't contain a newer window than this
      * one. This can't be directly done by db (query) caching since queries differ.
      */
-    private static final ConcurrentHashMap<Integer, List<EvaluationFeedItem>> CACHED_NEWEST_WINDOWS = new ConcurrentHashMap<Integer, List<EvaluationFeedItem>>();
+    private final ConcurrentHashMap<Integer, List<EvaluationFeedItem>> CACHED_NEWEST_WINDOWS = new ConcurrentHashMap<Integer, List<EvaluationFeedItem>>();
 
     /**
      * Capacity of {@link #BATCH_INSERT_QUEUE}. Size of the queue is defined as sum of all insert operation, i.e. the
@@ -130,6 +143,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             NEWEST_ITEM_HASHES.put(item.getFeedId(), item.getHash());
         }
 
+    }
+
+    public void reloadFeedsFromDB() {
+        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
     }
 
     /**
@@ -852,7 +869,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * SET PPI = (
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI'
      * FROM `feed_eval_fix1440_min_time_100_2011-10-28_22-09-45_OK` s
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)
+     * WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL)
      * AND u.feedId = s.feedId
      * GROUP BY s.feedId
      * );
@@ -862,7 +879,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeFeeds(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeFeeds(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode feeds.");
 
@@ -876,7 +894,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0) ");
+        sqlBuilder.append("WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("AND u.feedId = s.feedId ");
         sqlBuilder.append("GROUP BY s.feedId);");
 
@@ -894,13 +912,14 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * e.g.<br />
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI_polls'
      * FROM `eval_fixlearned_min_time_100_2011-11-03_18-40-41`
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0);
+     * WHERE numPollNewItem > 1 OR numPollNewItem IS NULL;
      * 
      * @param sourceTableName The name of the table to read simulated poll data from.
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeItems(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeItems(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode items.");
 
@@ -914,7 +933,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)) ");
+        sqlBuilder.append("WHERE numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("WHERE MODE LIKE '%");
         sqlBuilder.append(MODE_ITEMS);
         sqlBuilder.append("%';");
@@ -933,7 +952,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param baseTableName The name of the table that contains simulated poll data.
      * @return <code>true</code> if table with average values has been updated, <code>false</code> on any error.
      */
-    private boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
 
         LOGGER.info("Calculating global average for PPI, avgDelay recall and sum total misses over all feeds.");
 
@@ -1182,6 +1202,14 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         return success;
     }
 
+    /**
+     * Truncate table feeds.
+     * 
+     * @return <code>true</code> if successful, <code>false</code> otherwise.
+     */
+    public boolean truncateTableFeeds() {
+        return runUpdate(TRUNCATE_TABLE_FEEDS) != -1 ? true : false;
+    }
 
     /**
      * Get all pending items that will not be downloaded in simulation. The number of items whos publishTime is newer
@@ -1320,6 +1348,179 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
         }
         return changeRate;
+    }
+
+    /**
+     * Load the hourly transfer volume from the given table.
+     * 
+     * @param tableName The table to load data from
+     * @return An array containing the our of the experiment as index and as object the respective data volume in Mb
+     *         that has been transferred in this hour
+     */
+    public int[] getTransferVolumePerHour(String tableName, int totalExperimentHours) {
+        // using hourOfExperiment as index and transferred volume as value
+        int[] volumes = new int[totalExperimentHours];
+
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[2];
+
+                hourlyData[0] = resultSet.getInt("hourOfExperiment");
+                hourlyData[1] = resultSet.getInt("hourlyVolumeMB");
+
+                return hourlyData;
+            }
+        };
+
+        List<int[]> hourlyData = runQuery(converter, replaceTableName(GET_TRANSFER_VOLUME_BY_STRATEGY, tableName));
+        for (int[] oneHour : hourlyData) {
+            volumes[oneHour[0]] = oneHour[1];
+        }
+        return volumes;
+    }
+
+    /**
+     * Create a table to store feed ids in that need to be processed in a particular run of
+     * {@link IntervalBoundsEvaluator}
+     * 
+     * @param tableName The name of the table to create.
+     * @return <code>true</code> if table has been successfully created, <code>false</code> otherwise.
+     */
+    public boolean createIntervalBoundsTable(String tableName) {
+        return runUpdate(replaceTableName(CREATE_INTERVAL_BOUNDS_TABLE, tableName)) != -1 ? true : false;
+    }
+
+    /**
+     * Determine all feeds in sourceTableName with a checkInterval > upperBound OR upperBound < lowerBound and add them
+     * to intervalBoundsTable. These feeds need to be processed by {@link IntervalBoundsEvaluator}
+     * 
+     * @param intervalBoundsTable Name of the table to write feed ids to. Should contain update strategy name and
+     *            interval bounds
+     * @param sourceTableName Name of the table to read data from. It is intended that this table contains data
+     *            generated by the same update strategy, but without interval bounds set (lower bound might have been 1
+     *            minute).
+     * @param lowerBound The lower bound currently used by an update strategy.
+     * @param upperBound The upper bound currently used by an update strategy.
+     * @return The number of feeds inserted.
+     */
+    public int determineFeedsToProcess(String intervalBoundsTable, String sourceTableName, int lowerBound, int upperBound) {
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("` SELECT DISTINCT(feedId) FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` WHERE checkInterval > ");
+        sqlBuilder.append(upperBound);
+        sqlBuilder.append(" OR checkInterval < ");
+        sqlBuilder.append(lowerBound);
+        sqlBuilder.append(";");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    /**
+     * Fill table 'feeds' with all feeds in intervalBoundsTable
+     * 
+     * @param intervalBoundsTable Name of the table to read the feed ids from.
+     * @return The number of feeds inserted into table 'feeds'.
+     */
+    public int copyFeedsToProcess(String intervalBoundsTable) {
+        return runUpdate(replaceTableName(COPY_FEEDS_INTERVAL_BOUNDS, intervalBoundsTable));
+    }
+
+    /**
+     * Insert all feeds from feeds_tudcs6 into table feeds, used as a clean-up.
+     * 
+     * @return The number of feeds inserted into table 'feeds'.
+     */
+    public int restoreFeedsFromBackup() {
+        return runUpdate(RESTORE_ALL_FEEDS_FROM_BACKUP);
+    }
+
+    /**
+     * Copy simulated polls from sourceTableName to targetTableName, ignoring feed ids contained in intervalBoundsTable.
+     * 
+     * @param targetTableName Name of table to copy simulated poll data to.
+     * @param sourceTableName Name of table to copy simulated poll data from.
+     * @param intervalBoundsTable Name of table that contains feed ids to skip.
+     * @return The number of simulated single polls inserted into table targetTableName.
+     */
+    public int copySimulatedPollData(String targetTableName, String sourceTableName, String intervalBoundsTable) {
+
+        // INSERT INTO `<newTable>` SELECT * FROM `z_eval_MAVSync_min_time_100_2011-11-13_00-56-23` WHERE feedId NOT IN
+        // (SELECT feedId FROM MAVSync_Todo_10080);
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(targetTableName);
+        sqlBuilder.append("` SELECT * FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` WHERE feedId NOT IN (SELECT feedId FROM `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("`);");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    /**
+     * Copy single delays from sourceTableName to targetTableName, ignoring feed ids contained in intervalBoundsTable.
+     * 
+     * @param targetTableName Base name of table to copy single delays to. Used to infer the name of the table
+     *            writing delay information to, usually XX_delays.
+     * @param sourceTableName Name of table that contains the simulated poll data. Used to infer the name of the table
+     *            containing delay information.
+     * @param intervalBoundsTable Name of table that contains feed ids to skip.
+     * @return The number of single delays inserted into table targetTableName.
+     */
+    public int copySimulatedSingleDelays(String targetTableName, String sourceTableName, String intervalBoundsTable) {
+
+        // INSERT INTO `<newTable>_delays` SELECT * FROM `z_eval_MAVSync_min_time_100_2011-11-13_00-56-23_delays` WHERE
+        // feedId NOT IN (SELECT feedId FROM MAVSync_Todo_10080);
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(targetTableName);
+        sqlBuilder.append(DELAY_POSTFIX);
+        sqlBuilder.append("` SELECT * FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append(DELAY_POSTFIX);
+        sqlBuilder.append("` WHERE feedId NOT IN (SELECT feedId FROM `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("`);");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    // FIXME: remove when #PPIBugFixer is done.
+    public boolean removeEvaluationSummaryFeeds(String baseTableName) {
+        String outputTableName = baseTableName + AVG_POSTFIX;
+
+        String sqlBase = "DELETE FROM `###TABLE_NAME###` WHERE MODE LIKE '%feeds%'";
+        String sql = replaceTableName(sqlBase, outputTableName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+
     }
 
     public static void main(String[] args) {

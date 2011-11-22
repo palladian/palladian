@@ -1,5 +1,6 @@
-config.version = 14
+config.version = 15
 ### version history:
+### 15: added IndHistTTL update strategy
 ### 14: added IndHist update strategy
 ### 13: added AdaptiveTTL update strategies
 ### 12: added new mode for feed update strategy fix learned 
@@ -201,7 +202,7 @@ schedulerTask.maxUnparsablePercentage = 2
 schedulerTask.maxUnreachablePercentage = 2
 
 # Choose update strategy to evaluate. Supported values are: 
-# Fix, FixLearned, AdaptiveTTL, LRU2, MAVSync, IndHist
+# Fix, FixLearned, AdaptiveTTL, LRU2, MAVSync, IndHist, IndHistTTL
 datasetEvaluator.updateStrategy = Fix
 
 # If datasetEvaluator.updateStrategy = Fix, choose a fix check interval in minutes >0, e.g. 60 for Fix1h
@@ -211,11 +212,17 @@ datasetEvaluator.fixCheckInterval = 60
 # timestamp of first poll 
 datasetEvaluator.fixLearnedMode = 0
 
-# If datasetEvaluator.updateStrategy = AdaptiveTTL, choose weight M > 0, common values are 0.1 or 0.2
+# If datasetEvaluator.updateStrategy = AdaptiveTTL or IndHistTTL, choose weight M > 0, common values are 0.1 or 0.2
 datasetEvaluator.adaptiveTTLweightM = 0.1
 
 # If datasetEvaluator.updateStrategy = IndHist, choose threshold theta as 0 < theta < 1, common values are between 0.15 and 0.5
 datasetEvaluator.indHistTheta = 0.5
+
+# If datasetEvaluator.updateStrategy = IndHistTTL, use threshold for internal strategy selection between IndHist and AdaptiveTTL  
+datasetEvaluator.indHistTTLburst = 2.0
+
+# If datasetEvaluator.updateStrategy = IndHistTTL, this is the time window analysed for internal strategy selection
+datasetEvaluator.indHistTTLtimeWindowHours = 1
 
 # Set min check interval in minutes > 0. Update strategies must not poll more often than this interval. 
 datasetEvaluator.minCheckInterval = 1

@@ -39,10 +39,10 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
     private static final String SERVICE_ID = "delicious";
 
     /** The ranking value types of this service **/
-    static RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks",
+    public static final RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks",
             "The number of bookmarks users have created for this url.");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(BOOKMARKS);
     }

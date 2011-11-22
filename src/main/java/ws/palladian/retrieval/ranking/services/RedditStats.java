@@ -41,11 +41,11 @@ public class RedditStats extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "reddit";
 
     /** The ranking value types of this service **/
-    static RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes",
+    public static final RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes",
             "The number of up-votes minus down-votes for this url on reddit.com.");
-    static RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments",
+    public static final RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments",
             "The number of comments users have left for this url on reddit.com.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(VOTES);
         RANKING_TYPES.add(COMMENTS);
