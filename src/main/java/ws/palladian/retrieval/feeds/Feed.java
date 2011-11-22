@@ -1514,6 +1514,17 @@ public class Feed {
     }
 
     /**
+     * Add additional data, identified by key.
+     * 
+     * @param key Identifier to be used to access this data.
+     * @param data the additional data to store.
+     * @return The additional data previously associated with key, or <code>null</code> if there was no mapping for key.
+     */
+    public Object addAdditionalData(String key, Object data) {
+        return getAdditionalData().put(key, data);
+    }
+
+    /**
      * @param feedMetaInfo the meta information to set
      */
     public void setFeedMetaInformation(FeedMetaInformation feedMetaInfo) {

@@ -40,13 +40,13 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
     private static final String SERVICE_ID = "friendfeed";
 
     /** The ranking value types of this service **/
-    static RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts",
+    public static final RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts",
             "The number of entries posted on FriendFeed containing the given url.");
-    static RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes",
+    public static final RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes",
             "The number of likes for entries posted on FriendFeed containing the given url.");
-    static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments",
+    public static final RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments",
             "The number of comments for entries posted on FriendFeed containing the given url.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(POSTS);
         RANKING_TYPES.add(LIKES);

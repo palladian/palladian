@@ -52,10 +52,10 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "bitly";
 
     /** The ranking value types of this service **/
-    static RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks",
+    public static final RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks",
             "The number of times users have clicked the shortened version of this url.");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(CLICKS);
     }

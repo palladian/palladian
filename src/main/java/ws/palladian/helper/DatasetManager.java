@@ -516,7 +516,7 @@ public class DatasetManager {
             csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
         }
         
-        FileHelper.writeToFile(csvPath, csv);      
+        FileHelper.writeToFile(csvPath, csv);
         
         return classCounts;
     }
@@ -541,6 +541,57 @@ public class DatasetManager {
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
 
         return classes.size();
+    }
+
+    /**
+     * <p>
+     * Copy a dataset but keep only classes with the minimal given frequency. Note that there might still be different
+     * class counts so the dataset is not equally distributed.
+     * </p>
+     * <p>
+     * A file is written which adds a "_filtered" to the name of the original path.
+     * </p>
+     * 
+     * @param dataset The original dataset.
+     * @param minFrequency The minimal frequency.
+     * @return The new dataset.
+     */
+    public Dataset filterLowFrequencyCategories(Dataset dataset, int minFrequency) {
+
+        final String separationString = dataset.getSeparationString();
+
+        Dataset modifiedDataset = new Dataset();
+        modifiedDataset.setSeparationString(separationString);
+        modifiedDataset.setName(dataset.getName());
+
+        // get class distribution to remove categories that appear not frequently enough
+        CountMap cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
+
+        Set<Object> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
+        StringBuilder keepClassesString = new StringBuilder();
+        for (Object keepClass : keepClasses) {
+            keepClassesString.append("#").append((String)keepClass).append("#");
+        }
+
+        List<String> processedLines = new ArrayList<String>();
+        List<String> fileLines = FileHelper.readFileToArray(dataset.getPath());
+
+        for (String line : fileLines) {
+
+            String[] parts = line.split(separationString);
+
+            if (keepClassesString.indexOf("#" + parts[parts.length - 1] + "#") > -1) {
+                String processedLine = parts[0] + separationString + parts[parts.length - 1];
+                processedLines.add(processedLine);
+            }
+
+        }
+
+        String newPath = FileHelper.appendToFileName(dataset.getPath(), "_filtered");
+        FileHelper.writeToFile(newPath, processedLines);
+        modifiedDataset.setPath(newPath);
+
+        return modifiedDataset;
     }
 
     /**

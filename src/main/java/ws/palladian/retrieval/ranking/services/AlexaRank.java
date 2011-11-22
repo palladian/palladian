@@ -28,9 +28,9 @@ public class AlexaRank extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "alexa";
 
     /** The ranking value types of this service. */
-    static RankingType POPULARITY_RANK = new RankingType("alexa_rank", "Alexa Rank", "");
+    public static final RankingType POPULARITY_RANK = new RankingType("alexa_rank", "Alexa Rank", "");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(POPULARITY_RANK);
     }

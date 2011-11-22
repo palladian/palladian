@@ -10,13 +10,14 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.IndHistTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
@@ -73,7 +74,7 @@ public class DatasetEvaluator {
      *         strategy, its parameters and the time it has been created, e.g.
      *         "eval_fixLearned_min_time_100_2011-11-02_14-59-58".
      */
-    public static String simulatedPollsDbTableName() {
+    public static String getSimulatedPollsDbTableName() {
         return simulatedPollsDbTable;
     }
 
@@ -101,8 +102,10 @@ public class DatasetEvaluator {
      * <li>
      * Creates this table.</li>
      * </ul>
+     * 
+     * @return The current timestamp added to the table's name.
      */
-    private void initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
+    protected String initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
             UpdateStrategy updateStrategy, long wakeUpInterval, int feedItemBufferSize) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
         for (Feed feed : feeds) {
@@ -117,32 +120,40 @@ public class DatasetEvaluator {
         feedReader.setUpdateStrategy(updateStrategy, true);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
+        String timestamp = DateHelper.getCurrentDatetime();
+
         simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
-                + FeedReaderEvaluator.getBenchmarkName() + "_" + FeedReaderEvaluator.getBenchmarkModeString() + "_"
-                + FeedReaderEvaluator.benchmarkSamplePercentage + "_" + DateHelper.getCurrentDatetime();
+                + updateStrategy.getLowestUpdateInterval() + "_" + updateStrategy.getHighestUpdateInterval() + "_"
+                + timestamp;
 
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationBaseTable(simulatedPollsDbTableName());
+                .createEvaluationBaseTable(getSimulatedPollsDbTableName());
         if (!created) {
-            LOGGER.fatal("Database table " + simulatedPollsDbTableName()
+            LOGGER.fatal("Database table " + getSimulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
             System.exit(-1);
         }
+        return timestamp;
     }
 
     /**
      * Get evaluation results from {@link #simulatedPollsDbTable} and write to two tables with the same name plus
-     * postfix "_feeds" and "_avg" for intermediate und final results.
+     * postfix "_feeds" and "_avg" for intermediate und final results. Additionally, a csv file with cumulated transfer
+     * volumes per hour is written.
      */
-    private void generateEvaluationSummary() {
+    protected void generateEvaluationSummary() {
         LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
         boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateEvaluationSummary(simulatedPollsDbTableName());
+                .generateEvaluationSummary(getSimulatedPollsDbTableName());
         if (dataWritten) {
             LOGGER.info("Evaluation results have been written to database.");
         } else {
             LOGGER.fatal("Evaluation results have NOT been written to database!");
         }
+        ChartCreator chartCreator = new ChartCreator(200, 200);
+        String[] dbTable = { getSimulatedPollsDbTableName() };
+        chartCreator.transferVolumeCreator((EvaluationFeedDatabase) feedReader.getFeedStore(), dbTable);
+
     }
 
     /**
@@ -161,8 +172,7 @@ public class DatasetEvaluator {
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
         int feedItemBufferSize = 10;
         
-        final FeedStore feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
-                .getInstance().getConfig());
+        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
         try {
 
@@ -215,7 +225,17 @@ public class DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (EvaluationFeedDatabase) feedStore);
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, feedStore);
+                logMsg.append(updateStrategy.getName());
+
+            }
+            // IndHistTTL
+            else if (strategy.equalsIgnoreCase("IndHistTTL")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                double tBurst = config.getDouble("datasetEvaluator.indHistTTLburst");
+                int timeWindowHours = config.getInt("datasetEvaluator.indHistTTLtimeWindowHours");
+                double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
+                updateStrategy = new IndHistTTLUpdateStrategy(indHistTheta, feedStore, tBurst, timeWindowHours, weightM);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -271,7 +291,7 @@ public class DatasetEvaluator {
             long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
 
 
-            DatasetEvaluator evaluator = new DatasetEvaluator((EvaluationFeedDatabase) feedStore);
+            DatasetEvaluator evaluator = new DatasetEvaluator(feedStore);
             evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
                     feedItemBufferSize);
             evaluator.runEvaluation();

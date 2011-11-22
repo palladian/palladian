@@ -38,16 +38,16 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
     private static final String SERVICE_ID = "facebook";
 
     /** The ranking value types of this service **/
-    static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
+    public static final RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
             "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.");
 
-    static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
+    public static final RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
             "The number of times users have shared the page on Facebook.");
 
-    static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
+    public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
             "The number of comments users have made on the shared story.");
     
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(LIKES);
         RANKING_TYPES.add(SHARES);

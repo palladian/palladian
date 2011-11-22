@@ -44,9 +44,9 @@ public class SharethisStats extends BaseRankingService implements RankingService
     private static final String SERVICE_ID = "sharethis";
 
     /** The ranking value types of this service **/
-    static RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats",
+    public static final RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats",
             "The number of shares via multiple services measured on sharethis.com.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(SHARES);
     }
