@@ -230,6 +230,28 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                     // set time of current poll to feed
                     feed.setLastPollTime(new Date(simulatedCurrentPollTime));
 
+                    Feed downloadedFeed = getSimulatedWindowFromDataset(new Timestamp(simulatedCurrentPollTime));
+
+                    if (downloadedFeed == null) {
+                        LOGGER.info("Feed id "
+                                + feed.getId()
+                                + ": can't load the simulated window for this feed. The first successful poll done when "
+                                + "creating the dataset was later than this simulated poll. Stop processing immediately.");
+                        // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
+                        feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
+                        resultSet.add(FeedTaskResult.SUCCESS);
+                        doFinalLogging(timer);
+                        return getResult();
+
+                    }
+
+                    // remember item sequence numbers
+                    determineItemSequenceNumbers(downloadedFeed);
+
+                    feed.setItems(downloadedFeed.getItems());
+                    feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
+                    feed.setWindowSize(downloadedFeed.getItems().size());
+
                     feedReader.updateCheckIntervals(feed, trainingMode);
 
                     // estimate time of next poll
