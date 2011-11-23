@@ -5,6 +5,7 @@ import java.util.List;
 
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 
 /**
  * Base implementation for a {@link WebSearcher} providing common functionality.

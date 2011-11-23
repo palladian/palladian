@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 public final class GoogleBlogsSearcher extends BaseGoogleSearcher implements WebSearcher {

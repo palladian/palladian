@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -20,8 +21,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSearcher {
@@ -32,6 +35,13 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
     private static final AtomicInteger requestCount = new AtomicInteger();
 
     private final String apiKey;
+    
+    public BaseHakiaSearcher() {
+        super();
+        ConfigHolder configHolder = ConfigHolder.getInstance();
+        PropertiesConfiguration config = configHolder.getConfig();
+        this.apiKey = config.getString("api.hakia.key");
+    }
 
     public BaseHakiaSearcher(String apiKey) {
         super();

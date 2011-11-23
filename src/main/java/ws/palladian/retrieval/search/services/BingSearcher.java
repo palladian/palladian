@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 
 public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
 
@@ -24,6 +27,12 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
     public BingSearcher(String apiKey) {
         super();
         this.apiKey = apiKey;
+    }
+    
+    public BingSearcher() {
+        ConfigHolder configHolder = ConfigHolder.getInstance();
+        PropertiesConfiguration config = configHolder.getConfig();
+        apiKey = config.getString("api.bing.key");
     }
 
     @Override
