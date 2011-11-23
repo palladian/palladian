@@ -14,6 +14,16 @@ public interface WebSearcher {
 
     List<WebResult> search(String query);
 
+    List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language);
+
+    List<String> searchUrls(String query, int resultCount);
+
+    List<String> searchUrls(String query, WebSearcherLanguage language);
+
+    List<String> searchUrls(String query);
+    
+    int getHitCount(String query);
+
     void setLanguage(WebSearcherLanguage language);
 
     WebSearcherLanguage getLanguage();
@@ -21,7 +31,10 @@ public interface WebSearcher {
     void setResultCount(int resultCount);
 
     int getResultCount();
-    
+
     String getName();
+    
+    // TODO add method for exact searches?
+    // TODO move image search to interface?
 
 }
