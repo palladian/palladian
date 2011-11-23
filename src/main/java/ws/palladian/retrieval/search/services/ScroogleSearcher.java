@@ -46,7 +46,7 @@ public class ScroogleSearcher implements WebSearcher {
 
         try {
 
-            String requestUrl = "https://ssl.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=" + UrlHelper.urlEncode(query);
+            String requestUrl = "http://www.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=" + UrlHelper.urlEncode(query);
             HttpResult httpResult = retriever.httpGet(requestUrl);
             Document document = parser.parse(httpResult);
 
