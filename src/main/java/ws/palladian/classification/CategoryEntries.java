@@ -7,8 +7,6 @@ import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer;
-
 /**
  * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each category has a certain relevance for the word
  * which is expressed in the CategoryEntry.
@@ -89,7 +87,8 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
                 CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
                 ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
             } else {
-                super.add(newCategoryEntry);
+                super.add(new CategoryEntry(this, newCategoryEntry.getCategory(), newCategoryEntry
+                        .getAbsoluteRelevance()));
             }
             listChanged = true;
         }
@@ -181,7 +180,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         sortByRelevance();
         //XXX
         if (size() > 0) {
-        	return get(0);        	
+        	return get(0);
         }
         LOGGER.warn("no most likey category entry found");
         return new CategoryEntry(this, new Category(""), 1);
