@@ -33,5 +33,23 @@ public class WebResult extends SearchResult {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("WebResult [url=");
+        builder.append(url);
+        builder.append(", title=");
+        builder.append(title);
+        builder.append(", summary=");
+        builder.append(summary);
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
     
 }
