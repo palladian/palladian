@@ -35,6 +35,5 @@ public interface WebSearcher {
     String getName();
     
     // TODO add method for exact searches?
-    // TODO move image search to interface?
 
 }
