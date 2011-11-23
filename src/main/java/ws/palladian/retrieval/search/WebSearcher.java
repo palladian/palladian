@@ -6,14 +6,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.local.LocalIndexResult;
 import ws.palladian.retrieval.search.local.QueryProcessor;
 import ws.palladian.retrieval.search.local.ScoredDocument;
@@ -424,88 +419,88 @@ public class WebSearcher {
 //        return webresults;
 //    }
 
-    private List<WebResult> getWebResultsFromGoogleNews(String searchQuery) {
-
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
-
-        DocumentRetriever c = new DocumentRetriever();
-
-        // set the preferred language
-        // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
-        String languageString = "lang_en";
-        if (getLanguage() == LANGUAGE_GERMAN) {
-            languageString = "lang_de";
-        }
-
-        int rank = 1;
-        int urlsCollected = 0;
-        int grabCount = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
-        // because 8
-        // results will
-        // be responded
-        // by
-        // each query
-        // Google returns max. 8 pages/64 results --
-        // http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
-        grabCount = Math.min(grabCount, 8);
-        // System.out.println(grabSize);
-        for (int i = 0; i < grabCount; i++) {
-
-            // rsz=large will respond 8 results
-            try {
-                JSONObject jsonOBJ = c
-                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start=" + i * 8
-                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
-
-                // System.out.println(jsonOBJ.toString(1));
-                // in the first iteration find the maximum of available pages
-                // and limit the search to those
-                if (i == 0) {
-                    JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null
-                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
-                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
-                        pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
-                        int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabCount) {
-                            grabCount = lastStartPage + 1;
-                        }
-                    }
-                }
-
-                JSONArray results = jsonOBJ.getJSONObject("responseData").getJSONArray("results");
-                int resultSize = results.length();
-                for (int j = 0; j < resultSize; ++j) {
-                    if (urlsCollected < getResultCount()) {
-                        String title = results.getJSONObject(j).getString("titleNoFormatting");
-                        title = StringEscapeUtils.unescapeHtml(title);
-
-                        String summary = results.getJSONObject(j).getString("content");
-
-                        String currentURL = results.getJSONObject(j).getString("unescapedUrl");
-
-                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title, summary);
-                        rank++;
-
-                        LOGGER.info("google news retrieved url " + currentURL);
-                        webresults.add(webresult);
-
-                        ++urlsCollected;
-                    } else {
-                        break;
-                    }
-                }
-
-            } catch (JSONException e) {
-                LOGGER.error(e.getMessage());
-            }
-
-            srManager.addRequest(WebSearcherManager.GOOGLE_NEWS);
-            LOGGER.info("google news requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_NEWS));
-        }
-
-        return webresults;
-    }
+//    private List<WebResult> getWebResultsFromGoogleNews(String searchQuery) {
+//
+//        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+//
+//        DocumentRetriever c = new DocumentRetriever();
+//
+//        // set the preferred language
+//        // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
+//        String languageString = "lang_en";
+//        if (getLanguage() == LANGUAGE_GERMAN) {
+//            languageString = "lang_de";
+//        }
+//
+//        int rank = 1;
+//        int urlsCollected = 0;
+//        int grabCount = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
+//        // because 8
+//        // results will
+//        // be responded
+//        // by
+//        // each query
+//        // Google returns max. 8 pages/64 results --
+//        // http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
+//        grabCount = Math.min(grabCount, 8);
+//        // System.out.println(grabSize);
+//        for (int i = 0; i < grabCount; i++) {
+//
+//            // rsz=large will respond 8 results
+//            try {
+//                JSONObject jsonOBJ = c
+//                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start=" + i * 8
+//                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
+//
+//                // System.out.println(jsonOBJ.toString(1));
+//                // in the first iteration find the maximum of available pages
+//                // and limit the search to those
+//                if (i == 0) {
+//                    JSONArray pages;
+//                    if (jsonOBJ.getJSONObject("responseData") != null
+//                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+//                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
+//                        pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
+//                        int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
+//                        if (lastStartPage < grabCount) {
+//                            grabCount = lastStartPage + 1;
+//                        }
+//                    }
+//                }
+//
+//                JSONArray results = jsonOBJ.getJSONObject("responseData").getJSONArray("results");
+//                int resultSize = results.length();
+//                for (int j = 0; j < resultSize; ++j) {
+//                    if (urlsCollected < getResultCount()) {
+//                        String title = results.getJSONObject(j).getString("titleNoFormatting");
+//                        title = StringEscapeUtils.unescapeHtml(title);
+//
+//                        String summary = results.getJSONObject(j).getString("content");
+//
+//                        String currentURL = results.getJSONObject(j).getString("unescapedUrl");
+//
+//                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE, rank, currentURL, title, summary);
+//                        rank++;
+//
+//                        LOGGER.info("google news retrieved url " + currentURL);
+//                        webresults.add(webresult);
+//
+//                        ++urlsCollected;
+//                    } else {
+//                        break;
+//                    }
+//                }
+//
+//            } catch (JSONException e) {
+//                LOGGER.error(e.getMessage());
+//            }
+//
+//            srManager.addRequest(WebSearcherManager.GOOGLE_NEWS);
+//            LOGGER.info("google news requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_NEWS));
+//        }
+//
+//        return webresults;
+//    }
 
 //    /**
 //     * <p>
@@ -885,85 +880,85 @@ public class WebSearcher {
 //        // return webresults;
 //    }
 
-    private List<WebResult> getWebResultsFromGoogleBlogs(String searchQuery) {
-
-        List<WebResult> webresults = new ArrayList<WebResult>();
-
-        DocumentRetriever c = new DocumentRetriever();
-
-        // set the preferred language
-        // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
-        String languageString = "lang_en";
-        if (getLanguage() == LANGUAGE_GERMAN) {
-            languageString = "lang_de";
-        }
-
-        int rank = 1;
-        int urlsCollected = 0;
-        int grabSize = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
-        // because 8
-        // results will
-        // be responded
-        // by
-        // each query
-        // System.out.println(grabSize);
-        for (int i = 0; i < grabSize; i++) {
-
-            // rsz=large will respond 8 results
-            try {
-                JSONObject jsonOBJ = c
-                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + i * 8
-                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
-
-                // System.out.println(jsonOBJ.toString(1));
-                // in the first iteration find the maximum of available pages
-                // and limit the search to those
-                if (i == 0) {
-                    JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null
-                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
-                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
-                        pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
-                        int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabSize) {
-                            grabSize = lastStartPage + 1;
-                        }
-                    }
-                }
-
-                JSONArray results = jsonOBJ.getJSONObject("responseData").getJSONArray("results");
-                int resultSize = results.length();
-                for (int j = 0; j < resultSize; ++j) {
-                    if (urlsCollected < getResultCount()) {
-
-                        JSONObject currentResult = results.getJSONObject(j);
-                        String title = currentResult.getString("titleNoFormatting");
-                        String summary = currentResult.getString("content");
-                        String currentURL = currentResult.getString("postUrl");
-
-                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE_BLOGS, rank, currentURL, title,
-                                summary);
-                        rank++;
-
-                        LOGGER.info("google blogs retrieved url " + currentURL);
-                        webresults.add(webresult);
-
-                        ++urlsCollected;
-                    } else {
-                        break;
-                    }
-                }
-
-            } catch (JSONException e) {
-                LOGGER.error(e.getMessage());
-            }
-
-            srManager.addRequest(WebSearcherManager.GOOGLE_BLOGS);
-            LOGGER.info("google blogs requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_BLOGS));
-        }
-
-        return webresults;
-    }
+//    private List<WebResult> getWebResultsFromGoogleBlogs(String searchQuery) {
+//
+//        List<WebResult> webresults = new ArrayList<WebResult>();
+//
+//        DocumentRetriever c = new DocumentRetriever();
+//
+//        // set the preferred language
+//        // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
+//        String languageString = "lang_en";
+//        if (getLanguage() == LANGUAGE_GERMAN) {
+//            languageString = "lang_de";
+//        }
+//
+//        int rank = 1;
+//        int urlsCollected = 0;
+//        int grabSize = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
+//        // because 8
+//        // results will
+//        // be responded
+//        // by
+//        // each query
+//        // System.out.println(grabSize);
+//        for (int i = 0; i < grabSize; i++) {
+//
+//            // rsz=large will respond 8 results
+//            try {
+//                JSONObject jsonOBJ = c
+//                        .getJSONDocument("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + i * 8
+//                                + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
+//
+//                // System.out.println(jsonOBJ.toString(1));
+//                // in the first iteration find the maximum of available pages
+//                // and limit the search to those
+//                if (i == 0) {
+//                    JSONArray pages;
+//                    if (jsonOBJ.getJSONObject("responseData") != null
+//                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+//                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
+//                        pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
+//                        int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
+//                        if (lastStartPage < grabSize) {
+//                            grabSize = lastStartPage + 1;
+//                        }
+//                    }
+//                }
+//
+//                JSONArray results = jsonOBJ.getJSONObject("responseData").getJSONArray("results");
+//                int resultSize = results.length();
+//                for (int j = 0; j < resultSize; ++j) {
+//                    if (urlsCollected < getResultCount()) {
+//
+//                        JSONObject currentResult = results.getJSONObject(j);
+//                        String title = currentResult.getString("titleNoFormatting");
+//                        String summary = currentResult.getString("content");
+//                        String currentURL = currentResult.getString("postUrl");
+//
+//                        WebResult webresult = new WebResult(WebSearcherManager.GOOGLE_BLOGS, rank, currentURL, title,
+//                                summary);
+//                        rank++;
+//
+//                        LOGGER.info("google blogs retrieved url " + currentURL);
+//                        webresults.add(webresult);
+//
+//                        ++urlsCollected;
+//                    } else {
+//                        break;
+//                    }
+//                }
+//
+//            } catch (JSONException e) {
+//                LOGGER.error(e.getMessage());
+//            }
+//
+//            srManager.addRequest(WebSearcherManager.GOOGLE_BLOGS);
+//            LOGGER.info("google blogs requests: " + srManager.getRequestCount(WebSearcherManager.GOOGLE_BLOGS));
+//        }
+//
+//        return webresults;
+//    }
 
 //    public int getLanguage() {
 //        return language;
