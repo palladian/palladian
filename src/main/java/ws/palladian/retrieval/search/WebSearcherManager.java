@@ -218,26 +218,26 @@ public class WebSearcherManager {
         return indexPath;
     }
 
-    public static void main(String[] args) {
-        String queryString = "population of Dresden is";
-        queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
-        queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
-        // queryString = "top speed of the Bugatti Veyron is";
-        new WebSearcher().getURLs(queryString, WebSearcherManager.BING, true);
-        // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
-        // true);
-        // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,
-        // false);
-
-        // queryString = "population of Dresden is";
-        // Logger.getInstance().setSilent(false);
-        // SourceRetriever sr = new SourceRetriever();
-        // sr.setResultCount(20);
-        // sr.getURLs(queryString,SourceRetriever.GOOGLE, true);
-
-        // String a = "\"abc | b\"";
-        // System.out.println(URLEncoder.encode(queryString));
-
-    }
+//    public static void main(String[] args) {
+//        String queryString = "population of Dresden is";
+//        queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
+//        queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
+//        // queryString = "top speed of the Bugatti Veyron is";
+//        new WebSearcher().getURLs(queryString, WebSearcherManager.BING, true);
+//        // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
+//        // true);
+//        // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,
+//        // false);
+//
+//        // queryString = "population of Dresden is";
+//        // Logger.getInstance().setSilent(false);
+//        // SourceRetriever sr = new SourceRetriever();
+//        // sr.setResultCount(20);
+//        // sr.getURLs(queryString,SourceRetriever.GOOGLE, true);
+//
+//        // String a = "\"abc | b\"";
+//        // System.out.println(URLEncoder.encode(queryString));
+//
+//    }
 
 }

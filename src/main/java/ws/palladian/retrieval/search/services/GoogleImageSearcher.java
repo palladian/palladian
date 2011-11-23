@@ -8,7 +8,7 @@ import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.search.WebResult;
 
 
-public class GoogleImageSearcher extends BaseGoogleSearcher implements WebSearcher {
+public final class GoogleImageSearcher extends BaseGoogleSearcher implements WebSearcher {
     
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(GoogleImageSearcher.class);

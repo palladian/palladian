@@ -6,7 +6,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
 
 import ws.palladian.retrieval.search.local.LocalIndexResult;
@@ -27,29 +26,29 @@ import ws.palladian.retrieval.search.local.ScoredDocument;
  */
 public class WebSearcher {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WebSearcher.class);
+//    /** The logger for this class. */
+//    private static final Logger LOGGER = Logger.getLogger(WebSearcher.class);
 
-    private WebSearcherManager srManager = null;
+//    private WebSearcherManager srManager = null;
 
-    /** Determines how many sources (urls) should be retrieved. */
-    private int resultCount;
-
-    /** Determines from which index the pages are going to be retrieved. */
-    private int source;
-
-    /** Language constants. */
-    public static final int LANGUAGE_ENGLISH = 0;
-    public static final int LANGUAGE_GERMAN = 1;
-
-    /** The preferred language of the results. */
-    private int language = LANGUAGE_ENGLISH;
-
-    public WebSearcher() {
-        srManager = WebSearcherManager.getInstance();
-        setResultCount(srManager.getResultCount());
-        setSource(srManager.getSource());
-    }
+//    /** Determines how many sources (urls) should be retrieved. */
+//    private int resultCount;
+//
+//    /** Determines from which index the pages are going to be retrieved. */
+//    private int source;
+//
+//    /** Language constants. */
+//    public static final int LANGUAGE_ENGLISH = 0;
+//    public static final int LANGUAGE_GERMAN = 1;
+//
+//    /** The preferred language of the results. */
+//    private int language = LANGUAGE_ENGLISH;
+//
+//    public WebSearcher() {
+//        srManager = WebSearcherManager.getInstance();
+//        setResultCount(srManager.getResultCount());
+//        setSource(srManager.getSource());
+//    }
 
 //    public int getResultCount() {
 //        return resultCount;
@@ -645,15 +644,15 @@ public class WebSearcher {
         return indexResults;
     }
 
-    private List<WebResult> getWebResultsFromHakia(String searchQuery) {
-        return fetchAndProcessHakia("http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid=",
-                searchQuery);
-    }
-
-    private List<WebResult> getNewsResultsFromHakia(String searchQuery) {
-        return fetchAndProcessHakia("http://syndication.hakia.com/searchapi.aspx?search.type=news&search.pid=",
-                searchQuery);
-    }
+//    private List<WebResult> getWebResultsFromHakia(String searchQuery) {
+//        return fetchAndProcessHakia("http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid=",
+//                searchQuery);
+//    }
+//
+//    private List<WebResult> getNewsResultsFromHakia(String searchQuery) {
+//        return fetchAndProcessHakia("http://syndication.hakia.com/searchapi.aspx?search.type=news&search.pid=",
+//                searchQuery);
+//    }
 
 //    /**
 //     * Generic Hakia method which is used for general search and news earch.
@@ -968,7 +967,7 @@ public class WebSearcher {
 //        this.language = language;
 //    }
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 
 //        // ///////////////// simple usage ///////////////////
 //        // create web searcher object
@@ -1046,5 +1045,5 @@ public class WebSearcher {
 //        // String a = "\"abc | b\"";
 //        // System.out.println(URLEncoder.encode(queryString));
 
-    }
+//    }
 }

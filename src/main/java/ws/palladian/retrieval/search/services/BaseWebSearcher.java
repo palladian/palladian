@@ -6,6 +6,11 @@ import java.util.List;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.WebResult;
 
+/**
+ * Base implementation for a {@link WebSearcher} providing common functionality.
+ * 
+ * @author Philipp Katz
+ */
 public abstract class BaseWebSearcher implements WebSearcher {
 
     protected final DocumentRetriever retriever;
@@ -19,37 +24,37 @@ public abstract class BaseWebSearcher implements WebSearcher {
         resultCount = 10;
         language = WebSearcherLanguage.ENGLISH;
     }
-    
+
     @Override
     public List<WebResult> search(String query) {
         return search(query, getResultCount());
     }
-    
+
     @Override
     public List<WebResult> search(String query, int resultCount) {
         return search(query, resultCount, getLanguage());
     }
-    
+
     @Override
     public List<WebResult> search(String query, WebSearcherLanguage language) {
         return search(query, getResultCount(), language);
     }
-    
+
     @Override
     public List<String> searchUrls(String query) {
         return searchUrls(query, getResultCount());
     }
-    
+
     @Override
     public List<String> searchUrls(String query, int resultCount) {
         return searchUrls(query, resultCount, getLanguage());
     }
-    
+
     @Override
     public List<String> searchUrls(String query, WebSearcherLanguage language) {
         return searchUrls(query, getResultCount(), language);
     }
-    
+
     @Override
     public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) {
         List<String> urls = new ArrayList<String>();
@@ -61,9 +66,9 @@ public abstract class BaseWebSearcher implements WebSearcher {
 
         return urls;
     }
-    
+
     @Override
-    public int getHitCount(String query) {
+    public int getResultCount(String query) {
         throw new UnsupportedOperationException("not supported for this searcher");
     }
 

@@ -102,7 +102,7 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
     }
     
     @Override
-    public int getHitCount(String query) {
+    public int getResultCount(String query) {
         
         int hitCount = 0;
         
