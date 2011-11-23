@@ -13,6 +13,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 public final class TwitterSearcher extends BaseWebSearcher implements WebSearcher {

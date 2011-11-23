@@ -19,6 +19,7 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 
 /**
  * <p>

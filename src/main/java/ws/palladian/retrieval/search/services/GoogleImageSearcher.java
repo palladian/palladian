@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import ws.palladian.preprocessing.multimedia.ExtractedImage;
 import ws.palladian.retrieval.search.WebResult;
+import ws.palladian.retrieval.search.WebSearcher;
 
 
 public final class GoogleImageSearcher extends BaseGoogleSearcher implements WebSearcher {
