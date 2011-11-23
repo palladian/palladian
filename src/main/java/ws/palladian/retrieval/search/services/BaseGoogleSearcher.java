@@ -17,7 +17,8 @@ import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
- * Base implementation for all Google searches.
+ * Base implementation for all Google searches. Subclasses typically implement {@link #getBaseUrl()} and
+ * {@link #parseResult(JSONObject)}.
  * 
  * @see http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
  * @author Philipp Katz
@@ -180,7 +181,7 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
     }
 
     @Override
-    public int getHitCount(String query) {
+    public int getResultCount(String query) {
         int hitCount = 0;
         try {
             JSONObject responseData = getResponseData(query, null, 0);

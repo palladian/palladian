@@ -4,6 +4,10 @@ import java.util.List;
 
 import ws.palladian.retrieval.search.WebResult;
 
+/**
+ * Interface defining a Searcher.
+ * @author Philipp Katz
+ */
 public interface WebSearcher {
 
     List<WebResult> search(String query, int resultCount, WebSearcherLanguage language);
@@ -22,7 +26,7 @@ public interface WebSearcher {
 
     List<String> searchUrls(String query);
     
-    int getHitCount(String query);
+    int getResultCount(String query);
 
     void setLanguage(WebSearcherLanguage language);
 
