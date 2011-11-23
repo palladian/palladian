@@ -28,7 +28,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @author Eduardo Jacobo Miranda
  * @author Philipp Katz
  */
-public class ScroogleSearcher extends BaseWebSearcher implements WebSearcher {
+public final class ScroogleSearcher extends BaseWebSearcher implements WebSearcher {
     
 
     /** The logger for this class. */

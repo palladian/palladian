@@ -9,9 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.search.WebResult;
 
-public class BingSearcher extends BaseWebSearcher implements WebSearcher {
+public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BingSearcher.class);
@@ -98,6 +99,26 @@ public class BingSearcher extends BaseWebSearcher implements WebSearcher {
 
         return webresults;
 
+    }
+    
+    @Override
+    public int getHitCount(String query) {
+        
+        int hitCount = 0;
+        
+        String urlString = "http://api.bing.net/json.aspx?AppId=" + apiKey
+                + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + UrlHelper.urlEncode(query);
+
+        try {
+            JSONObject jsonOBJ = retriever.getJSONDocument(urlString);
+
+            hitCount = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web").getInt("Total");
+
+        } catch (JSONException e) {
+            LOGGER.error(e.getMessage());
+        }
+        
+        return hitCount;
     }
     
     @Override

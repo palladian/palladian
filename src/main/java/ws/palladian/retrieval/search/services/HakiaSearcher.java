@@ -24,7 +24,7 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcherManager;
 
-public class HakiaSearcher extends BaseWebSearcher implements WebSearcher {
+public final class HakiaSearcher extends BaseWebSearcher implements WebSearcher {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(HakiaSearcher.class);
