@@ -23,10 +23,10 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
-public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSearcher {
+public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseHakiaSearcher.class);
@@ -83,7 +83,7 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
             NodeList nodes = (NodeList) result;
             LOGGER.debug("URL Nodes: " + nodes.getLength());
 
-            int rank = 1;
+//            int rank = 1;
             int grabSize = Math.min(nodes.getLength(), getResultCount());
 
             for (int i = 0; i < grabSize; i++) {
@@ -91,6 +91,8 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
 
                 String title = XPathHelper.getChildNode(nodeResult, "Title").getTextContent();
                 String summary = XPathHelper.getChildNode(nodeResult, "Paragraph").getTextContent();
+                
+                // FIXME date needs to be parsed
                 String date = "";
                 Node dateNode = XPathHelper.getChildNode(nodeResult, "Date");
                 if (dateNode != null) {
@@ -98,8 +100,8 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
                 }
                 String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
 
-                WebResult webresult = new WebResult(currentURL, title, summary, date);
-                rank++;
+                WebResult webresult = new WebResult(currentURL, title, summary);
+//                rank++;
 
                 LOGGER.debug("hakia retrieved url " + currentURL);
                 webresults.add(webresult);

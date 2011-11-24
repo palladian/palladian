@@ -12,14 +12,15 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
 /**
  * @see http://www.bing.com/developers/s/APIBasics.html
+ * TODO extract dates
  * @author Philipp Katz
  */
-public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
+public final class BingSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BingSearcher.class);
@@ -50,7 +51,7 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
             languageString = "de-de";
         }
 
-        int rank = 1;
+//        int rank = 1;
         int urlsCollected = 0;
         int grabSize = (int) Math.ceil((double) getResultCount() / 25);
         for (int i = 0; i < grabSize; i++) {
@@ -75,23 +76,22 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
 
-                        WebResult webResult = new WebResult();
                         JSONObject currentResult = results.getJSONObject(j);
 
-                        String currentURL = currentResult.getString("Url");
-                        webResult.setUrl(currentURL);
-
+                        String url = currentResult.getString("Url");
+                        String title = null;
+                        String summary = null;
                         if (currentResult.has("Title")) {
-                            webResult.setTitle(currentResult.getString("Title"));
+                            title = currentResult.getString("Title");
                         }
                         if (currentResult.has("Description")) {
-                            webResult.setSummary(currentResult.getString("Description"));
+                            summary = currentResult.getString("Description");
                         }
-                        webResult.setRank(rank);
+                        WebResult webResult = new WebResult(url, title, summary);
 
-                        rank++;
+                        // rank++;
 
-                        LOGGER.debug("bing retrieved url " + currentURL);
+                        LOGGER.debug("bing retrieved url " + url);
                         webresults.add(webResult);
 
                         ++urlsCollected;

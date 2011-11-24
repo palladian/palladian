@@ -7,11 +7,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
 
-import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.services.BaseWebSearcher;
+import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.services.WebSearcherLanguage;
 
-public final class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
+public final class ClueWebSearcher implements Searcher<LocalIndexResult> {
     
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClueWebSearcher.class);
@@ -24,20 +23,8 @@ public final class ClueWebSearcher extends BaseWebSearcher implements WebSearche
     }
 
     @Override
-    public List<WebResult> search(String query) {
-        
-        List<WebResult> webResults = new ArrayList<WebResult>();
-        List<LocalIndexResult> localIndexResults = getLocalIndexResultsFromClueWeb(query);
-
-        for (LocalIndexResult localIndexResult : localIndexResults) {
-            WebResult webResult = new WebResult();
-            webResult.setIndex(localIndexResult.getIndex());
-            webResult.setUrl(localIndexResult.getId());
-            webResult.setRank(localIndexResult.getRank());
-            webResults.add(webResult);
-        }
-
-        return webResults;
+    public List<LocalIndexResult> search(String query) {
+        return getLocalIndexResultsFromClueWeb(query);
     }
 
     @Override
@@ -72,17 +59,57 @@ public final class ClueWebSearcher extends BaseWebSearcher implements WebSearche
 
         for (ScoredDocument scoredDocument : indexAnswers) {
 
-            LocalIndexResult indexResult = new LocalIndexResult();
+            String warcId = scoredDocument.getWarcId();
+            String content = scoredDocument.getContent();
+            
+            LocalIndexResult indexResult = new LocalIndexResult(warcId, content);
+            
 //            indexResult.setIndex(WebSearcherManager.CLUEWEB);
-            indexResult.setId(scoredDocument.getWarcId());
-            indexResult.setRank(scoredDocument.getRank());
-            indexResult.setContent(scoredDocument.getContent());
+//            indexResult.setId(warcId);
+//            indexResult.setRank(scoredDocument.getRank());
+//            indexResult.setContent(content);
 
-            LOGGER.debug("clueweb retrieved url " + scoredDocument.getWarcId());
+            LOGGER.debug("clueweb retrieved url " + warcId);
             indexResults.add(indexResult);
 
         }
         return indexResults;
+    }
+
+    @Override
+    public List<String> searchUrls(String query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int getResultCount(String query) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setLanguage(WebSearcherLanguage language) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public WebSearcherLanguage getLanguage() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setResultCount(int resultCount) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public int getResultCount() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
  

@@ -3,10 +3,17 @@ package ws.palladian.retrieval.search.services;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
-public final class GoogleBlogsSearcher extends BaseGoogleSearcher implements WebSearcher {
+/**
+ * <p>
+ * Google blogs search.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public final class GoogleBlogsSearcher extends BaseGoogleSearcher<WebResult> implements Searcher<WebResult> {
 
     @Override
     protected String getBaseUrl() {

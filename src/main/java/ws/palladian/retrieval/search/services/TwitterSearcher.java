@@ -12,10 +12,11 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
-public final class TwitterSearcher extends BaseWebSearcher implements WebSearcher {
+// TODO consider date, parse
+public final class TwitterSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
@@ -35,7 +36,7 @@ public final class TwitterSearcher extends BaseWebSearcher implements WebSearche
 
         int resultsPerPage = Math.min(100, getResultCount());
         int numRequests = (int) Math.ceil(getResultCount() / 100.0);
-        int rank = 1;
+//        int rank = 1;
 
         for (int page = 1; page <= numRequests; page++) {
 
@@ -98,8 +99,8 @@ public final class TwitterSearcher extends BaseWebSearcher implements WebSearche
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(currentURL, null, text, dateString);
-                            rank++;
+                            WebResult webresult = new WebResult(currentURL, null, text);
+//                            rank++;
                             webresults.add(webresult);
                         }
                     }

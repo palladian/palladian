@@ -1,8 +1,9 @@
 package ws.palladian.retrieval.search.services;
 
-import ws.palladian.retrieval.search.WebSearcher;
+import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.WebResult;
 
-public final class HakiaSearcher extends BaseHakiaSearcher implements WebSearcher {
+public final class HakiaSearcher extends BaseHakiaSearcher implements Searcher<WebResult> {
 
     public HakiaSearcher(String apiKey) {
         super(apiKey);
