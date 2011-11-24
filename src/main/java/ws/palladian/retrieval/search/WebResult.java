@@ -15,6 +15,17 @@ public class WebResult extends SearchResult {
     public WebResult() {
         super();
     }
+    
+    public WebResult(String url, String title, String summary) {
+        super(title, summary);
+        this.url = url;
+    }
+    
+    public WebResult(String url, String title, String summary, String date) {
+        super(title, summary);
+        this.url = url;
+        this.date = date;
+    }
 
     public WebResult(int index, int rank, String url, String title, String summary) {
         super(index, rank, title, summary);

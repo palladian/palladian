@@ -9,20 +9,25 @@ import org.apache.lucene.index.CorruptIndexException;
 
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
 import ws.palladian.retrieval.search.services.BaseWebSearcher;
-import ws.palladian.retrieval.search.services.WebSearcherLanguage;
 
 public class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
     
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClueWebSearcher.class);
+    
+    private final String indexPath;
+    
+    public ClueWebSearcher(String indexPath) {
+        super();
+        this.indexPath = indexPath;
+    }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
         
         List<WebResult> webResults = new ArrayList<WebResult>();
-        List<LocalIndexResult> localIndexResults = getLocalIndexResultsFromClueWeb(query, exact);
+        List<LocalIndexResult> localIndexResults = getLocalIndexResultsFromClueWeb(query);
 
         for (LocalIndexResult localIndexResult : localIndexResults) {
             WebResult webResult = new WebResult();
@@ -49,15 +54,16 @@ public class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
      * @param searchQuery The search query.
      * @return A list of web results.
      */
-    public List<LocalIndexResult> getLocalIndexResultsFromClueWeb(String searchQuery, boolean exact) {
+    public List<LocalIndexResult> getLocalIndexResultsFromClueWeb(String searchQuery) {
 
         List<LocalIndexResult> indexResults = new ArrayList<LocalIndexResult>();
 
-        QueryProcessor queryProcessor = new QueryProcessor(WebSearcherManager.getInstance().getIndexPath());
+        QueryProcessor queryProcessor = new QueryProcessor(indexPath);
 
         List<ScoredDocument> indexAnswers = new ArrayList<ScoredDocument>();
         try {
-            indexAnswers = queryProcessor.queryIndex(searchQuery, getResultCount(), exact);
+            // FIXME remove exact parameter?
+            indexAnswers = queryProcessor.queryIndex(searchQuery, getResultCount(), false);
         } catch (CorruptIndexException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
@@ -67,7 +73,7 @@ public class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
         for (ScoredDocument scoredDocument : indexAnswers) {
 
             LocalIndexResult indexResult = new LocalIndexResult();
-            indexResult.setIndex(WebSearcherManager.CLUEWEB);
+//            indexResult.setIndex(WebSearcherManager.CLUEWEB);
             indexResult.setId(scoredDocument.getWarcId());
             indexResult.setRank(scoredDocument.getRank());
             indexResult.setContent(scoredDocument.getContent());

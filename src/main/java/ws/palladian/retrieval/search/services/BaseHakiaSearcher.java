@@ -25,7 +25,6 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
 
 public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSearcher {
 
@@ -49,7 +48,7 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
 
         List<WebResult> webresults = new ArrayList<WebResult>();
         Document searchResult = null;
@@ -99,7 +98,7 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher implements WebSe
                 }
                 String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
 
-                WebResult webresult = new WebResult(WebSearcherManager.HAKIA, rank, currentURL, title, summary, date);
+                WebResult webresult = new WebResult(currentURL, title, summary, date);
                 rank++;
 
                 LOGGER.debug("hakia retrieved url " + currentURL);

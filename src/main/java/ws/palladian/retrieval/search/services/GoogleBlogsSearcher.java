@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
 
 public final class GoogleBlogsSearcher extends BaseGoogleSearcher implements WebSearcher {
 
@@ -19,7 +18,7 @@ public final class GoogleBlogsSearcher extends BaseGoogleSearcher implements Web
         String title = resultData.getString("titleNoFormatting");
         String content = resultData.getString("content");
         String url = resultData.getString("postUrl");
-        WebResult webResult = new WebResult(WebSearcherManager.GOOGLE, 0, url, title, content);
+        WebResult webResult = new WebResult(url, title, content);
         return webResult;
     }
 

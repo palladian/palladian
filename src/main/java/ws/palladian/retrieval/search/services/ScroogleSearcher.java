@@ -44,7 +44,7 @@ public final class ScroogleSearcher extends BaseWebSearcher implements WebSearch
 
     // TODO currently, paging/result count is not supported
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
 
         List<WebResult> result = new ArrayList<WebResult>();
 
@@ -114,7 +114,7 @@ public final class ScroogleSearcher extends BaseWebSearcher implements WebSearch
         for (String query : queries) {
             
             
-            List<WebResult> searchResult = webSearcher.search(query, 100);
+            List<WebResult> searchResult = webSearcher.search(query);
             counter++;
             
             System.out.println(counter + "\t" + searchResult.size());
