@@ -5,13 +5,17 @@ import java.util.List;
 import ws.palladian.retrieval.search.services.WebSearcherLanguage;
 
 /**
- * <p>Interface defining a Searcher.</p>
+ * <p>
+ * Interface defining a Web Searcher.
+ * </p>
  * 
+ * @param <R> The specific type of search result this {@link WebSearcher} implementation provides. This might be page
+ *            links, image links, etc.
  * @author Philipp Katz
  */
-public interface WebSearcher {
+public interface Searcher<R extends SearchResult> {
 
-    List<WebResult> search(String query);
+    List<R> search(String query);
 
     List<String> searchUrls(String query);
 

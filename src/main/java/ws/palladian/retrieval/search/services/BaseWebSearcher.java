@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
 /**
  * Base implementation for a {@link WebSearcher} providing common functionality.
  * 
  * @author Philipp Katz
  */
-public abstract class BaseWebSearcher implements WebSearcher {
+public abstract class BaseWebSearcher<R extends WebResult> implements Searcher<R> {
 
     protected final DocumentRetriever retriever;
 
@@ -30,8 +30,8 @@ public abstract class BaseWebSearcher implements WebSearcher {
     public List<String> searchUrls(String query) {
         List<String> urls = new ArrayList<String>();
 
-        List<WebResult> webresults = search(query);
-        for (WebResult webresult : webresults) {
+        List<R> webresults = search(query);
+        for (R webresult : webresults) {
             urls.add(webresult.getUrl());
         }
 

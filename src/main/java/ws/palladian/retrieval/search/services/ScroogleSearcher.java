@@ -18,8 +18,8 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
 /**
  * <p>
@@ -29,7 +29,7 @@ import ws.palladian.retrieval.search.WebSearcher;
  * @author Eduardo Jacobo Miranda
  * @author Philipp Katz
  */
-public final class ScroogleSearcher extends BaseWebSearcher implements WebSearcher {
+public final class ScroogleSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
     
 
     /** The logger for this class. */
@@ -64,7 +64,7 @@ public final class ScroogleSearcher extends BaseWebSearcher implements WebSearch
 
             Iterator<Node> linkIterator = linkNodes.iterator();
             Iterator<Node> infoIterator = infoNodes.iterator();
-            int rank = 1;
+//            int rank = 1;
 
             while (linkIterator.hasNext()) {
                 Node linkNode = linkIterator.next();
@@ -79,7 +79,7 @@ public final class ScroogleSearcher extends BaseWebSearcher implements WebSearch
                 summary = StringHelper.getSubstringBetween(summary, "\"", "\"");
                 summary = StringHelper.removeDoubleWhitespaces(summary);
 
-                WebResult webResult = new WebResult(0, rank++, url, title, summary);
+                WebResult webResult = new WebResult(url, title, summary);
                 result.add(webResult);
 
             }
@@ -106,7 +106,7 @@ public final class ScroogleSearcher extends BaseWebSearcher implements WebSearch
     }
 
     public static void main(String[] args) {
-        WebSearcher webSearcher = new ScroogleSearcher();
+        Searcher<WebResult> webSearcher = new ScroogleSearcher();
         
         // let's see, how far we can go:
         List<String> queries = FileHelper.readFileToArray("/Users/pk/Uni/feeddataset/gathering_TUDCS6/finalQueries-TUDCS6.txt");

@@ -13,17 +13,21 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.WebImageResult;
 import ws.palladian.retrieval.search.WebResult;
-import ws.palladian.retrieval.search.WebSearcher;
 
 /**
- * Base implementation for all Google searches. Subclasses typically implement {@link #getBaseUrl()} and
- * {@link #parseResult(JSONObject)}.
+ * <p>
+ * Base implementation for all Google searches. Subclasses must implement {@link #getBaseUrl()}, which provides the URL
+ * to the API endpoint and {@link #parseResult(JSONObject)}, which is responsible for parsing the JSONObject for each
+ * result to the desired type ({@link WebResult} or subclasses).
+ * </p>
  * 
  * @see http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
  * @author Philipp Katz
  */
-public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebSearcher {
+public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSearcher<R> implements Searcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseGoogleSearcher.class);
@@ -35,9 +39,9 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
     }
 
     @Override
-    public List<WebResult> search(String query) {
+    public List<R> search(String query) {
 
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<R> webResults = new ArrayList<R>();
 
         // the number of pages we need to check; each page returns 8 results
         int necessaryPages = (int) Math.ceil(getResultCount() / 8.);
@@ -60,7 +64,7 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
                 JSONArray results = responseData.getJSONArray("results");
                 for (int j = 0; j < results.length(); j++) {
                     JSONObject resultJson = results.getJSONObject(j);
-                    WebResult webResult = parseResult(resultJson);
+                    R webResult = parseResult(resultJson);
                     webResults.add(webResult);
                     if (webResults.size() >= getResultCount()) {
                         break;
@@ -166,19 +170,13 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
     }
 
     /**
-     * Parse one result object to a {@link WebResult}.
+     * Parse one result object from JSON to an instance of {@link WebResult}.
      * 
      * @param resultData
      * @return
      * @throws JSONException
      */
-    protected WebResult parseResult(JSONObject resultData) throws JSONException {
-        String title = resultData.getString("titleNoFormatting");
-        String content = resultData.getString("content");
-        String url = resultData.getString("unescapedUrl");
-        WebResult webResult = new WebResult(url, title, content);
-        return webResult;
-    }
+    protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
     public int getResultCount(String query) {
@@ -196,9 +194,8 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
 
     public static void main(String[] args) {
         // WebSearcher searcher = new GoogleBlogsSearcher();
-        WebSearcher searcher = new GoogleImageSearcher();
-        List<WebResult> queryResult = searcher.search("apple");
+        Searcher<WebImageResult> searcher = new GoogleImageSearcher();
+        List<WebImageResult> queryResult = searcher.search("apple");
         CollectionHelper.print(queryResult);
-
     }
 }
