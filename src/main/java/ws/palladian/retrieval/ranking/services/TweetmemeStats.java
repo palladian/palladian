@@ -38,10 +38,10 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
     private static final String SERVICE_ID = "tweetmeme";
 
     /** The ranking value types of this service **/
-    static RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets",
+    public static final RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets",
             "The number of tweets mentioning this url, derived from tweetmeme.");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(TWEETS);
     }

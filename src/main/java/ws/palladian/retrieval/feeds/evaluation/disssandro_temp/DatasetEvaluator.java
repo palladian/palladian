@@ -19,6 +19,7 @@ import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.LIHZUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
@@ -239,6 +240,15 @@ public class DatasetEvaluator {
                 logMsg.append(updateStrategy.getName());
 
             }
+            // IndHist
+            else if (strategy.equalsIgnoreCase("LIHZ")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                updateStrategy = new LIHZUpdateStrategy(indHistTheta);
+                logMsg.append(updateStrategy.getName());
+
+            }
+
+            // LIHZUpdateStrategy
 
             // Unknown strategy
             else {
