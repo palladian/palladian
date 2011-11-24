@@ -11,7 +11,7 @@ import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
 import ws.palladian.retrieval.search.services.BaseWebSearcher;
 
-public class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
+public final class ClueWebSearcher extends BaseWebSearcher implements WebSearcher {
     
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClueWebSearcher.class);
