@@ -14,7 +14,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.Searcher;
-import ws.palladian.retrieval.search.WebImageResult;
 import ws.palladian.retrieval.search.WebResult;
 
 /**
@@ -193,9 +192,9 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
     }
 
     public static void main(String[] args) {
-        // WebSearcher searcher = new GoogleBlogsSearcher();
-        Searcher<WebImageResult> searcher = new GoogleImageSearcher();
-        List<WebImageResult> queryResult = searcher.search("apple");
+        Searcher<WebResult> searcher = new GoogleSearcher();
+        // Searcher<WebImageResult> searcher = new GoogleImageSearcher();
+        List<WebResult> queryResult = searcher.search("apple");
         CollectionHelper.print(queryResult);
     }
 }
