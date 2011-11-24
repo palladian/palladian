@@ -1,122 +1,126 @@
 package ws.palladian.retrieval.search.services;
 
-import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.XmlParser;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
+/**
+ * <p>
+ * Base implementation for Hakia searcher.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseHakiaSearcher.class);
 
+    private static final String DATE_PATTERN = "MM-dd-yyyy HH:mm:ss";
+
     private static final AtomicInteger requestCount = new AtomicInteger();
 
     private final String apiKey;
-    
+
+    private final XmlParser xmlParser;
+
     public BaseHakiaSearcher() {
         super();
         ConfigHolder configHolder = ConfigHolder.getInstance();
         PropertiesConfiguration config = configHolder.getConfig();
         this.apiKey = config.getString("api.hakia.key");
+        xmlParser = new XmlParser();
     }
 
     public BaseHakiaSearcher(String apiKey) {
         super();
         this.apiKey = apiKey;
+        xmlParser = new XmlParser();
     }
 
     @Override
     public List<WebResult> search(String query) {
 
-        List<WebResult> webresults = new ArrayList<WebResult>();
-        Document searchResult = null;
+        List<WebResult> webResults = new ArrayList<WebResult>();
 
-        // query hakia for search engine results
-        try {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(getEndpoint());
+        urlBuilder.append("&search.pid=").append(apiKey);
+        urlBuilder.append("&search.query=").append(query);
+        urlBuilder.append("&search.language=en");
+        urlBuilder.append("&search.numberofresult=").append(getResultCount());
 
-            String url = getEndpoint() + "&search.pid=" + apiKey + "&search.query=" + query
-                    + "&search.language=en&search.numberofresult=" + getResultCount();
-            searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
-            LOGGER.debug("Search Results for " + query + ":" + url);
-        } catch (SAXException e1) {
-            LOGGER.error("hakia", e1);
-        } catch (IOException e1) {
-            LOGGER.error("hakia", e1);
-        } catch (ParserConfigurationException e1) {
-            LOGGER.error("hakia", e1);
-        }
-
-        // create an xpath to grab the returned urls
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-
-        XPathExpression expr;
+        // TODO need to set correct TimeZone?
+        DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
 
         try {
 
-            LOGGER.debug(searchResult);
-            expr = xpath.compile("//Result");
+            HttpResult httpResult = retriever.httpGet(urlBuilder.toString());
+            requestCount.incrementAndGet();
+            Document resultDocument = xmlParser.parse(httpResult);
 
-            Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
-            NodeList nodes = (NodeList) result;
-            LOGGER.debug("URL Nodes: " + nodes.getLength());
+            List<Node> resultNodes = XPathHelper.getNodes(resultDocument, "//Result");
 
-//            int rank = 1;
-            int grabSize = Math.min(nodes.getLength(), getResultCount());
+            for (Node resultNode : resultNodes) {
 
-            for (int i = 0; i < grabSize; i++) {
-                Node nodeResult = nodes.item(i);
+                String url = XPathHelper.getChildNode(resultNode, "Url").getTextContent();
+                String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
+                String summary = XPathHelper.getChildNode(resultNode, "Paragraph").getTextContent();
 
-                String title = XPathHelper.getChildNode(nodeResult, "Title").getTextContent();
-                String summary = XPathHelper.getChildNode(nodeResult, "Paragraph").getTextContent();
-                
-                // FIXME date needs to be parsed
-                String date = "";
-                Node dateNode = XPathHelper.getChildNode(nodeResult, "Date");
+                // date is only available for hakia news
+                Node dateNode = XPathHelper.getChildNode(resultNode, "Date");
+                Date date = null;
                 if (dateNode != null) {
-                    date = dateNode.getTextContent();
+                    date = dateFormat.parse(dateNode.getTextContent());
                 }
-                String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
 
-                WebResult webresult = new WebResult(currentURL, title, summary);
-//                rank++;
+                WebResult webResult = new WebResult(url, title, summary, date);
+                LOGGER.debug("hakia retrieved " + webResult);
+                webResults.add(webResult);
 
-                LOGGER.debug("hakia retrieved url " + currentURL);
-                webresults.add(webresult);
+                if (webResults.size() >= getResultCount()) {
+                    break;
+                }
             }
 
-        } catch (XPathExpressionException e) {
+        } catch (HttpException e) {
             LOGGER.error(e);
         } catch (DOMException e) {
             LOGGER.error(e);
+        } catch (ParserException e) {
+            LOGGER.error(e);
+        } catch (ParseException e) {
+            LOGGER.error(e);
         }
-
-        requestCount.incrementAndGet();
-        return webresults;
+        return webResults;
     }
 
     protected abstract String getEndpoint();
+
+    public static void main(String[] args) {
+        Searcher<WebResult> searcher = new HakiaNewsSearcher();
+        List<WebResult> result = searcher.search("apple");
+        CollectionHelper.print(result);
+    }
 
 }

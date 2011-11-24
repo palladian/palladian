@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
@@ -137,6 +138,12 @@ public final class BingSearcher extends BaseWebSearcher<WebResult> implements Se
     @Override
     public String getName() {
         return "Bing";
+    }
+    
+    public static void main(String[] args) {
+        Searcher<WebResult> searcher = new BingSearcher();
+        List<WebResult> result = searcher.search("apple");
+        CollectionHelper.print(result);
     }
 
 }
