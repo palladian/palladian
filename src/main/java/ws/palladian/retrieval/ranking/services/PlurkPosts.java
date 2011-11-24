@@ -44,9 +44,9 @@ public class PlurkPosts extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "plurk";
 
     /** The ranking value types of this service **/
-    static RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts",
+    public static final RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts",
             "The number of posts on plurk.com mentioning this url.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(POSTS);
     }

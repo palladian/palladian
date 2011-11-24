@@ -34,9 +34,10 @@ public class WebOfTrust extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "web_of_trust";
 
     /** The ranking value types of this service. */
-    static RankingType TRUSTWORTHINESS = new RankingType("wot_trustworthiness", "Web of Trust Trustworthiness", "");
+    public static final RankingType TRUSTWORTHINESS = new RankingType("wot_trustworthiness",
+            "Web of Trust Trustworthiness", "");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(TRUSTWORTHINESS);
     }

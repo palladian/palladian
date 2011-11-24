@@ -43,9 +43,9 @@ public class GoogleBuzzShares extends BaseRankingService implements RankingServi
     private static final String SERVICE_ID = "buzz";
 
     /** The ranking value types of this service **/
-    static RankingType SHARES = new RankingType("buzz_shares", "Google Buzz Shares",
+    public static final RankingType SHARES = new RankingType("buzz_shares", "Google Buzz Shares",
             "The number of times users have shared the page on Google Buzz");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(SHARES);
     }

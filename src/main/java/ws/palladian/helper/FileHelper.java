@@ -307,7 +307,9 @@ public class FileHelper {
     }
 
     /**
-     * <p>Create a list with each line of the given file as an element.</p>
+     * <p>
+     * Create a list with each line of the given file as an element.
+     * </p>
      * 
      * @param path The path of the file.
      * @return A list with the lines as elements.
@@ -383,15 +385,16 @@ public class FileHelper {
 
         return list;
     }
-    
+
     public static List<String> readFileToArray(BufferedReader reader) {
-        return readFileToArray(reader,-1);
+        return readFileToArray(reader, -1);
     }
+
     public static List<String> readFileToArray(BufferedReader reader, int numberOfLines) {
         List<String> list = new ArrayList<String>();
-       
+
         try {
-            
+
             String line = null;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
                 list.add(line);
@@ -515,6 +518,33 @@ public class FileHelper {
      */
     public static int performActionOnEveryLineText(String text, LineAction la) {
         return performActionOnEveryLine(new StringReader(text), la);
+    }
+
+    public static File writeToFile(String filePath, InputStream stream) {
+
+        File file = new File(filePath);
+        
+        OutputStream out = null;
+        
+        try {
+            out = new FileOutputStream(file);
+            
+            byte buf[] = new byte[1024];
+            int len;
+            while ((len = stream.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+
+            out.close();
+            stream.close();
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            close(out, stream);
+        }
+
+        return file;
     }
 
     /**
@@ -895,12 +925,12 @@ public class FileHelper {
         InputStream in = null;
         OutputStream out = null;
         try {
-            
+
             File outputFile = new File(FileHelper.getFilePath(destinationFile));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-            
+
             in = new FileInputStream(new File(sourceFile));
             out = new FileOutputStream(new File(destinationFile));
 
@@ -1271,21 +1301,21 @@ public class FileHelper {
      * @param filenameInput The name of the zipped file.
      * @param filenameOutput The target name of the unzipped file.
      */
-//    public static void ungzipFile(String filenameInput, String filenameOutput) {
-//        String unzippedContent = ungzipFileToString(filenameInput);
-//        writeToFile(filenameOutput, unzippedContent);
-//    }
+    // public static void ungzipFile(String filenameInput, String filenameOutput) {
+    // String unzippedContent = ungzipFileToString(filenameInput);
+    // writeToFile(filenameOutput, unzippedContent);
+    // }
 
     /**
      * Unzip a file.
      * 
      * @param filenameInput The name of the file to unzip.
      */
-//    public static void ungzipFile(String filenameInput) {
-//        String unzippedContent = ungzipFileToString(filenameInput);
-//        String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
-//        writeToFile(filenameOutput, unzippedContent);
-//    }
+    // public static void ungzipFile(String filenameInput) {
+    // String unzippedContent = ungzipFileToString(filenameInput);
+    // String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
+    // writeToFile(filenameOutput, unzippedContent);
+    // }
 
     /**
      * Unzip file using the command line cmd.
@@ -1360,14 +1390,15 @@ public class FileHelper {
         }
         return content.toString();
     }
-    
+
     public static boolean ungzipFile(String filename) {
         return ungzipFile(filename, "");
     }
+
     public static boolean ungzipFile(String filename, String targetFilename) {
 
         boolean success = false;
-        
+
         GZIPInputStream zipIn = null;
         BufferedOutputStream dest = null;
         FileOutputStream fos = null;
@@ -1377,7 +1408,7 @@ public class FileHelper {
             int chunkSize = 8192;
             byte[] buffer = new byte[chunkSize];
             int length;
-            
+
             // write the files to the disk
             if (targetFilename.isEmpty()) {
                 targetFilename = appendToFileName(filename, "_unpacked");
@@ -1388,16 +1419,16 @@ public class FileHelper {
                 dest.write(buffer, 0, length);
             }
             dest.close();
-            
+
             success = true;
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
-            close(zipIn,fos,dest);
+            close(zipIn, fos, dest);
         }
-        
+
         return success;
     }
 
@@ -1707,12 +1738,16 @@ public class FileHelper {
         isFileName("ab.ai");
         isFileName("  abasdf.mpeg2 ");
 
-        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
+                "sampleTextForTagging_tagged"));
 
     }
 
     /**
-     * <p>Shuffles the order of lines in a given file.</p>
+     * <p>
+     * Shuffles the order of lines in a given file.
+     * </p>
+     * 
      * @param filePath The path of the file which lines should be shuffled.
      */
     public static void shuffleLines(String filePath) {

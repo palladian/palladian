@@ -43,8 +43,8 @@ public class GooglePageRank extends BaseRankingService implements RankingService
     private static final String SERVICE_ID = "pagerank";
 
     /** The ranking value types of this service **/
-    static RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    public static final RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google");
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(PAGERANK);
     }

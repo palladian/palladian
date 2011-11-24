@@ -1500,7 +1500,7 @@ public class Feed {
      */
     public Map<String, Object> getAdditionalData() {
         if (additionalData == null) {
-            return new HashMap<String, Object>();
+            additionalData = new HashMap<String, Object>();
         }
         return additionalData;
     }

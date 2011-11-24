@@ -51,14 +51,14 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
     private static final String SERVICE_ID = "friendfeed_external";
 
     /** The ranking value types of this service **/
-    static RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services",
+    public static final RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services",
             "The number of entries from varying services containing the given url on FriendFeed.");
-    static RankingType LIKES = new RankingType("friendfeed_ext_likes", "FriendFeed likes for external services",
+    public static final RankingType LIKES = new RankingType("friendfeed_ext_likes", "FriendFeed likes for external services",
             "The number of likes on entries from varying services containing the given url on FriendFeed.");
-    static RankingType COMMENTS = new RankingType("friendfeed_ext_comments",
+    public static final RankingType COMMENTS = new RankingType("friendfeed_ext_comments",
             "FriendFeed comments for external services",
             "The number of comments on entries from varying services containing the given url on FriendFeed.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(ENTRIES);
         RANKING_TYPES.add(LIKES);
