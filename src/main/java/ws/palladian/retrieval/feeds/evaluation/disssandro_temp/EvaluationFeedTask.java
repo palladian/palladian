@@ -166,7 +166,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Sets the current simulated poll time from timestamp of last iteration and the feed's current update interval
      * 
      */
-    private void setSimulatedPollTime() {
+    private void setSimulatedPollTime(Feed feed) {
         simulatedCurrentPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
     }
 
@@ -222,22 +222,33 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
         try {
+            Feed trainingFeed = new Feed();
 
             // do training if required by update strategy.
             if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
+
                 trainingMode = true;
+
+                // in training mode, we need an extra feed object since items are cached in the feed itself to do
+                // duplicate detection, but we _want_ to identify all items in the first poll after training as new
+                // items!
+                trainingFeed.setId(feed.getId());
+                trainingFeed.setActivityPattern(feed.getActivityPattern());
+
                 while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_TRAINING_STOP_TIME_MILLISECOND) {
                     // set time of current poll to feed
-                    feed.setLastPollTime(new Date(simulatedCurrentPollTime));
+                    trainingFeed.setLastPollTime(new Date(simulatedCurrentPollTime));
 
                     Feed downloadedFeed = getSimulatedWindowFromDataset(new Timestamp(simulatedCurrentPollTime));
 
+                    // abort processing if we dont have data
                     if (downloadedFeed == null) {
                         LOGGER.info("Feed id "
                                 + feed.getId()
                                 + ": can't load the simulated window for this feed. The first successful poll done when "
                                 + "creating the dataset was later than this simulated poll. Stop processing immediately.");
-                        // Set last poll time after benchmark stop time to prevent feed from beeing scheduled again.
+                        // Set last poll time after benchmark stop time to prevent feed from being scheduled again. (Do
+                        // not use trainingFeed here...)
                         feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
                         resultSet.add(FeedTaskResult.SUCCESS);
                         doFinalLogging(timer);
@@ -248,15 +259,19 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                     // remember item sequence numbers
                     determineItemSequenceNumbers(downloadedFeed);
 
-                    feed.setItems(downloadedFeed.getItems());
-                    feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
-                    feed.setWindowSize(downloadedFeed.getItems().size());
+                    trainingFeed.setItems(downloadedFeed.getItems());
+                    trainingFeed.setLastSuccessfulCheckTime(trainingFeed.getLastPollTime());
+                    trainingFeed.setWindowSize(downloadedFeed.getItems().size());
 
-                    feedReader.updateCheckIntervals(feed, trainingMode);
+                    feedReader.updateCheckIntervals(trainingFeed, trainingMode);
 
                     // estimate time of next poll
-                    setSimulatedPollTime();
+                    setSimulatedPollTime(trainingFeed);
                 }
+
+                // write trained model from trainingFeed back to the feed object used in 'real' evaluation
+                // debug info: in case training strategies change other stuff than additional data, copy it here
+                feed.setAdditionalData(trainingFeed.getAdditionalData());
             }
 
             // training has been finished. reset all parameters that influence 'real' evaluation
@@ -267,6 +282,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             feed.setLastButOnePollTime(null);
             feed.setLastFeedEntry(null);
             feed.setLastButOneFeedEntry(null);
+
 
             // start 'real' evaluation
             while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND) {
@@ -461,7 +477,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 feed.setAdditionalData(additionalData);
 
                 // estimate time of next poll
-                setSimulatedPollTime();
+                setSimulatedPollTime(feed);
 
                 // store stuff for next iteration
                 if (numberOfPollWithNewItem != null) {
