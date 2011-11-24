@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.Label;
 import ws.palladian.iirmodel.LabelType;
+import ws.palladian.iirmodel.Labeler;
 
 /**
  * <p>
@@ -74,10 +76,10 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
             + "(SELECT DISTINCT ir3.firstEntry.identifier FROM ForumEntryRelation ir3) " + "AND i2.identifier NOT IN "
             + "(SELECT DISTINCT ir4.secondEntry.identifier FROM ForumEntryRelation ir4) " + "AND i1.parent=i2.parent";
 
-    private static final String GET_NON_LABELED_ITEM = "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.annotatedItem.identifier FROM Label a)";
+    private final TypedQuery<Item> getNonLabeledItemQuery;
 
-    private final TypedQuery<Long> COUNT_LABELED_ITEMS_QUERY;
-    private final Query COUNT_LABELED_ITEM_TYPES;
+    private final TypedQuery<Long> countLabeledItemsQuery;
+    private final Query countLabeledItemTypes;
 
     /**
      * <p>
@@ -90,15 +92,26 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     private static final Random random = new Random(Calendar.getInstance().getTimeInMillis());
 
+    private final TypedQuery<Item> getItemsOnlyLabeledByOthersQuery;
+
     /**
      * @param entityManager
      */
     public WebPersistenceUtils(EntityManager entityManager) {
         super(entityManager);
-        COUNT_LABELED_ITEMS_QUERY = getManager().createQuery("SELECT COUNT(l) FROM Label l", Long.class);
-        COUNT_LABELED_ITEM_TYPES = getManager()
+        countLabeledItemsQuery = getManager().createQuery("SELECT COUNT(l) FROM Label l", Long.class);
+        countLabeledItemTypes = getManager()
                 .createNativeQuery(
                         "SELECT ANNOTATIONTYPE.typeName, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN ANNOTATIONTYPE ON ANNOTATION.annotation_identifier=ANNOTATIONTYPE.identifier GROUP BY ANNOTATIONTYPE.typeName;");
+        getNonLabeledItemQuery = getManager()
+                .createQuery(
+                        "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.annotatedItem.identifier FROM Label a)",
+                        Item.class);
+        getNonLabeledItemQuery.setMaxResults(100);
+        getItemsOnlyLabeledByOthersQuery = getManager().createQuery(
+                "SELECT i FROM Labeler lr, IN(lr.labels) l, ITEM i WHERE l.annotatedItem = i AND lr != :labeler",
+                Item.class);
+        getItemsOnlyLabeledByOthersQuery.setMaxResults(100);
         // COUNT_LABELED_ITEM_TYPES = getManager().createQuery(
         // "SELECT l.annotation, COUNT(l) FROM Label l GROUP BY l.annotation");
         // CriteriaBuilder cb = getManager().getCriteriaBuilder();
@@ -243,23 +256,63 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @return A random not yet annotated {@code Item} or {@code null} if no such item exists.
      */
     public Item getRandomNonLabeledItem() {
-        TypedQuery<Item> getNonAnnotatedItemQuery = getManager().createQuery(GET_NON_LABELED_ITEM, Item.class);
-        getNonAnnotatedItemQuery.setMaxResults(100);
-
         Boolean openedTransaction = openTransaction();
         try {
-            List<Item> nonAnnotateditems = getNonAnnotatedItemQuery.getResultList();
+            List<Item> nonAnnotateditems = getNonLabeledItemQuery.getResultList();
 
             int countOfNonAnnotatedItems = nonAnnotateditems.size();
             if (countOfNonAnnotatedItems > 0) {
-                int randomIndex = random.nextInt(countOfNonAnnotatedItems);
-                return nonAnnotateditems.get(randomIndex);
+                return chooseRandomItem(nonAnnotateditems);
             } else {
                 return null;
             }
         } finally {
             commitTransaction(openedTransaction);
         }
+    }
+
+    /**
+     * <p>
+     * Tries to find a random {@link Item} from the database, that was not labeled by {@link Labeler} but was already
+     * labeled by another person. If no such {@code Item} exists a random not yet labeled {@code Item} is returned. This
+     * method is especially helpful to maximize the amount of labels per {@code Item} and is thus useful for calculating
+     * the kappa value of a dataset. The kappa value describes the agreement between {@code Labelers}. It can be used to
+     * make assumptions how easy the label task is and how clear the definitions of individual labels are. A dataset has
+     * a high kappa value the {@code Labeler} agree on almost all {@code Label}s whereas a low kappa value denotes
+     * disagreement between different {@code Labeler}s.
+     * </p>
+     * 
+     * @param labeler The {@code Labeler} denoted by self. The method tries to find items only labeled by other
+     *            {@code Labeler}s.
+     * @return A random {@code Item} not already labeled by {@code labeler}. At first all items are choosen that where
+     *         already labeled by other {@code Labeler}s and if no such {@code Item} exists another unlabeled random
+     *         {@code Item} is selected.
+     */
+    public Item getNextNonSelfLabeledItem(final Labeler labeler) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            List<Item> itemsLabeledByOthers = getItemsOnlyLabeledByOthersQuery.getResultList();
+            if (itemsLabeledByOthers.isEmpty()) {
+                return getRandomNonLabeledItem();
+            } else {
+                return chooseRandomItem(itemsLabeledByOthers);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Selects a random {@code Item} from a {@code List} of {@code Item}s.
+     * </p>
+     * 
+     * @param items The {@code List} of {@code Item}s to select from.
+     * @return a random {@code Item} from the provided {@code List} of {@code Item}s.
+     */
+    private Item chooseRandomItem(final List<Item> items) {
+        int randomIndex = random.nextInt(items.size());
+        return items.get(randomIndex);
     }
 
     /**
@@ -326,7 +379,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
     public Long countLabeledItems() {
         Boolean openedTransaction = openTransaction();
         try {
-            return COUNT_LABELED_ITEMS_QUERY.getSingleResult();
+            return countLabeledItemsQuery.getSingleResult();
         } finally {
             commitTransaction(openedTransaction);
         }
@@ -346,11 +399,65 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         try {
             Map<String, String> ret = new HashMap<String, String>();
             @SuppressWarnings("unchecked")
-            List<Object[]> results = COUNT_LABELED_ITEM_TYPES.getResultList();
+            List<Object[]> results = countLabeledItemTypes.getResultList();
             for (Object[] mapping : results) {
                 ret.put((String)mapping[0], String.valueOf(mapping[1]));
             }
             return ret;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Saves a non existing {@link Labeler} to the database. You need to make sure that all labels provided by this
+     * labeler are saved in advance or the persistence layer will throw errors.
+     * </p>
+     * 
+     * @param labeler The {@code Labeler} to save.
+     */
+    public void saveLabeler(final Labeler labeler) {
+        Boolean openedTransaction = openTransaction();
+        Labeler existingLabeler = getManager().find(Labeler.class, labeler.getName());
+        if (existingLabeler == null) {
+            getManager().persist(labeler);
+        } else {
+            getManager().merge(labeler);
+        }
+        commitTransaction(openedTransaction);
+    }
+
+    /**
+     * <p>
+     * Provides a {@link Labeler} identified by its {@code name}.
+     * </p>
+     * 
+     * @param name The name of the {@code Labeler} to find.
+     * @return The {@code Labeler} identified by {@code name} or {@code null} if no such {@code Labeler} exists.
+     */
+    public Labeler loadLabeler(final String name) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            return getManager().find(Labeler.class, name);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Provides a {@link Collection} of all {@link Labeler}s from the database.
+     * </p>
+     * 
+     * @return A {@code Collection} containing all {@code Labeler}s from the database.
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<Labeler> loadLabeler() {
+        Query query = getManager().createQuery("SELECT l FROM Labeler l");
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
