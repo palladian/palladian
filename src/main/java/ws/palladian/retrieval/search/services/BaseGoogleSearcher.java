@@ -15,7 +15,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
 
 /**
  * Base implementation for all Google searches. Subclasses typically implement {@link #getBaseUrl()} and
@@ -36,18 +35,18 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
 
         // the number of pages we need to check; each page returns 8 results
-        int necessaryPages = (int) Math.ceil(resultCount / 8.);
+        int necessaryPages = (int) Math.ceil(getResultCount() / 8.);
 
         try {
             for (int i = 0; i < necessaryPages; i++) {
 
                 int offset = i * 8;
-                JSONObject responseData = getResponseData(query, language, offset);
+                JSONObject responseData = getResponseData(query, getLanguage(), offset);
                 requestCount.incrementAndGet();
 
                 // in the first iteration find the maximum of available pages and limit the search to those
@@ -63,7 +62,7 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
                     JSONObject resultJson = results.getJSONObject(j);
                     WebResult webResult = parseResult(resultJson);
                     webResults.add(webResult);
-                    if (webResults.size() >= resultCount) {
+                    if (webResults.size() >= getResultCount()) {
                         break;
                     }
                 }
@@ -177,7 +176,7 @@ public abstract class BaseGoogleSearcher extends BaseWebSearcher implements WebS
         String title = resultData.getString("titleNoFormatting");
         String content = resultData.getString("content");
         String url = resultData.getString("unescapedUrl");
-        WebResult webResult = new WebResult(WebSearcherManager.GOOGLE, 0, url, title, content);
+        WebResult webResult = new WebResult(url, title, content);
         return webResult;
     }
 

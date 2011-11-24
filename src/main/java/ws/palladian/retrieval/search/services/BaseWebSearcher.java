@@ -27,40 +27,10 @@ public abstract class BaseWebSearcher implements WebSearcher {
     }
 
     @Override
-    public List<WebResult> search(String query) {
-        return search(query, getResultCount());
-    }
-
-    @Override
-    public List<WebResult> search(String query, int resultCount) {
-        return search(query, resultCount, getLanguage());
-    }
-
-    @Override
-    public List<WebResult> search(String query, WebSearcherLanguage language) {
-        return search(query, getResultCount(), language);
-    }
-
-    @Override
     public List<String> searchUrls(String query) {
-        return searchUrls(query, getResultCount());
-    }
-
-    @Override
-    public List<String> searchUrls(String query, int resultCount) {
-        return searchUrls(query, resultCount, getLanguage());
-    }
-
-    @Override
-    public List<String> searchUrls(String query, WebSearcherLanguage language) {
-        return searchUrls(query, getResultCount(), language);
-    }
-
-    @Override
-    public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) {
         List<String> urls = new ArrayList<String>();
 
-        List<WebResult> webresults = search(query, resultCount, language);
+        List<WebResult> webresults = search(query);
         for (WebResult webresult : webresults) {
             urls.add(webresult.getUrl());
         }

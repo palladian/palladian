@@ -37,6 +37,11 @@ public abstract class SearchResult {
         this.date = date;
     }
 
+    public SearchResult(String title, String summary) {
+        this.title = title;
+        this.summary = summary;
+    }
+
     public int getIndex() {
         return index;
     }

@@ -14,7 +14,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
 
 public final class TwitterSearcher extends BaseWebSearcher implements WebSearcher {
 
@@ -24,7 +23,7 @@ public final class TwitterSearcher extends BaseWebSearcher implements WebSearche
     private static final AtomicInteger requestCount = new AtomicInteger();
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
 
         List<WebResult> webresults = new ArrayList<WebResult>();
 
@@ -99,8 +98,7 @@ public final class TwitterSearcher extends BaseWebSearcher implements WebSearche
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(WebSearcherManager.TWITTER, rank, currentURL, null,
-                                    text, dateString);
+                            WebResult webresult = new WebResult(currentURL, null, text, dateString);
                             rank++;
                             webresults.add(webresult);
                         }

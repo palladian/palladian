@@ -15,6 +15,10 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.search.WebResult;
 import ws.palladian.retrieval.search.WebSearcher;
 
+/**
+ * @see http://www.bing.com/developers/s/APIBasics.html
+ * @author Philipp Katz
+ */
 public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
 
     /** The logger for this class. */
@@ -28,7 +32,7 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
         super();
         this.apiKey = apiKey;
     }
-    
+
     public BingSearcher() {
         ConfigHolder configHolder = ConfigHolder.getInstance();
         PropertiesConfiguration config = configHolder.getConfig();
@@ -36,7 +40,7 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query) {
 
         List<WebResult> webresults = new ArrayList<WebResult>();
 
@@ -109,12 +113,12 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
         return webresults;
 
     }
-    
+
     @Override
     public int getResultCount(String query) {
-        
+
         int hitCount = 0;
-        
+
         String urlString = "http://api.bing.net/json.aspx?AppId=" + apiKey
                 + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + UrlHelper.urlEncode(query);
 
@@ -126,10 +130,10 @@ public final class BingSearcher extends BaseWebSearcher implements WebSearcher {
         } catch (JSONException e) {
             LOGGER.error(e.getMessage());
         }
-        
+
         return hitCount;
     }
-    
+
     @Override
     public String getName() {
         return "Bing";
