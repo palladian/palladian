@@ -114,5 +114,10 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     }
 
     protected abstract String getEndpoint();
+    
+    @Override
+    public int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
+    }
 
 }

@@ -131,5 +131,10 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     public String getName() {
         return "Twitter";
     }
+    
+    @Override
+    public int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
+    }
 
 }

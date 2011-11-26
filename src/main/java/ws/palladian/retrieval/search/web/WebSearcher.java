@@ -8,7 +8,10 @@ import ws.palladian.retrieval.search.SearchResult;
 import ws.palladian.retrieval.search.Searcher;
 
 /**
- * Base implementation for a {@link WebSearcher} providing common functionality.
+ * <p>
+ * Base implementation for a {@link WebSearcher} providing common functionality. A WebSearcher is a component which
+ * queries APIs from web search engines, like Google.
+ * </p>
  * 
  * @author Philipp Katz
  */
@@ -89,6 +92,30 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      */
     public final void setLanguage(WebSearcherLanguage language) {
         this.language = language;
+    }
+
+    /**
+     * <p>
+     * Get the total number of requests, which this class of web searcher has performed. As usage limitations apply to
+     * the number of HTTP requests, this is the number of actual HTTP requests, <b>not</b> the number of queries. For
+     * example, a query with 1.000 desired results requires 10 HTTP requests to the service, each returning 100 results.
+     * In this case, the number of requests should be incremented by 10.
+     * </p>
+     * 
+     * <p>
+     * When creating your own implementations, keep in mind, that usage restrictions usually apply site-wide, so the
+     * counter should be implemented in the base-class of each service, not individually for all its subclasses.
+     * </p>
+     * 
+     * @return
+     */
+    public abstract int getRequestCount();
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName()).append(":").append(getRequestCount());
+        return sb.toString();
     }
 
 }
