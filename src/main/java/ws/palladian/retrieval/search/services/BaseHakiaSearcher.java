@@ -36,7 +36,7 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> {
 
     private static final String DATE_PATTERN = "MM-dd-yyyy HH:mm:ss";
 
-    private static final AtomicInteger requestCount = new AtomicInteger();
+    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final String apiKey;
 
@@ -74,7 +74,7 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> {
         try {
 
             HttpResult httpResult = retriever.httpGet(urlBuilder.toString());
-            requestCount.incrementAndGet();
+            TOTAL_REQUEST_COUNT.incrementAndGet();
             Document resultDocument = xmlParser.parse(httpResult);
 
             List<Node> resultNodes = XPathHelper.getNodes(resultDocument, "//Result");
