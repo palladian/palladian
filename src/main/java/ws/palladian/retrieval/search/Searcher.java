@@ -10,7 +10,7 @@ import ws.palladian.retrieval.search.services.WebSearcherLanguage;
  * </p>
  * 
  * @param <R> The specific type of search result this {@link WebSearcher} implementation provides. This might be page
- *            links, image links, etc.
+ *            links, image links, full documents, etc.
  * @author Philipp Katz
  */
 public interface Searcher<R extends SearchResult> {

@@ -12,11 +12,10 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
 // TODO consider date, parse
-public final class TwitterSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
+public final class TwitterSearcher extends BaseWebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
@@ -28,15 +27,9 @@ public final class TwitterSearcher extends BaseWebSearcher<WebResult> implements
 
         List<WebResult> webresults = new ArrayList<WebResult>();
 
-        // FIXME dirty; WebSearcher surrounds query string with %22 when in "exact mode" ..
-        // remove them here, as twitter will give no results ...
-        if (query.contains("%22")) {
-            query = query.replace("%22", "");
-        }
-
         int resultsPerPage = Math.min(100, getResultCount());
         int numRequests = (int) Math.ceil(getResultCount() / 100.0);
-//        int rank = 1;
+        // int rank = 1;
 
         for (int page = 1; page <= numRequests; page++) {
 
@@ -100,7 +93,7 @@ public final class TwitterSearcher extends BaseWebSearcher<WebResult> implements
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
                             WebResult webresult = new WebResult(currentURL, null, text);
-//                            rank++;
+                            // rank++;
                             webresults.add(webresult);
                         }
                     }

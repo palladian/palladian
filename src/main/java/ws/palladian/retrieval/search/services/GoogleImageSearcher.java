@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.services;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebImageResult;
 
 /**
@@ -13,7 +12,7 @@ import ws.palladian.retrieval.search.WebImageResult;
  * 
  * @author Philipp Katz
  */
-public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImageResult> implements Searcher<WebImageResult> {
+public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImageResult> {
 
     @Override
     protected String getBaseUrl() {

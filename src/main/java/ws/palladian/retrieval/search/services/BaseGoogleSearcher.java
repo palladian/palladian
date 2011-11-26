@@ -18,7 +18,7 @@ import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>
- * Base implementation for all Google searches. Subclasses must implement {@link #getBaseUrl()}, which provides the URL
+ * Base implementation for all Google searchers. Subclasses must implement {@link #getBaseUrl()}, which provides the URL
  * to the API endpoint and {@link #parseResult(JSONObject)}, which is responsible for parsing the JSONObject for each
  * result to the desired type ({@link WebResult} or subclasses).
  * </p>
@@ -26,7 +26,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @see http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
  * @author Philipp Katz
  */
-public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSearcher<R> implements Searcher<R> {
+public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseGoogleSearcher.class);
