@@ -35,7 +35,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private static final AtomicInteger requestCount = new AtomicInteger();
+    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     protected final String apiKey;
 
@@ -65,7 +65,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
                 String sourceType = getSourceType();
                 String requestUrl = getRequestUrl(query, sourceType, getLanguage(), offset, getDefaultFetchSize());
                 JSONObject responseData = getResponseData(requestUrl, sourceType);
-                requestCount.incrementAndGet();
+                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 int total = responseData.getInt("Total");
                 if (offset > total) {
@@ -92,7 +92,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
             LOGGER.error(e);
         }
 
-        LOGGER.debug("bing requests: " + requestCount.get());
+        LOGGER.debug("bing requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
 
     }

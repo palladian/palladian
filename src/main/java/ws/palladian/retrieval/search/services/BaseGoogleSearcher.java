@@ -29,7 +29,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseGoogleSearcher.class);
 
-    private static final AtomicInteger requestCount = new AtomicInteger();
+    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     public BaseGoogleSearcher() {
         super();
@@ -48,7 +48,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
 
                 int offset = i * 8;
                 JSONObject responseData = getResponseData(query, getLanguage(), offset);
-                requestCount.incrementAndGet();
+                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 // in the first iteration find the maximum of available pages and limit the search to those
                 if (i == 0) {
@@ -74,7 +74,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
             LOGGER.error(e);
         }
 
-        LOGGER.debug("google requests: " + requestCount.get());
+        LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
     }
 
