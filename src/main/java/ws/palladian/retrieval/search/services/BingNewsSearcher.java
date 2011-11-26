@@ -66,6 +66,9 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
         return webResult;
     }
 
+    /**
+     * Bing News does not allow to adjust the result count. Therfor we must fetch in chunks of 10.
+     */
     @Override
     protected int getDefaultFetchSize() {
         return 10;

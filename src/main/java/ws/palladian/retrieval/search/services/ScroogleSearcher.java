@@ -8,9 +8,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -18,9 +16,9 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
+// TODO currently, paging/result count is not supported
 /**
  * <p>
  * Web searcher which scrapes content from Scroogle.
@@ -30,7 +28,6 @@ import ws.palladian.retrieval.search.WebResult;
  * @author Philipp Katz
  */
 public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
-    
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ScroogleSearcher.class);
@@ -42,7 +39,6 @@ public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
         parser = new NekoHtmlParser();
     }
 
-    // TODO currently, paging/result count is not supported
     @Override
     public List<WebResult> search(String query) {
 
@@ -64,7 +60,6 @@ public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
 
             Iterator<Node> linkIterator = linkNodes.iterator();
             Iterator<Node> infoIterator = infoNodes.iterator();
-//            int rank = 1;
 
             while (linkIterator.hasNext()) {
                 Node linkNode = linkIterator.next();
@@ -83,12 +78,6 @@ public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
                 result.add(webResult);
 
             }
-            
-            // debugging
-            if (result.isEmpty()) {
-                System.out.println(HtmlHelper.documentToString(document));
-                System.exit(0);
-            }
 
         } catch (HttpException e) {
             LOGGER.error(e);
@@ -99,37 +88,10 @@ public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
         return result;
 
     }
-    
+
     @Override
     public String getName() {
         return "Scroogle";
-    }
-
-    public static void main(String[] args) {
-        Searcher<WebResult> webSearcher = new ScroogleSearcher();
-        
-        // let's see, how far we can go:
-        List<String> queries = FileHelper.readFileToArray("/Users/pk/Uni/feeddataset/gathering_TUDCS6/finalQueries-TUDCS6.txt");
-        int counter = 0;
-        for (String query : queries) {
-            
-            
-            List<WebResult> searchResult = webSearcher.search(query);
-            counter++;
-            
-            System.out.println(counter + "\t" + searchResult.size());
-            
-        }
-        
-        
-//        List<WebResult> results = webSearcher.search("the us");
-//        for (WebResult webResult : results) {
-//            System.out.println(webResult.getRank());
-//            System.out.println(webResult.getTitle());
-//            System.out.println(webResult.getSummary());
-//            System.out.println(webResult.getUrl());
-//            System.out.println("-------------------");
-//        }
     }
 
 }

@@ -15,13 +15,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.XmlParser;
-import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
 /**
@@ -116,11 +114,5 @@ public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> {
     }
 
     protected abstract String getEndpoint();
-
-    public static void main(String[] args) {
-        Searcher<WebResult> searcher = new HakiaNewsSearcher();
-        List<WebResult> result = searcher.search("apple");
-        CollectionHelper.print(result);
-    }
 
 }

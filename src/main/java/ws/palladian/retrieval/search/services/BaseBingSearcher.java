@@ -16,11 +16,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.Searcher;
-import ws.palladian.retrieval.search.WebImageResult;
 import ws.palladian.retrieval.search.WebResult;
 
 /**
@@ -101,7 +98,9 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
     }
 
     /**
+     * <p>
      * Parse the {@link JSONObject} to the desired type of {@link WebResult}.
+     * </p>
      * 
      * @param currentResult
      * @return
@@ -110,19 +109,34 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
     protected abstract R parseResult(JSONObject currentResult) throws JSONException;
 
     /**
+     * <p>
      * Return the String description for this source, i.e. Web, Image, or News.
+     * </p>
      * 
      * @return
      */
     protected abstract String getSourceType();
 
     /**
+     * <p>
      * Return the default fetch size, i.e. the number of results being fetched with each request.
+     * </p>
      * 
      * @return
      */
     protected abstract int getDefaultFetchSize();
 
+    /**
+     * <p>
+     * Perform the HTTP request and return the relevant JSON result.
+     * </p>
+     * 
+     * @param requestUrl
+     * @param sourceType
+     * @return
+     * @throws HttpException
+     * @throws JSONException
+     */
     private JSONObject getResponseData(String requestUrl, String sourceType) throws HttpException, JSONException {
         HttpResult httpResult = retriever.httpGet(requestUrl);
         String jsonString = new String(httpResult.getContent());
@@ -132,11 +146,15 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
     }
 
     /**
+     * <p>
+     * Build a search request URL based on the supplied parameters.
+     * </p>
      * 
-     * @param query
+     * @param query the raw query, no escaping necessary.
      * @param sourceType type of source to query, i.e. Web, Image, or News.
-     * @param language
-     * @param offset
+     * @param language the language for which to search, may be <code>null</code>.
+     * @param offset the paging offset, 0 for no offset.
+     * @param count the number of results to retrieve.
      * @return
      */
     protected String getRequestUrl(String query, String sourceType, WebSearcherLanguage language, int offset, int count) {
@@ -157,6 +175,15 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
         return queryBuilder.toString();
     }
 
+    /**
+     * <p>
+     * Transform the {@link WebSearcherLanguage} into a string identifier. See Bing API documentation for available
+     * language codes.
+     * </p>
+     * 
+     * @param language
+     * @return
+     */
     protected String getLanguageString(WebSearcherLanguage language) {
         switch (language) {
             case GERMAN:
@@ -166,7 +193,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
     }
 
     @Override
-    public int getResultCount(String query) {
+    public int getTotalResultCount(String query) {
         int hitCount = 0;
         try {
             String sourceType = getSourceType();
@@ -181,6 +208,14 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
         return hitCount;
     }
 
+    /**
+     * <p>
+     * Parses the supplied string to a date.
+     * </p>
+     * 
+     * @param dateString
+     * @return the date, or <code>null</code> if the string could not be parsed.
+     */
     protected Date parseDate(String dateString) {
         Date result = null;
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
@@ -190,21 +225,6 @@ public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearc
             LOGGER.trace("error parsing date " + dateString, e);
         }
         return result;
-    }
-
-    public static void main(String[] args) throws ParseException {
-        // DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
-        // System.out.println(dateFormat.format(new Date()));
-        // Date date = dateFormat.parse("2011-11-24T06:46:00Z");
-        // System.out.println(date);
-        // System.exit(0);
-
-        // Searcher<WebResult> searcher = new BingNewsSearcher();
-        Searcher<WebImageResult> searcher = new BingImageSearcher();
-        searcher.setResultCount(10);
-        List<WebImageResult> result = searcher.search("apple");
-        CollectionHelper.print(result);
-        System.out.println(BaseBingSearcher.requestCount);
     }
 
 }

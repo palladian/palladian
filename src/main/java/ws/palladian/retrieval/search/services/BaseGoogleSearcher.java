@@ -10,10 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.WebResult;
 
 /**
@@ -178,7 +176,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getResultCount(String query) {
+    public int getTotalResultCount(String query) {
         int hitCount = 0;
         try {
             JSONObject responseData = getResponseData(query, null, 0);
@@ -189,12 +187,5 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSea
             LOGGER.error(e);
         }
         return hitCount;
-    }
-
-    public static void main(String[] args) {
-        Searcher<WebResult> searcher = new GoogleSearcher();
-        // Searcher<WebImageResult> searcher = new GoogleImageSearcher();
-        List<WebResult> queryResult = searcher.search("apple");
-        CollectionHelper.print(queryResult);
     }
 }

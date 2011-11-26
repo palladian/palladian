@@ -39,7 +39,7 @@ public abstract class BaseWebSearcher<R extends WebResult> implements Searcher<R
     }
 
     @Override
-    public int getResultCount(String query) {
+    public int getTotalResultCount(String query) {
         throw new UnsupportedOperationException("not supported for this searcher");
     }
 
