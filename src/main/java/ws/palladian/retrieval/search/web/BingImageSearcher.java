@@ -1,9 +1,8 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.retrieval.search.WebImageResult;
 
 /**
  * <p>

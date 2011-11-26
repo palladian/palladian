@@ -1,18 +1,18 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.SearchResult;
 import ws.palladian.retrieval.search.Searcher;
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * Base implementation for a {@link WebSearcher} providing common functionality.
  * 
  * @author Philipp Katz
  */
-public abstract class BaseWebSearcher<R extends WebResult> implements Searcher<R> {
+public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
 
     protected final DocumentRetriever retriever;
 
@@ -20,19 +20,29 @@ public abstract class BaseWebSearcher<R extends WebResult> implements Searcher<R
 
     private WebSearcherLanguage language;
 
-    public BaseWebSearcher() {
+    public WebSearcher() {
         retriever = new DocumentRetriever();
         resultCount = 10;
         language = WebSearcherLanguage.ENGLISH;
     }
 
-    @Override
+    /**
+     * <p>
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * </p>
+     * 
+     * @param query
+     * @return
+     */
     public List<String> searchUrls(String query) {
         List<String> urls = new ArrayList<String>();
 
         List<R> webresults = search(query);
         for (R webresult : webresults) {
-            urls.add(webresult.getUrl());
+            String url = webresult.getUrl();
+            if (url != null) {
+                urls.add(url);
+            }
         }
 
         return urls;
@@ -60,17 +70,23 @@ public abstract class BaseWebSearcher<R extends WebResult> implements Searcher<R
     }
 
     /**
-     * @return the language
+     * <p>
+     * Get the language for the search.
+     * </p>
+     * 
+     * @return
      */
-    @Override
     public final WebSearcherLanguage getLanguage() {
         return language;
     }
 
     /**
-     * @param language the language to set
+     * <p>
+     * Specify the language for the search.
+     * </p>
+     * 
+     * @param language
      */
-    @Override
     public final void setLanguage(WebSearcherLanguage language) {
         this.language = language;
     }

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +16,6 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.search.WebResult;
 
 // TODO currently, paging/result count is not supported
 /**
@@ -27,7 +26,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @author Eduardo Jacobo Miranda
  * @author Philipp Katz
  */
-public final class ScroogleSearcher extends BaseWebSearcher<WebResult> {
+public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ScroogleSearcher.class);

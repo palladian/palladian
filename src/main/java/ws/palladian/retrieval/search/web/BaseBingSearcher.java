@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,7 +18,6 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>
@@ -28,7 +27,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @see http://www.bing.com/developers/s/APIBasics.html
  * @author Philipp Katz
  */
-public abstract class BaseBingSearcher<R extends WebResult> extends BaseWebSearcher<R> {
+public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);

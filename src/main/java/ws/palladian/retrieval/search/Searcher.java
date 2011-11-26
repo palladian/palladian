@@ -2,8 +2,6 @@ package ws.palladian.retrieval.search;
 
 import java.util.List;
 
-import ws.palladian.retrieval.search.services.WebSearcherLanguage;
-
 /**
  * <p>
  * Interface defining a {@link Searcher}. A Searcher might be an implementation for a web search engine like Google,
@@ -29,17 +27,6 @@ public interface Searcher<R extends SearchResult> {
 
     /**
      * <p>
-     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
-     * </p>
-     * 
-     * @param query
-     * @return
-     */
-    // TODO push down
-    List<String> searchUrls(String query);
-
-    /**
-     * <p>
      * Get the total number of results available for the specified query.
      * </p>
      * 
@@ -47,26 +34,6 @@ public interface Searcher<R extends SearchResult> {
      * @return
      */
     int getTotalResultCount(String query);
-
-    /**
-     * <p>
-     * Specify the language for the search.
-     * </p>
-     * 
-     * @param language
-     */
-    // TODO push down
-    void setLanguage(WebSearcherLanguage language);
-
-    /**
-     * <p>
-     * Get the language for the search.
-     * </p>
-     * 
-     * @return
-     */
-    // TODO push down
-    WebSearcherLanguage getLanguage();
 
     /**
      * <p>

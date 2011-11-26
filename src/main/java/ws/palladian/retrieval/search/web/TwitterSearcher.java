@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -17,7 +17,6 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>
@@ -29,7 +28,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @see https://dev.twitter.com/docs/api/1/get/search
  * @author Philipp Katz
  */
-public final class TwitterSearcher extends BaseWebSearcher<WebResult> {
+public final class TwitterSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
