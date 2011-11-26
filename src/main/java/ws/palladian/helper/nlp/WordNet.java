@@ -3,6 +3,7 @@ package ws.palladian.helper.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.smu.tspell.wordnet.NounSynset;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
 import edu.smu.tspell.wordnet.WordNetDatabase;
@@ -19,8 +20,12 @@ public class WordNet {
     public static String[] getSynonyms(String word, int number) {
         return WordNet.getSynonyms(word, number, false);
     }
-
+    
     public static String[] getSynonyms(String word, int number, boolean includeBaseWord) {
+    	return WordNet.getSynonyms(word, number, includeBaseWord, true);
+    }
+
+    public static String[] getSynonyms(String word, int number, boolean includeBaseWord, boolean justNouns) {
 
         ArrayList<String> synonyms = new ArrayList<String>();
         if (includeBaseWord)
@@ -28,7 +33,12 @@ public class WordNet {
 
         WordNetDatabase database = WordNetDatabase.getFileInstance();
 
-        Synset[] nouns = database.getSynsets(word, SynsetType.NOUN);
+        Synset[] nouns;
+        if (justNouns) {
+        	nouns = database.getSynsets(word, SynsetType.NOUN);
+        } else {
+        	nouns = database.getSynsets(word);
+        }
 
         int wordCounter = 0;
         for (int i = 0; i < nouns.length; ++i) {
@@ -37,7 +47,7 @@ public class WordNet {
                 // do not add words that are equal to the word given and do not add duplicates
                 if (synonyms.contains(nouns[i].getWordForms()[j]))
                     continue;
-                System.out.println(nouns[i].getWordForms()[j]);
+//                System.out.println(nouns[i].getWordForms()[j]);
                 synonyms.add(nouns[i].getWordForms()[j]);
                 ++wordCounter;
                 if (wordCounter >= number)
@@ -49,6 +59,87 @@ public class WordNet {
 
         String str[] = new String[synonyms.size()];
         synonyms.toArray(str);
+        return str;
+    }
+    
+    /**
+     * 
+     * @param word
+     * @param depth
+     * @param maxWords
+     * @return
+     * 
+     * @author Dmitry Myagkikh
+     */
+    public static String[] getHypernyms(String word, int depth, int maxWords) {
+        ArrayList<String> hypernyms = new ArrayList<String>();
+        if (depth > 0) {
+	        WordNetDatabase database = WordNetDatabase.getFileInstance();
+	        Synset[] synsets = database.getSynsets(word, SynsetType.NOUN);
+	        for (int i = 0; i < synsets.length; ++i) {
+	        	NounSynset nounSynset = (NounSynset)(synsets[i]); 
+	        	NounSynset[] hypernymSynsets = nounSynset.getHypernyms();
+	        	for(NounSynset hypernymSynset: hypernymSynsets) {
+	        		for(String hypernym: hypernymSynset.getWordForms()) {
+	        			if (!hypernyms.contains(hypernym)) {
+	        				if (hypernyms.size() <= maxWords) {
+	        					hypernyms.add(hypernym);
+	        				}
+	        			}
+	        			for(String hypernymHypernym: WordNet.getHypernyms(hypernym, depth - 1, maxWords - hypernyms.size())) {
+	        				if (!hypernyms.contains(hypernymHypernym)) {
+	        					if (hypernyms.size() <= maxWords) {
+	        						hypernyms.add(hypernymHypernym);
+	        					}
+	        				}
+	            		}
+	        		}
+	        	}
+	        }
+        }
+        String str[] = new String[hypernyms.size()];
+        hypernyms.toArray(str);
+        return str;
+    }
+    
+    /**
+     * 
+     * @param word
+     * @param depth
+     * @param maxWords
+     * @return
+     * 
+     * @author Dmitry Myagkikh
+     */
+    public static String[] getHyponyms(String word, int depth, int maxWords) {
+        ArrayList<String> hyponyms = new ArrayList<String>();
+        if (depth > 0) {
+	        WordNetDatabase database = WordNetDatabase.getFileInstance();
+	        Synset[] synsets = database.getSynsets(word, SynsetType.NOUN);
+	
+	        for (int i = 0; i < synsets.length; ++i) {
+	        	NounSynset nounSynset = (NounSynset)(synsets[i]); 
+	        	NounSynset[] hyponymSynsets = nounSynset.getHyponyms();
+	        	for(NounSynset hyponymSynset: hyponymSynsets) {
+	        		for(String hyponym: hyponymSynset.getWordForms()) {
+	        			if (!hyponyms.contains(hyponym)) {
+	        				if (hyponyms.size() <= maxWords) {
+	        					hyponyms.add(hyponym);
+	        				}
+	        			}
+	        			for(String hypernymHypernym: WordNet.getHyponyms(hyponym, depth - 1, maxWords - hyponyms.size())) {
+	        				if (!hyponyms.contains(hypernymHypernym)) {
+	        					if (hyponyms.size() <= maxWords) {
+	        						hyponyms.add(hypernymHypernym);
+	        					}
+	        				}
+	            		}
+	        		}
+	        	}
+	        }
+        }
+        String str[] = new String[hyponyms.size()];
+        hyponyms.toArray(str);
         return str;
     }
     
