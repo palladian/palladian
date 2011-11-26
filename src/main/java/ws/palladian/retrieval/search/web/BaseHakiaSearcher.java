@@ -88,7 +88,8 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
                 Node dateNode = XPathHelper.getChildNode(resultNode, "Date");
                 Date date = null;
                 if (dateNode != null) {
-                    date = dateFormat.parse(dateNode.getTextContent());
+                    String dateString = dateNode.getTextContent();
+                    date = dateFormat.parse(dateString);
                 }
 
                 WebResult webResult = new WebResult(url, title, summary, date);

@@ -6,11 +6,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
-import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.search.WebSearcherManager;
+import ws.palladian.retrieval.search.web.BingSearcher;
 
 /**
  * Example class illustrating usage of most important feed classes.
@@ -25,7 +25,7 @@ public class UsageExamples {
         // search feeds for "Porsche 911"
         String discoveredFeedsFile = "data/foundFeeds.txt";
         FeedDiscovery feedDiscovery = new FeedDiscovery();
-        feedDiscovery.setSearchEngine(WebSearcherManager.BING);
+        feedDiscovery.setSearchEngine(new BingSearcher());
         feedDiscovery.setResultFilePath(discoveredFeedsFile);
         feedDiscovery.addQuery("Porsche 911");
         feedDiscovery.setNumResults(100);

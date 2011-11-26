@@ -34,9 +34,14 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
-import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * <p>
@@ -74,7 +79,7 @@ public class FeedDiscovery {
     private DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    private int searchEngine = WebSearcherManager.BING;
+    private WebSearcher<WebResult> webSearcher = new BingSearcher();
 
     private int numThreads = DEFAULT_NUM_THREADS;
 
@@ -111,7 +116,7 @@ public class FeedDiscovery {
 
         if (config != null) {
             setNumThreads(config.getInt("feedDiscovery.numDiscoveryThreads", DEFAULT_NUM_THREADS));
-            setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.BING));
+            // setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.BING));
         } else {
             LOGGER.warn("could not load configuration, use defaults");
         }
@@ -129,18 +134,13 @@ public class FeedDiscovery {
      */
     private Set<String> searchSites(String query, int totalResults) {
 
-        // create source retriever object
-        WebSearcher sourceRetriever = new WebSearcher();
-
         // set maximum number of expected results
-        sourceRetriever.setResultCount(totalResults);
+        webSearcher.setResultCount(totalResults);
 
         // set search result language to english
-        sourceRetriever.setLanguage(WebSearcher.LANGUAGE_ENGLISH);
+        webSearcher.setLanguage(WebSearcherLanguage.ENGLISH);
 
-        sourceRetriever.setSource(getSearchEngine());
-
-        List<String> resultURLs = sourceRetriever.getURLs(query, true);
+        List<String> resultURLs = webSearcher.searchUrls(query);
 
         Set<String> sites = new HashSet<String>();
         for (String resultUrl : resultURLs) {
@@ -163,10 +163,12 @@ public class FeedDiscovery {
 
         List<DiscoveredFeed> result = null;
         Document document = null;
+        DocumentParser parser = new NekoHtmlParser();
 
         try {
 
-            document = documentRetriever.getWebDocument(pageUrl);
+            HttpResult httpResult = documentRetriever.httpGet(pageUrl);
+            document = parser.parse(httpResult);
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.
@@ -483,15 +485,15 @@ public class FeedDiscovery {
      * Set the search engine to use. See {@link WebSearcherManager} for available constants.
      * </p>
      * 
-     * @param searchEngine
+     * @param webSearcher
      */
-    public void setSearchEngine(int searchEngine) {
-        LOGGER.trace("using " + WebSearcherManager.getName(searchEngine));
-        this.searchEngine = searchEngine;
+    public void setSearchEngine(WebSearcher<WebResult> webSearcher) {
+        LOGGER.trace("using " + webSearcher.getName());
+        this.webSearcher = webSearcher;
     }
 
-    public int getSearchEngine() {
-        return searchEngine;
+    public WebSearcher<WebResult> getSearchEngine() {
+        return webSearcher;
     }
 
     /**
@@ -529,7 +531,7 @@ public class FeedDiscovery {
             // target count is higher than possible tuple combinations; so just calculate all
             for (int i = 0; i < availableQueries; i++) {
                 for (int j = i + 1; j < availableQueries; j++) {
-                    combinedQueries.add(singleQueries.get(i) + " " + singleQueries.get(j));
+                    combinedQueries.add("\"" + singleQueries.get(i) + "\" \"" + singleQueries.get(j) + "\"");
                 }
             }
 
@@ -592,9 +594,9 @@ public class FeedDiscovery {
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
                 .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
                 .withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("searchEngine")
-                .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
-                .withType(Number.class).create());
+        // options.addOption(OptionBuilder.withLongOpt("searchEngine")
+        // .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
+        // .withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("csvOutput")
                 .withDescription("write full output with additional data as CSV file instead of only URLs").create());
 
@@ -629,10 +631,10 @@ public class FeedDiscovery {
                 int targetCount = ((Number) cmd.getParsedOptionValue("combineQueries")).intValue();
                 discovery.combineQueries(targetCount);
             }
-            if (cmd.hasOption("searchEngine")) {
-                int searchEngine = ((Number) cmd.getParsedOptionValue("searchEngine")).intValue();
-                discovery.setSearchEngine(searchEngine);
-            }
+            // if (cmd.hasOption("searchEngine")) {
+            // int searchEngine = ((Number) cmd.getParsedOptionValue("searchEngine")).intValue();
+            // discovery.setSearchEngine(searchEngine);
+            // }
             if (cmd.hasOption("csvOutput")) {
                 discovery.setCsvOutput(true);
             }
