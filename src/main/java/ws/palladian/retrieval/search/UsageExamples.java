@@ -4,11 +4,11 @@ import java.text.ParseException;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.search.web.BingImageSearcher;
-import ws.palladian.retrieval.search.web.WebImageResult;
+import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
 
 public class UsageExamples {
-    
+
     public static void main(String[] args) throws ParseException {
         // DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
         // System.out.println(dateFormat.format(new Date()));
@@ -16,22 +16,21 @@ public class UsageExamples {
         // System.out.println(date);
         // System.exit(0);
 
-        // Searcher<WebResult> searcher = new BingNewsSearcher();
-        Searcher<WebImageResult> searcher = new BingImageSearcher();
+        Searcher<WebResult> searcher = new HakiaNewsSearcher();
+        // Searcher<WebImageResult> searcher = new BingImageSearcher();
         searcher.setResultCount(10);
-        List<WebImageResult> result = searcher.search("apple");
+        List<? extends WebResult> result = searcher.search("germany");
         CollectionHelper.print(result);
         // System.out.println(BaseBingSearcher.requestCount);
-        
-//        Searcher<WebResult> searcher = new GoogleSearcher();
-//        // Searcher<WebImageResult> searcher = new GoogleImageSearcher();
-//        List<WebResult> queryResult = searcher.search("apple");
-//        CollectionHelper.print(queryResult);
-        
-//        Searcher<WebResult> searcher = new HakiaNewsSearcher();
-//        List<WebResult> result = searcher.search("apple");
-//        CollectionHelper.print(result);
 
+        // Searcher<WebResult> searcher = new GoogleSearcher();
+        // // Searcher<WebImageResult> searcher = new GoogleImageSearcher();
+        // List<WebResult> queryResult = searcher.search("apple");
+        // CollectionHelper.print(queryResult);
+
+        // Searcher<WebResult> searcher = new HakiaNewsSearcher();
+        // List<WebResult> result = searcher.search("apple");
+        // CollectionHelper.print(result);
 
     }
 
