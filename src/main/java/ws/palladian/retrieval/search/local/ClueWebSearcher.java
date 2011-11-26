@@ -83,7 +83,7 @@ public final class ClueWebSearcher implements Searcher<LocalIndexResult> {
     }
 
     @Override
-    public int getResultCount(String query) {
+    public int getTotalResultCount(String query) {
         // TODO Auto-generated method stub
         return 0;
     }
