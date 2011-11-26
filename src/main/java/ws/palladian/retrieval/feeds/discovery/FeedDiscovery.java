@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.discovery;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -80,6 +82,9 @@ public class FeedDiscovery {
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
     private WebSearcher<WebResult> webSearcher = new BingSearcher();
+
+    /** The parser used for parsing HTML pages. */
+    private DocumentParser parser = new NekoHtmlParser();
 
     private int numThreads = DEFAULT_NUM_THREADS;
 
@@ -140,10 +145,10 @@ public class FeedDiscovery {
         // set search result language to english
         webSearcher.setLanguage(WebSearcherLanguage.ENGLISH);
 
-        List<String> resultURLs = webSearcher.searchUrls(query);
+        List<String> resultUrls = webSearcher.searchUrls(query);
 
         Set<String> sites = new HashSet<String>();
-        for (String resultUrl : resultURLs) {
+        for (String resultUrl : resultUrls) {
             sites.add(UrlHelper.getDomain(resultUrl));
         }
 
@@ -163,7 +168,6 @@ public class FeedDiscovery {
 
         List<DiscoveredFeed> result = null;
         Document document = null;
-        DocumentParser parser = new NekoHtmlParser();
 
         try {
 
@@ -181,6 +185,26 @@ public class FeedDiscovery {
 
         return result;
 
+    }
+
+    /**
+     * <p>
+     * Discovers feed links in the supplied HTML file.
+     * </p>
+     * 
+     * @param file
+     * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if the document could
+     *         not be parsed.
+     */
+    public List<DiscoveredFeed> discoverFeeds(File file) {
+        List<DiscoveredFeed> result = null;
+        try {
+            Document document = parser.parse(file);
+            result = discoverFeeds(document);
+        } catch (ParserException e) {
+            LOGGER.error("error parsing file " + file, e);
+        }
+        return result;
     }
 
     /**
