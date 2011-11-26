@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -31,6 +32,8 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ScroogleSearcher.class);
 
+    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+
     private final DocumentParser parser;
 
     public ScroogleSearcher() {
@@ -48,6 +51,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
             String requestUrl = "http://www.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=" + UrlHelper.urlEncode(query);
             HttpResult httpResult = retriever.httpGet(requestUrl);
             Document document = parser.parse(httpResult);
+            TOTAL_REQUEST_COUNT.incrementAndGet();
 
             List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//font/blockquote/a");
             List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, "//font/blockquote/ul/font");
@@ -91,6 +95,11 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     @Override
     public String getName() {
         return "Scroogle";
+    }
+
+    @Override
+    public int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
     }
 
 }

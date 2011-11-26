@@ -20,7 +20,7 @@ import ws.palladian.retrieval.HttpResult;
  * result to the desired type ({@link WebResult} or subclasses).
  * </p>
  * 
- * @see http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
+ * @see http://code.google.com/intl/de/apis/websearch/docs/reference.html
  * @author Philipp Katz
  */
 public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
@@ -186,5 +186,10 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
             LOGGER.error(e);
         }
         return hitCount;
+    }
+    
+    @Override
+    public int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
     }
 }

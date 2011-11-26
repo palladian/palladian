@@ -225,5 +225,10 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
         }
         return result;
     }
+    
+    @Override
+    public int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
+    }
 
 }
