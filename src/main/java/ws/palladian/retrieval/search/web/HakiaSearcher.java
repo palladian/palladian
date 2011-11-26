@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 public final class HakiaSearcher extends BaseHakiaSearcher {
 

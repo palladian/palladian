@@ -1,22 +1,21 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>
- * Google news search.
+ * Google search.
  * </p>
  * 
  * @author Philipp Katz
  */
-public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebResult> {
+public final class GoogleSearcher extends BaseGoogleSearcher<WebResult> {
 
     @Override
     protected String getBaseUrl() {
-        return "http://ajax.googleapis.com/ajax/services/search/news";
+        return "http://ajax.googleapis.com/ajax/services/search/web";
     }
 
     @Override
@@ -30,7 +29,7 @@ public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebResult> {
 
     @Override
     public String getName() {
-        return "Google News";
+        return "Google";
     }
 
 }

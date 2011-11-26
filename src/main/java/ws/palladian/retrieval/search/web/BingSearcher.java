@@ -1,11 +1,10 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.services;
+package ws.palladian.retrieval.search.web;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.WebResult;
 
 /**
  * <p>
@@ -24,7 +23,7 @@ import ws.palladian.retrieval.search.WebResult;
  * @see http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
  * @author Philipp Katz
  */
-public abstract class BaseGoogleSearcher<R extends WebResult> extends BaseWebSearcher<R> {
+public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseGoogleSearcher.class);

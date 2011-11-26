@@ -4,7 +4,8 @@ import java.text.ParseException;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.search.services.BingImageSearcher;
+import ws.palladian.retrieval.search.web.BingImageSearcher;
+import ws.palladian.retrieval.search.web.WebImageResult;
 
 public class UsageExamples {
     
