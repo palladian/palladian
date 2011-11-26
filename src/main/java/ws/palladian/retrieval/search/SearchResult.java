@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * <p>
- * A {@link SearchResult} result is a document that resulted from a search query.
+ * A {@link SearchResult} is a response that resulted from a search query.
  * </p>
  * 
  * @author David Urbansky

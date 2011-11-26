@@ -31,7 +31,7 @@ import ws.palladian.retrieval.search.WebResult;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> implements Searcher<WebResult> {
+public abstract class BaseHakiaSearcher extends BaseWebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseHakiaSearcher.class);
