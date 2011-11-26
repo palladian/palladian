@@ -1,6 +1,9 @@
 package ws.palladian.retrieval.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStream;
 
 import org.w3c.dom.Document;
@@ -30,6 +33,20 @@ public abstract class BaseDocumentParser implements DocumentParser {
         }
         Document document = parse(new ByteArrayInputStream(content));
         document.setDocumentURI(httpResult.getUrl());
+        return document;
+    }
+    
+    @Override
+    public Document parse(File file) throws ParserException {
+        InputSource inputSource;
+        try {
+            inputSource = new InputSource(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            throw new ParserException("File " + file + " not found", e);
+        }
+        Document document = parse(inputSource);
+        String documentUri = file.toURI().toString();
+        document.setDocumentURI(documentUri);
         return document;
     }
 
