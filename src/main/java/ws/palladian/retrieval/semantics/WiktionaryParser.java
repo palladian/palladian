@@ -392,15 +392,15 @@ public class WiktionaryParser {
 //        System.exit(0);
         
         // German
-        WiktionaryParser wpG = new WiktionaryParser("data/temp/wdbg/", Language.GERMAN);
+        // WiktionaryParser wpG = new WiktionaryParser("data/temp/wdbg/", Language.GERMAN);
         // wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
-        wpG.setAdditionalHypernymFile("data/temp/wdbg/openthesaurusadd.csv");
-        wpG.parseAndCreateDB("data/temp/wdbg/dewiktionary-latest-pages-articles.xml");
+        // wpG.setAdditionalHypernymFile("data/temp/wdbg/openthesaurusadd.csv");
+        // wpG.parseAndCreateDB("data/temp/wdbg/dewiktionary-latest-pages-articles.xml");
         // wpG.parseAndCreateDB("data/temp/disk1.xml");
 
         // English
-        // WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
-        // wpE.parseAndCreateDB("data/temp/enwiktionary-20110402-pages-meta-current.xml");
+        WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
+        wpE.parseAndCreateDB("data/temp/pages.xml");
 
         LOGGER.info("created wiktionary DB in " + sw.getElapsedTimeString());
     }
