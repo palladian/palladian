@@ -240,15 +240,13 @@ public class DatasetEvaluator {
                 logMsg.append(updateStrategy.getName());
 
             }
-            // IndHist
+            // LIHZUpdateStrategy
             else if (strategy.equalsIgnoreCase("LIHZ")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
                 updateStrategy = new LIHZUpdateStrategy(indHistTheta);
                 logMsg.append(updateStrategy.getName());
 
             }
-
-            // LIHZUpdateStrategy
 
             // Unknown strategy
             else {
