@@ -28,16 +28,30 @@ public class RecallBugFixer {
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Recalculating ");
 
-        // String[] feed11 = { "eval_fixLearnedP_1_10080_2011-11-18_00-41-27",
-        // "eval_fixLearnedP_1_1440_2011-11-17_22-54-47", "eval_fixLearnedP_5_10080_2011-11-18_06-37-54",
-        // "eval_fixLearnedP_5_1440_2011-11-18_02-04-36",
-        // "z_eval_AdaptiveTTL_0.2_min_time_100_2011-11-08_20-08-39",
-        // "z_eval_AdaptiveTTL_0.3_min_time_100_2011-11-09_14-11-50",
-        // "z_eval_AdaptiveTTL_0.7_min_time_100_2011-11-10_10-53-49",
-        // "z_eval_fix1440_min_time_100_2011-11-07_20-51-27",
-        // "z_eval_fixLearnedP_min_time_100_2011-11-07_22-18-21",
-        // "z_eval_IndHist_0.3_min_time_100_2011-11-15_21-32-30",
-        // "z_eval_IndHist_0.6_min_time_100_2011-11-16_17-35-44", "z_eval_LRU2_min_time_100_2011-11-13_00-07-21" };
+         String[] feed11 = { "eval_IndHistTTL_1.0_1.0_2.0_1_1_40320_2011-11-27_14-10-58",
+                 "eval_fixLearnedP_15_10080_2011-11-19_02-00-41",
+                 "eval_fixLearnedP_15_1440_2011-11-18_23-22-29",
+                 "eval_fixLearnedP_15_43200_2011-11-19_04-17-04",
+                 "eval_fixLearnedP_1_10080_2011-11-18_00-41-27",
+                 "eval_fixLearnedP_1_1440_2011-11-17_22-54-47",
+                 "eval_fixLearnedP_5_10080_2011-11-18_06-37-54",
+                 "eval_fixLearnedP_5_1440_2011-11-18_02-04-36",
+                 "eval_fixLearnedP_5_43200_2011-11-18_10-52-30",
+                 "eval_fixLearnedP_60_10080_2011-11-19_08-23-49",
+                 "eval_fixLearnedP_60_1440_2011-11-19_06-29-58",
+                 "eval_fixLearnedP_60_43200_2011-11-19_09-53-14",
+                 "z_eval_AdaptiveTTL_0.2_min_time_100_2011-11-08_20-08-39",
+                 "z_eval_AdaptiveTTL_0.3_min_time_100_2011-11-09_14-11-50",
+                 "z_eval_AdaptiveTTL_0.7_min_time_100_2011-11-10_10-53-49",
+                 "z_eval_IndHist_0.1_1_44640_2011-11-22_15-02-57",
+                 "z_eval_IndHist_0.6_1_40320_2011-11-24_20-53-30",
+                 "z_eval_IndHist_0.9_1_40320_2011-11-25_16-38-32",
+                 "z_eval_IndHist_1.0_1_40320_2011-11-26_13-55-20",
+                 "z_eval_LIHZ_0.5_1_40320_2011-11-24_16-01-41",
+                 "z_eval_LIHZ_0.9_1_40320_2011-11-24_18-01-28",
+                 "z_eval_LRU2_min_time_100_2011-11-13_00-07-21",
+                 "z_eval_fix1440_min_time_100_2011-11-07_20-51-27",
+                 "z_eval_fixLearnedP_min_time_100_2011-11-07_22-18-21" };
 
         // String[] hp = { "gold_eval_fix1440_min_time_100_2011-11-07_14-06-25",
         // "gold_eval_fixlearnedp_min_time_100_2011-11-07_19-25-09",
@@ -89,7 +103,7 @@ public class RecallBugFixer {
                 "z_eval_fix60_min_time_100_2011-11-07_00-56-55",
                 "z_eval_fixLearnedW_min_time_100_2011-11-11_23-15-53" };
 
-        String[] tables = feed104;
+        String[] tables = feed11;
 
         for (String table : tables) {
             LOGGER.info("Processing table " + table);
