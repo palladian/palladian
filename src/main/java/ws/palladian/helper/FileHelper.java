@@ -21,6 +21,7 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -320,7 +321,9 @@ public class FileHelper {
     }
 
     /**
+     * <p>
      * Create a list with each line of the given file as an element.
+     * </p>
      * 
      * @param path The path of the file.
      * @param numberOfLines The number of lines to read.
@@ -328,7 +331,22 @@ public class FileHelper {
      */
     public static List<String> readFileToArray(String path, int numberOfLines) {
         File contentFile = new File(path);
-        return readFileToArray(contentFile, numberOfLines);
+        return readFileToArray(contentFile, 0L, numberOfLines);
+    }
+
+    /**
+     * <p>
+     * Create a list with each line of the given file as an element. Skip all lines to start line.
+     * </p>
+     * 
+     * @param path The path of the file.
+     * @param startLine The first line to read.
+     * @param numberOfLines The number of lines to read.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(String path, long startLine, int numberOfLines) {
+        File contentFile = new File(path);
+        return readFileToArray(contentFile, startLine, numberOfLines);
     }
 
     /**
@@ -356,7 +374,7 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(File contentFile) {
-        return readFileToArray(contentFile, -1);
+        return readFileToArray(contentFile, 0L, -1);
     }
 
     /**
@@ -366,14 +384,14 @@ public class FileHelper {
      * @param numberOfLines The number of lines to read. Use -1 to read whole file.
      * @return A list with the lines as elements.
      */
-    public static List<String> readFileToArray(File contentFile, int numberOfLines) {
+    public static List<String> readFileToArray(File contentFile, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
         BufferedReader reader = null;
 
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(contentFile), DEFAULT_ENCODING));
 
-            list = readFileToArray(reader, numberOfLines);
+            list = readFileToArray(reader, startLine, numberOfLines);
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
@@ -387,17 +405,20 @@ public class FileHelper {
     }
 
     public static List<String> readFileToArray(BufferedReader reader) {
-        return readFileToArray(reader, -1);
+        return readFileToArray(reader, 0L, -1);
     }
 
-    public static List<String> readFileToArray(BufferedReader reader, int numberOfLines) {
+    public static List<String> readFileToArray(BufferedReader reader, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
 
         try {
-
+            long lineNumber = 1;
             String line = null;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
-                list.add(line);
+                if (lineNumber >= startLine) {
+                    list.add(line);
+                }
+                lineNumber++;
             }
 
         } catch (IOException e) {
@@ -441,18 +462,38 @@ public class FileHelper {
      * @param outputFilePath Where the transformed file should be saved.
      */
     public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
-        List<String> lines = readFileToArray(inputFilePath, -1);
 
-        Set<String> lineSet = new HashSet<String>();
+        // remember all seen hashes
+        final Set<Integer> seenHashes = new HashSet<Integer>();
 
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            if (lineSet.add(line) || line.length() == 0) {
-                sb.append(line).append(NEWLINE_CHARACTER);
-            }
+        try {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath),
+                    DEFAULT_ENCODING));
+
+            LineAction la = new LineAction() {
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    try {
+                        if (seenHashes.add(line.hashCode())) {
+                            writer.write(line);
+                            writer.write(NEWLINE_CHARACTER);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error(e.getMessage());
+                    }
+                }
+            };
+
+            FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+            close(writer);
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e.getMessage());
         }
 
-        writeToFile(outputFilePath, sb);
     }
 
     /**
