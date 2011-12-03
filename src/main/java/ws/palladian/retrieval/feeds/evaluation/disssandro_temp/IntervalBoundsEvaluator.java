@@ -11,6 +11,7 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.LIHZUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
@@ -84,6 +85,14 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                 logMsg.append(updateStrategy.getName());
 
             }
+            // LIHZUpdateStrategy
+            else if (strategy.equalsIgnoreCase("LIHZ")) {
+                double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
+                updateStrategy = new LIHZUpdateStrategy(indHistTheta);
+                logMsg.append(updateStrategy.getName());
+
+            }
+
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;

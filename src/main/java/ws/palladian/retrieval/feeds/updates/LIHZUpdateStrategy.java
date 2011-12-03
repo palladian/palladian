@@ -25,7 +25,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
     /**
      * Identifier to be used to store the trained model as additional date with the feed.
      */
-    private static final String MODEL_IDENTIFIER = "LIZH08Model";
+    private static final String MODEL_IDENTIFIER = "LIHZ08Model";
 
     /**
      * The threshold theta.
