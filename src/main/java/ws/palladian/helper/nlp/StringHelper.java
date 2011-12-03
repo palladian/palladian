@@ -85,6 +85,9 @@ public class StringHelper {
     }
 
     public static String shorten(String string, int maxLength) {
+        if (string == null) {
+            return string;
+        }
         return string.substring(0, Math.min(string.length(), maxLength));
     }
 
