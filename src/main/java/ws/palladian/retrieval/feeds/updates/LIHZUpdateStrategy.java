@@ -95,7 +95,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
 
                     // done at least once, loop as many days as required to reach the threshold
                     while (cumProb < thresholdTheta
-                            && (checkInterval + 1440 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                            && (checkInterval + 1440 <= getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
                         // increase for last iteration
                         dailyRates[simulatedDayOfWeek][1]++;
                         dailyRates[7][1]++;
