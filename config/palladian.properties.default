@@ -1,5 +1,6 @@
-config.version = 15
+config.version = 16
 ### version history:
+### 16: added blekko api key; removed obsolete options
 ### 15: added IndHistTTL update strategy
 ### 14: added IndHist update strategy
 ### 13: added AdaptiveTTL update strategies
@@ -81,11 +82,6 @@ documentRetriever.numRetries = 0
 # number of connections opened by the connection pool
 documentRetriever.numConnections = 100
 
-# enables feed auto discovery for every parsed page
-# see feeds.conf to configure path to the file.
-# disabled for now.
-# documentRetriever.feedAutoDiscovery = false
-
 ######################## ProxySwitcher ########################
 
 #  number of request before switching to another proxy, default is -1 and means never switch
@@ -166,16 +162,9 @@ api.sharethis.secret = 5e06f20138b94a109ac1d079ef59b373
 
 api.compete.key = 985582a7e0dc15d222f90423ed64f4ad
 
+api.blekko.key = 0d4bb258
+
 ######################## Feed ########################
-# search engine for discovery, see SourceRetrieverManager for avail. constants
-# for example ...: Yahoo Boss = 5, Yahoo Boss News = 10
-feedDiscovery.searchEngine = 6
-
-# maximum number of threads for discovery
-feedDiscovery.maxDiscoveryThreads = 10
-
-# location of the list for feeds discovered by the DocumentRetriever
-feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 
 # number of threads in the pool for the FeedReader
 feedReader.threadPoolSize = 100
@@ -233,33 +222,6 @@ datasetEvaluator.maxCheckInterval = 1440
 # Choose benchmark mode. Supported values are: 
 # poll, time 
 datasetEvaluator.benchmarkMode = time
-
-######################## Page Segmentation ########################
-
-# length of q-grams
-pageSegmentation.lengthOfQGrams = 9
-
-# amount of q-grams
-pageSegmentation.amountOfQGrams = 5000
-
-# threshold needed to be similar
-pageSegmentation.similarityNeed = 0.689
-
-# maximal depth in DOM tree
-pageSegmentation.maxDepth = 100
-
-# number of similar documents needed
-pageSegmentation.numberOfSimilarDocuments = 5
-
-# threshold of variability
-# from green to red; from low variability to high variability
-pageSegmentation.step1 = 0.0
-pageSegmentation.step2 = 0.14
-pageSegmentation.step3 = 0.28
-pageSegmentation.step4 = 0.42
-pageSegmentation.step5 = 0.58
-pageSegmentation.step6 = 0.72
-pageSegmentation.step7 = 0.86
 
 ######################## Email Notification #######################
 sendMail.smtpHost = 

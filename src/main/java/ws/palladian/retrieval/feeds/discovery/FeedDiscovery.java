@@ -21,13 +21,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
@@ -116,15 +114,6 @@ public class FeedDiscovery {
     private boolean csvOutput = false;
 
     public FeedDiscovery() {
-
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        if (config != null) {
-            setNumThreads(config.getInt("feedDiscovery.numDiscoveryThreads", DEFAULT_NUM_THREADS));
-            // setSearchEngine(config.getInt("feedDiscovery.searchEngine", WebSearcherManager.BING));
-        } else {
-            LOGGER.warn("could not load configuration, use defaults");
-        }
 
     }
 
