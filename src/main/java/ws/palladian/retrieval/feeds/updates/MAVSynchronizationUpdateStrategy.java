@@ -42,7 +42,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
             LOGGER.warn("Update strategy " + getName() + " does not support an explicit training mode.");
         }
         
-        // set default value to be used if we cant compute an interval from feed (e.g. feed has no items)
+        // set default value to be used if we can't compute an interval from feed (e.g. feed has no items)
         int checkIntervalMinutes = FeedReader.DEFAULT_CHECK_TIME;
 
         List<FeedItem> entries = feed.getItems();
