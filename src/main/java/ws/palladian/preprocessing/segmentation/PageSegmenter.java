@@ -120,21 +120,21 @@ public class PageSegmenter {
     private List<Document> similarFiles = null;
 
     /** the length of q-grams for the similarity comparisons */
-    private static int lengthOfQGrams = 0;
+    private static int lengthOfQGrams = 9;
 
     /** the amount of q-grams for the similarity comparisons */
-    private static int amountOfQGrams = 0;
+    private static int amountOfQGrams = 5000;
 
     /** threshold needed to be similar */
-    private static double similarityNeed = 0;
+    private static double similarityNeed = 0.689;
 
     /** the maximal depth in DOM tree */
-    private static int maxDepth = 0;
+    private static int maxDepth = 100;
 
     // ///////////////////// setter methods ///////////////////////
 
     /** the number of similar documents needed */
-    private static int numberOfSimilarDocuments = 0;
+    private static int numberOfSimilarDocuments = 5;
 
     public PageSegmenter() {
         loadConfig();
