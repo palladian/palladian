@@ -145,8 +145,10 @@ public class DatasetManager {
     }
 
     /**
+     * <p>
      * Create a smaller subset of an index with a limited total number of instances. As opposed to createIndexExcerpt,
-     * we have not a balanced, even number of instances per class but a sample of all instances. XXX => should be random
+     * we have not a balanced, even number of instances per class but a sample of all instances.
+     * </p>
      * 
      * @param indexFilePath The path to the index file.
      * @param separator The separator between the data and the class.
