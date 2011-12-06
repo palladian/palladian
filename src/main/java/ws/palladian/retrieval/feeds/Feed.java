@@ -1496,11 +1496,11 @@ public class Feed {
     }
 
     /**
-     * @return The feed's additional data or a empty map if there is none
+     * @return The feed's additional data or an empty map if there is none
      */
     public Map<String, Object> getAdditionalData() {
         if (additionalData == null) {
-            return new HashMap<String, Object>();
+            additionalData = new HashMap<String, Object>();
         }
         return additionalData;
     }

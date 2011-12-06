@@ -315,6 +315,10 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     public void train() {
+        train(false);
+    }
+
+    public void train(boolean emptyInstanceForMemorySavings) {
 
         categories = new Categories();
 
@@ -324,6 +328,10 @@ public class DictionaryClassifier extends TextClassifier {
         for (UniversalInstance instance : getTrainingInstances()) {
 
             trainWithInstance(instance);
+
+            if (emptyInstanceForMemorySavings) {
+                instance.empty();
+            }
 
             if (c++ % 50 == 0) {
                 LOGGER.info("trained " + MathHelper.round(100 * c / getTrainingInstances().size(), 2) + "%");

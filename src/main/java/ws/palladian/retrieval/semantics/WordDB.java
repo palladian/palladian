@@ -798,6 +798,26 @@ public class WordDB {
     }
 
     /**
+     * <p>
+     * Check whether word is of a certain type.
+     * </p>
+     * 
+     * @param word The word to check.
+     * @param type Check whether the word is of this type.
+     * @return True, if the word is of the given type and false otherwise.
+     */
+    public boolean isType(String word, String type) {
+        boolean isType = false;
+        try {
+            isType = getWord(word).getType().equalsIgnoreCase(type);
+        } catch (Exception e) {
+            LOGGER.warn("word " + word + " was not found and the type could not be determined");
+        }
+
+        return isType;
+    }
+
+    /**
      * Example usage.
      * 
      * @param args
