@@ -19,9 +19,9 @@ public class WiktionaryPosTagger extends PosTagger {
     private static final Logger LOGGER = Logger.getLogger(WiktionaryPosTagger.class);
 
     /**
-     * We need a mapping from word type names in the wiktionary db to POS tags. We use the <a
+     * <p>We need a mapping from word type names in the Wiktionary DB to POS tags. We use the <a
      * href="http://en.wikipedia.org/wiki/Brown_Corpus#Part-of-speech_tags_used">Brown Corpus</a> tags for the
-     * mapping.
+     * mapping.</p>
      */
     private Map<String, String> posTagMapping;
 

@@ -114,10 +114,6 @@ public class WiktionaryParser {
                         return;
                     }
 
-                     if (word.equalsIgnoreCase("Kleid")) {
-                     System.out.println("haus");
-                     }
-
                     String plural = "";
                     String language = "";
                     String wordType = "";
