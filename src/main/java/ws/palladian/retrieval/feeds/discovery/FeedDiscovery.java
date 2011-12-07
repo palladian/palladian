@@ -129,12 +129,9 @@ public class FeedDiscovery {
     private Set<String> searchSites(String query, int totalResults) {
 
         // set maximum number of expected results
-        webSearcher.setResultCount(totalResults);
-
         // set search result language to english
-        webSearcher.setLanguage(WebSearcherLanguage.ENGLISH);
 
-        List<String> resultUrls = webSearcher.searchUrls(query);
+        List<String> resultUrls = webSearcher.searchUrls(query, totalResults, WebSearcherLanguage.ENGLISH);
 
         Set<String> sites = new HashSet<String>();
         for (String resultUrl : resultUrls) {

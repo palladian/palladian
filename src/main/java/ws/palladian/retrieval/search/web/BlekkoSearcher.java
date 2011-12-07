@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 
@@ -39,23 +38,46 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
     private final String apiKey;
 
+    /**
+     * <p>
+     * Creates a new blekko searcher. The necessary API key is taken from the global configuration registry, which must
+     * provide the API key as string via key <tt>api.blekko.key</tt>.
+     * </p>
+     */
+    public BlekkoSearcher() {
+        this(ConfigHolder.getInstance().getConfig());
+    }
+
+    /**
+     * <p>
+     * Creates a new blekko searcher.
+     * </p>
+     * 
+     * @param apiKey The API key for accessing blekko.
+     */
     public BlekkoSearcher(String apiKey) {
         super();
         this.apiKey = apiKey;
     }
 
-    public BlekkoSearcher() {
-        ConfigHolder configHolder = ConfigHolder.getInstance();
-        PropertiesConfiguration config = configHolder.getConfig();
-        apiKey = config.getString("api.blekko.key");
+    /**
+     * <p>
+     * Creates a new blekko searcher.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key for accessing blekko, which must be provided
+     *            as string via key <tt>api.blekko.key</tt> in the configuration.
+     */
+    public BlekkoSearcher(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.blekko.key"));
     }
 
     @Override
-    public List<WebResult> search(String query) {
+    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
-        int pageSize = Math.min(getResultCount(), 100);
-        int necessaryPages = (int) Math.ceil(getResultCount() / 100.);
+        int pageSize = Math.min(resultCount, 100);
+        int necessaryPages = (int) Math.ceil(resultCount / 100.);
 
         try {
 
@@ -80,7 +102,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                     String title = jsonResult.getString("url_title");
                     WebResult webResult = new WebResult(url, title, summary);
                     webResults.add(webResult);
-                    if (webResults.size() >= getResultCount()) {
+                    if (webResults.size() >= resultCount) {
                         break;
                     }
                 }
@@ -133,16 +155,13 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         return "Blekko";
     }
 
-    @Override
-    public int getRequestCount() {
+    /**
+     * Gets the number of HTTP requests sent to blekko.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.intValue();
-    }
-
-    public static void main(String[] args) {
-        WebSearcher<WebResult> searcher = new BlekkoSearcher();
-        searcher.setResultCount(250);
-        List<WebResult> searchResult = searcher.search("oranges");
-        CollectionHelper.print(searchResult);
     }
 
 }

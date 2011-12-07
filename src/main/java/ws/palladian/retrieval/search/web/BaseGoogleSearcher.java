@@ -30,23 +30,28 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
+    /**
+     * <p>
+     * Creates a new Google searcher.
+     * </p>
+     */
     public BaseGoogleSearcher() {
         super();
     }
 
     @Override
-    public List<R> search(String query) {
+    public List<R> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<R> webResults = new ArrayList<R>();
 
         // the number of pages we need to check; each page returns 8 results
-        int necessaryPages = (int) Math.ceil(getResultCount() / 8.);
+        int necessaryPages = (int) Math.ceil(resultCount / 8.);
 
         try {
             for (int i = 0; i < necessaryPages; i++) {
 
                 int offset = i * 8;
-                JSONObject responseData = getResponseData(query, getLanguage(), offset);
+                JSONObject responseData = getResponseData(query, language, offset);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 // in the first iteration find the maximum of available pages and limit the search to those
@@ -62,7 +67,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
                     JSONObject resultJson = results.getJSONObject(j);
                     R webResult = parseResult(resultJson);
                     webResults.add(webResult);
-                    if (webResults.size() >= getResultCount()) {
+                    if (webResults.size() >= resultCount) {
                         break;
                     }
                 }
@@ -187,9 +192,13 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
         }
         return hitCount;
     }
-    
-    @Override
-    public int getRequestCount() {
+
+    /**
+     * Gets the number of HTTP requests sent to Google.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
 }

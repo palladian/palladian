@@ -25,22 +25,20 @@ public final class ClueWebSearcher implements Searcher<LocalIndexResult> {
 
     private final String indexPath;
 
-    private int resultCount;
-
     public ClueWebSearcher(String indexPath) {
         super();
         this.indexPath = indexPath;
     }
 
     @Override
-    public List<LocalIndexResult> search(String query) {
+    public List<LocalIndexResult> search(String query, int resultCount) {
         List<LocalIndexResult> indexResults = new ArrayList<LocalIndexResult>();
 
         QueryProcessor queryProcessor = new QueryProcessor(indexPath);
 
         List<ScoredDocument> indexAnswers = new ArrayList<ScoredDocument>();
         try {
-            indexAnswers = queryProcessor.queryIndex(query, getResultCount(), false);
+            indexAnswers = queryProcessor.queryIndex(query, resultCount, false);
         } catch (CorruptIndexException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
@@ -65,16 +63,6 @@ public final class ClueWebSearcher implements Searcher<LocalIndexResult> {
     @Override
     public int getTotalResultCount(String query) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setResultCount(int resultCount) {
-        this.resultCount = resultCount;
-    }
-
-    @Override
-    public int getResultCount() {
-        return resultCount;
     }
 
 }

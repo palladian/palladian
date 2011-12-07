@@ -41,22 +41,48 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     private final XmlParser xmlParser;
 
-    public BaseHakiaSearcher() {
-        super();
-        ConfigHolder configHolder = ConfigHolder.getInstance();
-        PropertiesConfiguration config = configHolder.getConfig();
-        this.apiKey = config.getString("api.hakia.key");
-        xmlParser = new XmlParser();
-    }
-
+    /**
+     * <p>
+     * Creates a new Hakia searcher.
+     * </p>
+     * 
+     * @param apiKey The API key for accessing Hakia.
+     */
     public BaseHakiaSearcher(String apiKey) {
         super();
+        if (apiKey == null) {
+            throw new IllegalStateException("The required API key is missing");
+        }
         this.apiKey = apiKey;
         xmlParser = new XmlParser();
     }
 
+    /**
+     * <p>
+     * Creates a new Hakia searcher.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key for accessing Hakia, which must be provided
+     *            as string via key <tt>api.hakia.key</tt> in the configuration.
+     */
+    public BaseHakiaSearcher(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.hakia.key"));
+    }
+
+    /**
+     * <p>
+     * Creates a new Hakia searcher. The necessary API key is taken from the global configuration registry, which must
+     * provide the API key as string via key <tt>api.hakia.key</tt>.
+     * </p>
+     * 
+     * @see ConfigHolder
+     */
+    public BaseHakiaSearcher() {
+        this(ConfigHolder.getInstance().getConfig());
+    }
+
     @Override
-    public List<WebResult> search(String query) {
+    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
 
@@ -65,7 +91,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
         urlBuilder.append("&search.pid=").append(apiKey);
         urlBuilder.append("&search.query=").append(query);
         urlBuilder.append("&search.language=en");
-        urlBuilder.append("&search.numberofresult=").append(getResultCount());
+        urlBuilder.append("&search.numberofresult=").append(resultCount);
 
         // TODO need to set correct TimeZone?
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
@@ -96,7 +122,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
                 LOGGER.debug("hakia retrieved " + webResult);
                 webResults.add(webResult);
 
-                if (webResults.size() >= getResultCount()) {
+                if (webResults.size() >= resultCount) {
                     break;
                 }
             }
@@ -114,9 +140,13 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     }
 
     protected abstract String getEndpoint();
-    
-    @Override
-    public int getRequestCount() {
+
+    /**
+     * Gets the number of HTTP requests sent to Hakia.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
 
