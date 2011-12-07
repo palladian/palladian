@@ -42,7 +42,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query) {
+    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<WebResult> result = new ArrayList<WebResult>();
 
@@ -97,8 +97,12 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
         return "Scroogle";
     }
 
-    @Override
-    public int getRequestCount() {
+    /**
+     * Gets the number of HTTP requests sent to Scroogle.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
 

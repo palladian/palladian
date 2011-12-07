@@ -19,9 +19,6 @@ import ws.palladian.preprocessing.nlp.TokenFrequencyMap;
 import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
-import ws.palladian.retrieval.search.web.BingSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 public class InformativenessAssigner {
 
@@ -116,10 +113,9 @@ public class InformativenessAssigner {
 
         final List<String> texts = new ArrayList<String>();
 
-        WebSearcher<WebResult> sr = new BingSearcher();
-        sr.setResultCount(20);
-
-        // List<String> urls = sr.getURLs("and with many in of");
+        // WebSearcher<WebResult> sr = new BingSearcher();
+        // List<String> urls = sr.searchUrls("and with many in of", 20);
+        
         List<String> urls = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
             urls.add("http://en.wikipedia.org/wiki/Special:Random?a=" + Math.random());

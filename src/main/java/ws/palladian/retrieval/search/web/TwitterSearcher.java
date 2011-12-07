@@ -38,11 +38,11 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     @Override
-    public List<WebResult> search(String query) {
+    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
-        int resultsPerPage = Math.min(100, getResultCount());
-        int numRequests = (int) Math.ceil(getResultCount() / 100.);
+        int resultsPerPage = Math.min(100, resultCount);
+        int numRequests = (int) Math.ceil(resultCount / 100.);
 
         try {
             for (int page = 1; page <= numRequests; page++) {
@@ -83,7 +83,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     // take the first URL from the tweet, if present.
                     String url = urls.isEmpty() ? null : urls.get(0);
                     webResults.add(new WebResult(url, null, text, date));
-                    if (webResults.size() >= getResultCount()) {
+                    if (webResults.size() >= resultCount) {
                         break;
                     }
                 }
@@ -131,9 +131,13 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     public String getName() {
         return "Twitter";
     }
-    
-    @Override
-    public int getRequestCount() {
+
+    /**
+     * Gets the number of HTTP requests sent to Twitter.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
 

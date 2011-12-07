@@ -21,9 +21,10 @@ public interface Searcher<R extends SearchResult> {
      * </p>
      * 
      * @param query
+     * @param resultCount
      * @return
      */
-    List<R> search(String query);
+    List<R> search(String query, int resultCount);
 
     /**
      * <p>
@@ -34,24 +35,6 @@ public interface Searcher<R extends SearchResult> {
      * @return
      */
     int getTotalResultCount(String query);
-
-    /**
-     * <p>
-     * Specify the number of desired results for the queries.
-     * </p>
-     * 
-     * @param resultCount
-     */
-    void setResultCount(int resultCount);
-
-    /**
-     * <p>
-     * Get the number of desired results for the queries.
-     * </p>
-     * 
-     * @return
-     */
-    int getResultCount();
 
     /**
      * <p>

@@ -353,10 +353,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private List<String> getWebPages(String seedEntity, String conceptName) {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
-        searcher.setLanguage(WebSearcherLanguage.ENGLISH);
-        searcher.setResultCount(getMentionsPerEntity());
-
-        return searcher.searchUrls("\"" + seedEntity + "\" " + conceptName.toLowerCase());
+        String query = "\"" + seedEntity + "\" " + conceptName.toLowerCase();
+        return searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
     }
 
     /**

@@ -17,16 +17,12 @@ import ws.palladian.retrieval.search.Searcher;
  */
 public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
 
+    private static final WebSearcherLanguage DEFAULT_SEARCHER_LANGUAGE = WebSearcherLanguage.ENGLISH;
+
     protected final DocumentRetriever retriever;
-
-    private int resultCount;
-
-    private WebSearcherLanguage language;
 
     public WebSearcher() {
         retriever = new DocumentRetriever();
-        resultCount = 10;
-        language = WebSearcherLanguage.ENGLISH;
     }
 
     /**
@@ -35,12 +31,27 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * </p>
      * 
      * @param query
+     * @param resultCount Maximum number of results to retrieve.
      * @return
      */
-    public List<String> searchUrls(String query) {
+    public List<String> searchUrls(String query, int resultCount) {
+        return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
+    }
+
+    /**
+     * <p>
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * </p>
+     * 
+     * @param query
+     * @param resultCount Maximum number of results to retrieve.
+     * @param language The language for which to search.
+     * @return
+     */
+    public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) {
         List<String> urls = new ArrayList<String>();
 
-        List<R> webresults = search(query);
+        List<R> webresults = search(query, resultCount, language);
         for (R webresult : webresults) {
             String url = webresult.getUrl();
             if (url != null) {
@@ -52,70 +63,43 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
     }
 
     @Override
+    public List<R> search(String query, int resultCount) {
+        return search(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
+    }
+
+    /**
+     * <p>
+     * Retrieve a list of {@link SearchResult}s for the specified query.
+     * </p>
+     * 
+     * @param query
+     * @param resultCount Maximum number of results to retrieve.
+     * @param language The language for which to search.
+     * @return
+     */
+    public abstract List<R> search(String query, int resultCount, WebSearcherLanguage language);
+
+    @Override
     public int getTotalResultCount(String query) {
+        return getTotalResultCount(query, DEFAULT_SEARCHER_LANGUAGE);
+    }
+
+    /**
+     * <p>
+     * Override, if this searcher supports getting the total number of available results.
+     * </p>
+     * 
+     * @param query
+     * @param language
+     * @return
+     */
+    public int getTotalResultCount(String query, WebSearcherLanguage language) {
         throw new UnsupportedOperationException("not supported for this searcher");
     }
 
-    /**
-     * @return the resultCount
-     */
-    @Override
-    public final int getResultCount() {
-        return resultCount;
-    }
-
-    /**
-     * @param resultCount the resultCount to set
-     */
-    @Override
-    public final void setResultCount(int resultCount) {
-        this.resultCount = resultCount;
-    }
-
-    /**
-     * <p>
-     * Get the language for the search.
-     * </p>
-     * 
-     * @return
-     */
-    public final WebSearcherLanguage getLanguage() {
-        return language;
-    }
-
-    /**
-     * <p>
-     * Specify the language for the search.
-     * </p>
-     * 
-     * @param language
-     */
-    public final void setLanguage(WebSearcherLanguage language) {
-        this.language = language;
-    }
-
-    /**
-     * <p>
-     * Get the total number of requests, which this class of web searcher has performed. As usage limitations apply to
-     * the number of HTTP requests, this is the number of actual HTTP requests, <b>not</b> the number of queries. For
-     * example, a query with 1.000 desired results requires 10 HTTP requests to the service, each returning 100 results.
-     * In this case, the number of requests should be incremented by 10.
-     * </p>
-     * 
-     * <p>
-     * When creating your own implementations, keep in mind, that usage restrictions usually apply site-wide, so the
-     * counter should be implemented in the base-class of each service, not individually for all its subclasses.
-     * </p>
-     * 
-     * @return
-     */
-    public abstract int getRequestCount();
-    
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getName()).append(":").append(getRequestCount());
-        return sb.toString();
+        return getName();
     }
 
 }

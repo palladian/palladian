@@ -520,8 +520,6 @@ public class ClassifierManager {
         // retrieve web pages matching the keywords, download pages and build
         // index
         WebSearcher<WebResult> sr = new GoogleSearcher();
-        sr.setResultCount(50);
-        sr.setLanguage(WebSearcherLanguage.GERMAN);
 
         DocumentRetriever crawler = new DocumentRetriever();
 
@@ -533,7 +531,7 @@ public class ClassifierManager {
         for (Map.Entry<String, HashSet<String>> category : dictionary.entrySet()) {
 
             for (String keyword : category.getValue()) {
-                List<String> urls = sr.searchUrls(keyword);
+                List<String> urls = sr.searchUrls(keyword, 50, WebSearcherLanguage.GERMAN);
 
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanUrl(url));

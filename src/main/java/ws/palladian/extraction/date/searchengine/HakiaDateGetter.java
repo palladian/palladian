@@ -38,8 +38,7 @@ public class HakiaDateGetter {
         ExtractedDate date = null;
         // modified for new Palladian's new search API and untested -- 2011-11-26, Philipp
         WebSearcher<WebResult> webSearcher = new HakiaNewsSearcher();
-        webSearcher.setResultCount(100);
-        List<WebResult> webResults = webSearcher.search(title);
+        List<WebResult> webResults = webSearcher.search(title, 100);
 
         for (int i = 0; i < webResults.size(); i++) {
             WebResult result = webResults.get(i);

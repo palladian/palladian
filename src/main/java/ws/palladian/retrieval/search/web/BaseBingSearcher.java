@@ -38,23 +38,51 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     protected final String apiKey;
 
+    /**
+     * <p>
+     * Creates a new Bing searcher.
+     * </p>
+     * 
+     * @param apiKey The API key for accessing Bing.
+     */
     public BaseBingSearcher(String apiKey) {
         super();
+        if (apiKey == null) {
+            throw new IllegalStateException("The required API key is missing");
+        }
         this.apiKey = apiKey;
     }
 
+    /**
+     * <p>
+     * Creates a new Bing searcher.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key for accessing Bing, which must be provided
+     *            as string via key <tt>api.bing.key</tt> in the configuration.
+     */
+    public BaseBingSearcher(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.bing.key"));
+    }
+
+    /**
+     * <p>
+     * Creates a new Bing searcher. The necessary API key is taken from the global configuration registry, which must
+     * provide the API key as string via key <tt>api.bing.key</tt>.
+     * </p>
+     * 
+     * @see ConfigHolder
+     */
     public BaseBingSearcher() {
-        ConfigHolder configHolder = ConfigHolder.getInstance();
-        PropertiesConfiguration config = configHolder.getConfig();
-        apiKey = config.getString("api.bing.key");
+        this(ConfigHolder.getInstance().getConfig());
     }
 
     @Override
-    public List<R> search(String query) {
+    public List<R> search(String query, int resultCount, WebSearcherLanguage language) {
 
         List<R> webResults = new ArrayList<R>();
 
-        int necessaryPages = (int) Math.ceil((double) getResultCount() / getDefaultFetchSize());
+        int necessaryPages = (int) Math.ceil((double) resultCount / getDefaultFetchSize());
         int offset = 0;
 
         try {
@@ -62,7 +90,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
             for (int i = 0; i < necessaryPages; i++) {
 
                 String sourceType = getSourceType();
-                String requestUrl = getRequestUrl(query, sourceType, getLanguage(), offset, getDefaultFetchSize());
+                String requestUrl = getRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
                 JSONObject responseData = getResponseData(requestUrl, sourceType);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
@@ -80,7 +108,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
                     R webResult = parseResult(currentResult);
                     webResults.add(webResult);
 
-                    if (webResults.size() >= getResultCount()) {
+                    if (webResults.size() >= resultCount) {
                         break;
                     }
                 }
@@ -192,11 +220,11 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     }
 
     @Override
-    public int getTotalResultCount(String query) {
+    public int getTotalResultCount(String query, WebSearcherLanguage language) {
         int hitCount = 0;
         try {
             String sourceType = getSourceType();
-            String requestUrl = getRequestUrl(query, sourceType, getLanguage(), 0, 1);
+            String requestUrl = getRequestUrl(query, sourceType, language, 0, 1);
             JSONObject responseData = getResponseData(requestUrl, sourceType);
             hitCount = responseData.getInt("Total");
         } catch (HttpException e) {
@@ -225,9 +253,13 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
         }
         return result;
     }
-    
-    @Override
-    public int getRequestCount() {
+
+    /**
+     * Gets the number of HTTP requests sent to Bing.
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
 

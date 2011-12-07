@@ -2,9 +2,9 @@ package ws.palladian.retrieval.search.web;
 
 import java.util.Date;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 /**
  * <p>
@@ -14,6 +14,26 @@ import org.json.JSONObject;
  * @author Philipp Katz
  */
 public final class BingSearcher extends BaseBingSearcher<WebResult> {
+    /**
+     * @see BaseBingSearcher#BaseBingSearcher(String)
+     */
+    public BingSearcher(String apiKey) {
+        super(apiKey);
+    }
+
+    /**
+     * @see BaseBingSearcher#BaseBingSearcher(PropertiesConfiguration)
+     */
+    public BingSearcher(PropertiesConfiguration configuration) {
+        super(configuration);
+    }
+
+    /**
+     * @see BaseBingSearcher#BaseBingSearcher()
+     */
+    public BingSearcher() {
+        super();
+    }
 
     @Override
     public String getName() {
