@@ -37,7 +37,6 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
      */
     private static int rssTTLmode;
 
-    
     /**
      * Create MAVSync strategy ignoring RSS ttl element.
      */
@@ -80,15 +79,14 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         if (trainingMode) {
             LOGGER.warn("Update strategy " + getName() + " does not support an explicit training mode.");
         }
-        
+
         // set default value to be used if we can't compute an interval from feed (e.g. feed has no items)
         int checkIntervalMinutes = FeedReader.DEFAULT_CHECK_TIME;
 
         List<FeedItem> entries = feed.getItems();
 
-        
         // ------- first, get interval from last window and check whether synchronization is possible -------
-       
+
         // get interval from last window
         Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
         Date intervalStopTime = feed.getLastFeedEntry();
@@ -110,7 +108,10 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
 
         // If checkInterval is within bounds, we can use it, otherwise we use alternative calculation
         if (checkIntervalMinutes == getAllowedUpdateInterval(checkIntervalMinutes)) {
-            LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks() + 1);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks()
+                        + 1);
+            }
         }
         // ------- second, use last window and last poll time to get interval and next poll time -------
         else {
@@ -124,31 +125,35 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         }
 
         // check for RSS ttl usage
-        if (rssTTLmode != 0 && feed.getMetaInformation() != null){
+        if (rssTTLmode != 0 && feed.getMetaInformation() != null) {
 
             // get value from feed.
             Integer rssTTL = feed.getMetaInformation().getRssTtl();
 
             // check if feed contains a valid RSS ttl value
-            if (rssTTL != null && rssTTL >= 0 ){
-             
+            if (rssTTL != null && rssTTL >= 0) {
+
                 // use ttl value as lower bound
-                if (rssTTLmode == 1 && checkIntervalMinutes < rssTTL){
-                    LOGGER.info("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes + " to rssTTL "
-                            + rssTTL);
+                if (rssTTLmode == 1 && checkIntervalMinutes < rssTTL) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
+                                + " to rssTTL " + rssTTL);
+                    }
                     checkIntervalMinutes = rssTTL;
                 }
                 // set ttl value as interval
                 else if (rssTTLmode == 2) {
-                    LOGGER.info("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes + " to rssTTL "
-                            + rssTTL);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
+                                + " to rssTTL " + rssTTL);
+                    }
                     checkIntervalMinutes = rssTTL;
                 }
             }
         }
-        
+
         feed.setUpdateInterval(getAllowedUpdateInterval(checkIntervalMinutes));
-        
+
     }
 
     /**
