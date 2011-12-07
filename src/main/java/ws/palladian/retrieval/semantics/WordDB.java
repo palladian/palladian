@@ -798,6 +798,26 @@ public class WordDB {
     }
 
     /**
+     * <p>
+     * Check whether word is of a certain type.
+     * </p>
+     * 
+     * @param word The word to check.
+     * @param type Check whether the word is of this type.
+     * @return True, if the word is of the given type and false otherwise.
+     */
+    public boolean isType(String word, String type) {
+        boolean isType = false;
+        try {
+            isType = getWord(word).getType().equalsIgnoreCase(type);
+        } catch (Exception e) {
+            LOGGER.warn("word " + word + " was not found and the type could not be determined");
+        }
+
+        return isType;
+    }
+
+    /**
      * Example usage.
      * 
      * @param args
@@ -809,8 +829,8 @@ public class WordDB {
         StopWatch sw = new StopWatch();
 
         // load a word DB
-        // WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
-        WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
+         WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        //WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
         // WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman_latest/");
 
         // you can load the database into the memory for faster read access (requires lots of RAM)
