@@ -13,6 +13,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
@@ -21,6 +22,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.util.Version;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
@@ -37,6 +39,9 @@ import ws.palladian.helper.FileHelper;
 public class DictionaryFileIndex extends DictionaryIndex {
 
     private static final Logger LOGGER = Logger.getLogger(DictionaryFileIndex.class);
+    
+    /** The Lucene Version we use. Changing this will likely require a re-indexing of existing indices. */
+    protected static final Version LUCENE_VERSION = Version.LUCENE_31;
 
     private String indexPath = "";
     private IndexWriter indexWriter = null;
@@ -213,7 +218,15 @@ public class DictionaryFileIndex extends DictionaryIndex {
             return;
         }
         try {
-            indexWriter = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
+            
+            // indexWriter = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
+            
+            // changed deprecated constructor; API doc says we need to use a LimitTokenCountAnalyzer
+            // for limiting the MaxFieldLength, but I suppose this is not necessary in this case,
+            // as the MaxFieldLength was UNLIMITED -- Philipp; 2011-12-08
+
+            IndexWriterConfig conf = new IndexWriterConfig(LUCENE_VERSION, analyzer);
+            indexWriter = new IndexWriter(directory, conf);
         } catch (IOException e) {
             LOGGER.error("could not open the index" + e.getMessage());
         }
@@ -224,7 +237,8 @@ public class DictionaryFileIndex extends DictionaryIndex {
         try {
             if (indexWriter != null) {
                 try {
-                    indexWriter.optimize();
+                    // indexWriter.optimize();
+                    indexWriter.forceMerge(1);
                 } catch (OutOfMemoryError e) {
                     LOGGER.error(e.getMessage());
                 }
@@ -270,8 +284,8 @@ public class DictionaryFileIndex extends DictionaryIndex {
 final class NGramAnalyzer extends Analyzer {
 
     @Override
-    public final TokenStream tokenStream(String arg0, Reader arg1) {
-        return new LowerCaseTokenizer(arg1);
+    public final TokenStream tokenStream(String fieldName, Reader reader) {
+        return new LowerCaseTokenizer(DictionaryFileIndex.LUCENE_VERSION, reader);
     }
 
 }
