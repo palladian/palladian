@@ -5,80 +5,22 @@ import java.io.FileNotFoundException;
 import junit.framework.Assert;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.ResourceHelper;
 
+/**
+ * <p>
+ * Test for {@link ReadabilityContentExtractor}. The tests are done via hashes; in case those test should fail becase of
+ * minor changes to the code, there are original sample files of the desired results, which can be found in the test
+ * resources, under <tt>pageContentExtractor/result/...</tt>
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class ReadabilityContentExtractorTest {
 
-    /**
-     * Run with sample data and write results to text files.
-     * 
-     * @throws PageContentExtractorException
-     * @throws FileNotFoundException 
-     */
     @Test
-    @Ignore
-    public void runPageContentExtractorWithTestFiles() throws PageContentExtractorException, FileNotFoundException {
-        ReadabilityContentExtractor e = new ReadabilityContentExtractor();
-        // e.setWriteDump(true);
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test001.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test002.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test002.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test003.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test003.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test004.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test004.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test005.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test005.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test006.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test006.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test007.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test007.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test008.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test008.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test009.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test009.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test010.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test010.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test011.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test011.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test012.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test012.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test013.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test013.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test014.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test014.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test015.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html")).getResultText());
-        FileHelper.writeToFile(ResourceHelper.getResourcePath("/pageContentExtractor/result/test018.txt"), e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test018.html")).getResultText());
-    }
-
-    /**
-     * Calculate hash values for test data.
-     * 
-     * @throws PageContentExtractorException
-     * @throws FileNotFoundException 
-     */
-    @Test
-    @Ignore
-    public void calculateHashesForTestFiles() throws PageContentExtractorException, FileNotFoundException {
-        ReadabilityContentExtractor e = new ReadabilityContentExtractor();
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test002.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test003.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test004.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test005.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test006.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test007.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test008.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test009.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test010.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test011.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test012.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test013.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test014.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html")).getResultText()));
-        System.out.println(DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test018.html")).getResultText()));
-    }
-
-    /**
-     * Test results. In case this test fails, manually compare result to data/test/pageContentExtractor/result/... fixed ... this test fails when run from
-     * Maven, but succeeds from Eclipse. Why? See Mail from David, 2010-06-02 Turned out that this was an issue with an outdated Apache Commons Codec library,
-     * see https://issues.apache.org/jira/browse/CODEC-73 Updated pom.xml to use the latest version of the library, test should succeed now on all systems --
-     * 2010-06-10.
-     * @throws FileNotFoundException 
-     */
-    @Test
-    // @Ignore
     public void testPageContentExtractorWithHashes() throws PageContentExtractorException, FileNotFoundException {
         ReadabilityContentExtractor e = new ReadabilityContentExtractor();
         Assert.assertEquals("test001.html", "a078a28fd8d1a59d9364b53c4818539b", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html")).getResultText()));
@@ -97,15 +39,15 @@ public class ReadabilityContentExtractorTest {
         Assert.assertEquals("test014.html", "afeabbbfb8c3f1c3943a05ba772da59f", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test014.html")).getResultText()));
         Assert.assertEquals("test015.html", "1788005daaedfcb997c64802f5c42a46", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html")).getResultText()));
         Assert.assertEquals("test018.html", "70bf83d80e0757a8f99fe4331a5244a6", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test018.html")).getResultText()));
+        Assert.assertEquals("website100.html", "724bf03db67176bf761727343bfa0cff", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/webPages/website100.html")).getResultText()));
+        Assert.assertEquals("website101.html", "7dd8bce48bb8a98653d4554ec4aac31a", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourcePath("/webPages/website101.html")).getResultText()));
     }
     
-    // main method to produce data for test case ...
-    /*public static void main(String[] args) throws PageContentExtractorException {
-        PageContentExtractor e = new PageContentExtractor();
-        String resultText = e.setDocument("data/test/pageContentExtractor/test018.html").getResultText();
+    public static void main(String[] args) throws PageContentExtractorException, FileNotFoundException {
+        WebPageContentExtractor e = new ReadabilityContentExtractor();
+        String resultText = e.setDocument(ResourceHelper.getResourcePath("/webPages/website101.html")).getResultText();
+        System.out.println(resultText);
         System.out.println(DigestUtils.md5Hex(resultText));
-        FileHelper.writeToFile("data/test/pageContentExtractor/result/test018.txt", resultText);
-    }*/
-    
+    }
 
 }

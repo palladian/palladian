@@ -19,9 +19,13 @@ import de.l3s.boilerpipe.extractors.ExtractorBase;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 
 /**
- * Boilerpipe, as described in "Boilerplate Detection using Shallow Text Features"; Kohlschütter, Christian;
- * Fankhauser, Peter; Nejdl, Wolfgang; 2010 and available on http://code.google.com/p/boilerpipe/ and
- * http://www.l3s.de/~kohlschuetter/boilerplate/
+ * <p>
+ * Boilerpipe, as described in "Boilerplate Detection using Shallow Text Features"; Kohlschütter, Christian; Fankhauser,
+ * Peter; Nejdl, Wolfgang; 2010.
+ * </p>
+ * 
+ * @see http://code.google.com/p/boilerpipe/ and
+ * @see http://www.l3s.de/~kohlschuetter/boilerplate/
  * 
  * @author Ruchit Beri
  * @author Philipp Katz
