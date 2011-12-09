@@ -4,7 +4,7 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
 	<name>Palladian - TUD Information Retrieval Toolkit</name>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.4</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks
 		Chair of the TU Dresden.</description>
 	<build>
