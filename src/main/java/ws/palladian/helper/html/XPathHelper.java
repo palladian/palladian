@@ -317,9 +317,9 @@ public class XPathHelper {
 
     }
 
-    public static Node getXhtmlNode(Document doc, String xPath) {
-        notNull(doc, xPath);
-        return getNode(doc, addXhtmlNsToXPath(xPath));
+    public static Node getXhtmlNode(Document document, String xPath) {
+        notNull(document, xPath);
+        return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
 
     public static List<Node> getXhtmlChildNodes(Node node, String xPath) {

@@ -34,10 +34,10 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "majesticSeo";
 
     /** The ranking value types of this service. */
-    static RankingType REFERRING_DOMAINS = new RankingType("majestic_seo_referring_domains",
+    public static final RankingType REFERRING_DOMAINS = new RankingType("majestic_seo_referring_domains",
             "Majestic-SEO Referring Domains", "");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(REFERRING_DOMAINS);
     }

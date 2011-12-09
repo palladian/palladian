@@ -423,4 +423,13 @@ public class UrlHelper {
         }
         return urls;
     }
+    
+    public static boolean isLocalFile(URL url) {
+        String protocol = url.getProtocol();
+        String host = url.getHost();
+        
+        boolean hasHost = host != null && !"".equals(host);
+        
+        return "file".equalsIgnoreCase(protocol) && !hasHost;
+    }
 }

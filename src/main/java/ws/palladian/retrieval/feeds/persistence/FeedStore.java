@@ -40,6 +40,14 @@ public interface FeedStore {
      * @return True if feed was updated successfully.
      */
     boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems);
+    
+    /**
+     * <p>Remove a feed by its feedUrl</p>
+     * 
+     * @param feedUrl
+     * @return <code>true</code> if the feed was removed successfully, <code>false</code> otherwise.
+     */
+    boolean deleteFeedByUrl(String feedUrl);
 
     /**
      * <p>Update the feed's meta information only.</p>

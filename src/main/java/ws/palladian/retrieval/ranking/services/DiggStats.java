@@ -46,13 +46,13 @@ public class DiggStats extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "digg";
 
     /** The ranking value types of this service **/
-    static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs",
+    public static final RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs",
             "The number of times users have \"dugg\" this url on digg.com.");
 
-    static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments",
+    public static final RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments",
             "The number of comments users have left for this digged url on digg.com.");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
+    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(DIGGS);
         RANKING_TYPES.add(COMMENTS);

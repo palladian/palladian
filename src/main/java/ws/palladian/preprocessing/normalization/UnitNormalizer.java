@@ -342,8 +342,18 @@ public class UnitNormalizer {
     }
 
     /**
-     * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber). 1m20s => 80s 1h2m20s => 3740s (1m:20s => 80s)
-     * 00:01:20 => 80s 1:20 => 80s 5'9" => 175.26cm 5'9'' => 175.26cm
+     * <p>
+     * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber).
+     * </p>
+     * 
+     * <pre>
+     * 1m20s => 80s
+     * 1h2m20s => 3740s (1m:20s => 80s)
+     * 00:01:20 => 80s
+     * 1:20 => 80s
+     * 5'9" => 175.26cm
+     * 5'9'' => 175.26cm
+     * </pre>
      * 
      * @param number The number.
      * @param unitText The text after the unit.
@@ -400,7 +410,7 @@ public class UnitNormalizer {
                 return MathHelper.round(combinedValue, decimals);
             }
 
-            // 5'9" type
+            // 5'9" / 5' 9" type
             pattern = Pattern.compile("\\A'(\\s)?(\\d)+\"");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
@@ -409,7 +419,7 @@ public class UnitNormalizer {
                 return MathHelper.round(combinedValue, decimals);
             }
 
-            // 5'9'' type
+            // 5'9'' / 5'9'' type
             pattern = Pattern.compile("\\A'(\\s)?(\\d)+''");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
@@ -504,7 +514,7 @@ public class UnitNormalizer {
         }
 
         // test first whether number is part of a special format
-        double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":"), decimals);
+        double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":'\""), decimals);
         if (specialFormatOutcome != -1.0) {
             return MathHelper.round(specialFormatOutcome, decimals);
         }
@@ -595,7 +605,7 @@ public class UnitNormalizer {
     public static void main(String[] args) {
 
         System.out.println(getUnitType("2.26 GHz"));
-        System.out.println(getNormalizedNumber("a 2.26 GHz"));
+        // System.out.println(getNormalizedNumber("a 2.26 GHz"));
         System.out.println(getUnitType("21.4 million"));
         System.out.println(getNormalizedNumber("21.4 million"));
         System.out.println(getUnitType("2 hr. 32 min"));
@@ -654,6 +664,7 @@ public class UnitNormalizer {
 
         // test unit normalization
         System.out.println(getNormalizedNumber(5, "mpixel"));
+        System.out.println(getNormalizedNumber(2, "megapixels"));
         System.out.println(getNormalizedNumber(30, "miles per hour is really fast"));
         System.out.println(getNormalizedNumber(20, "m kilometers"));
         System.out.println(getNormalizedNumber(53.4, "million, compared to"));

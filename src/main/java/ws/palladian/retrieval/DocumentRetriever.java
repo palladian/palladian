@@ -653,7 +653,8 @@ public class DocumentRetriever {
                 }
             } catch (IOException e) {
                 LOGGER.error(url + ", " + e.getMessage(), e);
-                throw new IllegalStateException(e);
+            } catch (Exception e) {
+                LOGGER.error(url + ", " + e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(reader);
             }

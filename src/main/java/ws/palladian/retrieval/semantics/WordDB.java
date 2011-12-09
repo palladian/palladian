@@ -643,7 +643,7 @@ public class WordDB {
             ResultSet rs = runQuery(psGetSynonyms1);
             while (rs.next()) {
                 Word synonym = getWordById(rs.getInt(1));
-                if (type == synonym.getType().hashCode()) {
+                if (synonym != null && type == synonym.getType().hashCode()) {
                     synonyms.add(synonym);
                 }
             }
@@ -652,7 +652,7 @@ public class WordDB {
             rs = runQuery(psGetSynonyms2);
             while (rs.next()) {
                 Word synonym = getWordById(rs.getInt(1));
-                if (type == synonym.getType().hashCode()) {
+                if (synonym != null && type == synonym.getType().hashCode()) {
                     synonyms.add(synonym);
                 }
             }
@@ -675,7 +675,10 @@ public class WordDB {
             psGetHypernyms.setInt(1, word.getId());
             ResultSet rs = runQuery(psGetHypernyms);
             while (rs.next()) {
-                hypernyms.add(getWordById(rs.getInt(1)));
+                Word hypernym = getWordById(rs.getInt(1));
+                if (hypernym != null) {
+                    hypernyms.add(hypernym);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -696,7 +699,10 @@ public class WordDB {
             psGetHyponyms.setInt(1, word.getId());
             ResultSet rs = runQuery(psGetHyponyms);
             while (rs.next()) {
-                hyponyms.add(getWordById(rs.getInt(1)));
+                Word hyponym = getWordById(rs.getInt(1));
+                if (hyponym != null) {
+                    hyponyms.add(hyponym);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -792,6 +798,26 @@ public class WordDB {
     }
 
     /**
+     * <p>
+     * Check whether word is of a certain type.
+     * </p>
+     * 
+     * @param word The word to check.
+     * @param type Check whether the word is of this type.
+     * @return True, if the word is of the given type and false otherwise.
+     */
+    public boolean isType(String word, String type) {
+        boolean isType = false;
+        try {
+            isType = getWord(word).getType().equalsIgnoreCase(type);
+        } catch (Exception e) {
+            LOGGER.warn("word " + word + " was not found and the type could not be determined");
+        }
+
+        return isType;
+    }
+
+    /**
      * Example usage.
      * 
      * @param args
@@ -803,8 +829,8 @@ public class WordDB {
         StopWatch sw = new StopWatch();
 
         // load a word DB
-        // WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
-        WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
+         WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        //WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
         // WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman_latest/");
 
         // you can load the database into the memory for faster read access (requires lots of RAM)
