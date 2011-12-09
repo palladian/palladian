@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.parser;
 
+import java.io.File;
 import java.io.InputStream;
 
 import org.w3c.dom.Document;
@@ -51,5 +52,16 @@ public interface DocumentParser {
      * @throws ParserException In case, parsing fails.
      */
     Document parse(HttpResult httpResult) throws ParserException;
+
+    /**
+     * <p>
+     * Parse a {@link Document} from the provided {@link File}.
+     * </p>
+     * 
+     * @param file
+     * @return
+     * @throws ParserException In case, parsing fails.
+     */
+    Document parse(File file) throws ParserException;
 
 }

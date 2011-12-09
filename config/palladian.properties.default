@@ -1,5 +1,6 @@
-config.version = 15
+config.version = 16
 ### version history:
+### 16: added MavSync ttl mode
 ### 15: added IndHistTTL update strategy
 ### 14: added IndHist update strategy
 ### 13: added AdaptiveTTL update strategies
@@ -15,6 +16,7 @@ config.version = 15
 ### 3: added thread pool size for MetadataCreator
 ### 2: added timeouts for DocumentRetriever
 ### 1: initial version
+
 
 ######################## Model Paths ########################
 
@@ -223,6 +225,12 @@ datasetEvaluator.indHistTTLburst = 2.0
 
 # If datasetEvaluator.updateStrategy = IndHistTTL, this is the time window analysed for internal strategy selection
 datasetEvaluator.indHistTTLtimeWindowHours = 1
+
+# If datasetEvaluator.updateStrategy = MAVSync, set to 
+# 0 to ignore ttl attribute
+# 1 to use ttl as a lower bound for the checkInterval calculated from the feed 
+# 2 to foce ttl as checkInterval 
+datasetEvaluator.rssTTLMode = 0
 
 # Set min check interval in minutes > 0. Update strategies must not poll more often than this interval. 
 datasetEvaluator.minCheckInterval = 1

@@ -71,8 +71,11 @@ public class CountMap extends HashMap<Object, Integer> {
     }
     
     /**
-     * <p>Get all objects that have more than a certain count.
-     * @param count Objects must have a count greater than count.</p>
+     * <p>
+     * Get all objects that have more than a certain count.
+     * </p>
+     * 
+     * @param count Objects must have a count greater than count.
      * @return A set of objects with a higher count than specified.
      */
     public Set<Object> getObjectsWithHigherCountThan(int count) {
@@ -84,7 +87,28 @@ public class CountMap extends HashMap<Object, Integer> {
             }
         }
         
-        return highCountSet;        
+        return highCountSet;
+    }
+
+    /**
+     * <p>
+     * Get all objects that occur between and including minCount and maxCount of times.
+     * </p>
+     * 
+     * @param minCount Objects must have a count greater or equal than minCount.
+     * @param maxCount Objects must have a count less or equal than maxCount.
+     * @return A set of objects with a higher count than specified.
+     */
+    public <T> Set<T> getObjectsWithCountBetween(int minCount, int maxCount) {
+
+        Set<T> validCountSet = new HashSet<T>();
+        for (java.util.Map.Entry<Object, Integer> entry : entrySet()) {
+            if (entry.getValue() >= minCount && entry.getValue() <= maxCount) {
+                validCountSet.add((T)entry.getKey());
+            }
+        }
+
+        return validCountSet;
     }
 
 }
