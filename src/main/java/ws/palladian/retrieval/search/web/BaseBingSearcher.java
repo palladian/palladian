@@ -95,7 +95,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 int total = responseData.getInt("Total");
-                if (offset > total) {
+                if (total == 0) {
                     break;
                 }
 
@@ -112,6 +112,11 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
                         break;
                     }
                 }
+
+                if (offset >= total) {
+                    break;
+                }
+
             }
         } catch (HttpException e) {
             LOGGER.error(e);
@@ -167,6 +172,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     private JSONObject getResponseData(String requestUrl, String sourceType) throws HttpException, JSONException {
         HttpResult httpResult = retriever.httpGet(requestUrl);
         String jsonString = new String(httpResult.getContent());
+        System.out.println(jsonString);
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONObject responseData = jsonObject.getJSONObject("SearchResponse").getJSONObject(sourceType);
         return responseData;
