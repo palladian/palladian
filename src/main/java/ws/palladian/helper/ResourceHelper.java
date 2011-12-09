@@ -1,19 +1,22 @@
 package ws.palladian.helper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 
 /**
- * <p>Helper class to handle resources.</p>
+ * <p>
+ * Helper class to handle resources.
+ * </p>
  * 
  * @author Philipp Katz
  */
 public class ResourceHelper {
-    
+
     private ResourceHelper() {
-        
+
     }
 
     /**
@@ -51,6 +54,21 @@ public class ResourceHelper {
         }
         return resourcePath;
 
+    }
+
+    /**
+     * <p>
+     * Get a File with full path relative to the class path.
+     * </p>
+     * 
+     * @param resourceLocation Relative path to the desired resource in the class path.
+     * @return File with absolute, operating system specific path.
+     * @throws FileNotFoundException If the file cannot be found at the specified location.
+     */
+    public static File getResourceFile(String resourceLocation) throws FileNotFoundException {
+        String resourcePath = getResourcePath(resourceLocation);
+        File file = new File(resourcePath);
+        return file;
     }
 
 }
