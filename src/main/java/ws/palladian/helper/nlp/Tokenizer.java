@@ -220,8 +220,9 @@ public class Tokenizer {
 
         List<String> sentences = new ArrayList<String>();
 
+        // pattern to find the end of a sentence
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z])+|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
