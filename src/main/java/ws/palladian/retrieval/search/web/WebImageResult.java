@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.awt.image.BufferedImage;
 import java.util.Date;
 
 /**
@@ -8,11 +9,13 @@ import java.util.Date;
  * </p>
  * 
  * @author Philipp Katz
+ * @author David Urbansky
  */
 public class WebImageResult extends WebResult {
 
     private final int width;
     private final int height;
+    private BufferedImage imageContent = null;
 
     public WebImageResult(String url, String title, String summary, int width, int height, Date date) {
         super(url, title, summary, date);
@@ -29,17 +32,29 @@ public class WebImageResult extends WebResult {
     }
 
     /**
-     * @return the width
+     * @return The width of the image.
      */
     public int getWidth() {
         return width;
     }
 
     /**
-     * @return the height
+     * @return The height of the image.
      */
     public int getHeight() {
         return height;
+    }
+
+    public double getWidthHeightRatio() {
+        return (double)getWidth() / (double)getHeight();
+    }
+
+    public BufferedImage getImageContent() {
+        return imageContent;
+    }
+
+    public void setImageContent(BufferedImage imageContent) {
+        this.imageContent = imageContent;
     }
 
     /*

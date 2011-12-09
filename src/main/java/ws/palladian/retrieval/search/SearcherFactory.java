@@ -8,9 +8,13 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.BlekkoSearcher;
+import ws.palladian.retrieval.search.web.GoogleBlogsSearcher;
 import ws.palladian.retrieval.search.web.GoogleImageSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.HakiaSearcher;
+import ws.palladian.retrieval.search.web.TwitterSearcher;
 import ws.palladian.retrieval.search.web.WebImageResult;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -64,11 +68,24 @@ public class SearcherFactory {
         return result;
     }
 
-    public Searcher<WebResult> createWebSearcher(String fqn) {
-        return createWebSearcher(fqn, WebResult.class);
+    public static WebSearcher<WebResult> createWebSearcher(String searcherClassName, PropertiesConfiguration config) {
+        return new SearcherFactory(config).createWebSearcher(searcherClassName, WebResult.class);
     }
 
-    public <R extends WebResult> Searcher<R> createWebSearcher(String fqn, Class<R> resultType) {
+    public WebSearcher<WebResult> createWebSearcher(String fqn, Class<WebResult> resultType) {
+        try {
+            Class<WebSearcher<WebResult>> c = (Class<WebSearcher<WebResult>>)Class.forName(fqn);
+            return createSearcher(c);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("could not instantiate " + fqn);
+        }
+    }
+
+    public Searcher<WebResult> createWebSearcher(String fqn) {
+        return createSearcher(fqn, WebResult.class);
+    }
+
+    public <R extends WebResult> Searcher<R> createSearcher(String fqn, Class<R> resultType) {
         try {
             Class<Searcher<R>> c = (Class<Searcher<R>>) Class.forName(fqn);
             return createSearcher(c);
@@ -96,8 +113,28 @@ public class SearcherFactory {
         this.defaultImageSearcher = defaultImageSearcher;
     }
 
+    /**
+     * <p>
+     * Get the number of requests by each search engine.
+     * </p>
+     * 
+     * @return A string with information about the number of requests by search engine.
+     */
+    public static String getLogs() {
+        StringBuilder logs = new StringBuilder();
+
+        logs.append("\n");
+        logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Bing requests: ").append(BingSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Google Blogs requests: ").append(GoogleBlogsSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Blekko requests: ").append(BlekkoSearcher.getRequestCount()).append("\n");
+
+        return logs.toString();
+    }
+
     public static void main(String[] args) {
-        
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         
         // the factory is set up with the configuration
@@ -105,8 +142,10 @@ public class SearcherFactory {
         
         // searchers can be created by Class type, or by fully qualified class name (no type-safety in this case)
         Searcher<WebResult> searcher = factory.createWebSearcher("ws.palladian.retrieval.search.web.BingSearcher");
+        WebSearcher<WebResult> webSearcher = SearcherFactory.createWebSearcher(
+                "ws.palladian.retrieval.search.web.BingSearcher", config);
         
-        List<WebResult> result = searcher.search("apple", 50);
+        List<WebResult> result = webSearcher.search("apple", 50);
         CollectionHelper.print(result);
         
         // we can define default searchers for this factory
