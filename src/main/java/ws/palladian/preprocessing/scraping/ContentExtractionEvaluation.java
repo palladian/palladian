@@ -121,7 +121,6 @@ public class ContentExtractionEvaluation {
 
         StringBuilder sb = new StringBuilder();
 
-        int count = 0;
         boolean writeHeader = true;
 
         // keep statistics
@@ -173,7 +172,6 @@ public class ContentExtractionEvaluation {
             if (winner != null) {
                 wins.add(winner);
             }
-            count++;
 
             LOGGER.info(resultStr);
             sb.append(resultStr).append("\n");
