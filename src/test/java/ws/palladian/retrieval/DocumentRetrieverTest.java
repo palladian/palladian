@@ -46,7 +46,7 @@ public class DocumentRetrieverTest {
 
     /**
      * Test undesired behavior from NekoHTML for which we introduced workarounds/fixes.
-     * See {@link TBODYFix}.
+     * See {@link NekoTbodyFix}.
      * 
      * @throws FileNotFoundException
      */

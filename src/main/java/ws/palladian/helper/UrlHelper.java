@@ -15,6 +15,16 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.retrieval.DocumentRetriever;
 
+/**
+ * <p>
+ * Various helper methods for working with URLs.
+ * </p>
+ * 
+ * @author David Urbansky
+ * @author Philipp Katz
+ * @author Sandro Reichert
+ * @author Julien Schmehl
+ */
 public class UrlHelper {
 
     /** The logger for this class. */
@@ -34,9 +44,9 @@ public class UrlHelper {
 
     /** The compiled pattern for all sessionIDs. */
     private static Pattern sessionIDPattern;
-    
+
     private UrlHelper() {
-        
+
     }
 
     /**
@@ -297,74 +307,80 @@ public class UrlHelper {
         return returnValue;
     }
 
-    /** 
-	 * Returns the canonical URL. This URL is lowercase, with trailing slash and
-	 * no index.htm* and is the redirected URL if input URL is redirecting.
-	 * 
-	 * @param url
+    /**
+     * Returns the canonical URL. This URL is lowercase, with trailing slash and
+     * no index.htm* and is the redirected URL if input URL is redirecting.
+     * 
+     * @param url
      * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
-	 * 
-	 */
-	public static String getCanonicalUrl(String url) {
-		
-		if (url == null) {
-			return "";
-		}
-		
-		try {
-			
-			// get redirect url if it exists and continue with this url
-			DocumentRetriever dr = new DocumentRetriever();
-			String redirectUrl = dr.getRedirectUrl(url);
-			
-			if(isValidUrl(redirectUrl)) url = redirectUrl;
+     * 
+     */
+    public static String getCanonicalUrl(String url) {
+
+        if (url == null) {
+            return "";
+        }
+
+        try {
+
+            // get redirect url if it exists and continue with this url
+            DocumentRetriever dr = new DocumentRetriever();
+            String redirectUrl = dr.getRedirectUrl(url);
+
+            if (isValidUrl(redirectUrl))
+                url = redirectUrl;
 
             URL urlObj = new URL(url);
-            
+
             // get all url parts
             String protocol = urlObj.getProtocol();
             String port = "";
-            if(urlObj.getPort() != -1 && urlObj.getPort() != urlObj.getDefaultPort()) port = ":"+urlObj.getPort();
+            if (urlObj.getPort() != -1 && urlObj.getPort() != urlObj.getDefaultPort())
+                port = ":" + urlObj.getPort();
             String host = urlObj.getHost().toLowerCase();
             String path = urlObj.getPath();
             String query = "";
-            if(urlObj.getQuery() != null) query = "?"+urlObj.getQuery();
-            
-            // correct path to eliminate ".." and recreate path accordingly
-            String [] parts = path.split("/");
-            path = "/";
-            
-            if(parts.length > 0) {
-	            for (int i = 0; i < parts.length; i++) {
-					parts[i] = parts[i].trim();
-					//throw away ".." and a directory above it 
-					if (parts[i].equals("..")) {
-						parts[i] = "";
-						//if there is a directory above this one in the path	
-						if (parts.length > 1 && i > 0) {
-							parts[i - 1] = "";
-						}
-					}
-				}
-	            for (int i = 0; i < parts.length; i++) if(parts[i].length() > 0) path += parts[i]+"/";
+            if (urlObj.getQuery() != null)
+                query = "?" + urlObj.getQuery();
 
-	            // delete trailing slash if path ends with a file
-	            if(parts[parts.length-1].contains(".")) path = path.substring(0, path.length()-1);
-	            // delete index.* if there is no query
-	            if(parts[parts.length-1].contains("index") && query.isEmpty()) if(query.isEmpty()) path = path.replaceAll("index\\..+$", "");
+            // correct path to eliminate ".." and recreate path accordingly
+            String[] parts = path.split("/");
+            path = "/";
+
+            if (parts.length > 0) {
+                for (int i = 0; i < parts.length; i++) {
+                    parts[i] = parts[i].trim();
+                    // throw away ".." and a directory above it
+                    if (parts[i].equals("..")) {
+                        parts[i] = "";
+                        // if there is a directory above this one in the path
+                        if (parts.length > 1 && i > 0) {
+                            parts[i - 1] = "";
+                        }
+                    }
+                }
+                for (int i = 0; i < parts.length; i++)
+                    if (parts[i].length() > 0)
+                        path += parts[i] + "/";
+
+                // delete trailing slash if path ends with a file
+                if (parts[parts.length - 1].contains("."))
+                    path = path.substring(0, path.length() - 1);
+                // delete index.* if there is no query
+                if (parts[parts.length - 1].contains("index") && query.isEmpty())
+                    if (query.isEmpty())
+                        path = path.replaceAll("index\\..+$", "");
 
             }
-            
+
             return protocol + "://" + port + host + path + query;
-            
-            
+
         } catch (MalformedURLException e) {
             LOGGER.trace("could not determine canonical url for" + url);
             return "";
         }
-		
 
-	}
+    }
 
     /**
      * URLDecode a String.
@@ -415,12 +431,21 @@ public class UrlHelper {
         List<String> urls = new ArrayList<String>();
         Pattern p = Pattern
         // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
-        .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
-    
+                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+
         Matcher m = p.matcher(text);
         while (m.find()) {
             urls.add(m.group());
         }
         return urls;
+    }
+    
+    public static boolean isLocalFile(URL url) {
+        String protocol = url.getProtocol();
+        String host = url.getHost();
+        
+        boolean hasHost = host != null && !"".equals(host);
+        
+        return "file".equalsIgnoreCase(protocol) && !hasHost;
     }
 }

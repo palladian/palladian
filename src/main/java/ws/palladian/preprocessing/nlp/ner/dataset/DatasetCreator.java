@@ -35,8 +35,11 @@ import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
-import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
+import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.GoogleSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.
@@ -68,7 +71,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private String dataSetLocation = "data/datasets/ner/";
 
     /** The search API to use. */
-    private int sourceAPI = WebSearcherManager.GOOGLE;
+    private WebSearcher<WebResult> searcher = new GoogleSearcher();
 
     /** Save a map with concept name and the seeds searched for every concept. */
     private Map<String, List<String>> conceptSeeds;
@@ -151,7 +154,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
         meta.append("Total Generated Traffic: ").append(DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES))
         .append("MB\n");
-        meta.append("Search Engine used: ").append(WebSearcherManager.getName(getSourceAPI())).append("\n");
+        meta.append("Search Engine used: ").append(searcher.getName()).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
         // check which concepts have entities with their number of mentions
@@ -350,12 +353,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
     private List<String> getWebPages(String seedEntity, String conceptName) {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
-        WebSearcher sourceRetriever = new WebSearcher();
-        sourceRetriever.setLanguage(WebSearcher.LANGUAGE_ENGLISH);
-        sourceRetriever.setResultCount(getMentionsPerEntity());
-        sourceRetriever.setSource(getSourceAPI());
-
-        return sourceRetriever.getURLs("\"" + seedEntity + "\" " + conceptName.toLowerCase(), false);
+        String query = "\"" + seedEntity + "\" " + conceptName.toLowerCase();
+        return searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
     }
 
     /**
@@ -704,12 +703,12 @@ public class DatasetCreator implements DatasetCreatorInterface {
         this.dataSetLocation = dataSetLocation;
     }
 
-    public void setSourceAPI(int sourceAPI) {
-        this.sourceAPI = sourceAPI;
+    public void setWebSearcher(WebSearcher<WebResult> searcher) {
+        this.searcher = searcher;
     }
 
-    public int getSourceAPI() {
-        return sourceAPI;
+    public WebSearcher<WebResult> getWebSearcher() {
+        return searcher;
     }
 
     public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept, int minMentionsPerSeed) {
@@ -742,7 +741,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
-        setSourceAPI(WebSearcherManager.BING);
+        setWebSearcher(new BingSearcher());
         setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
         createDataset(seedFolderPath);
@@ -878,7 +877,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
         // System.exit(0);
 
-        datasetCreator.setSourceAPI(WebSearcherManager.BING);
+        datasetCreator.setWebSearcher(new BingSearcher());
         datasetCreator.setMentionsPerEntity(2);
         datasetCreator.setSeedsPerConcept(2);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities/");

@@ -1,6 +1,7 @@
 package ws.palladian.preprocessing.scraping;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
@@ -8,24 +9,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.parser.ParserException;
 
 /**
  * <p>The abstract class for Web page content extraction. The "content" is the main node with the contents of the page but not the navigation, foot etc.</p>
  * @author David Urbansky
- *
+ *@author Philipp Katz
  */
 public abstract class WebPageContentExtractor {
 
     private static final Logger LOGGER = Logger.getLogger(WebPageContentExtractor.class);
-
-    /** We use the Crawler to take care of retrieving the input stream from remote locations. */
-    private DocumentRetriever crawler;
-    
-    public WebPageContentExtractor() {
-        crawler = new DocumentRetriever();
-    }
 
     /**
      * <p>Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
@@ -60,10 +57,28 @@ public abstract class WebPageContentExtractor {
      * @throws PageContentExtractorException
      */
     public WebPageContentExtractor setDocument(URL url) throws PageContentExtractorException {
+        boolean localFile = UrlHelper.isLocalFile(url);
+        if (localFile) {
+            return setDocument(new File(url.getFile()));
+        } else {
+            DocumentRetriever retriever = new DocumentRetriever();
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(url.toExternalForm());
+            } catch (HttpException e) {
+                throw new PageContentExtractorException("error retrieving URL " + url.toExternalForm(), e);
+            }
+            return setDocument(httpResult);
+        }
+    }
+
+    public WebPageContentExtractor setDocument(HttpResult httpResult) throws PageContentExtractorException {
         try {
-            return setDocument(crawler.getWebDocument(url.toExternalForm()));
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
+            NekoHtmlParser parser = new NekoHtmlParser();
+            Document document = parser.parse(httpResult);
+            return setDocument(document);
+        } catch (ParserException e) {
+            throw new PageContentExtractorException("error parsing the file from " + httpResult.getUrl(), e);
         }
     }
 
@@ -78,9 +93,11 @@ public abstract class WebPageContentExtractor {
      */
     public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
         try {
-            return setDocument(crawler.getWebDocument(file.getPath()));
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
+            NekoHtmlParser parser = new NekoHtmlParser();
+            Document document = parser.parse(file);
+            return setDocument(document);
+        } catch (ParserException e) {
+            throw new PageContentExtractorException("error parsing the file " + file, e);
         }
     }
 
@@ -95,14 +112,23 @@ public abstract class WebPageContentExtractor {
      */
     public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
         try {
-            if (UrlHelper.isValidUrl(documentLocation)) {
-                return setDocument(new URL(documentLocation));
-            } else {
-                return setDocument(new File(documentLocation));
-            }
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
+            URL url = createUrl(documentLocation);
+            return setDocument(url);
+        } catch (MalformedURLException e) {
+            throw new PageContentExtractorException("could not resolve " + documentLocation, e);
         }
+    }
+    
+    // TODO move to UrlHelper
+    private static URL createUrl(String string) throws MalformedURLException {
+        if (string.startsWith("http://") || string.startsWith("https://")) {
+            return new URL(string);
+        }
+        if (string.startsWith("file:")) {
+            return new URL(string);
+        }
+        string = "file:" + string;
+        return new URL(string);
     }
 
     /**
@@ -139,7 +165,8 @@ public abstract class WebPageContentExtractor {
         } catch (PageContentExtractorException e) {
             LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
         }
-        return HtmlHelper.documentToReadableText(getResultNode());
+        return getResultText();
+        // return HtmlHelper.documentToReadableText(getResultNode());
     }
 
 
