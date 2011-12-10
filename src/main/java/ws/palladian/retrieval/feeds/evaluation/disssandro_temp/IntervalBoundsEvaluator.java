@@ -27,9 +27,11 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(IntervalBoundsEvaluator.class);
 
-    private static final int[] lowerBounds = { 1, 5, 15, 60 };
+    // private static final int[] lowerBounds = { 1, 5, 15, 60 };
+    private static final int[] lowerBounds = { 1 };
 
-    private static final int[] upperBounds = { 1440, 10080, 43200 };
+    // private static final int[] upperBounds = { 1440, 10080, 43200 };
+    private static final int[] upperBounds = { 60, 360, 720 };
 
     public IntervalBoundsEvaluator(EvaluationFeedDatabase feedStore) {
         super(feedStore);
