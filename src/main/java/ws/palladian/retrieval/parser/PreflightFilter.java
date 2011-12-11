@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.parser;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.util.XMLChar;
 import org.apache.xerces.xni.Augmentations;
@@ -99,6 +100,14 @@ class PreflightFilter extends DefaultFilter {
             // -- Philipp, 2010-05-31
             if (attributes.getQName(i) != null
                     && (attributes.getQName(i).equals(":") || !XMLChar.isValidName(attributes.getQName(i)))) {
+                LOGGER.debug("**** removing invalid attribute " + attributes.getQName(i));
+                attributes.removeAttributeAt(i);
+            }
+            
+            // http://www.w3.org/TR/REC-xml-names/
+            // […] It follows that in a namespace-well-formed document:
+            // All element and attribute names contain either zero or one colon; […]
+            else if (StringUtils.countMatches(attributes.getQName(i), ":") > 1) {
                 LOGGER.debug("**** removing invalid attribute " + attributes.getQName(i));
                 attributes.removeAttributeAt(i);
             }

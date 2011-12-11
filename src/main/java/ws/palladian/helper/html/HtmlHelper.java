@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.DocumentImpl;
@@ -329,7 +330,9 @@ public class HtmlHelper {
     }
 
     /**
-     * <p>Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.</p>
+     * <p>
+     * Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.
+     * </p>
      * 
      * @param pageContent The html text.
      * @param beginTag The begin tag.
@@ -418,7 +421,7 @@ public class HtmlHelper {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                throws SAXException {
+                        throws SAXException {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
@@ -957,11 +960,31 @@ public class HtmlHelper {
         return ret;
     }
 
-    public static void printDom(Node node, String indent) {
-        System.out.println(indent + node.getNodeName()/* +node.getTextContent().substring(0,20) */);
+    /**
+     * <p>Print DOM tree for diagnostic purposes. The output includes all Nodes and their Attributes (prefixed with @).</p>
+     * @param node
+     */
+    public static void printDom(Node node) {
+        printDom(node, 0);
+    }
+
+    private static void printDom(Node node, int indent) {
+        String indentString = StringUtils.repeat(" ", indent);
+
+        String nodeName = node.getNodeName();
+        String prefix = node.getPrefix();
+        String namespaceURI = node.getNamespaceURI();
+        System.out.println(indentString + nodeName + "(" + prefix + " : " + namespaceURI + ")");
+
+        if (node.getAttributes() != null) {
+            for (int i = 0; i < node.getAttributes().getLength(); i++) {
+                System.out.println(indentString + "@" + node.getAttributes().item(i));
+            }
+        }
+
         Node child = node.getFirstChild();
         while (child != null) {
-            printDom(child, indent + "_");
+            printDom(child, indent + 1);
             child = child.getNextSibling();
         }
     }
@@ -1076,14 +1099,14 @@ public class HtmlHelper {
 
         String result = StringEscapeUtils.unescapeHtml(text);
         result = StringHelper.replaceProtectedSpace(result);
-        
+
         // remove undesired characters
         result = result.replace("&#8203;", " "); // empty whitespace
         result = result.replace("\n", " ");
         result = result.replace("&#09;", " "); // html tabulator
         result = result.replace("\t", " ");
         result = result.replace(" ,", " ");
-        
+
         return result;
     }
 
