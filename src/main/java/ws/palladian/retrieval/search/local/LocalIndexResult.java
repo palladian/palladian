@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.search.local;
 
+import java.util.Date;
+
 import ws.palladian.retrieval.search.SearchResult;
 
 /**
@@ -12,41 +14,33 @@ import ws.palladian.retrieval.search.SearchResult;
 public class LocalIndexResult extends SearchResult {
 
     /** The id of the index result in the index. For example the WARC-TREC-ID in the ClueWeb corpus. */
-    private String id = "";
+    private final String id;
 
     /** The full document content of the result. */
-    private String content = "";
+    private final String content;
 
-    public LocalIndexResult() {
-        super();
-    }
-
-    public LocalIndexResult(int index, int rank, String id, String title, String summary, String content) {
-        super(index, rank, title, summary);
+    public LocalIndexResult(String id, String title, String content, String summary, Date date) {
+        super(title, summary, date);
         this.id = id;
         this.content = content;
     }
 
-    public LocalIndexResult(int index, int rank, String id, String title, String summary, String content, String date) {
-        super(index, rank, title, summary, date);
-        this.id = id;
-        this.content = content;
+    public LocalIndexResult(String id, String content) {
+        this(id, null, content, null, null);
     }
 
+    /**
+     * @return the id
+     */
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    /**
+     * @return the content
+     */
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
 }

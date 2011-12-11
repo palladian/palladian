@@ -29,7 +29,6 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.ListDiscoverer;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -602,7 +601,7 @@ public class Temp {
         return paginationUrls;
         
 //        ListDiscoverer ld = new ListDiscoverer();
-//        Set<String> urls = ld.findPaginationURLs(url);        
+//        Set<String> urls = ld.findPaginationURLs(url);
     }
     
     /**
@@ -610,6 +609,13 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+        Document webDocument = new DocumentRetriever().getWebDocument("http://webknox.com");
+        PageAnalyzer pa = new PageAnalyzer();
+        pa.setDocument(webDocument);
+        String pageText = pa.getTextByXPath(webDocument, "//body");
+        System.out.println(pageText);
+        System.exit(0);
 
         List<String> collection = new ArrayList<String>();
         for (int i = 0; i < 500; i++) {

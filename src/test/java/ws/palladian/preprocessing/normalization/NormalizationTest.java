@@ -124,6 +124,8 @@ public class NormalizationTest {
         assertEquals(true, StringHelper.isNumericExpression("41 %"));
         assertEquals(true, StringHelper.isNumericExpression("345,234,231"));
         assertEquals(true, StringHelper.isNumericExpression("$12,21€"));
+        assertEquals(false, StringHelper.isNumericExpression("TBC"));
+
     }
 
     @Test
