@@ -605,7 +605,7 @@ public class UnitNormalizer {
     public static void main(String[] args) {
 
         System.out.println(getUnitType("2.26 GHz"));
-        System.out.println(getNormalizedNumber("a 2.26 GHz"));
+        // System.out.println(getNormalizedNumber("a 2.26 GHz"));
         System.out.println(getUnitType("21.4 million"));
         System.out.println(getNormalizedNumber("21.4 million"));
         System.out.println(getUnitType("2 hr. 32 min"));
@@ -664,6 +664,7 @@ public class UnitNormalizer {
 
         // test unit normalization
         System.out.println(getNormalizedNumber(5, "mpixel"));
+        System.out.println(getNormalizedNumber(2, "megapixels"));
         System.out.println(getNormalizedNumber(30, "miles per hour is really fast"));
         System.out.println(getNormalizedNumber(20, "m kilometers"));
         System.out.println(getNormalizedNumber(53.4, "million, compared to"));

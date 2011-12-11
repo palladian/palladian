@@ -217,7 +217,8 @@ public class DatasetEvaluator {
             }
             // MAVSync
             else if (strategy.equalsIgnoreCase("MAVSync")) {
-                updateStrategy = new MAVSynchronizationUpdateStrategy();
+                int rssTTLmode = config.getInt("datasetEvaluator.rssTTLMode");
+                updateStrategy = new MAVSynchronizationUpdateStrategy(rssTTLmode);
                 logMsg.append(updateStrategy.getName());
 
                 // TODO: read feedItemBufferSize from config
