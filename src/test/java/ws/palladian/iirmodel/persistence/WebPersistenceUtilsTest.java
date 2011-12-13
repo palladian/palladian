@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
+import java.util.Date;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
@@ -17,6 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.iirmodel.Author;
+import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.Label;
 import ws.palladian.iirmodel.LabelType;
 import ws.palladian.iirmodel.Labeler;
@@ -41,6 +44,14 @@ public final class WebPersistenceUtilsTest {
     private Label questionLabel01;
     private Label questionLabel02;
     private Label answerLabel01;
+    private Author author1;
+    private Item item1;
+    private Author author2;
+    private Item item2;
+    private Author author3;
+    private Item item3;
+    private Author author4;
+    private Item item4;
 
     @Before
     public void setUp() throws Exception {
@@ -48,9 +59,27 @@ public final class WebPersistenceUtilsTest {
         objectOfClassUnderTest = new WebPersistenceUtils(factory.createEntityManager());
         questionType = new LabelType("QUESTION");
         answerType = new LabelType("ANSWER");
-        questionLabel01 = new Label(null, questionType, "");
-        questionLabel02 = new Label(null, questionType, "");
-        answerLabel01 = new Label(null, answerType, "");
+
+        author1 = new Author("testAuthor1", "http://www.test.de/");
+        item1 = new Item("item1", author1, "http://www.test.de/test", "item1", new Date(), new Date(), "text1");
+        author2 = new Author("testAuthor2", "http://www.test.de/");
+        item2 = new Item("item2", author2, "http://www.test.de/test", "item2", new Date(), new Date(), "text2");
+        author3 = new Author("testAuthor3", "http://www.test.de/");
+        item3 = new Item("item3", author3, "http://www.test.de/test", "item3", new Date(), new Date(), "text3");
+        author4 = new Author("testAuthor4", "http://www.test.de/");
+        item4 = new Item("item4", author4, "http://www.test.de/test", "item4", new Date(), new Date(), "text4");
+
+        ModelPersistenceLayer persistenceLayer = new ModelPersistenceLayer(factory.createEntityManager());
+        persistenceLayer.saveItem(item1);
+        persistenceLayer.saveItem(item2);
+        persistenceLayer.saveItem(item3);
+        persistenceLayer.saveItem(item4);
+
+        persistenceLayer.shutdown();
+
+        questionLabel01 = new Label(item1, questionType, "");
+        questionLabel02 = new Label(item2, questionType, "");
+        answerLabel01 = new Label(item3, answerType, "");
     }
 
     /**
@@ -77,13 +106,13 @@ public final class WebPersistenceUtilsTest {
      * @throws Exception If some error occurs. Fails the test.
      */
     @Test
-    public void test() throws Exception {
+    public void testCountLabelTypes() throws Exception {
         objectOfClassUnderTest.saveLabelType(questionType);
         objectOfClassUnderTest.saveLabelType(answerType);
         objectOfClassUnderTest.saveLabel(answerLabel01);
         objectOfClassUnderTest.saveLabel(questionLabel02);
         objectOfClassUnderTest.saveLabel(questionLabel01);
-        Map<String, String> result = objectOfClassUnderTest.countLabelTypes();
+        Map<String, String> result = objectOfClassUnderTest.countLabeledItemsByType();
         assertThat(result.size(), is(2));
         assertThat(result.get("ANSWER"), is("1"));
         assertThat(result.get("QUESTION"), is("2"));
@@ -119,6 +148,14 @@ public final class WebPersistenceUtilsTest {
         assertThat(result.getLabels(), hasItem(questionLabel01));
     }
 
+    /**
+     * <p>
+     * Tests whether random loading of non self labeled items is working correctly.
+     * </p>
+     * 
+     * @throws Exception Should not happen but fails the test on any unexpected error.
+     * @see WebPersistenceUtils#getNextNonSelfLabeledItem(Labeler)
+     */
     @Test
     public void testLoadRandomNonSelfLabeledItem() throws Exception {
         Labeler labeler1 = new Labeler("labeler1");
@@ -127,10 +164,15 @@ public final class WebPersistenceUtilsTest {
         labeler2.addLabel(questionLabel02);
 
         objectOfClassUnderTest.saveLabelType(questionType);
+        objectOfClassUnderTest.saveLabelType(answerType);
+        objectOfClassUnderTest.saveLabel(answerLabel01);
         objectOfClassUnderTest.saveLabel(questionLabel01);
         objectOfClassUnderTest.saveLabel(questionLabel02);
 
         objectOfClassUnderTest.saveLabeler(labeler1);
         objectOfClassUnderTest.saveLabeler(labeler2);
+
+        Item item = objectOfClassUnderTest.getNextNonSelfLabeledItem(labeler1);
+        assertThat(item, is(item2));
     }
 }

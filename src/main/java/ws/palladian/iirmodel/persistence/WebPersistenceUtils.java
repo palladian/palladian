@@ -94,6 +94,8 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     private final TypedQuery<Item> getItemsOnlyLabeledByOthersQuery;
 
+    private final Query countLabeledItemsByLabeler;
+
     /**
      * @param entityManager
      */
@@ -108,10 +110,16 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
                         "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.annotatedItem.identifier FROM Label a)",
                         Item.class);
         getNonLabeledItemQuery.setMaxResults(100);
-        getItemsOnlyLabeledByOthersQuery = getManager().createQuery(
-                "SELECT i FROM Labeler lr, IN(lr.labels) l, ITEM i WHERE l.annotatedItem = i AND lr != :labeler",
-                Item.class);
+        getItemsOnlyLabeledByOthersQuery = getManager()
+                .createQuery(
+                        // "SELECT i FROM Labeler lr, IN(lr.labels) l, Item i WHERE l.annotatedItem = i AND lr != :labeler",
+                        // "SELECT i.* FROM Labeler lr INNER JOIN Labeler_ANNOTATION la ON lr.name=la.Labeler_name INNER JOIN ANNOTATION l ON l.identifier=la.labels_identifier INNER JOIN ITEM i ON i.IDENTIFIER=l.annotatedItem_identifier WHERE lr.name!=:labelerName",
+                        "SELECT l.annotatedItem FROM Labeler lr JOIN lr.labels l WHERE l.annotatedItem NOT IN ( SELECT l.annotatedItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler)",
+                        Item.class);
         getItemsOnlyLabeledByOthersQuery.setMaxResults(100);
+        countLabeledItemsByLabeler = getManager()
+                .createNativeQuery(
+                        "SELECT ANNOTATIONTYPE.typeName, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN ANNOTATIONTYPE ON ANNOTATION.annotation_identifier=ANNOTATIONTYPE.identifier INNER JOIN Labeler_ANNOTATION ON ANNOTATION.identifier=Labeler_ANNOTATION.labels_identifier WHERE Labeler_ANNOTATION.Labeler_name = :labelerName GROUP BY ANNOTATIONTYPE.typeName;");
         // COUNT_LABELED_ITEM_TYPES = getManager().createQuery(
         // "SELECT l.annotation, COUNT(l) FROM Label l GROUP BY l.annotation");
         // CriteriaBuilder cb = getManager().getCriteriaBuilder();
@@ -291,10 +299,15 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
     public Item getNextNonSelfLabeledItem(final Labeler labeler) {
         Boolean openedTransaction = openTransaction();
         try {
+            getItemsOnlyLabeledByOthersQuery.setParameter("labeler", labeler);
             List<Item> itemsLabeledByOthers = getItemsOnlyLabeledByOthersQuery.getResultList();
+
             if (itemsLabeledByOthers.isEmpty()) {
+                LOGGER.debug("Selecting random item from items not labeled by " + labeler.getName()
+                        + " but by other labelers");
                 return getRandomNonLabeledItem();
             } else {
+                LOGGER.debug("Selecting random item from non labeled items.");
                 return chooseRandomItem(itemsLabeledByOthers);
             }
         } finally {
@@ -312,6 +325,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      */
     private Item chooseRandomItem(final List<Item> items) {
         int randomIndex = random.nextInt(items.size());
+        LOGGER.debug("Choosing item number " + randomIndex + " from a list of " + items.size() + " items.");
         return items.get(randomIndex);
     }
 
@@ -394,12 +408,28 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * 
      * @return A mapping from the labels name to the amount of available instances of this name.
      */
-    public Map<String, String> countLabelTypes() {
+    public Map<String, String> countLabeledItemsByType() {
         Boolean openedTransaction = openTransaction();
         try {
             Map<String, String> ret = new HashMap<String, String>();
             @SuppressWarnings("unchecked")
             List<Object[]> results = countLabeledItemTypes.getResultList();
+            for (Object[] mapping : results) {
+                ret.put((String)mapping[0], String.valueOf(mapping[1]));
+            }
+            return ret;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public Map<String, String> countLabeledItemsByType(final String labelerName) {
+        Map<String, String> ret = new HashMap<String, String>();
+        countLabeledItemsByLabeler.setParameter("labelerName", labelerName);
+        Boolean openedTransaction = openTransaction();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object[]> results = countLabeledItemsByLabeler.getResultList();
             for (Object[] mapping : results) {
                 ret.put((String)mapping[0], String.valueOf(mapping[1]));
             }
@@ -458,6 +488,23 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         Boolean openedTransaction = openTransaction();
         try {
             return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    public Long countLabeledItems(String name) {
+        TypedQuery<Long> query = getManager()
+                .createQuery(
+                        "SELECT COUNT(l.annotatedItem) FROM Labeler lr JOIN lr.labels l WHERE lr.name=:labelerName",
+                        Long.class).setParameter("labelerName", name);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getSingleResult();
         } finally {
             commitTransaction(openedTransaction);
         }
