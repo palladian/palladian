@@ -1,17 +1,20 @@
 package ws.palladian.retrieval;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Represents a response for an HttpDownload, e.g. GET or HEAD.
+ * <p>Represents a response for an HttpDownload, e.g. GET or HEAD.</p>
  * 
  * @author Philipp Katz
  * 
  */
-public class HttpResult {
+public class HttpResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final String HEADER_SEPARATOR = "; ";
     
@@ -22,10 +25,10 @@ public class HttpResult {
     private final long transferedBytes;
 
     /**
-     * Instantiate a new {@link HttpResult}.
+     * <p>Instantiate a new {@link HttpResult}.</p>
      * 
      * @param url the result's URL.
-     * @param content the content as byte array; empty byte array for response without content (HEAD).
+     * @param content the content as byte array; empty byte array for response without content (e.g. HEAD).
      * @param headers the HTTP headers.
      * @param statusCode the HTTP response code.
      * @param transferedBytes the number of transfered bytes.
@@ -52,7 +55,7 @@ public class HttpResult {
     }
 
     /**
-     * @return the content as byte array; emtpy byte array for response without content (HEAD).
+     * @return the content as byte array; emtpy byte array for response without content (e.g. HEAD).
      */
     public byte[] getContent() {
         return content;
@@ -66,7 +69,7 @@ public class HttpResult {
     }
 
     /**
-     * Get the HTTP header for the specified name.
+     * <p>Get the HTTP header for the specified name.</p>
      * @param name the name of the HTTP header to get.
      * @return List of values, or <code>null</code> if no such header name.
      */
@@ -75,7 +78,7 @@ public class HttpResult {
     }
     
     /**
-     * Get the HTTP header for the specified name as String.
+     * <p>Get the HTTP header for the specified name as String.</p>
      * @param name the name of the HTTP header to get.
      * @return header value, or <code>null</code> if no such header name.
      */
