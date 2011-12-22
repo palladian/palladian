@@ -772,36 +772,28 @@ public class ExtractedDate implements AbstractDate {
                     break;
                 case 2:
                     this.year = (Integer) values.get(i);
-                    ;
                     break;
                 case 3:
                     this.month = (Integer) values.get(i);
-                    ;
                     break;
                 case 4:
                     this.day = (Integer) values.get(i);
-                    ;
                     break;
                 case 5:
                     this.hour = (Integer) values.get(i);
-                    ;
                     break;
                 case 6:
                     this.minute = (Integer) values.get(i);
-                    ;
                     break;
-
                 case 7:
                     this.second = (Integer) values.get(i);
-                    ;
                     break;
                 case 8:
                     this.timezone = (String) values.get(i);
-                    ;
                     break;
                 case 9:
                     this.url = (String) values.get(i);
-                    ;
+                    break;
             }
         }
     }
