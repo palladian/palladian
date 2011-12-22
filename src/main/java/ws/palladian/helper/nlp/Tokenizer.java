@@ -232,7 +232,7 @@ public class Tokenizer {
             lastIndex = matcher.end();
         }
 
-        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctation
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
         // character, just add the last fragment
         if (lastIndex < inputText.length()) {
             sentences.add(inputText.substring(lastIndex).trim());
