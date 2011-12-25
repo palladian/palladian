@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -37,16 +36,6 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     private static Long lastRequestTimestamp;
 
     private final String apiKey;
-
-    /**
-     * <p>
-     * Creates a new blekko searcher. The necessary API key is taken from the global configuration registry, which must
-     * provide the API key as string via key <tt>api.blekko.key</tt>.
-     * </p>
-     */
-    public BlekkoSearcher() {
-        this(ConfigHolder.getInstance().getConfig());
-    }
 
     /**
      * <p>

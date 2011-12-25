@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.DatasetCreatorInterface;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
@@ -35,6 +36,7 @@ import ws.palladian.preprocessing.scraping.PageContentExtractorException;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
+import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -741,7 +743,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
-        setWebSearcher(new BingSearcher());
+        setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance().getConfig()));
         setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
         createDataset(seedFolderPath);
@@ -877,7 +879,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
         // System.exit(0);
 
-        datasetCreator.setWebSearcher(new BingSearcher());
+        datasetCreator.setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance().getConfig()));
         datasetCreator.setMentionsPerEntity(2);
         datasetCreator.setSeedsPerConcept(2);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities/");

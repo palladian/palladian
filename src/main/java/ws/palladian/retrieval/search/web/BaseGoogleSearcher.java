@@ -23,7 +23,7 @@ import ws.palladian.retrieval.HttpResult;
  * @see http://code.google.com/intl/de/apis/websearch/docs/reference.html
  * @author Philipp Katz
  */
-public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
+abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseGoogleSearcher.class);

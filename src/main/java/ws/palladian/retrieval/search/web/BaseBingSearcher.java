@@ -14,7 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -27,7 +26,7 @@ import ws.palladian.retrieval.HttpResult;
  * @see http://www.bing.com/developers/s/APIBasics.html
  * @author Philipp Katz
  */
-public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
+abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);
@@ -47,7 +46,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      */
     public BaseBingSearcher(String apiKey) {
         super();
-        if (apiKey == null) {
+        if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("The required API key is missing");
         }
         this.apiKey = apiKey;
@@ -63,18 +62,6 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      */
     public BaseBingSearcher(PropertiesConfiguration configuration) {
         this(configuration.getString("api.bing.key"));
-    }
-
-    /**
-     * <p>
-     * Creates a new Bing searcher. The necessary API key is taken from the global configuration registry, which must
-     * provide the API key as string via key <tt>api.bing.key</tt>.
-     * </p>
-     * 
-     * @see ConfigHolder
-     */
-    public BaseBingSearcher() {
-        this(ConfigHolder.getInstance().getConfig());
     }
 
     @Override

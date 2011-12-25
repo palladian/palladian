@@ -14,7 +14,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -28,7 +27,7 @@ import ws.palladian.retrieval.parser.XmlParser;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
+abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseHakiaSearcher.class);
@@ -50,7 +49,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
      */
     public BaseHakiaSearcher(String apiKey) {
         super();
-        if (apiKey == null) {
+        if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("The required API key is missing");
         }
         this.apiKey = apiKey;
@@ -67,18 +66,6 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
      */
     public BaseHakiaSearcher(PropertiesConfiguration configuration) {
         this(configuration.getString("api.hakia.key"));
-    }
-
-    /**
-     * <p>
-     * Creates a new Hakia searcher. The necessary API key is taken from the global configuration registry, which must
-     * provide the API key as string via key <tt>api.hakia.key</tt>.
-     * </p>
-     * 
-     * @see ConfigHolder
-     */
-    public BaseHakiaSearcher() {
-        this(ConfigHolder.getInstance().getConfig());
     }
 
     @Override

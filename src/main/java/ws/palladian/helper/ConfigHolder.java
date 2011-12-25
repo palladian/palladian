@@ -182,18 +182,18 @@ public final class ConfigHolder {
         return this.config;
     }
 
-    /**
-     * <p>
-     * Return the value of the field with the specified field name.
-     * </p>
-     * 
-     * @param fieldName
-     *            The name of the field for which a value should be retrieved.
-     * @return The value of the field as Object since we don't know the type.
-     */
-    public Object getField(final String fieldName) {
-        return this.config.getProperty(fieldName);
-    }
+//    /**
+//     * <p>
+//     * Return the value of the field with the specified field name.
+//     * </p>
+//     * 
+//     * @param fieldName
+//     *            The name of the field for which a value should be retrieved.
+//     * @return The value of the field as Object since we don't know the type.
+//     */
+//    public Object getField(final String fieldName) {
+//        return this.config.getProperty(fieldName);
+//    }
 
     /**
      * <p>

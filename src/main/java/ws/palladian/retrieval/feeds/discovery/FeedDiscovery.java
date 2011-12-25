@@ -21,11 +21,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
@@ -38,7 +40,7 @@ import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 import ws.palladian.retrieval.search.web.WebSearcherLanguage;
@@ -76,33 +78,33 @@ public class FeedDiscovery {
     private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
-    private DocumentRetriever documentRetriever = new DocumentRetriever();
+    private final DocumentRetriever documentRetriever = new DocumentRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    private WebSearcher<WebResult> webSearcher = new BingSearcher();
+    private WebSearcher<WebResult> webSearcher = null;
 
     /** The parser used for parsing HTML pages. */
-    private DocumentParser parser = new NekoHtmlParser();
+    private final DocumentParser parser = new NekoHtmlParser();
 
     private int numThreads = DEFAULT_NUM_THREADS;
 
     /** Store all urls for which we will do the autodiscovery. */
-    private BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
 
     /** The path of the file where the discovered feeds should be written to. */
     private String resultFilePath = null;
 
     /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
-    private BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
 
     /** The numver of feeds we discovered. */
-    private AtomicInteger feedCounter = new AtomicInteger();
+    private final AtomicInteger feedCounter = new AtomicInteger();
 
     /** The number of pages we checked. */
-    private AtomicInteger pageCounter = new AtomicInteger();
+    private final AtomicInteger pageCounter = new AtomicInteger();
 
     /** The number of errors, i.e. unreachable and unparsable pages. */
-    private AtomicInteger errorCounter = new AtomicInteger();
+    private final AtomicInteger errorCounter = new AtomicInteger();
 
     /** Track the time of the discovery process. */
     private StopWatch stopWatch;
@@ -127,6 +129,10 @@ public class FeedDiscovery {
      * @return
      */
     private Set<String> searchSites(String query, int totalResults) {
+        
+        if (webSearcher == null) {
+            throw new IllegalStateException("No WebSearcher defined.");
+        }
 
         // set maximum number of expected results
         // set search result language to english
@@ -501,6 +507,11 @@ public class FeedDiscovery {
         LOGGER.trace("using " + webSearcher.getName());
         this.webSearcher = webSearcher;
     }
+    
+    public void setSearchEngine(String webSearcherName) {
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
+    }
 
     public WebSearcher<WebResult> getSearchEngine() {
         return webSearcher;
@@ -604,9 +615,9 @@ public class FeedDiscovery {
         options.addOption(OptionBuilder.withLongOpt("combineQueries")
                 .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
                 .withType(Number.class).create());
-        // options.addOption(OptionBuilder.withLongOpt("searchEngine")
-        // .withDescription("search engine to use, see SourceRetrieverManager").hasArg().withArgName("n")
-        // .withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("searchEngine")
+                .withDescription("fully qualified class name of the search engine to use").hasArg().withArgName("n")
+                .create());
         options.addOption(OptionBuilder.withLongOpt("csvOutput")
                 .withDescription("write full output with additional data as CSV file instead of only URLs").create());
 
@@ -641,10 +652,10 @@ public class FeedDiscovery {
                 int targetCount = ((Number) cmd.getParsedOptionValue("combineQueries")).intValue();
                 discovery.combineQueries(targetCount);
             }
-            // if (cmd.hasOption("searchEngine")) {
-            // int searchEngine = ((Number) cmd.getParsedOptionValue("searchEngine")).intValue();
-            // discovery.setSearchEngine(searchEngine);
-            // }
+            if (cmd.hasOption("searchEngine")) {
+                String searchEngine = cmd.getOptionValue("searchEngine");
+                discovery.setSearchEngine(searchEngine);
+            }
             if (cmd.hasOption("csvOutput")) {
                 discovery.setCsvOutput(true);
             }
