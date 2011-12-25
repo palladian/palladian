@@ -9,8 +9,10 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.RegExp;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -37,7 +39,7 @@ public class HakiaDateGetter {
     private ExtractedDate getDateFromHakia() {
         ExtractedDate date = null;
         // modified for new Palladian's new search API and untested -- 2011-11-26, Philipp
-        WebSearcher<WebResult> webSearcher = new HakiaNewsSearcher();
+        WebSearcher<WebResult> webSearcher = SearcherFactory.createSearcher(HakiaNewsSearcher.class, ConfigHolder.getInstance().getConfig());
         List<WebResult> webResults = webSearcher.search(title, 100);
 
         for (int i = 0; i < webResults.size(); i++) {

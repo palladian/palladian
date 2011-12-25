@@ -12,13 +12,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 public final class HakiaSearcher extends BaseHakiaSearcher {
 
     /**
-     * @see BaseHakiaSearcher#BaseHakiaSearcher()
-     */
-    public HakiaSearcher() {
-        super();
-    }
-
-    /**
      * @see BaseHakiaSearcher#BaseHakiaSearcher(String)
      */
     public HakiaSearcher(String apiKey) {

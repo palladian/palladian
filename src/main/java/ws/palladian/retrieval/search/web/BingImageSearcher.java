@@ -27,13 +27,6 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
         super(configuration);
     }
 
-    /**
-     * @see BaseBingSearcher#BaseBingSearcher()
-     */
-    public BingImageSearcher() {
-        super();
-    }
-
     @Override
     public String getName() {
         return "Bing Images";

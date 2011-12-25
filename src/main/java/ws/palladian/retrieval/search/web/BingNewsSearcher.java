@@ -32,13 +32,6 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
         super(configuration);
     }
 
-    /**
-     * @see BaseBingSearcher#BaseBingSearcher()
-     */
-    public BingNewsSearcher() {
-        super();
-    }
-
     @Override
     public String getName() {
         return "Bing News";

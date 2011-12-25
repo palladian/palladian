@@ -14,6 +14,7 @@ import org.json.JSONObject;
  * @author Philipp Katz
  */
 public final class BingSearcher extends BaseBingSearcher<WebResult> {
+
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
@@ -26,13 +27,6 @@ public final class BingSearcher extends BaseBingSearcher<WebResult> {
      */
     public BingSearcher(PropertiesConfiguration configuration) {
         super(configuration);
-    }
-
-    /**
-     * @see BaseBingSearcher#BaseBingSearcher()
-     */
-    public BingSearcher() {
-        super();
     }
 
     @Override
