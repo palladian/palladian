@@ -25,8 +25,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -273,7 +273,7 @@ public final class FeedReader {
 
             // if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
+                LOGGER.debug("current total traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
                         + " MB");
 
                 try {
@@ -291,7 +291,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
+                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
     }
 
     /** Start continuous reading without a time limit. */

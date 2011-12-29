@@ -9,9 +9,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 
@@ -61,7 +61,7 @@ public abstract class WebPageContentExtractor {
         if (localFile) {
             return setDocument(new File(url.getFile()));
         } else {
-            DocumentRetriever retriever = new DocumentRetriever();
+            HttpRetriever retriever = new HttpRetriever();
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(url.toExternalForm());

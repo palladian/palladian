@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -77,24 +79,22 @@ public class Compete extends BaseRankingService implements RankingService {
         Float result = null;
         String requestUrl = "http://apps.compete.com/sites/" + domain + "/trended/" + metricCode + "/?apikey=" + apiKey
                 + "&latest=1";
-        JSONObject jsonObject = retriever.getJSONDocument(requestUrl);
-
-        if (jsonObject != null) {
-            try {
-
-                String status = jsonObject.getString("status");
-                if ("OK".equals(status)) {
-                    JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends")
-                            .getJSONArray(metricCode);
-                    result = (float) metric.getJSONObject(0).getInt("value");
-                    LOGGER.debug("metric=" + metricCode + " value=" + result);
-                } else {
-                    LOGGER.warn("error: status = " + status);
-                }
-
-            } catch (JSONException e) {
-                LOGGER.error("JSONException", e);
+        try {
+            HttpResult httpResult = retriever.httpGet(requestUrl);
+            JSONObject jsonObject = new JSONObject(new String(httpResult.getContent()));
+            String status = jsonObject.getString("status");
+            if ("OK".equals(status)) {
+                JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends")
+                        .getJSONArray(metricCode);
+                result = (float) metric.getJSONObject(0).getInt("value");
+                LOGGER.debug("metric=" + metricCode + " value=" + result);
+            } else {
+                LOGGER.warn("error: status = " + status);
             }
+        } catch (HttpException e) {
+            LOGGER.error(e);
+        } catch (JSONException e) {
+            LOGGER.error(e);
         }
 
         return result;

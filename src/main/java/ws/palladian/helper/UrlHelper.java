@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 
 /**
  * <p>
@@ -324,8 +324,8 @@ public class UrlHelper {
         try {
 
             // get redirect url if it exists and continue with this url
-            DocumentRetriever dr = new DocumentRetriever();
-            String redirectUrl = dr.getRedirectUrl(url);
+            HttpRetriever retriever = new HttpRetriever();
+            String redirectUrl = retriever.getRedirectUrl(url);
 
             if (isValidUrl(redirectUrl))
                 url = redirectUrl;

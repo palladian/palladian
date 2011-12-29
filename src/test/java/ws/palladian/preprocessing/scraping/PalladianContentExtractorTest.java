@@ -30,7 +30,7 @@ public class PalladianContentExtractorTest {
 
         extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html"));
         // extractor.setDocument("http://gizmodo.com/5823937/holy-shit-maul-semi+automatic-shotgun-shoots-taser-cartridges-and-is-called-maul");
-        System.out.println(extractor.getResultText());
+        // System.out.println(extractor.getResultText());
 
         List<WebImage> images = extractor.getImages();
         Assert.assertEquals(2, images.size());

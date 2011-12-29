@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -78,19 +80,17 @@ public class SharethisStats extends BaseRankingService implements RankingService
 
         try {
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
+            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
-            if (json != null) {
-                float total = json.getJSONObject("total").getInt("outbound");
-                results.put(SHARES, total);
-                LOGGER.trace("ShareThis stats for " + url + " : " + total);
-            } else {
-                results.put(SHARES, null);
-                LOGGER.trace("ShareThis stats for " + url + "could not be fetched");
-                checkBlocked();
-            }
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            float total = json.getJSONObject("total").getInt("outbound");
+            results.put(SHARES, total);
+            LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;
@@ -100,8 +100,9 @@ public class SharethisStats extends BaseRankingService implements RankingService
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            JSONObject json = retriever.getJSONDocument("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
+            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (json.has("statusMessage")) {
                 if (json.get("statusMessage").equals("LIMIT_REACHED")) {
                     error = true;
@@ -109,6 +110,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
             }
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
         }
         if (!error) {
             blocked = false;

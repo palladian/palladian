@@ -75,8 +75,17 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(FQL_QUERY + "url='" + encUrl + "'");
-
+            JSONObject json = null;
+            try {
+                HttpResult httpResult = retriever.httpGet(FQL_QUERY + "url='" + encUrl + "'");
+                System.err.println(new String(httpResult.getContent()));
+                JSONArray jsonArray = new JSONArray(new String(httpResult.getContent()));
+                if (jsonArray.length() == 1) {
+                    json = jsonArray.getJSONObject(0);
+                }
+            } catch (HttpException e) {
+                LOGGER.error(e);
+            }
             if (json != null) {
                 results.put(LIKES, (float) json.getInt("like_count"));
                 results.put(SHARES, (float) json.getInt("share_count"));
@@ -89,7 +98,6 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
                 LOGGER.trace("Facebook link stats for " + url + "could not be fetched");
                 checkBlocked();
             }
-
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();

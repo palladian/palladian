@@ -25,6 +25,7 @@ import ws.palladian.retrieval.parser.XmlParser;
  * Base implementation for Hakia searcher.
  * </p>
  * 
+ * @see http://blog.hakia.com/?p=312
  * @author Philipp Katz
  */
 abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {

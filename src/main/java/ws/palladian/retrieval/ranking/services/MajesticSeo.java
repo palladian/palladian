@@ -13,6 +13,11 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -61,9 +66,11 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
         Ranking ranking = new Ranking(this, url, results);
 
         String encUrl = UrlHelper.urlEncode(url);
-        Document doc = retriever.getXMLDocument("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
-                + "&url=" + encUrl);
-        if (doc != null) {
+        try {
+            HttpResult httpResult = retriever.httpGet("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
+                    + "&url=" + encUrl);
+            DocumentParser xmlParser = ParserFactory.createXmlParser();
+            Document doc = xmlParser.parse(httpResult);
             Node refDomainsNode = XPathHelper.getNode(doc, "/Results/Result/@StatsRefDomains");
             if (refDomainsNode != null) {
                 String refDomains = refDomainsNode.getNodeValue();
@@ -71,6 +78,10 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
             } else {
                 results.put(REFERRING_DOMAINS, 0f);
             }
+        } catch (HttpException e) {
+            LOGGER.error(e);
+        } catch (ParserException e) {
+            LOGGER.error(e);
         }
         return ranking;
     }

@@ -3,7 +3,8 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearchResult;
 import ws.palladian.retrieval.search.Searcher;
 
@@ -19,10 +20,10 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
 
     private static final WebSearcherLanguage DEFAULT_SEARCHER_LANGUAGE = WebSearcherLanguage.ENGLISH;
 
-    protected final DocumentRetriever retriever;
+    protected final HttpRetriever retriever;
 
     public WebSearcher() {
-        retriever = new DocumentRetriever();
+        retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**

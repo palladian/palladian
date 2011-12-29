@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * <p>Represents a response for an HttpDownload, e.g. GET or HEAD.</p>
+ * <p>Represents a response for an HTTP request, e.g. GET or HEAD.</p>
  * 
  * @author Philipp Katz
  * 

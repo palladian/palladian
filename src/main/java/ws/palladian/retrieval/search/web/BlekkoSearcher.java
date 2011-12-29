@@ -20,6 +20,7 @@ import ws.palladian.retrieval.HttpResult;
  * </p>
  * 
  * @see http://blekko.com
+ * @see http://help.blekko.com/index.php/tag/api/
  * @author Philipp Katz
  */
 public final class BlekkoSearcher extends WebSearcher<WebResult> {

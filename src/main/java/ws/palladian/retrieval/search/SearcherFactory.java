@@ -21,7 +21,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * 
  * @author Philipp Katz
  */
-public class SearcherFactory {
+public final class SearcherFactory {
 
     private SearcherFactory() {
         // prevent instantiation.

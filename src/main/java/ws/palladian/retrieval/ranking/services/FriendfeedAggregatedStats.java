@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -51,9 +53,11 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
     private static final String SERVICE_ID = "friendfeed_external";
 
     /** The ranking value types of this service **/
-    public static final RankingType ENTRIES = new RankingType("friendfeed_ext_entries", "FriendFeed entries for external services",
+    public static final RankingType ENTRIES = new RankingType("friendfeed_ext_entries",
+            "FriendFeed entries for external services",
             "The number of entries from varying services containing the given url on FriendFeed.");
-    public static final RankingType LIKES = new RankingType("friendfeed_ext_likes", "FriendFeed likes for external services",
+    public static final RankingType LIKES = new RankingType("friendfeed_ext_likes",
+            "FriendFeed likes for external services",
             "The number of likes on entries from varying services containing the given url on FriendFeed.");
     public static final RankingType COMMENTS = new RankingType("friendfeed_ext_comments",
             "FriendFeed comments for external services",
@@ -84,33 +88,31 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
 
         try {
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(GET_ENTRIES + encUrl);
-            if (json != null) {
-                JSONArray entriesArray = json.getJSONArray("entries");
-                float entries = 0;
-                float likes = 0;
-                float comments = 0;
-                for (int i = 0; i < entriesArray.length(); i++) {
-                    JSONObject post = entriesArray.getJSONObject(i);
-                    if (!Arrays.asList(EXCLUDE_SERVICES).contains(post.getJSONObject("service").getString("id"))) {
-                        entries++;
-                        likes += post.getJSONArray("likes").length();
-                        comments += post.getJSONArray("comments").length();
-                    }
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+
+            JSONArray entriesArray = json.getJSONArray("entries");
+            float entries = 0;
+            float likes = 0;
+            float comments = 0;
+            for (int i = 0; i < entriesArray.length(); i++) {
+                JSONObject post = entriesArray.getJSONObject(i);
+                if (!Arrays.asList(EXCLUDE_SERVICES).contains(post.getJSONObject("service").getString("id"))) {
+                    entries++;
+                    likes += post.getJSONArray("likes").length();
+                    comments += post.getJSONArray("comments").length();
                 }
-                results.put(ENTRIES, entries);
-                results.put(LIKES, likes);
-                results.put(COMMENTS, comments);
-                LOGGER.trace("FriendFeed stats for " + url + " : " + results);
-            } else {
-                results.put(ENTRIES, null);
-                results.put(LIKES, null);
-                results.put(COMMENTS, null);
-                LOGGER.trace("FriendFeed stats for " + url + "could not be fetched");
-                checkBlocked();
             }
+            results.put(ENTRIES, entries);
+            results.put(LIKES, likes);
+            results.put(COMMENTS, comments);
+            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
+
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;
@@ -120,7 +122,8 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            JSONObject json = retriever.getJSONDocument(GET_ENTRIES + "http://www.google.com/");
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.urlEncode("http://www.google.com/"));
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (json.has("errorCode")) {
                 if (json.get("errorCode").equals("limit-exceeded")) {
                     error = true;
@@ -128,6 +131,8 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
             }
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
         }
         if (!error) {
             blocked = false;

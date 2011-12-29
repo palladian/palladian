@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 /**
  * <p>
  * Google search.

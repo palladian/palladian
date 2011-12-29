@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -79,21 +80,20 @@ public class PlurkPosts extends BaseRankingService implements RankingService {
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument("http://www.plurk.com/API/PlurkSearch/search?api_key="
+            HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
                     + getApiKey() + "&query=" + encUrl);
 
-            if (json != null) {
-                JSONArray plurks = json.getJSONArray("plurks");
-                float result = plurks.length();
-                results.put(POSTS, result);
-                LOGGER.trace("Plurk.com posts for " + url + " : " + result);
-            } else {
-                results.put(POSTS, null);
-                LOGGER.trace("Plurk.com posts for " + url + "could not be fetched");
-                checkBlocked();
-            }
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+
+            JSONArray plurks = json.getJSONArray("plurks");
+            float result = plurks.length();
+            results.put(POSTS, result);
+            LOGGER.trace("Plurk.com posts for " + url + " : " + result);
 
         } catch (JSONException e) {
+            LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
         }

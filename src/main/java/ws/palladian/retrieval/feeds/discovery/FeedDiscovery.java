@@ -34,8 +34,8 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
@@ -78,7 +78,7 @@ public class FeedDiscovery {
     private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
-    private final DocumentRetriever documentRetriever = new DocumentRetriever();
+    private final HttpRetriever httpRetriever = new HttpRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
     private WebSearcher<WebResult> webSearcher = null;
@@ -163,7 +163,7 @@ public class FeedDiscovery {
 
         try {
 
-            HttpResult httpResult = documentRetriever.httpGet(pageUrl);
+            HttpResult httpResult = httpRetriever.httpGet(pageUrl);
             document = parser.parse(httpResult);
 
         } catch (Throwable t) {
