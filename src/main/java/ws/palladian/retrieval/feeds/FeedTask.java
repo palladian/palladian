@@ -14,6 +14,7 @@ import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -49,6 +50,12 @@ class FeedTask implements Callable<FeedTaskResult> {
      * strategies to a true strategy pattern.
      */
     private final FeedReader feedReader;
+    
+    /**
+     * The maximum file size (1 MB) which is accepted for each feed being checked. If this size is exceeded, the
+     * download is stopped.
+     */
+    public static final long MAXIMUM_FEED_SIZE = SizeUnit.MEGABYTES.toBytes(1);
 
     /**
      * Warn if processing of a feed takes longer than this.
@@ -116,6 +123,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             HttpResult httpResult = null;
             try {
                 HttpRetriever httpRetriever = new HttpRetriever();
+                httpRetriever.setMaxFileSize(MAXIMUM_FEED_SIZE);
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)

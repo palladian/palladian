@@ -970,7 +970,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         // tagger.evaluateFromFile("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
 
         DocumentRetriever c = new DocumentRetriever();
-        String result = c.getTextDocument("http://www.i-funbox.com/");
+        String result = c.getText("http://www.i-funbox.com/");
         result = HtmlHelper.documentToReadableText(result, true);
         tagger.getSettings().setTagCount(20);
         List<Keyphrase> extract = tagger.extract(result);
