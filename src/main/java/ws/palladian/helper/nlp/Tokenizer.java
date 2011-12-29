@@ -222,7 +222,7 @@ public class Tokenizer {
 
         // pattern to find the end of a sentence
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z])+|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -232,7 +232,7 @@ public class Tokenizer {
             lastIndex = matcher.end();
         }
 
-        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctation
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
         // character, just add the last fragment
         if (lastIndex < inputText.length()) {
             sentences.add(inputText.substring(lastIndex).trim());

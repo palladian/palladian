@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
  * <p>
  * Tag URLs in a text.
  * </p>
+ * TODO also recognize "cinefreaks.com" (without www and http)
  * 
  * @author David Urbansky
  */
