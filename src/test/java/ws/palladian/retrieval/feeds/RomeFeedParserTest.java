@@ -28,10 +28,10 @@ import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
-public class FeedRetrieverTest {
+public class RomeFeedParserTest {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedRetrieverTest.class);
+    private static final Logger LOGGER = Logger.getLogger(RomeFeedParserTest.class);
 
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z", Locale.US);
 
@@ -396,7 +396,7 @@ public class FeedRetrieverTest {
 
         for (String line : file) {
             String url = line.split("\t")[1];
-            String download = crawler.getTextDocument(url);
+            String download = crawler.getText(url);
             FileHelper.writeToFile("data/temp/feeds/feed" + format.format(++count) + ".xml", download);
         }
     }
@@ -429,7 +429,7 @@ public class FeedRetrieverTest {
     }
 
     public static void main(String[] args) throws Exception {
-        // FeedRetrieverTest feedRetrieverTest = new FeedRetrieverTest();
+        // RomeFeedParserTest feedRetrieverTest = new RomeFeedParserTest();
         // feedRetrieverTest.evaluateDateParsing();
         // feedRetrieverTest.buildTestsetWithErrors("data/_feeds_testset.txt", "data/_feeds_errors.txt");
     }
