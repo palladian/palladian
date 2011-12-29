@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -93,8 +94,9 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
             // Step 1: get the bit.ly hash for the specified URL
             String hash = null;
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
+            HttpResult httpResult = retriever.httpGet("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
                     + getApiKey() + "&url=" + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (checkJsonResponse(json)) {
                 JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
                 if (lookup.has("global_hash")) {
@@ -104,8 +106,9 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
                 // Step 2: get the # of clicks using the hash
                 if (hash != null) {
-                    json = retriever.getJSONDocument("http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey="
+                    HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey="
                             + getApiKey() + "&hash=" + hash);
+                    json = new JSONObject(new String(httpResult2.getContent()));
                     if (checkJsonResponse(json)) {
                         float result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0)
                                 .getInt("global_clicks");
@@ -126,6 +129,9 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error(e);
             checkBlocked();
         }
         return ranking;
@@ -158,7 +164,8 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
                 urlString = "http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey=" + getApiKey()
                         + "&mode=batch" + encUrls;
 
-                JSONObject json = retriever.getJSONDocument(urlString);
+                HttpResult httpResult = retriever.httpGet(urlString);
+                JSONObject json = new JSONObject(new String(httpResult.getContent()));
                 if (checkJsonResponse(json)) {
                     JSONArray lookups = json.getJSONObject("data").getJSONArray("lookup");
                     for (int i = 0; i < lookups.length(); i++) {
@@ -184,7 +191,8 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
                     if (hashList.length() > 0) {
                         urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey=" + getApiKey()
                                 + "&mode=batch" + hashList;
-                        json = retriever.getJSONDocument(urlString);
+                        HttpResult httpResult2 = retriever.httpGet(urlString);
+                        json = new JSONObject(new String(httpResult2.getContent()));
 
                         if (checkJsonResponse(json)) {
                             JSONArray clicks = json.getJSONObject("data").getJSONArray("clicks");
@@ -236,6 +244,9 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
             } catch (JSONException e) {
                 LOGGER.error("JSONException " + e.getMessage());
+                checkBlocked();
+            } catch (HttpException e) {
+                LOGGER.error(e);
                 checkBlocked();
             }
 
@@ -314,6 +325,12 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
     public String getLogin() {
         return login;
+    }
+    
+    public static void main(String[] args) {
+        BitlyClicks bitlyClicks = new BitlyClicks();
+        Ranking ranking = bitlyClicks.getRanking("http://apple.com");
+        System.out.println(ranking);
     }
 
 }

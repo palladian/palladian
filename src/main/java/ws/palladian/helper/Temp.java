@@ -36,6 +36,8 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -53,59 +55,59 @@ public class Temp {
     private static final Logger LOGGER = Logger.getLogger(Temp.class);
 
 
-    public static void performanceCheck() {
-
-        Set<String> urls = new HashSet<String>();
-
-        urls.add("http://www.literatura-obcojezyczna.1up.pl/mapa/1107045/informatyka/");
-        urls.add("http://www.territorioscuola.com/wikipedia/en.wikipedia.php?title=Wikipedia:WikiProject_Deletion_sorting/Bands_and_musicians/archive");
-        urls.add("http://www.designquote.net/directory/ny");
-        urls.add("http://wikyou.info/index3.php?key=clwyd");
-        urls.add("http://lashperfect.com/eyelash-salon-finder");
-        urls.add("http://www.ics.heacademy.ac.uk/publications/book_reviews/books.php?status=r&ascendby=author");
-        urls.add("http://www.letrs.indiana.edu/cgi/t/text/text-idx?c=wright2;cc=wright2;view=text;rgn=main;idno=wright2-0671");
-        urls.add("http://justintadlock.com/archives/2007/12/09/structure-wordpress-theme");
-        urls.add("http://www.editionbeauce.com/archives/photos/");
-        urls.add("http://nouvellevintage.wordmess.net/20100309/hello-from-the-absense/");
-        urls.add("http://xn--0tru33arqi4jn7xzda.jp/index3.php?key=machinerie");
-        urls.add("http://katalog.svkul.cz/a50s.htm");
-        urls.add("http://gosiqumup.fortunecity.com/2009_04_01_archive.html");
-        urls.add("http://freepages.genealogy.rootsweb.ancestry.com/~sauve/indexh.htm");
-        urls.add("http://www.blog-doubleclix.com/index.php?q=erix");
-        urls.add("http://meltingpot.fortunecity.com/virginia/670/FichierLoiselle.htm");
-        urls.add("http://canada-info.ca/directory/category/consulting/index.php");
-        urls.add("http://www.infopig.com/news/07-19-2008.html");
-
-        DocumentRetriever crawler = new DocumentRetriever();
-        crawler.getDownloadFilter().setMaxFileSize(-1);
-
-        double[] x = new double[urls.size()];
-        double[] y = new double[urls.size()];
-        int c = 0;
-        long sumBytes = 0;
-        long sumTime = 0;
-        for (String url : urls) {
-            StopWatch sw = new StopWatch();
-            crawler.getWebDocument(url);
-
-            LOGGER.info(sw.getElapsedTimeString() + " for " + crawler.getLastDownloadSize() + " Bytes of url " + url);
-
-            sumBytes += crawler.getLastDownloadSize();
-            sumTime += sw.getElapsedTime();
-            x[c] = crawler.getLastDownloadSize();
-            y[c] = sw.getElapsedTime();
-            c++;
-        }
-
-        double[] parameters = MathHelper.performLinearRegression(x, y);
-
-        LOGGER.info("the linear regression formula for download and parsing time [ms] in respect to the size is: "
-                + Math.round(parameters[0]) + " * downloadSize [KB] + " + parameters[1]);
-        LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
-        if (sumTime > 0) {
-            LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
-        }
-    }
+//    public static void performanceCheck() {
+//
+//        Set<String> urls = new HashSet<String>();
+//
+//        urls.add("http://www.literatura-obcojezyczna.1up.pl/mapa/1107045/informatyka/");
+//        urls.add("http://www.territorioscuola.com/wikipedia/en.wikipedia.php?title=Wikipedia:WikiProject_Deletion_sorting/Bands_and_musicians/archive");
+//        urls.add("http://www.designquote.net/directory/ny");
+//        urls.add("http://wikyou.info/index3.php?key=clwyd");
+//        urls.add("http://lashperfect.com/eyelash-salon-finder");
+//        urls.add("http://www.ics.heacademy.ac.uk/publications/book_reviews/books.php?status=r&ascendby=author");
+//        urls.add("http://www.letrs.indiana.edu/cgi/t/text/text-idx?c=wright2;cc=wright2;view=text;rgn=main;idno=wright2-0671");
+//        urls.add("http://justintadlock.com/archives/2007/12/09/structure-wordpress-theme");
+//        urls.add("http://www.editionbeauce.com/archives/photos/");
+//        urls.add("http://nouvellevintage.wordmess.net/20100309/hello-from-the-absense/");
+//        urls.add("http://xn--0tru33arqi4jn7xzda.jp/index3.php?key=machinerie");
+//        urls.add("http://katalog.svkul.cz/a50s.htm");
+//        urls.add("http://gosiqumup.fortunecity.com/2009_04_01_archive.html");
+//        urls.add("http://freepages.genealogy.rootsweb.ancestry.com/~sauve/indexh.htm");
+//        urls.add("http://www.blog-doubleclix.com/index.php?q=erix");
+//        urls.add("http://meltingpot.fortunecity.com/virginia/670/FichierLoiselle.htm");
+//        urls.add("http://canada-info.ca/directory/category/consulting/index.php");
+//        urls.add("http://www.infopig.com/news/07-19-2008.html");
+//
+//        DocumentRetriever crawler = new DocumentRetriever();
+//        crawler.getDownloadFilter().setMaxFileSize(-1);
+//
+//        double[] x = new double[urls.size()];
+//        double[] y = new double[urls.size()];
+//        int c = 0;
+//        long sumBytes = 0;
+//        long sumTime = 0;
+//        for (String url : urls) {
+//            StopWatch sw = new StopWatch();
+//            crawler.getWebDocument(url);
+//
+//            LOGGER.info(sw.getElapsedTimeString() + " for " + crawler.getLastDownloadSize() + " Bytes of url " + url);
+//
+//            sumBytes += crawler.getLastDownloadSize();
+//            sumTime += sw.getElapsedTime();
+//            x[c] = crawler.getLastDownloadSize();
+//            y[c] = sw.getElapsedTime();
+//            c++;
+//        }
+//
+//        double[] parameters = MathHelper.performLinearRegression(x, y);
+//
+//        LOGGER.info("the linear regression formula for download and parsing time [ms] in respect to the size is: "
+//                + Math.round(parameters[0]) + " * downloadSize [KB] + " + parameters[1]);
+//        LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
+//        if (sumTime > 0) {
+//            LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
+//        }
+//    }
 
 
     // public static void threadPoolTest() {
@@ -609,6 +611,13 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+        
+        HttpRetrieverFactory.setFactory(new HttpRetrieverFactory() {
+            @Override
+            protected HttpRetriever createHttpRetriever() {
+                return new HttpRetriever();
+            }
+        });
 
         Document webDocument = new DocumentRetriever().getWebDocument("http://webknox.com");
         PageAnalyzer pa = new PageAnalyzer();

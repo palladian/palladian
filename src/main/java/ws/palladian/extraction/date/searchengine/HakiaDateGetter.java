@@ -12,6 +12,7 @@ import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.RegExp;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -22,6 +23,7 @@ public class HakiaDateGetter {
     private String url;
     private String title = null;
     private DocumentRetriever documentRetriever = new DocumentRetriever();
+    private HttpRetriever httpRetriever = new HttpRetriever();
 
     private void setTitle() {
         Document doc = documentRetriever.getWebDocument(url);
@@ -45,7 +47,7 @@ public class HakiaDateGetter {
         for (int i = 0; i < webResults.size(); i++) {
             WebResult result = webResults.get(i);
             String tempUrl = result.getUrl();
-            String requestUrl = documentRetriever.getRedirectUrl(tempUrl);
+            String requestUrl = httpRetriever.getRedirectUrl(tempUrl);
             if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
                 DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
                 String dateString = dateFormat.format(result.getDate());

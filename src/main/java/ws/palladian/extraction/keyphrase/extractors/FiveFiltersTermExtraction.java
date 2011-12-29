@@ -12,9 +12,9 @@ import org.json.JSONException;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 
 public class FiveFiltersTermExtraction extends KeyphraseExtractor {
 
@@ -35,7 +35,7 @@ public class FiveFiltersTermExtraction extends KeyphraseExtractor {
         
         try {
             
-            DocumentRetriever retriever = new DocumentRetriever();
+            HttpRetriever retriever = new HttpRetriever();
             Map<String, String> params = new HashMap<String, String>();
             params.put("content", inputText);
             HttpResult postResult = retriever.httpPost("http://term-extraction.appspot.com/terms", params);

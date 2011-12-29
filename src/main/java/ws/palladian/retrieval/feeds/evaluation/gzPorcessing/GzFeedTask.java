@@ -18,8 +18,8 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -152,8 +152,8 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 FeedParser feedParser = new RomeFeedParser();
-                DocumentRetriever documentRetriever = new DocumentRetriever();
-                HttpResult gzHttpResult = documentRetriever.loadSerializedGzip(file);
+                HttpRetriever httpRetriever = new HttpRetriever();
+                HttpResult gzHttpResult = httpRetriever.loadSerializedGzip(file);
 
                 correctedFeed.setLastPollTime(getChecktimeFromFile(file));
 

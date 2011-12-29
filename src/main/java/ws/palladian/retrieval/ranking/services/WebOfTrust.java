@@ -11,6 +11,11 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -49,20 +54,23 @@ public class WebOfTrust extends BaseRankingService implements RankingService {
         Ranking ranking = new Ranking(this, url, results);
 
         String domain = UrlHelper.getDomain(url, false);
-        Document doc = retriever.getXMLDocument("http://api.mywot.com/0.4/public_query2?target=" + domain);
-
-        if (doc != null) {
+        try {
+            HttpResult httpResult = retriever.httpGet("http://api.mywot.com/0.4/public_query2?target=" + domain);
+            DocumentParser xmlParser = ParserFactory.createXmlParser();
+            Document doc = xmlParser.parse(httpResult);
 
             Node trustworthiness = XPathHelper.getNode(doc, "//application[@name='0']/@r");
             if (trustworthiness != null) {
                 Float trustValue = Float.valueOf(trustworthiness.getTextContent());
                 LOGGER.trace("WOT Trustworthiness for " + url + " -> " + trustValue);
                 results.put(TRUSTWORTHINESS, trustValue);
-            } else {
-                results.put(TRUSTWORTHINESS, 0f);
             }
-
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
+        } catch (ParserException e) {
+            LOGGER.error("ParserException " + e.getMessage());
         }
+
         return ranking;
     }
 

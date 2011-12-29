@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -71,31 +72,30 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
             return ranking;
         }
 
+        Float result = null;
+
         try {
 
-            // String encUrl = StringHelper.urlEncode(url);
-            // JSONArray json = retriever.getJSONArray("http://feeds.delicious.com/v2/json/urlinfo?url=" + encUrl);
-            
             String md5Url = DigestUtils.md5Hex(url);
-            JSONArray json = retriever.getJSONArray("http://feeds.delicious.com/v2/json/urlinfo/" + md5Url);
+            HttpResult httpResult = retriever.httpGet("http://feeds.delicious.com/v2/json/urlinfo/" + md5Url);
+            String string = new String(httpResult.getContent());
+            System.err.println(string);
+            JSONArray json = new JSONArray(string);
 
-            if (json != null) {
-                float result = 0;
-                if (json.length() > 0) {
-                    result = json.getJSONObject(0).getInt("total_posts");
-                }
-                results.put(BOOKMARKS, result);
-                LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
-            } else {
-                results.put(BOOKMARKS, null);
-                LOGGER.trace("Delicious bookmarks for " + url + " could not be fetched");
-                checkBlocked();
+            result = 0f;
+            if (json.length() > 0) {
+                result = (float) json.getJSONObject(0).getInt("total_posts");
             }
+            LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
-            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
         }
+
+        checkBlocked();
+        results.put(BOOKMARKS, result);
         return ranking;
     }
 
@@ -103,7 +103,8 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
     public boolean checkBlocked() {
         int status = -1;
         try {
-            status = retriever.httpGet("http://feeds.delicious.com/v2/json/urlinfo?url=http://www.google.com/")
+            status = retriever.httpGet(
+                    "http://feeds.delicious.com/v2/json/urlinfo/" + DigestUtils.md5Hex("http://www.google.com/"))
                     .getStatusCode();
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());
@@ -113,6 +114,7 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
             lastCheckBlocked = new Date().getTime();
             return false;
         }
+        System.out.println(status);
         blocked = true;
         lastCheckBlocked = new Date().getTime();
         LOGGER.error("Delicious Ranking Service is momentarily blocked. Will check again in 1min. Try changing your IP-Address.");

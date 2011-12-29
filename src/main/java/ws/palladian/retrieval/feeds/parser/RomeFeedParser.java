@@ -50,9 +50,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(RomeFeedParser.class);
 
-    /** Factory for creating Document parsers. */
-    private final ParserFactory parserFactory = new ParserFactory();
-
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
 
@@ -129,7 +126,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
     private SyndFeed getSyndFeed(InputStream inputStream) throws FeedParserException {
         try {
-            DocumentParser xmlParser = parserFactory.createXmlParser();
+            DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document document = xmlParser.parse(inputStream);
             SyndFeed syndFeed = buildSyndFeed(document);
             return syndFeed;

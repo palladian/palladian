@@ -14,9 +14,9 @@ import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -115,11 +115,11 @@ class FeedTask implements Callable<FeedTaskResult> {
             buildConditionalGetHeader();
             HttpResult httpResult = null;
             try {
-                DocumentRetriever documentRetriever = new DocumentRetriever();
+                HttpRetriever httpRetriever = new HttpRetriever();
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)
-                httpResult = documentRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
+                httpResult = httpRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
                 feed.incrementUnreachableCount();

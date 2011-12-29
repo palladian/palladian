@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -43,7 +44,8 @@ public class GooglePageRank extends BaseRankingService implements RankingService
     private static final String SERVICE_ID = "pagerank";
 
     /** The ranking value types of this service **/
-    public static final RankingType PAGERANK = new RankingType("pagerank", "Google PageRank", "The PageRank value from Google");
+    public static final RankingType PAGERANK = new RankingType("pagerank", "Google PageRank",
+            "The PageRank value from Google");
     private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
     static {
         RANKING_TYPES.add(PAGERANK);
@@ -75,46 +77,50 @@ public class GooglePageRank extends BaseRankingService implements RankingService
             return ranking;
         }
 
+        Integer pageRank = null;
         try {
-            String encUrl = UrlHelper.urlEncode(url);
-
-            // original code from ws.palladian.retrieval.ranking.RankingRetriever
-            JenkinsHash jHash = new JenkinsHash();
-            long urlHash = jHash.hash(("info:" + url).getBytes());
-            String response = retriever
-                    .getTextDocument("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6"
-                            + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + encUrl);
+            String requestUrl = buildRequestUrl(url);
+            HttpResult httpResult = retriever.httpGet(requestUrl);
+            String response = new String(httpResult.getContent());
 
             if (response != null) {
-                int result = 0;
+                pageRank = 0;
                 // result stays 0 if response empty -> url not found
                 if (response.contains(":")) {
                     response = response.split(":")[2].trim();
-                    result = Integer.valueOf(response);
+                    pageRank = Integer.valueOf(response);
                 }
-                results.put(PAGERANK, (float) result / 10);
-                LOGGER.trace("Google PageRank for " + url + " : " + result);
-            } else {
-                results.put(PAGERANK, null);
-                LOGGER.trace("Google PageRank for " + url + "could not be fetched");
-                checkBlocked();
+                LOGGER.trace("Google PageRank for " + url + " : " + pageRank);
             }
         } catch (Exception e) {
             LOGGER.error("Exception " + e.getMessage());
             checkBlocked();
         }
+        results.put(PAGERANK, (float) pageRank);
         return ranking;
+    }
+
+    /**
+     * @param url
+     * @return
+     */
+    private String buildRequestUrl(String url) {
+        String encUrl = UrlHelper.urlEncode(url);
+
+        // original code from ws.palladian.retrieval.ranking.RankingRetriever
+        JenkinsHash jHash = new JenkinsHash();
+        long urlHash = jHash.hash(("info:" + url).getBytes());
+        String requestUrl = "http://toolbarqueries.google.com/tbr?client=navclient-auto&hl=en&ch=6" + urlHash
+                + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + encUrl;
+        return requestUrl;
     }
 
     @Override
     public boolean checkBlocked() {
         int status = -1;
         try {
-            JenkinsHash jHash = new JenkinsHash();
-            long urlHash = jHash.hash("info:http://www.google.com/".getBytes());
-            status = retriever.httpGet(
-                    "http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6" + urlHash
-                            + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:http://www.google.com/").getStatusCode();
+            String requestUrl = buildRequestUrl("http://www.google.com/");
+            status = retriever.httpGet(requestUrl).getStatusCode();
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());
         }
@@ -160,6 +166,12 @@ public class GooglePageRank extends BaseRankingService implements RankingService
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public static void main(String[] args) {
+        GooglePageRank pageRank = new GooglePageRank();
+        Ranking ranking = pageRank.getRanking("http://www.apple.com");
+        System.out.println(ranking);
     }
 
 }
