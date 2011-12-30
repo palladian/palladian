@@ -11,7 +11,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-
 /**
  * <p>
  * Wrapper for CyberNeko HTML Parser.
@@ -44,9 +43,12 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
             NekoTbodyFix tbodyFix = new NekoTbodyFix();
             // end fix.
-            
+
             XMLDocumentFilter[] filters = new XMLDocumentFilter[] { tbodyFix, new PreflightFilter() };
             parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
+            
+            // per dafault, assume UTF-8 encoding (makes more sense than Windows-1252 default)
+            parser.setProperty("http://cyberneko.org/html/properties/default-encoding", "UTF-8");
 
             parser.parse(inputSource);
 
