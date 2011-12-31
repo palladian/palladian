@@ -106,15 +106,22 @@ public class UnitNormalizer {
     private static boolean isLengthUnit(String unit) {
         HashSet<String> lengthUnits = new HashSet<String>();
         lengthUnits.add("km");
+        lengthUnits.add("kms");
         lengthUnits.add("kilometer");
         lengthUnits.add("kilometers");
+        lengthUnits.add("kilometre");
+        lengthUnits.add("kilometres");
         lengthUnits.add("mile");
         lengthUnits.add("miles");
         lengthUnits.add("meter");
         lengthUnits.add("meters");
+        lengthUnits.add("metre");
+        lengthUnits.add("metres");
         lengthUnits.add("m");
         lengthUnits.add("decimeter");
         lengthUnits.add("decimeters");
+        lengthUnits.add("decimetre");
+        lengthUnits.add("decimetres");
         lengthUnits.add("dm");
         lengthUnits.add("foot");
         lengthUnits.add("feet");
@@ -125,9 +132,13 @@ public class UnitNormalizer {
         lengthUnits.add("\"");
         lengthUnits.add("centimeter");
         lengthUnits.add("centimeters");
+        lengthUnits.add("centimetre");
+        lengthUnits.add("centimetres");
         lengthUnits.add("cm");
         lengthUnits.add("millimeter");
         lengthUnits.add("millimeters");
+        lengthUnits.add("millimetre");
+        lengthUnits.add("millimetres");
         lengthUnits.add("mm");
 
         return lengthUnits.contains(unit);
@@ -273,21 +284,26 @@ public class UnitNormalizer {
             multiplier = 1.0;
 
             // length, all to centimeter
-        } else if (unit.equals("km") || unit.equals("kilometer") || unit.equals("kilometers") || unit.equals("kilometres")) {
+        } else if (unit.equals("km") || unit.equals("kms") || unit.equals("kilometer") || unit.equals("kilometre")
+                || unit.equals("kilometers") || unit.equals("kilometres")) {
             multiplier = 100000.0;
         } else if (unit.equals("mile") || unit.equals("miles")) {
             multiplier = 160934.4;
-        } else if (unit.equals("meter") || unit.equals("meters") || unit.equals("m")) {
+        } else if (unit.equals("meter") || unit.equals("meters") || unit.equals("metre") || unit.equals("metres")
+                || unit.equals("m")) {
             multiplier = 100.0;
-        } else if (unit.equals("decimeter") || unit.equals("decimeters") || unit.equals("dm")) {
+        } else if (unit.equals("decimeter") || unit.equals("decimeters") || unit.equals("decimetre")
+                || unit.equals("decimetres") || unit.equals("dm")) {
             multiplier = 10.0;
         } else if (unit.equals("foot") || unit.equals("feet") || unit.equals("ft")) {
             multiplier = 30.48;
         } else if (unit.equals("in") || unit.equals("inch") || unit.equals("inches") || unit.equals("\"")) {
             multiplier = 2.54;
-        } else if (unit.equals("centimeter") || unit.equals("centimeters") || unit.equals("cm")) {
+        } else if (unit.equals("centimeter") || unit.equals("centimeters") || unit.equals("centimetre")
+                || unit.equals("centimetres") || unit.equals("cm")) {
             multiplier = 1.0;
-        } else if (unit.equals("millimeter") || unit.equals("millimeters") || unit.equals("mm")) {
+        } else if (unit.equals("millimeter") || unit.equals("millimeters") || unit.equals("millimetre")
+                || unit.equals("millimetres") || unit.equals("mm")) {
             multiplier = 0.1;
 
             // areas, all to square meter
@@ -297,8 +313,10 @@ public class UnitNormalizer {
             multiplier = 2589988110.0;
         } else if (unit.equals("million sqare miles")) {
             multiplier = 2589988110000.0;
-        } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²") || unit.equals("sq km") || unit.equals("square kilometer")
-                || unit.equals("square kilometers") || unit.equals("square km")) {
+        } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²")
+                || unit.equals("sq km") || unit.equals("sq.km") || unit.equals("square kilometer")
+                || unit.equals("square kilometers") || unit.equals("square km") || unit.equals("sq.kilometre")
+                || unit.equals("sq kilometre") || unit.equals("square kilometre") || unit.equals("square kilometres")) {
             multiplier = 1000000.0;
         } else if (unit.equals("million square kilometers")) {
             multiplier = 1000000000000.0;
