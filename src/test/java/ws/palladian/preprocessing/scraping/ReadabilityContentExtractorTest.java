@@ -40,7 +40,7 @@ public class ReadabilityContentExtractorTest {
         assertEquals("test014.html", "afeabbbfb8c3f1c3943a05ba772da59f", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test014.html")).getResultText()));
         assertEquals("test015.html", "1788005daaedfcb997c64802f5c42a46", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test015.html")).getResultText()));
         assertEquals("test018.html", "70bf83d80e0757a8f99fe4331a5244a6", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test018.html")).getResultText()));
-        assertEquals("website100.html", "724bf03db67176bf761727343bfa0cff", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website100.html")).getResultText()));
+        assertEquals("website100.html", "ef16a6defb01319914dabb2a2816a52d", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website100.html")).getResultText()));
         assertEquals("website101.html", "7dd8bce48bb8a98653d4554ec4aac31a", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website101.html")).getResultText()));
         assertEquals("website102.html", "812ad4ee50f5d6f21c8f9634f45e3585", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website102.html")).getResultText()));
     }
