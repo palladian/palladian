@@ -62,6 +62,9 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.math.SizeUnit;
 
+// TODO remove deprecated methods, after dependent code has been adapted
+// TODO completely remove all java.net.* stuff
+
 /**
  * <p>
  * The {@link HttpRetriever} performs all HTTP specific operations withing Palladian. This includes HTTP requests like
@@ -114,7 +117,7 @@ public class HttpRetriever {
     private final HttpParams httpParams = new SyncBasicHttpParams();
 
     /** Identifier for Connection Metrics; see comment in constructor. */
-    private final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
+    private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
 
     // ///////////// Settings ////////
 
