@@ -85,7 +85,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     public DatasetCreator(String datasetName) {
         this.datasetName = datasetName;
         downloadFilter = new DownloadFilter();
-        downloadFilter.setExcludeFileTypes(DownloadFilter.BINARY_FILE_TYPES);
+        downloadFilter.setExcludeFileTypes(FileHelper.BINARY_FILE_EXTENSIONS);
     }
 
     /**

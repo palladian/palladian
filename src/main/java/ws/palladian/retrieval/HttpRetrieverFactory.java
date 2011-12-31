@@ -28,6 +28,10 @@ public abstract class HttpRetrieverFactory {
             HttpRetriever httpRetriever = new HttpRetriever();
 
             // setup the configuration; if no config available, use default values
+            
+            // TODO remove properties configuration via file, dependend clients should set their preferences
+            // programmatically
+
             PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
             httpRetriever.setConnectionTimeout(config.getLong("documentRetriever.connectionTimeout",
                     HttpRetriever.DEFAULT_CONNECTION_TIMEOUT));

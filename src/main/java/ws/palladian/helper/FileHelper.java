@@ -79,12 +79,34 @@ public class FileHelper {
     /** Constant for new line character. */
     private static final String NEWLINE_CHARACTER = "\n";
 
+    /** Constant for image file extensions. */
+    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
+
     /** Constant for video file extensions. */
-    private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx",
-            "mov", "xvid");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
+            "xvid", "wmv");
 
     /** Constant for audio file extensions. */
-    private static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
+    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
+
+    /** Constant for general binary file extensions, including. */
+    public static final List<String> BINARY_FILE_EXTENSIONS;
+
+    static {
+        List<String> binaryFileExtensions = new ArrayList<String>();
+        binaryFileExtensions.add("pdf");
+        binaryFileExtensions.add("doc");
+        binaryFileExtensions.add("ppt");
+        binaryFileExtensions.add("xls");
+        binaryFileExtensions.add("zip");
+        binaryFileExtensions.add("exe");
+        binaryFileExtensions.add("msi");
+        binaryFileExtensions.add("swf");
+        binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
+        binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
+        binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
+        BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
+    }
 
     /**
      * Checks if is file name.
@@ -99,26 +121,6 @@ public class FileHelper {
         Matcher m = pattern.matcher(name);
 
         return m.find();
-    }
-
-    /**
-     * Checks if is video file.
-     * 
-     * @param fileType the file type
-     * @return true, if is video file
-     */
-    public static boolean isVideoFile(String fileType) {
-        return VIDEO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
-    }
-
-    /**
-     * Checks if is audio file.
-     * 
-     * @param fileType the file type
-     * @return true, if is audio file
-     */
-    public static boolean isAudioFile(String fileType) {
-        return AUDIO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
     }
 
     /**

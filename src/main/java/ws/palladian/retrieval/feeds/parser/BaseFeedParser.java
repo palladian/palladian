@@ -75,7 +75,7 @@ public abstract class BaseFeedParser implements FeedParser {
      */
     @Override
     public Feed getFeed(File file) throws FeedParserException {
-        return getFeed(file,false);
+        return getFeed(file, false);
     }
 
     /* (non-Javadoc)

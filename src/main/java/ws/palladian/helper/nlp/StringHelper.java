@@ -410,11 +410,7 @@ public class StringHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-
-        return false;
+        return m.find();
     }
 
     /**
@@ -450,8 +446,7 @@ public class StringHelper {
     public static String replaceProtectedSpace(String string) {
         // String modString = string.replaceAll(" ", " ");
         // let's use this notation, which does the same, to make clear what's going on ...:
-        String modString = string.replaceAll("\u00A0", " ");
-        return modString;
+        return string.replaceAll("\u00A0", " ");
     }
 
     /**
@@ -627,11 +622,7 @@ public class StringHelper {
      * @return true, if is time expression
      */
     public static boolean isTimeExpression(String string) {
-        if (string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)")) {
-            return true;
-        }
-
-        return false;
+        return string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)");
     }
 
     /**
@@ -671,13 +662,7 @@ public class StringHelper {
         if (string.length() == 0) {
             return false;
         }
-
-        if (Character.isUpperCase(string.charAt(0))) {
-            return true;
-        }
-
-        return false;
-    }
+        return Character.isUpperCase(string.charAt(0));    }
 
     /**
      * Letter number count.
@@ -718,12 +703,8 @@ public class StringHelper {
      * @return true, if is vowel
      */
     public static boolean isVowel(Character inputCharacter) {
-
         Character character = Character.toUpperCase(inputCharacter);
-        if (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U') {
-            return true;
-        }
-        return false;
+        return (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U');
     }
 
     /**
@@ -893,19 +874,15 @@ public class StringHelper {
         return text;
     }
 
-    /**
-     * Remove tabs, line breaks and double spaces.
-     * 
-     * @param text The text to be cleaned.
-     * @return The cleaned text.
-     */
-    public static String makeContinuousText(String text) {
-
-        // close multiple spaces
-        String continuoustext = text.replaceAll("(\\s){1,}", " ");
-
-        return continuoustext;
-    }
+//    /**
+//     * Remove tabs, line breaks and double spaces.
+//     * 
+//     * @param text The text to be cleaned.
+//     * @return The cleaned text.
+//     */
+//    public static String makeContinuousText(String text) {
+//        return text.replaceAll("(\\s){1,}", " ");
+//    }
 
     /**
      * Put article in front.
@@ -1308,7 +1285,7 @@ public class StringHelper {
 
     /**
      * <p>
-     * Replaces two or more trailing white spaces by one.
+     * Replaces two or more white spaces (includes tabs, line breaks) by one.
      * </p>
      * 
      * @param text The text to remove multiple white spaces from.
@@ -1389,22 +1366,22 @@ public class StringHelper {
         return similarity;
     }
 
-    /**
-     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-     * similarity which is computationally expensive.
-     * 
-     * @param s1
-     * @param s2
-     * @return similarity between 0 and 1 (inclusive).
-     */
-    public static float getLengthSim(String s1, String s2) {
-        int length1 = s1.length();
-        int length2 = s2.length();
-        if (length1 == 0 && length2 == 0) {
-            return 1;
-        }
-        return (float) Math.min(length1, length2) / Math.max(length1, length2);
-    }
+//    /**
+//     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+//     * similarity which is computationally expensive.
+//     * 
+//     * @param s1
+//     * @param s2
+//     * @return similarity between 0 and 1 (inclusive).
+//     */
+//    public static float getLengthSim(String s1, String s2) {
+//        int length1 = s1.length();
+//        int length2 = s2.length();
+//        if (length1 == 0 && length2 == 0) {
+//            return 1;
+//        }
+//        return (float) Math.min(length1, length2) / Math.max(length1, length2);
+//    }
 
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
