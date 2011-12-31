@@ -91,9 +91,94 @@ public class StringHelper {
         return string.substring(0, Math.min(string.length(), maxLength));
     }
 
+
     /**
+     * <p>
+     * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
+     * http://www.unicodemap.org/range/2/Latin-1_Supplement/.
+     * </p>
+     * <p>
+     * For example, "Florentino P00E9rez" becomes "Florentino Pérez"
+     * </p>
+     * 
+     * @param string The string where unicode characters might occur.
+     * @return The transformed string.
+     */
+    public static String fuzzyUnicodeToAscii(String string) {
+
+        string = string.replace("00C0", "À");
+        string = string.replace("00C1", "Á");
+        string = string.replace("00C2", "Â");
+        string = string.replace("00C3", "Ã");
+        string = string.replace("00C4", "Ä");
+        string = string.replace("00C5", "Å");
+        string = string.replace("00C6", "Æ");
+        string = string.replace("00C7", "Ç");
+        string = string.replace("00C8", "È");
+        string = string.replace("00C9", "É");
+        string = string.replace("00CA", "Ê");
+        string = string.replace("00CB", "Ë");
+        string = string.replace("00CC", "Ì");
+        string = string.replace("00CD", "Í");
+        string = string.replace("00CE", "Î");
+        string = string.replace("00CF", "Ï");
+        string = string.replace("00D0", "Ð");
+        string = string.replace("00D1", "Ñ");
+        string = string.replace("00D2", "Ò");
+        string = string.replace("00D3", "Ó");
+        string = string.replace("00D4", "Ô");
+        string = string.replace("00D5", "Õ");
+        string = string.replace("00D6", "Ö");
+        string = string.replace("00D7", "×");
+        string = string.replace("00D8", "Ø");
+        string = string.replace("00D9", "Ù");
+        string = string.replace("00DA", "Ú");
+        string = string.replace("00DB", "Û");
+        string = string.replace("00DC", "Ü");
+        string = string.replace("00DD", "Ý");
+        string = string.replace("00DE", "Þ");
+        string = string.replace("00DF", "ß");
+        string = string.replace("00E0", "à");
+        string = string.replace("00E1", "á");
+        string = string.replace("00E2", "â");
+        string = string.replace("00E3", "ã");
+        string = string.replace("00E4", "ä");
+        string = string.replace("00E5", "å");
+        string = string.replace("00E6", "æ");
+        string = string.replace("00E7", "ç");
+        string = string.replace("00E8", "è");
+        string = string.replace("00E9", "é");
+        string = string.replace("00EA", "ê");
+        string = string.replace("00EB", "ë");
+        string = string.replace("00EC", "ì");
+        string = string.replace("00ED", "í");
+        string = string.replace("00EE", "î");
+        string = string.replace("00EF", "ï");
+        string = string.replace("00F0", "ð");
+        string = string.replace("00F1", "ñ");
+        string = string.replace("00F2", "ò");
+        string = string.replace("00F3", "ó");
+        string = string.replace("00F4", "ô");
+        string = string.replace("00F5", "õ");
+        string = string.replace("00F6", "ö");
+        string = string.replace("00F7", "÷");
+        string = string.replace("00F8", "ø");
+        string = string.replace("00F9", "ù");
+        string = string.replace("00FA", "ú");
+        string = string.replace("00FB", "û");
+        string = string.replace("00FC", "ü");
+        string = string.replace("00FD", "ý");
+        string = string.replace("00FE", "þ");
+        string = string.replace("00FF", "ÿ");
+
+        return string;
+    }
+
+    /**
+     * <p>
      * This function wraps the string to integer conversion in order to prevent the exception catching in other
      * functions.
+     * </p>
      * 
      * @param text The text that is a number.
      * @return The integer presentation of the text.
