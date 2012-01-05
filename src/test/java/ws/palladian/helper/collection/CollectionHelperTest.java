@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,23 @@ public class CollectionHelperTest {
         for (int i = 0; i < array.size(); i++) {
             assertEquals(i + 1, Integer.parseInt(array.get(i)));
         }
+    }
+
+    @Test
+    public void sortByStringKeyLength() {
+
+        Map<String, String> hashMap = new HashMap<String, String>();
+        hashMap.put("A", "A");
+        hashMap.put("BB", "B");
+        hashMap.put("CCC", "C");
+
+        // CollectionHelper.print(hashMap);
+        // CollectionHelper.print(CollectionHelper.sortByStringKeyLength(hashMap, false));
+
+        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, false).entrySet().iterator().next()
+                .getKey());
+        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, true).entrySet().iterator().next().getKey());
+
     }
 
 }
