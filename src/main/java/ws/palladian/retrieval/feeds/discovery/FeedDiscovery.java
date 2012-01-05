@@ -33,13 +33,15 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -78,13 +80,13 @@ public class FeedDiscovery {
     private static final int DEFAULT_NUM_THREADS = 10;
 
     /** DocumentRetriever for downloading pages. */
-    private final HttpRetriever httpRetriever = new HttpRetriever();
+    private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
     private WebSearcher<WebResult> webSearcher = null;
 
     /** The parser used for parsing HTML pages. */
-    private final DocumentParser parser = new NekoHtmlParser();
+    private final DocumentParser parser = ParserFactory.createHtmlParser();
 
     private int numThreads = DEFAULT_NUM_THREADS;
 
@@ -213,16 +215,7 @@ public class FeedDiscovery {
         List<DiscoveredFeed> result = new LinkedList<DiscoveredFeed>();
 
         String pageUrl = document.getDocumentURI();
-        // fix for testing purposes
-        if (!pageUrl.startsWith("http://") && !pageUrl.startsWith("https://") && !pageUrl.startsWith("file:")) {
-            pageUrl = "file:" + pageUrl;
-        }
-
-        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
-        String baseHref = null;
-        if (baseNode != null) {
-            baseHref = baseNode.getTextContent();
-        }
+        String baseUrl = HtmlHelper.getBaseUrl(document);
 
         // get all Nodes from the Document containing feeds
         List<Node> feedNodes = XPathHelper.getXhtmlNodes(document, FEED_XPATH);
@@ -255,7 +248,7 @@ public class FeedDiscovery {
             feedUrl = feedUrl.replace("feed:", "");
 
             // make full URL
-            feedUrl = UrlHelper.makeFullUrl(pageUrl, baseHref, feedUrl);
+            feedUrl = UrlHelper.makeFullUrl(pageUrl, baseUrl, feedUrl);
 
             // validate URL
 
