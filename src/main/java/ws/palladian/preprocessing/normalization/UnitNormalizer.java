@@ -314,9 +314,10 @@ public class UnitNormalizer {
         } else if (unit.equals("million sqare miles")) {
             multiplier = 2589988110000.0;
         } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²")
-                || unit.equals("sq km") || unit.equals("sq.km") || unit.equals("square kilometer")
-                || unit.equals("square kilometers") || unit.equals("square km") || unit.equals("sq.kilometre")
-                || unit.equals("sq kilometre") || unit.equals("square kilometre") || unit.equals("square kilometres")) {
+                || unit.equals("km 2") || unit.equals("sq km") || unit.equals("sq.km")
+                || unit.equals("square kilometer") || unit.equals("square kilometers") || unit.equals("square km")
+                || unit.equals("sq.kilometre") || unit.equals("sq kilometre") || unit.equals("square kilometre")
+                || unit.equals("square kilometres")) {
             multiplier = 1000000.0;
         } else if (unit.equals("million square kilometers")) {
             multiplier = 1000000000000.0;

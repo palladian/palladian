@@ -16,13 +16,20 @@ public class UrlTaggerTest {
 		UrlTagger urlTagger = new UrlTagger();
         Annotations annotations = null;
 		
-        // TODO this should work too
-        // annotations =
-        // urlTagger.tagUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.");
-        // assertEquals(1, annotations.size());
-        // assertEquals(26, annotations.get(0).getOffset());
-        // assertEquals(39, annotations.get(0).getLength());
+        annotations = urlTagger
+                .tagUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.");
+        System.out.println(annotations);
+        assertEquals(1, annotations.size());
+        assertEquals(26, annotations.get(0).getOffset());
+        assertEquals(28, annotations.get(0).getLength());
         
+        annotations = urlTagger
+                .tagUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.");
+        System.out.println(annotations);
+        assertEquals(1, annotations.size());
+        assertEquals(26, annotations.get(0).getOffset());
+        assertEquals(30, annotations.get(0).getLength());
+
 		annotations = urlTagger.tagUrls("You can download it here: http://www.cinefreaks.com/coolstuff.zip but be aware of the size.");
 		assertEquals(1, annotations.size());
 		assertEquals(26, annotations.get(0).getOffset());
