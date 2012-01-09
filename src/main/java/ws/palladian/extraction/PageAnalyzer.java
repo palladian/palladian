@@ -970,6 +970,10 @@ public class PageAnalyzer {
                 // System.out.println(child.getNodeType());
             }
 
+            if (child.getNodeName().equalsIgnoreCase("br")) {
+                currentString.append("\n");
+            }
+
             currentString = getSeparatedTextContents(child, currentString);
             child = child.getNextSibling();
             tagCount++;
@@ -1439,11 +1443,21 @@ public class PageAnalyzer {
 
         String url = "http://www.cinefreaks.com/downloads";
         url = "data/test/webPages/faqExtraction2.html";
+
+        url = "http://en.wikipedia.org/wiki/Italy";
+        String xPath = "/xhtml:html/xhtml:body/xhtml:div[3]/xhtml:div[3]/xhtml:div[4]/xhtml:table[1]/xhtml:tr[5]/xhtml:td[2]";
+
         DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url);
 
-        System.out.println(HtmlHelper.getXmlDump(document));
+        PageAnalyzer pa1 = new PageAnalyzer();
+        pa1.setDocument(document);
+        String t1 = pa1.getTextByXPath(document, xPath);
+
+        System.out.println("text: " + t1);
         System.exit(1);
+
+        System.out.println(HtmlHelper.getXmlDump(document));
 
         // String t = PageAnalyzer.getDocumentTextDump(document);
         String t = HtmlHelper.documentToHtmlString(document);

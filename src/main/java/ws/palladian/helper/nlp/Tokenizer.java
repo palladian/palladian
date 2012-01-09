@@ -342,7 +342,7 @@ public class Tokenizer {
     /**
      * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" =>
      * "Although, many of them (30.2%) are good."
-     * consider !,?,. and : as end of sentence
+     * consider !,?, and . as end of sentence
      * 
      * @param string The string.
      * @return The phrase to the end of the sentence.
@@ -393,13 +393,14 @@ public class Tokenizer {
             endIndex = string.indexOf("?");
         }
 
-        if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
-            int indexColon = string.indexOf(":");
-            if (string.length() > indexColon + 1 && !StringHelper.isNumber(string.charAt(indexColon + 1))) {
-                endIndex = indexColon;
-            }
-
-        }
+        // XXX commented this out because of aspect ratio "2.35 : 1" wasn't captured
+        // if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
+        // int indexColon = string.indexOf(":");
+        // if (string.length() > indexColon + 1 && !StringHelper.isNumber(string.charAt(indexColon + 1))) {
+        // endIndex = indexColon;
+        // }
+        //
+        // }
         if (endIndex == -1) {
             endIndex = string.length();
         }
