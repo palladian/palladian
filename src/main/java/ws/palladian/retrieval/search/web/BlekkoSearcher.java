@@ -80,6 +80,11 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
                 String jsonString = new String(httpResult.getContent());
                 JSONObject jsonObject = new JSONObject(jsonString);
+                
+                if (!jsonObject.has("RESULT")) {
+                    continue;
+                }
+                
                 JSONArray jsonResults = jsonObject.getJSONArray("RESULT");
 
                 for (int j = 0; j < jsonResults.length(); j++) {
