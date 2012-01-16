@@ -67,7 +67,7 @@ import ws.palladian.helper.math.SizeUnit;
 
 /**
  * <p>
- * The {@link HttpRetriever} performs all HTTP specific operations withing Palladian. This includes HTTP requests like
+ * The {@link HttpRetriever} performs all HTTP specific operations within Palladian. This includes HTTP requests like
  * GET, POST, and HEAD. Results for these requests are supplied as instances of {@link HttpResult}. Further more, this
  * class provides the possibility to save the results from HTTP requests as files for archival purposes. This class is
  * heavily based upon Apache HttpComponents, which provide a much more reliable HTTP implementation than the original
@@ -76,8 +76,8 @@ import ws.palladian.helper.math.SizeUnit;
  * 
  * <p>
  * <b>Important:</b> For obtaining instances of this class, it is strongly recommended to make use of the
- * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarious, e.g. when the created
- * {@link HttpRetriever} instances need to be preconfigured with specific proxy settings.
+ * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarios, e.g. when the created
+ * {@link HttpRetriever} instances need to be pre-configured with specific proxy settings.
  * </p>
  * 
  * @see http://hc.apache.org/

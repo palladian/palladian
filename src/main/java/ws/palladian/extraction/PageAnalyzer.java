@@ -41,7 +41,7 @@ public class PageAnalyzer {
 
     private Document document = null;
 
-    // TODO general namespace handling, not only xhtml
+    // XXX general namespace handling, not only xhtml
     public PageAnalyzer() {
     }
 
@@ -963,7 +963,7 @@ public class PageAnalyzer {
 
             // do not consider comment nodes (type 8) TODO only take text nodes
             if (child.getNodeValue() != null && child.getNodeType() == 3) {
-                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:?!");
+                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:.?!");
                 if (nodeValue.length() > 0) {
                     currentString.append(nodeValue).append(" ");// + ", "; TODO changed without testing!
                 }
@@ -977,6 +977,10 @@ public class PageAnalyzer {
             currentString = getSeparatedTextContents(child, currentString);
             child = child.getNextSibling();
             tagCount++;
+        }
+
+        if (node.getNodeName().equalsIgnoreCase("div")) {
+            currentString.append("\n");
         }
 
         // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
@@ -1446,6 +1450,12 @@ public class PageAnalyzer {
 
         url = "http://en.wikipedia.org/wiki/Italy";
         String xPath = "/xhtml:html/xhtml:body/xhtml:div[3]/xhtml:div[3]/xhtml:div[4]/xhtml:table[1]/xhtml:tr[5]/xhtml:td[2]";
+
+        url = "http://en.wikipedia.org/wiki/Braveheart";
+        xPath = "/xhtml:html/xhtml:body/xhtml:div[3]/xhtml:div[3]/xhtml:div[4]/xhtml:p[1]";
+
+        url = PageAnalyzer.class.getResource("/website2082.html").getFile();
+        xPath = "/xhtml:html/xhtml:body/xhtml:center[1]/xhtml:div[4]/xhtml:div[1]/xhtml:center[1]/xhtml:div[1]/xhtml:div[1]";
 
         DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url);
