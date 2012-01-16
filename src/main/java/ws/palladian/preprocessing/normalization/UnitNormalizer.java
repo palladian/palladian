@@ -624,6 +624,8 @@ public class UnitNormalizer {
      */
     public static void main(String[] args) {
 
+        System.out.println(getNormalizedNumber(6, "ft 1.5 in 187 cm"));
+
         System.out.println(getUnitType("2.26 GHz"));
         // System.out.println(getNormalizedNumber("a 2.26 GHz"));
         System.out.println(getUnitType("21.4 million"));

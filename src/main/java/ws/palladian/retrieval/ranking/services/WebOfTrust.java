@@ -23,7 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 /**
  * <p>
  * Get ranking from Web of Trust. We just take the "Trustworthiness" factor, not considering "Vendor reliability",
- * "Privacy", or "Child safety". Also we do not cosider the confidence values.
+ * "Privacy", or "Child safety". Also we do not consider the confidence values.
  * </p>
  * 
  * @author Philipp Katz
