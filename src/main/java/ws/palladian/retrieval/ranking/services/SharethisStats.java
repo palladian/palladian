@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -39,8 +38,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
     private static final Logger LOGGER = Logger.getLogger(SharethisStats.class);
 
     /** The config values. */
-    private String apiKey;
-    private String secret;
+    private final String apiKey;
+    private final String secret;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "sharethis";
@@ -48,26 +47,44 @@ public class SharethisStats extends BaseRankingService implements RankingService
     /** The ranking value types of this service **/
     public static final RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats",
             "The number of shares via multiple services measured on sharethis.com.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(SHARES);
-    }
+    /** All available ranking types by {@link SharethisStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 60;
 
-    public SharethisStats() {
-        super();
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
+    /**
+     * <p>
+     * Create a new {@link SharethisStats} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key (<tt>api.sharethis.key</tt>) and a secret (
+     *            <tt>api.sharethis.secret</tt>) for accessing the service.
+     */
+    public SharethisStats(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.sharethis.key"), configuration.getString("api.sharethis.secret"));
+    }
 
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.sharethis.key"));
-            setSecret(configuration.getString("api.sharethis.secret"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+    /**
+     * <p>
+     * Create a new {@link SharethisStats} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing the service.
+     * @param secret The required secret for accessing the service.
+     */
+    public SharethisStats(String apiKey, String secret) {
+        super();
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing");
         }
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException("The required secret is missing.");
+        }
+        this.apiKey = apiKey;
+        this.secret = secret;
     }
 
     @Override
@@ -149,16 +166,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
         return RANKING_TYPES;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public String getApiKey() {
         return apiKey;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 
     public String getSecret() {

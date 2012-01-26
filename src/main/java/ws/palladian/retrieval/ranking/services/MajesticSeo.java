@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -42,21 +41,35 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
     public static final RankingType REFERRING_DOMAINS = new RankingType("majestic_seo_referring_domains",
             "Majestic-SEO Referring Domains", "");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(REFERRING_DOMAINS);
+    /** All available ranking types by MajesticSeo. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(REFERRING_DOMAINS);
+
+    private final String apiKey;
+
+    /**
+     * <p>
+     * Create a new {@link MajesticSeo} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key (<tt>api.majestic.key</tt>) for accesing the
+     *            service.
+     */
+    public MajesticSeo(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.majestic.key"));
     }
 
-    private String apiKey;
-
-    public MajesticSeo() {
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.majestic.key"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+    /**
+     * <p>
+     * Create a new {@link MajesticSeo} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing the service.
+     */
+    public MajesticSeo(String apiKey) {
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
         }
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -94,10 +107,6 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public String getApiKey() {

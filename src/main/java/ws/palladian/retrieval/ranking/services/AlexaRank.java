@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +39,8 @@ public class AlexaRank extends BaseRankingService implements RankingService {
     /** The ranking value types of this service. */
     public static final RankingType POPULARITY_RANK = new RankingType("alexa_rank", "Alexa Rank", "");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(POPULARITY_RANK);
-    }
+    /** All available ranking types by AlexaRank. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK);
 
     @Override
     public Ranking getRanking(String url) {
