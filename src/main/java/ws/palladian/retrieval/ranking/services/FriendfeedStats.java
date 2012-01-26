@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,12 +48,8 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
             "The number of likes for entries posted on FriendFeed containing the given url.");
     public static final RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments",
             "The number of comments for entries posted on FriendFeed containing the given url.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(POSTS);
-        RANKING_TYPES.add(LIKES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link FriendfeedStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS, LIKES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

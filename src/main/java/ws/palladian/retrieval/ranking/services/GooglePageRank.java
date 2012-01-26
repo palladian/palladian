@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -38,7 +37,7 @@ public class GooglePageRank extends BaseRankingService implements RankingService
     private static final Logger LOGGER = Logger.getLogger(GooglePageRank.class);
 
     /** The config values. */
-    private String apiKey;
+    private final String apiKey;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "pagerank";
@@ -46,27 +45,39 @@ public class GooglePageRank extends BaseRankingService implements RankingService
     /** The ranking value types of this service **/
     public static final RankingType PAGERANK = new RankingType("pagerank", "Google PageRank",
             "The PageRank value from Google");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(PAGERANK);
-    }
+    /** All available ranking types by {@link GooglePageRank}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(PAGERANK);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public GooglePageRank() {
+    /**
+     * <p>
+     * Create a new {@link GooglePageRank} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key (<tt>api.google.key</tt>) for accessing this
+     *            service.
+     */
+    public GooglePageRank(PropertiesConfiguration configuration) {
+        this(configuration.getString("api.google.key"));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link GooglePageRank} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing the service.
+     */
+    public GooglePageRank(String apiKey) {
         super();
-
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.google.key"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
         }
-
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -160,18 +171,8 @@ public class GooglePageRank extends BaseRankingService implements RankingService
         return RANKING_TYPES;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public String getApiKey() {
         return apiKey;
-    }
-
-    public static void main(String[] args) {
-        GooglePageRank pageRank = new GooglePageRank();
-        Ranking ranking = pageRank.getRanking("http://www.apple.com");
-        System.out.println(ranking);
     }
 
 }

@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -62,12 +61,8 @@ public class FriendfeedAggregatedStats extends BaseRankingService implements Ran
     public static final RankingType COMMENTS = new RankingType("friendfeed_ext_comments",
             "FriendFeed comments for external services",
             "The number of comments on entries from varying services containing the given url on FriendFeed.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(ENTRIES);
-        RANKING_TYPES.add(LIKES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link FriendfeedAggregatedStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(ENTRIES, LIKES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

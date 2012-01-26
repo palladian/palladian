@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,10 +43,8 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
     public static final RankingType BOOKMARKS = new RankingType("delicious_bookmarks", "Delicious Bookmarks",
             "The number of bookmarks users have created for this url.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(BOOKMARKS);
-    }
+    /** All available ranking types by {@link DeliciousBookmarks}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
