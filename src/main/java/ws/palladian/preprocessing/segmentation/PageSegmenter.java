@@ -272,7 +272,7 @@ public class PageSegmenter {
         // ////////////////////////////////////////////////////////////////////////
         // fix some problems with closing tags and saves it to storeLocation+"_test.html"
         DocumentRetriever c2 = new DocumentRetriever();
-        String webpage = c2.getTextDocument(storeLocation);
+        String webpage = c2.getText(storeLocation);
         String newStoreLocation = storeLocation.substring(0, storeLocation.length() - 5) + "_test.html";
 
         String[] tagsToFix = { "script", "iframe", "textarea" };
