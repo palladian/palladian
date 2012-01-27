@@ -112,7 +112,6 @@ public class DeliciousBookmarks extends BaseRankingService implements RankingSer
             lastCheckBlocked = new Date().getTime();
             return false;
         }
-        System.out.println(status);
         blocked = true;
         lastCheckBlocked = new Date().getTime();
         LOGGER.error("Delicious Ranking Service is momentarily blocked. Will check again in 1min. Try changing your IP-Address.");

@@ -206,11 +206,4 @@ public class DiggStats extends BaseRankingService implements RankingService {
         return RANKING_TYPES;
     }
 
-    public static void main(String[] args) {
-        DiggStats diggStats = new DiggStats();
-        Ranking ranking = diggStats.getRanking("http://www.apple.com");
-        System.out.println(ranking);
-
-    }
-
 }
