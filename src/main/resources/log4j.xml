@@ -9,7 +9,7 @@
 		</layout>
 	</appender>
 	<logger name="ws.palladian.iirmodel">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 	<root>
 		<priority value="info" />

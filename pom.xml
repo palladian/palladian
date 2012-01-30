@@ -9,6 +9,9 @@
 
 	<properties>
 		<junit.version>4.10</junit.version>
+		<log4j.version>1.2.16</log4j.version>
+		<hsql.version>2.2.4</hsql.version>
+		<mysqlconnector.version>5.1.17</mysqlconnector.version>
 	</properties>
 
 	<build>
@@ -36,12 +39,12 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.2.4</version>
+			<version>${hsql.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -53,9 +56,28 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.17</version>
+			<version>${mysqlconnector.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.4</version>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<snapshotRepository>
+			<name>Effingo Snapshots Repository</name>
+			<id>snapshots</id>
+			<url>http://effingo.de/nexus/content/repositories/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<profiles>
 		<profile>
 			<id>hibernate</id>
