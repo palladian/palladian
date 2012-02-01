@@ -76,7 +76,7 @@ import ws.palladian.helper.math.SizeUnit;
  * 
  * <p>
  * <b>Important:</b> For obtaining instances of this class, it is strongly recommended to make use of the
- * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarious, e.g. when the created
+ * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarios, e.g. when the created
  * {@link HttpRetriever} instances need to be preconfigured with specific proxy settings.
  * </p>
  * 
@@ -164,13 +164,13 @@ public class HttpRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
 
-        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
+        ((AbstractHttpClient)httpClient).addResponseInterceptor(metricsSaver);
         // end edit
     }
 
@@ -380,7 +380,7 @@ public class HttpRetriever {
 
             HttpContext context = new BasicHttpContext();
             HttpResponse response = httpClient.execute(request, context);
-            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
@@ -477,7 +477,7 @@ public class HttpRetriever {
         try {
             URL urlObject = new URL(url);
             URLConnection urlCon = urlObject.openConnection();
-            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
             httpUrlCon.setInstanceFollowRedirects(false);
             location = httpUrlCon.getHeaderField("Location");
         } catch (IOException e) {
@@ -638,7 +638,7 @@ public class HttpRetriever {
             StringBuilder headerText = new StringBuilder();
             int b;
             while ((b = inputStream.read()) != -1) {
-                headerText.append((char) b);
+                headerText.append((char)b);
                 if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
                     break;
                 }
@@ -747,7 +747,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(long connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, (int) connectionTimeout);
+        HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
     }
 
     public long getConnectionTimeout() {
@@ -763,7 +763,7 @@ public class HttpRetriever {
      * @param socket timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(long socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, (int) socketTimeout);
+        HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
 
     /**
@@ -795,7 +795,7 @@ public class HttpRetriever {
      * @param proxy the proxy to use.
      */
     public void setProxy(Proxy proxy) {
-        InetSocketAddress address = (InetSocketAddress) proxy.address();
+        InetSocketAddress address = (InetSocketAddress)proxy.address();
         String hostname = address.getHostName();
         int port = address.getPort();
         setProxy(hostname, port);

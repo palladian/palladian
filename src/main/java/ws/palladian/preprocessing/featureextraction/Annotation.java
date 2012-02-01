@@ -11,7 +11,7 @@ import ws.palladian.preprocessing.PipelineDocument;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class Annotation {
+public abstract class Annotation implements Comparable<Annotation> {
 
     /**
      * <p>
@@ -78,7 +78,7 @@ public abstract class Annotation {
      * 
      * @return the index of the first character of this {@link Annotation}.
      */
-    public abstract int getStartPosition();
+    public abstract Integer getStartPosition();
 
     /**
      * <p>
@@ -87,7 +87,7 @@ public abstract class Annotation {
      * 
      * @return the index of the first character after the end of this {@link Annotation}.
      */
-    public abstract int getEndPosition();
+    public abstract Integer getEndPosition();
 
     /**
      * <p>
@@ -119,17 +119,32 @@ public abstract class Annotation {
     public final String getViewName() {
         return this.viewName;
     }
-    
+
+    /**
+     * <p>
+     * The natural ordering of {@code Annotation}s depends on the {@code Annotation}'s start position. An
+     * {@code Annotation} with a smaller start position should occur before one with a larger start position in the
+     * {@code Annotation}s' natural ordering.
+     * </p>
+     * 
+     * @see #getStartPosition()
+     * @param annotation The {@code Annotation} to compare this {@code Annotation} to.
+     */
+    @Override
+    public int compareTo(Annotation annotation) {
+        return this.getStartPosition().compareTo(annotation.getStartPosition());
+    }
+
     //
     // force subclasses to implement the following methods
     //
-    
+
     @Override
     public abstract String toString();
-    
+
     @Override
     public abstract boolean equals(Object obj);
-    
+
     @Override
     public abstract int hashCode();
 

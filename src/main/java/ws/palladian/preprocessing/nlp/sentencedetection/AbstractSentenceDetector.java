@@ -13,6 +13,7 @@ import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.AbstractPipelineProcessor;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.featureextraction.Annotation;
+import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
 
 /**
  * <p>
@@ -64,7 +65,7 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
      * </p>
      */
-    public static final String FEATURE_IDENTIFIER = "ws.palladian.features.sentence";
+    public static final String PROVIDED_FEATURE = "ws.palladian.features.sentence";
 
     /** holds the model. **/
     private Object model;
@@ -173,8 +174,8 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
             detect(document.getView(inputViewName));
             Annotation[] sentences = getSentences();
             List<Annotation> sentencesList = Arrays.asList(sentences);
-            Feature<List<Annotation>> sentencesFeature = new Feature<List<Annotation>>(FEATURE_IDENTIFIER,
-                    sentencesList);
+            AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);
+
             FeatureVector featureVector = document.getFeatureVector();
             featureVector.add(sentencesFeature);
         }
