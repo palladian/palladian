@@ -740,7 +740,7 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ" }; // whitespace
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•"}; // whitespace
         // is also
         // unwanted
         // but trim()
