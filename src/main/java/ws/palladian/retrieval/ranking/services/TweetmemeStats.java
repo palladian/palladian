@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,10 +43,8 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
     public static final RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets",
             "The number of tweets mentioning this url, derived from tweetmeme.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(TWEETS);
-    }
+    /** All available ranking types by TweetmemeStats. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(TWEETS);
 
     /**
      * The number of comments tweets mentioning this url.

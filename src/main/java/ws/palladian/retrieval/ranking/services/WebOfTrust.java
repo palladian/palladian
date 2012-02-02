@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +42,8 @@ public class WebOfTrust extends BaseRankingService implements RankingService {
     public static final RankingType TRUSTWORTHINESS = new RankingType("wot_trustworthiness",
             "Web of Trust Trustworthiness", "");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(TRUSTWORTHINESS);
-    }
+    /** All available ranking types by WebOfTrust. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(TRUSTWORTHINESS);
 
     @Override
     public Ranking getRanking(String url) {

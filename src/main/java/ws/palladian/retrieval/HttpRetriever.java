@@ -97,7 +97,7 @@ public class HttpRetriever {
     public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
+    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 3;
@@ -181,11 +181,11 @@ public class HttpRetriever {
      * <table>
      * <tr>
      * <td>connection timeout</td>
-     * <td>10 milliseconds</td>
+     * <td>10 seconds</td>
      * </tr>
      * <tr>
      * <td>socket timeout</td>
-     * <td>180 milliseconds</td>
+     * <td>60 seconds</td>
      * </tr>
      * <tr>
      * <td>retries</td>
