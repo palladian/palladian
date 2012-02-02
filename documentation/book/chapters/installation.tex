@@ -13,16 +13,16 @@ Apache \textbf{Maven needs to be installed} to build the toolkit. Instructions f
   <servers>
     <server>
       <id>snapshots</id>
-      <username>your-username</username>
-      <password>your-password</password>
+      <username>palladian</username>
+      <password>wisdom</password>
       <filePermissions>664</filePermissions>
       <directoryPermissions>775</directoryPermissions>
       <configuration></configuration>
     </server>
     <server>
       <id>releases</id>
-      <username>your-username</username>
-      <password>your-password</password>
+      <username>palladian</username>
+      <password>wisdom</password>
       <filePermissions>664</filePermissions>
       <directoryPermissions>775</directoryPermissions>
       <configuration></configuration>
@@ -30,9 +30,10 @@ Apache \textbf{Maven needs to be installed} to build the toolkit. Instructions f
   </servers>
 </settings>
 \end{verbatim}
-You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
+% You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. 
+After completing the installation perform the following steps to build the toolkit using Maven:
 \begin{enumerate}
-\item Check out the code from SVN!
+\item Check out the code from Git.
 \item Open your favorite command line.
 \item Change to the toolkits root folder.
 \item Type \texttt{mvn clean install} to start the build process.

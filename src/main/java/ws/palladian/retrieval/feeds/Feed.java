@@ -1613,7 +1613,8 @@ public class Feed {
                     itemBuffer.push(itemToAdd);
                     added = true;
                 } else {
-                    LOGGER.warn("Feed id " + getId() + ", could not add item \"" + itemToAdd
+                    // was warn, changed to debug by Philipp to avoid spamming the logs.
+                    LOGGER.debug("Feed id " + getId() + ", could not add item \"" + itemToAdd
                             + "\" to item buffer since it is older than the newest item in the buffer.");
                 }
             }
