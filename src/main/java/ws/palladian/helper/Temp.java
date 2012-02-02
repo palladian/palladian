@@ -42,6 +42,9 @@ import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.ranking.Ranking;
+import ws.palladian.retrieval.ranking.services.FacebookLinkStats;
+import ws.palladian.retrieval.search.web.BingSearcher;
 
 /**
  * Dump class to test various algorithms.
@@ -612,6 +615,16 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
         
+        FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
+        Ranking ranking = facebookLinkStats.getRanking("http://cinefreaks.com");
+        System.out.println(ranking);
+        System.exit(0);
+
+        BingSearcher gs = new BingSearcher("D35DE1803D6F6F03AB5044430997A91924AD347A");
+        CollectionHelper.print(gs.search("site:cinefreaks.com", 1));
+        System.out.println(gs.getTotalResultCount("site:cinefreaks.com"));
+        System.exit(0);
+
         HttpRetrieverFactory.setFactory(new HttpRetrieverFactory() {
             @Override
             protected HttpRetriever createHttpRetriever() {

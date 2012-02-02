@@ -963,7 +963,7 @@ public class PageAnalyzer {
 
             // do not consider comment nodes (type 8) TODO only take text nodes
             if (child.getNodeValue() != null && child.getNodeType() == 3) {
-                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:.?!");
+                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:.?!'\"");
                 if (nodeValue.length() > 0) {
                     currentString.append(nodeValue).append(" ");// + ", "; TODO changed without testing!
                 }

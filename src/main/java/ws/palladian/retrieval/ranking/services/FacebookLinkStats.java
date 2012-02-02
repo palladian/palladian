@@ -77,8 +77,9 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
             String encUrl = UrlHelper.urlEncode(url);
             JSONObject json = null;
             try {
-                HttpResult httpResult = retriever.httpGet(FQL_QUERY + "url='" + encUrl + "'");
-                System.err.println(new String(httpResult.getContent()));
+                String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
+                System.out.println(requestUrl);
+                HttpResult httpResult = retriever.httpGet(requestUrl);
                 JSONArray jsonArray = new JSONArray(new String(httpResult.getContent()));
                 if (jsonArray.length() == 1) {
                     json = jsonArray.getJSONObject(0);

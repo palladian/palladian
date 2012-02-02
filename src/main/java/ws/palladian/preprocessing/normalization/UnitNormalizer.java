@@ -356,7 +356,10 @@ public class UnitNormalizer {
         } else if (unit.equals("mega pixel") || unit.equals("mega pixels") || unit.equals("megapixel") || unit.equals("megapixels") || unit.equals("mpix")
                 || unit.equals("mpixel") || unit.equals("mp") || unit.equals("mpx")) {
             multiplier = 1000000.0;
+        } else if (unit.equals("%")) {
+            multiplier = 0.01;
         }
+
 
         return multiplier;
     }
@@ -585,11 +588,12 @@ public class UnitNormalizer {
                 }
                 break;
             }
-            --l;
+            l--;
         }
 
         if (multiplier < 0 && !combinedSearch) {
-            multiplier = 1.0; // no unit found, do not change value of number
+            // no unit found, do not change value of number
+            multiplier = 1.0;
         } else if (multiplier < 0) {
             multiplier = 0.0;
         }
