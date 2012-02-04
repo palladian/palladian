@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +44,12 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BitlyClicks.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.bitly.key";
+
+    /** {@link Configuration} key for the login. */
+    public static final String CONFIG_LOGIN = "api.bitly.login";
+
     /** The config values. */
     private final String apiKey;
     private final String login;
@@ -71,8 +77,8 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
      * @param configuration The configuration which must provide a login (<tt>api.bitly.login</tt>) and an API key (
      *            <tt>api.bitly.key</tt>) for accessing this service.
      */
-    public BitlyClicks(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.bitly.login"), configuration.getString("api.bitly.key"));
+    public BitlyClicks(Configuration configuration) {
+        this(configuration.getString(CONFIG_LOGIN), configuration.getString(CONFIG_API_KEY));
     }
 
     /**

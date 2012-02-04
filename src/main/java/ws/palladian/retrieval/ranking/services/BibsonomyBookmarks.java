@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +39,12 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BibsonomyBookmarks.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.bibsonomy.key";
+    
+    /** {@link Configuration} key for the login. */
+    public static final String CONFIG_LOGIN = "api.bibsonomy.login";
+    
     /** The config values. */
     private final String login;
     private final String apiKey;
@@ -66,8 +72,8 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
      * @param configuration The configuration which must provide a login (<tt>api.bibsonomy.login</tt>)and an API key (
      *            <tt>api.bibsonomy.key</tt>) for accessing the service.
      */
-    public BibsonomyBookmarks(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.bibsonomy.login"), configuration.getString("api.bibsonomy.key"));
+    public BibsonomyBookmarks(Configuration configuration) {
+        this(configuration.getString(CONFIG_LOGIN), configuration.getString(CONFIG_API_KEY));
     }
 
     /**

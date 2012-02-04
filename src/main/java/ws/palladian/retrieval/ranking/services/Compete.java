@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +32,9 @@ public class Compete extends BaseRankingService implements RankingService {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Compete.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.compete.key";
+
     /** The id of this service. */
     private static final String SERVICE_ID = "compete";
 
@@ -54,8 +57,8 @@ public class Compete extends BaseRankingService implements RankingService {
      * @param configuration The configuration whch must provide an API key (<tt>api.compete.key</tt>) for accessing this
      *            service.
      */
-    public Compete(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.compete.key"));
+    public Compete(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**

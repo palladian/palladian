@@ -2,7 +2,7 @@ package ws.palladian.retrieval.search.web;
 
 import java.util.Date;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,9 +26,9 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
     }
 
     /**
-     * @see BaseBingSearcher#BaseBingSearcher(PropertiesConfiguration)
+     * @see BaseBingSearcher#BaseBingSearcher(Configuration)
      */
-    public BingNewsSearcher(PropertiesConfiguration configuration) {
+    public BingNewsSearcher(Configuration configuration) {
         super(configuration);
     }
 
