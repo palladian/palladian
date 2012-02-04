@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -34,6 +34,9 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MajesticSeo.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.majestic.key";
+
     /** The id of this service. */
     private static final String SERVICE_ID = "majesticSeo";
 
@@ -54,8 +57,8 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
      * @param configuration The configuration which must provide an API key (<tt>api.majestic.key</tt>) for accesing the
      *            service.
      */
-    public MajesticSeo(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.majestic.key"));
+    public MajesticSeo(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**

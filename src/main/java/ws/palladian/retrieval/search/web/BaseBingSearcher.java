@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,9 +28,13 @@ import ws.palladian.retrieval.HttpResult;
  */
 abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);
 
+    /** Key of the {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.bing.key";
+    
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
@@ -60,8 +64,8 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param configuration The configuration which must provide an API key for accessing Bing, which must be provided
      *            as string via key <tt>api.bing.key</tt> in the configuration.
      */
-    public BaseBingSearcher(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.bing.key"));
+    public BaseBingSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override

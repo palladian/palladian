@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
@@ -28,7 +28,7 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
 
     private final List<RankingService> rankingServices;
 
-    public CompositeRankingService(PropertiesConfiguration config) {
+    public CompositeRankingService(Configuration config) {
         rankingServices = new ArrayList<RankingService>();
         rankingServices.add(new AlexaRank());
         rankingServices.add(new BibsonomyBookmarks(config));
@@ -87,7 +87,7 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
 //        String url = "http://www.apple.com";
 //        String url = "http://www.google.com";
         String url = "http://www.searchenginejournal.com/norad-santa-tracker-the-history-of-norad-google-santa-infographic/37726/";
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
         CompositeRankingService compositeRankingService = new CompositeRankingService(config);
         Ranking ranking = compositeRankingService.getRanking(url);
         System.out.println(ranking);

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +37,12 @@ public class SharethisStats extends BaseRankingService implements RankingService
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(SharethisStats.class);
 
+    /** {@link Configuration} key for the secret. */
+    public static final String CONFIG_SECRET = "api.sharethis.secret";
+
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.sharethis.key";
+
     /** The config values. */
     private final String apiKey;
     private final String secret;
@@ -63,8 +69,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
      * @param configuration The configuration which must provide an API key (<tt>api.sharethis.key</tt>) and a secret (
      *            <tt>api.sharethis.secret</tt>) for accessing the service.
      */
-    public SharethisStats(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.sharethis.key"), configuration.getString("api.sharethis.secret"));
+    public SharethisStats(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SECRET));
     }
 
     /**

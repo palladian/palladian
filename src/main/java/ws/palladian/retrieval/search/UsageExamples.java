@@ -2,7 +2,7 @@ package ws.palladian.retrieval.search;
 
 import java.util.List;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -18,7 +18,7 @@ public class UsageExamples {
     public static void main(String[] args) {
 
         // new searchers should be created by the SearcherFactory, which must be proveded with a configuration
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
 
         // create a web searcher for the Bing search engine
         WebSearcher<WebResult> searcher = SearcherFactory.createSearcher(BingSearcher.class, config);

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.UrlHelper;
@@ -36,6 +36,9 @@ public class GooglePageRank extends BaseRankingService implements RankingService
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(GooglePageRank.class);
 
+    /** Key of the {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.google.key";
+
     /** The config values. */
     private final String apiKey;
 
@@ -61,8 +64,8 @@ public class GooglePageRank extends BaseRankingService implements RankingService
      * @param configuration The configuration which must provide an API key (<tt>api.google.key</tt>) for accessing this
      *            service.
      */
-    public GooglePageRank(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.google.key"));
+    public GooglePageRank(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**
