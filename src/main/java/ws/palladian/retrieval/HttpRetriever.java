@@ -77,7 +77,7 @@ import ws.palladian.helper.math.SizeUnit;
  * <p>
  * <b>Important:</b> For obtaining instances of this class, it is strongly recommended to make use of the
  * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarios, e.g. when the created
- * {@link HttpRetriever} instances need to be preconfigured with specific proxy settings.
+ * {@link HttpRetriever} instances need to be pre-configured with specific proxy settings.
  * </p>
  * 
  * @see http://hc.apache.org/

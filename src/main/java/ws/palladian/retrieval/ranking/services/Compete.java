@@ -1,17 +1,16 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -33,32 +32,48 @@ public class Compete extends BaseRankingService implements RankingService {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Compete.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.compete.key";
+
     /** The id of this service. */
     private static final String SERVICE_ID = "compete";
 
     /** The ranking value types of this service **/
-    public static final RankingType UNIQUE_VISITORS = new RankingType("compete_unique_visitors", "Compete Unique Visitors", "");
+    public static final RankingType UNIQUE_VISITORS = new RankingType("compete_unique_visitors",
+            "Compete Unique Visitors", "");
     public static final RankingType VISITS = new RankingType("compete_visits", "Compete Visits", "");
     public static final RankingType RANK = new RankingType("compete_rank", "Compete Rank", "");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(UNIQUE_VISITORS);
-        RANKING_TYPES.add(VISITS);
-        RANKING_TYPES.add(RANK);
+    /** All available ranking tpyes by Compete. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(UNIQUE_VISITORS, VISITS, RANK);
+
+    private final String apiKey;
+
+    /**
+     * <p>
+     * Create a new {@link Compete} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration whch must provide an API key (<tt>api.compete.key</tt>) for accessing this
+     *            service.
+     */
+    public Compete(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
-    private String apiKey;
-
-    public Compete() {
+    /**
+     * <p>
+     * Create a new {@link Compete} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing this service.
+     */
+    public Compete(String apiKey) {
         super();
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.compete.key"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
         }
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -84,8 +99,7 @@ public class Compete extends BaseRankingService implements RankingService {
             JSONObject jsonObject = new JSONObject(new String(httpResult.getContent()));
             String status = jsonObject.getString("status");
             if ("OK".equals(status)) {
-                JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends")
-                        .getJSONArray(metricCode);
+                JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends").getJSONArray(metricCode);
                 result = (float) metric.getJSONObject(0).getInt("value");
                 LOGGER.debug("metric=" + metricCode + " value=" + result);
             } else {
@@ -108,10 +122,6 @@ public class Compete extends BaseRankingService implements RankingService {
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public String getApiKey() {

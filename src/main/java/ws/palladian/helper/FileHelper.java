@@ -1788,6 +1788,61 @@ public class FileHelper {
 
     /**
      * <p>
+     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
+     * </p>
+     * 
+     * @param filePath The file to be split.
+     * @param numParts The number of evenly sized parts the file should be split into.
+     */
+    public static void splitAsciiFile(String filePath, int numParts) {
+
+        int totalLines = FileHelper.getNumberOfLines(filePath);
+
+        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
+
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        OutputStream out = null;
+
+        try {
+
+            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
+            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
+
+            String line = null;
+            int lineNumber = 1;
+            int i = 2;
+            while ((line = reader.readLine()) != null) {
+
+                if (lineNumber % linesPerSplit == 0) {
+                    if (i == numParts + 1) {
+                        break;
+                    }
+
+                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
+                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+                    i++;
+                }
+
+                writer.write(line + "\n");
+
+                lineNumber++;
+            }
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } finally {
+            close(reader, writer, out);
+        }
+
+    }
+
+    /**
+     * <p>
      * Shuffles the order of lines in a given file.
      * </p>
      * 

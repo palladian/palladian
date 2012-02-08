@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -26,24 +28,24 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
 
     private final List<RankingService> rankingServices;
 
-    public CompositeRankingService() {
+    public CompositeRankingService(Configuration config) {
         rankingServices = new ArrayList<RankingService>();
-//        rankingServices.add(new AlexaRank());
-//        rankingServices.add(new BibsonomyBookmarks());
-//        rankingServices.add(new BitlyClicks());
-//        rankingServices.add(new Compete());
-        rankingServices.add(new DeliciousBookmarks()); // FIXME
-//        rankingServices.add(new DiggStats());
-//        rankingServices.add(new FacebookLinkStats());
-//        rankingServices.add(new FriendfeedAggregatedStats());
-//        rankingServices.add(new FriendfeedStats());
-//        rankingServices.add(new GooglePageRank());
-//        rankingServices.add(new MajesticSeo());
-//        rankingServices.add(new PlurkPosts());
-//        rankingServices.add(new RedditStats());
-//        rankingServices.add(new SharethisStats());
-//        rankingServices.add(new TweetmemeStats());
-//        rankingServices.add(new WebOfTrust());
+        rankingServices.add(new AlexaRank());
+        rankingServices.add(new BibsonomyBookmarks(config));
+        rankingServices.add(new BitlyClicks(config));
+        rankingServices.add(new Compete(config));
+//        rankingServices.add(new DeliciousBookmarks()); // FIXME
+        rankingServices.add(new DiggStats());
+        rankingServices.add(new FacebookLinkStats());
+        rankingServices.add(new FriendfeedAggregatedStats());
+        rankingServices.add(new FriendfeedStats());
+        rankingServices.add(new GooglePageRank(config));
+        rankingServices.add(new MajesticSeo(config));
+        rankingServices.add(new PlurkPosts(config));
+        rankingServices.add(new RedditStats());
+        rankingServices.add(new SharethisStats(config));
+        rankingServices.add(new TweetmemeStats());
+        rankingServices.add(new WebOfTrust());
     }
 
     public CompositeRankingService(Collection<RankingService> rankingServices) {
@@ -85,7 +87,8 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
 //        String url = "http://www.apple.com";
 //        String url = "http://www.google.com";
         String url = "http://www.searchenginejournal.com/norad-santa-tracker-the-history-of-norad-google-santa-infographic/37726/";
-        CompositeRankingService compositeRankingService = new CompositeRankingService();
+        Configuration config = ConfigHolder.getInstance().getConfig();
+        CompositeRankingService compositeRankingService = new CompositeRankingService(config);
         Ranking ranking = compositeRankingService.getRanking(url);
         System.out.println(ranking);
     }

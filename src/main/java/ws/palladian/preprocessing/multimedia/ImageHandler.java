@@ -113,15 +113,15 @@ public class ImageHandler {
                         normalizedImages.add(new ExtractedImage(image));
                     }
                 } catch (IOException e) {
-                    LOGGER.error(image.getUrl(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    LOGGER.error(image.getUrl(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (IllegalArgumentException e) {
-                    LOGGER.error(image.getUrl(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (CMMException e) {
-                    LOGGER.error(image.getUrl(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (Exception e) {
-                    LOGGER.error(image.getUrl(), e);
+                    LOGGER.error(image.getUrl());
                 }
             }
             images.clear();
@@ -132,18 +132,23 @@ public class ImageHandler {
                 ExtractedImage image1 = normalizedImages.get(i);
 
                 for (int j = i + 1; j < normalizedImages.size(); j++) {
-                    ExtractedImage image2 = normalizedImages.get(j);
-                    if (duplicateImages.contains(image2.getUrl())) {
-                        continue;
-                    }
+                    try {
+                        ExtractedImage image2 = normalizedImages.get(j);
+                        if (duplicateImages.contains(image2.getUrl())) {
+                            continue;
+                        }
 
-                    if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
-                        continue;
-                    }
-                    if (isDuplicate(image1.getImageContent(), image2.getImageContent())) {
-                        image1.addDuplicate();
-                        image1.addRanking(image2.getRankCount());
-                        duplicateImages.add(image2.getUrl());
+                        if (!MathHelper
+                                .isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
+                            continue;
+                        }
+                        if (isDuplicate(image1.getImageContent(), image2.getImageContent())) {
+                            image1.addDuplicate();
+                            image1.addRanking(image2.getRankCount());
+                            duplicateImages.add(image2.getUrl());
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error(e.getMessage());
                     }
                 }
             }
@@ -151,7 +156,7 @@ public class ImageHandler {
 
             // order images by ranking and collect urls
             Collections.sort(normalizedImages, new ExtractedImageComparator());
-            CollectionHelper.print(normalizedImages);
+            // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
             String[] matchingImageURLs = new String[matchingImages];
@@ -572,6 +577,7 @@ public class ImageHandler {
 
             // save image
             LOGGER.info("write " + savePath + " with " + fileExtension);
+            FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
         } catch (MalformedURLException e) {
