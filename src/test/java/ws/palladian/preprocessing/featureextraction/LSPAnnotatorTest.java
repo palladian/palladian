@@ -9,13 +9,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import ws.palladian.helper.ResourceHelper;
 import ws.palladian.model.LabeledSequentialPattern;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
@@ -47,35 +48,32 @@ public class LSPAnnotatorTest {
 
     @Parameters
     public static Collection<Object[]> testData() throws IOException {
-        List<String> firstPattern = new ArrayList<String>();
-        firstPattern.addAll(Arrays.asList(new String[] {"This", "VBZ", "DT", "test"}));
         List<LabeledSequentialPattern> firstExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        firstExtractedPatterns.add(new LabeledSequentialPattern(firstPattern, "test"));
-
-        List<String> secondPattern = new ArrayList<String>();
+        List<LabeledSequentialPattern> thirdExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
         List<LabeledSequentialPattern> secondExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        secondExtractedPatterns.add(new LabeledSequentialPattern(secondPattern, "test"));
+
+        List<String> firstPattern = new ArrayList<String>();
+        List<String> secondPattern = new ArrayList<String>();
+        List<String> thirdPattern = new ArrayList<String>();
+        List<String> fourthPattern = new ArrayList<String>();
+        List<String> fifthPattern = new ArrayList<String>();
+
+        firstPattern.addAll(Arrays.asList(new String[] {"This", "VBZ", "DT", "test"}));
         secondPattern.addAll(Arrays.asList(new String[] {"RB", ",", "this", "VBZ", "the", "RBS", "JJ", "NN", "IN",
                 "DT", "NNP", "NN", "PRP", "''", "JJ", "RB", "VBN", "."}));
-
-        List<String> thirdPattern = new ArrayList<String>();
-        List<LabeledSequentialPattern> thirdExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        thirdExtractedPatterns.add(new LabeledSequentialPattern(thirdPattern, "test"));
-        firstPattern.addAll(Arrays.asList(new String[] {"PRP", "VBP", ":", "IN", "JJ", "NN", "VBZ", "DT", "NN", "NNP",
+        thirdPattern.addAll(Arrays.asList(new String[] {"PRP", "VBP", ":", "IN", "JJ", "NN", "VBZ", "DT", "NN", "NNP",
                 "NN", ":", "IN", "PRP", "RB", "VB", "JJR", "IN", "DT", "NN", "RB", "IN", "PRP", "VBZ", "VBG", "WRB",
                 "DT", "NNS", "VBP", "VBN", "."}));
-
-        List<String> fourthPattern = new ArrayList<String>();
-        List<LabeledSequentialPattern> fourthExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        fourthExtractedPatterns.add(new LabeledSequentialPattern(fourthPattern, "test"));
         fourthPattern.addAll(Arrays.asList(new String[] {"PRP", "MD", "VB", "TO", "NN", "DT", "NNP", "NN", "CC", "RB",
                 "VB", "PRP", "IN", "DT", "NN", "PRP", "VBP", "."}));
-
-        List<String> fifthPattern = new ArrayList<String>();
-        List<LabeledSequentialPattern> fifthExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        fifthExtractedPatterns.add(new LabeledSequentialPattern(fifthPattern, "test"));
         fifthPattern.addAll(Arrays.asList(new String[] {"JJ", "NN", "VBZ", "DT", "JJS", "IN", "PRP$", "NNS", "RB",
                 "RB", ":"}));
+
+        firstExtractedPatterns.add(new LabeledSequentialPattern(firstPattern, "test"));
+        secondExtractedPatterns.add(new LabeledSequentialPattern(secondPattern, "test"));
+        secondExtractedPatterns.add(new LabeledSequentialPattern(thirdPattern, "test"));
+        secondExtractedPatterns.add(new LabeledSequentialPattern(fourthPattern, "test"));
+        thirdExtractedPatterns.add(new LabeledSequentialPattern(fifthPattern, "test"));
 
         return Arrays
                 .asList(new Object[] {"This is a test", new String[] {"This", "test"}, firstExtractedPatterns},
@@ -86,27 +84,13 @@ public class LSPAnnotatorTest {
                                 thirdExtractedPatterns});
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
-    public final void test() {
+    public final void test() throws Exception {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
         processingPipeline.add(new PalladianSentenceDetector());
         processingPipeline.add(new Tokenizer());
-        processingPipeline.add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(
-                "/home/alaak/git/palladian/src/test/resources/model/en-pos-maxent.bin"));
+        processingPipeline.add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(ResourceHelper
+                .getResourcePath("/model/en-pos-maxent.bin")));
         processingPipeline.add(new LSPAnnotator(keywords));
 
         PipelineDocument document = new PipelineDocument(inputText);
@@ -117,8 +101,9 @@ public class LSPAnnotatorTest {
 
         for (Annotation annotation : ((AnnotationFeature)document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE)).getValue()) {
-            System.out.println(annotation.getFeatureVector().get(LSPAnnotator.PROVIDED_FEATURE).getValue());
+            LabeledSequentialPattern lsp = (LabeledSequentialPattern)annotation.getFeatureVector()
+                    .get(LSPAnnotator.PROVIDED_FEATURE).getValue();
+            Assert.assertThat(expectedPatterns, Matchers.hasItem(lsp));
         }
     }
-
 }

@@ -133,9 +133,10 @@ public final class LSPAnnotator implements PipelineProcessor {
     private List<Annotation> markKeywords(PipelineDocument document) {
         List<Annotation> markedKeywords = new LinkedList<Annotation>();
         String originalContent = document.getOriginalContent();
+        String originalContentLowerCased = originalContent.toLowerCase();
         for (String keyword : keywords) {
-            Pattern keywordPattern = Pattern.compile(keyword);
-            Matcher keywordMatcher = keywordPattern.matcher(originalContent);
+            Pattern keywordPattern = Pattern.compile(keyword.toLowerCase());
+            Matcher keywordMatcher = keywordPattern.matcher(originalContentLowerCased);
             if (keywordMatcher.find()) {
                 markedKeywords.add(new PositionAnnotation(document, keywordMatcher.start(), keywordMatcher.end()));
             }
