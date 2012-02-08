@@ -25,6 +25,44 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MAVSynchronizationUpdateStrategy.class);
 
+    /**
+     * Controls the usage of the optional RSS element time to live. In all cases: If a feed's ttl is set to -1, it is
+     * ignored anyway. FeedReader's interval bounds are used anyway, so in case ttl is smaller than FeedReaders lower
+     * bound, ttl is overwritten by FeedReaders lower bound.
+     * Cases of configuration:<br />
+     * If set to 0, ignore attribute. <br />
+     * If set to 1, use ttl as a lower bound for the checkInterval calculated from the feed and do not use a shorter
+     * interval than ttl. <br />
+     * If set to 2, use it as checkInterval, and do not calculate interval from feed. <br />
+     */
+    private static int rssTTLmode;
+
+    /**
+     * Create MAVSync strategy ignoring RSS ttl element.
+     */
+    public MAVSynchronizationUpdateStrategy() {
+        this(0);
+    }
+
+    /**
+     * Control the usage of the optional RSS element time to live. In all cases: If a feed's ttl is set to -1, it is
+     * ignored anyway. FeedReader's interval bounds are used anyway, so in case ttl is smaller than FeedReaders lower
+     * bound, ttl is overwritten by FeedReaders lower bound.
+     * Cases of configuration:<br />
+     * If set to 0, ignore attribute. <br />
+     * If set to 1, use ttl as a lower bound for the checkInterval calculated from the feed and do not use a shorter
+     * interval than ttl. <br />
+     * If set to 2, use it as checkInterval, and do not calculate interval from feed. <br />
+     * 
+     * @param rssTTLmode see text.
+     */
+    public MAVSynchronizationUpdateStrategy(int rssTTLmode) {
+        super();
+        if (rssTTLmode < 0 || rssTTLmode > 2) {
+            throw new IllegalArgumentException("Wrong usage of rssTTLmode! Value " + rssTTLmode + " not supported.");
+        }
+        this.rssTTLmode = rssTTLmode;
+    }
 
     /**
      * <p>
@@ -41,15 +79,14 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         if (trainingMode) {
             LOGGER.warn("Update strategy " + getName() + " does not support an explicit training mode.");
         }
-        
-        // set default value to be used if we cant compute an interval from feed (e.g. feed has no items)
+
+        // set default value to be used if we can't compute an interval from feed (e.g. feed has no items)
         int checkIntervalMinutes = FeedReader.DEFAULT_CHECK_TIME;
 
         List<FeedItem> entries = feed.getItems();
 
-        
         // ------- first, get interval from last window and check whether synchronization is possible -------
-       
+
         // get interval from last window
         Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
         Date intervalStopTime = feed.getLastFeedEntry();
@@ -71,8 +108,10 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
 
         // If checkInterval is within bounds, we can use it, otherwise we use alternative calculation
         if (checkIntervalMinutes == getAllowedUpdateInterval(checkIntervalMinutes)) {
-            feed.setUpdateInterval(checkIntervalMinutes);
-            LOGGER.debug("Feedid " + feed.getId() + " doing synchronization step in poll " + feed.getChecks() + 1);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks()
+                        + 1);
+            }
         }
         // ------- second, use last window and last poll time to get interval and next poll time -------
         else {
@@ -82,13 +121,47 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
             if (entries.size() >= 1 && intervalLengthMillisecond > 0) {
                 checkIntervalMinutes = (int) (intervalLengthMillisecond / (entries.size() * DateHelper.MINUTE_MS));
             }
-            feed.setUpdateInterval(getAllowedUpdateInterval(checkIntervalMinutes));
+
         }
+
+        // check for RSS ttl usage
+        if (rssTTLmode != 0 && feed.getMetaInformation() != null) {
+
+            // get value from feed.
+            Integer rssTTL = feed.getMetaInformation().getRssTtl();
+
+            // check if feed contains a valid RSS ttl value
+            if (rssTTL != null && rssTTL >= 0) {
+
+                // use ttl value as lower bound
+                if (rssTTLmode == 1 && checkIntervalMinutes < rssTTL) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
+                                + " to rssTTL " + rssTTL);
+                    }
+                    checkIntervalMinutes = rssTTL;
+                }
+                // set ttl value as interval
+                else if (rssTTLmode == 2) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
+                                + " to rssTTL " + rssTTL);
+                    }
+                    checkIntervalMinutes = rssTTL;
+                }
+            }
+        }
+
+        feed.setUpdateInterval(getAllowedUpdateInterval(checkIntervalMinutes));
+
     }
 
+    /**
+     * Strategy name + value of RSS ttl mode.
+     */
     @Override
     public String getName() {
-        return "MAVSync";
+        return "MAVSync_" + rssTTLmode;
 
     }
 

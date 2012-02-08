@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -40,18 +42,14 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
     private static final String SERVICE_ID = "friendfeed";
 
     /** The ranking value types of this service **/
-    static RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts",
+    public static final RankingType POSTS = new RankingType("friendfeed_int_posts", "FriendFeed posts",
             "The number of entries posted on FriendFeed containing the given url.");
-    static RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes",
+    public static final RankingType LIKES = new RankingType("friendfeed_int_likes", "FriendFeed likes",
             "The number of likes for entries posted on FriendFeed containing the given url.");
-    static RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments",
+    public static final RankingType COMMENTS = new RankingType("friendfeed_int_comments", "FriendFeed comments",
             "The number of comments for entries posted on FriendFeed containing the given url.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(POSTS);
-        RANKING_TYPES.add(LIKES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link FriendfeedStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS, LIKES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -73,33 +71,29 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
 
         try {
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(GET_ENTRIES + encUrl);
-            if (json != null) {
-                JSONArray entries = json.getJSONArray("entries");
-                float posts = 0;
-                float likes = 0;
-                float comments = 0;
-                for (int i = 0; i < entries.length(); i++) {
-                    JSONObject post = entries.getJSONObject(i);
-                    if (post.getJSONObject("service").getString("id").equals("internal")) {
-                        posts++;
-                        likes += post.getJSONArray("likes").length();
-                        comments += post.getJSONArray("comments").length();
-                    }
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONArray entries = json.getJSONArray("entries");
+            float posts = 0;
+            float likes = 0;
+            float comments = 0;
+            for (int i = 0; i < entries.length(); i++) {
+                JSONObject post = entries.getJSONObject(i);
+                if (post.getJSONObject("service").getString("id").equals("internal")) {
+                    posts++;
+                    likes += post.getJSONArray("likes").length();
+                    comments += post.getJSONArray("comments").length();
                 }
-                results.put(POSTS, posts);
-                results.put(LIKES, likes);
-                results.put(COMMENTS, comments);
-                LOGGER.trace("FriendFeed stats for " + url + " : " + results);
-            } else {
-                results.put(POSTS, null);
-                results.put(LIKES, null);
-                results.put(COMMENTS, null);
-                LOGGER.trace("FriendFeed stats for " + url + "could not be fetched");
-                checkBlocked();
             }
+            results.put(POSTS, posts);
+            results.put(LIKES, likes);
+            results.put(COMMENTS, comments);
+            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;
@@ -109,7 +103,8 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            JSONObject json = retriever.getJSONDocument(GET_ENTRIES + "http://www.google.com/");
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.urlEncode("http://www.google.com/"));
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (json != null) {
                 if (json.has("errorCode")) {
                     if (json.get("errorCode").equals("limit-exceeded")) {
@@ -119,6 +114,8 @@ public class FriendfeedStats extends BaseRankingService implements RankingServic
             }
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
         }
         if (!error) {
             blocked = false;

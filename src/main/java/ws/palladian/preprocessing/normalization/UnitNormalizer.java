@@ -106,15 +106,23 @@ public class UnitNormalizer {
     private static boolean isLengthUnit(String unit) {
         HashSet<String> lengthUnits = new HashSet<String>();
         lengthUnits.add("km");
+        lengthUnits.add("kms");
         lengthUnits.add("kilometer");
         lengthUnits.add("kilometers");
+        lengthUnits.add("kilometre");
+        lengthUnits.add("kilometres");
         lengthUnits.add("mile");
         lengthUnits.add("miles");
+        lengthUnits.add("mi");
         lengthUnits.add("meter");
         lengthUnits.add("meters");
+        lengthUnits.add("metre");
+        lengthUnits.add("metres");
         lengthUnits.add("m");
         lengthUnits.add("decimeter");
         lengthUnits.add("decimeters");
+        lengthUnits.add("decimetre");
+        lengthUnits.add("decimetres");
         lengthUnits.add("dm");
         lengthUnits.add("foot");
         lengthUnits.add("feet");
@@ -125,9 +133,13 @@ public class UnitNormalizer {
         lengthUnits.add("\"");
         lengthUnits.add("centimeter");
         lengthUnits.add("centimeters");
+        lengthUnits.add("centimetre");
+        lengthUnits.add("centimetres");
         lengthUnits.add("cm");
         lengthUnits.add("millimeter");
         lengthUnits.add("millimeters");
+        lengthUnits.add("millimetre");
+        lengthUnits.add("millimetres");
         lengthUnits.add("mm");
 
         return lengthUnits.contains(unit);
@@ -273,21 +285,26 @@ public class UnitNormalizer {
             multiplier = 1.0;
 
             // length, all to centimeter
-        } else if (unit.equals("km") || unit.equals("kilometer") || unit.equals("kilometers") || unit.equals("kilometres")) {
+        } else if (unit.equals("km") || unit.equals("kms") || unit.equals("kilometer") || unit.equals("kilometre")
+                || unit.equals("kilometers") || unit.equals("kilometres")) {
             multiplier = 100000.0;
-        } else if (unit.equals("mile") || unit.equals("miles")) {
+        } else if (unit.equals("mile") || unit.equals("miles") || unit.equals("mi")) {
             multiplier = 160934.4;
-        } else if (unit.equals("meter") || unit.equals("meters") || unit.equals("m")) {
+        } else if (unit.equals("meter") || unit.equals("meters") || unit.equals("metre") || unit.equals("metres")
+                || unit.equals("m")) {
             multiplier = 100.0;
-        } else if (unit.equals("decimeter") || unit.equals("decimeters") || unit.equals("dm")) {
+        } else if (unit.equals("decimeter") || unit.equals("decimeters") || unit.equals("decimetre")
+                || unit.equals("decimetres") || unit.equals("dm")) {
             multiplier = 10.0;
         } else if (unit.equals("foot") || unit.equals("feet") || unit.equals("ft")) {
             multiplier = 30.48;
         } else if (unit.equals("in") || unit.equals("inch") || unit.equals("inches") || unit.equals("\"")) {
             multiplier = 2.54;
-        } else if (unit.equals("centimeter") || unit.equals("centimeters") || unit.equals("cm")) {
+        } else if (unit.equals("centimeter") || unit.equals("centimeters") || unit.equals("centimetre")
+                || unit.equals("centimetres") || unit.equals("cm")) {
             multiplier = 1.0;
-        } else if (unit.equals("millimeter") || unit.equals("millimeters") || unit.equals("mm")) {
+        } else if (unit.equals("millimeter") || unit.equals("millimeters") || unit.equals("millimetre")
+                || unit.equals("millimetres") || unit.equals("mm")) {
             multiplier = 0.1;
 
             // areas, all to square meter
@@ -297,8 +314,11 @@ public class UnitNormalizer {
             multiplier = 2589988110.0;
         } else if (unit.equals("million sqare miles")) {
             multiplier = 2589988110000.0;
-        } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²") || unit.equals("sq km") || unit.equals("square kilometer")
-                || unit.equals("square kilometers") || unit.equals("square km")) {
+        } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²")
+                || unit.equals("km 2") || unit.equals("km2") || unit.equals("sq km") || unit.equals("sq.km")
+                || unit.equals("square kilometer") || unit.equals("square kilometers") || unit.equals("square km")
+                || unit.equals("sq.kilometre") || unit.equals("sq kilometre") || unit.equals("square kilometre")
+                || unit.equals("square kilometres")) {
             multiplier = 1000000.0;
         } else if (unit.equals("million square kilometers")) {
             multiplier = 1000000000000.0;
@@ -342,8 +362,18 @@ public class UnitNormalizer {
     }
 
     /**
-     * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber). 1m20s => 80s 1h2m20s => 3740s (1m:20s => 80s)
-     * 00:01:20 => 80s 1:20 => 80s 5'9" => 175.26cm 5'9'' => 175.26cm
+     * <p>
+     * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber).
+     * </p>
+     * 
+     * <pre>
+     * 1m20s => 80s
+     * 1h2m20s => 3740s (1m:20s => 80s)
+     * 00:01:20 => 80s
+     * 1:20 => 80s
+     * 5'9" => 175.26cm
+     * 5'9'' => 175.26cm
+     * </pre>
      * 
      * @param number The number.
      * @param unitText The text after the unit.
@@ -400,7 +430,7 @@ public class UnitNormalizer {
                 return MathHelper.round(combinedValue, decimals);
             }
 
-            // 5'9" type
+            // 5'9" / 5' 9" type
             pattern = Pattern.compile("\\A'(\\s)?(\\d)+\"");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
@@ -409,7 +439,7 @@ public class UnitNormalizer {
                 return MathHelper.round(combinedValue, decimals);
             }
 
-            // 5'9'' type
+            // 5'9'' / 5'9'' type
             pattern = Pattern.compile("\\A'(\\s)?(\\d)+''");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
@@ -504,7 +534,7 @@ public class UnitNormalizer {
         }
 
         // test first whether number is part of a special format
-        double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":"), decimals);
+        double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":'\""), decimals);
         if (specialFormatOutcome != -1.0) {
             return MathHelper.round(specialFormatOutcome, decimals);
         }
@@ -594,8 +624,10 @@ public class UnitNormalizer {
      */
     public static void main(String[] args) {
 
+        System.out.println(getNormalizedNumber(6, "ft 1.5 in 187 cm"));
+
         System.out.println(getUnitType("2.26 GHz"));
-        System.out.println(getNormalizedNumber("a 2.26 GHz"));
+        // System.out.println(getNormalizedNumber("a 2.26 GHz"));
         System.out.println(getUnitType("21.4 million"));
         System.out.println(getNormalizedNumber("21.4 million"));
         System.out.println(getUnitType("2 hr. 32 min"));
@@ -654,6 +686,7 @@ public class UnitNormalizer {
 
         // test unit normalization
         System.out.println(getNormalizedNumber(5, "mpixel"));
+        System.out.println(getNormalizedNumber(2, "megapixels"));
         System.out.println(getNormalizedNumber(30, "miles per hour is really fast"));
         System.out.println(getNormalizedNumber(20, "m kilometers"));
         System.out.println(getNormalizedNumber(53.4, "million, compared to"));

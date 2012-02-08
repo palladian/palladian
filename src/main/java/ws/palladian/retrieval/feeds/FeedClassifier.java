@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.SizeUnit;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
@@ -77,7 +77,7 @@ public class FeedClassifier {
 
         while (!threadPool.isTerminated()) {
             LOGGER.info(sw.getElapsedTimeString() + ", traffic: "
-                    + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
+                    + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
 
             try {
                 Thread.sleep(1 * DateHelper.MINUTE_MS);
@@ -89,7 +89,7 @@ public class FeedClassifier {
         }
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
+                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
@@ -182,7 +182,7 @@ public class FeedClassifier {
 
         FeedParser feedParser = new RomeFeedParser();
         Feed feed = new Feed();
-        DocumentRetriever retriever = new DocumentRetriever();
+        HttpRetriever retriever = new HttpRetriever();
 
         try {
             feed = feedParser.getFeed(feedURL);

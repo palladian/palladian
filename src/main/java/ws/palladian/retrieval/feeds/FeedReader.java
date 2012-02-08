@@ -2,7 +2,10 @@ package ws.palladian.retrieval.feeds;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,8 +25,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -41,7 +44,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * 
+ * @author Philipp Katz
  */
 public final class FeedReader {
 
@@ -270,7 +273,7 @@ public final class FeedReader {
 
             // if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
+                LOGGER.debug("current total traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
                         + " MB");
 
                 try {
@@ -288,7 +291,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
+                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
     }
 
     /** Start continuous reading without a time limit. */
@@ -441,6 +444,64 @@ public final class FeedReader {
      */
     public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
         return getFeedStore().updateFeed(feed, updateMetaInformation, replaceCachedItems);
+    }
+    
+    /**
+     * Re-read the feeds from the {@link FeedStore}. Feeds which are not yet considered by the {@link FeedReader} are
+     * added, feeds which are no longer present in the {@link FeedStore} are removed. We need this synchronization logic
+     * full of black magic, as the Feed instances cache all kind information which is not persisted to the store. So we
+     * must not touch feeds which are currently cached by the {@link FeedReader}. Quick and dirty, and yet untested.
+     * 
+     * @return The delta of the added/removed feeds.
+     */
+    public int synchronizeWithStore() {
+
+        // URLs of the feeds which are currently being read
+        Set<String> currentFeedUrls = new HashSet<String>();
+        for (Feed feed : feedCollection) {
+            currentFeedUrls.add(feed.getFeedUrl());
+        }
+
+        // shallow copy of the current feed collection which will be modified;
+        // we must not modify the existing collection, as this is used by the Threads
+        List<Feed> newFeedCollection = new ArrayList<Feed>(this.feedCollection);
+
+        // obtain a current list of feeds from the FeedStore
+        List<Feed> storeFeedCollection = feedStore.getFeeds();
+        
+        // URLs of the feeds which are added
+        Set<String> storeFeedUrls = new HashSet<String>();
+        for (Feed feed : storeFeedCollection) {
+            storeFeedUrls.add(feed.getFeedUrl());
+        }
+
+        // check, which feeds are currently not considered by the FeedReader and add them to the new collection
+        int addedFeeds = 0;
+        for (Feed feed : storeFeedCollection) {
+            if (!currentFeedUrls.contains(feed.getFeedUrl())) {
+                newFeedCollection.add(feed);
+                addedFeeds++;
+            }
+        }
+
+        // check, which feeds are no longer present in the FeedStore and remove them from the new collection
+        int removedFeeds = 0;
+        Iterator<Feed> iterator = newFeedCollection.iterator();
+        while (iterator.hasNext()) {
+            Feed feed = iterator.next();
+            if (!storeFeedUrls.contains(feed.getFeedUrl())) {
+                iterator.remove();
+                removedFeeds++;
+            }
+        }
+
+        // replace the existing collection
+        this.feedCollection = newFeedCollection;
+
+        LOGGER.info("added " + addedFeeds + " feeds to the FeedReader");
+        LOGGER.info("removed " + removedFeeds + " feeds from the FeedReader");
+        return addedFeeds - removedFeeds;
+
     }
 
     /**

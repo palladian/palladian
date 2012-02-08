@@ -21,7 +21,7 @@ public class CollectionFeedSource implements FeedStore {
     /**
      * The collection of feeds this source provides.
      */
-    private final Collection<Feed> feeds;
+    private Collection<Feed> feeds;
 
     /**
      * Creates a new feed source for collections, initialized with an existing collection of feeds.
@@ -112,6 +112,21 @@ public class CollectionFeedSource implements FeedStore {
     public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public boolean deleteFeedByUrl(String feedUrl) {
+        boolean removed = false;
+        Collection<Feed> temp = new ArrayList<Feed>(feeds.size());
+        for (Feed feed : feeds) {
+            if (feed.getFeedUrl().equals(feedUrl)) {
+                removed = true;
+                continue;
+            }
+            temp.add(feed);
+        }
+        feeds = temp;
+        return removed;
     }
 
 }

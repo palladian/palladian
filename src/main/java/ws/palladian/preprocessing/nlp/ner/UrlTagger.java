@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
  * <p>
  * Tag URLs in a text.
  * </p>
+ * TODO also recognize "cinefreaks.com" (without www and http)
  * 
  * @author David Urbansky
  */
@@ -16,7 +17,7 @@ public class UrlTagger {
 	public static final String URI_TAG_NAME = "URI";
 	
 	/** The URL regular expression. */
-    private static final String URL_REGEXP = "(http://|www\\.).*?(?=[.,;?!]?\\s|[.,;?!]?$)";
+    private static final String URL_REGEXP = "((http://|www.).*?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-]*(\\.[A-Za-z]{2,5})?)";
 
 	private final Pattern urlPattern;
 
@@ -32,7 +33,7 @@ public class UrlTagger {
 
 		while (matcher.find()) {
 			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME,annotations);
-			annotations.add(annotation);			
+			annotations.add(annotation);
 		}
 
 		return annotations;

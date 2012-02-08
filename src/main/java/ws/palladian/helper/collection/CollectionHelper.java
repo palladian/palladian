@@ -110,6 +110,65 @@ public final class CollectionHelper {
     }
 
     /**
+     * <p>
+     * Sort a {@link HashMap} by length of the key string.
+     * </p>
+     * 
+     * @param <K> Type of the keys.
+     * @param <V> Type of the values.
+     * @param map The entry set.
+     * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
+     * @return A sorted map.
+     */
+    public static <V extends Comparable<V>> LinkedHashMap<String, V> sortByStringKeyLength(Map<String, V> map,
+            boolean ascending) {
+
+        LinkedList<Map.Entry<String, V>> list = new LinkedList<Map.Entry<String, V>>();
+        for (Entry<String, V> entry : map.entrySet()) {
+            list.add(entry);
+        }
+
+        Comparator<Map.Entry<String, V>> comparator;
+
+        if (ascending) {
+            comparator = new Comparator<Map.Entry<String, V>>() {
+                @Override
+                public int compare(Map.Entry<String, V> o1, Map.Entry<String, V> o2) {
+                    if (o1.getKey().length() > o2.getKey().length()) {
+                        return 1;
+                    } else if (o1.getKey().length() < o2.getKey().length()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
+        } else {
+            comparator = new Comparator<Map.Entry<String, V>>() {
+                @Override
+                public int compare(Map.Entry<String, V> o1, Map.Entry<String, V> o2) {
+                    if (o1.getKey().length() > o2.getKey().length()) {
+                        return -1;
+                    } else if (o1.getKey().length() < o2.getKey().length()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
+        }
+
+        Collections.sort(list, comparator);
+
+        LinkedHashMap<String, V> result = new LinkedHashMap<String, V>();
+        for (Entry<String, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+
+    /**
      * Get a key given a value (1 to 1 {@link HashMap}s)
      * 
      * @param value The value.
@@ -369,7 +428,7 @@ public final class CollectionHelper {
     }
 
     /**
-     * Returns a ArrayList of keys of map. 
+     * Returns a ArrayList of keys of map.
      * @param <K>
      * @param <V>
      * @param map
