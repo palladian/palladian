@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,12 +47,8 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
     public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
             "The number of comments users have made on the shared story.");
     
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(LIKES);
-        RANKING_TYPES.add(SHARES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link FacebookLinkStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -78,7 +74,6 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
             JSONObject json = null;
             try {
                 HttpResult httpResult = retriever.httpGet(FQL_QUERY + "url='" + encUrl + "'");
-                System.err.println(new String(httpResult.getContent()));
                 JSONArray jsonArray = new JSONArray(new String(httpResult.getContent()));
                 if (jsonArray.length() == 1) {
                     json = jsonArray.getJSONObject(0);

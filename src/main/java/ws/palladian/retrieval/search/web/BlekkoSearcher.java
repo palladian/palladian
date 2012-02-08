@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,9 +25,13 @@ import ws.palladian.retrieval.HttpResult;
  */
 public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BlekkoSearcher.class);
 
+    /** Key of the {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.blekko.key";
+    
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The time in milliseconds we wait between two requests. */
@@ -58,8 +62,8 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
      * @param configuration The configuration which must provide an API key for accessing blekko, which must be provided
      *            as string via key <tt>api.blekko.key</tt> in the configuration.
      */
-    public BlekkoSearcher(PropertiesConfiguration configuration) {
-        this(configuration.getString("api.blekko.key"));
+    public BlekkoSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
@@ -80,6 +84,11 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
                 String jsonString = new String(httpResult.getContent());
                 JSONObject jsonObject = new JSONObject(jsonString);
+                
+                if (!jsonObject.has("RESULT")) {
+                    continue;
+                }
+                
                 JSONArray jsonResults = jsonObject.getJSONArray("RESULT");
 
                 for (int j = 0; j < jsonResults.length(); j++) {

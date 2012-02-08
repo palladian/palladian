@@ -461,8 +461,10 @@ public class StringHelper {
     }
 
     /**
-     * Remove brackets and everything in between the brackets. "()[]{}" will be removed.
-     * For example "This is a text (just a sample)." becomes "This is a text ."
+     * <p>
+     * Remove brackets and everything in between the brackets. "()[]{}" will be removed. For example
+     * "This is a text (just a sample)." becomes "This is a text ."
+     * </p>
      * 
      * @param bracketString the bracket string
      * @return the string
@@ -738,7 +740,7 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ" }; // whitespace
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•"}; // whitespace
         // is also
         // unwanted
         // but trim()
@@ -876,7 +878,7 @@ public class StringHelper {
 
 //    /**
 //     * Remove tabs, line breaks and double spaces.
-//     * 
+//     *
 //     * @param text The text to be cleaned.
 //     * @return The cleaned text.
 //     */
@@ -959,13 +961,15 @@ public class StringHelper {
     }
 
     /**
+     * <p>
      * Count number of words, words are separated by a blank " ".
+     * </p>
      * 
      * @param string The string.
      * @return The number of words in the string.
      */
     public static int countWords(String string) {
-        String[] words = string.split(" ");
+        String[] words = string.replaceAll("\\s{2,}", "\\s").split(" ");
         return words.length;
     }
 
@@ -1369,7 +1373,7 @@ public class StringHelper {
 //    /**
 //     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
 //     * similarity which is computationally expensive.
-//     * 
+//     *
 //     * @param s1
 //     * @param s2
 //     * @return similarity between 0 and 1 (inclusive).

@@ -1,18 +1,17 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -40,9 +39,15 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BibsonomyBookmarks.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.bibsonomy.key";
+    
+    /** {@link Configuration} key for the login. */
+    public static final String CONFIG_LOGIN = "api.bibsonomy.login";
+    
     /** The config values. */
-    private String login;
-    private String apiKey;
+    private final String login;
+    private final String apiKey;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "bibsonomy";
@@ -51,29 +56,44 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
     public static final RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks",
             "The number of bookmarks users have created for this url.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(BOOKMARKS);
-    }
+    /** All available ranking tpyes by {@link BibsonomyBookmarks}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public BibsonomyBookmarks() {
+    /**
+     * <p>
+     * Create a new {@link BibsonomyBookmarks} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide a login (<tt>api.bibsonomy.login</tt>)and an API key (
+     *            <tt>api.bibsonomy.key</tt>) for accessing the service.
+     */
+    public BibsonomyBookmarks(Configuration configuration) {
+        this(configuration.getString(CONFIG_LOGIN), configuration.getString(CONFIG_API_KEY));
+    }
 
+    /**
+     * <p>
+     * Create a new {@link BibsonomyBookmarks} ranking service.
+     * </p>
+     * 
+     * @param login The required login for accessing the service.
+     * @param apiKey The required API key for accessing the service.
+     */
+    public BibsonomyBookmarks(String login, String apiKey) {
         super();
-
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setLogin(configuration.getString("api.bibsonomy.login"));
-            setApiKey(configuration.getString("api.bibsonomy.key"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+        if (login == null || login.isEmpty()) {
+            throw new IllegalStateException("The required login is missing.");
         }
-
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
+        }
+        this.login = login;
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -178,16 +198,8 @@ public class BibsonomyBookmarks extends BaseRankingService implements RankingSer
         return RANKING_TYPES;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
     public String getLogin() {
         return login;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public String getApiKey() {

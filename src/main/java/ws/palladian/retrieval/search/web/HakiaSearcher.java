@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * <p>
@@ -19,9 +19,9 @@ public final class HakiaSearcher extends BaseHakiaSearcher {
     }
 
     /**
-     * @see BaseHakiaSearcher#BaseHakiaSearcher(PropertiesConfiguration)
+     * @see BaseHakiaSearcher#BaseHakiaSearcher(Configuration)
      */
-    public HakiaSearcher(PropertiesConfiguration configuration) {
+    public HakiaSearcher(Configuration configuration) {
         super(configuration);
     }
 

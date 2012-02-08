@@ -113,6 +113,7 @@ public class UnitNormalizer {
         lengthUnits.add("kilometres");
         lengthUnits.add("mile");
         lengthUnits.add("miles");
+        lengthUnits.add("mi");
         lengthUnits.add("meter");
         lengthUnits.add("meters");
         lengthUnits.add("metre");
@@ -287,7 +288,7 @@ public class UnitNormalizer {
         } else if (unit.equals("km") || unit.equals("kms") || unit.equals("kilometer") || unit.equals("kilometre")
                 || unit.equals("kilometers") || unit.equals("kilometres")) {
             multiplier = 100000.0;
-        } else if (unit.equals("mile") || unit.equals("miles")) {
+        } else if (unit.equals("mile") || unit.equals("miles") || unit.equals("mi")) {
             multiplier = 160934.4;
         } else if (unit.equals("meter") || unit.equals("meters") || unit.equals("metre") || unit.equals("metres")
                 || unit.equals("m")) {
@@ -314,7 +315,7 @@ public class UnitNormalizer {
         } else if (unit.equals("million sqare miles")) {
             multiplier = 2589988110000.0;
         } else if (unit.equals("sq.kilometer") || unit.equals("sq kilometer") || unit.equals("km²")
-                || unit.equals("km 2") || unit.equals("sq km") || unit.equals("sq.km")
+                || unit.equals("km 2") || unit.equals("km2") || unit.equals("sq km") || unit.equals("sq.km")
                 || unit.equals("square kilometer") || unit.equals("square kilometers") || unit.equals("square km")
                 || unit.equals("sq.kilometre") || unit.equals("sq kilometre") || unit.equals("square kilometre")
                 || unit.equals("square kilometres")) {
@@ -622,6 +623,8 @@ public class UnitNormalizer {
      * @param args
      */
     public static void main(String[] args) {
+
+        System.out.println(getNormalizedNumber(6, "ft 1.5 in 187 cm"));
 
         System.out.println(getUnitType("2.26 GHz"));
         // System.out.println(getNormalizedNumber("a 2.26 GHz"));

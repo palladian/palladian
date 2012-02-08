@@ -2,6 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,11 +54,8 @@ public class DiggStats extends BaseRankingService implements RankingService {
     public static final RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments",
             "The number of comments users have left for this digged url on digg.com.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(DIGGS);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link DiggStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(DIGGS, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -206,13 +204,6 @@ public class DiggStats extends BaseRankingService implements RankingService {
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public static void main(String[] args) {
-        DiggStats diggStats = new DiggStats();
-        Ranking ranking = diggStats.getRanking("http://www.apple.com");
-        System.out.println(ranking);
-
     }
 
 }

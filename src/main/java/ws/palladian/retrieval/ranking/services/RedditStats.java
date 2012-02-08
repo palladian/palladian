@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,11 +46,8 @@ public class RedditStats extends BaseRankingService implements RankingService {
             "The number of up-votes minus down-votes for this url on reddit.com.");
     public static final RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments",
             "The number of comments users have left for this url on reddit.com.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(VOTES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link RedditStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;

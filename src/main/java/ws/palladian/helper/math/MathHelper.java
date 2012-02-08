@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +110,7 @@ public class MathHelper {
         
         double chosenZ = zValues.get(confidenceLevel);
         
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / (samples - 1.0));        
+        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / (samples - 1.0));
         
         return confidenceInterval;
     }
@@ -569,10 +568,10 @@ public class MathHelper {
     public static double[][] calculateAP(List<Boolean> rankedList) {
 
     	// number of relevant entries at k
-        int numRelevant = 0; 
+        int numRelevant = 0;
         
         // sum of all relevant precisions at k
-        double relPrSum = 0; 
+        double relPrSum = 0;
         double[][] result = new double[rankedList.size()][2];
 
         for (int k = 0; k < rankedList.size(); k++) {
@@ -596,5 +595,9 @@ public class MathHelper {
         }
         
         return result;
+    }
+
+    public static double log2(double num) {
+        return (Math.log(num) / Math.log(2));
     }
 }

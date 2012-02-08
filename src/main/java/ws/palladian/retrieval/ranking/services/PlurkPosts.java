@@ -1,18 +1,17 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -38,8 +37,11 @@ public class PlurkPosts extends BaseRankingService implements RankingService {
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(PlurkPosts.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.plurk.key";
+
     /** The config values. */
-    private String apiKey;
+    private final String apiKey;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "plurk";
@@ -47,26 +49,39 @@ public class PlurkPosts extends BaseRankingService implements RankingService {
     /** The ranking value types of this service **/
     public static final RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts",
             "The number of posts on plurk.com mentioning this url.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(POSTS);
-    }
+    /** All available ranking types by {@link PlurkPosts}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public PlurkPosts() {
+    /**
+     * <p>
+     * Create a new {@link PlurkPosts} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key (<tt>api.plurk.key</tt>) for accessing the
+     *            service.
+     */
+    public PlurkPosts(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link PlurkPosts} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing the service.
+     */
+    public PlurkPosts(String apiKey) {
         super();
-
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.plurk.key"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
         }
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -144,10 +159,6 @@ public class PlurkPosts extends BaseRankingService implements RankingService {
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public String getApiKey() {

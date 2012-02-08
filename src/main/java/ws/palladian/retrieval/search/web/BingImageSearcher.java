@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,9 +21,9 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
     }
 
     /**
-     * @see BaseBingSearcher#BaseBingSearcher(PropertiesConfiguration)
+     * @see BaseBingSearcher#BaseBingSearcher(Configuration)
      */
-    public BingImageSearcher(PropertiesConfiguration configuration) {
+    public BingImageSearcher(Configuration configuration) {
         super(configuration);
     }
 

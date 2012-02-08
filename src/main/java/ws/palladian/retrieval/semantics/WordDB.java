@@ -115,7 +115,7 @@ public class WordDB {
                             + MAX_WORD_LENGTH
                             + ") NOT NULL, `plural` varchar("
                             + MAX_WORD_LENGTH
-                            + ") NOT NULL,`type` varchar(25) NOT NULL,`language` varchar(20) NOT NULL);CREATE INDEX IF NOT EXISTS iw ON words(word);");
+                            + ") NOT NULL,`type` varchar(25) NOT NULL,`language` varchar(20) NOT NULL);CREATE INDEX IF NOT EXISTS iw ON words(word);CREATE INDEX IF NOT EXISTS ip ON words(plural);");
             runUpdate(psCreateTable1);
 
             psCreateTable2 = connection

@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,13 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -45,9 +44,15 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BitlyClicks.class);
 
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.bitly.key";
+
+    /** {@link Configuration} key for the login. */
+    public static final String CONFIG_LOGIN = "api.bitly.login";
+
     /** The config values. */
-    private String apiKey;
-    private String login;
+    private final String apiKey;
+    private final String login;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "bitly";
@@ -56,28 +61,44 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
     public static final RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks",
             "The number of times users have clicked the shortened version of this url.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(CLICKS);
-    }
+    /** All available ranking types by {@link BitlyClicks}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(CLICKS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 60;
 
-    public BitlyClicks() {
+    /**
+     * <p>
+     * Create a new {@link BitlyClicks} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide a login (<tt>api.bitly.login</tt>) and an API key (
+     *            <tt>api.bitly.key</tt>) for accessing this service.
+     */
+    public BitlyClicks(Configuration configuration) {
+        this(configuration.getString(CONFIG_LOGIN), configuration.getString(CONFIG_API_KEY));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link BitlyClicks} ranking service.
+     * </p>
+     * 
+     * @param login The required login for accessing the service.
+     * @param apiKey The required API key for accessing the service.
+     */
+    public BitlyClicks(String login, String apiKey) {
         super();
-
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.bitly.key"));
-            setLogin(configuration.getString("api.bitly.login"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+        if (login == null || login.isEmpty()) {
+            throw new IllegalStateException("The required login is missing.");
         }
-
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing.");
+        }
+        this.login = login;
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -106,8 +127,8 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
 
                 // Step 2: get the # of clicks using the hash
                 if (hash != null) {
-                    HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey="
-                            + getApiKey() + "&hash=" + hash);
+                    HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin()
+                            + "&apiKey=" + getApiKey() + "&hash=" + hash);
                     json = new JSONObject(new String(httpResult2.getContent()));
                     if (checkJsonResponse(json)) {
                         float result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0)
@@ -311,26 +332,12 @@ public class BitlyClicks extends BaseRankingService implements RankingService {
         return RANKING_TYPES;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public String getApiKey() {
         return apiKey;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
     public String getLogin() {
         return login;
-    }
-    
-    public static void main(String[] args) {
-        BitlyClicks bitlyClicks = new BitlyClicks();
-        Ranking ranking = bitlyClicks.getRanking("http://apple.com");
-        System.out.println(ranking);
     }
 
 }
