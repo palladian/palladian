@@ -40,4 +40,16 @@ public class UniversalInstance extends Instance {
         this.textFeature = textFeature;
     }
 
+    /**
+     * <p>
+     * Free memory
+     * </p>
+     */
+    public void empty() {
+        setInstanceCategory("");
+        setNumericFeatures(null);
+        setNominalFeatures(null);
+        setTextFeature(null);
+    }
+
 }

@@ -107,7 +107,7 @@ public class GoogleLangDetect extends LanguageClassifier {
     @Override
     public String classify(String text) {
 
-        JSONObject json = crawler.getJSONDocument("https://www.googleapis.com/language/translate/v2?key=" + API_KEY
+        JSONObject json = crawler.getJsonObject("https://www.googleapis.com/language/translate/v2?key=" + API_KEY
                 + "&target=de&q=" + text);
 
         try {

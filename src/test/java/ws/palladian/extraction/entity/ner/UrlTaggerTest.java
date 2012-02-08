@@ -14,8 +14,23 @@ public class UrlTaggerTest {
 	@Test
 	public void testUrlTagging() {
 		UrlTagger urlTagger = new UrlTagger();
+        Annotations annotations = null;
 		
-		Annotations annotations = urlTagger.tagUrls("You can download it here: http://www.cinefreaks.com/coolstuff.zip but be aware of the size.");
+        annotations = urlTagger
+                .tagUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.");
+        System.out.println(annotations);
+        assertEquals(1, annotations.size());
+        assertEquals(26, annotations.get(0).getOffset());
+        assertEquals(28, annotations.get(0).getLength());
+        
+        annotations = urlTagger
+                .tagUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.");
+        System.out.println(annotations);
+        assertEquals(1, annotations.size());
+        assertEquals(26, annotations.get(0).getOffset());
+        assertEquals(30, annotations.get(0).getLength());
+
+		annotations = urlTagger.tagUrls("You can download it here: http://www.cinefreaks.com/coolstuff.zip but be aware of the size.");
 		assertEquals(1, annotations.size());
 		assertEquals(26, annotations.get(0).getOffset());
 		assertEquals(39, annotations.get(0).getLength());
@@ -61,7 +76,7 @@ public class UrlTaggerTest {
 		assertEquals(0, annotations.get(0).getOffset());
 		assertEquals(151, annotations.get(0).getLength());
 
-		CollectionHelper.print(annotations);		
+		CollectionHelper.print(annotations);
 		
 	}
 }

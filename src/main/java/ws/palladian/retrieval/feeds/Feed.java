@@ -1496,11 +1496,11 @@ public class Feed {
     }
 
     /**
-     * @return The feed's additional data or a empty map if there is none
+     * @return The feed's additional data or an empty map if there is none
      */
     public Map<String, Object> getAdditionalData() {
         if (additionalData == null) {
-            return new HashMap<String, Object>();
+            additionalData = new HashMap<String, Object>();
         }
         return additionalData;
     }
@@ -1613,7 +1613,8 @@ public class Feed {
                     itemBuffer.push(itemToAdd);
                     added = true;
                 } else {
-                    LOGGER.warn("Feed id " + getId() + ", could not add item \"" + itemToAdd
+                    // was warn, changed to debug by Philipp to avoid spamming the logs.
+                    LOGGER.debug("Feed id " + getId() + ", could not add item \"" + itemToAdd
                             + "\" to item buffer since it is older than the newest item in the buffer.");
                 }
             }

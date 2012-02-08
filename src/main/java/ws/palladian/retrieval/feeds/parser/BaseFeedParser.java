@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.SizeUnit;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 
 public abstract class BaseFeedParser implements FeedParser {
@@ -22,16 +22,16 @@ public abstract class BaseFeedParser implements FeedParser {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseFeedParser.class);
     
-    private final DocumentRetriever documentRetriever;
+    private final HttpRetriever httpRetriever;
     
     protected BaseFeedParser() {
-        documentRetriever = new DocumentRetriever();
+        httpRetriever = new HttpRetriever();
         
         // suXXX that I have to set this explicitly;
         // makes sense to have this setting for Neko,
         // but ROME generally has no problem with too big files ...
         // think this over?
-        documentRetriever.getDownloadFilter().setMaxFileSize(SizeUnit.MEGABYTES.toBytes(5));
+        httpRetriever.setMaxFileSize(SizeUnit.MEGABYTES.toBytes(5));
 
     }
     
@@ -46,7 +46,7 @@ public abstract class BaseFeedParser implements FeedParser {
             
             if (serializedGzip) {
                 
-                HttpResult httpResult = documentRetriever.loadSerializedGzip(file);
+                HttpResult httpResult = HttpRetriever.loadSerializedGzip(file);
                 return getFeed(httpResult);
 //                
 //                
@@ -75,7 +75,7 @@ public abstract class BaseFeedParser implements FeedParser {
      */
     @Override
     public Feed getFeed(File file) throws FeedParserException {
-        return getFeed(file,false);
+        return getFeed(file, false);
     }
 
     /* (non-Javadoc)
@@ -85,7 +85,7 @@ public abstract class BaseFeedParser implements FeedParser {
     public Feed getFeed(String feedUrl) throws FeedParserException {
         try {
             StopWatch sw = new StopWatch();
-            HttpResult httpResult = documentRetriever.httpGet(feedUrl);
+            HttpResult httpResult = httpRetriever.httpGet(feedUrl);
             Feed feed = getFeed(httpResult);
             LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
             return feed;
@@ -99,7 +99,9 @@ public abstract class BaseFeedParser implements FeedParser {
      */
     @Override
     public Feed getFeed(HttpResult httpResult) throws FeedParserException {
-        return getFeed(new ByteArrayInputStream(httpResult.getContent()));
+        Feed feed = getFeed(new ByteArrayInputStream(httpResult.getContent()));
+        feed.setFeedUrl(httpResult.getUrl());
+        return feed;
     }
 
 }

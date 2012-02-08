@@ -220,8 +220,9 @@ public class Tokenizer {
 
         List<String> sentences = new ArrayList<String>();
 
+        // pattern to find the end of a sentence
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -231,7 +232,7 @@ public class Tokenizer {
             lastIndex = matcher.end();
         }
 
-        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctation
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
         // character, just add the last fragment
         if (lastIndex < inputText.length()) {
             sentences.add(inputText.substring(lastIndex).trim());
@@ -341,7 +342,7 @@ public class Tokenizer {
     /**
      * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" =>
      * "Although, many of them (30.2%) are good."
-     * consider !,?,. and : as end of sentence
+     * consider !,?, and . as end of sentence
      * 
      * @param string The string.
      * @return The phrase to the end of the sentence.
@@ -392,13 +393,14 @@ public class Tokenizer {
             endIndex = string.indexOf("?");
         }
 
-        if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
-            int indexColon = string.indexOf(":");
-            if (string.length() > indexColon + 1 && !StringHelper.isNumber(string.charAt(indexColon + 1))) {
-                endIndex = indexColon;
-            }
-
-        }
+        // XXX commented this out because of aspect ratio "2.35 : 1" wasn't captured
+        // if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
+        // int indexColon = string.indexOf(":");
+        // if (string.length() > indexColon + 1 && !StringHelper.isNumber(string.charAt(indexColon + 1))) {
+        // endIndex = indexColon;
+        // }
+        //
+        // }
         if (endIndex == -1) {
             endIndex = string.length();
         }

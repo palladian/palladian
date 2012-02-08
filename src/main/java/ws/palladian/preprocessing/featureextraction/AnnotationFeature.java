@@ -6,6 +6,7 @@ import java.util.List;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
+import ws.palladian.preprocessing.PipelineProcessor;
 
 /**
  * <p>
@@ -18,12 +19,29 @@ import ws.palladian.preprocessing.PipelineDocument;
 public class AnnotationFeature extends Feature<List<Annotation>> {
 
     /**
+     * <p>
      * Create a new {@link AnnotationFeature}.
+     * </p>
      * 
-     * @param name A unique Identifier for the AnnotationFeature.
+     * @param name A world wide unique identifier for all similar {@code AnnotationFeature}s. This is usually used to
+     *            identify the {@link PipelineProcessor} that extracted this {@code AnnotationFeature}.
      */
     public AnnotationFeature(String name) {
         super(name, new ArrayList<Annotation>());
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code AnnotationFeature} initialized with all {@code Annotation}s from the provided {@code List}
+     * of annotations.
+     * </p>
+     * 
+     * @param name A world wide unique identifier for all similar {@code AnnotationFeature}s. This is usually used to
+     *            identify the {@link PipelineProcessor} that extracted this {@code AnnotationFeature}.
+     * @param annotations The initial {@code List} of {@code Annotation}s of this feature.
+     */
+    public AnnotationFeature(String name, List<Annotation> annotations) {
+        super(name, annotations);
     }
 
     /**
@@ -36,7 +54,9 @@ public class AnnotationFeature extends Feature<List<Annotation>> {
     }
 
     /**
+     * <p>
      * Gives all {@link Annotation}s within the specified range.
+     * </p>
      * 
      * @param startPosition
      * @param endPosition

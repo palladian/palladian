@@ -41,9 +41,14 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
             // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
             // supposedly breaking other stuff :(
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-            parser.setProperty("http://cyberneko.org/html/properties/filters",
-                    new XMLDocumentFilter[] { new TBODYFix() });
+            NekoTbodyFix tbodyFix = new NekoTbodyFix();
             // end fix.
+
+            XMLDocumentFilter[] filters = new XMLDocumentFilter[] { tbodyFix, new PreflightFilter() };
+            parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
+            
+            // per dafault, assume UTF-8 encoding (makes more sense than Windows-1252 default)
+            parser.setProperty("http://cyberneko.org/html/properties/default-encoding", "UTF-8");
 
             parser.parse(inputSource);
 

@@ -67,8 +67,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     @Override
     public LingPipeSentenceDetector detect(String text) {
-        final Chunking chunking = ((SentenceChunker)getModel()).chunk(text);
-        final Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
+        Chunking chunking = ((SentenceChunker)getModel()).chunk(text);
+        Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
         PipelineDocument document = new PipelineDocument(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
