@@ -3,7 +3,7 @@ package ws.palladian.retrieval.search;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -30,7 +30,7 @@ public final class SearcherFactory {
     /**
      * <p>
      * Create and configure a new {@link Searcher} of the specified type. If the Searcher requires a configuration
-     * (i.e., the Searcher implementation provides a constructor with a {@link PropertiesConfiguration} argument), the
+     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
      * configuration of this factory is injected, elseweise (i.e., the Searcher implementation provides a default,
      * zero-argument constructor), it is simply instantiated without configuration.
      * </p>
@@ -41,7 +41,7 @@ public final class SearcherFactory {
      */
     @SuppressWarnings("unchecked")
     public static <S extends Searcher<R>, R extends SearchResult> S createSearcher(Class<S> searcherType,
-            PropertiesConfiguration config) {
+            Configuration config) {
 
         if (config == null) {
             throw new IllegalArgumentException("Configuration must not be null.");
@@ -49,22 +49,22 @@ public final class SearcherFactory {
 
         S searcher = null;
 
-        // check, if the searcher provides a constructor with a PropertiesConfiguration argument, if so, use this
+        // check, if the searcher provides a constructor with a Configuration argument, if so, use this
         // constructor for instantiation
         for (Constructor<?> constructor : searcherType.getConstructors()) {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length == 1 && parameterTypes[0].equals(PropertiesConfiguration.class)) {
+            if (parameterTypes.length == 1 && parameterTypes[0].equals(Configuration.class)) {
                 try {
                     searcher = (S) constructor.newInstance(config);
                 } catch (Exception e) {
                     throw new IllegalStateException("Could not instantiate " + searcherType.getName()
-                            + " using the constructor with PropertiesConfiguration.", e);
+                            + " using the constructor with Configuration.", e);
                 }
                 break;
             }
         }
 
-        // the searcher did not provide a constructor with a PropertiesConfiguration, so try to use the default
+        // the searcher did not provide a constructor with a Configuration, so try to use the default
         // constructor
         if (searcher == null) {
             try {
@@ -81,7 +81,7 @@ public final class SearcherFactory {
     /**
      * <p>
      * Create and configure a new {@link Searcher} of the specified type. If the Searcher requires a configuration
-     * (i.e., the Searcher implementation provides a constructor with a {@link PropertiesConfiguration} argument), the
+     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
      * configuration of this factory is injected, elseweise (i.e., the Searcher implementation provides a default,
      * zero-argument constructor), it is simply instantiated without configuration.
      * </p>
@@ -92,7 +92,7 @@ public final class SearcherFactory {
      * @return
      */
     public static <S extends Searcher<R>, R extends SearchResult> S createSearcher(String searcherTypeName,
-            Class<R> resultType, PropertiesConfiguration config) {
+            Class<R> resultType, Configuration config) {
         try {
             @SuppressWarnings("unchecked")
             Class<S> searcherClass = (Class<S>) Class.forName(searcherTypeName);
@@ -108,7 +108,7 @@ public final class SearcherFactory {
      * @param config
      * @return
      */
-    public static WebSearcher<WebResult> createWebSearcher(String searcherTypeName, PropertiesConfiguration config) {
+    public static WebSearcher<WebResult> createWebSearcher(String searcherTypeName, Configuration config) {
         return createSearcher(searcherTypeName, WebResult.class, config);
     }
 
@@ -118,8 +118,7 @@ public final class SearcherFactory {
      * @param config
      * @return
      */
-    public static WebSearcher<WebImageResult> createImageSearcher(String searcherTypeName,
-            PropertiesConfiguration config) {
+    public static WebSearcher<WebImageResult> createImageSearcher(String searcherTypeName, Configuration config) {
         return createSearcher(searcherTypeName, WebImageResult.class, config);
     }
 
@@ -146,7 +145,7 @@ public final class SearcherFactory {
 
     public static void main(String[] args) {
 
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
 
         // searchers can be created by Class type, or by fully qualified class name (no type-safety in this case)
         Searcher<WebResult> searcher = SearcherFactory.createWebSearcher(
