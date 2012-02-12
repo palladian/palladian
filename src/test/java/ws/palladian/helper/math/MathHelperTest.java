@@ -147,15 +147,14 @@ public class MathHelperTest {
     @Test
     public void testCalculateListSimilarity() throws FileNotFoundException {
 
-        // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-        // .getShiftSimilartiy(), 2));
-        // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-        // .getSquaredShiftSimilartiy(), 2));
-        // System.out.println(MathHelper.round(
-        // MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-        // .getRmse(), 2));
+        System.out.println(MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                        .getShiftSimilartiy(), 2));
+        System.out.println(MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                        .getSquaredShiftSimilartiy(), 2));
+        System.out.println(MathHelper.round(
+                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2));
 
         List<String> list1 = new ArrayList<String>();
         List<String> list2 = new ArrayList<String>();
