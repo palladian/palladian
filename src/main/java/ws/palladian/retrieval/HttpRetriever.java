@@ -67,7 +67,7 @@ import ws.palladian.helper.math.SizeUnit;
 
 /**
  * <p>
- * The {@link HttpRetriever} performs all HTTP specific operations within Palladian. This includes HTTP requests like
+ * The {@link HttpRetriever} performs all HTTP specific operations withing Palladian. This includes HTTP requests like
  * GET, POST, and HEAD. Results for these requests are supplied as instances of {@link HttpResult}. Further more, this
  * class provides the possibility to save the results from HTTP requests as files for archival purposes. This class is
  * heavily based upon Apache HttpComponents, which provide a much more reliable HTTP implementation than the original
@@ -97,7 +97,7 @@ public class HttpRetriever {
     public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
+    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 3;
@@ -164,13 +164,13 @@ public class HttpRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
 
-        ((AbstractHttpClient) httpClient).addResponseInterceptor(metricsSaver);
+        ((AbstractHttpClient)httpClient).addResponseInterceptor(metricsSaver);
         // end edit
     }
 
@@ -181,11 +181,11 @@ public class HttpRetriever {
      * <table>
      * <tr>
      * <td>connection timeout</td>
-     * <td>10 seconds</td>
+     * <td>10 milliseconds</td>
      * </tr>
      * <tr>
      * <td>socket timeout</td>
-     * <td>60 seconds</td>
+     * <td>180 milliseconds</td>
      * </tr>
      * <tr>
      * <td>retries</td>
@@ -380,7 +380,7 @@ public class HttpRetriever {
 
             HttpContext context = new BasicHttpContext();
             HttpResponse response = httpClient.execute(request, context);
-            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
@@ -477,7 +477,7 @@ public class HttpRetriever {
         try {
             URL urlObject = new URL(url);
             URLConnection urlCon = urlObject.openConnection();
-            HttpURLConnection httpUrlCon = (HttpURLConnection) urlCon;
+            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
             httpUrlCon.setInstanceFollowRedirects(false);
             location = httpUrlCon.getHeaderField("Location");
         } catch (IOException e) {
@@ -638,7 +638,7 @@ public class HttpRetriever {
             StringBuilder headerText = new StringBuilder();
             int b;
             while ((b = inputStream.read()) != -1) {
-                headerText.append((char) b);
+                headerText.append((char)b);
                 if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
                     break;
                 }
@@ -747,7 +747,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(long connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, (int) connectionTimeout);
+        HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
     }
 
     public long getConnectionTimeout() {
@@ -763,7 +763,7 @@ public class HttpRetriever {
      * @param socket timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(long socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, (int) socketTimeout);
+        HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
 
     /**
@@ -795,7 +795,7 @@ public class HttpRetriever {
      * @param proxy the proxy to use.
      */
     public void setProxy(Proxy proxy) {
-        InetSocketAddress address = (InetSocketAddress) proxy.address();
+        InetSocketAddress address = (InetSocketAddress)proxy.address();
         String hostname = address.getHostName();
         int port = address.getPort();
         setProxy(hostname, port);
