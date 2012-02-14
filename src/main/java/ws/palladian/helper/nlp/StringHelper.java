@@ -803,7 +803,7 @@ public class StringHelper {
         }
 
         // remove all control characters from string
-        string = removeControlCharacters(string);
+        // string = removeControlCharacters(string);
 
         string = replaceProtectedSpace(string);
 
@@ -1296,7 +1296,7 @@ public class StringHelper {
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("\\s{1,}", " ");
+        return text.replaceAll("[ ]{1,}", " ");
     }
 
     /**

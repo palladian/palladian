@@ -1014,7 +1014,7 @@ public class HtmlHelper {
     public static String documentToText(Node node) {
 
         // ignore css and script nodes
-        if (node == null || node.getNodeName().equalsIgnoreCase("script")
+        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script")
                 || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName().equalsIgnoreCase("#comment")
                 || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
                 || node.getNodeName().equalsIgnoreCase("head")) {
