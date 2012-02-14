@@ -5,8 +5,7 @@
 	<artifactId>palladian</artifactId>
 	<name>Palladian - TUD Information Retrieval Toolkit</name>
 	<version>0.1.6-SNAPSHOT</version>
-	<description>Palladian is the IIR Toolkit from the Computer Networks
-		Chair of the TU Dresden.</description>
+	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -146,6 +145,12 @@
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>com.ibm.icu</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>weka</groupId>
@@ -326,6 +331,10 @@
 					<artifactId>trove</artifactId>
 					<groupId>gnu</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>icu4j</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -399,6 +408,11 @@
 			<artifactId>hamcrest-all</artifactId>
 			<version>1.1</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>3.8</version>
 		</dependency>
 	</dependencies>
 	<properties>
