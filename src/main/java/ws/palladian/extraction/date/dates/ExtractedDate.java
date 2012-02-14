@@ -311,6 +311,8 @@ public class ExtractedDate implements AbstractDate {
             }
             setTimeValues(sb.toString());
             set24h(meridiem);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_CONTEXT_YYYY[1])) {
+            year = Integer.valueOf(dateString);
         }
 
     }
@@ -426,6 +428,11 @@ public class ExtractedDate implements AbstractDate {
                 }
             }
         }
+
+        if (normalizedDate.endsWith("-0")) {
+            normalizedDate = normalizedDate.replace("-0", "");
+        }
+
         return normalizedDate;
 
     }
