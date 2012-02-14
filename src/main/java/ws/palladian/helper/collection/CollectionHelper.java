@@ -442,4 +442,33 @@ public final class CollectionHelper {
     	return returnList;
     }
 
+    /**
+     * <p>
+     * Intersect two sets and return a new set with the elements that both sets had in common.
+     * </p>
+     * 
+     * @param set1 The first set.
+     * @param set2 The second set.
+     * @return The intersection between the sets.
+     */
+    public static <T> Set<T> intersect(Set<T> set1, Set<T> set2) {
+        Set<T> intersection = new HashSet<T>(set1);
+        intersection.retainAll(new HashSet<T>(set2));
+        return intersection;
+    }
+
+    /**
+     * <p>
+     * Unite two sets and return a new set with the elements from both sets.
+     * </p>
+     * 
+     * @param set1 The first set.
+     * @param set2 The second set.
+     * @return The union of the sets.
+     */
+    public static <T> Set<T> union(Set<T> set1, Set<T> set2) {
+        Set<T> union = new HashSet<T>(set1);
+        union.addAll(new HashSet<T>(set2));
+        return union;
+    }
 }

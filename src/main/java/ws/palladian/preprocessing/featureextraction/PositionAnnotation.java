@@ -58,12 +58,12 @@ public final class PositionAnnotation extends Annotation {
     }
 
     @Override
-    public int getStartPosition() {
+    public Integer getStartPosition() {
         return startPosition;
     }
 
     @Override
-    public int getEndPosition() {
+    public Integer getEndPosition() {
         return endPosition;
     }
 
@@ -111,22 +111,29 @@ public final class PositionAnnotation extends Annotation {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         PositionAnnotation other = (PositionAnnotation)obj;
-        if (endPosition != other.endPosition)
+        if (endPosition != other.endPosition) {
             return false;
-        if (startPosition != other.startPosition)
+        }
+        if (startPosition != other.startPosition) {
             return false;
+        }
         if (getDocument() == null) {
-            if (other.getDocument() != null)
+            if (other.getDocument() != null) {
                 return false;
-        } else if (getDocument().equals(other.getDocument()))
+            }
+        } else if (getDocument().equals(other.getDocument())) {
             return false;
+        }
         return true;
     }
 
