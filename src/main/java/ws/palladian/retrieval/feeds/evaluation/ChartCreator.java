@@ -26,9 +26,36 @@ public class ChartCreator {
     private static final String FEED_AGE_FILE_PATH = "data/temp/feedAgeData.csv";
     private static final String TIMELINESS2_FILE_PATH = "data/temp/timeliness2Data.csv";
     private static final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/temp/percentNewMaxPollData.csv";
-    private static final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/sumVolumeTimeData";
+    private static final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/transferVolumes_";
     private static final String FEEDS_NEW_ITEMS_PATH_INPUT = "data/temp/Feeds_NewItems_IN.csv";
     private static final String FEEDS_NEW_ITEMS_PATH_OUTPUT = "data/temp/Feeds_NewItems_OUT.csv";
+
+    // local machine t test
+    // /**
+    // * The names of all tables to get transfer volume data for.
+    // */
+    // private static final String[] tableNames = { "eval_fix1440_min_time_100_2011-11-07_14-06-25_gold",
+    // "eval_fixlearnedp_min_time_100_2011-11-07_19-25-09_gold" };
+
+    // machine feed-104
+    // /**
+    // * The names of all tables to get transfer volume data for.
+    // */
+    // private static final String[] tableNames = { "z_eval_fix10080_min_time_100_2011-11-07_21-10-40",
+    // "z_eval_MAVSync_min_time_100_2011-11-13_00-56-23",
+    // "z_eval_AdaptiveTTL_0.4_min_time_100_2011-11-08_20-52-34",
+    // "z_eval_fix60_min_time_100_2011-11-07_00-56-55",
+    // "z_eval_fixLearnedW_min_time_100_2011-11-11_23-15-53" };
+
+    // machine feed-11
+    /**
+     * The names of all tables to get transfer volume data for.
+     */
+    private static final String[] tableNames = { "z_eval_fix1440_min_time_100_2011-11-07_20-51-27",
+            "z_eval_AdaptiveTTL_0.7_min_time_100_2011-11-10_10-53-49",
+            "z_eval_fixLearnedP_min_time_100_2011-11-07_22-18-21", 
+            "z_eval_LRU2_min_time_100_2011-11-13_00-07-21" };
+
 
     private final int maxNumberOfPollsScoreMax;
     private final int maxNumberOfPollsScoreMin;
@@ -495,18 +522,44 @@ public class ChartCreator {
         FileHelper.writeToFile(FEEDS_NEW_ITEMS_PATH_OUTPUT, outputSB);
     }
 
-    // /**
-    // * Only a test
-    // */
-    // private void printFeedPolls() {
-    // List<EvaluationFeedPoll> polls = ed.getAllFeedPollsFromAdaptiveMaxTime();
-    //
-    // for (EvaluationFeedPoll poll : polls) {
-    // // int feedID = poll.getFeedID();
-    // LOGGER.info(poll.getFeedID() + " " + poll.getSizeOfPoll());
-    // }
-    //
-    // }
+    /**
+     * Create csv file with cumulated transfer volume per hour per strategy. Used for evaluation of TUDCS6.
+     * 
+     * @param feedStore The database to get data from.
+     * @param dbTables The database tables to generate the cumulated transfer volume statistics for.
+     */
+    public void transferVolumeCreator(EvaluationFeedDatabase feedStore, String[] dbTables) {
+
+        int[] singleHourVolumes = null;
+        StringBuilder csvSB = null;
+
+        // loop over all strategies to generate vsc files for
+        for (int strategyRow = 0; strategyRow < dbTables.length; strategyRow++) {
+
+            // create header of table representing the csv
+            csvSB = new StringBuilder();
+            csvSB.append("hourOfExperiment;").append(dbTables[strategyRow]).append(";\n");
+
+            // get data per strategy
+            singleHourVolumes = feedStore.getTransferVolumePerHour(dbTables[strategyRow], totalExperimentHours + 1);
+            int cumulatedVolumeLastHour = 0;
+            
+            // calculate cumulated values, fill hours that are skipped by algorithm
+            for (int hourOfExperiment = 0; hourOfExperiment < singleHourVolumes.length; hourOfExperiment++) {
+                cumulatedVolumeLastHour += singleHourVolumes[hourOfExperiment];
+                csvSB.append(hourOfExperiment).append(";").append(cumulatedVolumeLastHour).append(";\n");
+            }
+
+            // write csvSB to csv file
+            String fileName = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + dbTables[strategyRow] + ".csv";
+            boolean outputWritten = FileHelper.writeToFile(fileName, csvSB);
+            if (outputWritten) {
+                LOGGER.info(fileName + " has been written");
+            } else {
+                LOGGER.fatal(fileName + " has NOT been written!");
+            }
+        }
+    }
 
     /**
      * @param args ...
@@ -518,9 +571,13 @@ public class ChartCreator {
          * 200 polls for scoreMax
          */
         ChartCreator cc = new ChartCreator(200, 200);
+        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
+                ConfigHolder.getInstance().getConfig());
+
+        cc.transferVolumeCreator(feedStore, tableNames);
 
         // cc.printFeedPolls();
-        cc.createFeedSizeHistogrammFile(10, 20); // letzter Test2 12.11. DB Schema v2
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test2 12.11. DB Schema v2
         // cc.createFeedAgeFile(); // letzter Test2 12.11. DB Schema v2
         // cc.createAverageScoreMinByPollFile(); // letzter Test2 12.11. DB Schema v2
         // cc.createPercentageNewMaxPollFile(); // letzter Test2 12.11. DB Schema v2

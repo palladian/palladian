@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -41,15 +42,12 @@ public class RedditStats extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "reddit";
 
     /** The ranking value types of this service **/
-    static RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes",
+    public static final RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes",
             "The number of up-votes minus down-votes for this url on reddit.com.");
-    static RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments",
+    public static final RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments",
             "The number of comments users have left for this url on reddit.com.");
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(VOTES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link RedditStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -72,33 +70,30 @@ public class RedditStats extends BaseRankingService implements RankingService {
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(GET_INFO + encUrl);
-            if (json != null) {
+            HttpResult httpResult = retriever.httpGet(GET_INFO + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
 
-                JSONArray children = json.getJSONObject("data").getJSONArray("children");
-                float votes = 0;
-                float comments = 0;
-                for (int i = 0; i < children.length(); i++) {
-                    JSONObject child = children.getJSONObject(i);
-                    // all post have "kind" : "t3" -- there is no documentation, what this means,
-                    // but for robustness sake we check here
-                    if (child.getString("kind").equals("t3")) {
-                        votes += child.getJSONObject("data").getInt("score");
-                        comments += child.getJSONObject("data").getInt("num_comments");
-                    }
+            JSONArray children = json.getJSONObject("data").getJSONArray("children");
+            float votes = 0;
+            float comments = 0;
+            for (int i = 0; i < children.length(); i++) {
+                JSONObject child = children.getJSONObject(i);
+                // all post have "kind" : "t3" -- there is no documentation, what this means,
+                // but for robustness sake we check here
+                if (child.getString("kind").equals("t3")) {
+                    votes += child.getJSONObject("data").getInt("score");
+                    comments += child.getJSONObject("data").getInt("num_comments");
                 }
-                results.put(VOTES, votes);
-                results.put(COMMENTS, comments);
-                LOGGER.trace("Reddit stats for " + url + " : " + results);
-            } else {
-                results.put(VOTES, null);
-                results.put(COMMENTS, null);
-                LOGGER.trace("Reddit stats for " + url + "could not be fetched");
-                checkBlocked();
             }
+            results.put(VOTES, votes);
+            results.put(COMMENTS, comments);
+            LOGGER.trace("Reddit stats for " + url + " : " + results);
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;

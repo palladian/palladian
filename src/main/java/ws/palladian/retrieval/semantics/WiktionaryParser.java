@@ -114,10 +114,6 @@ public class WiktionaryParser {
                         return;
                     }
 
-                     if (word.equalsIgnoreCase("Kleid")) {
-                     System.out.println("haus");
-                     }
-
                     String plural = "";
                     String language = "";
                     String wordType = "";
@@ -259,7 +255,7 @@ public class WiktionaryParser {
                     }
                     
 //                    wordObject = wordDB.getWord(word);
-//                    wordDB.aggregateInformation(wordObject);                    
+//                    wordDB.aggregateInformation(wordObject);
 
                     if (elementsParsed++ % 100 == 0) {
                         System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
@@ -392,15 +388,15 @@ public class WiktionaryParser {
 //        System.exit(0);
         
         // German
-        WiktionaryParser wpG = new WiktionaryParser("data/temp/wordDatabaseGerman/", Language.GERMAN);
+        // WiktionaryParser wpG = new WiktionaryParser("data/temp/wdbg/", Language.GERMAN);
         // wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
-        wpG.setAdditionalHypernymFile("data/temp/openthesaurusHypernyms.csv");
-        wpG.parseAndCreateDB("data/temp/dewiktionary-20110620-pages-articles.xml");
+        // wpG.setAdditionalHypernymFile("data/temp/wdbg/openthesaurusadd.csv");
+        // wpG.parseAndCreateDB("data/temp/wdbg/dewiktionary-latest-pages-articles.xml");
         // wpG.parseAndCreateDB("data/temp/disk1.xml");
 
         // English
-        // WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
-        // wpE.parseAndCreateDB("data/temp/enwiktionary-20110402-pages-meta-current.xml");
+        WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
+        wpE.parseAndCreateDB("data/temp/pages.xml");
 
         LOGGER.info("created wiktionary DB in " + sw.getElapsedTimeString());
     }

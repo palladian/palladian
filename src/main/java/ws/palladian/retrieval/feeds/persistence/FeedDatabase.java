@@ -39,6 +39,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
+    private static final String DELETE_FEED_BY_URL = "DELETE FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
@@ -49,6 +50,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
+    private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
     private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
@@ -197,8 +199,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     @Override
-    public Feed getFeedByID(int feedID) {
-        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedID);
+    public Feed getFeedById(int feedId) {
+        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedId);
     }
 
     @Override
@@ -222,6 +224,17 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     public ResultIterator<FeedItem> getFeedItems() {
         return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
+    }
+    
+    /**
+     * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
+     * items first.
+     * 
+     * @param feedId
+     * @return
+     */
+    public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
+        return runQueryWithIterator(new FeedItemRowConverter(), GET_ITEMS_FOR_FEED, feedId);
     }
 
     /**
@@ -366,6 +379,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     @Override
     public boolean updateFeed(Feed feed) {
         return updateFeed(feed, true, true);
+    }
+    
+    @Override
+    public boolean deleteFeedByUrl(String feedUrl) {
+        return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
     }
 
     public void updateFeedPostDistribution(Feed feed, Map<Integer, int[]> postDistribution) {

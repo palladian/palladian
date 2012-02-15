@@ -17,6 +17,7 @@ import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
+import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.IntervalBoundsEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedEvaluationItemRowConverter;
 import ws.palladian.retrieval.feeds.persistence.FeedRowConverter;
@@ -47,6 +48,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     /** reset table feeds except activityPattern and blocked. */
     private static final String RESET_TABLE_FEEDS = "UPDATE feeds SET checks = DEFAULT, unreachableCount = DEFAULT, unparsableCount = DEFAULT, misses = DEFAULT, windowSize = DEFAULT, lastPollTime = DEFAULT, lastSuccessfulCheck = DEFAULT, lastMissTimestamp = DEFAULT, lastFeedEntry = DEFAULT, totalProcessingTime = DEFAULT, newestItemHash = DEFAULT, lastETag = DEFAULT, lastModified = DEFAULT, lastResult = DEFAULT, feedFormat = DEFAULT, feedSize = DEFAULT, title = DEFAULT, LANGUAGE = DEFAULT, httpHeaderSize = DEFAULT";
 
+    private static final String TRUNCATE_TABLE_FEEDS = "TRUNCATE TABLE feeds;";
+
     private static final String GET_NUMBER_MISSED_ITEMS_BY_ID_SEQUENCE_NUMBERS = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND sequenceNumber > ? AND sequenceNumber < ?";
 
     private static final String GET_NUMBER_PENDING_ITEMS_BY_ID = "SELECT count(*) FROM feed_evaluation_items WHERE feedId = ? AND pollTimestamp > ? AND correctedPublishTime > ? AND correctedPublishTime <= ?";
@@ -61,6 +64,18 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     private static final String ADD_SINGLE_DELAY = "INSERT IGNORE INTO `###TABLE_NAME###` SET feedId = ?, singleDelay = ?";
 
+    private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
+
+    private static final String GET_TRANSFER_VOLUME_BY_STRATEGY = "SELECT CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp)) AS 'hourOfExperiment', CEIL(SUM(sizeOfPoll)/1048576) AS 'hourlyVolumeMB' FROM `###TABLE_NAME###` GROUP BY CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp));";
+
+    private static final String CREATE_INTERVAL_BOUNDS_TABLE = "CREATE TABLE `###TABLE_NAME###` (`feedId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The feeds internal identifier.', PRIMARY KEY (`feedId`)) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+
+    /**
+     * It is assumed that table feeds_TUDCS6 contains all feeds and their meta data.
+     */
+    private static final String COPY_FEEDS_INTERVAL_BOUNDS = "INSERT INTO feeds SELECT * FROM feeds_TUDCS6 WHERE id IN (SELECT feedId FROM `###TABLE_NAME###`);";
+
+    private static final String RESTORE_ALL_FEEDS_FROM_BACKUP = "INSERT INTO feeds SELECT * FROM feeds_TUDCS6";
     /**
      * Used as postfix for table names; table contains evaluation results per feed averaged over all items of this feed.
      */
@@ -80,6 +95,11 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * Used as postfix for table names; table contains the delay to each item except the ones in the first poll
      */
     private static final String DELAY_POSTFIX = "_delays";
+
+    /**
+     * Used as postfix for table names; table contains the number of initial items per feed.
+     */
+    private static final String INITIAL_ITEMS_POSTFIX = "_init";
 
     /**
      * All feeds from database that do have item timestamps or no items at all, ORDER BY totalItems DESC to speed up
@@ -102,7 +122,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * every subsequent query for simulated windows since those query results can't contain a newer window than this
      * one. This can't be directly done by db (query) caching since queries differ.
      */
-    private static final ConcurrentHashMap<Integer, List<EvaluationFeedItem>> CACHED_NEWEST_WINDOWS = new ConcurrentHashMap<Integer, List<EvaluationFeedItem>>();
+    private final ConcurrentHashMap<Integer, List<EvaluationFeedItem>> CACHED_NEWEST_WINDOWS = new ConcurrentHashMap<Integer, List<EvaluationFeedItem>>();
 
     /**
      * Capacity of {@link #BATCH_INSERT_QUEUE}. Size of the queue is defined as sum of all insert operation, i.e. the
@@ -128,6 +148,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             NEWEST_ITEM_HASHES.put(item.getFeedId(), item.getHash());
         }
 
+    }
+
+    public void reloadFeedsFromDB() {
+        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
     }
 
     /**
@@ -438,11 +462,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         return resultFeeds && resultAvg;
     }
 
-
-
-
     /**
-     * Creates evaluation results totalMisses and (average) recall from the given table.
+     * Creates evaluation results totalMisses from the given table.
      * 
      * @param sourceTableName The name of the table to read simulated poll data from.
      * @param outputTableName The name of the table to write evaluation data to.
@@ -453,7 +474,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean generateBasicEvaluationResultsPerStrategyModeFeeds(String sourceTableName) {
 
-        LOGGER.info("Calculating totalMisses, recall in mode feeds.");
+        LOGGER.info("Calculating totalMisses in mode feeds.");
 
         String outputTableName = sourceTableName + "_" + MODE_FEEDS;
 
@@ -461,11 +482,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         StringBuilder sqlBuilder = new StringBuilder(); 
         sqlBuilder.append("INSERT INTO `");
         sqlBuilder.append(outputTableName);
-        sqlBuilder.append("` (feedId, totalMisses, recall)");
+        sqlBuilder.append("` (feedId, totalMisses)");
         sqlBuilder.append("SELECT ");
         sqlBuilder.append("feedId,");
-        sqlBuilder.append("SUM(missedItems) AS 'totalMisses',");
-        sqlBuilder.append("SUM(newWindowItems)/(SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)) AS 'recall' ");
+        sqlBuilder.append("SUM(missedItems) AS 'totalMisses' ");
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` ");
@@ -486,7 +506,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Creates evaluation results totalMisses and recall from the given table, modus items
+     * Creates evaluation results totalMisses from the given table, modus items
      * 
      * @param sourceTableName The name of the table to read simulated poll data from.
      * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
@@ -494,7 +514,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private boolean generateBasicEvaluationResultsPerStrategyModeItems(String sourceTableName) {
 
-        LOGGER.info("Calculating totalMisses and recall in mode items.");
+        LOGGER.info("Calculating totalMisses in mode items.");
 
         String outputTableName = sourceTableName + AVG_POSTFIX;
 
@@ -502,11 +522,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("INSERT INTO `");
         sqlBuilder.append(outputTableName);
-        sqlBuilder.append("` (mode, totalMisses, recall) ");
+        sqlBuilder.append("` (mode, totalMisses) ");
         sqlBuilder.append("SELECT '");
         sqlBuilder.append(MODE_ITEMS);
-        sqlBuilder.append("', SUM(missedItems) AS 'totalMisses',");
-        sqlBuilder.append("SUM(newWindowItems)/(SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)) AS 'recall'");
+        sqlBuilder.append("', SUM(missedItems) AS 'totalMisses' ");
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("`;");
@@ -523,6 +542,153 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             return false;
         }
         return updated;
+    }
+
+
+    /**
+     * Create a table that contains the number of initial items per feed.<br />
+     * <br />
+     * e.g.<br />
+     * Create temp table to count initial items per feed.<br />
+     * CREATE TABLE temp_initial2 AS
+     * SELECT feedId, newWindowItems AS 'initial'
+     * FROM `z_eval_AdaptiveTTL_4.0_1_40320_2011-11-27_21-31-14`
+     * WHERE numPollNewItem = 1
+     * GROUP BY feedId;
+     * 
+     * ALTER TABLE temp_initial2 ADD PRIMARY KEY (`feedId`);
+     * 
+     * @param sourceTableName
+     * @return <code>true</code> if table has been created and indexed, <code>false</code> on any error.
+     */
+    // FIXME: set back to private when #RecallBugFixer is done.
+    public boolean createInitialItemsTempTable(String sourceTableName) {
+        boolean success = true;
+
+        // create temptable to count initial items per feed
+        String tempTableName = sourceTableName + INITIAL_ITEMS_POSTFIX;
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE TABLE `");
+        sqlBuilder.append(tempTableName);
+        sqlBuilder.append("` AS ");
+        sqlBuilder.append("SELECT feedId, newWindowItems AS 'initial' FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` WHERE numPollNewItem = 1 GROUP BY feedId;");
+
+        String sql = sqlBuilder.toString();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        success = success && runUpdate(sql) != -1 ? true : false;
+
+        // add index to temptable
+        sqlBuilder = new StringBuilder();
+        sqlBuilder.append("ALTER TABLE `");
+        sqlBuilder.append(tempTableName);
+        sqlBuilder.append("` ADD PRIMARY KEY (`feedId`);");
+
+        sql = sqlBuilder.toString();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        success = success && runUpdate(sql) != -1 ? true : false;
+        return success;
+    }
+
+    /**
+     * calculate recall per feed (mode feeds) from the given table and write results to db.<br />
+     * <br />
+     * e.g.<br />
+     * Calculate recall ignoring initial items .<br />
+     * CREATE TABLE test7 AS
+     * SELECT a.feedId,
+     * (SUM(a.newWindowItems)-b.initial)/(SUM(a.missedItems)+SUM(a.newWindowItems)+SUM(a.pendingItems)-b.initial) AS
+     * 'Recall'
+     * FROM `z_eval_AdaptiveTTL_4.0_1_40320_2011-11-27_21-31-14` a, temp_initial2 b
+     * WHERE a.feedId = b.feedId
+     * GROUP BY a.feedId;
+     * 
+     * @param sourceTableName The name of the table to read simulated poll data from.
+     * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
+     *         error.
+     */
+    // FIXME: set back to private when #RecallBugFixer is done.
+    public boolean setRecallModeFeeds(String sourceTableName) {
+        LOGGER.info("Calculating recall in mode feeds.");
+
+        String feedsTableName = sourceTableName + "_" + MODE_FEEDS;
+        String tempTableName = sourceTableName + INITIAL_ITEMS_POSTFIX;
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("update `");
+        sqlBuilder.append(feedsTableName);
+        sqlBuilder.append("` u ");
+        sqlBuilder.append("SET Recall = (");
+        sqlBuilder.append("SELECT (SUM(a.newWindowItems)-b.initial)/");
+        sqlBuilder.append("(SUM(a.missedItems) + SUM(a.newWindowItems) + SUM(a.pendingItems) - b.initial) ");
+        sqlBuilder.append("AS 'Recall' ");
+        sqlBuilder.append("FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` a, `");
+        sqlBuilder.append(tempTableName);
+        sqlBuilder.append("` b ");
+        sqlBuilder.append("WHERE u.feedId = a.feedId AND a.feedId = b.feedId ");
+        sqlBuilder.append("GROUP BY a.feedId);");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+
+        return runUpdate(sql) != -1 ? true : false;
+    }
+
+    /**
+     * Calculate "recall" in mode items and update evaluation summary table xx_avg. <br />
+     * <br />
+     * e.g.<br />
+     * UPDATE `z_eval_AdaptiveTTL_4.0_1_40320_2011-11-27_21-31-14_avg` u
+     * SET u.recall = (SELECT (SUM(newWindowItems)-(SELECT SUM(initial) FROM temp_initial))/
+     * (SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)-(SELECT SUM(initial) FROM temp_initial)) AS 'Recall'
+     * FROM `z_eval_AdaptiveTTL_4.0_1_40320_2011-11-27_21-31-14`)
+     * WHERE MODE LIKE '%items%';
+     * 
+     * @param sourceTableName The name of the table to read simulated poll data from.
+     * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
+     *         error.
+     */
+    // FIXME: set back to private when #RecallBugFixer is done.
+    public boolean setRecallModeItems(String sourceTableName) {
+
+        LOGGER.info("Calculating avgDelay in mode items.");
+
+        String outputTableName = sourceTableName + AVG_POSTFIX;
+        String initialItemsTableName = sourceTableName + INITIAL_ITEMS_POSTFIX;
+        String subQuery = "(SELECT SUM(initial) FROM `" + initialItemsTableName + "`)";
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("update `");
+        sqlBuilder.append(outputTableName);
+        sqlBuilder.append("` ");
+        sqlBuilder.append("SET recall = (");
+        sqlBuilder.append("SELECT (SUM(newWindowItems)-");
+        sqlBuilder.append(subQuery);
+        sqlBuilder.append(") / (SUM(missedItems)+SUM(newWindowItems)+SUM(pendingItems)-");
+        sqlBuilder.append(subQuery);
+        sqlBuilder.append(") as 'Recall' FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("`)");
+        sqlBuilder.append("WHERE MODE LIKE '%");
+        sqlBuilder.append(MODE_ITEMS);
+        sqlBuilder.append("%';");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
     }
 
 
@@ -850,7 +1016,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * SET PPI = (
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI'
      * FROM `feed_eval_fix1440_min_time_100_2011-10-28_22-09-45_OK` s
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)
+     * WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL)
      * AND u.feedId = s.feedId
      * GROUP BY s.feedId
      * );
@@ -860,7 +1026,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeFeeds(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeFeeds(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode feeds.");
 
@@ -874,7 +1041,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0) ");
+        sqlBuilder.append("WHERE (numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("AND u.feedId = s.feedId ");
         sqlBuilder.append("GROUP BY s.feedId);");
 
@@ -892,13 +1059,14 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * e.g.<br />
      * SELECT COUNT(*)/SUM(newWindowItems) AS 'PPI_polls'
      * FROM `eval_fixlearned_min_time_100_2011-11-03_18-40-41`
-     * WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0);
+     * WHERE numPollNewItem > 1 OR numPollNewItem IS NULL;
      * 
      * @param sourceTableName The name of the table to read simulated poll data from.
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    private boolean setPPIModeItems(String sourceTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean setPPIModeItems(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode items.");
 
@@ -912,7 +1080,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("FROM `");
         sqlBuilder.append(sourceTableName);
         sqlBuilder.append("` s ");
-        sqlBuilder.append("WHERE NOT (newWindowItems = windowSize AND cumulatedDelay = 0)) ");
+        sqlBuilder.append("WHERE numPollNewItem > 1 OR numPollNewItem IS NULL) ");
         sqlBuilder.append("WHERE MODE LIKE '%");
         sqlBuilder.append(MODE_ITEMS);
         sqlBuilder.append("%';");
@@ -926,17 +1094,19 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     }
 
     /**
-     * Generate average for PPI, avgDelay recall and sum total misses over all feeds for one strategy.
+     * Generate average for PPI, avgDelay, recall and sum total misses over all feeds for one strategy.
      * 
      * @param baseTableName The name of the table that contains simulated poll data.
      * @return <code>true</code> if table with average values has been updated, <code>false</code> on any error.
      */
-    private boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
+    // FIXME: set back to private when #PPIBugFixer is done.
+    public boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
 
         LOGGER.info("Calculating global average for PPI, avgDelay recall and sum total misses over all feeds.");
+        boolean success = true;
 
-        // generate global average for PPI, avgDelay recall and sum total misses over all feeds
-        String sourceTableName = baseTableName + "_" + MODE_FEEDS;
+        // generate global average for PPI, avgDelay and sum total misses over all feeds
+        String feedsTableName = baseTableName + "_" + MODE_FEEDS;
         String outputTableName = baseTableName + AVG_POSTFIX;
 
         StringBuilder sqlBuilder = new StringBuilder();
@@ -945,18 +1115,37 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         sqlBuilder.append("` ");
         sqlBuilder.append("SELECT '");
         sqlBuilder.append(MODE_FEEDS);
-        sqlBuilder.append("', AVG(PPI), AVG(avgDelayMinutes), null, SUM(totalMisses), AVG(recall) ");
+        sqlBuilder.append("', AVG(PPI), AVG(avgDelayMinutes), null, SUM(totalMisses), null ");
         sqlBuilder.append("FROM `");
-        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append(feedsTableName);
         sqlBuilder.append("` ");
-        sqlBuilder.append("WHERE PPI IS NOT NULL AND avgDelayMinutes IS NOT NULL AND recall IS NOT NULL;");
+        sqlBuilder.append("WHERE PPI IS NOT NULL AND avgDelayMinutes IS NOT NULL;");
 
-        final String sql = sqlBuilder.toString();
-
+        String sql = sqlBuilder.toString();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sql);
         }
-        return runUpdate(sql) != -1 ? true : false;
+        success = success && runUpdate(sql) != -1 ? true : false;
+
+        // set recall
+        sqlBuilder = new StringBuilder();
+        sqlBuilder.append("UPDATE `");
+        sqlBuilder.append(outputTableName);
+        sqlBuilder.append("` u ");
+        sqlBuilder.append("SET recall = (SELECT AVG(recall) FROM `");
+        sqlBuilder.append(feedsTableName);
+        sqlBuilder.append("` s)");
+        sqlBuilder.append("WHERE MODE LIKE '%");
+        sqlBuilder.append(MODE_FEEDS);
+        sqlBuilder.append("%';");
+
+        sql = sqlBuilder.toString();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        success = success && runUpdate(sql) != -1 ? true : false;
+
+        return success;
     }
 
     /**
@@ -974,6 +1163,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
         // generate average values per feed, they are added to the same table
         result = result && generateBasicEvaluationResultsPerStrategyModeFeeds(baseTableName);
+        result = result && setRecallModeFeeds(baseTableName);
         result = result && setAvgDelayModeFeeds(baseTableName);
         result = result && setPPIModeFeeds(baseTableName);
 
@@ -1003,6 +1193,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         result = result && setAvgDelayModeItems(baseTableName);
         result = result && setMedianDelayModeItems(baseTableName);
         result = result && setPPIModeItems(baseTableName);
+        result = result && setRecallModeItems(baseTableName);
         return result;
     }
 
@@ -1063,6 +1254,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
         // create summary
         success = success && createEvaluationResultTables(baseTableName);
+        success = success && createInitialItemsTempTable(baseTableName);
         success = success && createModeFeedsSummary(baseTableName);
         success = success && createModeItemSummary(baseTableName);
         return success;
@@ -1180,6 +1372,14 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         return success;
     }
 
+    /**
+     * Truncate table feeds.
+     * 
+     * @return <code>true</code> if successful, <code>false</code> otherwise.
+     */
+    public boolean truncateTableFeeds() {
+        return runUpdate(TRUNCATE_TABLE_FEEDS) != -1 ? true : false;
+    }
 
     /**
      * Get all pending items that will not be downloaded in simulation. The number of items whos publishTime is newer
@@ -1283,6 +1483,214 @@ public class EvaluationFeedDatabase extends FeedDatabase {
                 FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND));
 
         return numItems == null ? 0 : numItems;
+    }
+
+    /**
+     * Load the average change rates for algorithm IndHist. For each hour of the day 0-23, there is a single value
+     * representing the feeds average change rate in this hour.
+     * 
+     * @param feedId The feed the load the model for.
+     * @return Array containing the average change rate per hour
+     */
+    public double[] getIndHistModel(int feedId) {
+        // store hourly change rates, default is 0.0D
+        double[] changeRate = new double[24];
+
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[3];
+
+                hourlyData[0] = resultSet.getInt("hourOfDay");
+                hourlyData[1] = resultSet.getInt("newItems");
+                hourlyData[2] = resultSet.getInt("observationPeriodDays");
+                
+                return hourlyData;
+            }
+        };
+        
+        List<int[]> hourlyData = runQuery(converter, GET_INDHIST_MODEL_BY_ID, feedId);
+
+        for (int[] oneHour : hourlyData) {
+            // estimate changeRate per Hour as newItems/observationPeriod
+            changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
+        }
+        return changeRate;
+    }
+
+    /**
+     * Load the hourly transfer volume from the given table.
+     * 
+     * @param tableName The table to load data from
+     * @return An array containing the our of the experiment as index and as object the respective data volume in Mb
+     *         that has been transferred in this hour
+     */
+    public int[] getTransferVolumePerHour(String tableName, int totalExperimentHours) {
+        // using hourOfExperiment as index and transferred volume as value
+        int[] volumes = new int[totalExperimentHours];
+
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[2];
+
+                hourlyData[0] = resultSet.getInt("hourOfExperiment");
+                hourlyData[1] = resultSet.getInt("hourlyVolumeMB");
+
+                return hourlyData;
+            }
+        };
+
+        List<int[]> hourlyData = runQuery(converter, replaceTableName(GET_TRANSFER_VOLUME_BY_STRATEGY, tableName));
+        for (int[] oneHour : hourlyData) {
+            volumes[oneHour[0]] = oneHour[1];
+        }
+        return volumes;
+    }
+
+    /**
+     * Create a table to store feed ids in that need to be processed in a particular run of
+     * {@link IntervalBoundsEvaluator}
+     * 
+     * @param tableName The name of the table to create.
+     * @return <code>true</code> if table has been successfully created, <code>false</code> otherwise.
+     */
+    public boolean createIntervalBoundsTable(String tableName) {
+        return runUpdate(replaceTableName(CREATE_INTERVAL_BOUNDS_TABLE, tableName)) != -1 ? true : false;
+    }
+
+    /**
+     * Determine all feeds in sourceTableName with a checkInterval > upperBound OR upperBound < lowerBound and add them
+     * to intervalBoundsTable. These feeds need to be processed by {@link IntervalBoundsEvaluator}
+     * 
+     * @param intervalBoundsTable Name of the table to write feed ids to. Should contain update strategy name and
+     *            interval bounds
+     * @param sourceTableName Name of the table to read data from. It is intended that this table contains data
+     *            generated by the same update strategy, but without interval bounds set (lower bound might have been 1
+     *            minute).
+     * @param lowerBound The lower bound currently used by an update strategy.
+     * @param upperBound The upper bound currently used by an update strategy.
+     * @return The number of feeds inserted.
+     */
+    public int determineFeedsToProcess(String intervalBoundsTable, String sourceTableName, int lowerBound, int upperBound) {
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("` SELECT DISTINCT(feedId) FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` WHERE checkInterval > ");
+        sqlBuilder.append(upperBound);
+        sqlBuilder.append(" OR checkInterval < ");
+        sqlBuilder.append(lowerBound);
+        sqlBuilder.append(";");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    /**
+     * Fill table 'feeds' with all feeds in intervalBoundsTable
+     * 
+     * @param intervalBoundsTable Name of the table to read the feed ids from.
+     * @return The number of feeds inserted into table 'feeds'.
+     */
+    public int copyFeedsToProcess(String intervalBoundsTable) {
+        return runUpdate(replaceTableName(COPY_FEEDS_INTERVAL_BOUNDS, intervalBoundsTable));
+    }
+
+    /**
+     * Insert all feeds from feeds_tudcs6 into table feeds, used as a clean-up.
+     * 
+     * @return The number of feeds inserted into table 'feeds'.
+     */
+    public int restoreFeedsFromBackup() {
+        return runUpdate(RESTORE_ALL_FEEDS_FROM_BACKUP);
+    }
+
+    /**
+     * Copy simulated polls from sourceTableName to targetTableName, ignoring feed ids contained in intervalBoundsTable.
+     * 
+     * @param targetTableName Name of table to copy simulated poll data to.
+     * @param sourceTableName Name of table to copy simulated poll data from.
+     * @param intervalBoundsTable Name of table that contains feed ids to skip.
+     * @return The number of simulated single polls inserted into table targetTableName.
+     */
+    public int copySimulatedPollData(String targetTableName, String sourceTableName, String intervalBoundsTable) {
+
+        // INSERT INTO `<newTable>` SELECT * FROM `z_eval_MAVSync_min_time_100_2011-11-13_00-56-23` WHERE feedId NOT IN
+        // (SELECT feedId FROM MAVSync_Todo_10080);
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(targetTableName);
+        sqlBuilder.append("` SELECT * FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append("` WHERE feedId NOT IN (SELECT feedId FROM `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("`);");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    /**
+     * Copy single delays from sourceTableName to targetTableName, ignoring feed ids contained in intervalBoundsTable.
+     * 
+     * @param targetTableName Base name of table to copy single delays to. Used to infer the name of the table
+     *            writing delay information to, usually XX_delays.
+     * @param sourceTableName Name of table that contains the simulated poll data. Used to infer the name of the table
+     *            containing delay information.
+     * @param intervalBoundsTable Name of table that contains feed ids to skip.
+     * @return The number of single delays inserted into table targetTableName.
+     */
+    public int copySimulatedSingleDelays(String targetTableName, String sourceTableName, String intervalBoundsTable) {
+
+        // INSERT INTO `<newTable>_delays` SELECT * FROM `z_eval_MAVSync_min_time_100_2011-11-13_00-56-23_delays` WHERE
+        // feedId NOT IN (SELECT feedId FROM MAVSync_Todo_10080);
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO `");
+        sqlBuilder.append(targetTableName);
+        sqlBuilder.append(DELAY_POSTFIX);
+        sqlBuilder.append("` SELECT * FROM `");
+        sqlBuilder.append(sourceTableName);
+        sqlBuilder.append(DELAY_POSTFIX);
+        sqlBuilder.append("` WHERE feedId NOT IN (SELECT feedId FROM `");
+        sqlBuilder.append(intervalBoundsTable);
+        sqlBuilder.append("`);");
+
+        final String sql = sqlBuilder.toString();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql);
+    }
+
+    // FIXME: remove when #PPIBugFixer is done.
+    public boolean removeEvaluationSummaryFeeds(String baseTableName) {
+        String outputTableName = baseTableName + AVG_POSTFIX;
+
+        String sqlBase = "DELETE FROM `###TABLE_NAME###` WHERE MODE LIKE '%feeds%'";
+        String sql = replaceTableName(sqlBase, outputTableName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sql);
+        }
+        return runUpdate(sql) != -1 ? true : false;
+
     }
 
     public static void main(String[] args) {

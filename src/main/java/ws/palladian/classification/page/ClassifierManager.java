@@ -40,9 +40,11 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.search.WebSearcher;
-import ws.palladian.retrieval.search.WebSearcherManager;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.web.GoogleSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * This class loads the training and test data, classifies and stores the results.
@@ -517,12 +519,9 @@ public class ClassifierManager {
 
         // retrieve web pages matching the keywords, download pages and build
         // index
-        WebSearcher sr = new WebSearcher();
-        sr.setSource(WebSearcherManager.GOOGLE);
-        sr.setResultCount(50);
-        sr.setLanguage(WebSearcher.LANGUAGE_GERMAN);
+        WebSearcher<WebResult> sr = new GoogleSearcher();
 
-        DocumentRetriever crawler = new DocumentRetriever();
+        HttpRetriever retriever = new HttpRetriever();
 
         StringBuilder fileIndex = new StringBuilder();
         StringBuilder urlIndex = new StringBuilder();
@@ -532,7 +531,7 @@ public class ClassifierManager {
         for (Map.Entry<String, HashSet<String>> category : dictionary.entrySet()) {
 
             for (String keyword : category.getValue()) {
-                List<String> urls = sr.getURLs(keyword);
+                List<String> urls = sr.searchUrls(keyword, 50, WebSearcherLanguage.GERMAN);
 
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanUrl(url));
@@ -540,7 +539,7 @@ public class ClassifierManager {
                     + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
-                    if (crawler.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
+                    if (retriever.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
                         fileIndex.append(cleanURLName).append(" ").append(category.getKey()).append("\n");
                         urlIndex.append(UrlHelper.getCleanUrl(url)).append(" ").append(category.getKey()).append("\n");
                         System.out.println("Saved and indexed " + url + " to " + cleanURLName);

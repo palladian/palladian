@@ -67,14 +67,30 @@ public final class DateGetterHelper {
         return date;
     }
     public static List<ContentDate> findAllDates(String text) {
-    	Object[] regExps = RegExp.getAllRegExp();
-    	Pattern[] pattern = new Pattern[regExps.length];
-    	Matcher[] matcher = new Matcher[regExps.length];
-    	for(int i = 0; i < regExps.length; i++){
-    		pattern[i] = Pattern.compile(((String[])regExps[i])[0]);
-    		matcher[i] = pattern[i].matcher("");
-    	}
-    	return findAllDates(text, matcher, regExps);
+        return findAllDates(text, false);
+    }
+
+    public static List<ContentDate> findAllDates(String text, boolean includeYearOnly) {
+        Object[] regExps = RegExp.getAllRegExp();
+
+        // try to catch numbers that might be year mentions
+        if (includeYearOnly) {
+            String[] yearRegExp = RegExp.DATE_CONTEXT_YYYY;
+            List<Object> newArray = new ArrayList<Object>();
+            for (Object regExp : regExps) {
+                newArray.add(regExp);
+            }
+            newArray.add(yearRegExp);
+            regExps = newArray.toArray();
+        }
+
+        Pattern[] pattern = new Pattern[regExps.length];
+        Matcher[] matcher = new Matcher[regExps.length];
+        for (int i = 0; i < regExps.length; i++) {
+            pattern[i] = Pattern.compile(((String[])regExps[i])[0]);
+            matcher[i] = pattern[i].matcher("");
+        }
+        return findAllDates(text, matcher, regExps);
     }
 
     /**
@@ -144,7 +160,7 @@ public final class DateGetterHelper {
      */
     public static ExtractedDate findDate(String text, Matcher[] matcher, Object[] regExps) {
     	String tempText = text;
-    	ExtractedDate date = null;    	
+    	ExtractedDate date = null;
     	int start;
     	int end;
     	for(int i = 0; i < matcher.length; i++){
@@ -275,7 +291,7 @@ public final class DateGetterHelper {
             }
             if (end < text.length()) {
             	String temp = text.substring(end, end + 1);
-            	//If last character is "/" no check for number is needed. 
+            	//If last character is "/" no check for number is needed.
             	if(!text.substring(end-1, end).equals("/")){
             		try {
 	                    Integer.parseInt(temp);

@@ -2,6 +2,7 @@ package ws.palladian.classification;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,11 +22,6 @@ import ws.palladian.helper.StopWatch;
  * <p>
  * See corresponding test case for an example.
  * </p>
- * <p>
- * 2010-08-04 -- changed internal data structure from HashSet to HashMap for performance optimizations. Serializations
- * which have been created for the old class will not be compatible. Sorry.
- * </p>
- * 
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -211,6 +207,23 @@ public class WordCorrelationMatrix implements Serializable {
         }
 
         return correlations;
+    }
+
+    /**
+     * <p>
+     * Get the top k correlations for a given word.
+     * </p>
+     * 
+     * @param word The word.
+     * @param k The number of top correlations we are looking for.
+     * @return The top k correlations sorted for the given word.
+     */
+    public List<WordCorrelation> getTopCorrelations(String word, int k) {
+        List<WordCorrelation> correlations = termCorrelations.get(word);
+
+        Collections.sort(correlations, new WordCorrelationComparator());
+
+        return correlations.subList(0, Math.min(correlations.size(), k));
     }
 
     /**

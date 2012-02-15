@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import ws.palladian.retrieval.feeds.evaluation.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * <p>
@@ -153,7 +153,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
         this.feed = feed;
 
         feed.setNumberOfItemsReceived(0);
-        simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+        simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_TRAINING_START_TIME_MILLISECOND;
         feed.setUpdateInterval(0);
 
         backupFeed();
@@ -166,7 +166,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Sets the current simulated poll time from timestamp of last iteration and the feed's current update interval
      * 
      */
-    private void setSimulatedPollTime() {
+    private void setSimulatedPollTime(Feed feed) {
         simulatedCurrentPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
     }
 
@@ -211,13 +211,83 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      */
     private double downloadSize;
 
+    /**
+     * Some update strategies require an explicit training phase. If set to <code>true</code>, {@link UpdateStrategy} is
+     * in training mode, if <code>false</code>, in normal mode.
+     */
+    private boolean trainingMode = false;
+
 
     @Override
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
         try {
+            Feed trainingFeed = new Feed();
+
+            // do training if required by update strategy.
+            if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
+
+                trainingMode = true;
+
+                // in training mode, we need an extra feed object since items are cached in the feed itself to do
+                // duplicate detection, but we _want_ to identify all items in the first poll after training as new
+                // items!
+                trainingFeed.setId(feed.getId());
+                trainingFeed.setActivityPattern(feed.getActivityPattern());
+
+                while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_TRAINING_STOP_TIME_MILLISECOND) {
+                    // set time of current poll to feed
+                    trainingFeed.setLastPollTime(new Date(simulatedCurrentPollTime));
+
+                    Feed downloadedFeed = getSimulatedWindowFromDataset(new Timestamp(simulatedCurrentPollTime));
+
+                    // abort processing if we dont have data
+                    if (downloadedFeed == null) {
+                        LOGGER.info("Feed id "
+                                + feed.getId()
+                                + ": can't load the simulated window for this feed. The first successful poll done when "
+                                + "creating the dataset was later than this simulated poll. Stop processing immediately.");
+                        // Set last poll time after benchmark stop time to prevent feed from being scheduled again. (Do
+                        // not use trainingFeed here...)
+                        feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND + 1));
+                        resultSet.add(FeedTaskResult.SUCCESS);
+                        doFinalLogging(timer);
+                        return getResult();
+
+                    }
+
+                    // remember item sequence numbers
+                    determineItemSequenceNumbers(downloadedFeed);
+
+                    trainingFeed.setItems(downloadedFeed.getItems());
+                    trainingFeed.setLastSuccessfulCheckTime(trainingFeed.getLastPollTime());
+                    trainingFeed.setWindowSize(downloadedFeed.getItems().size());
+
+                    feedReader.updateCheckIntervals(trainingFeed, trainingMode);
+
+                    // estimate time of next poll
+                    setSimulatedPollTime(trainingFeed);
+                }
+
+                // write trained model from trainingFeed back to the feed object used in 'real' evaluation
+                // debug info: in case training strategies change other stuff than additional data, copy it here
+                feed.setAdditionalData(trainingFeed.getAdditionalData());
+            }
+
+            // training has been finished. reset all parameters that influence 'real' evaluation
+            trainingMode = false;
+            simulatedCurrentPollTime = FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
+            feed.setChecks(0);
+            feed.setLastPollTime(null);
+            feed.setLastButOnePollTime(null);
+            feed.setLastFeedEntry(null);
+            feed.setLastButOneFeedEntry(null);
+
+
+            // start 'real' evaluation
             while (simulatedCurrentPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND) {
 
+                // set time of current poll to feed
                 feed.setLastPollTime(new Date(simulatedCurrentPollTime));
 
                 LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl()
@@ -291,7 +361,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 }
 
 
-                feedReader.updateCheckIntervals(feed);
+                feedReader.updateCheckIntervals(feed, trainingMode);
 
                 LOGGER.debug("New checkinterval: " + feed.getUpdateInterval());
 
@@ -383,11 +453,11 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 pollData.setDroppedItems(numPrePostBenchmarkItems);
 
                 feedDatabase.addPollData(pollData, feed.getId(), feed.getActivityPattern(),
-                        DatasetEvaluator.simulatedPollsDbTableName(), true);
+                        DatasetEvaluator.getSimulatedPollsDbTableName(), true);
 
                 if (!itemDelays.isEmpty()) {
                     feedDatabase.addSingleDelaysByFeed(feed.getId(), itemDelays,
-                            DatasetEvaluator.simulatedPollsDbTableName(), true);
+                            DatasetEvaluator.getSimulatedPollsDbTableName(), true);
                 }
 
                 if (LOGGER.isDebugEnabled()) {
@@ -395,7 +465,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 // store number of current poll and highest sequence number in feed
-                Map<String, Object> additionalData = new HashMap<String, Object>();
+                Map<String, Object> additionalData = feed.getAdditionalData();
                 additionalData.put(LAST_NUMBER_OF_POLL, currentNumberOfPoll);
 
                 // if window size was 0, remember the highest sequence number seen so far.
@@ -407,7 +477,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 feed.setAdditionalData(additionalData);
 
                 // estimate time of next poll
-                setSimulatedPollTime();
+                setSimulatedPollTime(feed);
 
                 // store stuff for next iteration
                 if (numberOfPollWithNewItem != null) {
@@ -568,7 +638,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        feed.freeMemory();
+        feed.freeMemory(true);
     }
 
     /**

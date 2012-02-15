@@ -108,6 +108,10 @@ public class RegExp {
 
     // RegExp are a array with 2 fields, field one is the regExp; field two is the format
     // ISO8601
+
+    /** Years in context. */
+    public static final String[] DATE_CONTEXT_YYYY = {"(?<=(in|of|from|year|until|through|during)\\s)[0-9]{4}", "YYYY"};
+
     /** <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO8601<a> YYYY-MM-DD TIME+UTC. */
     public static final String[] DATE_ISO8601_YMD_T = {
         YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH + ISO_TIME, "YYYY-MM-DDTHH:MM:SS+HH:MM" };

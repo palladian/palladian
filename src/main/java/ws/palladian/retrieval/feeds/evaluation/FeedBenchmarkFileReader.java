@@ -399,7 +399,7 @@ public class FeedBenchmarkFileReader {
             // remember the time the feed has been checked
             feed.setLastPollTime(new Date());
 
-            feedChecker.updateCheckIntervals(feed);
+            feedChecker.updateCheckIntervals(feed, false);
 
             pollData.setCheckInterval(feed.getUpdateInterval());
 

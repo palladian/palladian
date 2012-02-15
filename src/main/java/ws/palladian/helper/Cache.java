@@ -21,16 +21,36 @@ public class Cache {
         return SingletonHolder.instance;
     }
 
-    public boolean containsDataObject(String name) {
-        return dataObjects.containsKey(name);
+    public boolean containsDataObject(String identifier) {
+        return dataObjects.containsKey(identifier);
     }
 
-    public Object getDataObject(String name) {
-        return dataObjects.get(name);
+    public Object getDataObject(String identifier) {
+        return dataObjects.get(identifier);
     }
 
-    public void putDataObject(String name, Object object) {
-        dataObjects.put(name, object);
+    /**
+     * <p>
+     * Get the data object from the cache if it exists, if not add it to the cache.
+     * </p>
+     * 
+     * @param identifier The identifier of the object in the cache.
+     * @param obj The object to store in the cache.
+     * @return The object from the cache or the given one.
+     */
+    public Object getDataObject(String identifier, Object obj) {
+        Object object = dataObjects.get(identifier);
+
+        if (object == null) {
+            putDataObject(identifier, obj);
+            object = obj;
+        }
+
+        return object;
+    }
+
+    public void putDataObject(String identifier, Object object) {
+        dataObjects.put(identifier, object);
     }
 
 }

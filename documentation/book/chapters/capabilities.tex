@@ -540,7 +540,7 @@ Palladian wraps 8 Named Entity Recognizers using a single interface making it ea
 
 \paragraph{OpenNLP} The OpenNLP toolkit \cite{opennlp} provides a maximum entropy based approach for named entity recognition. The toolkit comes with a small set of pre-trained models covering concepts such as locations, organizations, and persons. More details can be found in the JavaDoc.
 
-\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp} \cite{finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
+\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp, finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
 
 \paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
 
@@ -815,7 +815,7 @@ System.out.println(r2);
 The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. Palladian is able to detect the age of many web pages by using four main techniques:
 \begin{enumerate}
 \item Reading the \textbf{ HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
-\item Recognize a date in the \textbf{ URL} of the web page. Especially blogs use the URL style which often reads similar to ``http://domain.tld/posts/YYYY/MM/PostName''. In these cases the date in the domain is a very good indicator of the web page's age.
+\item Recognize a date in the \textbf{ URL} of the web page. Especially blogs use the URL style which often reads similar to \texttt{http://domain.tld/posts/YYYY/MM/PostName}. In these cases the date in the domain is a very good indicator of the web page's age.
 \item Recognizing and ranking dates in the \textbf{ structure and content} of the web page. Especially news pages start or end their news posts with the location and the date that the event they are reporting about happened. Since many dates might be found in the content it is necessary to rank them among each other. This is done using indicators such as the nearness to certain keywords such as ``published'' for example.
 \item Searching for \textbf{ inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
 \end{enumerate}
@@ -901,42 +901,40 @@ System.out.println(date);
 \section{Retrieval}
 
 \subsection{Web Searcher}
-The \texttt{WebSearcher} is a class that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
+The package \texttt{ws.palladian.retrieval.search.web} provides multiple classes that can query a number of search engines with terms and retrieve matching results.
 
 \subsubsection{Basic Features}
-Basic features are:
+The currently supported search engines are:
 \begin{itemize}
-\item Query the Google search engine (unlimited queries, top 64 results only).
-\item Query Bing search engine (unlimited)
-\item Query Hakia search engine.
-\item Query Twitter.
-\item Query Google Blog search.
+\item Google, Google Blogs, Google News, Google Images (top 64 results only)\footnote{\url{http://code.google.com/intl/de/apis/websearch/docs/reference.html}}
+\item Bing, Bing News, Bing Images (unlimited)\footnote{\url{http://www.bing.com/developers/s/APIBasics.html}}
+\item Hakia, Hakia News
+\item Tweets on Twitter\footnote{\url{https://dev.twitter.com/docs/api/1/get/search}}
+\item Scroogle\footnote{\url{http://www.scroogle.org/}}
+\item Blekko\footnote{\url{http://blekko.com}}
 \end{itemize}
 
-Some of the search APIs require API keys which can be specified in the config/palladian.properties file or set programmatically.
+Some of the search APIs require API keys which can be specified in the \texttt{config/palladian.properties} file or supplied via the constructors of the respective classes. If you need to obtain an API key, check the footnotes from the list above.
 
 \subsubsection{How To}
 \label{sec:howto}
-The following code snippet shows how to initialize the \verb#WebSearcher# and get a list of (English) URLs from the Bing search engine for the exact search ``Jim Carrey''.
+The following code snippet shows how to initialize a \texttt{BingSearcher} and a \texttt{GoogleImageSearcher} and get a list of webpages and images for the search query ``Jim Carrey''.
 \begin{codelisting}
-\begin{lstlisting}[caption=Retrieving result URLs from a search engine.,frame=tb]
-// create web searcher object
-WebSearcher searcher = new WebSearcher();
-
-// set maximum number of expected results
-searcher.setResultCount(10);
-
-// set search result language to english
-searcher.setLanguage(LANGUAGE_ENGLISH);
-
-// set the query source to the Bing search engine
-searcher.setSource(WebSearcherManager.BING);
-
-// search for "Jim Carrey" in exact match mode (second parameter = true)
-List<String> resultURLs = searcher.getURLs("Jim Carrey", true);
-
+\begin{lstlisting}[caption=Retrieving results from search engines.,frame=tb]
+// create a web searcher for the Bing search engine
+WebSearcher<WebResult> searcher = new GoogleSearcher();
+// search for "Jim Carrey", 50 results, English language
+List<WebResult> webResults = searcher.search("Jim Carrey", 50,
+                                       WebSearcherLanguage.ENGLISH);
 // print the results
-CollectionHelper.print(resultURLs);
+CollectionHelper.print(webResults);
+    
+// create a web searcher to search for images on Google
+WebSearcher<WebImageResult> imageSearcher = new GoogleImageSearcher();
+// search for ten images with "Jim Carrey"
+List<WebImageResult> imageResults = imageSearcher.search("Jim Carrey", 10);
+// print the results
+CollectionHelper.print(imageResults);
 \end{lstlisting}
 \end{codelisting}
 
@@ -1075,36 +1073,35 @@ Code Listing~\ref{listing:feeds} gives a minimal sample use case employing the d
 \begin{codelisting}
 \begin{lstlisting}[caption=Using the \texttt{feeds} package.,frame=tb,label=listing:feeds]
 // search feeds for "Porsche 911"
+String discoveredFeedsFile = "data/foundFeeds.txt";
 FeedDiscovery feedDiscovery = new FeedDiscovery();
-feedDiscovery.setSearchEngine(SourceRetrieverManager.YAHOO_BOSS);
+feedDiscovery.setSearchEngine(new BingSearcher());
+feedDiscovery.setResultFilePath(discoveredFeedsFile);
 feedDiscovery.addQuery("Porsche 911");
-feedDiscovery.setResultLimit(100);
+feedDiscovery.setNumResults(100);
 feedDiscovery.findFeeds();
-Collection<String> feedUrls = feedDiscovery.getFeeds();
-CollectionHelper.print(feedUrls);
 
 // download a feed
-FeedDownloader feedDownloader = new FeedDownloader();
-Feed feed = feedDownloader.getFeed("http://rss.cnn.com/rss/edition.rss");
+FeedParser feedParser = new RomeFeedParser();
+Feed feed = feedParser.getFeed("http://rss.cnn.com/rss/edition.rss");
 List<FeedItem> feedItems = feed.getItems();
 CollectionHelper.print(feedItems);
 
 // initialize the FeedDatabase for storing the data
-FeedStore feedStore = new FeedDatabase();
+FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
 
 // add some feed URLs to the database
 FeedImporter feedImporter = new FeedImporter(feedStore);
-feedImporter.addFeeds(feedUrls);
+feedImporter.addFeedsFromFile(discoveredFeedsFile);
 
 // start aggregating news for the feeds in the database
-// (this is an infinite loop)
 FeedReader feedReader = new FeedReader(feedStore);
-feedReader.aggregate(false);
+feedReader.aggregate();
 \end{lstlisting}
 \end{codelisting}
 
 \subsection{Wiktionary Database}\label{sec:wiktionaryDB}
-Palladian offers a simple interface to the Wiktionary\footnote{http://www.wiktionary.org/} data. So far, there are two databases available, one in German and one in English. The database contains information about each word. This information is in particular:
+Palladian offers a simple interface to the Wiktionary\footnote{\url{http://www.wiktionary.org/}} data. So far, there are two databases available, one in German and one in English. The database contains information about each word. This information is in particular:
 \begin{itemize}
 \item Language, the language of the word. For example, English, German, Spanish...
 \item Type, the type of the word. For example, Noun, Adjective, Verb...

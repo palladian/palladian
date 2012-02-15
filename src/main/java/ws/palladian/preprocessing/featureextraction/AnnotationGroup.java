@@ -51,7 +51,7 @@ public class AnnotationGroup extends Annotation {
     }
 
     @Override
-    public int getStartPosition() {
+    public Integer getStartPosition() {
         int startPosition = -1;
         if (!annotations.isEmpty()) {
             startPosition = annotations.get(0).getStartPosition();
@@ -60,7 +60,7 @@ public class AnnotationGroup extends Annotation {
     }
 
     @Override
-    public int getEndPosition() {
+    public Integer getEndPosition() {
         int endPosition = -1;
         if (!annotations.isEmpty()) {
             endPosition = annotations.get(annotations.size() - 1).getEndPosition();
@@ -145,23 +145,30 @@ public class AnnotationGroup extends Annotation {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AnnotationGroup other = (AnnotationGroup) obj;
         if (annotations == null) {
-            if (other.annotations != null)
+            if (other.annotations != null) {
                 return false;
-        } else if (!annotations.equals(other.annotations))
+            }
+        } else if (!annotations.equals(other.annotations)) {
             return false;
+        }
         if (getDocument() == null) {
-            if (other.getDocument() != null)
+            if (other.getDocument() != null) {
                 return false;
-        } else if (getDocument().equals(other.getDocument()))
+            }
+        } else if (getDocument().equals(other.getDocument())) {
             return false;
+        }
         return true;
     }
 

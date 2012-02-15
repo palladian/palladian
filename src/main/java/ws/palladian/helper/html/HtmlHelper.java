@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.DocumentImpl;
@@ -53,6 +54,7 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.StringOutputStream;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
@@ -68,6 +70,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  */
 public class HtmlHelper {
 
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(HtmlHelper.class);
 
     /** HTML block level elements. */
@@ -80,12 +83,17 @@ public class HtmlHelper {
 
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
 
+    /** Names of attributes in (X)HTML containing links. */
+    private static final List<String> LINK_ATTRIBUTES = Arrays.asList("href", "src");
+
     /** prevent instantiation. */
     private HtmlHelper() {
     }
 
     /**
+     * <p>
      * Count the tags.
+     * </p>
      * 
      * @param htmlText The html text.
      * @return The number of tags.
@@ -96,10 +104,8 @@ public class HtmlHelper {
 
     /**
      * <p>
-     * Count the number of characters used for tags in the given string.
-     * </p>
-     * <p>
-     * For example, &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; => 15
+     * Count the number of characters used for tags in the given string. For example, &lt;PHONE&gt;iphone
+     * 4&lt;/PHONE&gt; => 15
      * </p>
      * 
      * @param taggedText The text with tags.
@@ -119,7 +125,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Count tags.
+     * </p>
      * 
      * @param htmlText The html text.
      * @param distinct If true, count multiple occurrences of the same tag only once.
@@ -146,7 +154,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Lists all tags. Deletes arguments within the tags, if there are any.
+     * </p>
      * 
      * @param htmlText The html text.
      * @return A list of tags.
@@ -171,10 +181,10 @@ public class HtmlHelper {
 
                 if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
                         || currentTag.contains("<title") || currentTag.contains("<body") /*
-                         * ||
-                         * currentTag.contains("meta_name"
-                         * )
-                         */) {
+                                                                                          * ||
+                                                                                          * currentTag.contains("meta_name"
+                                                                                          * )
+                                                                                          */) {
                     continue;
                 }
 
@@ -233,9 +243,11 @@ public class HtmlHelper {
     }
 
     /**
-     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
+     * <p>
+     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
      * gaps. The text might not be readable since all format hints are discarded. Consider using
      * {@link HtmlHelper.htmlToReableText} in case you need formatting.
+     * </p>
      * 
      * @param htmlContent the html content
      * @param stripTags the strip tags
@@ -303,12 +315,9 @@ public class HtmlHelper {
 
     /**
      * <p>
-     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
+     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
      * gaps. The text might not be readable since all format hints are discarded. Consider using
      * {@link HtmlHelper.htmlToReableText} in case you need formatting.
-     * </p>
-     * <p>
-     * All tags, including css and javascript, will be removed. Lines will be joined.
      * </p>
      * 
      * @param htmlContent the html content
@@ -318,7 +327,9 @@ public class HtmlHelper {
     }
 
     /**
-     * Removes the concrete html tag.
+     * <p>
+     * Removes the concrete HTML tag.
+     * </p>
      * 
      * @param pageContent The html text.
      * @param tag The tag that should be removed.
@@ -329,7 +340,9 @@ public class HtmlHelper {
     }
 
     /**
-     * <p>Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.</p>
+     * <p>
+     * Remove concrete HTML tags from a string; this version is for special-tags like <!-- -->.
+     * </p>
      * 
      * @param pageContent The html text.
      * @param beginTag The begin tag.
@@ -347,7 +360,9 @@ public class HtmlHelper {
     }
 
     /**
-     * Get a list of concrete HTMLTags; begin- and endtag are not different.
+     * <p>
+     * Get a list of concrete HTML tags; begin- and endtag are not different.
+     * </p>
      * 
      * @param pageContent The html text.
      * @param tag The tag.
@@ -358,7 +373,9 @@ public class HtmlHelper {
     }
 
     /**
-     * Get a list of concrete HTMLTags; its possible that begin- and endtag are different like <!-- -->.
+     * <p>
+     * Get a list of concrete HTML tags; its possible that begin- and endtag are different like <!-- -->.
+     * </p>
      * 
      * @param pageString The html text.
      * @param beginTag The begin tag.
@@ -418,7 +435,7 @@ public class HtmlHelper {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                throws SAXException {
+                        throws SAXException {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
@@ -471,10 +488,12 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
      * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
      * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
      * which never worked well for me.
+     * </p>
      * TODO: "namespace not declared errors"
      * 
      * @param html
@@ -513,7 +532,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Extract values e.g for: src=, href= or title=
+     * </p>
      * 
      * @param pattern the pattern
      * @param content the content
@@ -542,7 +563,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Checks, if a node is simple like &ltu&gt,&ltb&gt,&lti&gt,...
+     * </p>
      * 
      * @param node
      * @return true if simple, else false.
@@ -563,18 +586,16 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Checks, if tag is a headline.
+     * </p>
      * 
      * @param tag
      * @return
      */
     public static boolean isHeadlineTag(String tag) {
-        boolean result = false;
-        if (tag.equalsIgnoreCase("h1") || tag.equalsIgnoreCase("h2") || tag.equalsIgnoreCase("h3")
-                || tag.equalsIgnoreCase("h4") || tag.equalsIgnoreCase("h5") || tag.equalsIgnoreCase("h6")) {
-            result = true;
-        }
-        return result;
+        return (tag.equalsIgnoreCase("h1") || tag.equalsIgnoreCase("h2") || tag.equalsIgnoreCase("h3")
+                || tag.equalsIgnoreCase("h4") || tag.equalsIgnoreCase("h5") || tag.equalsIgnoreCase("h6"));
     }
 
     public static boolean isHeadlineTag(Node tag) {
@@ -582,11 +603,12 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Converts a DOM Node or Document into a String. In contrast to {@link PageAnalyzer#getTextDump(Node)}, this method
      * will write out the full node, including tags.
+     * </p>
      * 
      * TODO removing whitespace does not work with documents from the Crawler/Neko?
-     * TODO duplicate of {@link XPathHelper#convertNodeToString(Node)}? Merge?
      * 
      * @param node
      * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
@@ -626,41 +648,14 @@ public class HtmlHelper {
         return getXmlDump(node, false, false);
     }
 
-    // /**
-    // * Convert a node and his children to string.
-    // *
-    // * duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
-    // *
-    // * @param node the node
-    // * @return the node as string
-    // */
-    // public static String convertNodeToString(Node node) {
-    // Transformer trans = null;
-    // try {
-    // trans = TransformerFactory.newInstance().newTransformer();
-    // } catch (TransformerConfigurationException e1) {
-    // Logger.getRootLogger().error(e1.getMessage());
-    // } catch (TransformerFactoryConfigurationError e1) {
-    // Logger.getRootLogger().error(e1.getMessage());
-    // }
-    //
-    // final StringWriter sWriter = new StringWriter();
-    // try {
-    // trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    // trans.transform(new DOMSource(node), new StreamResult(sWriter));
-    // } catch (TransformerException e) {
-    // Logger.getRootLogger().error(e.getMessage());
-    // }
-    // String result = sWriter.toString();
-    // result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-    // // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-    //
-    // return result;
-    // }
-
     /**
+     * <p>
      * Remove unnecessary whitespace from DOM nodes.
-     * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-serialization
+     * </p>
+     * 
+     * @see http
+     *      ://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-
+     *      serialization
      * 
      * @param node
      * @return
@@ -695,7 +690,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Converts a String representation with XML markup to DOM Document. Returns an empty Document if parsing failed.
+     * </p>
      * 
      * @param input
      * @return
@@ -723,8 +720,10 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Returns a String representation of the supplied Node, including the Node itself, like outerHTML in
      * JavaScript/DOM.
+     * </p>
      * 
      * http://chicknet.blogspot.com/2007/05/outerxml-for-java.html
      * 
@@ -755,8 +754,10 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in
      * JavaScript/DOM.
+     * </p>
      * 
      * @param node
      * @return
@@ -773,7 +774,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Creates a new, empty DOM Document.
+     * </p>
      * 
      * @return
      */
@@ -790,7 +793,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Removes all nodes with specified type from Node.
+     * </p>
      * 
      * @param node
      * @param nodeType for example <code>Node.COMMENT_NODE</code>
@@ -800,7 +805,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Removes all nodes with specified type and name from Node.
+     * </p>
      * 
      * @param node
      * @param nodeType for example <code>Node.COMMENT_NODE</code>
@@ -818,9 +825,11 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Creates a copy of a DOM Document.
-     * http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom
+     * </p>
      * 
+     * @see http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom
      * @param document
      * @return the cloned Document or <code>null</code> if cloning failed.
      */
@@ -905,7 +914,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Get the raw HTML code of the document. The code will not be reformatted.
+     * </p>
      * 
      * @param document The web document to transform to the HTML string.
      * @return The unformatted HTML code of the document.
@@ -934,7 +945,9 @@ public class HtmlHelper {
     }
 
     /**
+     * <p>
      * Get the raw HTML code of the node. The code will not be reformatted.
+     * </p>
      * 
      * @param node An HTML node that should be transformed to an HTML string.
      * @return The unformatted HTML code of the node.
@@ -957,18 +970,43 @@ public class HtmlHelper {
         return ret;
     }
 
-    public static void printDom(Node node, String indent) {
-        System.out.println(indent + node.getNodeName()/* +node.getTextContent().substring(0,20) */);
+    /**
+     * <p>
+     * Print DOM tree for diagnostic purposes. The output includes all Nodes and their Attributes (prefixed with @).
+     * </p>
+     * 
+     * @param node
+     */
+    public static void printDom(Node node) {
+        printDom(node, 0);
+    }
+
+    private static void printDom(Node node, int indent) {
+        String indentString = StringUtils.repeat(" ", indent);
+
+        String nodeName = node.getNodeName();
+        String prefix = node.getPrefix();
+        String namespaceURI = node.getNamespaceURI();
+        System.out.println(indentString + nodeName + "(" + prefix + " : " + namespaceURI + ")");
+
+        if (node.getAttributes() != null) {
+            for (int i = 0; i < node.getAttributes().getLength(); i++) {
+                System.out.println(indentString + "@" + node.getAttributes().item(i));
+            }
+        }
+
         Node child = node.getFirstChild();
         while (child != null) {
-            printDom(child, indent + "_");
+            printDom(child, indent + 1);
             child = child.getNextSibling();
         }
     }
 
     /**
-     * Get the sub tree of the document or node as text without tags.
-     * You could also use {@link documentToHTMLString} and {@link htmlToReadableText} to achieve similar results.
+     * <p>
+     * Get the sub tree of the document or node as text without tags. You could also use {@link documentToHTMLString}
+     * and {@link htmlToReadableText} to achieve similar results.
+     * </p>
      * 
      * @param node The node from where to start.
      * @return A text representation of the node and its sub nodes without tags.
@@ -976,7 +1014,7 @@ public class HtmlHelper {
     public static String documentToText(Node node) {
 
         // ignore css and script nodes
-        if (node == null || node.getNodeName().equalsIgnoreCase("script")
+        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script")
                 || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName().equalsIgnoreCase("#comment")
                 || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
                 || node.getNodeName().equalsIgnoreCase("head")) {
@@ -1028,16 +1066,13 @@ public class HtmlHelper {
         wrappingNodes.add("h5");
         wrappingNodes.add("h6");
         wrappingNodes.add("li");
-
-        if (wrappingNodes.contains(nodeName)) {
-            return true;
-        }
-
-        return false;
+        return wrappingNodes.contains(nodeName);
     }
 
     /**
+     * <p>
      * Get the string representation of a document.
+     * </p>
      * TODO duplicate of {@link #documentToHtmlString(Document)}?
      * 
      * @param document The document.
@@ -1064,27 +1099,74 @@ public class HtmlHelper {
     }
 
     /**
-     * Sometimes texts in webpages have special code for character.<br>
-     * E.g. <i>&ampuuml;</i> or whitespace. <br>
-     * To evaluate this text reasonably you need to convert this code.<br>
+     * <p>
+     * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
+     * this text reasonably you need to convert this code.
+     * </p>
      * 
      * @param text
      * @return
      */
-    // TODO very specific and only used by date recognition
+    // TODO way too specific and only used by date recognition
     public static String replaceHtmlSymbols(String text) {
 
         String result = StringEscapeUtils.unescapeHtml(text);
         result = StringHelper.replaceProtectedSpace(result);
-        
+
         // remove undesired characters
         result = result.replace("&#8203;", " "); // empty whitespace
         result = result.replace("\n", " ");
         result = result.replace("&#09;", " "); // html tabulator
         result = result.replace("\t", " ");
         result = result.replace(" ,", " ");
-        
+
         return result;
+    }
+
+    /**
+     * <p>
+     * Transforms all relative URLs (i.e. in attributes <tt>href</tt> and <tt>src</tt>) of an (X)HTML {@link Document}
+     * to full, absolute URLs. The document's URL should be specified using {@link Document#setDocumentURI(String)}.
+     * </p>
+     * 
+     * @param document The document for which to create absolute URLs, this will be modified in-place
+     */
+    public static void makeAbsoluteUrls(Document document) {
+
+        String documentUrl = document.getDocumentURI();
+        String baseUrl = getBaseUrl(document);
+
+        for (String attribute : LINK_ATTRIBUTES) {
+            String xpath = "//*[@" + attribute + "]";
+            List<Node> nodes = XPathHelper.getXhtmlChildNodes(document, xpath);
+            for (Node node : nodes) {
+                Node attributeNode = node.getAttributes().getNamedItem(attribute);
+                String value = attributeNode.getNodeValue();
+                String fullValue = UrlHelper.makeFullUrl(documentUrl, baseUrl, value);
+                if (!fullValue.equals(value)) {
+                    LOGGER.debug(value + " -> " + fullValue);
+                    attributeNode.setNodeValue(fullValue);
+                }
+            }
+        }
+    }
+
+    /**
+     * <p>
+     * Get the Base URL of the supplied (X)HTML document, which is specified via the <tt>base</tt> tag in the document's
+     * header.
+     * </p>
+     * 
+     * @param document
+     * @return The base URL, if present, <code>null</code> otherwise.
+     */
+    public static String getBaseUrl(Document document) {
+        String baseHref = null;
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
+        if (baseNode != null) {
+            baseHref = baseNode.getTextContent();
+        }
+        return baseHref;
     }
 
 }

@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.retrieval.search.web.WebImageResult;
 
 /**
  * <p>A handler for images.</p>
@@ -85,7 +86,7 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static String getMatchingImageURL(ArrayList<ExtractedImage> images) {
+    public static String getMatchingImageURL(Collection<WebImageResult> images) {
         String[] matchingImages = getMatchingImageURLs(images, 1);
         if (matchingImages.length > 0) {
             return matchingImages[0];
@@ -93,35 +94,34 @@ public class ImageHandler {
         return "";
     }
 
-    public static String[] getMatchingImageURLs(ArrayList<ExtractedImage> images, int matchingNumber) {
+    public static String[] getMatchingImageURLs(Collection<WebImageResult> images, int matchingNumber) {
 
         URL urlLocation;
         try {
 
             // normalize all images to fixed width
-            ArrayList<ExtractedImage> normalizedImages = new ArrayList<ExtractedImage>();
-            Iterator<ExtractedImage> imageIterator = images.iterator();
-            while (imageIterator.hasNext()) {
-                ExtractedImage image = imageIterator.next();
-                urlLocation = new URL(image.getURL());
+            List<ExtractedImage> normalizedImages = new ArrayList<ExtractedImage>();
+
+            for (WebImageResult image : images) {
+                urlLocation = new URL(image.getUrl());
                 BufferedImage bufferedImage = null;
                 try {
                     bufferedImage = ImageIO.read(urlLocation);
                     if (bufferedImage != null) {
                         bufferedImage = rescaleImage(bufferedImage, 200);
                         image.setImageContent(bufferedImage);
-                        normalizedImages.add(image);
+                        normalizedImages.add(new ExtractedImage(image));
                     }
                 } catch (IOException e) {
-                    LOGGER.error(image.getURL(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    LOGGER.error(image.getURL(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (IllegalArgumentException e) {
-                    LOGGER.error(image.getURL(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (CMMException e) {
-                    LOGGER.error(image.getURL(), e);
+                    LOGGER.error(image.getUrl());
                 } catch (Exception e) {
-                    LOGGER.error(image.getURL(), e);
+                    LOGGER.error(image.getUrl());
                 }
             }
             images.clear();
@@ -132,18 +132,23 @@ public class ImageHandler {
                 ExtractedImage image1 = normalizedImages.get(i);
 
                 for (int j = i + 1; j < normalizedImages.size(); j++) {
-                    ExtractedImage image2 = normalizedImages.get(j);
-                    if (duplicateImages.contains(image2.getURL())) {
-                        continue;
-                    }
+                    try {
+                        ExtractedImage image2 = normalizedImages.get(j);
+                        if (duplicateImages.contains(image2.getUrl())) {
+                            continue;
+                        }
 
-                    if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
-                        continue;
-                    }
-                    if (isDuplicate(image1.getImageContent(), image2.getImageContent())) {
-                        image1.addDuplicate();
-                        image1.addRanking(image2.getRankCount());
-                        duplicateImages.add(image2.getURL());
+                        if (!MathHelper
+                                .isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
+                            continue;
+                        }
+                        if (isDuplicate(image1.getImageContent(), image2.getImageContent())) {
+                            image1.addDuplicate();
+                            image1.addRanking(image2.getRankCount());
+                            duplicateImages.add(image2.getUrl());
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error(e.getMessage());
                     }
                 }
             }
@@ -151,12 +156,12 @@ public class ImageHandler {
 
             // order images by ranking and collect urls
             Collections.sort(normalizedImages, new ExtractedImageComparator());
-            CollectionHelper.print(normalizedImages);
+            // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
             String[] matchingImageURLs = new String[matchingImages];
             for (int i = 0; i < matchingImages; i++) {
-                matchingImageURLs[i] = normalizedImages.get(i).getURL();
+                matchingImageURLs[i] = normalizedImages.get(i).getUrl();
             }
             normalizedImages.clear();
 
@@ -572,6 +577,7 @@ public class ImageHandler {
 
             // save image
             LOGGER.info("write " + savePath + " with " + fileExtension);
+            FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
         } catch (MalformedURLException e) {
