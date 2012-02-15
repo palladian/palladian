@@ -2,7 +2,11 @@ package ws.palladian.helper.math;
 
 
 /**
- * <p>Binary size units, inspired by TimeUnit from Java's concurrent package.</p>
+ * <p>
+ * Binary size units, inspired by TimeUnit from Java's concurrent package. Conversions between sizes can be done like
+ * following: <tt>SizeUnit.MEGABYTES.toBytes(1)</tt>. This converts 1 megabyte to bytes (= 1048576).
+ * </p>
+ * 
  * @author Philipp Katz
  */
 public enum SizeUnit {

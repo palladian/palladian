@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -19,9 +20,11 @@ import ws.palladian.retrieval.ranking.RankingType;
 public abstract class BaseRankingService implements RankingService {
 
     /** DocumentRetriever for HTTP downloading purposes. */
-    protected DocumentRetriever retriever = new DocumentRetriever();
+    protected final HttpRetriever retriever;
 
     public BaseRankingService() {
+        retriever = HttpRetrieverFactory.getHttpRetriever();
+        
         // we use a rather short timeout here, as responses are short.
         retriever.setConnectionTimeout(5000);
     }

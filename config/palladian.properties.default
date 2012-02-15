@@ -1,5 +1,9 @@
-config.version = 13
+config.version = 17
 ### version history:
+### 17: added MavSync ttl mode
+### 16: added blekko api key; removed obsolete options
+### 15: added IndHistTTL update strategy
+### 14: added IndHist update strategy
 ### 13: added AdaptiveTTL update strategies
 ### 12: added new mode for feed update strategy fix learned 
 ### 11: added DatasetEvaluator to config
@@ -13,6 +17,7 @@ config.version = 13
 ### 3: added thread pool size for MetadataCreator
 ### 2: added timeouts for DocumentRetriever
 ### 1: initial version
+
 
 ######################## Model Paths ########################
 
@@ -78,11 +83,6 @@ documentRetriever.numRetries = 0
 
 # number of connections opened by the connection pool
 documentRetriever.numConnections = 100
-
-# enables feed auto discovery for every parsed page
-# see feeds.conf to configure path to the file.
-# disabled for now.
-# documentRetriever.feedAutoDiscovery = false
 
 ######################## ProxySwitcher ########################
 
@@ -164,16 +164,9 @@ api.sharethis.secret = 5e06f20138b94a109ac1d079ef59b373
 
 api.compete.key = 985582a7e0dc15d222f90423ed64f4ad
 
+api.blekko.key = 0d4bb258
+
 ######################## Feed ########################
-# search engine for discovery, see SourceRetrieverManager for avail. constants
-# for example ...: Yahoo Boss = 5, Yahoo Boss News = 10
-feedDiscovery.searchEngine = 6
-
-# maximum number of threads for discovery
-feedDiscovery.maxDiscoveryThreads = 10
-
-# location of the list for feeds discovered by the DocumentRetriever
-feedDiscovery.crawlerDiscoveryList = data/status/crawler_discovered_feeds.txt
 
 # number of threads in the pool for the FeedReader
 feedReader.threadPoolSize = 100
@@ -200,7 +193,7 @@ schedulerTask.maxUnparsablePercentage = 2
 schedulerTask.maxUnreachablePercentage = 2
 
 # Choose update strategy to evaluate. Supported values are: 
-# Fix, FixLearned, AdaptiveTTL, LRU2
+# Fix, FixLearned, AdaptiveTTL, LRU2, MAVSync, IndHist, IndHistTTL
 datasetEvaluator.updateStrategy = Fix
 
 # If datasetEvaluator.updateStrategy = Fix, choose a fix check interval in minutes >0, e.g. 60 for Fix1h
@@ -210,8 +203,23 @@ datasetEvaluator.fixCheckInterval = 60
 # timestamp of first poll 
 datasetEvaluator.fixLearnedMode = 0
 
-# If datasetEvaluator.updateStrategy = AdaptiveTTL, choose weight M > 0, common values are 0.1 or 0.2
+# If datasetEvaluator.updateStrategy = AdaptiveTTL or IndHistTTL, choose weight M > 0, common values are 0.1 or 0.2
 datasetEvaluator.adaptiveTTLweightM = 0.1
+
+# If datasetEvaluator.updateStrategy = IndHist, choose threshold theta as 0 < theta < 1, common values are between 0.15 and 0.5
+datasetEvaluator.indHistTheta = 0.5
+
+# If datasetEvaluator.updateStrategy = IndHistTTL, use threshold for internal strategy selection between IndHist and AdaptiveTTL  
+datasetEvaluator.indHistTTLburst = 2.0
+
+# If datasetEvaluator.updateStrategy = IndHistTTL, this is the time window analysed for internal strategy selection
+datasetEvaluator.indHistTTLtimeWindowHours = 1
+
+# If datasetEvaluator.updateStrategy = MAVSync, set to 
+# 0 to ignore ttl attribute
+# 1 to use ttl as a lower bound for the checkInterval calculated from the feed 
+# 2 to foce ttl as checkInterval 
+datasetEvaluator.rssTTLMode = 0
 
 # Set min check interval in minutes > 0. Update strategies must not poll more often than this interval. 
 datasetEvaluator.minCheckInterval = 1
@@ -222,33 +230,6 @@ datasetEvaluator.maxCheckInterval = 1440
 # Choose benchmark mode. Supported values are: 
 # poll, time 
 datasetEvaluator.benchmarkMode = time
-
-######################## Page Segmentation ########################
-
-# length of q-grams
-pageSegmentation.lengthOfQGrams = 9
-
-# amount of q-grams
-pageSegmentation.amountOfQGrams = 5000
-
-# threshold needed to be similar
-pageSegmentation.similarityNeed = 0.689
-
-# maximal depth in DOM tree
-pageSegmentation.maxDepth = 100
-
-# number of similar documents needed
-pageSegmentation.numberOfSimilarDocuments = 5
-
-# threshold of variability
-# from green to red; from low variability to high variability
-pageSegmentation.step1 = 0.0
-pageSegmentation.step2 = 0.14
-pageSegmentation.step3 = 0.28
-pageSegmentation.step4 = 0.42
-pageSegmentation.step5 = 0.58
-pageSegmentation.step6 = 0.72
-pageSegmentation.step7 = 0.86
 
 ######################## Email Notification #######################
 sendMail.smtpHost = 

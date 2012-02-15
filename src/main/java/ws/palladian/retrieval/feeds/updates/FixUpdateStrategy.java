@@ -23,10 +23,33 @@ public class FixUpdateStrategy extends UpdateStrategy {
     /**
      * The check interval in minutes.
      */
-    private int checkInterval = -1;
+    private final int checkInterval;
 
+    /**
+     * Create strategy and set a fixed check interval in minutes larger than zero.
+     * 
+     * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
+     * @throws IllegalArgumentException In case the value is smaller or equal to zero.
+     */
+    public FixUpdateStrategy(int checkInterval) {
+        super();
+        if (checkInterval <= 0) {
+            throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
+        }
+        this.checkInterval = checkInterval;
+    }
+
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // default value
         int fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
@@ -49,19 +72,14 @@ public class FixUpdateStrategy extends UpdateStrategy {
             return "fix" + getCheckInterval();
     }
 
-    /**
-     * Set a fixed check interval in minutes.
-     * 
-     * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
-     * @throws IllegalArgumentException In case the value is smaller or equal to zero.
-     */
-    public void setCheckInterval(int checkInterval) throws IllegalArgumentException {
-        if (checkInterval <= 0) {
-            throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
-        }
-        this.checkInterval = checkInterval;
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
+    /**
+     * @return The strategy's fixed check interval in minutes, larger than zero.
+     */
     public int getCheckInterval() {
         return checkInterval;
     }

@@ -128,6 +128,23 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
         assertEquals("Mr. X is sometimes called Mr. X Jr., too!", sentences.get(0));
+        
+        inputText = "Although, St. Paul is a holy man, he is a man of earth too!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Although, St. Paul is a holy man, he is a man of earth too!", sentences.get(0));
+
+        inputText = "The largest in the U.S. is New York City, with a population of several million.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("The largest in the U.S. is New York City, with a population of several million.",
+                sentences.get(0));
+
+        inputText = "Some, ca. 200 pilots of the US A.F. think they would win vs. others said Mr. X on Tuesday.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Some, ca. 200 pilots of the US A.F. think they would win vs. others said Mr. X on Tuesday.",
+                sentences.get(0));
 
         // those patterns were causing an Exception which is fixed now : java.lang.StringIndexOutOfBoundsException
         // at tud.iir.helper.StringHelper.getSubstringBetween(StringHelper.java:984)
@@ -142,6 +159,21 @@ public class TokenizerTest {
         assertEquals(2, sentences.size());
         assertEquals("Mr. T's kill count is ca. 4,500.", sentences.get(0));
         assertEquals("Right?", sentences.get(1));
+
+        inputText = "Mr. T's website is not www.mrt.com or is it?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Mr. T's website is not www.mrt.com or is it?", sentences.get(0));
+
+        inputText = "Mr. T's website is not mrt.com or is it?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Mr. T's website is not mrt.com or is it?", sentences.get(0));
+
+        inputText = "Mr. T's website is not mrt.de/ or is it?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Mr. T's website is not mrt.de/ or is it?", sentences.get(0));
 
         inputText = "You can't have a rainbow without rain ... think about it! Did you...think about it?";
         sentences = Tokenizer.getSentences(inputText);

@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,21 +38,17 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
     private static final String SERVICE_ID = "facebook";
 
     /** The ranking value types of this service **/
-    static RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
+    public static final RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
             "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.");
 
-    static RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
+    public static final RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
             "The number of times users have shared the page on Facebook.");
 
-    static RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
+    public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
             "The number of comments users have made on the shared story.");
     
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(LIKES);
-        RANKING_TYPES.add(SHARES);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link FacebookLinkStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -75,8 +71,18 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(FQL_QUERY + "url='" + encUrl + "'");
+            JSONObject json = null;
+            try {
+                String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
+                HttpResult httpResult = retriever.httpGet(requestUrl);
 
+                JSONArray jsonArray = new JSONArray(new String(httpResult.getContent()));
+                if (jsonArray.length() == 1) {
+                    json = jsonArray.getJSONObject(0);
+                }
+            } catch (HttpException e) {
+                LOGGER.error(e);
+            }
             if (json != null) {
                 results.put(LIKES, (float) json.getInt("like_count"));
                 results.put(SHARES, (float) json.getInt("share_count"));
@@ -89,7 +95,6 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
                 LOGGER.trace("Facebook link stats for " + url + "could not be fetched");
                 checkBlocked();
             }
-
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();

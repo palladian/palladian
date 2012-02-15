@@ -1685,14 +1685,20 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // ################################# HOW TO USE #################################
 
+        /**
+         * ained = data/models/palladian/ner/palladianNerTudCs4Annotations
+         * models.palladian.nerWebTrained = data/models/palladian/ner/
+         */
+
         // // training the tagger
         // needs to point to a column separated file
         String trainingPath = "data/datasets/ner/conll/training.txt";
-        //trainingPath = "data/temp/seedsTest100.txt";
-        //trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
+        trainingPath = "data/temp/seedsTest100.txt";
+        // trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
         String modelPath = "data/temp/palladianNerTudCs4Annotations";
-        modelPath = "data/temp/palladianNerConllAnnotations";
-        modelPath = "data/temp/palladianNerConll";
+        // modelPath = "data/temp/palladianNerConllAnnotations";
+        // modelPath = "data/temp/palladianNerConll";
+        modelPath = "data/temp/palladianNerWebTrained100Annotations";
 
         // set whether to tag dates
         tagger.setTagDates(false);
@@ -1704,7 +1710,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         tagger.setLanguageMode(LanguageMode.English);
 
         // set type of training set (complete supervised or sparse semi-supervised)
-        tagger.setTrainingMode(TrainingMode.Complete);
+        tagger.setTrainingMode(TrainingMode.Sparse);
 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");
@@ -1714,8 +1720,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
 
         // train the tagger on the training file (with or without additional training annotations)
-        // tagger.train(trainingPath, trainingAnnotations, modelPath);
-        tagger.train(trainingPath, modelPath);
+        tagger.train(trainingPath, trainingAnnotations, modelPath);
+        // tagger.train(trainingPath, modelPath);
 
         System.exit(0);
 

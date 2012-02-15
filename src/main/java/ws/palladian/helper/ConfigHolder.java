@@ -77,7 +77,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 13;
+    private static final int VERSION = 17;
 
     /**
      * <p>
@@ -122,7 +122,7 @@ public final class ConfigHolder {
 //                configCandidates.add(configResource.getFile());
 //            }
             configCandidates.add(CONFIG_PATH);
-            LOGGER.info("config candidates : " + configCandidates);
+            LOGGER.debug("config candidates : " + configCandidates);
             
             File configFile = null;
             for (String candidate : configCandidates) {
@@ -131,7 +131,7 @@ public final class ConfigHolder {
             }
 
             if (configFile.exists()) {
-                LOGGER.info("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
+                LOGGER.debug("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
             } else {
 //                throw new IllegalStateException(
 //                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
@@ -182,18 +182,18 @@ public final class ConfigHolder {
         return this.config;
     }
 
-    /**
-     * <p>
-     * Return the value of the field with the specified field name.
-     * </p>
-     * 
-     * @param fieldName
-     *            The name of the field for which a value should be retrieved.
-     * @return The value of the field as Object since we don't know the type.
-     */
-    public Object getField(final String fieldName) {
-        return this.config.getProperty(fieldName);
-    }
+//    /**
+//     * <p>
+//     * Return the value of the field with the specified field name.
+//     * </p>
+//     * 
+//     * @param fieldName
+//     *            The name of the field for which a value should be retrieved.
+//     * @return The value of the field as Object since we don't know the type.
+//     */
+//    public Object getField(final String fieldName) {
+//        return this.config.getProperty(fieldName);
+//    }
 
     /**
      * <p>

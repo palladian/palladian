@@ -11,7 +11,14 @@ import ws.palladian.retrieval.feeds.FeedReader;
 
 /**
  * <p>
- * Update the check intervals in fixed mode.
+ * Update the check intervals in fixed learned mode.<br />
+ * <br />
+ * 0: Mode window (default). We use the first window and calculate the fix interval from it as<br />
+ * interval = (t_newes - t_oldest)/(numEntries - 1).<br />
+ * 1: Mode Poll. Additionally, use the timestamp of the first poll to calculate the interval.<br />
+ * interval = (t_poll - t_oldest)/(numEntries).<br />
+ * <br />
+ * If (t_newes == t_oldest) or division by zero, use {@link FeedReader#DEFAULT_CHECK_TIME} as default.
  * </p>
  * 
  * @author Sandro Reichert
@@ -19,11 +26,6 @@ import ws.palladian.retrieval.feeds.FeedReader;
  */
 public class FixLearnedUpdateStrategy extends UpdateStrategy {
 
-    // /**
-    // * The check interval in minutes. If checkInterval = -1 the interval will be determined automatically at the first
-    // * immediate check of the feed by looking in its past.
-    // */
-    // private int checkInterval = -1;
 
     /**
      * The update strategy has two different modes. 0: Mode window (default). We use the first window and calculate the
@@ -32,43 +34,65 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
      */
     private int fixLearnedMode = 0;
 
+    /**
+     * <p>
+     * Update the update interval for the feed given the post statistics.
+     * </p>
+     * 
+     * @param feed The feed to update.
+     * @param fps This feeds feed post statistics.
+     * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode. The checkInterval
+     *            is automatically learned at the first poll.
+     */
     @Override
-    public void update(Feed feed, FeedPostStatistics fps) {
+    public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
-        int fixedMinCheckInterval = 0;
+        int fixedCheckInterval = 0;
 
         // determine check interval at the very first poll
         if (feed.getChecks() == 0) {
 
             // set default value to be used if we cant compute an interval from feed (e.g. feed has no items)
-            fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
+            fixedCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
 
             List<FeedItem> entries = feed.getItems();
-            Date lowerBoundOfInterval = feed.getOldestFeedEntryCurrentWindow();
-            Date upperBoundOfInterval = feed.getLastFeedEntry();
-            if (fixLearnedMode == 1) {
-                upperBoundOfInterval = feed.getLastPollTime();
-            }
 
-            long intervalLength = 0;
-            if (upperBoundOfInterval != null && lowerBoundOfInterval != null) {
-                intervalLength = upperBoundOfInterval.getTime() - lowerBoundOfInterval.getTime();
-            }
+            // use first window only
+            if (fixLearnedMode == 0) {
+                Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
+                Date intervalStopTime = feed.getLastFeedEntry();
 
-            if (entries.size() > 0 && intervalLength > 0) {
-                fixedMinCheckInterval = (int) (intervalLength / (entries.size() * DateHelper.MINUTE_MS));
+                long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
+
+                if (entries.size() >= 2 && intervalLength > 0) {
+                    fixedCheckInterval = (int) (intervalLength / ((entries.size() - 1) * DateHelper.MINUTE_MS));
+                }
+
+            }
+            // use first window and first poll time
+            else if (fixLearnedMode == 1) {
+                Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
+                Date intervalStopTime = feed.getLastPollTime();
+
+                long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
+                
+                if (entries.size() >= 1 && intervalLength > 0) {
+                    fixedCheckInterval = (int) (intervalLength / (entries.size() * DateHelper.MINUTE_MS));
+                }
             }
         }
         // any subsequent poll
         else {
-            fixedMinCheckInterval = feed.getUpdateInterval();
+            fixedCheckInterval = feed.getUpdateInterval();
         }
 
         // set the (new) check interval to feed
         if (feed.getUpdateMode() == Feed.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
+            feed.setUpdateInterval(getAllowedUpdateInterval(fixedCheckInterval));
         }
     }
+
+
 
     @Override
     public String getName() {
@@ -77,6 +101,11 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
         } else {
             return "fixLearnedP";
         }
+    }
+
+    @Override
+    public boolean hasExplicitTrainingMode() {
+        return false;
     }
 
     /**
@@ -105,5 +134,6 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
         }
         this.fixLearnedMode = fixLearnedMode;
     }
+
 
 }

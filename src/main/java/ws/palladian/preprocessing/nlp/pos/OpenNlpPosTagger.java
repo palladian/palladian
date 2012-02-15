@@ -158,10 +158,6 @@ public class OpenNlpPosTagger extends PosTagger {
         this.tokenizer = tokenizer;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.POSTagger#tag(java.lang.String)
-     */
     @Override
     public OpenNlpPosTagger tag(final String sentence) {
 

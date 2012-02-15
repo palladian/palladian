@@ -2,6 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -46,17 +48,14 @@ public class DiggStats extends BaseRankingService implements RankingService {
     private static final String SERVICE_ID = "digg";
 
     /** The ranking value types of this service **/
-    static RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs",
+    public static final RankingType DIGGS = new RankingType("digg_diggs", "Digg.com diggs",
             "The number of times users have \"dugg\" this url on digg.com.");
 
-    static RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments",
+    public static final RankingType COMMENTS = new RankingType("digg_comments", "Digg.com comments",
             "The number of comments users have left for this digged url on digg.com.");
 
-    static List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(DIGGS);
-        RANKING_TYPES.add(COMMENTS);
-    }
+    /** All available ranking types by {@link DiggStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(DIGGS, COMMENTS);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -79,26 +78,23 @@ public class DiggStats extends BaseRankingService implements RankingService {
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument(GET_STORY_INFO + encUrl);
-            if (json != null) {
-                float diggs = 0;
-                float comments = 0;
-                if (json.getJSONArray("stories").length() > 0) {
-                    diggs = json.getJSONArray("stories").getJSONObject(0).getInt("diggs");
-                    comments = json.getJSONArray("stories").getJSONObject(0).getInt("comments");
-                }
-                results.put(DIGGS, diggs);
-                results.put(COMMENTS, comments);
-                LOGGER.trace("Digg stats for " + url + " : " + results);
-            } else {
-                results.put(DIGGS, null);
-                results.put(COMMENTS, null);
-                LOGGER.trace("Digg stats for " + url + "could not be fetched");
-                checkBlocked();
+            HttpResult httpResult = retriever.httpGet(GET_STORY_INFO + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            float diggs = 0;
+            float comments = 0;
+            if (json.getJSONArray("stories").length() > 0) {
+                diggs = json.getJSONArray("stories").getJSONObject(0).getInt("diggs");
+                comments = json.getJSONArray("stories").getJSONObject(0).getInt("comments");
             }
+            results.put(DIGGS, diggs);
+            results.put(COMMENTS, comments);
+            LOGGER.trace("Digg stats for " + url + " : " + results);
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;
@@ -122,49 +118,43 @@ public class DiggStats extends BaseRankingService implements RankingService {
                 }
             }
 
-            JSONObject json = retriever.getJSONDocument(GET_STORY_INFO + encUrls);
+            HttpResult httpResult = retriever.httpGet(GET_STORY_INFO + encUrls);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+
             Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
-            if (json != null) {
 
-                JSONArray stories = json.getJSONArray("stories");
+            JSONArray stories = json.getJSONArray("stories");
 
-                String url = "";
-                float diggs = -1;
-                float comments = -1;
+            String url = "";
+            float diggs = -1;
+            float comments = -1;
 
-                // iterate through "stories" and add rankings to results map
-                // delete every URL found in the response from tempUrls
-                for (int i = 0; i < stories.length(); i++) {
-                    url = stories.getJSONObject(i).getString("url");
-                    diggs = stories.getJSONObject(i).getInt("diggs");
-                    comments = stories.getJSONObject(i).getInt("comments");
-                    Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                    result.put(DIGGS, diggs);
-                    result.put(COMMENTS, comments);
-                    results.put(url, new Ranking(this, url, result, retrieved));
-                    tempUrls.remove(url);
-                    LOGGER.trace("Digg stats for " + url + " : " + result);
-                }
-                // add the remaining URLs (which were not in the list of "stories") with a ranking of 0
-                for (String u : tempUrls) {
-                    Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                    result.put(DIGGS, 0f);
-                    result.put(COMMENTS, 0f);
-                    results.put(u, new Ranking(this, u, result, retrieved));
-                }
-            } else {
-                for (String u : tempUrls) {
-                    Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                    result.put(DIGGS, null);
-                    result.put(COMMENTS, null);
-                    results.put(u, new Ranking(this, u, result, retrieved));
-                }
-                LOGGER.trace("Digg stats for " + urls + "could not be fetched");
-                checkBlocked();
+            // iterate through "stories" and add rankings to results map
+            // delete every URL found in the response from tempUrls
+            for (int i = 0; i < stories.length(); i++) {
+                url = stories.getJSONObject(i).getString("url");
+                diggs = stories.getJSONObject(i).getInt("diggs");
+                comments = stories.getJSONObject(i).getInt("comments");
+                Map<RankingType, Float> result = new HashMap<RankingType, Float>();
+                result.put(DIGGS, diggs);
+                result.put(COMMENTS, comments);
+                results.put(url, new Ranking(this, url, result, retrieved));
+                tempUrls.remove(url);
+                LOGGER.trace("Digg stats for " + url + " : " + result);
+            }
+            // add the remaining URLs (which were not in the list of "stories") with a ranking of 0
+            for (String u : tempUrls) {
+                Map<RankingType, Float> result = new HashMap<RankingType, Float>();
+                result.put(DIGGS, 0f);
+                result.put(COMMENTS, 0f);
+                results.put(u, new Ranking(this, u, result, retrieved));
             }
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
 

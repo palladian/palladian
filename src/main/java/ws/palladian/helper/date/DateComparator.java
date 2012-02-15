@@ -12,14 +12,14 @@ import ws.palladian.extraction.date.dates.AbstractDate;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 
 /**
- * 
- * This class gives the ability to compare dates by age.<br>
- * Be careful by using it as a comparator in sort-functions.<br>
- * Dates can have different exactness, means one has a time and the other no day.<br>
- * For more information see at particular methods.
+ * <p>
+ * This class gives the ability to compare dates by age. Be careful when using it as a comparator in sort functions.
+ * Dates can have different exactness, means one has a time and the other no day. For more information see at particular
+ * methods.
+ * </p>
  * 
  * @author Martin Gregor
- * 
+ * @author Philipp Katz
  */
 public class DateComparator implements Comparator<ExtractedDate> {
 
@@ -149,25 +149,41 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     public int compare(int i, int k) {
-        int returnValue = -2;
-        if (i == k) {
-            returnValue = 0;
+        // int returnValue = -2;
+        // if (i == k) {
+        // returnValue = 0;
+        // } else {
+        // if (i != -1 && k != -1) {
+        // if (i < k) {
+        // returnValue = 1;
+        // } else {
+        // returnValue = -1;
+        // }
+        // } else {
+        // if (i == -1) {
+        // returnValue = -2;
+        // } else {
+        // returnValue = -3;
+        // }
+        // }
+        // }
+        // return returnValue;
+
+        // for Java 1.7 compatibility I had to change the above code, as it would violate the Comparator's contract.
+        // Considering the available test cases, the following implementation also works, but I haven't tested it
+        // extensively. If we have unset date particles (i.e. field equals -1) we return Integer.MAX_VALUE, or
+        // Integer.MIN_VALUE instead of generally returning a value of -2. -- Philipp, 2011-12-15
+        int result;
+        if (i == -1 && k == -1) {
+            result = 0;
+        } else if (i == -1) {
+            result = Integer.MAX_VALUE;
+        } else if (k == -1) {
+            result = Integer.MIN_VALUE;
         } else {
-            if (i != -1 && k != -1) {
-                if (i < k) {
-                    returnValue = 1;
-                } else {
-                    returnValue = -1;
-                }
-            } else {
-                if (i == -1) {
-                    returnValue = -2;
-                } else {
-                    returnValue = -3;
-                }
-            }
+            result = Integer.valueOf(k).compareTo(i);
         }
-        return returnValue;
+        return result;
     }
 
     /**
@@ -257,10 +273,10 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates array to be filtered.
      * @return Array of dates, that are equal to the date.
      */
-    public <T, V> ArrayList<T> getEqualDate(V date, ArrayList<T> dates) {
+    public <T, V> List<T> getEqualDate(V date, List<T> dates) {
         ArrayList<T> returnDate = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
-            int compare = compare((ExtractedDate) date, (ExtractedDate) dates.get(i), STOP_DAY);
+            int compare = compare((ExtractedDate)date, (ExtractedDate)dates.get(i), STOP_DAY);
             if (compare == 0) {
                 returnDate.add(dates.get(i));
             }
@@ -275,7 +291,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> List<T> orderDates(List<T> dates) {
+    public <T extends ExtractedDate> List<T> orderDates(List<T> dates) {
         return orderDates(dates, false);
     }
 
@@ -288,7 +304,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
-    public <T> List<T> orderDates(List<T> dates, boolean reverse) {
+    public <T extends ExtractedDate> List<T> orderDates(List<T> dates, boolean reverse) {
         T[] result = orderDatesArray(dates);
         ArrayList<T> resultList = new ArrayList<T>();
         if (reverse) {
@@ -311,7 +327,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> List<T> orderDates(Map<T, Double> dates) {
+    public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             temp.add(e.getKey());
@@ -328,7 +344,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
-    public <T> List<T> orderDates(Map<T, Double> dates, boolean reverse) {
+    public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates, boolean reverse) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             temp.add(e.getKey());
@@ -344,14 +360,14 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T[] orderDatesArray(List<T> dates) {
-        T[] dateArray = (T[]) dates.toArray();
+    public <T extends ExtractedDate> T[] orderDatesArray(List<T> dates) {
+        T[] dateArray = (T[])dates.toArray(new ExtractedDate[dates.size()]);
         quicksort(0, dateArray.length - 1, dateArray);
         return dateArray;
 
     }
 
-    private <T> void quicksort(int left, int right, T[] dates) {
+    private <T extends ExtractedDate> void quicksort(int left, int right, T[] dates) {
         if (left < right) {
             int divide = divide(left, right, dates);
             quicksort(left, divide - 1, dates);
@@ -359,15 +375,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
         }
     }
 
-    private <T> int divide(int left, int right, T[] dates) {
+    private <T extends ExtractedDate> int divide(int left, int right, T[] dates) {
         int i = left;
         int j = right - 1;
         T pivot = dates[right];
         while (i < j) {
-            while (compare((ExtractedDate) dates[i], (ExtractedDate) pivot, true) < 1 && i < right) {
+            while (compare(dates[i], pivot, true) < 1 && i < right) {
                 i++;
             }
-            while (compare((ExtractedDate) dates[j], (ExtractedDate) pivot, true) > -1 && j > left) {
+            while (compare(dates[j], pivot, true) > -1 && j > left) {
                 j--;
             }
             if (i < j) {
@@ -376,7 +392,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
                 dates[j] = help;
             }
         }
-        if (compare((ExtractedDate) dates[i], (ExtractedDate) pivot, true) > 0) {
+        if (compare(dates[i], pivot, true) > 0) {
             T help = dates[i];
             dates[i] = dates[right];
             dates[right] = help;
@@ -391,7 +407,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getOldestDate(Map<T, Double> dates) {
+    public <T extends ExtractedDate> T getOldestDate(Map<T, Double> dates) {
         List<T> orderDates = orderDates(dates, false);
         T date = null;
         if (orderDates.size() > 0) {
@@ -408,7 +424,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getYoungestDate(Map<T, Double> dates) {
+    public <T extends ExtractedDate> T getYoungestDate(Map<T, Double> dates) {
         List<T> orderDates = orderDates(dates, true);
         T date = null;
         if (orderDates.size() > 0) {
@@ -425,7 +441,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getOldestDate(List<T> dates) {
+    public <T extends ExtractedDate> T getOldestDate(List<T> dates) {
         List<T> orderDates = orderDates(dates, false);
         T date = null;
         if (orderDates.size() > 0) {
@@ -442,7 +458,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T> T getYoungestDate(List<T> dates) {
+    public <T extends ExtractedDate> T getYoungestDate(List<T> dates) {
         List<T> orderDates = orderDates(dates, true);
         T date = null;
         if (orderDates.size() > 0) {
