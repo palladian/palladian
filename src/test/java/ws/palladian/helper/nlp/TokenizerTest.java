@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * Test cases for the Tokenizer class.
  * 
@@ -29,6 +31,12 @@ public class TokenizerTest {
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
         assertEquals(1, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 5).size());
         assertEquals(0, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 6).size());
+    }
+    
+    @Test
+    public void testCalculateSpans() {
+        //CollectionHelper.print(Tokenizer.getAllSpans("a b c"));
+        assertEquals(7, Tokenizer.getAllSpans("a b c").size());        
     }
 
     @Test
