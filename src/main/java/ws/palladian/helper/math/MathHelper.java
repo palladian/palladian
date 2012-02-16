@@ -600,4 +600,5 @@ public class MathHelper {
     public static double log2(double num) {
         return (Math.log(num) / Math.log(2));
     }
+
 }

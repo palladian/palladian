@@ -2,6 +2,7 @@ package ws.palladian.helper.nlp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,55 @@ public class Tokenizer {
         return tokens;
     }
 
+    /**
+     * <p>Calculate all spans for a given string.</p>
+     * <p>For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
+     * <pre>
+     * a b c
+     * a b
+     * a c
+     * b c
+     * c
+     * b
+     * a
+     * </pre>
+     * </p>
+     * @param string The string to get the spans for.
+     * @return A collection of spans.
+     */
+    public static Collection<String> getAllSpans(String string) {
+        String[] tokens = string.split("\\s");
+        
+        // create bitvector (all bit combinations other than all zeros)
+        int bits = tokens.length;
+        List<Boolean[]> bitVectors = new ArrayList<Boolean[]>();
+        
+        int max = (int) Math.pow(2, bits);        
+        for (long i = 1; i < max; i++) {
+            Boolean[] bitVector = new Boolean[bits];
+            
+            for(int n = 0; n < bits; n++) {
+                bitVector[bits-n-1] = ((i & (1L << n)) != 0);
+            }
+            
+            bitVectors.add(bitVector);
+        }
+        
+        List<String> spans = new ArrayList<String>();
+        
+        for (Boolean[] bitVector : bitVectors) {
+            StringBuilder string2 = new StringBuilder();
+            for (int i = 0; i < bitVector.length; i++) {
+                if (bitVector[i]) {
+                    string2.append(tokens[i]).append(" ");
+                }
+            }
+            spans.add(string2.toString());
+        }
+        
+        return spans;
+    }
+    
     /**
      * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
      * stringLength - n + 1
