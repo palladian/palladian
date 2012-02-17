@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.UrlTagger;
@@ -48,8 +48,12 @@ public class Tokenizer {
     }
 
     /**
-     * <p>Calculate all spans for a given string.</p>
-     * <p>For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
+     * <p>
+     * Calculate all spans for a given string.
+     * </p>
+     * <p>
+     * For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
+     * 
      * <pre>
      * a b c
      * a b
@@ -59,43 +63,65 @@ public class Tokenizer {
      * b
      * a
      * </pre>
+     * 
      * </p>
+     * 
      * @param string The string to get the spans for.
+     * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
+     *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
+     *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
+     *            length 1 will be returned nevertheless.
      * @return A collection of spans.
      */
-    public static Collection<String> getAllSpans(String string) {
+    public static Collection<List<String>> getAllSpans(String string, Integer lengthThreshold) {
         String[] tokens = string.split("\\s");
-        
+
         // create bitvector (all bit combinations other than all zeros)
         int bits = tokens.length;
-        List<Boolean[]> bitVectors = new ArrayList<Boolean[]>();
-        
-        int max = (int) Math.pow(2, bits);        
+        List<List<String>> spans = new ArrayList<List<String>>();
+
+        int max = (int)Math.pow(2, bits);
         for (long i = 1; i < max; i++) {
-            Boolean[] bitVector = new Boolean[bits];
-            
-            for(int n = 0; n < bits; n++) {
-                bitVector[bits-n-1] = ((i & (1L << n)) != 0);
+            List<String> span = new LinkedList<String>();
+            if (extractSpanRecursive(i, tokens, span, 0, Math.max(lengthThreshold - 1, 0))) {
+                spans.add(span);
             }
-            
-            bitVectors.add(bitVector);
         }
-        
-        List<String> spans = new ArrayList<String>();
-        
-        for (Boolean[] bitVector : bitVectors) {
-            StringBuilder string2 = new StringBuilder();
-            for (int i = 0; i < bitVector.length; i++) {
-                if (bitVector[i]) {
-                    string2.append(tokens[i]).append(" ");
-                }
-            }
-            spans.add(string2.toString());
-        }
-        
+
         return spans;
     }
-    
+
+    /**
+     * <p>
+     * Recursive extraction function for text spans.
+     * </p>
+     * 
+     * @param bitPattern The pattern describing the indices in the list of {@code tokens} to include in the resulting
+     *            span.
+     * @param tokens The list of tokens to construct spans from.
+     * @param span The result span will be constructed into this list.
+     * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
+     *            to include the token at that position in the span or not based on wether the value in
+     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+     * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
+     *            to abort processing and return {@code false}.
+     * @return {@code true} if the extracted span is smaller or equal to {@code maxSpanLength}; {@code false} otherwise.
+     */
+    private static Boolean extractSpanRecursive(Long bitPattern, String[] tokens, List<String> span,
+            Integer currentIndex, Integer maxSpanLength) {
+        if (bitPattern % 2 != 0) {
+            span.add(tokens[currentIndex]);
+        }
+        Long nextBitPattern = bitPattern / 2;
+        if (nextBitPattern < 1) {
+            return true;
+        } else if (span.size() > maxSpanLength) {
+            return false;
+        } else {
+            return extractSpanRecursive(nextBitPattern, tokens, span, ++currentIndex, maxSpanLength);
+        }
+    }
+
     /**
      * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
      * stringLength - n + 1
@@ -348,11 +374,11 @@ public class Tokenizer {
 
             if (startIndex > 0) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(startIndex - 1))
-                && Character.isUpperCase(string.charAt(startIndex + 1));
+                        && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
-                && string.charAt(startIndex + 1) == ' ';
+                        && string.charAt(startIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -415,14 +441,14 @@ public class Tokenizer {
             // one digit after point
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
-                && Character.isUpperCase(string.charAt(endIndex + 1))
-                || StringHelper.isBracket(string.charAt(endIndex + 1));
+                        && Character.isUpperCase(string.charAt(endIndex + 1))
+                        || StringHelper.isBracket(string.charAt(endIndex + 1));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2))
-                && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
-                        .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
+                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
+                                .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -464,40 +490,41 @@ public class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println(Tokenizer.tokenize("schön"));
-        System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
-        System.exit(0);
-
-        System.out.println(getSentences("the quick brown fox"));
-
-        // demo for the tokenizer problem
-        String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
-
-        // tokenize the whole text
-        int count = 0;
-        List<String> tokens = Tokenizer.tokenize(text);
-        for (String token : tokens) {
-            if (token.equals("Number")) {
-                count++;
-            }
-        }
-        System.out.println("# occurences 1 : " + count);
-
-        // split text into sentences,
-        // then tokenize each sentence
-        count = 0;
-        List<String> sentences = Tokenizer.getSentences(text);
-
-        for (String sentence : sentences) {
-            FileHelper.appendFile("sentences.txt", sentence + "\n");
-            List<String> tokensInSentence = Tokenizer.tokenize(sentence);
-            for (String token : tokensInSentence) {
-                if (token.equals("Number")) {
-                    count++;
-                }
-            }
-        }
-        System.out.println("# occurences 2 : " + count);
+        // System.out.println(Tokenizer.tokenize("schön"));
+        // System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
+        // System.exit(0);
+        //
+        // System.out.println(getSentences("the quick brown fox"));
+        //
+        // // demo for the tokenizer problem
+        // String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
+        //
+        // // tokenize the whole text
+        // int count = 0;
+        // List<String> tokens = Tokenizer.tokenize(text);
+        // for (String token : tokens) {
+        // if (token.equals("Number")) {
+        // count++;
+        // }
+        // }
+        // System.out.println("# occurences 1 : " + count);
+        //
+        // // split text into sentences,
+        // // then tokenize each sentence
+        // count = 0;
+        // List<String> sentences = Tokenizer.getSentences(text);
+        //
+        // for (String sentence : sentences) {
+        // FileHelper.appendFile("sentences.txt", sentence + "\n");
+        // List<String> tokensInSentence = Tokenizer.tokenize(sentence);
+        // for (String token : tokensInSentence) {
+        // if (token.equals("Number")) {
+        // count++;
+        // }
+        // }
+        // }
+        // System.out.println("# occurences 2 : " + count);
+        System.out.println(getAllSpans("I love brown cookies", 0));
 
     }
 
