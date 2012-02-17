@@ -35,6 +35,12 @@ public final class LabeledSequentialPattern {
         return label;
     }
 
+    public List<String> getPattern() {
+        List<String> ret = new ArrayList<String>(lhs.size());
+        ret.addAll(lhs);
+        return ret;
+    }
+
     /**
      * <p>
      * Calculates whether one {@code LabeledSequentialPattern} is contained within another one. The containment relation
