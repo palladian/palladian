@@ -42,9 +42,10 @@ import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
-import ws.palladian.retrieval.ranking.Ranking;
-import ws.palladian.retrieval.ranking.services.FacebookLinkStats;
 import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.TwitterSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * Dump class to test various algorithms.
@@ -615,9 +616,15 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
         
-        FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
-        Ranking ranking = facebookLinkStats.getRanking("http://cinefreaks.com");
-        System.out.println(ranking);
+        TwitterSearcher twitterSearcher = new TwitterSearcher();
+        // List<WebResult> results = twitterSearcher.search("\"scheiß Film\"", 20, WebSearcherLanguage.GERMAN);
+        List<WebResult> results = twitterSearcher.search("lustig Ziemlich beste Freunde", 20,
+                WebSearcherLanguage.GERMAN);
+        CollectionHelper.print(results);
+
+        // FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
+        // Ranking ranking = facebookLinkStats.getRanking("http://cinefreaks.com");
+        // System.out.println(ranking);
         System.exit(0);
 
         BingSearcher gs = new BingSearcher("D35DE1803D6F6F03AB5044430997A91924AD347A");
