@@ -1,5 +1,11 @@
 package ws.palladian.retrieval.cooccurrence;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import ws.palladian.helper.collection.CountMap;
 
 /**
@@ -22,10 +28,23 @@ public class CoOccurrenceStatistics {
      */
     private CountMap coOccurrences;
     
+    /** The actual sources of the co-occurrence. */
+    private Map<String, Collection<String>> coOccurrenceSources;
+
     public CoOccurrenceStatistics(String term1, String term2) {
         this.term1 = term1;
         this.term2 = term2;
         coOccurrences = new CountMap();
+
+        coOccurrenceSources = new HashMap<String, Collection<String>>();
+    }
+
+    public Map<String, Collection<String>> getCoOccurrenceSources() {
+        return coOccurrenceSources;
+    }
+
+    public void setCoOccurrenceSources(Map<String, Collection<String>> coOccurrenceSources) {
+        this.coOccurrenceSources = coOccurrenceSources;
     }
 
     public String getTerm1() {
@@ -52,13 +71,43 @@ public class CoOccurrenceStatistics {
         this.coOccurrences = coOccurrences;
     }
 
-    public void addCoOccurrence(String searcherName) {
+    public void addCoOccurrence(String searcherName, String source) {
         coOccurrences.increment(searcherName);
+
+        Collection<String> collection = coOccurrenceSources.get(searcherName);
+        if (collection == null) {
+            collection = new HashSet<String>();
+            coOccurrenceSources.put(searcherName, collection);
+        }
+
+        collection.add(source);
+    }
+
+    public int getTotalCoOccurrenceCount() {
+
+        int total = 0;
+
+        for (Integer count : coOccurrences.values()) {
+            total += count;
+        }
+
+        return total;
     }
 
     @Override
     public String toString() {
-        return "CoOccurrenceStatistics [term1=" + term1 + ", term2=" + term2 + ", coOccurrences=" + coOccurrences + "]";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Co-Occurrence between \"" + getTerm1() + "\" and \"" + getTerm2() + "\"")
+                .append(" (total: " + getTotalCoOccurrenceCount() + ")").append("\n");
+        for (Entry<String, Collection<String>> element : coOccurrenceSources.entrySet()) {
+            sb.append("\t").append(element.getKey()).append("\n");
+            for (String source : element.getValue()) {
+                sb.append("\t\t").append(source).append("\n");
+            }
+        }
+
+        return sb.toString();
     }
 
 }

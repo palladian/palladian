@@ -102,7 +102,7 @@ public class CoOccurrenceRetriever {
         if (coOccurrenceContext.equals(CoOccurrenceContext.DOCUMENT)) {
             
             if (pageText.contains(term1) && pageText.contains(term2)) {
-                stats.addCoOccurrence(searcher.getName());
+                stats.addCoOccurrence(searcher.getName(), pageText);
             }
             
         } else if (coOccurrenceContext.equals(CoOccurrenceContext.SENTENCE)) {
@@ -113,7 +113,7 @@ public class CoOccurrenceRetriever {
             for (String sentence : sentences) {
 
                 if (sentence.contains(term1) && sentence.contains(term2)) {
-                    stats.addCoOccurrence(searcher.getName());
+                    stats.addCoOccurrence(searcher.getName(), sentence);
                 }
 
             }
@@ -133,7 +133,7 @@ public class CoOccurrenceRetriever {
             }
 
             for (String match : matches) {
-                stats.addCoOccurrence(searcher.getName());
+                stats.addCoOccurrence(searcher.getName(), match);
             }
         
         }

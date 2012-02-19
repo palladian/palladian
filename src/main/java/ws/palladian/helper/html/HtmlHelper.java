@@ -295,11 +295,15 @@ public class HtmlHelper {
 
         Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
+        // remove each tag only once in the entire document
+        Set<String> removed = new HashSet<String>();
         try {
             Matcher matcher = pattern.matcher(htmlText);
 
             while (matcher.find()) {
-                htmlText = htmlText.replace(matcher.group(), "");
+                if (removed.add(matcher.group())) {
+                    htmlText = htmlText.replace(matcher.group(), "");
+                }
             }
 
         } catch (Exception e) {
