@@ -740,11 +740,8 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•"}; // whitespace
-        // is also
-        // unwanted
-        // but trim()
-        // handles
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“"}; // whitespace is also unwanted but
+                                                                                  // trim() handles
         // that, " "
         // here is
         // another
@@ -1075,22 +1072,6 @@ public class StringHelper {
         }
 
         return commonStrings.descendingMap().entrySet().iterator().next().getValue();
-    }
-
-    /**
-     * Gets the array as string.
-     * 
-     * @param array the array
-     * @return the array as string
-     * @deprecated There is {@link StringUtils#join(Object[])}, which is more flexible and also works for Collections.
-     */
-    @Deprecated
-    public static String getArrayAsString(String[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (String element : array) {
-            sb.append(element).append(",");
-        }
-        return sb.toString().substring(0, sb.length() - 1);
     }
 
     /**
