@@ -4,6 +4,7 @@
 package ws.palladian.preprocessing.featureextraction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,7 +14,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.model.LabeledSequentialPattern;
+import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
@@ -46,7 +47,7 @@ import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector
  * @version 1.0
  * @since 1.0
  */
-public final class LSPAnnotator implements PipelineProcessor {
+public final class SequentialPatternAnnotator implements PipelineProcessor {
     /**
      * 
      */
@@ -54,14 +55,22 @@ public final class LSPAnnotator implements PipelineProcessor {
 
     private Set<String> keywords;
 
-    public static final String LABEL_FEATURE_IDENTIFIER = "ws.palladian.lsplabel";
-
     public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
 
-    public LSPAnnotator(String[] keywords) {
+    private Integer maxSequentialPatternSize = 0;
+
+    /**
+     * <p>
+     * Creates a new LSP annotator with a list of keywords. This annotator is ready to use.
+     * </p>
+     * 
+     * @param keywords The keywords used by this annotator.
+     */
+    public SequentialPatternAnnotator(String[] keywords, Integer maxSequentialPatternSize) {
         super();
         this.keywords = new HashSet<String>();
         Collections.addAll(this.keywords, keywords);
+        this.maxSequentialPatternSize = maxSequentialPatternSize;
     }
 
     @Override
@@ -72,8 +81,6 @@ public final class LSPAnnotator implements PipelineProcessor {
         List<Annotation> posTags = posFeature.getValue();
         List<Annotation> sentences = sentencesFeature.getValue();
         List<Annotation> markedKeywords = markKeywords(document);
-
-        NominalFeature label = (NominalFeature)document.getFeatureVector().get(LABEL_FEATURE_IDENTIFIER);
 
         Collections.sort(posTags);
         Collections.sort(sentences);
@@ -115,9 +122,15 @@ public final class LSPAnnotator implements PipelineProcessor {
                     currentPosTag = posTagsIterator.next();
                 }
             }
-            Feature<LabeledSequentialPattern> lspFeature = new Feature<LabeledSequentialPattern>(PROVIDED_FEATURE,
-                    new LabeledSequentialPattern(sequentialPattern, label.getValue()));
-            sentence.getFeatureVector().add(lspFeature);
+
+            Collection<List<String>> patterns = ws.palladian.helper.nlp.Tokenizer.getAllSpans(
+                    sequentialPattern.toArray(new String[sequentialPattern.size()]), maxSequentialPatternSize);
+
+            for (List<String> pattern : patterns) {
+                Feature<SequentialPattern> lspFeature = new Feature<SequentialPattern>(PROVIDED_FEATURE,
+                        new SequentialPattern(pattern));
+                sentence.getFeatureVector().add(lspFeature);
+            }
 
         }
     }

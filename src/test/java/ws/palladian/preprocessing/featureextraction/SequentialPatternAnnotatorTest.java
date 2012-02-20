@@ -11,19 +11,20 @@ import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import ws.palladian.helper.ResourceHelper;
-import ws.palladian.model.LabeledSequentialPattern;
-import ws.palladian.model.features.NominalFeature;
+import ws.palladian.model.SequentialPattern;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetector;
 
+// TODO since the LSP algorithm is so slow this test should not run regularly.
 /**
  * <p>
  * Tests whether the Labeled Sequential Pattern annotator works correct or not.
@@ -33,13 +34,14 @@ import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetecto
  * 
  */
 @RunWith(Parameterized.class)
-public class LSPAnnotatorTest {
+@Ignore
+public class SequentialPatternAnnotatorTest {
 
     private final String inputText;
     private final String[] keywords;
-    private final List<LabeledSequentialPattern> expectedPatterns;
+    private final List<SequentialPattern> expectedPatterns;
 
-    public LSPAnnotatorTest(String inputText, String[] keywords, List<LabeledSequentialPattern> expectedPatterns) {
+    public SequentialPatternAnnotatorTest(String inputText, String[] keywords, List<SequentialPattern> expectedPatterns) {
         super();
         this.inputText = inputText;
         this.keywords = keywords;
@@ -48,9 +50,9 @@ public class LSPAnnotatorTest {
 
     @Parameters
     public static Collection<Object[]> testData() throws IOException {
-        List<LabeledSequentialPattern> firstExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        List<LabeledSequentialPattern> thirdExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
-        List<LabeledSequentialPattern> secondExtractedPatterns = new ArrayList<LabeledSequentialPattern>();
+        List<SequentialPattern> firstExtractedPatterns = new ArrayList<SequentialPattern>();
+        List<SequentialPattern> thirdExtractedPatterns = new ArrayList<SequentialPattern>();
+        List<SequentialPattern> secondExtractedPatterns = new ArrayList<SequentialPattern>();
 
         List<String> firstPattern = new ArrayList<String>();
         List<String> secondPattern = new ArrayList<String>();
@@ -69,11 +71,11 @@ public class LSPAnnotatorTest {
         fifthPattern.addAll(Arrays.asList(new String[] {"JJ", "NN", "VBZ", "DT", "JJS", "IN", "PRP$", "NNS", "RB",
                 "RB", ":"}));
 
-        firstExtractedPatterns.add(new LabeledSequentialPattern(firstPattern, "test"));
-        secondExtractedPatterns.add(new LabeledSequentialPattern(secondPattern, "test"));
-        secondExtractedPatterns.add(new LabeledSequentialPattern(thirdPattern, "test"));
-        secondExtractedPatterns.add(new LabeledSequentialPattern(fourthPattern, "test"));
-        thirdExtractedPatterns.add(new LabeledSequentialPattern(fifthPattern, "test"));
+        firstExtractedPatterns.add(new SequentialPattern(firstPattern));
+        secondExtractedPatterns.add(new SequentialPattern(secondPattern));
+        secondExtractedPatterns.add(new SequentialPattern(thirdPattern));
+        secondExtractedPatterns.add(new SequentialPattern(fourthPattern));
+        thirdExtractedPatterns.add(new SequentialPattern(fifthPattern));
 
         return Arrays
                 .asList(new Object[] {"This is a test", new String[] {"This", "test"}, firstExtractedPatterns},
@@ -91,19 +93,17 @@ public class LSPAnnotatorTest {
         processingPipeline.add(new Tokenizer());
         processingPipeline.add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(ResourceHelper
                 .getResourcePath("/model/en-pos-maxent.bin")));
-        processingPipeline.add(new LSPAnnotator(keywords));
+        processingPipeline.add(new SequentialPatternAnnotator(keywords, 4));
 
         PipelineDocument document = new PipelineDocument(inputText);
-        NominalFeature label = new NominalFeature(LSPAnnotator.LABEL_FEATURE_IDENTIFIER, "test");
-        document.getFeatureVector().add(label);
 
         processingPipeline.process(document);
 
         for (Annotation annotation : ((AnnotationFeature)document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE)).getValue()) {
-            LabeledSequentialPattern lsp = (LabeledSequentialPattern)annotation.getFeatureVector()
-                    .get(LSPAnnotator.PROVIDED_FEATURE).getValue();
-            Assert.assertThat(expectedPatterns, Matchers.hasItem(lsp));
+            SequentialPattern lsp = (SequentialPattern)annotation.getFeatureVector()
+                    .get(SequentialPatternAnnotator.PROVIDED_FEATURE).getValue();
+            Assert.assertThat(lsp, Matchers.isIn(expectedPatterns));
         }
     }
 }
