@@ -3,25 +3,26 @@ package ws.palladian.retrieval;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 /**
+ * <p>
  * Runnable which allows simultaneous downloads of web pages; the URLs to be processed are taken from the supplied
- * queue, and for each downloaded and parsed document, a {@link RetrieverCallback} is triggered.
+ * queue, and for each downloaded document, a {@link RetrieverCallback} is triggered.
+ * </p>
  * 
- * @author Philipp Katz
+ * @author David Urbansky
  * 
  */
-class DocumentRetrieverThread implements Runnable {
+class TextRetrieverThread implements Runnable {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DocumentRetrieverThread.class);
+    private static final Logger LOGGER = Logger.getLogger(TextRetrieverThread.class);
 
     private final BlockingQueue<String> urlQueue;
-    private final RetrieverCallback<Document> callback;
+    private final RetrieverCallback<String> callback;
     private final DocumentRetriever documentRetriever;
 
-    protected DocumentRetrieverThread(BlockingQueue<String> urlQueue, RetrieverCallback<Document> callback,
+    protected TextRetrieverThread(BlockingQueue<String> urlQueue, RetrieverCallback<String> callback,
             DocumentRetriever documentRetriever) {
         super();
         this.urlQueue = urlQueue;
@@ -45,9 +46,9 @@ class DocumentRetrieverThread implements Runnable {
                 continue;
             }
 
-            Document document = documentRetriever.getWebDocument(url);
-            if (document != null) {
-                callback.onFinishRetrieval(document);
+            String text = documentRetriever.getText(url);
+            if (text != null) {
+                callback.onFinishRetrieval(text);
             }
         }
 

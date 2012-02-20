@@ -1397,7 +1397,17 @@ public class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
+        return getRegexpMatch(regexp, text, false);
+    }
+
+    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive) {
+        Pattern p;
+
+        if (caseInsensitive) {
+            p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } else {
+            p = Pattern.compile(regexp);
+        }
 
         Matcher m = p.matcher(text);
         if (m.find()) {
@@ -1406,6 +1416,7 @@ public class StringHelper {
 
         return "";
     }
+
 
     public static List<String> getRegexpMatches(String regexp, String text) {
 
