@@ -125,7 +125,7 @@ public class InformativenessAssigner {
 
         final PalladianContentExtractor pse = new PalladianContentExtractor();
         
-        RetrieverCallback callback = new RetrieverCallback() {
+        RetrieverCallback<Document> callback = new RetrieverCallback<Document>() {
             
             @Override
             public void onFinishRetrieval(Document document) {

@@ -159,7 +159,7 @@ public class Temp {
 
         documentRetriever.setNumThreads(200);
 
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+        RetrieverCallback retrieverCallback = new RetrieverCallback<Document>() {
 
             @Override
             public void onFinishRetrieval(Document document) {
