@@ -157,7 +157,7 @@ public class DocumentRetriever {
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<Document>();
-        getWebDocuments(urls, new RetrieverCallback() {
+        getWebDocuments(urls, new RetrieverCallback<Document>() {
             @Override
             public void onFinishRetrieval(Document document) {
                 synchronized (result) {
@@ -206,7 +206,7 @@ public class DocumentRetriever {
             // altough this seems to be valid, our parser doesn't like this, so we remove
             // those brackets before parsing -- Philipp, 2010-07-04
             
-            // this was stupid, therefore removed it again. Clients should use getJsonArray instead -- 
+            // this was stupid, therefore removed it again. Clients should use getJsonArray instead --
             // Philipp, 2011-12-29
             
             /*if (json.startsWith("[") && json.endsWith("]")) {
@@ -298,6 +298,58 @@ public class DocumentRetriever {
         }
 
         return contentString;
+    }
+
+    /**
+     * <p>
+     * Get multiple URLs in parallel, for each finished download the supplied callback is invoked. The number of
+     * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
+     * </p>
+     * 
+     * @param urls The URLs to download.
+     * @param callback The callback to be called for each finished download.
+     */
+    public void getTexts(Collection<String> urls, RetrieverCallback<String> callback) {
+
+        BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+
+        Thread[] threads = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            Runnable runnable = new TextRetrieverThread(urlQueue, callback, this);
+            threads[i] = new Thread(runnable);
+            threads[i].start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                LOGGER.error(e);
+            }
+        }
+    }
+
+    /**
+     * <p>
+     * Get multiple URLs in parallel. The number of simultaneous threads for downloading and parsing can be defined
+     * using {@link #setNumThreads(int)}.
+     * </p>
+     * 
+     * @param urls The URLs to download.
+     * @return Set with the downloaded texts. Texts which could not be downloaded or parsed successfully, are not
+     *         included.
+     */
+    public Set<String> getTexts(Collection<String> urls) {
+        final Set<String> result = new HashSet<String>();
+        getTexts(urls, new RetrieverCallback<String>() {
+            @Override
+            public void onFinishRetrieval(String text) {
+                synchronized (result) {
+                    result.add(text);
+                }
+            }
+        });
+        return result;
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -439,8 +491,18 @@ public class DocumentRetriever {
     public static void main(String[] args) throws Exception {
         DocumentRetriever retriever = new DocumentRetriever();
 
-
-
+        // // speed test download and parse documents vs. text only retrieval, result: almost no difference, about 10ms
+        // per
+        // document for parsing
+        // StopWatch sw = new StopWatch();
+        // BingSearcher bingSearcher = new BingSearcher(ConfigHolder.getInstance().getConfig());
+        // List<String> urls1 = bingSearcher.searchUrls("Jim Carrey", 20);
+        // System.out.println("searched in " + sw.getElapsedTimeString());
+        // sw.start();
+        // // Set<Document> webDocuments = retriever.getWebDocuments(urls1);
+        // Set<String> webTexts = retriever.getTexts(urls1);
+        // System.out.println("downloaded in " + sw.getElapsedTimeString());
+        // System.out.println("total: " + sw.getTotalElapsedTimeString());
         System.exit(0);
 
         // HttpResult result = retriever.httpGet(url);
@@ -458,7 +520,7 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        RetrieverCallback crawlerCallback = new RetrieverCallback() {
+        RetrieverCallback crawlerCallback = new RetrieverCallback<Document>() {
             @Override
             public void onFinishRetrieval(Document document) {
                 // do something with the page
