@@ -19,9 +19,12 @@ import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.UrlTagger;
 
 /**
+ * <p>
  * The Tokenizer tokenizes strings or creates chunks of that string.
+ * </p>
  * 
  * @author David Urbansky
+ * @author Klemens Muthmann
  * 
  */
 public class Tokenizer {
@@ -101,7 +104,7 @@ public class Tokenizer {
      * @param tokens The list of tokens to construct spans from.
      * @param span The result span will be constructed into this list.
      * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
-     *            to include the token at that position in the span or not based on wether the value in
+     *            to include the token at that position in the span or not based on whether the value in
      *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
      * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
      *            to abort processing and return {@code false}.
@@ -123,8 +126,10 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
-     * stringLength - n + 1
+     * stringLength - n + 1.
+     * </p>
      * 
      * @param string The string that the n-grams should be calculated for.
      * @param n The number of characters for a gram.
@@ -151,8 +156,10 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =
-     * numberOfWords - n + 1
+     * numberOfWords - n + 1.
+     * </p>
      * 
      * @param string The string that the n-grams should be calculated for.
      * @param n The number of words for a gram.
@@ -181,10 +188,14 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =
      * numberOfWords - n + 1.
+     * </p>
      * 
+     * <p>
      * Since the quantity of the encountered n-grams is important for some algorithms, a list is used.
+     * </p>
      * 
      * @param string The string that the n-grams should be calculated for.
      * @param n The number of words for a gram.
@@ -213,9 +224,10 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
-     * as: Size = SUM_n(n1,n2)
-     * (stringLength - n + 1)
+     * as: Size = SUM_n(n1,n2) (stringLength - n + 1)
+     * </p>
      * 
      * @param string The string the n-grams should be calculated for.
      * @param n1 The smallest n-gram size.
@@ -232,9 +244,10 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Calculate all n-grams for a string for different n on a word level. The size of the set can be calculated as:
-     * Size = SUM_n(n1,n2)
-     * (numberOfWords - n + 1)
+     * Size = SUM_n(n1,n2) (numberOfWords - n + 1)
+     * </p>
      * 
      * @param string The string the n-grams should be calculated for.
      * @param n1 The smallest n-gram size.
@@ -251,7 +264,9 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Get the sentence that the specified position is in.
+     * </p>
      * 
      * @param string The string.
      * @param position The position in the sentence.
@@ -272,10 +287,11 @@ public class Tokenizer {
     }
 
     /**
-     * Get a list of sentences of an input text.
-     * Also see <a
+     * <p>
+     * Get a list of sentences of an input text. Also see <a
      * href="http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html">http://alias-i.com/lingpipe/demos
      * /tutorial/sentences/read-me.html</a> for the LingPipe example.
+     * </p>
      * 
      * @param inputText An input text.
      * @return A list with sentences.
@@ -298,7 +314,7 @@ public class Tokenizer {
 
         // pattern to find the end of a sentence
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -351,9 +367,11 @@ public class Tokenizer {
     }
 
     /**
-     * Given a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
-     * "Although, many of them". consider !,?,. and : as end of
-     * sentence TODO control character after delimiter makes it end of sentence
+     * <p>
+     * iven a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
+     * "Although, many of them". consider !,?,. and : as end of sentence TODO control character after delimiter makes it
+     * end of sentence.
+     * </p>
      * 
      * @param inputString the input string
      * @return The phrase from the beginning of the sentence.
@@ -361,6 +379,7 @@ public class Tokenizer {
     public static String getPhraseFromBeginningOfSentence(String inputString) {
 
         String string = inputString;
+
         // find the beginning of the current sentence by finding the period at the end
         int startIndex = string.lastIndexOf(".");
 
@@ -407,9 +426,12 @@ public class Tokenizer {
             startIndex = -1;
         }
 
-        string = string.substring(startIndex + 1); // cut point
+        // cut period
+        string = string.substring(startIndex + 1);
+
+        // cut first space
         if (string.startsWith(" ")) {
-            string = string.substring(1); // cut first space
+            string = string.substring(1);
         }
 
         return string;

@@ -740,11 +740,8 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•"}; // whitespace
-        // is also
-        // unwanted
-        // but trim()
-        // handles
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“"}; // whitespace is also unwanted but
+                                                                                  // trim() handles
         // that, " "
         // here is
         // another
@@ -1078,22 +1075,6 @@ public class StringHelper {
     }
 
     /**
-     * Gets the array as string.
-     * 
-     * @param array the array
-     * @return the array as string
-     * @deprecated There is {@link StringUtils#join(Object[])}, which is more flexible and also works for Collections.
-     */
-    @Deprecated
-    public static String getArrayAsString(String[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (String element : array) {
-            sb.append(element).append(",");
-        }
-        return sb.toString().substring(0, sb.length() - 1);
-    }
-
-    /**
      * Reverse a string. ABC => CBA.
      * 
      * @param string The string to be reversed.
@@ -1416,7 +1397,17 @@ public class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
+        return getRegexpMatch(regexp, text, false);
+    }
+
+    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive) {
+        Pattern p;
+
+        if (caseInsensitive) {
+            p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } else {
+            p = Pattern.compile(regexp);
+        }
 
         Matcher m = p.matcher(text);
         if (m.find()) {
@@ -1425,6 +1416,7 @@ public class StringHelper {
 
         return "";
     }
+
 
     public static List<String> getRegexpMatches(String regexp, String text) {
 

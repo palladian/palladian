@@ -93,7 +93,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         } catch (JSONException e) {
             LOGGER.error(e);
         }
-        LOGGER.info("twitter requests: " + TOTAL_REQUEST_COUNT.get());
+
+        LOGGER.debug("twitter requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
     }
 

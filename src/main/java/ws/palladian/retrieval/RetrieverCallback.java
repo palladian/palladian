@@ -1,14 +1,13 @@
 package ws.palladian.retrieval;
 
-import org.w3c.dom.Document;
 
 /**
  * An interface for the RetrieverCallback.
  * 
  * @author David Urbansky
  */
-public interface RetrieverCallback {
+public interface RetrieverCallback<T> {
 
-    void onFinishRetrieval(Document document);
+    void onFinishRetrieval(T document);
 
 }

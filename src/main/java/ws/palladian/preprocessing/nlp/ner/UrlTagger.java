@@ -17,7 +17,7 @@ public class UrlTagger {
 	public static final String URI_TAG_NAME = "URI";
 	
 	/** The URL regular expression. */
-    private static final String URL_REGEXP = "((http://|www.).*?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-]*(\\.[A-Za-z]{2,5})?)";
+    private static final String URL_REGEXP = "((http://|https://|www.).*?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-]*(\\.[A-Za-z]{2,5})?)";
 
 	private final Pattern urlPattern;
 
