@@ -394,6 +394,36 @@ public class StringHelper {
     }
 
     /**
+     * <p>
+     * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
+     * within another word.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWord(String word, String searchString) {
+        String allowedNeighbors = "[\\s,.;-]";
+        String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return false;
+        }
+        Matcher m = pat.matcher(searchString);
+        if (m.find()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Check whether a given string contains a numeric value.
      * 
      * @param searchString The search string.

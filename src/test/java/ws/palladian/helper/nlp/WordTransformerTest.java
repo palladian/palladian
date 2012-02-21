@@ -161,4 +161,56 @@ public class WordTransformerTest {
         assertEquals("wolves", WordTransformer.wordToPlural("wolf", "en"));
         assertEquals("women", WordTransformer.wordToPlural("woman", "en"));
     }
+
+    @Test
+    public void testGetThirdPersonSingular() {
+        assertEquals("jumps", WordTransformer.getThirdPersonSingular("jump"));
+        assertEquals("done", WordTransformer.getThirdPersonSingular("done"));
+        assertEquals("did", WordTransformer.getThirdPersonSingular("did"));
+        assertEquals("jumped", WordTransformer.getThirdPersonSingular("jumped"));
+        assertEquals("misses", WordTransformer.getThirdPersonSingular("miss"));
+        assertEquals("flies", WordTransformer.getThirdPersonSingular("fly"));
+        assertEquals("boxes", WordTransformer.getThirdPersonSingular("box"));
+        assertEquals("searches", WordTransformer.getThirdPersonSingular("search"));
+        assertEquals("searched", WordTransformer.getThirdPersonSingular("searched"));
+        assertEquals("wishes", WordTransformer.getThirdPersonSingular("wish"));
+        assertEquals("goes", WordTransformer.getThirdPersonSingular("go"));
+    }
+
+    @Test
+    public void testGetSimplePast() {
+        assertEquals("jumped", WordTransformer.getSimplePast("jump"));
+        assertEquals("jumped", WordTransformer.getSimplePast("jumped"));
+        assertEquals("equipped", WordTransformer.getSimplePast("equip"));
+        assertEquals("tried", WordTransformer.getSimplePast("tried"));
+        assertEquals("found", WordTransformer.getSimplePast("find"));
+        assertEquals("grated", WordTransformer.getSimplePast("grate"));
+        assertEquals("went", WordTransformer.getSimplePast("go"));
+    }
+
+    @Test
+    public void testGetPastParticiple() {
+        assertEquals("jumped", WordTransformer.getPastParticiple("jump"));
+        assertEquals("jumped", WordTransformer.getPastParticiple("jumped"));
+        assertEquals("equipped", WordTransformer.getPastParticiple("equip"));
+        assertEquals("tried", WordTransformer.getPastParticiple("tried"));
+        assertEquals("found", WordTransformer.getPastParticiple("find"));
+        assertEquals("grated", WordTransformer.getPastParticiple("grate"));
+        assertEquals("gone", WordTransformer.getPastParticiple("go"));
+    }
+
+    @Test
+    public void testGetTense() {
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?"));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there."));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?"));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?"));
+
+        // TODO use pos tagging to find the following
+        // assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence."));
+        // assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence."));
+        // assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?"));
+        // assertEquals(EnglishTense.PAST_PERFECT,
+        // WordTransformer.getTense("No, I never had eaten pancakes before today?"));
+    }
 }
