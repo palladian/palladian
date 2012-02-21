@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
@@ -61,7 +62,8 @@ public class Author {
      * </p>
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "gentable")
+    @TableGenerator(name = "gentable", table = "SEQUENCE", pkColumnName = "SEQ_COUNT", valueColumnName = "SEQ_NAME", pkColumnValue = "SEQ_GEN")
     private Integer identifier;
 
     /**

@@ -36,6 +36,7 @@
 		<class>ws.palladian.iirmodel.RelationType</class>
 		<class>ws.palladian.iirmodel.Label</class>
 		<class>ws.palladian.iirmodel.LabelType</class>
+		<class>ws.palladian.iirmodel.Labeler</class>
 		<properties>
 			<property name="eclipselink.ddl-generation" value="create-tables" />
 			<property name="eclipselink.ddl-generation.output-mode"

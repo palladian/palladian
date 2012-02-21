@@ -31,7 +31,6 @@ import ws.palladian.iirmodel.Author;
 import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
-import ws.palladian.iirmodel.ItemType;
 import ws.palladian.iirmodel.RelationType;
 import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
@@ -103,11 +102,11 @@ public class PersistenceLayerTest {
         ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), stream.getSourceAddress());
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
-                "i1text", null, ItemType.QUESTION);
+                "i1text", null);
         stream.addItem(item1);
         Author author2 = new Author("a2", 4, 0, 3, new Date(), stream.getSourceAddress());
         Item item2 = new Item("i2", author2, "http://testSource.de/testStream/i2", "i2", new Date(), new Date(),
-                "i2text", item1, ItemType.OTHER);
+                "i2text", item1);
         stream.addItem(item2);
         stream.addAuthor(author1);
         stream.addAuthor(author2);
@@ -126,7 +125,6 @@ public class PersistenceLayerTest {
         assertEquals(item1.getText(), firstResultItem.getText());
         assertEquals(item1.getTitle(), firstResultItem.getTitle());
         assertEquals(item1.getUpdateDate(), firstResultItem.getUpdateDate());
-        assertEquals(item1.getType(), firstResultItem.getType());
         Author firstItemResultAuthor = firstResultItem.getAuthor();
         assertEquals(author1.getAuthorRating(), firstItemResultAuthor.getAuthorRating());
         assertEquals(author1.getCountOfItems(), firstItemResultAuthor.getCountOfItems());
@@ -145,12 +143,12 @@ public class PersistenceLayerTest {
         ItemStream stream = new ItemStream("testSource", "http://testSource.de/testStream");
         Author author1 = new Author("a1", 10, 2, 5, new Date(), stream.getSourceAddress());
         Item item1 = new Item("i1", author1, "http://testSource.de/testStream/i1", "i1", new Date(), new Date(),
-                "i1text", null, ItemType.QUESTION);
+                "i1text", null);
         stream.addItem(item1);
         Author author2 = new Author("a2", 4, 0, 3, new Date(), stream.getSourceAddress());
         Date author2RegistrationDate = new Date();
         Item item2 = new Item("i2", author2, "http://testSource.de/testStream/i2", "i2", author2RegistrationDate,
-                new Date(), "i2text", item1, ItemType.OTHER);
+                new Date(), "i2text", item1);
         stream.addItem(item2);
         stream.addAuthor(author1);
         stream.addAuthor(author2);
@@ -162,11 +160,11 @@ public class PersistenceLayerTest {
 
         Author changedAuthor1 = new Author("a2", 11, 3, 5, author2RegistrationDate, changedStream.getSourceAddress());
         Item changedItem1 = new Item("i2", changedAuthor1, "http://testSource.de/testStream/i2", "i2",
-                item2.getPublicationDate(), item2.getUpdateDate(), "i2text", null, ItemType.OTHER);
+                item2.getPublicationDate(), item2.getUpdateDate(), "i2text", null);
         changedStream.addItem(changedItem1);
         Author changedAuthor2 = new Author("a3", 11, 3, 5, new Date(), changedStream.getSourceAddress());
         Item changedItem2 = new Item("i3", changedAuthor2, "http://testSource.de/testStream/i3", "i3", new Date(),
-                new Date(), "i3text", changedItem1, ItemType.OTHER);
+                new Date(), "i3text", changedItem1);
         changedStream.addItem(changedItem2);
         changedStream.addAuthor(changedAuthor1);
         changedStream.addAuthor(changedAuthor2);
@@ -277,7 +275,7 @@ public class PersistenceLayerTest {
         ItemStream testSource = new ItemStream("testGroup", "http://testGroup.de");
         Author testAuthor = new Author("testUser", 3, 2, 1, new Date(), testSource.getSourceAddress());
         Item testItem = new Item("testItem", testAuthor, "http://testSource.de/testItem", "testItem", new Date(),
-                new Date(), "testItemText", null, ItemType.OTHER);
+                new Date(), "testItemText", null);
         testSource.addItem(testItem);
 
         persistenceLayer.saveItemStream(testSource);
@@ -355,24 +353,24 @@ public class PersistenceLayerTest {
 
         Author firstAsker = new Author("a1", 1, 1, 0, new Date(), forum.getSourceAddress());
         Item item11 = new Item("0", firstAsker, "http://testforum.de/t1/i1", "Title1", new Date(), new Date(),
-                "Hello World?", null, ItemType.QUESTION);
+                "Hello World?", null);
         firstStream.addItem(item11);
         firstStream.addAuthor(firstAsker);
 
         Author answerer = new Author("a2", 2, 0, 1, new Date(), forum.getSourceAddress());
         Item item12 = new Item("1", answerer, "http://testforum.de/t1/i2", "Title1", new Date(), new Date(),
-                "Hello World!", null, ItemType.CORRECT_ANSWER);
+                "Hello World!", null);
         firstStream.addItem(item12);
         firstStream.addAuthor(answerer);
 
         Author secondAsker = new Author("a3", 1, 1, 0, new Date(), forum.getSourceAddress());
         Item item21 = new Item("2", secondAsker, "http://testforum.de/t2/i1", "Title2", new Date(), new Date(),
-                "Hello World again?", null, ItemType.QUESTION);
+                "Hello World again?", null);
         secondStream.addItem(item21);
         secondStream.addAuthor(secondAsker);
 
         Item item22 = new Item("3", answerer, "http://testforum.de/t2/i2", "Title2", new Date(), new Date(),
-                "Hello World again!", item21, ItemType.CORRECT_ANSWER);
+                "Hello World again!", item21);
         secondStream.addItem(item22);
         secondStream.addAuthor(answerer);
 

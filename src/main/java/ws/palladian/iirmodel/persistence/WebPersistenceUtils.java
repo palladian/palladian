@@ -94,7 +94,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     private final TypedQuery<Item> getItemsOnlyLabeledByOthersQuery;
 
-    private final Query countLabeledItemsByLabeler;
+    private static final String COUNT_LABELED_ITEMS_BY_LABELER = "SELECT a, COUNT(a) FROM Labeler lr JOIN lr.labels l JOIN l.labelType a WHERE lr.name = :labelerName GROUP BY a";
 
     /**
      * @param entityManager
@@ -104,22 +104,20 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         countLabeledItemsQuery = getManager().createQuery("SELECT COUNT(l) FROM Label l", Long.class);
         countLabeledItemTypes = getManager()
                 .createNativeQuery(
-                        "SELECT ANNOTATIONTYPE.typeName, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN ANNOTATIONTYPE ON ANNOTATION.annotation_identifier=ANNOTATIONTYPE.identifier GROUP BY ANNOTATIONTYPE.typeName;");
+                        "SELECT LabelType.name, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN LabelType ON ANNOTATION.type_identifier=LabelType.identifier GROUP BY LabelType.name;");
         getNonLabeledItemQuery = getManager()
                 .createQuery(
-                        "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.annotatedItem.identifier FROM Label a)",
+                        "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.labeledItem.identifier FROM Label a)",
                         Item.class);
         getNonLabeledItemQuery.setMaxResults(100);
         getItemsOnlyLabeledByOthersQuery = getManager()
                 .createQuery(
                         // "SELECT i FROM Labeler lr, IN(lr.labels) l, Item i WHERE l.annotatedItem = i AND lr != :labeler",
                         // "SELECT i.* FROM Labeler lr INNER JOIN Labeler_ANNOTATION la ON lr.name=la.Labeler_name INNER JOIN ANNOTATION l ON l.identifier=la.labels_identifier INNER JOIN ITEM i ON i.IDENTIFIER=l.annotatedItem_identifier WHERE lr.name!=:labelerName",
-                        "SELECT l.annotatedItem FROM Labeler lr JOIN lr.labels l WHERE l.annotatedItem NOT IN ( SELECT l.annotatedItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler)",
+                        "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler)",
                         Item.class);
         getItemsOnlyLabeledByOthersQuery.setMaxResults(100);
-        countLabeledItemsByLabeler = getManager()
-                .createNativeQuery(
-                        "SELECT ANNOTATIONTYPE.typeName, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN ANNOTATIONTYPE ON ANNOTATION.annotation_identifier=ANNOTATIONTYPE.identifier INNER JOIN Labeler_ANNOTATION ON ANNOTATION.identifier=Labeler_ANNOTATION.labels_identifier WHERE Labeler_ANNOTATION.Labeler_name = :labelerName GROUP BY ANNOTATIONTYPE.typeName;");
+
         // COUNT_LABELED_ITEM_TYPES = getManager().createQuery(
         // "SELECT l.annotation, COUNT(l) FROM Label l GROUP BY l.annotation");
         // CriteriaBuilder cb = getManager().getCriteriaBuilder();
@@ -334,9 +332,9 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @return
      */
     public LabelType loadLabelTypeByName(String labelName) {
-        TypedQuery<LabelType> loadQuery = getManager().createQuery(
-                "SELECT a FROM LabelType a WHERE a.typeName = :typeName", LabelType.class);
-        loadQuery.setParameter("typeName", labelName);
+        TypedQuery<LabelType> loadQuery = getManager().createQuery("SELECT a FROM LabelType a WHERE a.name = :name",
+                LabelType.class);
+        loadQuery.setParameter("name", labelName);
         Boolean openedTransaction = openTransaction();
         List<LabelType> result = loadQuery.getResultList();
         commitTransaction(openedTransaction);
@@ -365,7 +363,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @param labelType
      */
     public void saveLabelType(LabelType labelType) {
-        if (loadLabelTypeByName(labelType.getTypeName()) != null) {
+        if (loadLabelTypeByName(labelType.getName()) != null) {
             throw new IllegalStateException("Trying to save annotation type: " + labelType
                     + " twice. This would leave the database in an inconsistent state.");
         }
@@ -423,15 +421,16 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         }
     }
 
-    public Map<String, String> countLabeledItemsByType(final String labelerName) {
-        Map<String, String> ret = new HashMap<String, String>();
-        countLabeledItemsByLabeler.setParameter("labelerName", labelerName);
+    public Map<LabelType, Long> countLabeledItemsByType(final String labelerName) {
+        Map<LabelType, Long> ret = new HashMap<LabelType, Long>();
+        Query countLabeledItemsByLabelerQuery = getManager().createQuery(COUNT_LABELED_ITEMS_BY_LABELER);
+        countLabeledItemsByLabelerQuery.setParameter("labelerName", labelerName);
         Boolean openedTransaction = openTransaction();
         try {
             @SuppressWarnings("unchecked")
-            List<Object[]> results = countLabeledItemsByLabeler.getResultList();
+            List<Object[]> results = countLabeledItemsByLabelerQuery.getResultList();
             for (Object[] mapping : results) {
-                ret.put((String)mapping[0], String.valueOf(mapping[1]));
+                ret.put((LabelType)mapping[0], (Long)mapping[1]);
             }
             return ret;
         } finally {
@@ -483,7 +482,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @return A {@code Collection} containing all {@code Labeler}s from the database.
      */
     @SuppressWarnings("unchecked")
-    public Collection<Labeler> loadLabeler() {
+    public List<Labeler> loadLabeler() {
         Query query = getManager().createQuery("SELECT l FROM Labeler l");
         Boolean openedTransaction = openTransaction();
         try {
@@ -510,4 +509,61 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         }
     }
 
+    /**
+     * <p>
+     * Provides all {@link Item}s labeled by some {@link Labeler}.
+     * </p>
+     * 
+     * @param labeler The queried {@code Labeler}.
+     * @return The {@code Item}s labeled by {@code Labeler}.
+     */
+    public Collection<Item> loadItemsLabeledBy(Labeler labeler) {
+        TypedQuery<Item> query = getManager().createQuery(
+                "SELECT i FROM Labeler lr JOIN lr.labels l JOIN l.annotatedItem i WHERE lr=:labeler", Item.class);
+        query.setParameter("labeler", labeler);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Provides all {@link Label}s for one specific {@link Item} created by one specific {@link Labeler}.
+     * </p>
+     * 
+     * @param item The {@code Item} to query {@code Label}s for.
+     * @param labeler The {@code Labeler} providing the {@code Label}s for that {@code Item}.
+     * @return All the {@code Label}s created by {@code Labeler} for {@code item}.
+     */
+    public Collection<Label> loadLabelsForItem(Item item, Labeler labeler) {
+        TypedQuery<Label> query = getManager().createQuery(
+                "SELECT l FROM Labeler lr JOIN lr.labels l JOIN l.annotatedItem i WHERE i=:item AND lr=:labeler",
+                Label.class);
+        query.setParameter("labeler", labeler);
+        query.setParameter("item", item);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public Object runSingleResultNativeQuery(final String queryString, final ParameterFiller filler) {
+        Query query = getManager().createNativeQuery(queryString);
+        filler.fillParameter(query);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getSingleResult();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public interface ParameterFiller {
+        void fillParameter(final Query query);
+    }
 }

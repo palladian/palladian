@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import ws.palladian.iirmodel.helper.StreamVisitor;
@@ -49,7 +50,8 @@ public abstract class StreamSource implements Serializable {
      * </p>
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "gentable")
+    @TableGenerator(name = "gentable", table = "SEQUENCE", pkColumnName = "SEQ_COUNT", valueColumnName = "SEQ_NAME", pkColumnValue = "SEQ_GEN")
     private Integer identifier;
 
     /**
@@ -255,5 +257,22 @@ public abstract class StreamSource implements Serializable {
 
     @Override
     public abstract boolean equals(Object obj);
+
+    /**
+     * <p>
+     * Provides the root element of a {@code StreamSource} hierarchy. In a Web Forum for example this is the whole
+     * Forum.
+     * </p>
+     * 
+     * @return The root {@code StreamSource}.
+     */
+    public StreamSource getRootSource() {
+        StreamSource parentSource = getParentSource();
+        if (parentSource == null) {
+            return this;
+        } else {
+            return parentSource.getRootSource();
+        }
+    }
 
 }

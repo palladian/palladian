@@ -44,7 +44,10 @@ import ws.palladian.iirmodel.helper.DefaultStreamVisitor;
 public final class ModelPersistenceLayer extends AbstractPersistenceLayer implements Serializable {
 
     /**
-     * 
+     * <p>
+     * Used for serialization and deserialization of objects of this class. Should only change if the attribute set of
+     * this class changes. In this case old serializations of objects of this class may not be read any more.
+     * </p>
      */
     private static final long serialVersionUID = -1692254286550452271L;
     /**
@@ -52,6 +55,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      * </p>
      */
+    @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(ModelPersistenceLayer.class);
 
     /**

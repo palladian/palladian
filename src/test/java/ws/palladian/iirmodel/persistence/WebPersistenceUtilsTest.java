@@ -57,8 +57,8 @@ public final class WebPersistenceUtilsTest {
     public void setUp() throws Exception {
         factory = Persistence.createEntityManagerFactory(TEST_PERSISTENCE_UNIT_NAME);
         objectOfClassUnderTest = new WebPersistenceUtils(factory.createEntityManager());
-        questionType = new LabelType("QUESTION");
-        answerType = new LabelType("ANSWER");
+        questionType = new LabelType("QUESTION", "This is a question.");
+        answerType = new LabelType("ANSWER", "This is an answer.");
 
         author1 = new Author("testAuthor1", "http://www.test.de/");
         item1 = new Item("item1", author1, "http://www.test.de/test", "item1", new Date(), new Date(), "text1");

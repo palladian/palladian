@@ -23,7 +23,7 @@ import javax.persistence.OneToMany;
  * @version 1.0.0
  */
 @Entity
-public final class Labeler {
+public final class Labeler implements Comparable<Labeler> {
     /**
      * <p>
      * The {@code name} of this {@code Labeler}. This might be some nickname or the real name. It is only important that
@@ -102,5 +102,17 @@ public final class Labeler {
      */
     public Boolean addLabel(final Label label) {
         return this.labels.add(label);
+    }
+
+    /**
+     * <p>
+     * Order is based on the alphabetical order labeler names.
+     * </p>
+     * 
+     * @param otherLabeler The {@code Labeler} to compare to.
+     */
+    @Override
+    public int compareTo(Labeler otherLabeler) {
+        return this.name.compareTo(otherLabeler.name);
     }
 }

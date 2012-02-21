@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -44,7 +45,11 @@ public class ItemRelation implements Serializable {
     @OneToOne
     private Item secondItem;
 
+    @Lob
     private String comment;
+
+    @ManyToOne
+    private Labeler labeler;
 
     protected ItemRelation() {
         super();
@@ -171,6 +176,14 @@ public class ItemRelation implements Serializable {
         builder.append(comment);
         builder.append("]");
         return builder.toString();
+    }
+
+    public Labeler getLabeler() {
+        return labeler;
+    }
+
+    public void setLabeler(Labeler labeler) {
+        this.labeler = labeler;
     }
 
 }
