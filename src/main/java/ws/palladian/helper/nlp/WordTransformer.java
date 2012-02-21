@@ -3,6 +3,7 @@ package ws.palladian.helper.nlp;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,8 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.preprocessing.nlp.pos.PosTagger;
 import ws.palladian.retrieval.semantics.Word;
 import ws.palladian.retrieval.semantics.WordDB;
 
@@ -542,21 +545,48 @@ public class WordTransformer {
      * <p>
      * Detect the tense of an English sentence.
      * </p>
-     * TODO use POS tagging to find more tenses.
      * 
      * @param string The English sentence.
      * @return The detected English tense.
      */
-    public static EnglishTense getTense(String string) {
-
+    public static EnglishTense getTense(String string, PosTagger posTagger) {
+        return getTense(string, posTagger.getTags(string));
+    }
+    
+    public static EnglishTense getTense(String string, TagAnnotations posTags) {
+    
+        string = string.toLowerCase();
+        
         // check signal words
         if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string)
                 || StringHelper.containsWord("does", string) || StringHelper.containsWord("doesn't", string)) {
             return EnglishTense.SIMPLE_PRESENT;
         }
 
-        if (StringHelper.containsWord("did", string) || StringHelper.containsWord("didn't", string)
-                || StringHelper.containsWord("was", string) || StringHelper.containsWord("wasn't", string)) {
+        if (StringHelper.containsWord("did", string) || StringHelper.containsWord("didn't", string)) {
+            return EnglishTense.SIMPLE_PAST;
+        }
+        
+        boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
+        boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
+        
+        if (posTags.containTag("VBD") && !isAreFound) {
+            return EnglishTense.SIMPLE_PAST;
+        }
+        
+        if (posTags.containTag("HVD") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+            return EnglishTense.PAST_PERFECT;
+        }
+        
+        if (posTags.containTag("HV") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+            return EnglishTense.PRESENT_PERFECT;
+        }
+        
+        if (posTags.containTag("VBN") && !isAreFound) {
+            return EnglishTense.PRESENT_PERFECT;
+        }
+        
+        if (wasWereFound) {
             return EnglishTense.SIMPLE_PAST;
         }
         
