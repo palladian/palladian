@@ -15,24 +15,15 @@ import java.util.List;
  * @author Klemens Muthmann
  * 
  */
-public final class LabeledSequentialPattern {
+public final class SequentialPattern {
     private List<String> lhs;
-    private String label;
 
     /**
      * 
      */
-    public LabeledSequentialPattern(List<String> lhs, String label) {
+    public SequentialPattern(List<String> lhs) {
         this.lhs = new ArrayList<String>();
         this.lhs.addAll(lhs);
-        this.label = label;
-    }
-
-    /**
-     * @return the label
-     */
-    public String getLabel() {
-        return label;
     }
 
     public List<String> getPattern() {
@@ -58,7 +49,7 @@ public final class LabeledSequentialPattern {
      *            {@code LabeledSequentialPattern}s containment is {@code false}.
      * @return {@code true} if this pattern contains {@code otherPattern} or vice versa; {@code false} otherwise.
      */
-    public Boolean contains(LabeledSequentialPattern otherPattern, Integer containmentThreshold) {
+    public Boolean contains(SequentialPattern otherPattern, Integer containmentThreshold) {
         if (collectionLevenshteinDistance(otherPattern) <= containmentThreshold) {
             return true;
         } else {
@@ -75,7 +66,7 @@ public final class LabeledSequentialPattern {
      * @param otherPattern The {@code LabeledSequentialPattern} to compare to.
      * @return The Levenshtein distance of the two patterns.
      */
-    private Integer collectionLevenshteinDistance(LabeledSequentialPattern otherPattern) {
+    private Integer collectionLevenshteinDistance(SequentialPattern otherPattern) {
         int d[][]; // matrix
         int n; // length of s
         int m; // length of t
@@ -143,7 +134,7 @@ public final class LabeledSequentialPattern {
     /**
      * <p>
      * Provides the minimum of three integer values. Used as utility method for the Levensthein distance calculated by
-     * {@link #collectionLevenshteinDistance(LabeledSequentialPattern)}.
+     * {@link #collectionLevenshteinDistance(SequentialPattern)}.
      * </p>
      * 
      * @param a The first value to compare.
@@ -168,7 +159,7 @@ public final class LabeledSequentialPattern {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("\nObject: " + super.toString());
-        stringBuilder.append(" <" + lhs + "> --> " + label);
+        stringBuilder.append(" <" + lhs + ">");
         return stringBuilder.toString();
     }
 
@@ -176,7 +167,6 @@ public final class LabeledSequentialPattern {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
         result = prime * result + ((lhs == null) ? 0 : lhs.hashCode());
         return result;
     }
@@ -192,14 +182,7 @@ public final class LabeledSequentialPattern {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        LabeledSequentialPattern other = (LabeledSequentialPattern)obj;
-        if (label == null) {
-            if (other.label != null) {
-                return false;
-            }
-        } else if (!label.equals(other.label)) {
-            return false;
-        }
+        SequentialPattern other = (SequentialPattern)obj;
         if (lhs == null) {
             if (other.lhs != null) {
                 return false;

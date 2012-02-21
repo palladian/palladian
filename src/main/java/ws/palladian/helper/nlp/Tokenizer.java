@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.FileHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.UrlTagger;
@@ -69,15 +70,14 @@ public class Tokenizer {
      * 
      * </p>
      * 
-     * @param string The string to get the spans for.
+     * @param string A tokenized string to get the spans for.
      * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
      *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
      *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
      *            length 1 will be returned nevertheless.
      * @return A collection of spans.
      */
-    public static Collection<List<String>> getAllSpans(String string, Integer lengthThreshold) {
-        String[] tokens = string.split("\\s");
+    public static Collection<List<String>> getAllSpans(String[] tokens, Integer lengthThreshold) {
 
         // create bitvector (all bit combinations other than all zeros)
         int bits = tokens.length;
@@ -512,42 +512,40 @@ public class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        // System.out.println(Tokenizer.tokenize("schön"));
-        // System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
-        // System.exit(0);
-        //
-        // System.out.println(getSentences("the quick brown fox"));
-        //
-        // // demo for the tokenizer problem
-        // String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
-        //
-        // // tokenize the whole text
-        // int count = 0;
-        // List<String> tokens = Tokenizer.tokenize(text);
-        // for (String token : tokens) {
-        // if (token.equals("Number")) {
-        // count++;
-        // }
-        // }
-        // System.out.println("# occurences 1 : " + count);
-        //
-        // // split text into sentences,
-        // // then tokenize each sentence
-        // count = 0;
-        // List<String> sentences = Tokenizer.getSentences(text);
-        //
-        // for (String sentence : sentences) {
-        // FileHelper.appendFile("sentences.txt", sentence + "\n");
-        // List<String> tokensInSentence = Tokenizer.tokenize(sentence);
-        // for (String token : tokensInSentence) {
-        // if (token.equals("Number")) {
-        // count++;
-        // }
-        // }
-        // }
-        // System.out.println("# occurences 2 : " + count);
-        System.out.println(getAllSpans("I love brown cookies", 0));
+        System.out.println(Tokenizer.tokenize("schön"));
+        System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
+        System.exit(0);
 
+        System.out.println(getSentences("the quick brown fox"));
+
+        // demo for the tokenizer problem
+        String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
+
+        // tokenize the whole text
+        int count = 0;
+        List<String> tokens = Tokenizer.tokenize(text);
+        for (String token : tokens) {
+            if (token.equals("Number")) {
+                count++;
+            }
+        }
+        System.out.println("# occurences 1 : " + count);
+
+        // split text into sentences,
+        // then tokenize each sentence
+        count = 0;
+        List<String> sentences = Tokenizer.getSentences(text);
+
+        for (String sentence : sentences) {
+            FileHelper.appendFile("sentences.txt", sentence + "\n");
+            List<String> tokensInSentence = Tokenizer.tokenize(sentence);
+            for (String token : tokensInSentence) {
+                if (token.equals("Number")) {
+                    count++;
+                }
+            }
+        }
+        System.out.println("# occurences 2 : " + count);
     }
 
 }

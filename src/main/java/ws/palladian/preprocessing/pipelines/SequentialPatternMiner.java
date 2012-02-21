@@ -7,13 +7,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import ws.palladian.model.LabeledSequentialPattern;
+import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.features.Feature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
-import ws.palladian.preprocessing.featureextraction.LSPAnnotator;
+import ws.palladian.preprocessing.featureextraction.SequentialPatternAnnotator;
 import ws.palladian.preprocessing.featureextraction.Tokenizer;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetector;
@@ -35,7 +35,11 @@ import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetecto
  * @author Klemens Mutmann
  * 
  */
-public class LSPMiner extends ProcessingPipeline {
+public class SequentialPatternMiner extends ProcessingPipeline {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5391992699076983616L;
     /**
      * <p>
      * Keywords for Question Answer detection as reported by Hong et al [1]. These are the 5W1H words and the english
@@ -50,12 +54,12 @@ public class LSPMiner extends ProcessingPipeline {
      * </p>
      */
     private final static String[] keywords = new String[] {"where", "when", "how", "who", "what", "why", "shall",
-            "should", "will", "would", "may", "might", "can", "could", "mote", "must"};
+            "should", "will", "would", "may", "might", "can", "could", "mote", "must", "do", "anyone"};
 
     /**
      * <p>
-     * Creates a new {@link ProcessingPipeline} for {@link LabeledSequentialPattern}s. The {@code ProcessingPipeline}
-     * requires a part of speech tagging model, which must be provided to the constructor.
+     * Creates a new {@link ProcessingPipeline} for {@link SequentialPattern}s. The {@code ProcessingPipeline} requires
+     * a part of speech tagging model, which must be provided to the constructor.
      * </p>
      * 
      * @param pathToPartOfSpeechModel The path to the OpenNLP part of speech model required for this
@@ -63,12 +67,12 @@ public class LSPMiner extends ProcessingPipeline {
      *            provide an english PoS model. You may find such models at: <a
      *            href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP models</a>.
      */
-    public LSPMiner(String pathToPartOfSpeechModel) {
+    public SequentialPatternMiner(String pathToPartOfSpeechModel, Integer maxSequentialPatternSize) {
         super();
         add(new PalladianSentenceDetector());
         add(new Tokenizer());
         add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(pathToPartOfSpeechModel));
-        add(new LSPAnnotator(keywords));
+        add(new SequentialPatternAnnotator(keywords, maxSequentialPatternSize));
 
     }
 
@@ -83,16 +87,16 @@ public class LSPMiner extends ProcessingPipeline {
      * @return All {@code LabeledSequentialPattern}s from {@code document} or an empty {@code Collection} if no
      *         {@code LabeledSequentialPattern}s were extracted from {@code document} yet.
      */
-    public static Collection<LabeledSequentialPattern> getExtractedPatterns(PipelineDocument document) {
-        Collection<LabeledSequentialPattern> ret = new HashSet<LabeledSequentialPattern>();
+    public static Collection<SequentialPattern> getExtractedPatterns(PipelineDocument document) {
+        Collection<SequentialPattern> ret = new HashSet<SequentialPattern>();
         AnnotationFeature sentencesFeature = (AnnotationFeature)document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE);
         if (sentencesFeature != null) {
             List<Annotation> sentenceAnnotations = sentencesFeature.getValue();
 
             for (Annotation annotation : sentenceAnnotations) {
-                Feature<LabeledSequentialPattern> lspFeature = (Feature<LabeledSequentialPattern>)annotation
-                        .getFeatureVector().get(LSPAnnotator.PROVIDED_FEATURE);
+                Feature<SequentialPattern> lspFeature = (Feature<SequentialPattern>)annotation.getFeatureVector().get(
+                        SequentialPatternAnnotator.PROVIDED_FEATURE);
                 if (lspFeature != null) {
                     ret.add(lspFeature.getValue());
                 }
