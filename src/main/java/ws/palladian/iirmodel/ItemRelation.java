@@ -27,7 +27,7 @@ import javax.persistence.Table;
  * @since 1.0
  */
 @Entity
-@Table(name = "ITEMRELATION")
+@Table(name = "ItemRelation")
 public class ItemRelation implements Serializable {
 
     private static final long serialVersionUID = 9163914602749435760L;
@@ -47,9 +47,6 @@ public class ItemRelation implements Serializable {
 
     @Lob
     private String comment;
-
-    @ManyToOne
-    private Labeler labeler;
 
     protected ItemRelation() {
         super();
@@ -177,13 +174,4 @@ public class ItemRelation implements Serializable {
         builder.append("]");
         return builder.toString();
     }
-
-    public Labeler getLabeler() {
-        return labeler;
-    }
-
-    public void setLabeler(Labeler labeler) {
-        this.labeler = labeler;
-    }
-
 }

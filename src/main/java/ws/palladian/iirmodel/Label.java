@@ -20,7 +20,7 @@ import javax.persistence.Table;
  * @version 1.0.0
  */
 @Entity
-@Table(name = "ANNOTATION")
+@Table(name = "Label")
 public final class Label {
     @Id
     @GeneratedValue

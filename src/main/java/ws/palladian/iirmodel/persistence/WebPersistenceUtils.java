@@ -25,6 +25,7 @@ import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.Label;
 import ws.palladian.iirmodel.LabelType;
 import ws.palladian.iirmodel.Labeler;
+import ws.palladian.iirmodel.RelationType;
 
 /**
  * <p>
@@ -96,6 +97,12 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     private static final String COUNT_LABELED_ITEMS_BY_LABELER = "SELECT a, COUNT(a) FROM Labeler lr JOIN lr.labels l JOIN l.labelType a WHERE lr.name = :labelerName GROUP BY a";
 
+    private static final String GET_RANDOM_ITEM_OF_TYPE = "SELECT Item.* FROM Item INNER JOIN Label ON Label.labeledItem_identifier=Item.identifier INNER JOIN LabelType ON LabelType.identifier=Label.type_identifier WHERE LabelType.name=:typeName ORDER BY RAND() LIMIT 1";
+
+    private static final String LOAD_RELATION_TYPE_BY_NAME = "SELECT rt FROM RelationType rt WHERE rt.name=:typeName";
+
+    private static final String LOAD_RELATIONS_FOR_ITEM = "SELECT r FROM Labeler l JOIN l.relations r WHERE r.firstItem=:firstItem AND r.secondItem=:secondItem AND l=:labeler";
+
     /**
      * @param entityManager
      */
@@ -104,7 +111,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         countLabeledItemsQuery = getManager().createQuery("SELECT COUNT(l) FROM Label l", Long.class);
         countLabeledItemTypes = getManager()
                 .createNativeQuery(
-                        "SELECT LabelType.name, COUNT(ANNOTATION.identifier) FROM ANNOTATION INNER JOIN LabelType ON ANNOTATION.type_identifier=LabelType.identifier GROUP BY LabelType.name;");
+                        "SELECT LabelType.name, COUNT(Label.identifier) FROM Label INNER JOIN LabelType ON Label.type_identifier=LabelType.identifier GROUP BY LabelType.name;");
         getNonLabeledItemQuery = getManager()
                 .createQuery(
                         "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.labeledItem.identifier FROM Label a)",
@@ -565,5 +572,61 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     public interface ParameterFiller {
         void fillParameter(final Query query);
+    }
+
+    /**
+     * <p>
+     * Provides a random {@link Item} with a certain label type provided by some labeler.
+     * </p>
+     * 
+     * @param loadLabelTypeByName
+     * @param typeLabeler
+     * @return
+     */
+    public Item getRandomItemByType(LabelType labelType, Labeler typeLabeler) {
+        Query randomItemOfTypeQuery = getManager().createNativeQuery(GET_RANDOM_ITEM_OF_TYPE, Item.class);
+        randomItemOfTypeQuery.setParameter("typeName", labelType.getName());
+        Boolean openedTransaction = openTransaction();
+        try {
+            return (Item)randomItemOfTypeQuery.getSingleResult();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @param relationTypeName
+     * @return
+     */
+    public RelationType loadRelationTypeByName(String relationTypeName) {
+        TypedQuery<RelationType> loadRelationTypeByNameQuery = getManager().createQuery(LOAD_RELATION_TYPE_BY_NAME,
+                RelationType.class);
+        loadRelationTypeByNameQuery.setParameter("typeName", relationTypeName);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return loadRelationTypeByNameQuery.getSingleResult();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @param queryItem
+     * @param item
+     * @param labeler
+     * @return
+     */
+    public List<ItemRelation> loadRelations(Item lhItem, Item rhItem, Labeler labeler) {
+        TypedQuery<ItemRelation> loadRelationsQuery = getManager().createQuery(LOAD_RELATIONS_FOR_ITEM,
+                ItemRelation.class);
+        loadRelationsQuery.setParameter("firstItem", lhItem);
+        loadRelationsQuery.setParameter("secondItem", rhItem);
+        loadRelationsQuery.setParameter("labeler", labeler);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return loadRelationsQuery.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
     }
 }

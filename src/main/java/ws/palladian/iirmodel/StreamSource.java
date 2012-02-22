@@ -22,11 +22,12 @@ import ws.palladian.iirmodel.helper.StreamVisitor;
  * </p>
  * 
  * @author Philipp Katz
+ * @author Klemens Muthmann
  * @version 3.1
  * @since 3.0
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"), name = "STREAMSOURCE")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"), name = "StreamSource")
 public abstract class StreamSource implements Serializable {
 
     /**

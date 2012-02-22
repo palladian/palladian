@@ -10,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * <p>
@@ -23,6 +24,7 @@ import javax.persistence.OneToMany;
  * @version 1.0.0
  */
 @Entity
+@Table(name = "Labeler")
 public final class Labeler implements Comparable<Labeler> {
     /**
      * <p>
@@ -40,6 +42,9 @@ public final class Labeler implements Comparable<Labeler> {
     @OneToMany(cascade = CascadeType.ALL)
     private final Collection<Label> labels;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private final Collection<ItemRelation> relations;
+
     /**
      * <p>
      * Creates a new {@code Labeler} with no {@code Label}s provided initially.
@@ -51,6 +56,7 @@ public final class Labeler implements Comparable<Labeler> {
         super();
         this.name = name;
         this.labels = new HashSet<Label>();
+        this.relations = new HashSet<ItemRelation>();
     }
 
     /**
@@ -63,6 +69,7 @@ public final class Labeler implements Comparable<Labeler> {
         super();
         this.name = null;
         this.labels = new HashSet<Label>();
+        this.relations = new HashSet<ItemRelation>();
     }
 
     /**
@@ -102,6 +109,17 @@ public final class Labeler implements Comparable<Labeler> {
      */
     public Boolean addLabel(final Label label) {
         return this.labels.add(label);
+    }
+
+    /**
+     * @return the relations
+     */
+    public Collection<ItemRelation> getRelations() {
+        return relations;
+    }
+
+    public Boolean addRelation(final ItemRelation relation) {
+        return this.relations.add(relation);
     }
 
     /**

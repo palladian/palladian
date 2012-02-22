@@ -6,6 +6,7 @@ package ws.palladian.iirmodel;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import ws.palladian.iirmodel.persistence.ModelPersistenceLayer;
 
@@ -19,6 +20,7 @@ import ws.palladian.iirmodel.persistence.ModelPersistenceLayer;
  * @version 1.0.0
  */
 @Entity
+@Table(name = "LabelType")
 public final class LabelType implements Comparable<LabelType> {
     /**
      * <p>

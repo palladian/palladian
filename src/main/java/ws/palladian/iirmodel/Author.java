@@ -27,7 +27,7 @@ import javax.persistence.UniqueConstraint;
  * @since 2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"USERNAME", "STREAMSOURCEADDRESS"})}, name = "AUTHOR")
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"USERNAME", "STREAMSOURCEADDRESS"})}, name = "Author")
 public class Author {
 
     /**

@@ -18,7 +18,7 @@ import javax.persistence.UniqueConstraint;
  * @since 1.0
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "NAME"), name = "RELATIONTYPE")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "NAME"), name = "RelationType")
 public final class RelationType implements Serializable {
 
     private static final long serialVersionUID = 4461664486685564343L;
