@@ -3,7 +3,6 @@ package ws.palladian.helper.nlp;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -538,7 +537,7 @@ public class WordTransformer {
             return englishVerb.getPastParticiple();
         }
 
-        return getRegularVerbPast(verb);
+        return getRegularVerbPast(stemmedWord);
     }
 
     /**

@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
-import ws.palladian.preprocessing.nlp.pos.LingPipePosTagger;
 
 /**
  * Test cases for the WordTransformer class.
@@ -194,6 +193,7 @@ public class WordTransformerTest {
 
     @Test
     public void testGetPastParticiple() {
+        assertEquals("caused", WordTransformer.getPastParticiple("causes"));
         assertEquals("jumped", WordTransformer.getPastParticiple("jump"));
         assertEquals("jumped", WordTransformer.getPastParticiple("jumped"));
         assertEquals("equipped", WordTransformer.getPastParticiple("equip"));
@@ -210,40 +210,40 @@ public class WordTransformerTest {
 //        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
         
         TagAnnotations tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "VB", ""));        
+        tas.add(new TagAnnotation(0, "VB", ""));
 //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "BEZ", ""));        
+        tas.add(new TagAnnotation(0, "BEZ", ""));
         tas.add(new TagAnnotation(0, "VBN", ""));
         tas.add(new TagAnnotation(0, "BE", ""));
 //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "VBN", ""));  
+        tas.add(new TagAnnotation(0, "VBN", ""));
 //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "VBD", ""));  
+        tas.add(new TagAnnotation(0, "VBD", ""));
 //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "VB", ""));  
+        tas.add(new TagAnnotation(0, "VB", ""));
         tas.add(new TagAnnotation(0, "DOD", ""));
 //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "BEDZ", ""));  
+        tas.add(new TagAnnotation(0, "BEDZ", ""));
 //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",tas));
         
         tas = new TagAnnotations();
-        tas.add(new TagAnnotation(0, "BEZ", ""));  
+        tas.add(new TagAnnotation(0, "BEZ", ""));
 //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",tas));
 
@@ -253,7 +253,7 @@ public class WordTransformerTest {
          assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",tas));
          
          tas = new TagAnnotations();
-         tas.add(new TagAnnotation(0, "VBD", "")); 
+         tas.add(new TagAnnotation(0, "VBD", ""));
 //         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",posTagger));
          assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",tas));
          
