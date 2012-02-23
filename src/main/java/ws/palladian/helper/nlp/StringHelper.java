@@ -423,7 +423,10 @@ public class StringHelper {
         return false;
     }
 
-    public static String removeWord(String word, String searchString) {
+    public static String removeWord(String word, String replacement, String searchString) {
+        return replaceWord(word, " ", searchString);
+    }
+    public static String replaceWord(String word, String replacement, String searchString) {
         String allowedNeighbors = "[\\s,.;-]";
         String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
                 + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
@@ -437,7 +440,7 @@ public class StringHelper {
         }
         Matcher m = pat.matcher(searchString);
 
-        searchString = m.replaceAll(" ");
+        searchString = m.replaceAll(replacement).trim();
 
         return searchString;
     }
