@@ -423,6 +423,25 @@ public class StringHelper {
         return false;
     }
 
+    public static String removeWord(String word, String searchString) {
+        String allowedNeighbors = "[\\s,.;-]";
+        String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return searchString;
+        }
+        Matcher m = pat.matcher(searchString);
+
+        searchString = m.replaceAll(" ");
+
+        return searchString;
+    }
+
     /**
      * Check whether a given string contains a numeric value.
      * 
@@ -770,7 +789,8 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“"}; // whitespace is also unwanted but
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`"}; // whitespace is also
+                                                                                            // unwanted but
                                                                                   // trim() handles
         // that, " "
         // here is
