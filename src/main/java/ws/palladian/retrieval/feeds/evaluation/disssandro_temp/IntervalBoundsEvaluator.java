@@ -51,7 +51,6 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize IntervalBoundsEvaluator. Evaluating strategy ");
-        int feedItemBufferSize = 10;
         String sourceTableName = "";
 
         EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
@@ -157,7 +156,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                             .getConfig());
                     IntervalBoundsEvaluator evaluator = new IntervalBoundsEvaluator(feedStore);
                     String timestamp = evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize,
-                            updateStrategy, wakeUpInterval, feedItemBufferSize);
+                            updateStrategy, wakeUpInterval);
 
 
                     // since we have done one evaluation without interval bounds (lower bound 1 minute, no upper bound),

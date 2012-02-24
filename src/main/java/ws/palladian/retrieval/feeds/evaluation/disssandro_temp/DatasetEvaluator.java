@@ -107,10 +107,9 @@ public class DatasetEvaluator {
      * @return The current timestamp added to the table's name.
      */
     protected String initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy, long wakeUpInterval, int feedItemBufferSize) {
+            UpdateStrategy updateStrategy, long wakeUpInterval) {
         Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
         for (Feed feed : feeds) {
-            feed.resizeItemBuffer(feedItemBufferSize);
         // feed.setNumberOfItemsReceived(0);
         // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
         // feed.setUpdateInterval(0);
@@ -171,7 +170,6 @@ public class DatasetEvaluator {
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
-        int feedItemBufferSize = 10;
         
         final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
@@ -301,8 +299,7 @@ public class DatasetEvaluator {
 
 
             DatasetEvaluator evaluator = new DatasetEvaluator(feedStore);
-            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval,
-                    feedItemBufferSize);
+            evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize, updateStrategy, wakeUpInterval);
             evaluator.runEvaluation();
             evaluator.generateEvaluationSummary();
             // this is a normal exit

@@ -651,7 +651,7 @@ public class FeedStatisticCreator {
 
             c++;
 
-            feed.freeMemory(true);
+            feed.freeMemory();
             feed.setMeticulousPostDistribution(null);
             feed = null;
 
