@@ -154,7 +154,7 @@ public final class WebPersistenceUtilsTest {
      * </p>
      * 
      * @throws Exception Should not happen but fails the test on any unexpected error.
-     * @see WebPersistenceUtils#getNextNonSelfLabeledItem(Labeler)
+     * @see WebPersistenceUtils#loadNextNonSelfLabeledItem(Labeler)
      */
     @Test
     public void testLoadRandomNonSelfLabeledItem() throws Exception {
@@ -172,7 +172,7 @@ public final class WebPersistenceUtilsTest {
         objectOfClassUnderTest.saveLabeler(labeler1);
         objectOfClassUnderTest.saveLabeler(labeler2);
 
-        Item item = objectOfClassUnderTest.getNextNonSelfLabeledItem(labeler1);
+        Item item = objectOfClassUnderTest.loadNextNonSelfLabeledItem(labeler1);
         assertThat(item, is(item2));
     }
 }

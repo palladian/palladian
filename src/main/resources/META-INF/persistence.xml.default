@@ -41,7 +41,7 @@
 			<property name="eclipselink.ddl-generation" value="create-tables" />
 			<property name="eclipselink.ddl-generation.output-mode"
 				value="database" />
-			<property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/iirmodel" />
+			<property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/iirmodel?autoReconnect=true" />
 			<property name="eclipselink.jdbc.user" value="effingo" />
 			<property name="eclipselink.jdbc.password" value="effingo" />
 			<property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
