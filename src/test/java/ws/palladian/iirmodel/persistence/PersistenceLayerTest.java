@@ -284,7 +284,7 @@ public class PersistenceLayerTest {
 
     @Test
     public void testSaveRelationType() throws Exception {
-        RelationType relationType = new RelationType("duplicate");
+        RelationType relationType = new RelationType("duplicate", "duplicate");
         persistenceLayer.saveRelationType(relationType);
 
         ItemStream testSource = new ItemStream("testGroup", "http://testSource.de");

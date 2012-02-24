@@ -270,7 +270,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @param labelName
      * @return
      */
-    public LabelType loadLabelTypeByName(String labelName) {
+    public LabelType loadLabelType(String labelName) {
         TypedQuery<LabelType> loadQuery = getManager().createQuery("SELECT a FROM LabelType a WHERE a.name = :name",
                 LabelType.class);
         loadQuery.setParameter("name", labelName);
@@ -408,7 +408,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @param relationTypeName
      * @return
      */
-    public RelationType loadRelationTypeByName(String relationTypeName) {
+    public RelationType loadRelationType(String relationTypeName) {
         TypedQuery<RelationType> loadRelationTypeByNameQuery = getManager().createQuery(LOAD_RELATION_TYPE_BY_NAME,
                 RelationType.class);
         loadRelationTypeByNameQuery.setParameter("typeName", relationTypeName);
@@ -473,7 +473,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @param labelType
      */
     public void saveLabelType(LabelType labelType) {
-        if (loadLabelTypeByName(labelType.getName()) != null) {
+        if (loadLabelType(labelType.getName()) != null) {
             throw new IllegalStateException("Trying to save annotation type: " + labelType
                     + " twice. This would leave the database in an inconsistent state.");
         }

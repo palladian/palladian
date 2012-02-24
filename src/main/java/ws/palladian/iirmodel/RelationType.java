@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -29,13 +30,17 @@ public final class RelationType implements Serializable, Comparable<RelationType
 
     private String name;
 
+    @Lob
+    private String explanation;
+
     protected RelationType() {
         super();
     }
 
-    public RelationType(String name) {
+    public RelationType(String name, String explanation) {
         this();
         this.name = name;
+        this.explanation = explanation;
     }
 
     public String getName() {
@@ -52,6 +57,20 @@ public final class RelationType implements Serializable, Comparable<RelationType
 
     public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
+    }
+
+    /**
+     * @return the explanation
+     */
+    public String getExplanation() {
+        return explanation;
+    }
+
+    /**
+     * @param explanation the explanation to set
+     */
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
     }
 
     @Override
