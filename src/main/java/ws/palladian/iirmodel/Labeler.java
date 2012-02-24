@@ -115,7 +115,9 @@ public final class Labeler implements Comparable<Labeler> {
      * @return the relations
      */
     public Collection<ItemRelation> getRelations() {
-        return relations;
+        Collection<ItemRelation> ret = new HashSet<ItemRelation>();
+        ret.addAll(relations);
+        return ret;
     }
 
     public Boolean addRelation(final ItemRelation relation) {
