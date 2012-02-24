@@ -52,11 +52,6 @@ public class Feed {
     private Map<String, Date> itemCache = new HashMap<String, Date>();
 
     /**
-     * Default capacity of {@link #itemBuffer} is two elements.
-     */
-    public static final int ITEM_BUFFER_DEFAULT_CAPACITY = 2;
-
-    /**
      * The items that were new in the most recent poll.
      */
     private List<FeedItem> newItems = new ArrayList<FeedItem>();
