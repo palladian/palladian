@@ -536,7 +536,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * 
      * @return All relation types from the database.
      */
-    public Collection<RelationType> loadRelationTypes() {
+    public List<RelationType> loadRelationTypes() {
         return loadAll(RelationType.class);
     }
 

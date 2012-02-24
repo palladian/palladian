@@ -19,7 +19,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "NAME"), name = "RelationType")
-public final class RelationType implements Serializable {
+public final class RelationType implements Serializable, Comparable<RelationType> {
 
     private static final long serialVersionUID = 4461664486685564343L;
 
@@ -97,6 +97,11 @@ public final class RelationType implements Serializable {
         builder.append(name);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(RelationType otherRelationType) {
+        return this.name.compareTo(otherRelationType.name);
     }
 
 }
