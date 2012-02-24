@@ -1403,3 +1403,91 @@ String d = StringHelper.decodeBase64(e);
 
 \end{lstlisting}
 \end{codelisting}
+
+\section{Persistence}
+
+Working with JDBC can be annoying and error prone as one has to deal with SQLExceptions and take care of closing open resources to avoid memory leaks which leads to loads of boilerplate code. Of course, we are not the first to stumble over these issues; the Java Persistence API (JPA) and frameworks like Hibernate or 	EclipseLink provide sophisticated solutions for dealing with relational databases. Nevertheless we have made the experience, that the power offered by these frameworks comes with a big portion of black magic, making it hard to understand how they work internally, which can lead to plenty of frustration.
+
+Because of that, we provide our own light weight ORM implementation with Palladian which can be found in \texttt{ws.palladian.persistence}. The class \texttt{DatabaseManager} offers various methods for working with SQL databases. For specific applications, it is intended to subclass \texttt{DatabaseManager} and to add domain specific persistence operations. Instances of \texttt{DatabaseManager} and its subclasses are created using the \texttt{DatabaseManagerFactory}, which takes care of proper configuration and provides database connections using the BoneCP\footnote{\url{http://jolbox.com/}} connection pool library.
+
+Processing and transforming database results can be simplified by subclassing or implementing \texttt{ResultCallback}s and \texttt{RowConverter}s. While the first provides a simple callback for results from database rows, the latter goes a step further and transforms database rows to arbitrary domain objects. \texttt{ResultIterator}s can be used for iterating over big amounts of database results.
+
+For a minimal example on the usage of the persistence mechanism, see the following listings. Listing~\ref{lst:persistence1} shows a typical domain class which we want to persist. Listing~\ref{lst:persistence2} is a domain specific \texttt{DatabaseManager} subclass. The conversion from the database rows to the domain objects is done by the \texttt{RowConverter} implementation given in Listing~\ref{lst:persistence3}. Listing~\ref{lst:persistence4} gives a short example on how to use the persistence mechanism.
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence1,caption=Domain class]
+class Cat {
+    private String name;
+    private String color;
+
+    public Cat(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat [name=" + name + ", color=" + color + "]";
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence2,caption=Domain specific database manager]
+class CatDatabase extends DatabaseManager {
+
+    private static final String ADD_CAT = 
+               "INSERT INTO cats SET name = ?, color = ?";
+    private static final String GET_CATS = "SELECT * FROM cats";
+    private static final String GET_CAT_BY_NAME = 
+               "SELECT * FROM cats WHERE name = ?";
+
+    protected CatDatabase(ConnectionManager connectionManager) {
+        super(connectionManager);
+    }
+
+    public boolean saveCat(Cat cat) {
+        return runInsertReturnId(
+               ADD_CAT, cat.getName(), cat.getColor()) > 0;
+    }
+
+    public List<Cat> getCats() {
+        return runQuery(new CatRowConverter(), GET_CATS);
+    }
+
+    public Cat getCat(String name) {
+        return runSingleQuery(
+               new CatRowConverter(), GET_CAT_BY_NAME, name);
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+	
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence3,caption=Row converter for domain objects]
+class CatRowConverter implements RowConverter<Cat> {
+    @Override
+    public Cat convert(ResultSet resultSet) throws SQLException {
+        String name = resultSet.getString("name");
+        String color = resultSet.getString("color");
+        return new Cat(name, color);
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence4,caption=Usage example]
+CatDatabase catDatabase = 
+       DatabaseManagerFactory.create(CatDatabase.class, getConfig());
+
+catDatabase.saveCat(new Cat("Snowball 1", "black"));
+catDatabase.saveCat(new Cat("Snowball 2", "grey"));
+catDatabase.saveCat(new Cat("Snowball 3", "dark grey"));
+
+CollectionHelper.print(catDatabase.getCats());
+
+System.out.println(catDatabase.getCat("Snowball 1"));
+\end{lstlisting}
+\end{codelisting}
