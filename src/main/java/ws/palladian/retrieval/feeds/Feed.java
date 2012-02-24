@@ -93,9 +93,14 @@ public class Feed {
     private int checks = 0;
 
     /**
+     * The default time in minutes until it is expected to find at least one new entry in the feed.
+     */
+    public static final int DEFAULT_UPDATE_INTERVAL = 60;
+
+    /**
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
-    private int updateInterval = 60;
+    private int updateInterval = DEFAULT_UPDATE_INTERVAL;
 
     public static final int MIN_DELAY = 0;
     public static final int MAX_COVERAGE = 1;
