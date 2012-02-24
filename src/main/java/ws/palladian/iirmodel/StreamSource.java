@@ -173,7 +173,7 @@ public abstract class StreamSource implements Serializable {
         return parentSource;
     }
 
-    protected final void setParentSource(StreamSource parentSource) {
+    public final void setParentSource(StreamSource parentSource) {
         this.parentSource = parentSource;
     }
 
