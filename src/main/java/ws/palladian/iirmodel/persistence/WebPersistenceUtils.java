@@ -39,7 +39,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         void fillParameter(final Query query);
     }
 
-    private static final String COUNT_LABELED_ITEMS_BY_LABELER = "SELECT a, COUNT(a) FROM Labeler lr JOIN lr.labels l JOIN l.labelType a WHERE lr.name = :labelerName GROUP BY a";
+    private static final String COUNT_LABELED_ITEMS_BY_LABELER = "SELECT a, COUNT(a) FROM Labeler lr JOIN lr.labels l JOIN l.type a WHERE lr.name = :labelerName GROUP BY a";
 
     private static final String COUNT_LABELED_ITEMS_BY_TYPES = "SELECT LabelType.name, COUNT(Label.identifier) FROM Label INNER JOIN LabelType ON Label.type_identifier=LabelType.identifier GROUP BY LabelType.name";
 
@@ -179,10 +179,9 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * @return The {@code Label}s provided by a single {@code Labeler} with {@code name}.
      */
     public Long countLabels(String name) {
-        TypedQuery<Long> query = getManager()
-                .createQuery(
-                        "SELECT COUNT(l.annotatedItem) FROM Labeler lr JOIN lr.labels l WHERE lr.name=:labelerName",
-                        Long.class).setParameter("labelerName", name);
+        TypedQuery<Long> query = getManager().createQuery(
+                "SELECT COUNT(l.labeledItem) FROM Labeler lr JOIN lr.labels l WHERE lr.name=:labelerName", Long.class)
+                .setParameter("labelerName", name);
         Boolean openedTransaction = openTransaction();
         try {
             return query.getSingleResult();
@@ -415,7 +414,14 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         loadRelationTypeByNameQuery.setParameter("typeName", relationTypeName);
         Boolean openedTransaction = openTransaction();
         try {
-            return loadRelationTypeByNameQuery.getSingleResult();
+            List<RelationType> loadedRelationTypes = loadRelationTypeByNameQuery.getResultList();
+            if (loadedRelationTypes.size() == 1) {
+                return loadedRelationTypes.get(0);
+            } else if (loadedRelationTypes.isEmpty()) {
+                return null;
+            } else {
+                throw new IllegalStateException("Relation type name: " + relationTypeName + " is ambiguous.");
+            }
         } finally {
             commitTransaction(openedTransaction);
         }
@@ -475,6 +481,18 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         Boolean openedTransaction = openTransaction();
         try {
             getManager().persist(labelType);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @param noRelationType
+     */
+    public void saveRelationType(RelationType relationType) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            getManager().persist(relationType);
         } finally {
             commitTransaction(openedTransaction);
         }

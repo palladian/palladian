@@ -112,10 +112,37 @@ public final class WebPersistenceUtilsTest {
         objectOfClassUnderTest.saveLabel(answerLabel01);
         objectOfClassUnderTest.saveLabel(questionLabel02);
         objectOfClassUnderTest.saveLabel(questionLabel01);
+        Labeler labeler = new Labeler("labeler");
+        labeler.addLabel(answerLabel01);
+        labeler.addLabel(questionLabel01);
+        labeler.addLabel(questionLabel02);
+        objectOfClassUnderTest.saveLabeler(labeler);
+
         Map<String, String> result = objectOfClassUnderTest.countLabeledItemsByType();
+        Map<LabelType, Long> itemTypesByLabeler = objectOfClassUnderTest.countLabeledItemsByType("labeler");
         assertThat(result.size(), is(2));
         assertThat(result.get("ANSWER"), is("1"));
         assertThat(result.get("QUESTION"), is("2"));
+        assertThat(itemTypesByLabeler.size(), is(2));
+        assertThat(itemTypesByLabeler.get(answerType), is(1L));
+        assertThat(itemTypesByLabeler.get(questionType), is(2L));
+    }
+
+    public void testCountLabels() throws Exception {
+        objectOfClassUnderTest.saveLabelType(questionType);
+        objectOfClassUnderTest.saveLabelType(answerType);
+        objectOfClassUnderTest.saveLabel(answerLabel01);
+        objectOfClassUnderTest.saveLabel(questionLabel01);
+        objectOfClassUnderTest.saveLabel(questionLabel02);
+        Labeler labeler = new Labeler("labeler");
+        labeler.addLabel(answerLabel01);
+        labeler.addLabel(questionLabel01);
+        labeler.addLabel(questionLabel02);
+        objectOfClassUnderTest.saveLabeler(labeler);
+        Long amountOfLabels = objectOfClassUnderTest.countLabels();
+        Long amountOfLabelsFromLabeler = objectOfClassUnderTest.countLabels("labeler");
+        assertThat(amountOfLabels, is(3L));
+        assertThat(amountOfLabelsFromLabeler, is(3L));
     }
 
     /**
