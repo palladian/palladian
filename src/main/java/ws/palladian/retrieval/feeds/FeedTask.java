@@ -289,9 +289,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        // FIXME: should we really empty the buffer here? Currently no-one using the FeedTask is using the buffer but
-        // this may change over time. This maybe needs to be configurable. -- Sandro 2011-11-12
-        feed.freeMemory(true);
+        feed.freeMemory();
     }
 
     /**
