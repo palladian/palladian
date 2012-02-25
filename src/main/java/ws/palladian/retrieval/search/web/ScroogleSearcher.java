@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -21,10 +22,10 @@ import ws.palladian.retrieval.parser.ParserException;
 // TODO currently, paging/result count is not supported
 /**
  * <p>
- * Web searcher which scrapes content from Scroogle.
+ * Web searcher which scrapes content from Google.
  * </p>
  * 
- * @author Eduardo Jacobo Miranda
+ * @author David Urbansky
  * @author Philipp Katz
  */
 public final class ScroogleSearcher extends WebSearcher<WebResult> {
@@ -35,6 +36,9 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final DocumentParser parser;
+
+    private static final String LINK_XPATH = "//h3[@class='r']/a[@class='l']";
+    private static final String INFORMATION_XPATH = "//span[@class='st']";
 
     public ScroogleSearcher() {
         super();
@@ -48,37 +52,48 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
         try {
 
-            String requestUrl = "http://www.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=" + UrlHelper.urlEncode(query);
-            HttpResult httpResult = retriever.httpGet(requestUrl);
-            Document document = parser.parse(httpResult);
-            TOTAL_REQUEST_COUNT.incrementAndGet();
+            int entriesPerPage = 10;
+            int numPages = resultCount / entriesPerPage;
 
-            List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//font/blockquote/a");
-            List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, "//font/blockquote/ul/font");
+            paging: for (int page = 0; page <= numPages; page++) {
 
-            if (linkNodes.size() != infoNodes.size()) {
-                throw new IllegalStateException(
-                        "The returned document structure is not as expected, probably the scraper needs to be updated");
-            }
+                String requestUrl = "https://www.google.com/search?hl=en&safe=off&output=search&start="
+                        + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
+                HttpResult httpResult = retriever.httpGet(requestUrl);
+                Document document = parser.parse(httpResult);
+                TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            Iterator<Node> linkIterator = linkNodes.iterator();
-            Iterator<Node> infoIterator = infoNodes.iterator();
+                List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
+                List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
 
-            while (linkIterator.hasNext()) {
-                Node linkNode = linkIterator.next();
-                Node infoNode = infoIterator.next();
+                if (linkNodes.size() != infoNodes.size()) {
+                    throw new IllegalStateException(
+                            "The returned document structure is not as expected, probably the scraper needs to be updated");
+                }
 
-                String url = linkNode.getAttributes().getNamedItem("href").getTextContent();
-                String title = linkNode.getTextContent();
+                Iterator<Node> linkIterator = linkNodes.iterator();
+                Iterator<Node> infoIterator = infoNodes.iterator();
 
-                // the summary needs some cleaning; what we want is between "quotes",
-                // we also remove double whitespaces
-                String summary = infoNode.getTextContent();
-                summary = StringHelper.getSubstringBetween(summary, "\"", "\"");
-                summary = StringHelper.removeDoubleWhitespaces(summary);
+                while (linkIterator.hasNext()) {
+                    Node linkNode = linkIterator.next();
+                    Node infoNode = infoIterator.next();
 
-                WebResult webResult = new WebResult(url, title, summary);
-                result.add(webResult);
+                    String url = linkNode.getAttributes().getNamedItem("href").getTextContent();
+                    String title = linkNode.getTextContent();
+
+                    // the summary needs some cleaning; what we want is between "quotes",
+                    // we also remove double whitespaces
+                    String summary = infoNode.getTextContent();
+                    summary = StringHelper.trim(summary);
+
+                    WebResult webResult = new WebResult(url, title, summary, getName());
+                    result.add(webResult);
+
+                    if (result.size() >= resultCount) {
+                        break paging;
+                    }
+                }
+
 
             }
 
@@ -94,7 +109,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
     @Override
     public String getName() {
-        return "Scroogle";
+        return "Google Scraping";
     }
 
     /**
@@ -106,4 +121,10 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.get();
     }
 
+    public static void main(String[] args) {
+        ScroogleSearcher scroogleSearcher = new ScroogleSearcher();
+        // List<String> urls = scroogleSearcher.searchUrls("capital germany", 11);
+        List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);
+        CollectionHelper.print(urls);
+    }
 }
