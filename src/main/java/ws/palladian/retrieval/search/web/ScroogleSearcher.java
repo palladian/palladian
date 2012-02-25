@@ -19,7 +19,6 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 
-// TODO currently, paging/result count is not supported
 /**
  * <p>
  * Web searcher which scrapes content from Google.
