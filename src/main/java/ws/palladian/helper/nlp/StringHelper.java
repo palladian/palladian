@@ -423,12 +423,14 @@ public class StringHelper {
         return false;
     }
 
-    public static String removeWord(String word, String replacement, String searchString) {
+    public static String removeWord(String word, String searchString) {
         return replaceWord(word, " ", searchString);
     }
     public static String replaceWord(String word, String replacement, String searchString) {
-        String allowedNeighbors = "[\\s,.;-]";
-        String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+        String allowedNeighbors = "[\\s,.;\\-´]";
+
+        String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
+                + allowedNeighbors
                 + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         Pattern pat = null;
@@ -1450,16 +1452,24 @@ public class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text) {
-        return getRegexpMatch(regexp, text, false);
+        return getRegexpMatch(regexp, text, false, false);
     }
 
-    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive) {
+    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
         Pattern p;
 
         if (caseInsensitive) {
-            p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            }
         } else {
-            p = Pattern.compile(regexp);
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp);
+            }
         }
 
         Matcher m = p.matcher(text);
