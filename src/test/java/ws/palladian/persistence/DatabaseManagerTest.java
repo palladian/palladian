@@ -89,7 +89,8 @@ public class DatabaseManagerTest {
     @Test
     public void testRunBatchUpdate() {
         final List<String> names = Arrays.asList("bob", "mary", "john", "carol");
-        int[] generatedIds = databaseManager.runBatchInsertReturnIds(INSERT_TEST, new BatchDataProvider() {
+        final int[] expectedIds = new int[] { 1, 2, 3, 4 };
+        boolean success = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
             
             @Override
             public List<Object> getData(int number) {
@@ -102,7 +103,23 @@ public class DatabaseManagerTest {
             public int getCount() {
                 return names.size();
             }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                assertEquals(expectedIds[number], generatedId);
+            }
         });
+        assertTrue(success);
+    }
+    
+    @Test
+    public void testRunBatchUpdateReturnIds() {
+        List<List<Object>> params = new ArrayList<List<Object>>();
+        params.add(Arrays.asList((Object) "bob"));
+        params.add(Arrays.asList((Object) "mary"));
+        params.add(Arrays.asList((Object) "john"));
+        params.add(Arrays.asList((Object) "carol"));
+        int[] generatedIds = databaseManager.runBatchInsertReturnIds(INSERT_TEST, params);
         assertEquals(4, generatedIds.length);
         assertEquals(1, generatedIds[0]);
         assertEquals(2, generatedIds[1]);
