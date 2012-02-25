@@ -99,7 +99,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                     }
                     String url = jsonResult.getString("url");
                     String title = jsonResult.getString("url_title");
-                    WebResult webResult = new WebResult(url, title, summary);
+                    WebResult webResult = new WebResult(url, title, summary, getName());
                     webResults.add(webResult);
                     if (webResults.size() >= resultCount) {
                         break;

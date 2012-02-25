@@ -27,6 +27,16 @@ public class WebResult extends SearchResult {
         this.url = url;
     }
 
+    public WebResult(String url, String title, String summary, String searchEngine) {
+        super(title, summary, searchEngine);
+        this.url = url;
+    }
+
+    public WebResult(String url, String title, String summary, Date date, String searchEngine) {
+        super(title, summary, date, searchEngine);
+        this.url = url;
+    }
+
     /**
      * @return the url
      */
@@ -49,14 +59,12 @@ public class WebResult extends SearchResult {
         builder.append(getSummary());
         builder.append(", getDate()=");
         builder.append(getDate());
+        builder.append(", getSearchEngine()=");
+        builder.append(getSearchEngine());
         builder.append("]");
         return builder.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -65,10 +73,6 @@ public class WebResult extends SearchResult {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
