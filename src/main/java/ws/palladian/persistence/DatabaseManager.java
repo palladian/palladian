@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -91,17 +92,17 @@ public class DatabaseManager {
         return runSingleQuery(new NopRowConverter(), sql, args) != null;
     }
 
-    /**
-     * <p>
-     * Run a batch insertion and return the generated insert IDs.
-     * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param provider A callback, which provides the necessary data for the insertion.
-     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
-     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
-     *         a 0 value.
-     */
+//    /**
+//     * <p>
+//     * Run a batch insertion and return the generated insert IDs.
+//     * </p>
+//     * 
+//     * @param sql Update statement which may contain parameter markers.
+//     * @param provider A callback, which provides the necessary data for the insertion.
+//     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
+//     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
+//     *         a 0 value.
+//     */
 //    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
 //
 //        Connection connection = null;
@@ -145,12 +146,22 @@ public class DatabaseManager {
 //        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
 //        return CollectionHelper.toIntArray(array);
 //    }
-    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
+    /**
+     * <p>
+     * Run a batch insertion. The generated ID for each inserted object is provided via the {@link BatchDataProvider}.
+     * In case an error occurs, the whole batch is rolled back.
+     * </p>
+     * 
+     * @param sql Update statement which may contain parameter markers.
+     * @param provider A callback, which provides the necessary data for the insertion.
+     * @return <code>true</code>, if batch insert was successful, <code>false</code> otherwise.
+     */
+    public final boolean runBatchInsert(String sql, BatchDataProvider provider) {
 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        int[] generatedIds = new int[provider.getCount()];
+        boolean success = true;
 
         try {
 
@@ -164,13 +175,20 @@ public class DatabaseManager {
                 
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    generatedIds[i] = rs.getInt(1);
+                    provider.insertedItem(i, rs.getInt(1));
                 } else {
-                    generatedIds[i] = 0;
+                    success = false;
+                    break;
                 }
+                
+            }
+            
+            if (success) {
+                connection.commit();
+            } else {
+                connection.rollback();
             }
 
-            connection.commit();
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
@@ -179,7 +197,7 @@ public class DatabaseManager {
             close(connection, ps, rs);
         }
         
-        return generatedIds;
+        return success;
     }
 
     /**
@@ -194,6 +212,9 @@ public class DatabaseManager {
      *         a 0 value.
      */
     public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
+        
+        final int[] result = new int[batchArgs.size()];
+        Arrays.fill(result, 0);
 
         BatchDataProvider provider = new BatchDataProvider() {
 
@@ -207,9 +228,15 @@ public class DatabaseManager {
                 List<Object> args = batchArgs.get(number);
                 return args;
             }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                result[number] = generatedId;
+            }
         };
 
-        return runBatchInsertReturnIds(sql, provider);
+        runBatchInsert(sql, provider);
+        return result;
     }
 
     public final int[] runBatchUpdate(String sql, BatchDataProvider provider) {
@@ -256,6 +283,11 @@ public class DatabaseManager {
             public List<Object> getData(int number) {
                 List<Object> args = batchArgs.get(number);
                 return args;
+            }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                // no op.
             }
         };
 
