@@ -11,7 +11,6 @@ import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.HakiaSearcher;
-import ws.palladian.retrieval.search.web.ScroogleSearcher;
 import ws.palladian.retrieval.search.web.TwitterSearcher;
 import ws.palladian.retrieval.search.web.WebImageResult;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -137,7 +136,6 @@ public final class SearcherFactory {
         logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
         logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
         logs.append("Number of Blekko requests: ").append(BlekkoSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Scroogle requests: ").append(ScroogleSearcher.getRequestCount()).append("\n");
         logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
 
         return logs.toString();
