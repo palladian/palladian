@@ -135,9 +135,9 @@ public final class SearcherFactory {
         logs.append("\n");
         logs.append("Number of Bing requests: ").append(BingSearcher.getRequestCount()).append("\n");
         logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
+        logs.append("Number of Scroogle requests: ").append(ScroogleSearcher.getRequestCount()).append("\n");
         logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
         logs.append("Number of Blekko requests: ").append(BlekkoSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Scroogle requests: ").append(ScroogleSearcher.getRequestCount()).append("\n");
         logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
 
         return logs.toString();
