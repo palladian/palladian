@@ -91,7 +91,7 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
         headlines.add("<h6.*?>(.*?)</h6>");
         
         for (String regexp : headlines) {
-            title = StringHelper.getRegexpMatch(regexp, mainContentHTML, true);
+            title = StringHelper.getRegexpMatch(regexp, mainContentHTML, true, false);
             if (!title.isEmpty()) {
                 break;
             }

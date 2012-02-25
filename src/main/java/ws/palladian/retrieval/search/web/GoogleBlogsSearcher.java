@@ -23,7 +23,7 @@ public final class GoogleBlogsSearcher extends BaseGoogleSearcher<WebResult> {
         String title = resultData.getString("titleNoFormatting");
         String content = resultData.getString("content");
         String url = resultData.getString("postUrl");
-        WebResult webResult = new WebResult(url, title, content);
+        WebResult webResult = new WebResult(url, title, content, getName());
         return webResult;
     }
 
