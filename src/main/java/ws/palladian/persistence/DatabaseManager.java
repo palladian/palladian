@@ -102,12 +102,55 @@ public class DatabaseManager {
      *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
      *         a 0 value.
      */
+//    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
+//
+//        Connection connection = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//        List<Integer> generatedIds = new ArrayList<Integer>();
+//
+//        try {
+//
+//            connection = getConnection();
+//            connection.setAutoCommit(false);
+//            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//
+//            for (int i = 0; i < provider.getCount(); i++) {
+//                List<Object> args = provider.getData(i);
+//                fillPreparedStatement(ps, args);
+//                ps.addBatch();
+//            }
+//
+//            int[] batchResult = ps.executeBatch();
+//            connection.commit();
+//            connection.setAutoCommit(true);
+//
+//            // obtain the generated IDs for the inserted items
+//            // where no item was inserted, return -1 as ID
+//            rs = ps.getGeneratedKeys();
+//            for (int result : batchResult) {
+//                int id = -1;
+//                if (result > 0 && rs.next()) {
+//                    id = rs.getInt(1);
+//                }
+//                generatedIds.add(id);
+//            }
+//
+//        } catch (SQLException e) {
+//            LOGGER.error(e.getMessage());
+//        } finally {
+//            close(connection, ps, rs);
+//        }
+//
+//        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
+//        return CollectionHelper.toIntArray(array);
+//    }
     public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<Integer> generatedIds = new ArrayList<Integer>();
+        int[] generatedIds = new int[provider.getCount()];
 
         try {
 
@@ -116,34 +159,27 @@ public class DatabaseManager {
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             for (int i = 0; i < provider.getCount(); i++) {
-                List<Object> args = provider.getData(i);
-                fillPreparedStatement(ps, args);
-                ps.addBatch();
+                fillPreparedStatement(ps, provider.getData(i));
+                ps.executeUpdate();
+                
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedIds[i] = rs.getInt(1);
+                } else {
+                    generatedIds[i] = 0;
+                }
             }
 
-            int[] batchResult = ps.executeBatch();
             connection.commit();
             connection.setAutoCommit(true);
-
-            // obtain the generated IDs for the inserted items
-            // where no item was inserted, return -1 as ID
-            rs = ps.getGeneratedKeys();
-            for (int result : batchResult) {
-                int id = -1;
-                if (result > 0 && rs.next()) {
-                    id = rs.getInt(1);
-                }
-                generatedIds.add(id);
-            }
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
         } finally {
             close(connection, ps, rs);
         }
-
-        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
-        return CollectionHelper.toIntArray(array);
+        
+        return generatedIds;
     }
 
     /**
