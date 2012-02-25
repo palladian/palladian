@@ -6,6 +6,9 @@ import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
 
 /**
+ * <p>
+ * Helper class for dealing with IIR model classes.
+ * </p>
  * 
  * @author Philipp Katz
  * 
@@ -41,11 +44,11 @@ public class ModelHelper {
 
         @Override
         public void visitItem(Item item, int depth) {
-            System.out.println(getIndent(depth) + item.getTitle());
+            System.out.println(getIndent(depth) + "[i] " + item.getTitle());
         }
 
         private void print(StreamSource streamSource, int depth) {
-            System.out.println(getIndent(depth) + streamSource.getSourceName());
+            System.out.println(getIndent(depth) + "[s] " + streamSource.getSourceName());
         }
 
         public String getIndent(int depth) {
