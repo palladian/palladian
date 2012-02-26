@@ -311,6 +311,17 @@ public class DatabaseManager {
         return generatedId;
     }
 
+    /**
+     * 
+     * @param query
+     * @param entries
+     * @param args
+     * @return
+     * @deprecated This should be done using {@link #runSingleQuery(RowConverter, String, Object...)} supplying a
+     *             {@link RowConverter} returning an Object[]. There is no need to explicitly specify the number of
+     *             entries.
+     */
+    @Deprecated
     public final Object[] runOneResultLineQuery(String query, final int entries, Object... args) {
 
         final Object[] resultEntries = new Object[entries];
