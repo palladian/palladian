@@ -241,30 +241,21 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a query which only uses exactly one COUNT. The method then returns the value of that count. For example,
-     * "SELECT COUNT(*) FROM feeds WHERE id > 342".
+     * Run a query which only returns a single {@link Integer} result (i.e. one row, one column). This is handy for
+     * aggregate queries, like <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>,
+     * <code>MIN</code>. Example for such a query: <code>SELECT COUNT(*) FROM feeds WHERE id > 342</code>.
      * </p>
      * 
-     * @param countQuery The query string with the COUNT.
-     * @return The result of the COUNT query. -1 means that there was nothing to count.
+     * @param aggregateQuery The query string for the aggregated integer result.
+     * @return The result of the query, or <code>null</code> if no result.
      */
-    public final int runCountQuery(String countQuery) {
-
-        RowConverter<Integer> converter = new RowConverter<Integer>() {
-
+    public final Integer runAggregateQuery(String aggregateQuery) {
+        return runSingleQuery(new RowConverter<Integer>() {
             @Override
             public Integer convert(ResultSet resultSet) throws SQLException {
                 return resultSet.getInt(1);
             }
-        };
-
-        int count = -1;
-        Integer result = runSingleQuery(converter, countQuery);
-        if (result != null) {
-            count = result;
-        }
-
-        return count;
+        }, aggregateQuery);
     }
 
     /**
@@ -395,7 +386,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, return the result as List.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
