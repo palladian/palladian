@@ -495,6 +495,21 @@ public class WordTransformer {
         return verb + "s";
     }
 
+    public static String getSimplePresent(String verb) {
+        String stemmedWord = stemEnglishWord(verb);
+        EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
+
+        if (englishVerb != null) {
+            return englishVerb.getPresent();
+        }
+
+        if (verb.endsWith("ed")) {
+            return verb.replaceAll("ed$", "");
+        }
+
+        return verb;
+    }
+
     public static String getSimplePast(String verb) {
         String stemmedWord = stemEnglishWord(verb);
         EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
