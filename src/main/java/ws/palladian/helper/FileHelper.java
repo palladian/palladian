@@ -21,6 +21,7 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -78,12 +79,34 @@ public class FileHelper {
     /** Constant for new line character. */
     private static final String NEWLINE_CHARACTER = "\n";
 
+    /** Constant for image file extensions. */
+    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
+
     /** Constant for video file extensions. */
-    private static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx",
-            "mov", "xvid");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
+            "xvid", "wmv");
 
     /** Constant for audio file extensions. */
-    private static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
+    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
+
+    /** Constant for general binary file extensions, including. */
+    public static final List<String> BINARY_FILE_EXTENSIONS;
+
+    static {
+        List<String> binaryFileExtensions = new ArrayList<String>();
+        binaryFileExtensions.add("pdf");
+        binaryFileExtensions.add("doc");
+        binaryFileExtensions.add("ppt");
+        binaryFileExtensions.add("xls");
+        binaryFileExtensions.add("zip");
+        binaryFileExtensions.add("exe");
+        binaryFileExtensions.add("msi");
+        binaryFileExtensions.add("swf");
+        binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
+        binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
+        binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
+        BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
+    }
 
     /**
      * Checks if is file name.
@@ -98,26 +121,6 @@ public class FileHelper {
         Matcher m = pattern.matcher(name);
 
         return m.find();
-    }
-
-    /**
-     * Checks if is video file.
-     * 
-     * @param fileType the file type
-     * @return true, if is video file
-     */
-    public static boolean isVideoFile(String fileType) {
-        return VIDEO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
-    }
-
-    /**
-     * Checks if is audio file.
-     * 
-     * @param fileType the file type
-     * @return true, if is audio file
-     */
-    public static boolean isAudioFile(String fileType) {
-        return AUDIO_FILE_EXTENSIONS.contains(fileType.toLowerCase());
     }
 
     /**
@@ -320,7 +323,9 @@ public class FileHelper {
     }
 
     /**
+     * <p>
      * Create a list with each line of the given file as an element.
+     * </p>
      * 
      * @param path The path of the file.
      * @param numberOfLines The number of lines to read.
@@ -328,7 +333,22 @@ public class FileHelper {
      */
     public static List<String> readFileToArray(String path, int numberOfLines) {
         File contentFile = new File(path);
-        return readFileToArray(contentFile, numberOfLines);
+        return readFileToArray(contentFile, 0L, numberOfLines);
+    }
+
+    /**
+     * <p>
+     * Create a list with each line of the given file as an element. Skip all lines to start line.
+     * </p>
+     * 
+     * @param path The path of the file.
+     * @param startLine The first line to read.
+     * @param numberOfLines The number of lines to read.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(String path, long startLine, int numberOfLines) {
+        File contentFile = new File(path);
+        return readFileToArray(contentFile, startLine, numberOfLines);
     }
 
     /**
@@ -356,7 +376,7 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(File contentFile) {
-        return readFileToArray(contentFile, -1);
+        return readFileToArray(contentFile, 0L, -1);
     }
 
     /**
@@ -366,14 +386,14 @@ public class FileHelper {
      * @param numberOfLines The number of lines to read. Use -1 to read whole file.
      * @return A list with the lines as elements.
      */
-    public static List<String> readFileToArray(File contentFile, int numberOfLines) {
+    public static List<String> readFileToArray(File contentFile, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
         BufferedReader reader = null;
 
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(contentFile), DEFAULT_ENCODING));
 
-            list = readFileToArray(reader, numberOfLines);
+            list = readFileToArray(reader, startLine, numberOfLines);
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
@@ -387,17 +407,20 @@ public class FileHelper {
     }
 
     public static List<String> readFileToArray(BufferedReader reader) {
-        return readFileToArray(reader, -1);
+        return readFileToArray(reader, 0L, -1);
     }
 
-    public static List<String> readFileToArray(BufferedReader reader, int numberOfLines) {
+    public static List<String> readFileToArray(BufferedReader reader, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
 
         try {
-
+            long lineNumber = 1;
             String line = null;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
-                list.add(line);
+                if (lineNumber >= startLine) {
+                    list.add(line);
+                }
+                lineNumber++;
             }
 
         } catch (IOException e) {
@@ -441,18 +464,38 @@ public class FileHelper {
      * @param outputFilePath Where the transformed file should be saved.
      */
     public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
-        List<String> lines = readFileToArray(inputFilePath, -1);
 
-        Set<String> lineSet = new HashSet<String>();
+        // remember all seen hashes
+        final Set<Integer> seenHashes = new HashSet<Integer>();
 
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            if (lineSet.add(line) || line.length() == 0) {
-                sb.append(line).append(NEWLINE_CHARACTER);
-            }
+        try {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath),
+                    DEFAULT_ENCODING));
+
+            LineAction la = new LineAction() {
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    try {
+                        if (seenHashes.add(line.hashCode())) {
+                            writer.write(line);
+                            writer.write(NEWLINE_CHARACTER);
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error(e.getMessage());
+                    }
+                }
+            };
+
+            FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+            close(writer);
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e.getMessage());
         }
 
-        writeToFile(outputFilePath, sb);
     }
 
     /**
@@ -1740,6 +1783,61 @@ public class FileHelper {
 
         System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
                 "sampleTextForTagging_tagged"));
+
+    }
+
+    /**
+     * <p>
+     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
+     * </p>
+     * 
+     * @param filePath The file to be split.
+     * @param numParts The number of evenly sized parts the file should be split into.
+     */
+    public static void splitAsciiFile(String filePath, int numParts) {
+
+        int totalLines = FileHelper.getNumberOfLines(filePath);
+
+        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
+
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        OutputStream out = null;
+
+        try {
+
+            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
+            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
+
+            String line = null;
+            int lineNumber = 1;
+            int i = 2;
+            while ((line = reader.readLine()) != null) {
+
+                if (lineNumber % linesPerSplit == 0) {
+                    if (i == numParts + 1) {
+                        break;
+                    }
+
+                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
+                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+                    i++;
+                }
+
+                writer.write(line + "\n");
+
+                lineNumber++;
+            }
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } finally {
+            close(reader, writer, out);
+        }
 
     }
 

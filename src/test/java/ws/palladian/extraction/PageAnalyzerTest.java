@@ -7,18 +7,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.helper.ResourceHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.parser.ParserException;
 
 /**
- * Test cases for the xPath handling.
+ * Test cases for the XPath handling via PageAnalyzer.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public class PageAnalyzerTest {
+
+    private final NekoHtmlParser parser = new NekoHtmlParser();
 
     @Test
     public void testMakeMutualXPath() {
@@ -111,65 +116,60 @@ public class PageAnalyzerTest {
     }
 
     @Test
-    public void testGetNumberOfTableColumns() throws FileNotFoundException {
-        DocumentRetriever crawler = new DocumentRetriever();
+    public void testGetNumberOfTableColumns() throws FileNotFoundException, ParserException {
+
         PageAnalyzer pa = new PageAnalyzer();
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website3.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
-        assertEquals(6, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website3.html")),
-                "/html/body/div/div/div/div/table[2]/tr/td"));
+        Document doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website3.html"));
+        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[2]/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website5.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
-        assertEquals(6, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website5.html")),
-                "/html/body/center/table[1]/tr/td/blockquote/table[1]/tr/td/p"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website5.html"));
+        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tr/td/blockquote/table[1]/tr/td/p"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website9.html"),"/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
-        assertEquals(2, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website9.html")),
-                "/html/body/table/tr/td/table[1]/tr/td/table[1]/tr/td/div/ul/li/a/b"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website9.html"));
+        assertEquals(2,
+                pa.getNumberOfTableColumns(doc, "/html/body/table/tr/td/table[1]/tr/td/table[1]/tr/td/div/ul/li/a/b"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website11.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
-        assertEquals(2, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website11.html")),
-                "/html/body/div/div/div/div/div/div/table/tbody/tr/td"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website11.html"));
+        assertEquals(2, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/div/div/table/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website17.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
-        assertEquals(5, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website17.html")),
-                "/html/body/div/div/div/div/table[4]/tr/td/ul/li/a"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website17.html"));
+        assertEquals(5, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[4]/tr/td/ul/li/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website27.html"),"/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website27.html"));
         assertEquals(
                 3,
                 pa.getNumberOfTableColumns(
-                        crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website27.html")),
+                        doc,
                         "/html/body/form/table[1]/tr/td/div/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td/div/table[1]/tr/td/div/div/span/span/span/p/table/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website29.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
-        assertEquals(5, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website29.html")),
-                "/html/body/center/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website29.html"));
+        assertEquals(5,
+                pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website33.html"),"/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
-        assertEquals(2, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website33.html")),
-                "/html/body/div/div/div/table[1]/tr/td/p/table[3]/tr/td/table/tr/td/a"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website33.html"));
+        assertEquals(2,
+                pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/table[1]/tr/td/p/table[3]/tr/td/table/tr/td/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website65.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD"));
-        assertEquals(11, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website65.html")),
-                "/html/body/div/div/div/div/div/table[1]/tr/td"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website65.html"));
+        assertEquals(11, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/div/table[1]/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website67.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
-        assertEquals(3, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website67.html")),
-                "/html/body/div/div/div/div/table[3]/tr/td/i/a"));
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website67.html"));
+        assertEquals(3, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[3]/tr/td/i/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website69.html"),"/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
-        assertEquals(4, pa.getNumberOfTableColumns(
-                crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/website69.html")),
+        doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website69.html"));
+        assertEquals(4, pa.getNumberOfTableColumns(doc,
                 "/html/body/div/div/layer/div/table[1]/tr/td/div/table[1]/tr/td/p/table/tr/td/font/a"));
 
     }
@@ -201,6 +201,17 @@ public class PageAnalyzerTest {
             assertEquals("http://forums.whirlpool.net.au/forum-replies.cfm?t=1037458",
                     pa.getSiblingPage("http://forums.whirlpool.net.au/forum-replies-archive.cfm/1037458.html"));
         }
+    }
+    
+    @Test
+    public void testGetLinks() throws FileNotFoundException, ParserException {
+        
+        Document doc = parser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test9.html"));
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
+
+        doc = parser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test10.html"));
+        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
+
     }
 
 }

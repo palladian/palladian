@@ -38,7 +38,7 @@ public class AlchemyLangDetect extends LanguageClassifier {
 
     @Override
     public String classify(String text) {
-        JSONObject json = crawler.getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetLanguage?apikey="
+        JSONObject json = crawler.getJsonObject("http://access.alchemyapi.com/calls/text/TextGetLanguage?apikey="
                 + API_KEY + "&text=" + text + "&outputMode=json");
         try {
             return json.getString("iso-639-1");

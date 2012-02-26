@@ -20,7 +20,7 @@ import ws.palladian.retrieval.RetrieverCallback;
  * @author Philipp Katz
  * 
  */
-public class FeedDiscoveryCallback implements RetrieverCallback {
+public class FeedDiscoveryCallback implements RetrieverCallback<Document> {
 
     /** The singleton. */
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();

@@ -15,13 +15,14 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.rome.RawDateModule;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.parser.XmlParser;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -33,10 +34,9 @@ import com.sun.syndication.io.SyndFeedInput;
 
 /**
  * <p>
- * The RomeFeedParser is responsible for fetching RSS and Atom feeds. We use Palladians {@link DocumentRetriever} for
- * downloading the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for
- * parsing problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items,
- * to fetch additional content.
+ * The RomeFeedParser is responsible for parsing RSS and Atom feeds. We use Palladian's {@link HttpRetriever} for
+ * downloading the feeds and ROME in conjunctions with Palladian's {@link XmlParser} for parsing the XML formats. This
+ * class implements various fallback mechanisms for parsing problems caused by ROME or invalid feeds.
  * </p>
  * 
  * @author Philipp Katz
@@ -44,14 +44,12 @@ import com.sun.syndication.io.SyndFeedInput;
  * @author Klemens Muthmann
  * 
  * @see https://rome.dev.java.net/
+ * @see http://rometools.org/
  */
 public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(RomeFeedParser.class);
-
-    /** Factory for creating Document parsers. */
-    private final ParserFactory parserFactory = new ParserFactory();
 
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;
@@ -129,7 +127,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
     private SyndFeed getSyndFeed(InputStream inputStream) throws FeedParserException {
         try {
-            DocumentParser xmlParser = parserFactory.createXmlParser();
+            DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document document = xmlParser.parse(inputStream);
             SyndFeed syndFeed = buildSyndFeed(document);
             return syndFeed;

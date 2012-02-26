@@ -1,11 +1,18 @@
 package ws.palladian.preprocessing.multimedia;
 
+import ws.palladian.retrieval.search.web.WebImageResult;
+
 /**
  * <p>An extracted image.</p>
  * 
  * @author David Urbansky
  */
-public class ExtractedImage extends Image {
+public class ExtractedImage extends WebImageResult {
+
+    public ExtractedImage(WebImageResult image) {
+        super(image.getUrl(), image.getTitle(), image.getWidth(), image.getHeight());
+    }
+
     private int rankCount = 1;
     private int duplicateCount = 0;
 
@@ -40,6 +47,6 @@ public class ExtractedImage extends Image {
 
     @Override
     public String toString() {
-        return getURL() + " | " + getRanking();
+        return getUrl() + " | " + getRanking();
     }
 }

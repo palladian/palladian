@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * An implementation of the update strategy described in [LIHZ08]
@@ -25,7 +27,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
     /**
      * Identifier to be used to store the trained model as additional date with the feed.
      */
-    private static final String MODEL_IDENTIFIER = "LIZH08Model";
+    private static final String MODEL_IDENTIFIER = "LIHZ08Model";
 
     /**
      * The threshold theta.
@@ -95,7 +97,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
 
                     // done at least once, loop as many days as required to reach the threshold
                     while (cumProb < thresholdTheta
-                            && (checkInterval + 1440 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                            && (checkInterval + 1440 <= getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
                         // increase for last iteration
                         dailyRates[simulatedDayOfWeek][1]++;
                         dailyRates[7][1]++;

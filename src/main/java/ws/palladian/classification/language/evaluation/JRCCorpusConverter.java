@@ -96,7 +96,7 @@ public class JRCCorpusConverter {
         new File(targetPath).mkdirs();
 
         DocumentRetriever crawler = new DocumentRetriever();
-        Document document = crawler.getXMLDocument(xmlFile.getPath());
+        Document document = crawler.getXmlDocument(xmlFile.getPath());
 
         List<Node> textNodes = XPathHelper.getNodes(document, "//text/body//div[@type='body']/p");
 

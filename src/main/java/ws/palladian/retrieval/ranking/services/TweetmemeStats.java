@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -41,10 +43,8 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
     public static final RankingType TWEETS = new RankingType("twitter_tweets", "Twitter tweets",
             "The number of tweets mentioning this url, derived from tweetmeme.");
 
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(TWEETS);
-    }
+    /** All available ranking types by TweetmemeStats. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(TWEETS);
 
     /**
      * The number of comments tweets mentioning this url.
@@ -79,25 +79,20 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
         try {
 
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument("http://api.tweetmeme.com/url_info.json?url=" + encUrl);
-            if (json != null) {
-                if (json.has("story")) {
-                    float count = json.getJSONObject("story").getInt("url_count");
-                    // int comments = json.getJSONObject("story").getInt("comment_count");
-                    results.put(TWEETS, count);
-                    // results.put(COMMENTS, COMMENTS.normalize(comments));
+            HttpResult httpResult = retriever.httpGet("http://api.tweetmeme.com/url_info.json?url=" + encUrl);
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+
+            if (json.has("story")) {
+                float count = json.getJSONObject("story").getInt("url_count");
+                // int comments = json.getJSONObject("story").getInt("comment_count");
+                results.put(TWEETS, count);
+                // results.put(COMMENTS, COMMENTS.normalize(comments));
+                LOGGER.trace("Tweetmeme stats for " + url + " : " + results);
+            } else if (json.has("comment")) {
+                if (json.getString("comment").equals("unable to resolve URL")) {
+                    results.put(TWEETS, 0f);
+                    // results.put(COMMENTS, 0f);
                     LOGGER.trace("Tweetmeme stats for " + url + " : " + results);
-                } else if (json.has("comment")) {
-                    if (json.getString("comment").equals("unable to resolve URL")) {
-                        results.put(TWEETS, 0f);
-                        // results.put(COMMENTS, 0f);
-                        LOGGER.trace("Tweetmeme stats for " + url + " : " + results);
-                    }
-                } else {
-                    results.put(TWEETS, null);
-                    // results.put(COMMENTS, null);
-                    LOGGER.trace("Tweetmeme stats for " + url + "could not be fetched");
-                    checkBlocked();
                 }
             } else {
                 results.put(TWEETS, null);
@@ -109,6 +104,9 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
+            checkBlocked();
         }
         return ranking;
     }
@@ -117,14 +115,17 @@ public class TweetmemeStats extends BaseRankingService implements RankingService
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            JSONObject json = retriever
-                    .getJSONDocument("http://api.tweetmeme.com/url_info.json?url=http://www.google.com/");
+            HttpResult httpResult = retriever.httpGet("http://api.tweetmeme.com/url_info.json?url="
+                    + UrlHelper.urlEncode("http://www.google.com/"));
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (json.has("status")) {
                 if (json.get("status").equals("failure")) {
                     error = true;
                 }
             }
         } catch (JSONException e) {
+            LOGGER.error("JSONException " + e.getMessage());
+        } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());
         }
         if (!error) {

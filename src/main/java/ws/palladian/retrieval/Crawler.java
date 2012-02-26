@@ -312,7 +312,7 @@ public class Crawler {
         Crawler crawler = new Crawler();
 
         // create a callback that is triggered for every crawled page
-        RetrieverCallback crawlerCallback = new RetrieverCallback() {
+        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
 
             @Override
             public void onFinishRetrieval(Document document) {

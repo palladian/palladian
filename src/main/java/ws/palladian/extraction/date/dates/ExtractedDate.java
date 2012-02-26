@@ -311,6 +311,8 @@ public class ExtractedDate implements AbstractDate {
             }
             setTimeValues(sb.toString());
             set24h(meridiem);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_CONTEXT_YYYY[1])) {
+            year = Integer.valueOf(dateString);
         }
 
     }
@@ -426,6 +428,11 @@ public class ExtractedDate implements AbstractDate {
                 }
             }
         }
+
+        if (normalizedDate.endsWith("-0")) {
+            normalizedDate = normalizedDate.replace("-0", "");
+        }
+
         return normalizedDate;
 
     }
@@ -772,36 +779,28 @@ public class ExtractedDate implements AbstractDate {
                     break;
                 case 2:
                     this.year = (Integer) values.get(i);
-                    ;
                     break;
                 case 3:
                     this.month = (Integer) values.get(i);
-                    ;
                     break;
                 case 4:
                     this.day = (Integer) values.get(i);
-                    ;
                     break;
                 case 5:
                     this.hour = (Integer) values.get(i);
-                    ;
                     break;
                 case 6:
                     this.minute = (Integer) values.get(i);
-                    ;
                     break;
-
                 case 7:
                     this.second = (Integer) values.get(i);
-                    ;
                     break;
                 case 8:
                     this.timezone = (String) values.get(i);
-                    ;
                     break;
                 case 9:
                     this.url = (String) values.get(i);
-                    ;
+                    break;
             }
         }
     }

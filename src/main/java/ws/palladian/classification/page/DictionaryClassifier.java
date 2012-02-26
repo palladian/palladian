@@ -695,12 +695,6 @@ public class DictionaryClassifier extends TextClassifier {
      */
     public static TextInstance classify(DictionaryClassifier classifier, String text) {
         
-        // FIXME: remove this 01.01.2012
-        // if (System.currentTimeMillis() > 1325376000000L) {
-        // System.out.println("Your licensed has expired. Please contact davidurbansky@gmail.com");
-        // System.exit(0);
-        // }
-
         // TODO: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
         DictionaryClassifier copy = new DictionaryClassifier();
         copy.setDictionary(classifier.getDictionary());

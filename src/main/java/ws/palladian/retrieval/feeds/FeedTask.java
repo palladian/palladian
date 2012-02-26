@@ -14,9 +14,10 @@ import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -49,6 +50,12 @@ class FeedTask implements Callable<FeedTaskResult> {
      * strategies to a true strategy pattern.
      */
     private final FeedReader feedReader;
+    
+    /**
+     * The maximum file size (1 MB) which is accepted for each feed being checked. If this size is exceeded, the
+     * download is stopped.
+     */
+    public static final long MAXIMUM_FEED_SIZE = SizeUnit.MEGABYTES.toBytes(1);
 
     /**
      * Warn if processing of a feed takes longer than this.
@@ -115,11 +122,12 @@ class FeedTask implements Callable<FeedTaskResult> {
             buildConditionalGetHeader();
             HttpResult httpResult = null;
             try {
-                DocumentRetriever documentRetriever = new DocumentRetriever();
+                HttpRetriever httpRetriever = new HttpRetriever();
+                httpRetriever.setMaxFileSize(MAXIMUM_FEED_SIZE);
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)
-                httpResult = documentRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
+                httpResult = httpRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
                 feed.incrementUnreachableCount();
@@ -281,9 +289,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        // FIXME: should we really empty the buffer here? Currently no-one using the FeedTask is using the buffer but
-        // this may change over time. This maybe needs to be configurable. -- Sandro 2011-11-12
-        feed.freeMemory(true);
+        feed.freeMemory();
     }
 
     /**

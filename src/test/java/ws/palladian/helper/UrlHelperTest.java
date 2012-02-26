@@ -1,6 +1,7 @@
 package ws.palladian.helper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -20,8 +21,6 @@ public class UrlHelperTest {
 
     @Test
     public void testGetDomain() {
-        // System.out.println(crawler.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html",
-        // false));
         assertEquals("http://www.flashdevices.net",
                 UrlHelper.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", true));
         assertEquals("www.flashdevices.net",
@@ -61,16 +60,20 @@ public class UrlHelperTest {
 
         assertEquals("http://www.example.com/page.html",
                 UrlHelper.makeFullUrl("/some/file/path.html", "http://www.example.com/page.html"));
-        assertEquals("", UrlHelper.makeFullUrl("http://www.xyz.de", "mailto:example@example.com"));
+        assertEquals("mailto:example@example.com", UrlHelper.makeFullUrl("http://www.xyz.de", "mailto:example@example.com"));
 
         assertEquals("http://www.example.com/page.html",
                 UrlHelper.makeFullUrl(null, null, "http://www.example.com/page.html"));
 
-        // when no linkUrl is supplied, we cannot determine the full URL, so just return an empty String.
-        assertEquals("", UrlHelper.makeFullUrl(null, "http://www.example.com", null));
-        assertEquals("", UrlHelper.makeFullUrl("http://www.example.com", null, null));
-        assertEquals("", UrlHelper.makeFullUrl(null, null, "/page.html"));
-
+        // when no linkUrl is supplied, we cannot determine the full URL, UrlHelper throws NPE
+        try {
+            assertEquals(null, UrlHelper.makeFullUrl(null, "http://www.example.com", null));
+            assertEquals("", UrlHelper.makeFullUrl("http://www.example.com", null, null));
+            assertEquals("", UrlHelper.makeFullUrl(null, null, "/page.html"));
+            fail();
+        } catch (NullPointerException e) {
+            
+        }
     }
     
     @Test
@@ -88,6 +91,12 @@ public class UrlHelperTest {
                 "http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars",
                 urls.get(3));
 
+    }
+    
+    @Test
+    public void testRemoveSessionId() {
+        assertEquals("http://brbb.freeforums.org/viewforum.php?f=3&", UrlHelper.removeSessionId(
+                "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4", true));
     }
 
 }

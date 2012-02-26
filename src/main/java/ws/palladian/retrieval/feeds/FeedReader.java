@@ -25,8 +25,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -35,6 +35,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
@@ -273,7 +274,7 @@ public final class FeedReader {
 
             // if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: " + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
+                LOGGER.debug("current total traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
                         + " MB");
 
                 try {
@@ -291,7 +292,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + DocumentRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
+                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
     }
 
     /** Start continuous reading without a time limit. */
@@ -512,6 +513,38 @@ public final class FeedReader {
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws FeedParserException {
+
+        /**
+         * Bug #14 sample code
+         */
+        FeedStore feedStore = new CollectionFeedSource();
+        feedStore.addFeed(new Feed("http://lifehacker.com/excerpts.xml"));
+        FeedReader feedReader = new FeedReader(feedStore);
+        feedReader.setUpdateStrategy(new MAVSynchronizationUpdateStrategy(), false);
+        feedReader.setFeedProcessingAction(new FeedProcessingAction() {
+
+            @Override
+            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+                return true;
+            }
+
+            @Override
+            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
+                return true;
+            }
+
+            @Override
+            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
+                return true;
+            }
+
+            @Override
+            public boolean performAction(Feed feed, HttpResult httpResult) {
+                return true;
+            }
+        });
+        feedReader.startContinuousReading();
+        System.exit(0);
 
         FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
         r.setThreadPoolSize(1);
