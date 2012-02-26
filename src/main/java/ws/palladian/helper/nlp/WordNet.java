@@ -10,6 +10,7 @@ import edu.smu.tspell.wordnet.WordNetDatabase;
 
 public class WordNet {
 
+	
     /**
      * Return noun synonyms for the given word by looking it up in the WordNet database.
      * 
