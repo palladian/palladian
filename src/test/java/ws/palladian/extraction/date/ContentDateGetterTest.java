@@ -3,14 +3,12 @@ package ws.palladian.extraction.date;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.technique.ContentDateGetter;
 import ws.palladian.helper.StopWatch;
@@ -18,15 +16,15 @@ import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentDateGetterTest {
 
-	@Test
-	public void testSplit(){
-		String text = "a d";
-		String[] parts = text.split("\\s");
-		System.out.println(parts.length);
-		for(int i=0; i< parts.length; i++){
-			System.out.println("->" + parts[i] + "<-");
-		}
-	}
+//	@Test
+//	public void testSplit(){
+//		String text = "a d";
+//		String[] parts = text.split("\\s");
+//		System.out.println(parts.length);
+//		for(int i=0; i< parts.length; i++){
+//			System.out.println("->" + parts[i] + "<-");
+//		}
+//	}
 	
 	@Test
 	public void testGetDateTime(){
@@ -65,7 +63,7 @@ public class ContentDateGetterTest {
 		*/
 		timer.start();
 		
-		ArrayList<ContentDate> datesV2 = dg.getDates();
+		List<ContentDate> datesV2 = dg.getDates();
 		
 		System.out.println("V2 number of found Dates: " + datesV2.size());
 		int cntKeywV2 = 0;

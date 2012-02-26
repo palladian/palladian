@@ -43,7 +43,7 @@ public class ProxySwitcher implements HttpHook {
     private int proxyIndex;
 
     /** The DocumentRetriever which is only used for checking the proxies. */
-    private DocumentRetriever testRetriever;
+    private HttpRetriever testRetriever;
 
     public ProxySwitcher() {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
@@ -63,7 +63,7 @@ public class ProxySwitcher implements HttpHook {
         this.proxyRequests = 0;
         this.proxyIndex = 0;
 
-        this.testRetriever = new DocumentRetriever();
+        this.testRetriever = new HttpRetriever();
 
         // use low timeouts, since we do not want slow proxies
         testRetriever.setConnectionTimeout(3000);
@@ -112,7 +112,7 @@ public class ProxySwitcher implements HttpHook {
     }
 
     @Override
-    public void beforeRequest(String url, DocumentRetriever retriever) throws HttpException {
+    public void beforeRequest(String url, HttpRetriever retriever) throws HttpException {
 
         if (proxyRequests % switchRequests == 0) {
 
@@ -136,7 +136,7 @@ public class ProxySwitcher implements HttpHook {
     }
 
     @Override
-    public void afterRequest(HttpResult result, DocumentRetriever documentRetriever) throws HttpException {
+    public void afterRequest(HttpResult result, HttpRetriever documentRetriever) throws HttpException {
         proxyRequests++;
     }
 
@@ -203,7 +203,7 @@ public class ProxySwitcher implements HttpHook {
         proxySwitcher.checkAllProxies(3, true);
 
         // use the instance of this DocumentRetriever with cycling proxies
-        DocumentRetriever retriever = new DocumentRetriever();
+        HttpRetriever retriever = new HttpRetriever();
         retriever.setHttpHook(proxySwitcher);
 
     }

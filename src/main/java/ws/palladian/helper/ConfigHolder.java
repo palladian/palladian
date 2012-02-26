@@ -77,7 +77,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 15;
+    private static final int VERSION = 17;
 
     /**
      * <p>
@@ -182,18 +182,18 @@ public final class ConfigHolder {
         return this.config;
     }
 
-    /**
-     * <p>
-     * Return the value of the field with the specified field name.
-     * </p>
-     * 
-     * @param fieldName
-     *            The name of the field for which a value should be retrieved.
-     * @return The value of the field as Object since we don't know the type.
-     */
-    public Object getField(final String fieldName) {
-        return this.config.getProperty(fieldName);
-    }
+//    /**
+//     * <p>
+//     * Return the value of the field with the specified field name.
+//     * </p>
+//     * 
+//     * @param fieldName
+//     *            The name of the field for which a value should be retrieved.
+//     * @return The value of the field as Object since we don't know the type.
+//     */
+//    public Object getField(final String fieldName) {
+//        return this.config.getProperty(fieldName);
+//    }
 
     /**
      * <p>

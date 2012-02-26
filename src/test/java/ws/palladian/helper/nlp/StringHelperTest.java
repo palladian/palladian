@@ -22,6 +22,17 @@ import ws.palladian.helper.ResourceHelper;
 public class StringHelperTest {
 
     @Test
+    public void testContainsWord() {
+        
+        assertEquals(true, StringHelper.containsWord("test", "a test b"));
+        assertEquals(true, StringHelper.containsWord("test", "test"));
+        assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
+        assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
+        
+    }
+
+    @Test
     public void testClean() {
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));

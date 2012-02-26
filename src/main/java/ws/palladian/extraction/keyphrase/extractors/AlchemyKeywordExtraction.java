@@ -15,9 +15,9 @@ import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 
 /**
  * 
@@ -77,7 +77,7 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
         content.put("maxRetrieve", String.valueOf(getKeyphraseCount()));
         content.put("keywordExtractMode", strictExtractMode ? "strict" : "normal");
 
-        DocumentRetriever retriever = new DocumentRetriever();
+        HttpRetriever retriever = new HttpRetriever();
         String response = null;
         try {
             HttpResult postResult = retriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords", headers, content);

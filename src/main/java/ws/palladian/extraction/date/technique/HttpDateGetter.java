@@ -13,7 +13,7 @@ import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
      */
     private static ArrayList<MetaDate> getHTTPHeaderDate(String url) {
         ArrayList<MetaDate> result = new ArrayList<MetaDate>();
-        DocumentRetriever retriever = new DocumentRetriever();
+        HttpRetriever retriever = new HttpRetriever();
         Map<String, List<String>> headers = new  HashMap<String, List<String>>();
         if(url.indexOf("http") != -1){
         	headers = retriever.getHeaders(url);

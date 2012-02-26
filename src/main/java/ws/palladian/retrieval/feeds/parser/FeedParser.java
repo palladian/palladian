@@ -20,7 +20,7 @@ public interface FeedParser {
 
     /**
      * <p>
-     * Retrieve a feed from a gzipped {@link HttpResult}. These gzips are available for example in the <a
+     * Parse a feed from a gzipped {@link HttpResult}. These gzips are available for example in the <a
      * href="http://areca.co/8/Feed-Item-Dataset-TUDCS5">TUD-CS5</a> feed dataset.
      * </p>
      * 
@@ -33,7 +33,7 @@ public interface FeedParser {
 
     /**
      * <p>
-     * Retrieve a feed from local file system.
+     * Parse a feed from local file system.
      * </p>
      * 
      * @param file The file with the RSS or Atom feed.
@@ -66,7 +66,7 @@ public interface FeedParser {
 
     /**
      * <p>
-     * Returns a feed from the specified {@link Document}.
+     * Parse a feed from the specified {@link Document}.
      * </p>
      * 
      * @param document the Document containing the RSS or Atom feed.

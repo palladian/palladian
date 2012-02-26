@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.semantics;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -120,25 +121,25 @@ public class Word {
      * @return A sorted list of words where each entry is the hypernym of the preceding entry.
      */
     public LinkedList<String> getPath(WordDB wordDb) {
-        return getPath(wordDb, 0);
+        return getPath(wordDb, 0, new HashSet<String>());
     }
 
-    public LinkedList<String> getPath(WordDB wordDb, int depth) {
+    public LinkedList<String> getPath(WordDB wordDb, int depth, Set<String> seenWords) {
 
         LinkedList<String> path = new LinkedList<String>();
 
-        if (depth > 10) {
+        if (depth > 3) {
             return path;
         }
 
         Set<Word> hypernyms = getHypernyms();
 
         for (Word hypernym : hypernyms) {
-            if (hypernym.getWord().equalsIgnoreCase(getWord())) {
+            if (hypernym.getWord().equalsIgnoreCase(getWord()) || !seenWords.add(hypernym.getWord())) {
                 continue;
             }
             wordDb.aggregateInformation(hypernym);
-            LinkedList<String> currentPath = hypernym.getPath(wordDb, depth + 1);
+            LinkedList<String> currentPath = hypernym.getPath(wordDb, depth + 1, seenWords);
             if (currentPath.size() > path.size()) {
                 path = currentPath;
             }

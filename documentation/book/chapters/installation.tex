@@ -13,16 +13,16 @@ Apache \textbf{Maven needs to be installed} to build the toolkit. Instructions f
   <servers>
     <server>
       <id>snapshots</id>
-      <username>your-username</username>
-      <password>your-password</password>
+      <username>palladian</username>
+      <password>wisdom</password>
       <filePermissions>664</filePermissions>
       <directoryPermissions>775</directoryPermissions>
       <configuration></configuration>
     </server>
     <server>
       <id>releases</id>
-      <username>your-username</username>
-      <password>your-password</password>
+      <username>palladian</username>
+      <password>wisdom</password>
       <filePermissions>664</filePermissions>
       <directoryPermissions>775</directoryPermissions>
       <configuration></configuration>
@@ -30,9 +30,10 @@ Apache \textbf{Maven needs to be installed} to build the toolkit. Instructions f
   </servers>
 </settings>
 \end{verbatim}
-You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
+% You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. 
+After completing the installation perform the following steps to build the toolkit using Maven:
 \begin{enumerate}
-\item Check out the code from SVN!
+\item Check out the code from Git.
 \item Open your favorite command line.
 \item Change to the toolkits root folder.
 \item Type \texttt{mvn clean install} to start the build process.
@@ -177,12 +178,12 @@ For the code to work you need copy three files from the config folder in the too
 \caption{\texttt{config/apikeys.conf}}
 \label{fig:resource02}
 \end{figure}
-\begin{figure}
-\centering
-\includegraphics[trim=0 650px 600px 0,clip=true,width=\textwidth]{img/ht13.png}
-\caption{\texttt{config/feeds.conf}}
-\label{fig:resource03}
-\end{figure}
+%\begin{figure}
+%\centering
+%\includegraphics[trim=0 650px 600px 0,clip=true,width=\textwidth]{img/ht13.png}
+%\caption{\texttt{config/feeds.conf}}
+%\label{fig:resource03}
+%\end{figure}
 \begin{figure}
 \centering
 \includegraphics[trim=0 550px 100px 0,clip=true,width=\textwidth]{img/ht14.png}
@@ -191,34 +192,38 @@ For the code to work you need copy three files from the config folder in the too
 \end{figure}
 With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
 
-\section{Access to Models and Data Sets} \label{sec:AccessModelsDataSets}
+% FIXME outdated, give instructions for Areca server.
 
-Since models and data sets might be very large in file size, they are not included in the SVN repository. As generally no version control is neccessary for this data, we maintain our repository with rsync\footnote{\url{http://rsync.samba.org/}}. rsync is a utility which allows efficient file and directory synchronization between two, local or remote, locations. It was originally developed for Unix systems and should be included with all current Linux distributions and Mac OS X. Altough there are several ports for Windows systems, we recommend using the cwrsync\footnote{\url{http://www.itefix.no/i2/node/10650}} package. 
-
-Palladian comes with convenient ready-to-use scripts to download models and data sets from our central repository. The scripts are called \texttt{dataSync.bat} for Windows and \texttt{dataSync.sh} for Linux and Mac OS X and can be found in the \texttt{dev} directory. Make sure to set the \texttt{DESTINATION} variable inside the script before initial usage. On Windows operating systems, you further need to add the directory with the rsync binaries to your \texttt{PATH} environment variable, which can be done using the ``System Properties'' control panel (See Fig.~\ref{fig:rSyncWindowsPath1} and ~\ref{fig:rSyncWindowsPath2}).
-
-Please contact the toolkit managers if you need write access to the rsync repository.
-
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.8]{img/WindowsPath1.png}
-\caption{Configuring PATH on Windows}
-\label{fig:rSyncWindowsPath1}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.8]{img/WindowsPath2.png}
-\caption{Configuring PATH on Windows}
-\label{fig:rSyncWindowsPath2}
-\end{figure}
+%\section{Access to Models and Data Sets} \label{sec:AccessModelsDataSets}
+%
+%Since models and data sets might be very large in file size, they are not included in the SVN repository. As generally no version control is neccessary for this data, we maintain our repository with rsync\footnote{\url{http://rsync.samba.org/}}. rsync is a utility which allows efficient file and directory synchronization between two, local or remote, locations. It was originally developed for Unix systems and should be included with all current Linux distributions and Mac OS X. Altough there are several ports for Windows systems, we recommend using the cwrsync\footnote{\url{http://www.itefix.no/i2/node/10650}} package. 
+%
+%Palladian comes with convenient ready-to-use scripts to download models and data sets from our central repository. The scripts are called \texttt{dataSync.bat} for Windows and \texttt{dataSync.sh} for Linux and Mac OS X and can be found in the \texttt{dev} directory. Make sure to set the \texttt{DESTINATION} variable inside the script before initial usage. On Windows operating systems, you further need to add the directory with the rsync binaries to your \texttt{PATH} environment variable, which can be done using the ``System Properties'' control panel (See Fig.~\ref{fig:rSyncWindowsPath1} and ~\ref{fig:rSyncWindowsPath2}).
+%
+%Please contact the toolkit managers if you need write access to the rsync repository.
 
 
-\section{Reporting Issues using Redmine}
-To report issues with the toolkit or to view issues assigned to you, you need to register to \emph{Redmine}. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link where you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
+% \begin{figure}
+% \centering
+% \includegraphics[scale=0.8]{img/WindowsPath1.png}
+% \caption{Configuring PATH on Windows}
+% \label{fig:rSyncWindowsPath1}
+% \end{figure}
+% 
+% \begin{figure}
+% \centering
+% \includegraphics[scale=0.8]{img/WindowsPath2.png}
+% \caption{Configuring PATH on Windows}
+% \label{fig:rSyncWindowsPath2}
+% \end{figure}
 
-\subsection{Using Redmine directly from Eclipse}
-To view \emph{Redmine} tasks directly within \emph{Eclipse} you can use the \emph{Redmine} integration for \emph{\href{http://www.eclipse.org/mylyn/}{Mylyn}}. \emph{Mylyn} is the task tracker plugin of \emph{Eclipse}. It provides connections to most of the popular task and issue tracking systems such as \emph{Trac}, \emph{Bugzilla}, \emph{Jira}, \emph{Mantis}, etc. Unfortunately there is no native support for \emph{Redmine}. Luckily you can add it by installing the \emph{Redmine Connector} plugin using the Update Site \url{http://redmin-mylyncon.sourceforge.net/update-site/N/}. 
+% FIXME must be updated for Bitbucket.
 
-After installing the plugin open the \textit{Task Repositories} view and \textit{Add Task Repository}! There should be an entry for \emph{Redmine}. Select it and click \textit{Next \textgreater}! Enter the connection to the Palladian Redmine instance \url{http://redmine.effingo.de} and your credentials or your API key. The API key appears on the right pane in your user settings while logged into \emph{Redmine}. Now \textit{Validate Settings}! \emph{Mylyn} checks the connection to \emph{Redmine}. If successful click \textit{Next \textgreater} and enter a query on which tasks you are going to view inside \emph{Mylyn} on the next page. Click \emph{Finish} and open the \textit{Task List} view to see, edit and create tasks from \emph{Redmine} directly inside \emph{Eclipse}.
+
+% \section{Reporting Issues using Redmine}
+% To report issues with the toolkit or to view issues assigned to you, you need to register to \emph{Redmine}. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link where you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
+% 
+% \subsection{Using Redmine directly from Eclipse}
+% To view \emph{Redmine} tasks directly within \emph{Eclipse} you can use the \emph{Redmine} integration for \emph{\href{http://www.eclipse.org/mylyn/}{Mylyn}}. \emph{Mylyn} is the task tracker plugin of \emph{Eclipse}. It provides connections to most of the popular task and issue tracking systems such as \emph{Trac}, \emph{Bugzilla}, \emph{Jira}, \emph{Mantis}, etc. Unfortunately there is no native support for \emph{Redmine}. Luckily you can add it by installing the \emph{Redmine Connector} plugin using the Update Site \url{http://redmin-mylyncon.sourceforge.net/update-site/N/}. 
+% 
+% After installing the plugin open the \textit{Task Repositories} view and \textit{Add Task Repository}! There should be an entry for \emph{Redmine}. Select it and click \textit{Next \textgreater}! Enter the connection to the Palladian Redmine instance \url{http://redmine.effingo.de} and your credentials or your API key. The API key appears on the right pane in your user settings while logged into \emph{Redmine}. Now \textit{Validate Settings}! \emph{Mylyn} checks the connection to \emph{Redmine}. If successful click \textit{Next \textgreater} and enter a query on which tasks you are going to view inside \emph{Mylyn} on the next page. Click \emph{Finish} and open the \textit{Task List} view to see, edit and create tasks from \emph{Redmine} directly inside \emph{Eclipse}.

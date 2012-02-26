@@ -18,8 +18,8 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -152,8 +152,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 FeedParser feedParser = new RomeFeedParser();
-                DocumentRetriever documentRetriever = new DocumentRetriever();
-                HttpResult gzHttpResult = documentRetriever.loadSerializedGzip(file);
+                HttpResult gzHttpResult = HttpRetriever.loadSerializedGzip(file);
 
                 correctedFeed.setLastPollTime(getChecktimeFromFile(file));
 
@@ -383,7 +382,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        correctedFeed.freeMemory(true);
+        correctedFeed.freeMemory();
     }
 
     /**

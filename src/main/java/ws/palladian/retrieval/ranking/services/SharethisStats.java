@@ -1,18 +1,19 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -36,9 +37,15 @@ public class SharethisStats extends BaseRankingService implements RankingService
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(SharethisStats.class);
 
+    /** {@link Configuration} key for the secret. */
+    public static final String CONFIG_SECRET = "api.sharethis.secret";
+
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.sharethis.key";
+
     /** The config values. */
-    private String apiKey;
-    private String secret;
+    private final String apiKey;
+    private final String secret;
 
     /** The id of this service. */
     private static final String SERVICE_ID = "sharethis";
@@ -46,26 +53,44 @@ public class SharethisStats extends BaseRankingService implements RankingService
     /** The ranking value types of this service **/
     public static final RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats",
             "The number of shares via multiple services measured on sharethis.com.");
-    private static final List<RankingType> RANKING_TYPES = new ArrayList<RankingType>();
-    static {
-        RANKING_TYPES.add(SHARES);
-    }
+    /** All available ranking types by {@link SharethisStats}. */
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 60;
 
-    public SharethisStats() {
-        super();
-        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
+    /**
+     * <p>
+     * Create a new {@link SharethisStats} ranking service.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key (<tt>api.sharethis.key</tt>) and a secret (
+     *            <tt>api.sharethis.secret</tt>) for accessing the service.
+     */
+    public SharethisStats(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SECRET));
+    }
 
-        if (configuration != null) {
-            setApiKey(configuration.getString("api.sharethis.key"));
-            setSecret(configuration.getString("api.sharethis.secret"));
-        } else {
-            LOGGER.warn("could not load configuration, ranking retrieval won't work");
+    /**
+     * <p>
+     * Create a new {@link SharethisStats} ranking service.
+     * </p>
+     * 
+     * @param apiKey The required API key for accessing the service.
+     * @param secret The required secret for accessing the service.
+     */
+    public SharethisStats(String apiKey, String secret) {
+        super();
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("The required API key is missing");
         }
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException("The required secret is missing.");
+        }
+        this.apiKey = apiKey;
+        this.secret = secret;
     }
 
     @Override
@@ -78,19 +103,17 @@ public class SharethisStats extends BaseRankingService implements RankingService
 
         try {
             String encUrl = UrlHelper.urlEncode(url);
-            JSONObject json = retriever.getJSONDocument("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
+            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
-            if (json != null) {
-                float total = json.getJSONObject("total").getInt("outbound");
-                results.put(SHARES, total);
-                LOGGER.trace("ShareThis stats for " + url + " : " + total);
-            } else {
-                results.put(SHARES, null);
-                LOGGER.trace("ShareThis stats for " + url + "could not be fetched");
-                checkBlocked();
-            }
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            float total = json.getJSONObject("total").getInt("outbound");
+            results.put(SHARES, total);
+            LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+            checkBlocked();
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
         return ranking;
@@ -100,8 +123,9 @@ public class SharethisStats extends BaseRankingService implements RankingService
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            JSONObject json = retriever.getJSONDocument("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
+            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
+            JSONObject json = new JSONObject(new String(httpResult.getContent()));
             if (json.has("statusMessage")) {
                 if (json.get("statusMessage").equals("LIMIT_REACHED")) {
                     error = true;
@@ -109,6 +133,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
             }
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
+        } catch (HttpException e) {
+            LOGGER.error("HttpException " + e.getMessage());
         }
         if (!error) {
             blocked = false;
@@ -146,16 +172,8 @@ public class SharethisStats extends BaseRankingService implements RankingService
         return RANKING_TYPES;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public String getApiKey() {
         return apiKey;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 
     public String getSecret() {

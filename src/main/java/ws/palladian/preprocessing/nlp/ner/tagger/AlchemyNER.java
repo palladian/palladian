@@ -19,6 +19,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.log4j.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -417,25 +418,25 @@ public class AlchemyNER extends NamedEntityRecognizer {
     @Override
     public String getModelFileEnding() {
         LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean setsModelFileEndingAutomatically() {
         LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
         LOGGER.warn(getName() + " does not support training");
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean loadModel(String configModelFilePath) {
         LOGGER.warn(getName() + " does not support loading models");
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -520,7 +521,10 @@ public class AlchemyNER extends NamedEntityRecognizer {
         }
 
         annotations.sort();
-        CollectionHelper.print(annotations);
+
+        if (LOGGER.getLevel() != null && LOGGER.getLevel().equals(Level.DEBUG)) {
+            CollectionHelper.print(annotations);
+        }
 
         return annotations;
     }

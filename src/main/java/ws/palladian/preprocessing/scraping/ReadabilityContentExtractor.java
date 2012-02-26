@@ -1,7 +1,5 @@
 package ws.palladian.preprocessing.scraping;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,17 +13,11 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.xni.parser.XMLDocumentFilter;
-import org.cyberneko.html.HTMLConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -97,7 +89,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /** The original document. */
     private Document document;
 
-    private DOMParser parser;
+//    private DOMParser parser;
 
     /** The filtered and result document. */
     private Document resultNode;
@@ -111,33 +103,33 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     private boolean writeDump = false;
 
     public ReadabilityContentExtractor() {
-        setup();
+//        setup();
     }
 
-    private void setup() {
-        LOGGER.trace(">setup");
-        // set up the NekoHTML parser
-        try {
-            parser = new DOMParser(new HTMLConfiguration());
-
-            // use the filter to filter out Elements and Attributes which do not
-            // belong to the default namespace -- elsewise we can get into trouble
-            // later, when we want to construct the new document
-            XMLDocumentFilter[] filters = { new PreflightFilter(LOGGER) };
-            parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
-
-            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
-
-            // crawler = new DocumentRetriever();
-
-        } catch (SAXNotSupportedException e) {
-            LOGGER.error("initialization of DOMParser failed", e);
-        } catch (SAXNotRecognizedException e) {
-            LOGGER.error("initialization of DOMParser failed", e);
-        }
-        LOGGER.trace("<setup");
-    }
+//    private void setup() {
+//        LOGGER.trace(">setup");
+//        // set up the NekoHTML parser
+//        try {
+//            parser = new DOMParser(new HTMLConfiguration());
+//
+//            // use the filter to filter out Elements and Attributes which do not
+//            // belong to the default namespace -- elsewise we can get into trouble
+//            // later, when we want to construct the new document
+//            XMLDocumentFilter[] filters = { new PreflightFilter() };
+//            parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
+//
+//            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+//            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+//
+//            // crawler = new DocumentRetriever();
+//
+//        } catch (SAXNotSupportedException e) {
+//            LOGGER.error("initialization of DOMParser failed", e);
+//        } catch (SAXNotRecognizedException e) {
+//            LOGGER.error("initialization of DOMParser failed", e);
+//        }
+//        LOGGER.trace("<setup");
+//    }
 
     /* (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
@@ -161,16 +153,19 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     // throw new PageContentExtractorException(t);
     // }
     // }
-
-    @Override
-    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
-        try {
-            parser.parse(new InputSource(new FileInputStream(file)));
-            return setDocument(parser.getDocument());
-        } catch (Throwable t) {
-            throw new PageContentExtractorException(t);
-        }
-    }
+//
+//    @Override
+//    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
+//        try {
+//            NekoHtmlParser parser = new NekoHtmlParser();
+//            Document document = parser.parse(new InputSource(new FileInputStream(file)));
+//            return setDocument(document);
+//        } catch (FileNotFoundException e) {
+//            throw new PageContentExtractorException("file " + file + " was not found", e);
+//        } catch (ParserException e) {
+//            throw new PageContentExtractorException("error parsing file " + file, e);
+//        }
+//    }
 
 
     /* (non-Javadoc)
@@ -282,7 +277,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return void
      **/
     private Document init(Document document) throws PageContentExtractorException {
-        LOGGER.trace(">init");
 
         // Cache original document by creating a copy. This is necessary, as we
         // operate destructively, directly on the Document and we might need
@@ -345,8 +339,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             element.removeAttribute("class");
             element.removeAttribute(READABILITY_ATTR);
         }
-
-        LOGGER.trace("<init");
+        
         return result;
     }
 
@@ -356,7 +349,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return void
      **/
     private String getArticleTitle(Document document) {
-        LOGGER.trace(">getArticleTitle");
 
         String curTitle = "";
         String origTitle = "";
@@ -390,7 +382,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             curTitle = origTitle;
         }
 
-        LOGGER.trace("<getArticleTitle " + curTitle);
         return curTitle;
     }
 
@@ -515,7 +506,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return Element
      **/
     private Document grabArticle(Document document) {
-        LOGGER.trace(">grabArticle");
 
         // moved here -- Philipp.
         prepDocument(document);
@@ -751,7 +741,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          **/
         prepArticle(articleContent);
 
-        LOGGER.trace("<grabArticle");
         return result;
     }
 
@@ -766,7 +755,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     }
 
     private String getInnerText(Element e, boolean normalizeSpaces) {
-        // logger.trace(">getInnerText");
 
         // String textContent = trimRe.matcher(e.getTextContent()).replaceAll("");
         String textContent = e.getTextContent().trim();
@@ -775,7 +763,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             textContent = NORMALIZE_RE.matcher(textContent).replaceAll(" ");
         }
 
-        // logger.trace("<getInnerText " + textContent);
         return textContent;
     }
 
@@ -833,7 +820,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return number (float)
      **/
     private float getLinkDensity(Element e) {
-        LOGGER.trace(">getLinkDensity");
 
         NodeList links = e.getElementsByTagName("a");
         int textLength = getInnerText(e).length();
@@ -844,7 +830,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         }
         float linkDensity = textLength != 0 ? (float) linkLength / textLength : 0;
 
-        LOGGER.trace("<getLinkDensity " + linkDensity);
         return linkDensity;
     }
 
@@ -855,7 +840,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return number (Integer)
      **/
     private int getClassIdWeight(Element e) {
-        // logger.trace(">getClassIdWeight");
 
         if (!weightClasses) {
             return 0;
@@ -886,7 +870,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        // logger.trace("<getClassIdWeight " + weight);
         return weight;
     }
 
@@ -898,7 +881,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return void
      **/
     private void clean(Element e, String tag) {
-        LOGGER.trace(">clean");
 
         NodeList targetList = e.getElementsByTagName(tag);
         boolean isEmbed = tag.equalsIgnoreCase("object") || tag.equalsIgnoreCase("embed");
@@ -927,7 +909,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             }
             item.getParentNode().removeChild(item);
         }
-        LOGGER.trace("<clean");
     }
 
     /**
@@ -938,7 +919,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return void
      **/
     private void cleanConditionally(Element e, String tag) {
-        LOGGER.trace(">cleanConditionally");
 
         if (!cleanConditionally) {
             return;
@@ -1011,7 +991,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             }
         }
-        LOGGER.trace("<cleanConditionally");
     }
 
     /**

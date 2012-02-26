@@ -38,6 +38,9 @@ public class ConfusionMatrix extends Matrix {
             for (String xKey : keysX) {
               
                 Number obj = (Number) get(xKey,yKey);
+                if (obj == null) {
+                    obj = 0;
+                }
                 rowSum += obj.doubleValue();
                 if (xKey.equals(yKey)) {
                     correctAssignments = obj.doubleValue();
@@ -56,7 +59,11 @@ public class ConfusionMatrix extends Matrix {
             double correctAssignments = 0;
             double columnSum = calculateColumnSum(get(xKey));
             
-            correctAssignments = ((Number) get(xKey, xKey)).doubleValue();
+            Number v = ((Number)get(xKey, xKey));
+            if (v == null) {
+                v = 0;
+            }
+            correctAssignments = v.doubleValue();
             
             builder.append(MathHelper.round(correctAssignments/columnSum, 4)).append("\t");
         }
@@ -64,6 +71,7 @@ public class ConfusionMatrix extends Matrix {
         return builder.toString();
     }
     
+    @Override
     public String asCsv() {
         return toString().replace("\t", ";");
     }

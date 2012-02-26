@@ -279,9 +279,15 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
-        // TODO Needs better implementation.
-        // why not just extract /head/title element?
+        Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
+
         String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+        if (titleNode != null) {
+            resultTitle = titleNode.getTextContent();
+        } else {
+            resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+        }
+
         return resultTitle;
     }
 
@@ -311,11 +317,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         // pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
         pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
+        pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
-        System.out.println("Result Text: "+pe.getResultText());
-        System.out.println(pe.getResultText());
         System.out.println("Title:"+pe.getResultTitle());
+        // System.out.println("Result Text: "+pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(

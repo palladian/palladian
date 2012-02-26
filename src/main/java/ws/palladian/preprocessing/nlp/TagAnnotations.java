@@ -88,4 +88,8 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
 
         return tokenList;
     }
+
+    public boolean containTag(String tag) {
+        return getTagList().contains(tag);
+    }
 }

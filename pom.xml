@@ -4,9 +4,8 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
 	<name>Palladian - TUD Information Retrieval Toolkit</name>
-	<version>0.12-SNAPSHOT</version>
-	<description>Palladian is the IIR Toolkit from the Computer Networks
-		Chair of the TU Dresden.</description>
+	<version>0.1.6-SNAPSHOT</version>
+	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -123,7 +122,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.12</version>
+			<version>1.2.16</version>
 		</dependency>
 		<dependency>
 			<groupId>stax</groupId>
@@ -146,6 +145,12 @@
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>com.ibm.icu</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>weka</groupId>
@@ -175,21 +180,21 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-memory</artifactId>
-			<version>3.1.0</version>
+			<version>3.5.0</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId>
-			<version>3.1.0</version>
+			<version>3.5.0</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-			<version>3.1.0</version>
+			<version>3.5.0</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -234,7 +239,7 @@
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
-			<version>1.9.14</version>
+			<version>1.9.15</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -326,6 +331,10 @@
 					<artifactId>trove</artifactId>
 					<groupId>gnu</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>icu4j</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -393,6 +402,17 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>10.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>3.8</version>
 		</dependency>
 	</dependencies>
 	<properties>

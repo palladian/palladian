@@ -287,7 +287,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      */
     @Override
     public String getName() {
-        return "IndHistTTL_" + getThresholdTheta() + "_" + adaptiveTTLWeightM + "_" + getThresholdTburst() + "_"
+        return "IndHisTTL" + getThresholdTheta() + "_" + adaptiveTTLWeightM + "_" + getThresholdTburst() + "_"
                 + getTimeWindowHours();
     }
 

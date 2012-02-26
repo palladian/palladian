@@ -9,7 +9,7 @@ import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 
 /**
- * This is the abstract base class for all Part of Speech taggers used by <tt>PALLADIAN</tt>.
+ * This is the abstract base class for all Part of Speech taggers used by <tt>Palladian</tt>.
  * 
  * @author Martin Wunderwald
  * @author David Urbansky
@@ -95,9 +95,9 @@ public abstract class PosTagger {
     public abstract PosTagger loadModel(String modelFilePath);
 
     /**
-     * Sets the model containing information on how to tag natural language texts. Each domain might need its own model,
-     * so even though there are some preprepared models, like the brown corpus, available, you might need to train a new
-     * model that fits your application domain before getting high quality results from this PoS tagger.
+     * <p>Sets the model containing information on how to tag natural language texts. Each domain might need its own model,
+     * so even though there are some prepared models, like the brown corpus, available, you might need to train a new
+     * model that fits your application domain before getting high quality results from this PoS tagger.</p>
      * 
      * @param model The model to use by this PoS tagger.
      */

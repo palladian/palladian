@@ -85,12 +85,100 @@ public class StringHelper {
     }
 
     public static String shorten(String string, int maxLength) {
+        if (string == null) {
+            return string;
+        }
         return string.substring(0, Math.min(string.length(), maxLength));
     }
 
+
     /**
+     * <p>
+     * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
+     * http://www.unicodemap.org/range/2/Latin-1_Supplement/.
+     * </p>
+     * <p>
+     * For example, "Florentino P00E9rez" becomes "Florentino Pérez"
+     * </p>
+     * 
+     * @param string The string where unicode characters might occur.
+     * @return The transformed string.
+     */
+    public static String fuzzyUnicodeToAscii(String string) {
+
+        string = string.replace("00C0", "À");
+        string = string.replace("00C1", "Á");
+        string = string.replace("00C2", "Â");
+        string = string.replace("00C3", "Ã");
+        string = string.replace("00C4", "Ä");
+        string = string.replace("00C5", "Å");
+        string = string.replace("00C6", "Æ");
+        string = string.replace("00C7", "Ç");
+        string = string.replace("00C8", "È");
+        string = string.replace("00C9", "É");
+        string = string.replace("00CA", "Ê");
+        string = string.replace("00CB", "Ë");
+        string = string.replace("00CC", "Ì");
+        string = string.replace("00CD", "Í");
+        string = string.replace("00CE", "Î");
+        string = string.replace("00CF", "Ï");
+        string = string.replace("00D0", "Ð");
+        string = string.replace("00D1", "Ñ");
+        string = string.replace("00D2", "Ò");
+        string = string.replace("00D3", "Ó");
+        string = string.replace("00D4", "Ô");
+        string = string.replace("00D5", "Õ");
+        string = string.replace("00D6", "Ö");
+        string = string.replace("00D7", "×");
+        string = string.replace("00D8", "Ø");
+        string = string.replace("00D9", "Ù");
+        string = string.replace("00DA", "Ú");
+        string = string.replace("00DB", "Û");
+        string = string.replace("00DC", "Ü");
+        string = string.replace("00DD", "Ý");
+        string = string.replace("00DE", "Þ");
+        string = string.replace("00DF", "ß");
+        string = string.replace("00E0", "à");
+        string = string.replace("00E1", "á");
+        string = string.replace("00E2", "â");
+        string = string.replace("00E3", "ã");
+        string = string.replace("00E4", "ä");
+        string = string.replace("00E5", "å");
+        string = string.replace("00E6", "æ");
+        string = string.replace("00E7", "ç");
+        string = string.replace("00E8", "è");
+        string = string.replace("00E9", "é");
+        string = string.replace("00EA", "ê");
+        string = string.replace("00EB", "ë");
+        string = string.replace("00EC", "ì");
+        string = string.replace("00ED", "í");
+        string = string.replace("00EE", "î");
+        string = string.replace("00EF", "ï");
+        string = string.replace("00F0", "ð");
+        string = string.replace("00F1", "ñ");
+        string = string.replace("00F2", "ò");
+        string = string.replace("00F3", "ó");
+        string = string.replace("00F4", "ô");
+        string = string.replace("00F5", "õ");
+        string = string.replace("00F6", "ö");
+        string = string.replace("00F7", "÷");
+        string = string.replace("00F8", "ø");
+        string = string.replace("00F9", "ù");
+        string = string.replace("00FA", "ú");
+        string = string.replace("00FB", "û");
+        string = string.replace("00FC", "ü");
+        string = string.replace("00FD", "ý");
+        string = string.replace("00FE", "þ");
+        string = string.replace("00FF", "ÿ");
+
+        return string;
+    }
+
+    /**
+     * <p>
      * This function wraps the string to integer conversion in order to prevent the exception catching in other
      * functions.
+     * </p>
      * 
      * @param text The text that is a number.
      * @return The integer presentation of the text.
@@ -306,6 +394,60 @@ public class StringHelper {
     }
 
     /**
+     * <p>
+     * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
+     * within another word.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWord(String word, String searchString) {
+        String allowedNeighbors = "[\\s,.;-]";
+        String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return false;
+        }
+        Matcher m = pat.matcher(searchString);
+        if (m.find()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static String removeWord(String word, String searchString) {
+        return replaceWord(word, " ", searchString);
+    }
+    public static String replaceWord(String word, String replacement, String searchString) {
+        String allowedNeighbors = "[\\s,.;\\-´]";
+
+        String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
+                + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return searchString;
+        }
+        Matcher m = pat.matcher(searchString);
+
+        searchString = m.replaceAll(replacement).trim();
+
+        return searchString;
+    }
+
+    /**
      * Check whether a given string contains a numeric value.
      * 
      * @param searchString The search string.
@@ -322,11 +464,7 @@ public class StringHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-
-        return false;
+        return m.find();
     }
 
     /**
@@ -362,8 +500,7 @@ public class StringHelper {
     public static String replaceProtectedSpace(String string) {
         // String modString = string.replaceAll(" ", " ");
         // let's use this notation, which does the same, to make clear what's going on ...:
-        String modString = string.replaceAll("\u00A0", " ");
-        return modString;
+        return string.replaceAll("\u00A0", " ");
     }
 
     /**
@@ -378,8 +515,10 @@ public class StringHelper {
     }
 
     /**
-     * Remove brackets and everything in between the brackets. "()[]{}" will be removed.
-     * For example "This is a text (just a sample)." becomes "This is a text ."
+     * <p>
+     * Remove brackets and everything in between the brackets. "()[]{}" will be removed. For example
+     * "This is a text (just a sample)." becomes "This is a text ."
+     * </p>
      * 
      * @param bracketString the bracket string
      * @return the string
@@ -539,11 +678,7 @@ public class StringHelper {
      * @return true, if is time expression
      */
     public static boolean isTimeExpression(String string) {
-        if (string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)")) {
-            return true;
-        }
-
-        return false;
+        return string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)");
     }
 
     /**
@@ -583,13 +718,7 @@ public class StringHelper {
         if (string.length() == 0) {
             return false;
         }
-
-        if (Character.isUpperCase(string.charAt(0))) {
-            return true;
-        }
-
-        return false;
-    }
+        return Character.isUpperCase(string.charAt(0));    }
 
     /**
      * Letter number count.
@@ -630,12 +759,8 @@ public class StringHelper {
      * @return true, if is vowel
      */
     public static boolean isVowel(Character inputCharacter) {
-
         Character character = Character.toUpperCase(inputCharacter);
-        if (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U') {
-            return true;
-        }
-        return false;
+        return (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U');
     }
 
     /**
@@ -669,11 +794,9 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ" }; // whitespace
-        // is also
-        // unwanted
-        // but trim()
-        // handles
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`"}; // whitespace is also
+                                                                                            // unwanted but
+                                                                                  // trim() handles
         // that, " "
         // here is
         // another
@@ -732,7 +855,7 @@ public class StringHelper {
         }
 
         // remove all control characters from string
-        string = removeControlCharacters(string);
+        // string = removeControlCharacters(string);
 
         string = replaceProtectedSpace(string);
 
@@ -805,19 +928,15 @@ public class StringHelper {
         return text;
     }
 
-    /**
-     * Remove tabs, line breaks and double spaces.
-     * 
-     * @param text The text to be cleaned.
-     * @return The cleaned text.
-     */
-    public static String makeContinuousText(String text) {
-
-        // close multiple spaces
-        String continuoustext = text.replaceAll("(\\s){1,}", " ");
-
-        return continuoustext;
-    }
+//    /**
+//     * Remove tabs, line breaks and double spaces.
+//     *
+//     * @param text The text to be cleaned.
+//     * @return The cleaned text.
+//     */
+//    public static String makeContinuousText(String text) {
+//        return text.replaceAll("(\\s){1,}", " ");
+//    }
 
     /**
      * Put article in front.
@@ -894,13 +1013,15 @@ public class StringHelper {
     }
 
     /**
+     * <p>
      * Count number of words, words are separated by a blank " ".
+     * </p>
      * 
      * @param string The string.
      * @return The number of words in the string.
      */
     public static int countWords(String string) {
-        String[] words = string.split(" ");
+        String[] words = string.replaceAll("\\s{2,}", "\\s").split(" ");
         return words.length;
     }
 
@@ -1006,22 +1127,6 @@ public class StringHelper {
         }
 
         return commonStrings.descendingMap().entrySet().iterator().next().getValue();
-    }
-
-    /**
-     * Gets the array as string.
-     * 
-     * @param array the array
-     * @return the array as string
-     * @deprecated There is {@link StringUtils#join(Object[])}, which is more flexible and also works for Collections.
-     */
-    @Deprecated
-    public static String getArrayAsString(String[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (String element : array) {
-            sb.append(element).append(",");
-        }
-        return sb.toString().substring(0, sb.length() - 1);
     }
 
     /**
@@ -1220,14 +1325,14 @@ public class StringHelper {
 
     /**
      * <p>
-     * Replaces two or more trailing white spaces by one.
+     * Replaces two or more white spaces (includes tabs, line breaks) by one.
      * </p>
      * 
      * @param text The text to remove multiple white spaces from.
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("\\s{1,}", " ");
+        return text.replaceAll("[ ]{1,}", " ");
     }
 
     /**
@@ -1301,22 +1406,22 @@ public class StringHelper {
         return similarity;
     }
 
-    /**
-     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-     * similarity which is computationally expensive.
-     * 
-     * @param s1
-     * @param s2
-     * @return similarity between 0 and 1 (inclusive).
-     */
-    public static float getLengthSim(String s1, String s2) {
-        int length1 = s1.length();
-        int length2 = s2.length();
-        if (length1 == 0 && length2 == 0) {
-            return 1;
-        }
-        return (float) Math.min(length1, length2) / Math.max(length1, length2);
-    }
+//    /**
+//     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+//     * similarity which is computationally expensive.
+//     *
+//     * @param s1
+//     * @param s2
+//     * @return similarity between 0 and 1 (inclusive).
+//     */
+//    public static float getLengthSim(String s1, String s2) {
+//        int length1 = s1.length();
+//        int length2 = s2.length();
+//        if (length1 == 0 && length2 == 0) {
+//            return 1;
+//        }
+//        return (float) Math.min(length1, length2) / Math.max(length1, length2);
+//    }
 
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
@@ -1347,7 +1452,25 @@ public class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
+        return getRegexpMatch(regexp, text, false, false);
+    }
+
+    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
+        Pattern p;
+
+        if (caseInsensitive) {
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            }
+        } else {
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp);
+            }
+        }
 
         Matcher m = p.matcher(text);
         if (m.find()) {
@@ -1356,6 +1479,7 @@ public class StringHelper {
 
         return "";
     }
+
 
     public static List<String> getRegexpMatches(String regexp, String text) {
 

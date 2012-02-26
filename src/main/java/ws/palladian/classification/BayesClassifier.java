@@ -13,8 +13,12 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.math.Tensor;
 
 /**
- * A simple implementation of the Bayes Classifier. This classifier supports
- * nominal and numeric input. The output is nominal.
+ * <p>
+ * A simple implementation of the Bayes Classifier. This classifier supports nominal and numeric input. The output is
+ * nominal.
+ * </p>
+ * 
+ * XXX call this "NaiveBayes"
  * 
  * <p>
  * More information about Naive Bayes can be found here:
@@ -313,7 +317,11 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
                         * Math.pow(Math.E,
                                 -(Math.pow(numericFeatureValue - mean, 2) / (2 * Math.pow(standardDeviation, 2))));
 
-                probabilities.put(category, probabilities.get(category) * densityFunctionValue);
+                // avoid zero probabilities -> XXX how can la place smoothing be applied here?
+                if (densityFunctionValue > 0.0) {
+                    probabilities.put(category, probabilities.get(category) * densityFunctionValue);
+                }
+
             }
 
             featureIndex++;

@@ -22,7 +22,7 @@ public class DateAndTimeTagger {
 
 		Annotations annotations = new Annotations();
 
-		List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText);
+        List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText, true);
 		
 		for (ContentDate dateTime : allDates) {
 			
@@ -31,7 +31,7 @@ public class DateAndTimeTagger {
 			
 			for (Integer integer : occurrenceIndices) {
 				Annotation annotation = new Annotation(integer,dateTime.getDateString(),DATETIME_TAG_NAME,annotations);
-				annotations.add(annotation);			
+				annotations.add(annotation);
 			}
 			
 		}
