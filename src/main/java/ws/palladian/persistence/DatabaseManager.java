@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -92,60 +91,6 @@ public class DatabaseManager {
         return runSingleQuery(new NopRowConverter(), sql, args) != null;
     }
 
-//    /**
-//     * <p>
-//     * Run a batch insertion and return the generated insert IDs.
-//     * </p>
-//     * 
-//     * @param sql Update statement which may contain parameter markers.
-//     * @param provider A callback, which provides the necessary data for the insertion.
-//     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
-//     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
-//     *         a 0 value.
-//     */
-//    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
-//
-//        Connection connection = null;
-//        PreparedStatement ps = null;
-//        ResultSet rs = null;
-//        List<Integer> generatedIds = new ArrayList<Integer>();
-//
-//        try {
-//
-//            connection = getConnection();
-//            connection.setAutoCommit(false);
-//            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//
-//            for (int i = 0; i < provider.getCount(); i++) {
-//                List<Object> args = provider.getData(i);
-//                fillPreparedStatement(ps, args);
-//                ps.addBatch();
-//            }
-//
-//            int[] batchResult = ps.executeBatch();
-//            connection.commit();
-//            connection.setAutoCommit(true);
-//
-//            // obtain the generated IDs for the inserted items
-//            // where no item was inserted, return -1 as ID
-//            rs = ps.getGeneratedKeys();
-//            for (int result : batchResult) {
-//                int id = -1;
-//                if (result > 0 && rs.next()) {
-//                    id = rs.getInt(1);
-//                }
-//                generatedIds.add(id);
-//            }
-//
-//        } catch (SQLException e) {
-//            LOGGER.error(e.getMessage());
-//        } finally {
-//            close(connection, ps, rs);
-//        }
-//
-//        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
-//        return CollectionHelper.toIntArray(array);
-//    }
     /**
      * <p>
      * Run a batch insertion. The generated ID for each inserted object is provided via the {@link BatchDataProvider}.
@@ -172,7 +117,7 @@ public class DatabaseManager {
             for (int i = 0; i < provider.getCount(); i++) {
                 fillPreparedStatement(ps, provider.getData(i));
                 ps.executeUpdate();
-                
+
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     provider.insertedItem(i, rs.getInt(1));
@@ -180,9 +125,9 @@ public class DatabaseManager {
                     success = false;
                     break;
                 }
-                
+
             }
-            
+
             if (success) {
                 connection.commit();
             } else {
@@ -192,11 +137,11 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql);
         } finally {
             close(connection, ps, rs);
         }
-        
+
         return success;
     }
 
@@ -212,7 +157,7 @@ public class DatabaseManager {
      *         a 0 value.
      */
     public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
-        
+
         final int[] result = new int[batchArgs.size()];
         Arrays.fill(result, 0);
 
@@ -262,7 +207,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql);
         } finally {
             close(connection, ps);
         }
@@ -366,7 +311,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql, args);
             generatedId = -1;
         } finally {
             close(connection, ps, rs);
@@ -427,7 +372,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
+            logError(e, sql, args);
         } finally {
             close(connection, ps, rs);
         }
@@ -553,7 +498,7 @@ public class DatabaseManager {
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            logError(e, sql, args);
             close(connection, ps, resultSet);
         }
 
@@ -641,8 +586,7 @@ public class DatabaseManager {
             affectedRows = ps.executeUpdate();
 
         } catch (SQLException e) {
-            LOGGER.error("Could not update sql \"" + sql + "\" with args \"" + CollectionHelper.getPrint(args)
-                    + "\", error: " + e.getMessage());
+            logError(e, sql, args);
             affectedRows = -1;
         } finally {
             close(connection, ps);
@@ -654,6 +598,25 @@ public class DatabaseManager {
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods
     // //////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * <p>
+     * Log some diagnostics in case of errors. This includes the {@link SQLException} being thrown, the SQL statement
+     * and the arguments, if any.
+     * </p>
+     * 
+     * @param exception
+     * @param sql
+     * @param args The arguments for the SQL query, may be <code>null</code>.
+     */
+    protected static final void logError(SQLException exception, String sql, Object... args) {
+        StringBuilder errorLog = new StringBuilder();
+        errorLog.append("Exception " + exception.getMessage() + " when updating SQL \"" + sql + "\"");
+        if (args != null && args.length > 0) {
+            errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
+        }
+        LOGGER.error(errorLog.toString());
+    }
 
     /**
      * <p>
