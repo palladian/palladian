@@ -49,7 +49,7 @@ public final class QuestionAnnotator extends AbstractPipelineProcessor {
     public void processDocument(PipelineDocument document) {
         @SuppressWarnings("unchecked")
         Feature<List<Annotation>> sentences = (Feature<List<Annotation>>) document.getFeatureVector().get(
-                AbstractSentenceDetector.FEATURE_IDENTIFIER);
+                AbstractSentenceDetector.PROVIDED_FEATURE);
         List<Annotation> questions = new ArrayList<Annotation>();
         for (Annotation sentence : sentences.getValue()) {
             String coveredText = sentence.getValue();

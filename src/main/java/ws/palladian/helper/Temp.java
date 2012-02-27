@@ -35,7 +35,6 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -138,33 +137,33 @@ public class Temp {
     // }
     // }
 
-    public static void downloadFeedTest() {
-
-        FeedDatabase feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
-        List<Feed> feeds = feedDatabase.getFeeds();
-
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-
-        Set<String> urls = new HashSet<String>();
-        for (Feed feed : feeds) {
-            urls.add(feed.getFeedUrl());
-        }
-
-        documentRetriever.setNumThreads(200);
-
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
-
-            @Override
-            public void onFinishRetrieval(Document document) {
-                if (document != null) {
-                    System.out.println("downloaded " + document.getDocumentURI());
-                }
-
-            }
-        };
-
-        documentRetriever.getWebDocuments(urls, retrieverCallback);
-    }
+//    public static void downloadFeedTest() {
+//
+//        FeedDatabase feedDatabase = DatabaseManagerFactory.create(FeedDatabase.class);
+//        List<Feed> feeds = feedDatabase.getFeeds();
+//
+//        DocumentRetriever documentRetriever = new DocumentRetriever();
+//
+//        Set<String> urls = new HashSet<String>();
+//        for (Feed feed : feeds) {
+//            urls.add(feed.getFeedUrl());
+//        }
+//
+//        documentRetriever.setNumThreads(200);
+//
+//        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+//
+//            @Override
+//            public void onFinishRetrieval(Document document) {
+//                if (document != null) {
+//                    System.out.println("downloaded " + document.getDocumentURI());
+//                }
+//
+//            }
+//        };
+//
+//        documentRetriever.getWebDocuments(urls, retrieverCallback);
+//    }
 
     public static void classify() {
 

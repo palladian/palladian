@@ -1,11 +1,34 @@
 package de.philippkatz;
 
+/**
+ * <p>
+ * Helper for stripping tags from HTML strings.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class HtmlStripper {
 
-    private enum State {
+    /** Enum necessary for the {@link #stripHtmlTagAndContent(String, String)} state machine. */
+    private enum StripTagState {
         READ, TAG_NAME_1, IGNORE, TAG_NAME_2, CLOSE_TAG_NAME
     };
-    
+
+    /** Enum necessary for the {@link #stripHtmlComments(String)} state machine. */
+    private enum StripCommentState {
+        READ, LT, EXCLAMATION_MARK, COLON_1, IGNORE, COLON_3, COLON_4
+    }
+
+    /**
+     * <p>
+     * Removes all HTML tags from the supplied string, i.e. everything between the characters &lt; and &gt;, including
+     * themselves. For example <code>&lt;b&gt;This&lt;/b&gt; is some &lt;i&gt;text&lt;/i&gt; with tags</code> is
+     * transformed to <code>This is some text with tags</code>.
+     * </p>
+     * 
+     * @param htmlText The string with HTML tags to remove.
+     * @return The string without HTML tags.
+     */
     public static String stripHtmlTags(String htmlText) {
         boolean inTag = false;
         StringBuilder result = new StringBuilder(htmlText.length());
@@ -13,12 +36,10 @@ public class HtmlStripper {
             char c = htmlText.charAt(i);
             if (c == '<') {
                 inTag = true;
-            } else if (c == '>') {
+            } else if (c == '>' && inTag) {
                 inTag = false;
-            } else {
-                if (!inTag) {
-                    result.append(c);
-                }
+            } else if (!inTag) {
+                result.append(c);
             }
         }
         return result.toString();
@@ -26,18 +47,25 @@ public class HtmlStripper {
 
     /**
      * <p>
-     * State machine for the win! Happy debugging! Everybody will hate me for this.
+     * Removes HTML comments and their content from the supplied string, i.e. everything between the characters &lt;!--
+     * and --&gt;, including themselves. For example <code>This is a text &lt;!-- with a comment --&gt;</code> is
+     * transformed to <code>This is a text</code>.
      * </p>
      * 
-     * @param htmlText
-     * @param tagName
-     * @return
+     * @param htmlText The string with HTML comments to remove.
+     * @return The string without HTML comments.
      */
-    public static String stripHtmlTagsWithContent(String htmlText, String tagName) {
+    public static String stripHtmlComments(String htmlText) {
 
+        // store the result
         StringBuilder result = new StringBuilder(htmlText.length());
+        
+        // store temporary text, where we are not yet sure whether to keep it,
+        // this is either discarded or added to the result, when we know that we
+        // want to keep it
         StringBuilder stack = new StringBuilder();
-        State state = State.READ;
+        
+        StripCommentState state = StripCommentState.READ;
 
         for (int i = 0; i < htmlText.length(); i++) {
 
@@ -45,11 +73,99 @@ public class HtmlStripper {
             // System.out.println("state=" + state + " c=" + c + " stack=" + stack);
 
             switch (state) {
+                case READ:
+                    if (c == '<') {
+                        state = StripCommentState.LT;
+                        stack.append(c);
+                    } else {
+                        result.append(c);
+                    }
+                    break;
+                case LT:
+                    stack.append(c);
+                    if (c == '!') {
+                        state = StripCommentState.EXCLAMATION_MARK;
+                    } else {
+                        result.append(stack.toString());
+                        stack = new StringBuilder();
+                        state = StripCommentState.READ;
+                    }
+                    break;
+                case EXCLAMATION_MARK:
+                    stack.append(c);
+                    if (c == '-') {
+                        state = StripCommentState.COLON_1;
+                    } else {
+                        result.append(stack.toString());
+                        stack = new StringBuilder();
+                        state = StripCommentState.READ;
+                    }
+                    break;
+                case COLON_1:
+                    if (c == '-') {
+                        state = StripCommentState.IGNORE;
+                        stack = new StringBuilder();
+                    } else {
+                        stack.append(c);
+                        result.append(stack.toString());
+                        stack = new StringBuilder();
+                        state = StripCommentState.READ;
+                    }
+                    break;
+                case IGNORE:
+                    if (c == '-') {
+                        state = StripCommentState.COLON_3;
+                    }
+                    break;
+                case COLON_3:
+                    if (c == '-') {
+                        state = StripCommentState.COLON_4;
+                    } else {
+                        state = StripCommentState.IGNORE;
+                    }
+                    break;
+                case COLON_4:
+                    if (c == '>') {
+                        state = StripCommentState.READ;
+                    } else {
+                        state = StripCommentState.IGNORE;
+                    }
+                    break;
+            }
+
+        }
+        return result.toString();
+    }
+
+    /**
+     * <p>
+     * Removes all instances of a specific HTML tag including its content from the supplied string, i.e. everything
+     * within the specified tag is removed. For example <code>This is a text &lt;b&gt;with bold words&lt;/b&gt;</code>
+     * is transformed to <code>This is a text</code>.
+     * </p>
+     * 
+     * @param htmlText The string with HTML tags to remove.
+     * @param tagName The name of the specific tag to remove.
+     * @return The string without the specified tag.
+     */
+    public static String stripHtmlTagAndContent(String htmlText, String tagName) {
+
+        // store the result
+        StringBuilder result = new StringBuilder(htmlText.length());
+        // store temporary text, where we are not yet sure whether to keep it
+        StringBuilder stack = new StringBuilder();
+        StripTagState stripTagState = StripTagState.READ;
+
+        for (int i = 0; i < htmlText.length(); i++) {
+
+            char c = htmlText.charAt(i);
+            // System.out.println("state=" + state + " c=" + c + " stack=" + stack);
+
+            switch (stripTagState) {
 
                 case READ:
-                    // normal read mode
                     if (c == '<') {
-                        state = State.TAG_NAME_1;
+                        stripTagState = StripTagState.TAG_NAME_1;
                     } else {
                         result.append(c);
                     }
@@ -59,10 +175,10 @@ public class HtmlStripper {
                 case TAG_NAME_1:
                     if (c == ' ' || c == '>') {
                         if (stack.toString().equals(tagName)) {
-                            state = State.IGNORE;
+                            stripTagState = StripTagState.IGNORE;
                         } else {
                             result.append('<').append(stack.toString()).append(c);
-                            state = State.READ;
+                            stripTagState = StripTagState.READ;
                         }
                         stack = new StringBuilder();
                     } else {
@@ -73,7 +189,7 @@ public class HtmlStripper {
                 // we ignore content
                 case IGNORE:
                     if (c == '<') {
-                        state = State.TAG_NAME_2;
+                        stripTagState = StripTagState.TAG_NAME_2;
                     }
                     break;
 
@@ -81,9 +197,9 @@ public class HtmlStripper {
                 // tag, stay in ignore mode
                 case TAG_NAME_2:
                     if (c == '/') {
-                        state = State.CLOSE_TAG_NAME;
+                        stripTagState = StripTagState.CLOSE_TAG_NAME;
                     } else {
-                        state = State.IGNORE;
+                        stripTagState = StripTagState.IGNORE;
                     }
                     break;
 
@@ -92,9 +208,9 @@ public class HtmlStripper {
                 case CLOSE_TAG_NAME:
                     if (c == '>') {
                         if (stack.toString().equals(tagName)) {
-                            state = State.READ;
+                            stripTagState = StripTagState.READ;
                         } else {
-                            state = State.IGNORE;
+                            stripTagState = StripTagState.IGNORE;
                         }
                         stack = new StringBuilder();
                     } else {
@@ -105,12 +221,6 @@ public class HtmlStripper {
 
         }
         return result.toString();
-    }
-
-    public static void main(String[] args) {
-        String htmlText = "one <b>two</b> three <style>xxx</style><b>yyyy <style/>";
-        String strippedText = stripHtmlTagsWithContent(htmlText, "style");
-        System.out.println(strippedText);
     }
 
 }
