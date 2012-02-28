@@ -522,6 +522,10 @@ public class WordTransformer {
     }
 
     private static String getRegularVerbPast(String verb) {
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
         verb = verb.toLowerCase();
 
         if (verb.endsWith("ed")) {
@@ -539,6 +543,7 @@ public class WordTransformer {
         if (verb.contains("qui") || verb.contains("qua") || verb.contains("quo") || verb.contains("quu")) {
             return verb.replaceAll("(.)$", "$1$1ed");
         }
+
 
         return verb + "ed";
     }

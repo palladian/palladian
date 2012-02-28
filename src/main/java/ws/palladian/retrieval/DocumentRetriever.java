@@ -289,9 +289,9 @@ public class DocumentRetriever {
                     contentString = new String(httpResult.getContent());
                 }
             } catch (IOException e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } catch (Exception e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } finally {
                 IOUtils.closeQuietly(reader);
             }
