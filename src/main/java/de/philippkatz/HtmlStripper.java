@@ -1,5 +1,10 @@
 package de.philippkatz;
 
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.DocumentRetriever;
+
 /**
  * <p>
  * Helper for stripping tags from HTML strings.
@@ -221,6 +226,19 @@ public class HtmlStripper {
 
         }
         return result.toString();
+    }
+    
+    public static void main(String[] abc) {
+//        String text = new DocumentRetriever().getText("http://blog.fefe.de/?q=noch");
+         String text = new DocumentRetriever().getText("http://cinefreaks.com");
+        StopWatch stopWatch = new StopWatch();
+        System.out.println(text.length() / 1024.0 + " KB");
+//        String t = HtmlHelper.stripHtmlTags(text, true, true, false, false);
+        String t = HtmlStripper.stripHtmlTags(text);
+        System.out.println(t.length() / 1024.0 + " KB");
+        System.out.println(stopWatch.getTotalElapsedTimeString());
+        System.out.println(StringHelper.shorten(t, 2000));
+        System.exit(0);
     }
 
 }
