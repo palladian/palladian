@@ -251,7 +251,7 @@ public class XPathHelper {
      * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code>.
      * @return The Node's text content, or an empty String if node does not exist.
      */
-    public static String getNodeTextContent(Node node, String xPath) {
+    public static String getNodeTextContent(Node node, String xPath) throws NullPointerException {
         notNull(node, xPath);
 
         String textContent = "";
@@ -385,7 +385,7 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The xPath with included xhtml namespace.
      */
-    public static String addXhtmlNsToXPath(String xPath) {
+    public static String addXhtmlNsToXPath(String xPath) throws NullPointerException {
         notNull(xPath);
 
         if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
@@ -405,7 +405,7 @@ public class XPathHelper {
      * 
      * @param args
      */
-    private static void notNull(Object... args) {
+    private static void notNull(Object... args) throws NullPointerException {
         for (Object arg : args) {
             if (arg == null) {
                 throw new NullPointerException("parameter must not be null");

@@ -405,7 +405,7 @@ public class StringHelper {
      */
     public static boolean containsWord(String word, String searchString) {
         String allowedNeighbors = "[\\s,.;-]";
-        String regexp = allowedNeighbors + word + "|" + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
                 + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         Pattern pat = null;
@@ -427,7 +427,7 @@ public class StringHelper {
         return replaceWord(word, " ", searchString);
     }
     public static String replaceWord(String word, String replacement, String searchString) {
-        String allowedNeighbors = "[\\s,.;\\-´]";
+        String allowedNeighbors = "[\\s,.;\\-´\"']";
 
         String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
                 + allowedNeighbors
