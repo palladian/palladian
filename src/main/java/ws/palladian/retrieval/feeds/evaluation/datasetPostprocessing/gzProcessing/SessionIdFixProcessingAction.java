@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.feeds.evaluation.gzPorcessing;
+package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.gzProcessing;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
