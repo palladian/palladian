@@ -48,7 +48,9 @@ public class Annotation extends UniversalInstance {
 
     /** The right context of the annotation */
     private String rightContext = "";
-
+	
+	private List<String> subTypes = null;
+	
     public Annotation(Annotation annotation) {
         super(null);
         offset = annotation.getOffset();
@@ -516,6 +518,26 @@ public class Annotation extends UniversalInstance {
     public CategoryEntries getTags() {
         return getAssignedCategoryEntries();
     }
+	
+	public void addSubTypes(List<String> subTypes){
+	
+		if(this.subTypes == null){
+		
+			this.subTypes = subTypes;
+			
+		}else{
+		
+			this.subTypes.addAll(subTypes);
+		
+		}
+	
+	}
+	
+	public List<String> getSubTypes(){
+	
+		return subTypes;
+	
+	}
 
     public boolean matches(Annotation annotation) {
         if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
