@@ -15,7 +15,7 @@ import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedIte
  * the {@link FeedItem} has no idea that its "original" publish date has already been corrected. This is required to do
  * an additional, optional correction of this timestamp when adding the item to the {@link Feed}. This correction is
  * required in the seldom case of simulating polls with variable window size: there it may happen that we see items in
- * the past of the last but one simulated poll so we need to 'correct' this item's timestamp. This anomaly can#t be
+ * the past of the last but one simulated poll so we need to 'correct' this item's timestamp. This anomaly can't be
  * avoided.
  * 
  * @author Sandro Reichert
@@ -31,7 +31,7 @@ public class FeedEvaluationItemRowConverter implements RowConverter<EvaluationFe
         item.setSequenceNumber(SqlHelper.getInteger(resultSet, "sequenceNumber"));
         item.setPollTimestamp(resultSet.getTimestamp("pollTimestamp"));
 
-        // caution!
+        // caution - we inject a corrected timestamp here!
         item.setPublished(resultSet.getTimestamp("correctedPublishTime"));
         // item.setPublished(resultSet.getTimestamp("publishTime"));
         // item.setCorrectedPublishedDate(resultSet.getTimestamp("correctedPublishTime"));
