@@ -66,8 +66,9 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
                 List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
 
                 if (linkNodes.size() != infoNodes.size()) {
-                    throw new IllegalStateException(
-                            "The returned document structure is not as expected, probably the scraper needs to be updated");
+                    LOGGER.fatal("The returned document structure is not as expected, probably the scraper needs to be updated");
+                    // throw new IllegalStateException(
+                    // "The returned document structure is not as expected, probably the scraper needs to be updated");
                 }
 
                 Iterator<Node> linkIterator = linkNodes.iterator();
