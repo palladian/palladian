@@ -38,7 +38,7 @@ import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationResult;
 import ws.palladian.preprocessing.nlp.ner.tagger.AlchemyNER;
 import ws.palladian.retrieval.HTTPPoster;
 
-public class AlchemyNERX extends NamedEntityRecognizer {
+public class AlchemyNER extends NamedEntityRecognizer {
 
 	/** The API key for the Alchemy API service. */
 	private final String apiKey;
@@ -53,7 +53,7 @@ public class AlchemyNERX extends NamedEntityRecognizer {
 	 * Constructor. Uses the API key from the configuration, at place
 	 * "api.alchemy.key"
 	 */
-	public AlchemyNERX() {
+	public AlchemyNER() {
 		this("");
 	}
 
@@ -63,7 +63,7 @@ public class AlchemyNERX extends NamedEntityRecognizer {
 	 * @param apiKey
 	 *            API key to use for connecting with Alchemy API
 	 */
-	public AlchemyNERX(String apiKey) {
+	public AlchemyNER(String apiKey) {
 		setName("Alchemy API NER");
 
 		PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
