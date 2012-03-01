@@ -18,6 +18,7 @@ import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.IntervalBoundsEvaluator;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedEvaluationItemRowConverter;
 import ws.palladian.retrieval.feeds.persistence.FeedRowConverter;
@@ -141,8 +142,22 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * Initialize/load {@link #NEWEST_ITEM_HASHES} from db.
      */
     private void initializeNewestItemHashes() {
-        List<EvaluationFeedItem> newestHashes = runQuery(new FeedEvalNewestItemHashRowConverter(),
-                GET_EVALUATION_NEWEST_ITEM_HASHES);
+
+        RowConverter<EvaluationFeedItem> converter = new RowConverter<EvaluationFeedItem>() {
+            @Override
+            public EvaluationFeedItem convert(ResultSet resultSet) throws SQLException {
+
+                EvaluationFeedItem item = new EvaluationFeedItem();
+
+                item.setFeedId(resultSet.getInt("feedId"));
+                item.setHash(resultSet.getString("extendedItemHash"), true);
+
+                return item;
+
+            }
+        };
+
+        List<EvaluationFeedItem> newestHashes = runQuery(converter, GET_EVALUATION_NEWEST_ITEM_HASHES);
 
         for (EvaluationFeedItem item : newestHashes) {
             NEWEST_ITEM_HASHES.put(item.getFeedId(), item.getHash());
@@ -150,6 +165,10 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
     }
 
+    /**
+     * Explicitly reload the local feed collection from database. This is required only in case the database has been
+     * modified, e.g., by {@link EvaluationFeedDatabase#copySimulatedSingleDelays(String, String, String)}.
+     */
     public void reloadFeedsFromDB() {
         feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
     }

@@ -269,20 +269,15 @@ public class HtmlHelper {
         }
 
         if (stripComments) {
-            regExp += "(<!--.*?-->)|";
-            // htmlText = htmlText.replaceAll("<!--.*?-->", "");
+            regExp += "<!--.*?-->|";
         }
 
         if (stripJSAndCSS) {
-            regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
-            // htmlText = removeConcreteHTMLTag(htmlText, "style");
-            // htmlText = removeConcreteHTMLTag(htmlText, "script");
+            regExp += "<style.*?>.*?</style>|<script.*?>.*?</script>|";
         }
 
         if (stripTags) {
-            regExp += "(<.*?>)";
-            // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
-            // htmlText = htmlText.replaceAll("<.*?>", "");
+            regExp += "<.*?>";
         }
 
         if (regExp.length() == 0) {
@@ -293,34 +288,13 @@ public class HtmlHelper {
             regExp = regExp.substring(0, regExp.length() - 1);
         }
 
-        Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(htmlText);
-
-        // remove each tag only once in the entire document
-        // Set<String> removed = new LinkedHashSet<String>();
-        try {
-            Matcher matcher = pattern.matcher(htmlText);
-
-            int startOffset = 0;
-            while (matcher.find()) {
-                // System.out.println("remove " + matcher.group() + ", "
-                // + sb.substring(matcher.start() - startOffset, matcher.end() - startOffset));
-                sb.delete(matcher.start() - startOffset, matcher.end() - startOffset);
-                startOffset += matcher.group().length();
-            }
-
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
+        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(htmlText).replaceAll("");
 
         // close gaps
         // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
 
         // return htmlText.trim();
-        return sb.toString();
     }
 
     /**

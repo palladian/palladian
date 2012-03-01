@@ -25,10 +25,11 @@ import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * Starting Point to evaluate an {@link UpdateStrategy} on the TUDCS6 dataset. This class has similar functionalities
- * to {@link FeedReaderEvaluator}, both will be merged soon.
+ * Starting Point to evaluate an {@link UpdateStrategy} on a dataset such as TUDCS6
+ * (http://areca.co/10/Feed-Item-Dataset-TUDCS6)
+ * 
  * <p>
- * The evaluation is required be configured using palladian.properties:
+ * The evaluation is required be configured using palladian.properties, see description provided there.
  * <ul>
  * <li>
  * datasetEvaluator.updateStrategy = Fix</li>
