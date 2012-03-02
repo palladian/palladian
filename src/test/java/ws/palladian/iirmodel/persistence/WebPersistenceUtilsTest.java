@@ -9,6 +9,8 @@ import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
@@ -187,6 +189,7 @@ public final class WebPersistenceUtilsTest {
     public void testLoadRandomNonSelfLabeledItem() throws Exception {
         Labeler labeler1 = new Labeler("labeler1");
         Labeler labeler2 = new Labeler("labeler2");
+        Labeler labeler3 = new Labeler("labeler3");
         labeler1.addLabel(questionLabel01);
         labeler2.addLabel(questionLabel02);
 
@@ -198,8 +201,11 @@ public final class WebPersistenceUtilsTest {
 
         objectOfClassUnderTest.saveLabeler(labeler1);
         objectOfClassUnderTest.saveLabeler(labeler2);
+        objectOfClassUnderTest.saveLabeler(labeler3);
+        List<Labeler> excludedLabelers = new LinkedList<Labeler>();
+        excludedLabelers.add(labeler3);
 
-        Item item = objectOfClassUnderTest.loadNextNonSelfLabeledItem(labeler1);
+        Item item = objectOfClassUnderTest.loadNextNonSelfLabeledItem(labeler1, excludedLabelers);
         assertThat(item, is(item2));
     }
 }

@@ -47,7 +47,7 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
 
     private static final String LOAD_ITEMS_LABELED_BY = "SELECT i FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem i WHERE lr=:labeler";
 
-    private static final String LOAD_ITEMS_ONLY_LABELED_BY_OTHERS = "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler)";
+    private static final String LOAD_ITEMS_ONLY_LABELED_BY_OTHERS = "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler AND lr NOT IN(:excludedLabelers))";
 
     private static final String LOAD_NON_LABELED_ITEMS = "SELECT i FROM Item i WHERE i.identifier NOT IN (SELECT DISTINCT a.labeledItem.identifier FROM Label a)";
 
@@ -313,15 +313,17 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
      * 
      * @param labeler The {@code Labeler} denoted by self. The method tries to find items only labeled by other
      *            {@code Labeler}s.
+     * @param excludedLabelers A list of {@code Labeler}s whose {@code Label}s are not considered by this method.
      * @return A random {@code Item} not already labeled by {@code labeler}. At first all items are choosen that where
      *         already labeled by other {@code Labeler}s and if no such {@code Item} exists another unlabeled random
      *         {@code Item} is selected.
      */
-    public Item loadNextNonSelfLabeledItem(final Labeler labeler) {
+    public Item loadNextNonSelfLabeledItem(final Labeler labeler, final Collection<Labeler> excludedLabelers) {
         TypedQuery<Item> loadItemsOnlyLabeledByOthersQuery = getManager().createQuery(
                 LOAD_ITEMS_ONLY_LABELED_BY_OTHERS, Item.class);
         loadItemsOnlyLabeledByOthersQuery.setMaxResults(MAX_NUMBER_OF_RESULTS);
         loadItemsOnlyLabeledByOthersQuery.setParameter("labeler", labeler);
+        loadItemsOnlyLabeledByOthersQuery.setParameter("excludedLabelers", excludedLabelers);
         Boolean openedTransaction = openTransaction();
         try {
             List<Item> itemsLabeledByOthers = loadItemsOnlyLabeledByOthersQuery.getResultList();
@@ -493,6 +495,18 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
         Boolean openedTransaction = openTransaction();
         try {
             getManager().persist(relationType);
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * @param persistentRelation
+     */
+    public void saveItemRelation(ItemRelation relation) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            getManager().persist(relation);
         } finally {
             commitTransaction(openedTransaction);
         }
