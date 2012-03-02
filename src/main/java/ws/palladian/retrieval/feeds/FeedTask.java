@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
+import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import java.util.concurrent.Callable;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
-import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
