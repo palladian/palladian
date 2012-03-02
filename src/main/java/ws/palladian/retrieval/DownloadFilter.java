@@ -58,7 +58,7 @@ public class DownloadFilter {
     }
 
     public boolean isAcceptedFileType(String url) {
-        String fileType = FileHelper.getFileType(url);
+        String fileType = FileHelper.getFileType(url).toLowerCase();
         boolean whitelisted = whitelist.isEmpty() || whitelist.contains(fileType);
         boolean blacklisted = blacklist.contains(fileType);
         boolean accepted = whitelisted && !blacklisted;

@@ -79,12 +79,12 @@ import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationResult;
  * @author David Urbansky
  * 
  */
-public class OpenNLPNER extends NamedEntityRecognizer {
+public class OpenNlpNer extends NamedEntityRecognizer {
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
 
-    public OpenNLPNER() {
+    public OpenNlpNer() {
         setName("OpenNLP NER");
     }
 
@@ -429,7 +429,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        OpenNLPNER tagger = new OpenNLPNER();
+        OpenNlpNer tagger = new OpenNlpNer();
 
         if (args.length > 0) {
 

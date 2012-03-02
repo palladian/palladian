@@ -979,10 +979,14 @@ public class HtmlHelper {
             sb.append("\n");
         }
 
-        Node child = node.getFirstChild();
-        while (child != null) {
-            sb.append(documentToText(child));
-            child = child.getNextSibling();
+        try {
+            Node child = node.getFirstChild();
+            while (child != null) {
+                sb.append(documentToText(child));
+                child = child.getNextSibling();
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
 
         return sb.toString().replaceAll("[ ]{2,}", "");

@@ -35,10 +35,9 @@ import ws.palladian.preprocessing.nlp.ner.Entity;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
 import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationResult;
-import ws.palladian.preprocessing.nlp.ner.tagger.AlchemyNER;
 import ws.palladian.retrieval.HTTPPoster;
 
-public class AlchemyNER extends NamedEntityRecognizer {
+public class AlchemyNer extends NamedEntityRecognizer {
 
 	/** The API key for the Alchemy API service. */
 	private final String apiKey;
@@ -53,7 +52,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 	 * Constructor. Uses the API key from the configuration, at place
 	 * "api.alchemy.key"
 	 */
-	public AlchemyNER() {
+	public AlchemyNer() {
 		this("");
 	}
 
@@ -63,7 +62,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 	 * @param apiKey
 	 *            API key to use for connecting with Alchemy API
 	 */
-	public AlchemyNER(String apiKey) {
+	public AlchemyNer(String apiKey) {
 		setName("Alchemy API NER");
 
 		PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
@@ -150,7 +149,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 				HTTPPoster poster = new HTTPPoster();
 				String response = poster.handleRequest(pm);
 				if (response.contains("daily-transaction-limit-exceeded")) {
-					System.out.println("--- LIMIT EXCEEDED ---");
+                    LOGGER.warn("--- LIMIT EXCEEDED ---");
 					break;
 				}
 				JSONObject json = new JSONObject(response);
@@ -204,8 +203,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
 				}
 			} catch (JSONException e) {
-				LOGGER.error(getName() + " could not parse json, "
-						+ e.getMessage());
+                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
 			}
 		}
 
@@ -254,7 +252,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) {
 
-		AlchemyNER tagger = new AlchemyNER();
+		AlchemyNer tagger = new AlchemyNer();
 
 		if (args.length > 0) {
 
@@ -295,10 +293,11 @@ public class AlchemyNER extends NamedEntityRecognizer {
 		}
 
 		// // HOW TO USE ////
-		// System.out
-		// .println(tagger
-		// .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
-		// tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+        System.out
+                .println(tagger
+                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
+        tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+        System.exit(0);
 
 		// /////////////////////////// test /////////////////////////////
 		EvaluationResult er = tagger.evaluate(

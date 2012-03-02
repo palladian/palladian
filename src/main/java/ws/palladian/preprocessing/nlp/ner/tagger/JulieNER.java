@@ -63,12 +63,12 @@ import de.julielab.jnet.utils.Utils;
  * @author David Urbansky
  * 
  */
-public class JulieNER extends NamedEntityRecognizer {
+public class JulieNer extends NamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
 
-    public JulieNER() {
+    public JulieNer() {
         setName("Julie NER");
 
         // alignContent(new File("data/temp/t.TXT"), "THURSDAY'S GAMES. NEW YORK");
@@ -284,7 +284,7 @@ public class JulieNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        JulieNER tagger = new JulieNER();
+        JulieNer tagger = new JulieNer();
 
         if (args.length > 0) {
 

@@ -56,12 +56,12 @@ import edu.stanford.nlp.util.StringUtils;
  * @author David Urbansky
  * 
  */
-public class StanfordNER extends NamedEntityRecognizer {
+public class StanfordNer extends NamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
 
-    public StanfordNER() {
+    public StanfordNer() {
         setName("Stanford NER");
         buildConfigFile();
 
@@ -327,7 +327,7 @@ public class StanfordNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        StanfordNER tagger = new StanfordNER();
+        StanfordNer tagger = new StanfordNer();
 
         if (args.length > 0) {
 

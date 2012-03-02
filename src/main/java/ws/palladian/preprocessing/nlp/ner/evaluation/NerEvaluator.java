@@ -11,7 +11,7 @@ import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
-import ws.palladian.preprocessing.nlp.ner.tagger.OpenNLPNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.OpenNlpNer;
 
 /**
  * <p>The NerEvaluator can be used to train and evaluate several NERs on the same data.</p>
@@ -111,7 +111,7 @@ public class NerEvaluator {
         // IllinoisLbjNER in = new IllinoisLbjNER();
         // nerList.add(in);
 
-        OpenNLPNER on = new OpenNLPNER();
+        OpenNlpNer on = new OpenNlpNer();
         nerList.add(on);
 
         // PalladianNer tn = new PalladianNer();
