@@ -64,7 +64,7 @@ import com.ibm.icu.util.StringTokenizer;
  * @author David Urbansky
  * 
  */
-public class IllinoisLbjNER extends NamedEntityRecognizer {
+public class IllinoisLbjNer extends NamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
@@ -75,7 +75,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
 
-    public IllinoisLbjNER() {
+    public IllinoisLbjNer() {
         setName("Lbj NER");
         buildConfigFile();
     }
@@ -137,13 +137,11 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
             }
             input = BracketFileManager.replaceSubstring(input, "*newline*", "\n");
             String res = DemoEngine.tagLine(input, tagger1, tagger2);
-            int len = 0;
             StringTokenizer st = new StringTokenizer(res);
             StringBuffer output = new StringBuffer();
             while (st.hasMoreTokens()) {
                 String s = st.nextToken();
                 output.append(" " + s);
-                len += s.length();
             }
             System.out.println(BracketFileManager.replaceSubstring(output.toString(), "\n", " "));
         }
@@ -306,7 +304,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        IllinoisLbjNER tagger = new IllinoisLbjNER();
+        IllinoisLbjNer tagger = new IllinoisLbjNer();
 
         // lbt.demo(true, "data/temp/lbj/baselineFeatures.config");
 

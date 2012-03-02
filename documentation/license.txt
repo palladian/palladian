@@ -16,10 +16,9 @@ Palladian Free for Science License Version 1
     law.
 
 2.  You may copy or modify the Software or use any output of the
-    Software (i) for internal non-production trial, testing and evaluation
-    of the Software, or (ii) in connection with any product or service you
-    provide to third parties for free.  Copying or modifying the Software
-    includes the acts of "installing", "running", "using", "accessing" or
+    Software (i) for internal non-production trial, testing, and evaluation
+    of the Software.  Copying or modifying the Software
+    includes the acts of "installing", "running", "using", "accessing", or
     "deploying" the Software as those terms are understood in the software
     industry.  Therefore, those activities are only permitted under this
     License in the ways that copying or modifying are permitted.
@@ -51,6 +50,9 @@ Palladian Free for Science License Version 1
     void, and will automatically terminate your rights under this License.
     Your rights under this License may only be reinstated by a signed
     writing from Palladian.
+    
+6.  If you wish to use Palladian for commercial purposes, you may contact
+	mail@palladian.ws for further information.
 
 THE SOFTWARE IS PROVIDED "AS IS."  TO THE MAXIMUM EXTENT PERMITTED BY
 APPLICABLE LAW, PALLADIAN DOES NOT MAKE, AND HEREBY EXPRESSLY DISCLAIMS,

@@ -125,7 +125,7 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, RetrieverCallback callback) {
+    public void getWebDocuments(Collection<String> urls, RetrieverCallback<Document> callback) {
 
         BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
@@ -391,13 +391,13 @@ public class DocumentRetriever {
                 callRetrieverCallback(document);
 
             } catch (FileNotFoundException e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } catch (DOMException e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } catch (ParserException e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } catch (HttpException e) {
-                LOGGER.error(url + ", " + e.getMessage(), e);
+                LOGGER.error(url + ", " + e.getMessage());
             } finally {
                 IOUtils.closeQuietly(inputStream);
             }
@@ -462,7 +462,7 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     private void callRetrieverCallback(Document document) {
-        for (RetrieverCallback retrieverCallback : retrieverCallbacks) {
+        for (RetrieverCallback<Document> retrieverCallback : retrieverCallbacks) {
             retrieverCallback.onFinishRetrieval(document);
         }
     }
@@ -471,11 +471,11 @@ public class DocumentRetriever {
         return retrieverCallbacks;
     }
 
-    public void addRetrieverCallback(RetrieverCallback retrieverCallback) {
+    public void addRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
         retrieverCallbacks.add(retrieverCallback);
     }
 
-    public void removeRetrieverCallback(RetrieverCallback retrieverCallback) {
+    public void removeRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
         retrieverCallbacks.remove(retrieverCallback);
     }
 
@@ -520,7 +520,7 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        RetrieverCallback crawlerCallback = new RetrieverCallback<Document>() {
+        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
             @Override
             public void onFinishRetrieval(Document document) {
                 // do something with the page

@@ -63,12 +63,12 @@ import ws.palladian.retrieval.HTTPPoster;
  * @author David Urbansky
  * 
  */
-public class EvriNER extends NamedEntityRecognizer {
+public class EvriNer extends NamedEntityRecognizer {
 
     /** The maximum number of characters allowed to send per request (actually ???). */
     private final int MAXIMUM_TEXT_LENGTH = 50000;
 
-    public EvriNER() {
+    public EvriNer() {
         setName("Evri NER");
     }
 
@@ -264,7 +264,7 @@ public class EvriNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        EvriNER tagger = new EvriNER();
+        EvriNer tagger = new EvriNer();
 
         if (args.length > 0) {
 
@@ -299,12 +299,13 @@ public class EvriNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // System.out
-        // .println(tagger
-        // .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
-        // System.out
-        // .println(tagger
-        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+        System.out
+                .println(tagger
+                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
+        System.out
+                .println(tagger
+                        .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+        System.exit(0);
 
         // System.out
         // .println(tagger

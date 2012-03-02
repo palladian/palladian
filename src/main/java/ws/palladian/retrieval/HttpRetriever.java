@@ -121,7 +121,7 @@ public class HttpRetriever {
 
     // ///////////// Settings ////////
 
-    /** The maximum file size to download. -1 means no limit. */
+    /** The maximum file size in bytes to download. -1 means no limit. */
     private long maxFileSize = -1;
 
     /** Download size in bytes for this HttpRetriever instance. */

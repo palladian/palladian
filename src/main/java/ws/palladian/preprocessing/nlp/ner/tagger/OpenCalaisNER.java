@@ -92,7 +92,7 @@ import ws.palladian.retrieval.HTTPPoster;
  * @author David Urbansky
  * 
  */
-public class OpenCalaisNER extends NamedEntityRecognizer {
+public class OpenCalaisNer extends NamedEntityRecognizer {
 
     /** The API key for the Open Calais service. */
     private final String apiKey;
@@ -104,7 +104,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
      * Constructor. Uses the API key from the configuration, at place
      * "api.opencalais.key"
      */
-    public OpenCalaisNER() {
+    public OpenCalaisNer() {
         this("");
     }
 
@@ -113,7 +113,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
      * 
      * @param apiKey API key to use for connecting with OpenCalais
      */
-    public OpenCalaisNER(String apiKey) {
+    public OpenCalaisNer(String apiKey) {
         setName("OpenCalais NER");
 
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
@@ -294,7 +294,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        OpenCalaisNER tagger = new OpenCalaisNER();
+        OpenCalaisNer tagger = new OpenCalaisNer();
 
         if (args.length > 0) {
 

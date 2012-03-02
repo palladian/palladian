@@ -50,14 +50,14 @@ import com.aliasi.util.AbstractExternalizable;
  * @author David Urbansky
  * 
  */
-public class LingPipeNER extends NamedEntityRecognizer {
+public class LingPipeNer extends NamedEntityRecognizer {
 
     private static final int NUM_CHUNKINGS_RESCORED = 64;
     private static final int MAX_N_GRAM = 8;
     private static final int NUM_CHARS = 256;
     private static final double LM_INTERPOLATION = MAX_N_GRAM;
 
-    public LingPipeNER() {
+    public LingPipeNer() {
         setName("LingPipe NER");
     }
 
@@ -228,7 +228,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        LingPipeNER tagger = new LingPipeNER();
+        LingPipeNer tagger = new LingPipeNer();
 
         // learn
         // lpt.trainNER("data/temp/esp.train", "data/temp/esp.testa",
