@@ -2,16 +2,10 @@ package ws.palladian.retrieval;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -50,30 +44,37 @@ public class HTTPPoster {
 
     }
 
-    public HttpPost createPostMethod(String url) {
-        return createPostMethod(url, new HashMap<String, String>(), new NameValuePair[0]);
-    }
+//    public HttpPost createPostMethod(String url) {
+//        return createPostMethod(url, new HashMap<String, String>(), new NameValuePair[0]);
+//    }
 
-    public HttpPost createPostMethod(String url, Map<String, String> headerFields, NameValuePair[] bodyFields) {
+//    public HttpPost createPostMethod(String url, Map<String, String> headerFields, NameValuePair[] bodyFields) {
+//
+//        HttpPost method = new HttpPost(url);
+//
+//        for (Entry<String, String> headerField : headerFields.entrySet()) {
+//            method.setHeader(headerField.getKey(), headerField.getValue());
+//        }
+//
+//        UrlEncodedFormEntity urlEncodedFormEntity;
+//        try {
+//            urlEncodedFormEntity = new UrlEncodedFormEntity(java.util.Arrays.asList(bodyFields));
+//            method.setEntity(urlEncodedFormEntity);
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        //        method.setRequestBody(bodyFields);
+//
+//        return method;
+//    }
 
-        HttpPost method = new HttpPost(url);
-
-        for (Entry<String, String> headerField : headerFields.entrySet()) {
-            method.setHeader(headerField.getKey(), headerField.getValue());
-        }
-
-        UrlEncodedFormEntity urlEncodedFormEntity;
-        try {
-            urlEncodedFormEntity = new UrlEncodedFormEntity(java.util.Arrays.asList(bodyFields));
-            method.setEntity(urlEncodedFormEntity);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        //        method.setRequestBody(bodyFields);
-
-        return method;
-    }
-
+    /**
+     * 
+     * @param method
+     * @return
+     * @deprecated Use {@link HttpRetriever#httpPost(String, java.util.Map, java.util.Map)} instead.
+     */
+    @Deprecated
     public String handleRequest(HttpPost method) {
 
         String response = "";
