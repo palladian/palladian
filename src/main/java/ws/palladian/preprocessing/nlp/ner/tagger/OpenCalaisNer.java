@@ -1,10 +1,10 @@
 package ws.palladian.preprocessing.nlp.ner.tagger;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,8 +14,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +21,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
@@ -30,7 +29,10 @@ import ws.palladian.preprocessing.nlp.ner.Entity;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
 import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationResult;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>
@@ -100,6 +102,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     /** The maximum number of characters allowed to send per request (actually 100,000). */
     private final int MAXIMUM_TEXT_LENGTH = 90000;
 
+    /** The {@link HttpRetriever} is used for performing the POST requests to the API. */
+    private final HttpRetriever httpRetriever;
+
     /**
      * Constructor. Uses the API key from the configuration, at place
      * "api.opencalais.key"
@@ -125,6 +130,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         } else {
             this.apiKey = "";
         }
+        httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     @Override
@@ -153,7 +159,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText,"");
+        return getAnnotations(inputText, "");
     }
 
     @Override
@@ -193,10 +199,8 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                 // // System.out.println(restCall);
                 // JSONObject json = c.getJSONDocument(restCall);
 
-                HttpPost pm = createPostMethod(textChunk.toString());
-
-                HTTPPoster poster = new HTTPPoster();
-                String response = poster.handleRequest(pm);
+                HttpResult httpResult = getHttpResult(textChunk.toString());
+                String response = new String(httpResult.getContent(), Charset.forName("UTF-8"));
 
                 JSONObject json = new JSONObject(response);
 
@@ -227,8 +231,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                     int offset = instance.getInt("offset");
 
                                     Annotation annotation = new Annotation(cumulatedOffset + offset,
-                                            namedEntity.getName(), namedEntity
-                                            .getTagName());
+                                            namedEntity.getName(), namedEntity.getTagName());
                                     annotations.add(annotation);
                                 }
                             }
@@ -241,10 +244,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
 
             } catch (JSONException e) {
                 LOGGER.error(getName() + " could not parse json, " + e.getMessage());
+            } catch (HttpException e) {
+                LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
             }
-            // catch (UnsupportedEncodingException e) {
-            // LOGGER.error(getName() + " could not encode url, " + e.getMessage());
-            // }
 
             cumulatedOffset += textChunk.length();
         }
@@ -255,29 +257,18 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         return annotations;
     }
 
-    private HttpPost createPostMethod(String inputText) {
+    private HttpResult getHttpResult(String inputText) throws HttpException {
 
-        HttpPost method = new HttpPost("http://api.opencalais.com/tag/rs/enrich");
+        Map<String, String> headers = new MapBuilder<String, String>().add("x-calais-licenseID", apiKey)
+                .add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                .add("Accept", "application/json");
 
-        // set mandatory parameters
-        method.setHeader("x-calais-licenseID", apiKey);
+        Map<String, String> content = new MapBuilder<String, String>()
+                .add("content", inputText)
+                .add("paramsXML",
+                        "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
 
-        // set input content type
-        method.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        // set response/output format
-        method.setHeader("Accept", "application/json");
-
-        try {
-            String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-            method.setEntity(new StringEntity("content=" + URLEncoder.encode(inputText, "UTF-8")
-                    + "&paramsXML=" + URLEncoder.encode(paramsXML, "UTF-8"),
-                    "text/raw", "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encoding is not supported, " + e.getMessage());
-        }
-
-        return method;
+        return httpRetriever.httpPost("http://api.opencalais.com/tag/rs/enrich", headers, content);
     }
 
     /**
@@ -328,16 +319,18 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
 
         }
 
-         // HOW TO USE ////
-         System.out.println(tagger.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
-         System.out
-         .println(tagger
-         .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
-         System.exit(0);
+        // HOW TO USE ////
+        System.out
+                .println(tagger
+                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
+        // System.out
+        // .println(tagger
+        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+        System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
         EvaluationResult er = tagger
-        .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }
