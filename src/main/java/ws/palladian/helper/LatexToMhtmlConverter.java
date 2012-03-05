@@ -23,14 +23,28 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
+import org.apache.log4j.Logger;
 
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.multimedia.ImageHandler;
+import ws.palladian.preprocessing.multimedia.PdfToImageConverter;
+import ws.palladian.preprocessing.multimedia.PdfToImageConverter.ImageFormat;
 
 public class LatexToMhtmlConverter {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(LatexToMhtmlConverter.class);
+
     private static final String IMAGE_CHECKMARK = "R0lGODlhDAANAOMAAP///////2RkZJmZmRYWFk9PTyAgID09PS0tLQMDA319fdvb2wgICAAAAAEBAbi4uCH5BAEAAAAALAAAAAAMAA0AAAQvEMhJxaCYFEzN5ZIGSgcyAkNyAomCLcYCFAwnNKYjgExzOKNHo0E4IRqb0SLJiQAAOw==";
     private static final String NLB = "(?<![\\{\\}])";
+
+    /** If true, pdf includes will be transformed to Base64 png data. */
+    private boolean rasterPdf = true;
+
+    /**
+     * If true, we pack everything into one single HTML file with no external references. Images will be base64 encoded.
+     */
+    private boolean oneFile = true;
 
     private String writeHeader(String style, String latex) {
         StringBuilder header = new StringBuilder();
@@ -157,8 +171,7 @@ public class LatexToMhtmlConverter {
                 .compile("\\\\begin\\{table\\}(\\[.*?\\])?(.*?)(?=\\\\begin\\{tab)", Pattern.DOTALL | Pattern.MULTILINE)
                 .matcher(converted).replaceAll("$2\n<table cellpadding=\"0\" cellmargin=\"0\" class=\"tablesorter\">");
         converted = processTables(converted);
-        converted = Pattern
-.compile("(?<=\\<\\/tbody\\>)(.*?)\\\\end\\{table\\}", Pattern.DOTALL | Pattern.MULTILINE)
+        converted = Pattern.compile("(?<=\\<\\/tbody\\>)(.*?)\\\\end\\{table\\}", Pattern.DOTALL | Pattern.MULTILINE)
                 .matcher(converted).replaceAll("</table>\n$1");
 
         // equations (wrap for js replacement)
@@ -241,22 +254,24 @@ public class LatexToMhtmlConverter {
         return converted;
     }
 
-    private String replaceImages(String html) {
+    private String replaceImages(String html, String basePath) {
         List<String> matches = StringHelper.getRegexpMatches("(?<=img src\\=\").*?(?=\")", html);
         // List<String> matches = StringHelper.getRegexpMatches("img.*?\"", html);
         for (String url : matches) {
-            System.out.println(url);
-            BufferedImage image = ImageHandler.load(url);
+            System.out.println(basePath + url);
+            BufferedImage image = ImageHandler.load(basePath + url);
 
             try {
                 ByteArrayOutputStream byteaOutput = new ByteArrayOutputStream();
                 Base64OutputStream base64Output = new Base64OutputStream(byteaOutput);
-                ImageIO.write(image, "JPG", base64Output);
+                // ImageIO.write(image, "JPG", base64Output);
+                ImageIO.write(image, ImageFormat.PNG.toString(), base64Output);
                 String base64 = new String(byteaOutput.toByteArray());
                 base64 = StringHelper.removeControlCharacters(base64).replace(" ", "");
                 System.out.println(base64);
 
-                html = html.replace(url, "data:image/jpeg;base64," + base64);
+                // html = html.replace(url, "data:image/jpeg;base64," + base64);
+                html = html.replace(url, "data:image/png;base64," + base64);
 
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -303,8 +318,15 @@ public class LatexToMhtmlConverter {
 
         String converted = includeDocuments(latex, targetFolderPath);
 
+        if (isRasterPdf()) {
+            converted = rasterPdf(converted, targetFolderPath);
+        }
+        FileHelper.writeToFile(targetFolderPath + "rastered.html", converted);
+
         converted = latexToHtml(converted);
-        // converted = replaceImages(converted);
+        if (isOneFile()) {
+            converted = replaceImages(converted, targetFolderPath);
+        }
 
         converted = writeHeader(css, latex) + converted + writeFooter(js);
 
@@ -312,6 +334,23 @@ public class LatexToMhtmlConverter {
         FileHelper.writeToFile(targetFolderPath + "converted.html", converted);
 
         writeToMhtml(converted, targetFolderPath);
+    }
+
+    private String rasterPdf(String converted, String targetFolderPath) {
+
+        // converted = converted.replaceAll("\\\\includegraphics([^{]*?)\\{([^.]{1,50}?\\.)pdf\\}",
+        // "\\\\includegraphics$1\\{$2png\\}");
+
+        Matcher matcher = Pattern.compile("\\\\includegraphics([^{]*?)\\{([^.]{1,50}?\\.pdf)\\}").matcher(converted);
+        while (matcher.find()) {
+            String pdfPath = targetFolderPath + matcher.group(2);
+            String targetPath = targetFolderPath + FileHelper.getFileName(pdfPath) + ".png";
+            LOGGER.debug(pdfPath + " => " + targetPath);
+            PdfToImageConverter.convertPdfToImage(pdfPath, targetPath);
+            converted = converted.replaceAll(matcher.group(2), matcher.group(2).replace(".pdf", ".png"));
+        }
+
+        return converted;
     }
 
     static BodyPart bodyPart(DataSource ds) throws MessagingException {
@@ -360,15 +399,35 @@ public class LatexToMhtmlConverter {
         }
     }
 
+    public boolean isRasterPdf() {
+        return rasterPdf;
+    }
+
+    public void setRasterPdf(boolean rasterPdf) {
+        this.rasterPdf = rasterPdf;
+    }
+
+    public boolean isOneFile() {
+        return oneFile;
+    }
+
+    public void setOneFile(boolean oneFile) {
+        this.oneFile = oneFile;
+    }
+
     public static void main(String argv[]) throws Exception {
         LatexToMhtmlConverter converter = new LatexToMhtmlConverter();
+        converter.setRasterPdf(true);
+        converter.setOneFile(true);
         // converter.convert("documentation/latex2pdf/thesis/tex/main.tex",
         // "documentation/latex2pdf/thesis/tex/styles.css", "documentation/latex2pdf/thesis/tex/js.js");
 
-        // converter.convert("documentation/latex2pdf/sample.tex", "documentation/latex2pdf/styles.css",
-        // "documentation/latex2pdf/js.js");
+        converter.convert("documentation/latex2pdf/sample.tex", "documentation/latex2pdf/styles.css",
+                "documentation/latex2pdf/js.js");
 
-        converter.convert("documentation/book/book.tex", "documentation/book/res/styles.css",
-                "documentation/book/res/js.js");
+
+        // converter.convert("documentation/book/book.tex", "documentation/book/res/styles.css",
+        // "documentation/book/res/js.js");
     }
+
 }
