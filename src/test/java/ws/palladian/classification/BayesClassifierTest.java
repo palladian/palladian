@@ -21,7 +21,7 @@ public class BayesClassifierTest {
         // nominal features are: Outlook, Temp, Humidity, and Windy, nominal class is Play (true or false)
         List<String> nominalFeatures = null;
 
-        BayesClassifier bc = new BayesClassifier();
+        NaiveBayesClassifier bc = new NaiveBayesClassifier();
         bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"));
 
         // create an instance to classify
@@ -38,7 +38,7 @@ public class BayesClassifierTest {
         // test saving and loading
         bc.setName("testBayesClassifier");
         bc.save("data/temp/");
-        BayesClassifier loadedBC = BayesClassifier.load("data/temp/testBayesClassifier.gz");
+        NaiveBayesClassifier loadedBC = NaiveBayesClassifier.load("data/temp/testBayesClassifier.gz");
 
         // classify
         loadedBC.classify(newInstance);
@@ -51,7 +51,7 @@ public class BayesClassifierTest {
     @Test
     public void testBayesClassifierNumeric() {
 
-        BayesClassifier bc = new BayesClassifier();
+        NaiveBayesClassifier bc = new NaiveBayesClassifier();
 
         Instances<Object> instances = new Instances<Object>();
 
@@ -102,7 +102,7 @@ public class BayesClassifierTest {
         // test saving and loading
         bc.setName("testBayesClassifier");
         bc.save("data/temp/");
-        BayesClassifier loadedBC = BayesClassifier.load("data/temp/testBayesClassifier.gz");
+        NaiveBayesClassifier loadedBC = NaiveBayesClassifier.load("data/temp/testBayesClassifier.gz");
 
         // create an instance to classify
         UniversalInstance newInstance = new UniversalInstance(null);
