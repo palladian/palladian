@@ -178,6 +178,10 @@ public class FileHelper {
         if (lastSeparator > -1) {
             fileName = path.substring(lastSeparator);
         }
+        if (lastSeparator == 0) {
+            fileName = "";
+        }
+
         return fileName;
     }
 

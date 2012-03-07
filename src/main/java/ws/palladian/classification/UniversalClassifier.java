@@ -29,7 +29,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     private NumericClassifier numericClassifier;
 
     /** The Bayes classifier for nominal classification. */
-    private BayesClassifier nominalClassifier;
+    private NaiveBayesClassifier nominalClassifier;
 
     /** Whether or not to use the text classifier. */
     private boolean useTextClassifier = true;
@@ -51,7 +51,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         textClassifier = new DictionaryClassifier();
         numericClassifier = new KNNClassifier();
-        nominalClassifier = new BayesClassifier();
+        nominalClassifier = new NaiveBayesClassifier();
 
         weights[0] = 1.0;
         weights[1] = 1.0;
@@ -177,11 +177,11 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         this.numericClassifier = numericClassifier;
     }
 
-    public BayesClassifier getNominalClassifier() {
+    public NaiveBayesClassifier getNominalClassifier() {
         return nominalClassifier;
     }
 
-    public void setNominalClassifier(BayesClassifier nominalClassifier) {
+    public void setNominalClassifier(NaiveBayesClassifier nominalClassifier) {
         this.nominalClassifier = nominalClassifier;
     }
 
