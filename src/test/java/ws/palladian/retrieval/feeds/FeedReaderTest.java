@@ -3,17 +3,52 @@ package ws.palladian.retrieval.feeds;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 
 /**
+ * <p>
+ * Tests whether the feed checker can correctly access feeds.
+ * </p>
  * 
+ * @author klemens.muthmann@googlemail.com
  * @author Philipp Katz
- *
+ * 
  */
 public class FeedReaderTest {
+
+    private Collection<Feed> fixture;
+
+    private FeedReader objectOfClassUnderTest;
+
+    @Before
+    public void setUp() throws Exception {
+        fixture = new HashSet<Feed>();
+        fixture.add(new Feed("http://www.tagesschau.de/xml/rss2"));
+        objectOfClassUnderTest = new FeedReader(new CollectionFeedSource(fixture));
+        objectOfClassUnderTest.setFeedProcessingAction(new DefaultFeedProcessingAction());
+        objectOfClassUnderTest.setUpdateStrategy(new FixUpdateStrategy(1), false);
+    }
+
+    /**
+     * Test method for {@link tud.iir.news.FeedReader#startContinuousReading()}.
+     */
+    @Test
+    @Ignore
+    public void testContinuousReading() {
+        // objectOfClassUnderTest.startContinuousReading(10 * DateHelper.SECOND_MS);
+        objectOfClassUnderTest.startContinuousReading(180 * DateHelper.SECOND_MS);
+        objectOfClassUnderTest.stopContinuousReading();
+    }
 
     @Test
     public void testSynchronizeWithStore() {
