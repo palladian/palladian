@@ -1,6 +1,7 @@
 package ws.palladian.classification.page;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,7 @@ import ws.palladian.helper.html.TreeNode;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -531,7 +533,12 @@ public class ClassifierManager {
         for (Map.Entry<String, HashSet<String>> category : dictionary.entrySet()) {
 
             for (String keyword : category.getValue()) {
-                List<String> urls = sr.searchUrls(keyword, 50, WebSearcherLanguage.GERMAN);
+                List<String> urls = Collections.emptyList();
+                try {
+                    urls = sr.searchUrls(keyword, 50, WebSearcherLanguage.GERMAN);
+                } catch (SearcherException e) {
+                    LOGGER.error(e);
+                }
 
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(UrlHelper.getCleanUrl(url));

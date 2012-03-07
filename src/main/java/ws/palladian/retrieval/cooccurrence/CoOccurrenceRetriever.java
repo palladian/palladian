@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.TwitterSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -23,6 +26,9 @@ import ws.palladian.retrieval.search.web.WebSearcherLanguage;
  * 
  */
 public class CoOccurrenceRetriever {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(CoOccurrenceRetriever.class);
 
     /** Specify how far or close the terms must be to count the co-occurrence. */
     private CoOccurrenceContext coOccurrenceContext;
@@ -57,20 +63,24 @@ public class CoOccurrenceRetriever {
         
         for (WebSearcher<WebResult> searcher : searchers) {
             
-            List<WebResult> webResults = searcher.search(query, numberOfResults, language);
-            
-            for (WebResult webResult : webResults) {
+            try {
+                List<WebResult> webResults = searcher.search(query, numberOfResults, language);
+                
+                for (WebResult webResult : webResults) {
 
-                String pageText = webResult.getSummary();
+                    String pageText = webResult.getSummary();
 
-                if (webResult.getUrl() != null) {
-                    pageText = documentRetriever.getText(webResult.getUrl());
+                    if (webResult.getUrl() != null) {
+                        pageText = documentRetriever.getText(webResult.getUrl());
+                    }
+
+                    if (pageText != null) {
+                        findCoOccurrences(pageText, coOccurrenceStatistics, searcher, caseInsensitive);
+                    }
+
                 }
-
-                if (pageText != null) {
-                    findCoOccurrences(pageText, coOccurrenceStatistics, searcher, caseInsensitive);
-                }
-
+            } catch (SearcherException e) {
+                LOGGER.error(e);
             }
         }
 
