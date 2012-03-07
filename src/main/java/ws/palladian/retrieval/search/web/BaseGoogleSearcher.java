@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -40,7 +41,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
@@ -73,9 +74,11 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
                 }
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
 
         LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
@@ -112,9 +115,6 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         HttpResult httpResult = retriever.httpGet(requestUrl);
         String jsonString = new String(httpResult.getContent());
         JSONObject jsonObject = new JSONObject(jsonString);
-        if (!jsonObject.has("responseData")) {
-            // TODO throw some exception
-        }
         return jsonObject.getJSONObject("responseData");
     }
 
@@ -180,15 +180,17 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getTotalResultCount(String query) {
+    public int getTotalResultCount(String query) throws SearcherException {
         int hitCount = 0;
         try {
             JSONObject responseData = getResponseData(query, null, 0);
             hitCount = getResultCount(responseData);
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
         return hitCount;
     }

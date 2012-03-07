@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +38,7 @@ import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
@@ -357,7 +359,13 @@ public class DatasetCreator implements DatasetCreatorInterface {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         String query = "\"" + seedEntity + "\" " + conceptName.toLowerCase();
-        return searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
+        List<String> result = Collections.emptyList();
+        try {
+            result = searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
+        } catch (SearcherException e) {
+            LOGGER.error(e);
+        }
+        return result;
     }
 
     /**

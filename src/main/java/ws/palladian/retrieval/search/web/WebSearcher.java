@@ -7,6 +7,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearchResult;
 import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -34,8 +35,9 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @param query
      * @param resultCount Maximum number of results to retrieve.
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    public List<String> searchUrls(String query, int resultCount) {
+    public List<String> searchUrls(String query, int resultCount) throws SearcherException {
         return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
     }
 
@@ -48,8 +50,9 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @param resultCount Maximum number of results to retrieve.
      * @param language The language for which to search.
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) {
+    public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
         List<String> urls = new ArrayList<String>();
 
         List<R> webresults = search(query, resultCount, language);
@@ -64,7 +67,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount) {
+    public List<R> search(String query, int resultCount) throws SearcherException {
         return search(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
     }
 
@@ -77,11 +80,12 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @param resultCount Maximum number of results to retrieve.
      * @param language The language for which to search.
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    public abstract List<R> search(String query, int resultCount, WebSearcherLanguage language);
+    public abstract List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException;
 
     @Override
-    public int getTotalResultCount(String query) {
+    public int getTotalResultCount(String query) throws SearcherException {
         return getTotalResultCount(query, DEFAULT_SEARCHER_LANGUAGE);
     }
 
@@ -93,8 +97,9 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @param query
      * @param language
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    public int getTotalResultCount(String query, WebSearcherLanguage language) {
+    public int getTotalResultCount(String query, WebSearcherLanguage language) throws SearcherException {
         throw new UnsupportedOperationException("not supported for this searcher");
     }
 

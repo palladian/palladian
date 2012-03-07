@@ -23,8 +23,9 @@ public interface Searcher<R extends SearchResult> {
      * @param query
      * @param resultCount
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    List<R> search(String query, int resultCount);
+    List<R> search(String query, int resultCount) throws SearcherException; 
 
     /**
      * <p>
@@ -33,8 +34,9 @@ public interface Searcher<R extends SearchResult> {
      * 
      * @param query
      * @return
+     * @throws SearcherException In case the search fails.
      */
-    int getTotalResultCount(String query);
+    int getTotalResultCount(String query) throws SearcherException;
 
     /**
      * <p>
