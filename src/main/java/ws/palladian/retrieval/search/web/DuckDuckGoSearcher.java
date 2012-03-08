@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -106,7 +107,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.get();
     }
 
-    public static void main(String[] args) throws HttpException, JSONException {        
+    public static void main(String[] args) throws SearcherException  {        
         DuckDuckGoSearcher ddg = new DuckDuckGoSearcher();
         List<String> urls = ddg.searchUrls("cinefreaks", 5);
         CollectionHelper.print(urls);
