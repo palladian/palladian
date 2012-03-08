@@ -614,8 +614,8 @@ public class WordTransformer {
 
     public static void main(String[] args) {
 
-        System.out.println(WordTransformer.stemEnglishWord("bleed"));
-        System.out.println(WordTransformer.getThirdPersonSingular("ran"));
+//        System.out.println(WordTransformer.stemEnglishWord("bleed"));
+        System.out.println(WordTransformer.getThirdPersonSingular("cross"));
         System.exit(0);
 
         // 335ms

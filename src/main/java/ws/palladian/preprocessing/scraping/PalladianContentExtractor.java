@@ -115,9 +115,16 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
         // shortestMatchingXPath =
         // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
-        resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
+        //resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
+//        shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]";
+//        shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]//tr//xhtml:td[2]//xhtml:blockquote[2]";
+        //shortestMatchingXPath = "//xhtml:tr";
+//        HtmlHelper.printDom(document);
+//        System.out.println(HtmlHelper.documentToString(document));
+        resultNode = XPathHelper.getXhtmlNode(getDocument(), shortestMatchingXPath);
         if (resultNode == null) {
-            LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI());
+            //System.out.println(content);
+            LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
             return;
         }
 
@@ -297,6 +304,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
+     * <p>
+     * Try to find the correct image dimensions of all extracted images. Do that only for images that had no "width" and
+     * "height" attributes in the image tag. Note that other images might have different real dimensions and might have
+     * been scaled using the HTML attributes.
+     * </p>
+     */
+    public void analyzeImages() {
+
+        for (WebImage webImage : getImages()) {
+            if (webImage.getWidth() == 0) {
+                BufferedImage image = ImageHandler.load(webImage.getUrl());
+                webImage.setWidth(image.getWidth());
+                webImage.setHeight(image.getHeight());
+            }
+        }
+
+    }
+
+    
+    /**
      * @param args
      * @throws PageContentExtractorException
      */
@@ -316,12 +343,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         //WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         // pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
-        pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
-        pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
+//        pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
+//        pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
+        pe.setDocument("http://slotmachinebasics.com/");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title:"+pe.getResultTitle());
-        // System.out.println("Result Text: "+pe.getResultText());
+        System.out.println("Result Text: "+pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(
@@ -345,24 +373,4 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // System.out.println(pe.getMainContentText());
 
     }
-
-    /**
-     * <p>
-     * Try to find the correct image dimensions of all extracted images. Do that only for images that had no "width" and
-     * "height" attributes in the image tag. Note that other images might have different real dimensions and might have
-     * been scaled using the HTML attributes.
-     * </p>
-     */
-    public void analyzeImages() {
-
-        for (WebImage webImage : getImages()) {
-            if (webImage.getWidth() == 0) {
-                BufferedImage image = ImageHandler.load(webImage.getUrl());
-                webImage.setWidth(image.getWidth());
-                webImage.setHeight(image.getHeight());
-            }
-        }
-
-    }
-
 }
