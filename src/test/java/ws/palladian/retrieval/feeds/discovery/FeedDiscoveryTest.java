@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class FeedDiscoveryTest {
 

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>

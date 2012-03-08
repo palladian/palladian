@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.LingPipeSentenceDetector;

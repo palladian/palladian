@@ -5,6 +5,9 @@ import java.io.InputStream;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringOutputStream;
+
 /**
  * This class should provide convinience methods for interacting with the OS functionality.
  * 

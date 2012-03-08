@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 import com.sun.syndication.io.XmlReader;
 

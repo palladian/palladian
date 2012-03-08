@@ -7,8 +7,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 public abstract class KeyphraseExtractor {
 

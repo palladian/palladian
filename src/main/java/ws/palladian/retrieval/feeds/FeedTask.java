@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -344,7 +344,7 @@ public final class FeedReader {
 
         final AtomicInteger newItems = new AtomicInteger();
 
-        FeedProcessingAction processingAction = new FeedProcessingAction() {
+        FeedProcessingAction processingAction = new DefaultFeedProcessingAction() {
 
             @Override
             public boolean performAction(Feed feed, HttpResult httpResult) {
@@ -354,23 +354,6 @@ public final class FeedReader {
                 return true;
             }
 
-            @Override
-            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return true;
-            }
-
-            @Override
-            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            @Override
-            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
         };
         setFeedProcessingAction(processingAction);
         startContinuousReading(duration);
@@ -521,28 +504,7 @@ public final class FeedReader {
         feedStore.addFeed(new Feed("http://lifehacker.com/excerpts.xml"));
         FeedReader feedReader = new FeedReader(feedStore);
         feedReader.setUpdateStrategy(new MAVSynchronizationUpdateStrategy(), false);
-        feedReader.setFeedProcessingAction(new FeedProcessingAction() {
-
-            @Override
-            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-                return true;
-            }
-
-            @Override
-            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
-                return true;
-            }
-
-            @Override
-            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
-                return true;
-            }
-
-            @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                return true;
-            }
-        });
+        feedReader.setFeedProcessingAction(new DefaultFeedProcessingAction());
         feedReader.startContinuousReading();
         System.exit(0);
 

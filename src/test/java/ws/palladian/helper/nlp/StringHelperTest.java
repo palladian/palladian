@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * Test cases for the StringHelper class.

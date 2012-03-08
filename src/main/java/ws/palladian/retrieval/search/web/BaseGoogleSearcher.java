@@ -10,8 +10,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -40,7 +42,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<R> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
@@ -73,9 +75,11 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
                 }
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
 
         LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
@@ -89,7 +93,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      */
     protected abstract String getBaseUrl();
 
-    private String getRequestUrl(String query, WebSearcherLanguage language, int start) {
+    private String getRequestUrl(String query, Language language, int start) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(getBaseUrl());
         queryBuilder.append("?v=1.0");
@@ -106,15 +110,12 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         return queryBuilder.toString();
     }
 
-    private JSONObject getResponseData(String query, WebSearcherLanguage language, int offset) throws HttpException,
+    private JSONObject getResponseData(String query, Language language, int offset) throws HttpException,
             JSONException {
         String requestUrl = getRequestUrl(query, language, offset);
         HttpResult httpResult = retriever.httpGet(requestUrl);
         String jsonString = new String(httpResult.getContent());
         JSONObject jsonObject = new JSONObject(jsonString);
-        if (!jsonObject.has("responseData")) {
-            // TODO throw some exception
-        }
         return jsonObject.getJSONObject("responseData");
     }
 
@@ -125,7 +126,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param language
      * @return
      */
-    private String getLanguageString(WebSearcherLanguage language) {
+    private String getLanguageString(Language language) {
         switch (language) {
             case GERMAN:
                 return "lang_de";
@@ -180,15 +181,17 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getTotalResultCount(String query) {
+    public int getTotalResultCount(String query) throws SearcherException {
         int hitCount = 0;
         try {
             JSONObject responseData = getResponseData(query, null, 0);
             hitCount = getResultCount(responseData);
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
         return hitCount;
     }

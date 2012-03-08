@@ -18,7 +18,7 @@ import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader.ArffReader;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * Provides date Instances for weka learner classifier.

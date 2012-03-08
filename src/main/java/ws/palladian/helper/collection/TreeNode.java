@@ -1,4 +1,4 @@
-package ws.palladian.helper.html;
+package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of

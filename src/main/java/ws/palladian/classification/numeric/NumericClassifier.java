@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instances;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * The classifier is an abstract class that provides basic methods used by concrete classifiers.
