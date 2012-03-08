@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -18,6 +19,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -45,7 +47,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> result = new ArrayList<WebResult>();
 
@@ -56,6 +58,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
             paging: for (int page = 0; page <= numPages; page++) {
 
+                // TODO really necessary to use https here?
                 String requestUrl = "https://www.google.com/search?hl=en&safe=off&output=search&start="
                         + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
                 HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -66,9 +69,8 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
                 List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
 
                 if (linkNodes.size() != infoNodes.size()) {
-                    LOGGER.fatal("The returned document structure is not as expected, probably the scraper needs to be updated");
-                    // throw new IllegalStateException(
-                    // "The returned document structure is not as expected, probably the scraper needs to be updated");
+                    throw new SearcherException(
+                            "The returned document structure is not as expected, most likely the scraping implementation needs to be updated. (number of info items should be equal to number of links)");
                 }
 
                 Iterator<Node> linkIterator = linkNodes.iterator();
@@ -98,9 +100,11 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
             }
 
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (ParserException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Error parsing the HTML response while searching for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage(), e);
         }
 
         return result;
@@ -121,7 +125,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.get();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SearcherException {
         ScroogleSearcher scroogleSearcher = new ScroogleSearcher();
         // List<String> urls = scroogleSearcher.searchUrls("capital germany", 11);
         List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);

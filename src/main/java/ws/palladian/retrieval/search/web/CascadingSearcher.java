@@ -5,6 +5,8 @@ import java.util.List;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -36,7 +38,7 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
 
@@ -59,8 +61,9 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
      * </p>
      * 
      * @param args
+     * @throws SearcherException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SearcherException {
         List<WebSearcher<WebResult>> searchers = new ArrayList<WebSearcher<WebResult>>();
         searchers.add(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()));
         searchers.add(new ScroogleSearcher());

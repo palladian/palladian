@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 

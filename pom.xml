@@ -41,7 +41,6 @@
 					<argLine>-Xms256m -Xmx1024m</argLine>
 					<excludes>
 						<exclude>**/DictionaryDBIndexTest.java</exclude>
-						<exclude>**/FeedCheckerTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

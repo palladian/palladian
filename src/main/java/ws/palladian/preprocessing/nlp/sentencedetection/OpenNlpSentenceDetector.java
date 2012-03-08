@@ -16,8 +16,8 @@ import opennlp.tools.util.Span;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.PositionAnnotation;

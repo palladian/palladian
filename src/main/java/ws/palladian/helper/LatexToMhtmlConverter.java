@@ -25,6 +25,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.multimedia.ImageHandler;
 import ws.palladian.preprocessing.multimedia.PdfToImageConverter;

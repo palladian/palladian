@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.ParserException;
 
 /**

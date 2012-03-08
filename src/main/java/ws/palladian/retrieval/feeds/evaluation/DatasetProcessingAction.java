@@ -7,21 +7,21 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
-class DatasetProcessingAction extends FeedProcessingAction {
+class DatasetProcessingAction extends DefaultFeedProcessingAction {
     
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetProcessingAction.class);

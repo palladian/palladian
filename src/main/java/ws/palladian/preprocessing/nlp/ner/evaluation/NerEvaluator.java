@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
 import ws.palladian.preprocessing.nlp.ner.tagger.OpenNlpNer;

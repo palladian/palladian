@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.io;
 
 import java.io.IOException;
 import java.io.OutputStream;

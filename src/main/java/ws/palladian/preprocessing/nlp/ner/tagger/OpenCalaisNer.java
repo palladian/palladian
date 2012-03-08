@@ -19,9 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;

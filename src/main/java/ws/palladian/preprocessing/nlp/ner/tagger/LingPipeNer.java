@@ -15,8 +15,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.external.lingpipe.Conll2002ChunkTagParser;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.Entity;

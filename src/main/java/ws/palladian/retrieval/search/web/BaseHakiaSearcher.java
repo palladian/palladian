@@ -10,16 +10,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.XmlParser;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -36,7 +37,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.hakia.key";
-    
+
     private static final String DATE_PATTERN = "MM-dd-yyyy HH:mm:ss";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
@@ -74,54 +75,67 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
-
-        List<WebResult> webResults = new ArrayList<WebResult>();
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         String requestUrl = buildRequestUrl(query, resultCount);
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(requestUrl);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                    + "(request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
+        }
 
+        TOTAL_REQUEST_COUNT.incrementAndGet();
+        Document resultDocument;
+        try {
+            resultDocument = xmlParser.parse(httpResult);
+        } catch (ParserException e) {
+            throw new SearcherException("Error parsing the XML response for query \"" + query + "\" with " + getName()
+                    + "(request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
+        }
+
+        return extractWebResults(resultDocument, resultCount);
+    }
+
+    /**
+     * @param resultDocument
+     * @param resultCount
+     * @return
+     * @throws SearcherException
+     */
+    private List<WebResult> extractWebResults(Document resultDocument, int resultCount) throws SearcherException {
         // TODO need to set correct TimeZone?
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
+        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<Node> resultNodes = XPathHelper.getNodes(resultDocument, "//Result");
 
-        try {
+        for (Node resultNode : resultNodes) {
 
-            HttpResult httpResult = retriever.httpGet(requestUrl);
-            TOTAL_REQUEST_COUNT.incrementAndGet();
-            Document resultDocument = xmlParser.parse(httpResult);
+            String url = XPathHelper.getChildNode(resultNode, "Url").getTextContent();
+            String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
+            String summary = XPathHelper.getChildNode(resultNode, "Paragraph").getTextContent();
 
-            List<Node> resultNodes = XPathHelper.getNodes(resultDocument, "//Result");
-
-            for (Node resultNode : resultNodes) {
-
-                String url = XPathHelper.getChildNode(resultNode, "Url").getTextContent();
-                String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
-                String summary = XPathHelper.getChildNode(resultNode, "Paragraph").getTextContent();
-
-                // date is only available for hakia news
-                Node dateNode = XPathHelper.getChildNode(resultNode, "Date");
-                Date date = null;
-                if (dateNode != null) {
-                    String dateString = dateNode.getTextContent();
+            // date is only available for hakia news
+            Node dateNode = XPathHelper.getChildNode(resultNode, "Date");
+            Date date = null;
+            if (dateNode != null) {
+                String dateString = dateNode.getTextContent();
+                try {
                     date = dateFormat.parse(dateString);
-                }
-
-                WebResult webResult = new WebResult(url, title, summary, date);
-                LOGGER.debug("hakia retrieved " + webResult);
-                webResults.add(webResult);
-
-                if (webResults.size() >= resultCount) {
-                    break;
+                } catch (ParseException e) {
+                    throw new SearcherException("Error parsing the search result's date (" + dateString + ") at "
+                            + getName() + ": " + e.getMessage(), e);
                 }
             }
 
-        } catch (HttpException e) {
-            LOGGER.error(e);
-        } catch (DOMException e) {
-            LOGGER.error(e);
-        } catch (ParserException e) {
-            LOGGER.error(e);
-        } catch (ParseException e) {
-            LOGGER.error(e);
+            WebResult webResult = new WebResult(url, title, summary, date);
+            LOGGER.debug("hakia retrieved " + webResult);
+            webResults.add(webResult);
+
+            if (webResults.size() >= resultCount) {
+                break;
+            }
         }
         return webResults;
     }

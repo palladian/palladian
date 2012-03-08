@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -43,7 +44,7 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
     }
 
     @Override
-    protected String getRequestUrl(String query, String sourceType, WebSearcherLanguage language, int offset, int count) {
+    protected String getRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("http://api.bing.net/json.aspx");
         queryBuilder.append("?AppId=").append(apiKey);
