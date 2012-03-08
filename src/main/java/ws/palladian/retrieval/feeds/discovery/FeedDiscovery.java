@@ -42,6 +42,7 @@ import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -136,15 +137,16 @@ public class FeedDiscovery {
             throw new IllegalStateException("No WebSearcher defined.");
         }
 
-        // set maximum number of expected results
-        // set search result language to english
-
-        List<String> resultUrls = webSearcher.searchUrls(query, totalResults, WebSearcherLanguage.ENGLISH);
-
         Set<String> sites = new HashSet<String>();
-        for (String resultUrl : resultUrls) {
-            sites.add(UrlHelper.getDomain(resultUrl));
+        try {
+            List<String> resultUrls = webSearcher.searchUrls(query, totalResults, WebSearcherLanguage.ENGLISH);
+            for (String resultUrl : resultUrls) {
+                sites.add(UrlHelper.getDomain(resultUrl));
+            }
+        } catch (SearcherException e) {
+            LOGGER.error("Searcher Exception: " + e.getMessage());
         }
+
 
         return sites;
     }

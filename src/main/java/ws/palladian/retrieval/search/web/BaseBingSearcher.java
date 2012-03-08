@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -28,13 +29,12 @@ import ws.palladian.retrieval.HttpResult;
  */
 abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.bing.key";
-    
+
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
@@ -69,7 +69,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
@@ -110,9 +110,11 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage(), e);
         }
 
         LOGGER.debug("bing requests: " + TOTAL_REQUEST_COUNT.get());
@@ -216,7 +218,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public int getTotalResultCount(String query, WebSearcherLanguage language) {
+    public int getTotalResultCount(String query, WebSearcherLanguage language) throws SearcherException {
         int hitCount = 0;
         try {
             String sourceType = getSourceType();
@@ -224,9 +226,11 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
             JSONObject responseData = getResponseData(requestUrl, sourceType);
             hitCount = responseData.getInt("Total");
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
         return hitCount;
     }

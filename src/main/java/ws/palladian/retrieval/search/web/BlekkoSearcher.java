@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -67,7 +68,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
         int pageSize = Math.min(resultCount, 100);
@@ -109,9 +110,11 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
             }
 
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage(), e);
         }
 
         return webResults;

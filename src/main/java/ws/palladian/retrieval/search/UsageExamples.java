@@ -15,9 +15,9 @@ import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 public class UsageExamples {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SearcherException {
 
-        // new searchers should be created by the SearcherFactory, which must be proveded with a configuration
+        // new searchers should be created by the SearcherFactory, which must be provided with a configuration
         Configuration config = ConfigHolder.getInstance().getConfig();
 
         // create a web searcher for the Bing search engine

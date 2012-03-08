@@ -1,12 +1,9 @@
 package ws.palladian.retrieval.search;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 
-import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
@@ -141,19 +138,6 @@ public final class SearcherFactory {
         logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
 
         return logs.toString();
-    }
-
-    public static void main(String[] args) {
-
-        Configuration config = ConfigHolder.getInstance().getConfig();
-
-        // searchers can be created by Class type, or by fully qualified class name (no type-safety in this case)
-        Searcher<WebResult> searcher = SearcherFactory.createWebSearcher(
-                "ws.palladian.retrieval.search.web.BingSearcher", config);
-
-        List<WebResult> result = searcher.search("apple", 50);
-        CollectionHelper.print(result);
-
     }
 
 }
