@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.FileNotFoundException;
 
@@ -8,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -60,5 +63,25 @@ public class NekoHtmlParserTest {
     @Ignore
     public void testNeko3109537() throws FileNotFoundException, ParserException {
         htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTestcase3109537.html"));
+    }
+
+    /**
+     * <p>
+     * Originally, NekoHTML does set the namespace when inserting elements.
+     * </p>
+     * 
+     * @see https://bitbucket.org/palladian/palladian/issue/29/tr-fix-for-neko-html
+     * @throws FileNotFoundException
+     * @throws ParserException
+     */
+    @Test
+    @Ignore(value = "Still needs to be fixed")
+    public void testNekoTrNamespace() throws FileNotFoundException, ParserException {
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTrNamespaceTest.html"));
+        Node node = XPathHelper.getNode(document, "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]");
+        assertNotNull(node);
+        
+        node = XPathHelper.getNode(document, "//xhtml:div[1]/xhtml:table[3]/tr[1]/xhtml:td[2]/xhtml:blockquote[2]");
+        assertNull(node);
     }
 }
