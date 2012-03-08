@@ -12,8 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 import com.lingway.ld.GramTree;
 

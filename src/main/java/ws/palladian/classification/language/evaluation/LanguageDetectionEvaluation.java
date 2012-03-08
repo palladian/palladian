@@ -11,8 +11,8 @@ import ws.palladian.classification.language.LanguageClassifier;
 import ws.palladian.classification.language.PalladianLangDetect;
 import ws.palladian.classification.language.TagTheNetLangDetect;
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 
 public class LanguageDetectionEvaluation {

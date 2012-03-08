@@ -33,12 +33,13 @@ import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.EvaluationSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.TreeNode;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.TreeNode;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpRetriever;
@@ -46,7 +47,6 @@ import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * This class loads the training and test data, classifies and stores the results.
@@ -535,7 +535,7 @@ public class ClassifierManager {
             for (String keyword : category.getValue()) {
                 List<String> urls = Collections.emptyList();
                 try {
-                    urls = sr.searchUrls(keyword, 50, WebSearcherLanguage.GERMAN);
+                    urls = sr.searchUrls(keyword, 50, Language.GERMAN);
                 } catch (SearcherException e) {
                     LOGGER.error(e);
                 }

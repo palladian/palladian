@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.collection;
 
 import org.apache.log4j.Logger;
 

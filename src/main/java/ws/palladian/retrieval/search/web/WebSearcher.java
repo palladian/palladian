@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearchResult;
@@ -19,7 +20,7 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
 
-    private static final WebSearcherLanguage DEFAULT_SEARCHER_LANGUAGE = WebSearcherLanguage.ENGLISH;
+    private static final Language DEFAULT_SEARCHER_LANGUAGE = Language.ENGLISH;
 
     protected final HttpRetriever retriever;
 
@@ -52,7 +53,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    public List<String> searchUrls(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException {
         List<String> urls = new ArrayList<String>();
 
         List<R> webresults = search(query, resultCount, language);
@@ -82,7 +83,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    public abstract List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException;
+    public abstract List<R> search(String query, int resultCount, Language language) throws SearcherException;
 
     @Override
     public int getTotalResultCount(String query) throws SearcherException {
@@ -99,7 +100,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    public int getTotalResultCount(String query, WebSearcherLanguage language) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         throw new UnsupportedOperationException("not supported for this searcher");
     }
 

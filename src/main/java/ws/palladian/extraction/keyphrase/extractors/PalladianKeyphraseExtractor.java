@@ -30,8 +30,8 @@ import ws.palladian.extraction.keyphrase.Token;
 import ws.palladian.extraction.keyphrase.TokenizerPlus;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.ReRankingMode;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * 

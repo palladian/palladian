@@ -15,7 +15,7 @@ import weka.core.SerializationHelper;
 import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * FIXME {@link #testGetAllBestRatedDate()} and {@link #testGetAllDates()} fail, after Document parser has been changed

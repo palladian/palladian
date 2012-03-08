@@ -9,7 +9,7 @@ import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.numeric.NumericInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 

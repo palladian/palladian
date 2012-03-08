@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.SearcherException;
@@ -41,7 +42,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<R> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
@@ -92,7 +93,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      */
     protected abstract String getBaseUrl();
 
-    private String getRequestUrl(String query, WebSearcherLanguage language, int start) {
+    private String getRequestUrl(String query, Language language, int start) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(getBaseUrl());
         queryBuilder.append("?v=1.0");
@@ -109,7 +110,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         return queryBuilder.toString();
     }
 
-    private JSONObject getResponseData(String query, WebSearcherLanguage language, int offset) throws HttpException,
+    private JSONObject getResponseData(String query, Language language, int offset) throws HttpException,
             JSONException {
         String requestUrl = getRequestUrl(query, language, offset);
         HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -125,7 +126,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param language
      * @return
      */
-    private String getLanguageString(WebSearcherLanguage language) {
+    private String getLanguageString(Language language) {
         switch (language) {
             case GERMAN:
                 return "lang_de";

@@ -6,12 +6,12 @@ import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.GoogleImageSearcher;
 import ws.palladian.retrieval.search.web.WebImageResult;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 public class UsageExamples {
 
@@ -23,7 +23,7 @@ public class UsageExamples {
         // create a web searcher for the Bing search engine
         WebSearcher<WebResult> searcher = SearcherFactory.createSearcher(BingSearcher.class, config);
         // search for "Jim Carrey", 50 results, English language
-        List<WebResult> webResults = searcher.search("Jim Carrey", 50, WebSearcherLanguage.ENGLISH);
+        List<WebResult> webResults = searcher.search("Jim Carrey", 50, Language.ENGLISH);
         // print the results
         CollectionHelper.print(webResults);
 

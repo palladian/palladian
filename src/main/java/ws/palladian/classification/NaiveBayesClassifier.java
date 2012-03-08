@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
 
 /**
