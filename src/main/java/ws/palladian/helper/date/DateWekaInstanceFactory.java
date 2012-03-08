@@ -13,8 +13,8 @@ import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.StringOutputStream;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringOutputStream;
 
 /**
  * Creates an instance for WEKA classifier out of a ContentDate.

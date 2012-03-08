@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 /**
  * This class separates a given training set into a training set and a evaluation set. 
  * 

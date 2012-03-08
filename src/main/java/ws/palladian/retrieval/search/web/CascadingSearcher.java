@@ -5,6 +5,7 @@ import java.util.List;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -37,7 +38,7 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
 

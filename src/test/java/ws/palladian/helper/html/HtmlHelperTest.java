@@ -11,8 +11,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;

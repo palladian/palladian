@@ -10,7 +10,7 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 public class DictionaryFileIndexTest {
 

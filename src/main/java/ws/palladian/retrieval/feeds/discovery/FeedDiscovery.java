@@ -28,13 +28,14 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -46,7 +47,6 @@ import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * <p>
@@ -139,7 +139,7 @@ public class FeedDiscovery {
 
         Set<String> sites = new HashSet<String>();
         try {
-            List<String> resultUrls = webSearcher.searchUrls(query, totalResults, WebSearcherLanguage.ENGLISH);
+            List<String> resultUrls = webSearcher.searchUrls(query, totalResults, Language.ENGLISH);
             for (String resultUrl : resultUrls) {
                 sites.add(UrlHelper.getDomain(resultUrl));
             }

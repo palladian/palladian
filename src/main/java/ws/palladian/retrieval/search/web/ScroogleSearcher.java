@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -46,7 +47,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> result = new ArrayList<WebResult>();
 

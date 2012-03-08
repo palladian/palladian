@@ -53,11 +53,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringInputStream;
-import ws.palladian.helper.StringOutputStream;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.helper.io.StringOutputStream;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 

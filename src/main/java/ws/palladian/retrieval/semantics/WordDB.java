@@ -19,9 +19,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.h2.tools.RunScript;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LoremIpsumGenerator;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**

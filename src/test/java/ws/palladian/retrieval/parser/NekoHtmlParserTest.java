@@ -9,8 +9,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class NekoHtmlParserTest {
 

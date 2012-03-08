@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.SearcherException;
@@ -69,7 +70,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public List<R> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<R> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
@@ -182,7 +183,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param count the number of results to retrieve.
      * @return
      */
-    protected String getRequestUrl(String query, String sourceType, WebSearcherLanguage language, int offset, int count) {
+    protected String getRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("http://api.bing.net/json.aspx");
         queryBuilder.append("?AppId=").append(apiKey);
@@ -202,14 +203,14 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /**
      * <p>
-     * Transform the {@link WebSearcherLanguage} into a string identifier. See Bing API documentation for available
+     * Transform the {@link Language} into a string identifier. See Bing API documentation for available
      * language codes.
      * </p>
      * 
      * @param language
      * @return
      */
-    protected String getLanguageString(WebSearcherLanguage language) {
+    protected String getLanguageString(Language language) {
         switch (language) {
             case GERMAN:
                 return "de-de";
@@ -218,7 +219,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     @Override
-    public int getTotalResultCount(String query, WebSearcherLanguage language) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         int hitCount = 0;
         try {
             String sourceType = getSourceType();

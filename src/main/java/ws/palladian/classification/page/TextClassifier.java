@@ -19,9 +19,9 @@ import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 

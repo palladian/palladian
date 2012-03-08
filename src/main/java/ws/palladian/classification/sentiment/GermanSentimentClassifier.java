@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 

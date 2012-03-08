@@ -1,4 +1,6 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.helper.constants;
+
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -7,7 +9,7 @@ package ws.palladian.retrieval.search.web;
  * 
  * @author Philipp Katz
  */
-public enum WebSearcherLanguage {
+public enum Language {
 
     ENGLISH, GERMAN;
 

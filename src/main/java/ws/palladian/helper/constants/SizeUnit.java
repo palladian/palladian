@@ -1,4 +1,4 @@
-package ws.palladian.helper.math;
+package ws.palladian.helper.constants;
 
 
 /**

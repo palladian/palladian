@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFImageWriter;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>

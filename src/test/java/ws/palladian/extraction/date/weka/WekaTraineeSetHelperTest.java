@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import weka.core.Instances;
 import ws.palladian.extraction.date.evaluation.weka.WekaTraineeSetHelper;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class WekaTraineeSetHelperTest {
     

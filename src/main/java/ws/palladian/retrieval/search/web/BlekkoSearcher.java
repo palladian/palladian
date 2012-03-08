@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.SearcherException;
@@ -68,7 +69,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) throws SearcherException {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
         int pageSize = Math.min(resultCount, 100);

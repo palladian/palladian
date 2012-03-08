@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -14,7 +15,6 @@ import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.TwitterSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * <p>
@@ -36,10 +36,10 @@ public class CoOccurrenceRetriever {
     /** The number of results to analyze per searcher. */
     private int numberOfResults = 10;
     
-    private WebSearcherLanguage language;
+    private Language language;
 
     public CoOccurrenceRetriever(CoOccurrenceContext coOccurrenceContext, int numberOfResults,
-            WebSearcherLanguage language) {
+            Language language) {
         this.coOccurrenceContext = coOccurrenceContext;
         this.numberOfResults = numberOfResults;
         this.language = language;
@@ -157,7 +157,7 @@ public class CoOccurrenceRetriever {
      */
     public static void main(String[] args) {
         CoOccurrenceRetriever coOccurrenceRetriever = new CoOccurrenceRetriever(CoOccurrenceContext.CONTEXT_200_CHARS,
-                10, WebSearcherLanguage.GERMAN);
+                10, Language.GERMAN);
         
         Collection<WebSearcher<WebResult>> searchers = new HashSet<WebSearcher<WebResult>>();
         searchers.add(new GoogleSearcher());

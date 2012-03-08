@@ -11,7 +11,7 @@ import org.apache.commons.collections15.bag.HashBag;
 import ws.palladian.classification.FastWordCorrelationMatrix;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.WordCorrelationMatrix;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * The corpus which can be serialized. It contains: all known phrases in the document collection, list of human assigned

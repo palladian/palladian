@@ -2,7 +2,7 @@ package ws.palladian.preprocessing.nlp.ner;
 
 import java.io.File;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 public class StringTagger {
 

@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.SequentialPattern;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;

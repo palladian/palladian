@@ -20,14 +20,15 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.DatasetCreatorInterface;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
@@ -44,7 +45,6 @@ import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.
@@ -361,7 +361,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         String query = "\"" + seedEntity + "\" " + conceptName.toLowerCase();
         List<String> result = Collections.emptyList();
         try {
-            result = searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
+            result = searcher.searchUrls(query, getMentionsPerEntity(), Language.ENGLISH);
         } catch (SearcherException e) {
             LOGGER.error(e);
         }

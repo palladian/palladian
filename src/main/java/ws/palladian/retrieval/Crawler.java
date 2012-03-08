@@ -9,8 +9,8 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.Callback;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * A simple web crawler which can crawl web pages within a domain or crawl cross domain.
