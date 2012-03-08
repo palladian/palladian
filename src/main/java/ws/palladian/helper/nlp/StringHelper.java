@@ -2,6 +2,7 @@ package ws.palladian.helper.nlp;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -598,7 +599,7 @@ public class StringHelper {
     /**
      * Checks if is number.
      * 
-     * @param string the string
+     * @param string The string to check.
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
@@ -620,6 +621,24 @@ public class StringHelper {
         }
 
         return isNumber;
+    }
+
+    public static boolean isNumberOrNumberWord(String string) {
+        if (string.length() == 0) {
+            return false;
+        }
+
+        if (isNumber(string)) {
+            return true;
+        }
+
+        string = StringHelper.trim(string).toLowerCase();
+
+        Set<String> set = new HashSet<String>();
+        set.addAll(Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "eleven", "twelve"));
+
+        return set.contains(string);
     }
 
     /**

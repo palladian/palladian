@@ -9,6 +9,18 @@ public class ConfusionMatrix extends Matrix {
         super();
     }
 
+    public void increment(Object x, Object y) {
+
+        Number count = (Number)get(x, y);
+        if (count == null) {
+            set(x, y, new Integer(1));
+        } else {
+            count = count.intValue() + 1;
+            set(x, y, count);
+        }
+
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

@@ -252,6 +252,8 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
         StopWatch sw = new StopWatch();
 
         if (categories == null) {
+            // FIX this is a problem since training instances are transient and after loading the model it will crash
+            // here, training instances should be transient though
             getPossibleCategories(getTrainingInstances());
         }
 

@@ -143,7 +143,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
                 mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
             }
 
-        } else if (instance.getInstanceCategory() != null && instance.getInstanceCategoryName().equals("CANDIDATE")) {
+        } else {
 
             // merge classification results
             if (isUseTextClassifier()) {
@@ -207,7 +207,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         // train the numeric classifier
         if (isUseTextClassifier()) {
-            getTextClassifier().train();
+            getTextClassifier().train(getTrainingInstances());
         }
 
         // train the numeric classifier
@@ -217,6 +217,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         // train the nominal classifier
         if (isUseNominalClassifier()) {
+            getNominalClassifier().setTrainingInstances(getTrainingInstances());
             getNominalClassifier().train();
         }
 
