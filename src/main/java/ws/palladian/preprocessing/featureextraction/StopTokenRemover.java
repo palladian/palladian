@@ -42,10 +42,10 @@ public class StopTokenRemover extends TokenRemover {
     public StopTokenRemover(Language language) {
         switch (language) {
             case ENGLISH:
-                stopwords = loadStopwordsResource("stopwords_en.txt");
+                stopwords = loadStopwordsResource("/stopwords_en.txt");
                 break;
             case GERMAN:
-                stopwords = loadStopwordsResource("stopwords_de.txt");
+                stopwords = loadStopwordsResource("/stopwords_de.txt");
                 break;
             default:
                 stopwords = Collections.emptySet();
@@ -72,6 +72,9 @@ public class StopTokenRemover extends TokenRemover {
 
     private Set<String> loadStopwordsResource(String resourcePath) {
         InputStream is = StopTokenRemover.class.getResourceAsStream(resourcePath);
+        if (is == null) {
+            throw new IllegalStateException("Resource \"" + resourcePath + "\" not found.");
+        }
         return loadStopwords(new InputStreamReader(is));
     }
 
