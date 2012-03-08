@@ -29,6 +29,7 @@ import ws.palladian.preprocessing.PipelineDocument;
 
 /**
  * This classifier builds a weighed term look up table for the categories to classify new documents.
+ * XXX add second dictionary: p(at|the), p(the|at) to counter the problem of sparse categories
  * 
  * @author David Urbansky
  */
@@ -393,6 +394,8 @@ public class DictionaryClassifier extends TextClassifier {
             bestFitList.add(c);
         }
 
+        // dictionary.calculateCategoryPriors();
+
         // count the number of categories that are somehow relevant for the current document
         // Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
 
@@ -469,6 +472,24 @@ public class DictionaryClassifier extends TextClassifier {
                         // use relevance
                         c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()
                                 * categoryEntry.getRelevance());
+
+                        // if (weightedTerm.getKey().getText().equalsIgnoreCase("the")) {
+                        // System.out.println("the");
+                        // System.out.println("appears " + categoryEntry.getAbsoluteRelevance() + " times in "
+                        // + categoryEntry.getCategory().getName());
+                        // System.out.println("that is " + categoryEntry.getAbsoluteRelevance() + " out of "
+                        // + categoryEntry.getCategory().getFrequency() + " times the category occurs");
+                        // }
+
+                        // weight by category prior
+                        // double relevanceToAdd = weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // / categoryEntry.getCategory().getPrior();
+                        // c.addAbsoluteRelevance(relevanceToAdd);
+                        //
+                        // categoryEntry.getCategory().getFrequency();
+
+                        // c.multAbsRel(weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // * categoryEntry.getRelevance());
 
                         // double idf = categoryEntry.getAbsoluteRelevance() / (double)
                         // dictionary.getNumberOfDocuments();

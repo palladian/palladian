@@ -95,8 +95,8 @@ public class CategoryEntry implements Serializable {
     }
 
     public void multAbsRel(double factor) {
-        this.categoryEntries.setRelevancesUpToDate(false);
         this.absoluteRelevance *= factor;
+        this.categoryEntries.setRelevancesUpToDate(false);
     }
 
     protected void setRelativeRelevance(double relevance) {
@@ -108,9 +108,9 @@ public class CategoryEntry implements Serializable {
     }
 
     public void addAbsoluteRelevance(double value) {
+        this.absoluteRelevance += value;
         // If a CategoryEntry is entered, the relative relevances are not up to date anymore.
         this.categoryEntries.setRelevancesUpToDate(false);
-        this.absoluteRelevance += value;
     }
 
     public CategoryEntries getCategoryEntries() {

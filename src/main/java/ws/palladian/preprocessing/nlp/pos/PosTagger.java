@@ -22,6 +22,9 @@ public abstract class PosTagger {
     /** Model for open nlp pos-tagging. */
     private Object model = null;
 
+    /** The model. **/
+    protected transient String MODEL;
+
     /** Name for the POS Tagger. */
     private String name = "unknown";
 
@@ -75,6 +78,11 @@ public abstract class PosTagger {
         return sb.toString();
     }
 
+    protected String normalizeTag(String tag) {
+        // return tag.replaceAll("(-|\\+).*", "");
+        return tag.replaceAll("-.*", "");
+    }
+
     /**
      * Loads a default PoS tagging model. Method returns <code>this</code> instance of {@code AbstractPOSTagger},
      * to allow convenient
@@ -83,7 +91,9 @@ public abstract class PosTagger {
      * 
      * @return This object for method chaining.
      */
-    public abstract PosTagger loadModel();
+    public PosTagger loadModel() {
+        return this.loadModel(MODEL);
+    }
 
 
     /**
