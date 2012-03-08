@@ -50,4 +50,34 @@
 			<property name="eclipselink.target-database" value="MySQL" />
 		</properties>
 	</persistence-unit>
+	<persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>ws.palladian.iirmodel.Item</class>
+		<class>ws.palladian.iirmodel.StreamSource</class>
+		<class>ws.palladian.iirmodel.ItemStream</class>
+		<class>ws.palladian.iirmodel.StreamGroup</class>
+		<class>ws.palladian.iirmodel.Author</class>
+		<class>ws.palladian.iirmodel.ItemRelation</class>
+		<class>ws.palladian.iirmodel.RelationType</class>
+		<class>ws.palladian.iirmodel.Label</class>
+		<class>ws.palladian.iirmodel.LabelType</class>
+		<class>ws.palladian.iirmodel.Labeler</class>
+		<properties>
+			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+			<property name="hibernate.connection.username" value="sa" />
+			<property name="hibernate.connection.password" value="" />
+			<property name="hibernate.connection.url" value="jdbc:hsqldb:mem:testdb" />
+			<property name="hibernate.show_sql" value="false" />
+			<property name=”hibernate.connection.provider_class”>org.hibernate.connection.C3P0ConnectionProvider
+			</property>
+			<property name=”hibernate.c3p0.min_size”>0</property>
+			<property name=”hibernate.c3p0.max_size”>30</property>
+			<property name=”hibernate.c3p0.timeout”>600</property>
+			<property name=”hibernate.c3p0.max_statements”>0</property>
+			<property name=”hibernate.c3p0.acquire_increment”>1</property>
+			<property name=”hibernate.c3p0.idle_test_period”>60</property>
+		</properties>
+	</persistence-unit>
 </persistence>
