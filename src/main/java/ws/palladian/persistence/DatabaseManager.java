@@ -6,11 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -93,21 +93,20 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a batch insertion and return the generated insert IDs.
+     * Run a batch insertion. The generated ID for each inserted object is provided via the {@link BatchDataProvider}.
+     * In case an error occurs, the whole batch is rolled back.
      * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param provider A callback, which provides the necessary data for the insertion.
-     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
-     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
-     *         a 0 value.
+     * @return <code>true</code>, if batch insert was successful, <code>false</code> otherwise.
      */
-    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
+    public final boolean runBatchInsert(String sql, BatchDataProvider provider) {
 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<Integer> generatedIds = new ArrayList<Integer>();
+        boolean success = true;
 
         try {
 
@@ -116,34 +115,34 @@ public class DatabaseManager {
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             for (int i = 0; i < provider.getCount(); i++) {
-                List<Object> args = provider.getData(i);
-                fillPreparedStatement(ps, args);
-                ps.addBatch();
+                fillPreparedStatement(ps, provider.getData(i));
+                ps.executeUpdate();
+
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    provider.insertedItem(i, rs.getInt(1));
+                } else {
+                    success = false;
+                    break;
+                }
+
             }
 
-            int[] batchResult = ps.executeBatch();
-            connection.commit();
+            if (success) {
+                connection.commit();
+            } else {
+                connection.rollback();
+            }
+
             connection.setAutoCommit(true);
 
-            // obtain the generated IDs for the inserted items
-            // where no item was inserted, return -1 as ID
-            rs = ps.getGeneratedKeys();
-            for (int result : batchResult) {
-                int id = -1;
-                if (result > 0 && rs.next()) {
-                    id = rs.getInt(1);
-                }
-                generatedIds.add(id);
-            }
-
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql);
         } finally {
             close(connection, ps, rs);
         }
 
-        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
-        return CollectionHelper.toIntArray(array);
+        return success;
     }
 
     /**
@@ -159,6 +158,9 @@ public class DatabaseManager {
      */
     public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
 
+        final int[] result = new int[batchArgs.size()];
+        Arrays.fill(result, 0);
+
         BatchDataProvider provider = new BatchDataProvider() {
 
             @Override
@@ -171,9 +173,15 @@ public class DatabaseManager {
                 List<Object> args = batchArgs.get(number);
                 return args;
             }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                result[number] = generatedId;
+            }
         };
 
-        return runBatchInsertReturnIds(sql, provider);
+        runBatchInsert(sql, provider);
+        return result;
     }
 
     public final int[] runBatchUpdate(String sql, BatchDataProvider provider) {
@@ -199,7 +207,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql);
         } finally {
             close(connection, ps);
         }
@@ -221,6 +229,11 @@ public class DatabaseManager {
                 List<Object> args = batchArgs.get(number);
                 return args;
             }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                // no op.
+            }
         };
 
         return runBatchUpdate(sql, provider);
@@ -228,30 +241,21 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a query which only uses exactly one COUNT. The method then returns the value of that count. For example,
-     * "SELECT COUNT(*) FROM feeds WHERE id > 342".
+     * Run a query which only returns a single {@link Integer} result (i.e. one row, one column). This is handy for
+     * aggregate queries, like <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>,
+     * <code>MIN</code>. Example for such a query: <code>SELECT COUNT(*) FROM feeds WHERE id > 342</code>.
      * </p>
      * 
-     * @param countQuery The query string with the COUNT.
-     * @return The result of the COUNT query. -1 means that there was nothing to count.
+     * @param aggregateQuery The query string for the aggregated integer result.
+     * @return The result of the query, or <code>null</code> if no result.
      */
-    public final int runCountQuery(String countQuery) {
-
-        RowConverter<Integer> converter = new RowConverter<Integer>() {
-
+    public final Integer runAggregateQuery(String aggregateQuery) {
+        return runSingleQuery(new RowConverter<Integer>() {
             @Override
             public Integer convert(ResultSet resultSet) throws SQLException {
                 return resultSet.getInt(1);
             }
-        };
-
-        int count = -1;
-        Integer result = runSingleQuery(converter, countQuery);
-        if (result != null) {
-            count = result;
-        }
-
-        return count;
+        }, aggregateQuery);
     }
 
     /**
@@ -298,7 +302,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            logError(e, sql, args);
             generatedId = -1;
         } finally {
             close(connection, ps, rs);
@@ -307,6 +311,17 @@ public class DatabaseManager {
         return generatedId;
     }
 
+    /**
+     * 
+     * @param query
+     * @param entries
+     * @param args
+     * @return
+     * @deprecated This should be done using {@link #runSingleQuery(RowConverter, String, Object...)} supplying a
+     *             {@link RowConverter} returning an Object[]. There is no need to explicitly specify the number of
+     *             entries.
+     */
+    @Deprecated
     public final Object[] runOneResultLineQuery(String query, final int entries, Object... args) {
 
         final Object[] resultEntries = new Object[entries];
@@ -359,7 +374,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
+            logError(e, sql, args);
         } finally {
             close(connection, ps, rs);
         }
@@ -382,7 +397,9 @@ public class DatabaseManager {
     }
 
     /**
+     * <p>
      * Run a query operation on the database, return the result as List.
+     * </p>
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -485,7 +502,7 @@ public class DatabaseManager {
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            logError(e, sql, args);
             close(connection, ps, resultSet);
         }
 
@@ -573,8 +590,7 @@ public class DatabaseManager {
             affectedRows = ps.executeUpdate();
 
         } catch (SQLException e) {
-            LOGGER.error("Could not update sql \"" + sql + "\" with args \"" + CollectionHelper.getPrint(args)
-                    + "\", error: " + e.getMessage());
+            logError(e, sql, args);
             affectedRows = -1;
         } finally {
             close(connection, ps);
@@ -586,6 +602,25 @@ public class DatabaseManager {
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods
     // //////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * <p>
+     * Log some diagnostics in case of errors. This includes the {@link SQLException} being thrown, the SQL statement
+     * and the arguments, if any.
+     * </p>
+     * 
+     * @param exception
+     * @param sql
+     * @param args The arguments for the SQL query, may be <code>null</code>.
+     */
+    protected static final void logError(SQLException exception, String sql, Object... args) {
+        StringBuilder errorLog = new StringBuilder();
+        errorLog.append("Exception " + exception.getMessage() + " when updating SQL \"" + sql + "\"");
+        if (args != null && args.length > 0) {
+            errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
+        }
+        LOGGER.error(errorLog.toString());
+    }
 
     /**
      * <p>

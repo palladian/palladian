@@ -1,6 +1,8 @@
 package ws.palladian.helper.nlp;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -29,6 +31,23 @@ public class TokenizerTest {
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
         assertEquals(1, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 5).size());
         assertEquals(0, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 6).size());
+    }
+
+    /**
+     * <p>
+     * Test if extraction of spans works correctly or not
+     * </p>
+     */
+    @Test
+    public void testCalculateSpans() {
+        // CollectionHelper.print(Tokenizer.getAllSpans("a b c"));
+        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 3).size(), is(7));
+        // Test a value smaller than the amount of tokens
+        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 1).size(), is(3));
+        // Test a value below 1. Should return the same result as when using 1.
+        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, -10).size(), is(3));
+        // Test a value larger than the maximum amount of tokens. Should return the same result as when using 3.
+        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 20).size(), is(7));
     }
 
     @Test
@@ -128,7 +147,7 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
         assertEquals("Mr. X is sometimes called Mr. X Jr., too!", sentences.get(0));
-        
+
         inputText = "Although, St. Paul is a holy man, he is a man of earth too!";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());

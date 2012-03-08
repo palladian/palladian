@@ -33,12 +33,12 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.helper.nlp.StringHelper;
@@ -1226,7 +1226,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         // number of patterns found
-        int foundPatterns = 0;
+        // int foundPatterns = 0;
 
         // check all context patterns left and right
         for (String contextPattern : contexts) {
@@ -1255,7 +1255,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             }
 
             if (sumOfMatchingPatterns > 0) {
-                foundPatterns++;
+                // foundPatterns++;
             } else {
                 continue;
             }
@@ -1730,7 +1730,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         tagger.loadModel(modelPath);
 
         // load an additional entity dictionary
-        StopWatch sw2 = new StopWatch();
+        // StopWatch sw2 = new StopWatch();
         // Dictionary dict = FileHelper.deserialize("dict.ser.gz");
         // LOGGER.info(sw2.getTotalElapsedTimeString());
         // tagger.setEntityDictionary(dict);

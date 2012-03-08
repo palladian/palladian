@@ -1,7 +1,9 @@
 package ws.palladian.preprocessing.nlp.ner;
 
 /**
+ * <p>
  * Different formats for named entity tagging a text.
+ * </p>
  * 
  * @author David Urbansky
  * 

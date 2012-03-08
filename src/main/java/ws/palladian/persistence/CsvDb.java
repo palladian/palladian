@@ -3,8 +3,8 @@ package ws.palladian.persistence;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 
 /**

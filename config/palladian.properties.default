@@ -132,6 +132,7 @@ api.bitly.key = R_2f0606b6760dd5e567afdf5e4ddbec2d
 api.mixx.key = uoRkXpXlVZBNgQZfn7VR0w
 api.reddit.username = qqilihq
 api.reddit.password = amcocuymzu
+api.readitlater.key = a62g2W68p36ema12fvTc410Td1A1Na62
 
 # access to Collecta XMPP and REST API
 # see: http://developer.collecta.com/APIindex/

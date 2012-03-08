@@ -15,8 +15,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -38,7 +40,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     @Override
-    public List<WebResult> search(String query, int resultCount, WebSearcherLanguage language) {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
         int resultsPerPage = Math.min(100, resultCount);
@@ -48,19 +50,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
             for (int page = 1; page <= numRequests; page++) {
 
                 String requestUrl = buildRequestUrl(query, resultsPerPage, page);
-
-                HttpResult httpResult = retriever.httpGet(requestUrl);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
-
-                int statusCode = httpResult.getStatusCode();
-                if (statusCode == 420) {
-                    LOGGER.error("twitter is currently blocked due to rate limit");
-                    break;
-                }
-                if (statusCode >= 400) {
-                    LOGGER.error("http error " + statusCode);
-                    break;
-                }
+                HttpResult httpResult = performHttpRequest(requestUrl);
 
                 String responseString = new String(httpResult.getContent());
                 LOGGER.debug("response for " + requestUrl + " : " + responseString);
@@ -89,11 +79,14 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 }
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage(), e);
         }
-        LOGGER.info("twitter requests: " + TOTAL_REQUEST_COUNT.get());
+
+        LOGGER.debug("twitter requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
     }
 
@@ -106,6 +99,20 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
             LOGGER.error("error parsing date " + dateString, e);
         }
         return date;
+    }
+
+    private HttpResult performHttpRequest(String requestUrl) throws HttpException, SearcherException {
+        HttpResult httpResult = retriever.httpGet(requestUrl);
+        TOTAL_REQUEST_COUNT.incrementAndGet();
+
+        int statusCode = httpResult.getStatusCode();
+        if (statusCode == 420) {
+            throw new SearcherException("twitter is currently blocked due to rate limit");
+        }
+        if (statusCode >= 400) {
+            throw new SearcherException("HTTP error " + statusCode + " for request URL " + requestUrl);
+        }
+        return httpResult;
     }
 
     /**

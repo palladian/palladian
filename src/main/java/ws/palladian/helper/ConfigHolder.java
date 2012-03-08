@@ -11,6 +11,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.ResourceHelper;
+
 /**
  * <p>
  * Holds the configuration of the framework. This configuration is obtained from an external file called

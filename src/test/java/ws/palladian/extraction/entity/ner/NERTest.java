@@ -9,18 +9,18 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.FileFormatParser;
 import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
-import ws.palladian.preprocessing.nlp.ner.tagger.IllinoisLbjNER;
-import ws.palladian.preprocessing.nlp.ner.tagger.JulieNER;
-import ws.palladian.preprocessing.nlp.ner.tagger.LingPipeNER;
-import ws.palladian.preprocessing.nlp.ner.tagger.OpenNLPNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.IllinoisLbjNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.JulieNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.LingPipeNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.OpenNlpNer;
 import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer;
 import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer.LanguageMode;
-import ws.palladian.preprocessing.nlp.ner.tagger.StanfordNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.StanfordNer;
 
 /**
  * <p>
@@ -124,7 +124,7 @@ public class NERTest {
 
     @Test
     public void testStanfordNER() throws FileNotFoundException {
-        StanfordNER tagger = new StanfordNER();
+        StanfordNer tagger = new StanfordNer();
 
         String stanfordNerModel = ResourceHelper.getResourcePath("/ner/stanfordner.ser.gz");
         tagger.train(trainingFile, stanfordNerModel);
@@ -166,7 +166,7 @@ public class NERTest {
     @Ignore
     public void testIllinoisNER() throws FileNotFoundException {
         String illinoisNerModelFile = ResourceHelper.getResourcePath("/ner/lbj.model");
-        IllinoisLbjNER tagger = new IllinoisLbjNER();
+        IllinoisLbjNer tagger = new IllinoisLbjNer();
 
         tagger.setTrainingRounds(2);
         tagger.train(trainingFile, illinoisNerModelFile);
@@ -200,7 +200,7 @@ public class NERTest {
     @Test
     public void testLingPipeNER() throws FileNotFoundException {
         String lingpipeNerModelFile = ResourceHelper.getResourcePath("/ner/lingpipe.model");
-        LingPipeNER tagger = new LingPipeNER();
+        LingPipeNer tagger = new LingPipeNer();
         tagger.train(trainingFile, lingpipeNerModelFile);
         // EvaluationResult er = tagger.evaluate(ResourceHelper.getResourcePath("/ner/test.txt").getFile(),
         // ResourceHelper.getResourcePath("/ner/lingpipe.model"),
@@ -232,7 +232,7 @@ public class NERTest {
     @Test
     public void testOpenNLPNER() throws FileNotFoundException {
         String openNlpModelFile = ResourceHelper.getResourcePath("/ner/openNLP.bin");
-        OpenNLPNER tagger = new OpenNLPNER();
+        OpenNlpNer tagger = new OpenNlpNer();
 
         tagger.train(trainingFile, openNlpModelFile);
 
@@ -274,7 +274,7 @@ public class NERTest {
     @Test
     @Ignore
     public void testJulieNER() throws FileNotFoundException {
-        JulieNER tagger = new JulieNER();
+        JulieNer tagger = new JulieNer();
         String julieNerModelFile = ResourceHelper.getResourcePath("/ner/juliener.mod");
         tagger.train(trainingFile, julieNerModelFile);
 

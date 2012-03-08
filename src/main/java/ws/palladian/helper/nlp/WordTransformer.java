@@ -1,13 +1,25 @@
 package ws.palladian.helper.nlp;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Logger;
 
+import weka.core.stemmers.SnowballStemmer;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.preprocessing.nlp.pos.PosTagger;
 import ws.palladian.retrieval.semantics.Word;
 import ws.palladian.retrieval.semantics.WordDB;
 
@@ -21,11 +33,34 @@ import ws.palladian.retrieval.semantics.WordDB;
  */
 public class WordTransformer {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(WordTransformer.class);
+
     /** The Constant IRREGULAR_NOUNS <singular, plural>. */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
 
+    /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
+    private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
+
     static {
 
+        // irregular verbs
+        try {
+            File resourceFile = ResourceHelper.getResourceFile("irregularEnglishVerbs.csv");
+            List<String> list = FileHelper.readFileToArray(resourceFile);
+            for (String string : list) {
+                String[] parts = string.split(";");
+                EnglishVerb englishVerb = new EnglishVerb(parts[0], parts[1], parts[2]);
+                IRREGULAR_VERBS.put(parts[0], englishVerb);
+                IRREGULAR_VERBS.put(parts[1], englishVerb);
+                IRREGULAR_VERBS.put(parts[2], englishVerb);
+            }
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        // irregular nouns
         IRREGULAR_NOUNS.put("addendum", "addenda");
         IRREGULAR_NOUNS.put("alga", "algae");
         IRREGULAR_NOUNS.put("alumna", "alumnae");
@@ -386,7 +421,202 @@ public class WordTransformer {
         return singularForm;
     }
 
+    public static String stemEnglishWord(String word) {
+        SnowballStemmer snowballStemmer = new SnowballStemmer();
+        return snowballStemmer.stem(word);
+    }
+
+    /**
+     * <p>
+     * Get the third person singular of an English verb. Use rules from <a
+     * href="http://abacus-es.com/sat/verbs.html">http://abacus-es.com/sat/verbs.html</a>.
+     * </p>
+     * 
+     * @param verb The verb to conjugate.
+     * @return The third person singular in the tense of the verb.
+     */
+    public static String getThirdPersonSingular(String verb) {
+
+        verb = verb.toLowerCase();
+
+        // exceptions
+        if (verb.equals("be")) {
+            return "is";
+        } else if (verb.equals("was")) {
+            return "was";
+        } else if (verb.equals("been")) {
+            return "been";
+        }
+
+        if (verb.equals("have")) {
+            return "has";
+        }
+
+        Set<String> stay = new HashSet<String>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
+                "should", "must"));
+        if (stay.contains(verb)) {
+            return verb;
+        }
+        
+        String stemmedWord = stemEnglishWord(verb);
+        EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
+
+        if (englishVerb != null) {
+            if (englishVerb.getSimplePast().equals(verb) || englishVerb.getPastParticiple().equals(verb)) {
+                return verb;
+            }
+            verb = englishVerb.getPresent();
+        }
+
+        // regular verbs in past stay as they are
+        if (englishVerb == null && verb.endsWith("ed")) {
+            return verb;
+        }
+
+        char letterLast = verb.charAt(verb.length() - 1);
+        char letterBeforeLast = verb.charAt(verb.length() - 2);
+
+        if (verb.endsWith("ch") || verb.endsWith("sh") || verb.endsWith("x") || verb.endsWith("o")) {
+            return verb + "es";
+        }
+
+        if (!StringHelper.isVowel(letterBeforeLast) && (verb.endsWith("s") || verb.endsWith("z"))) {
+            return verb + "es";
+        }
+
+        if (StringHelper.isVowel(letterBeforeLast) && (verb.endsWith("s") || verb.endsWith("z"))) {
+            return verb + letterLast + "es";
+        }
+        
+        if (!StringHelper.isVowel(letterBeforeLast) && verb.endsWith("y")) {
+            return verb.replaceAll("y$", "ies");
+        }
+
+        return verb + "s";
+    }
+
+    public static String getSimplePresent(String verb) {
+        String stemmedWord = stemEnglishWord(verb);
+        EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
+
+        if (englishVerb != null) {
+            return englishVerb.getPresent();
+        }
+
+        if (verb.endsWith("ed")) {
+            return verb.replaceAll("ed$", "");
+        }
+
+        return verb;
+    }
+
+    public static String getSimplePast(String verb) {
+        String stemmedWord = stemEnglishWord(verb);
+        EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
+
+        if (englishVerb != null) {
+            return englishVerb.getSimplePast();
+        }
+
+        return getRegularVerbPast(verb);
+    }
+
+    private static String getRegularVerbPast(String verb) {
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
+        verb = verb.toLowerCase();
+
+        if (verb.endsWith("ed")) {
+            return verb;
+        }
+
+        if (verb.endsWith("e")) {
+            return verb + "d";
+        }
+
+        if (verb.endsWith("y")) {
+            return verb.replaceAll("y$", "ied");
+        }
+
+        if (verb.contains("qui") || verb.contains("qua") || verb.contains("quo") || verb.contains("quu")) {
+            return verb.replaceAll("(.)$", "$1$1ed");
+        }
+
+
+        return verb + "ed";
+    }
+
+    public static String getPastParticiple(String verb) {
+
+        String stemmedWord = stemEnglishWord(verb);
+        EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
+
+        if (englishVerb != null) {
+            return englishVerb.getPastParticiple();
+        }
+
+        return getRegularVerbPast(stemmedWord);
+    }
+
+    /**
+     * <p>
+     * Detect the tense of an English sentence.
+     * </p>
+     * 
+     * @param string The English sentence.
+     * @return The detected English tense.
+     */
+    public static EnglishTense getTense(String string, PosTagger posTagger) {
+        return getTense(string, posTagger.getTags(string));
+    }
+    
+    public static EnglishTense getTense(String string, TagAnnotations posTags) {
+    
+        string = string.toLowerCase();
+        
+        // check signal words
+        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string)
+                || StringHelper.containsWord("does", string) || StringHelper.containsWord("doesn't", string)) {
+            return EnglishTense.SIMPLE_PRESENT;
+        }
+
+        if (StringHelper.containsWord("did", string) || StringHelper.containsWord("didn't", string)) {
+            return EnglishTense.SIMPLE_PAST;
+        }
+        
+        boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
+        boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
+        
+        if (posTags.containTag("VBD") && !isAreFound) {
+            return EnglishTense.SIMPLE_PAST;
+        }
+        
+        if (posTags.containTag("HVD") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+            return EnglishTense.PAST_PERFECT;
+        }
+        
+        if (posTags.containTag("HV") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+            return EnglishTense.PRESENT_PERFECT;
+        }
+        
+        if (posTags.containTag("VBN") && !isAreFound) {
+            return EnglishTense.PRESENT_PERFECT;
+        }
+        
+        if (wasWereFound) {
+            return EnglishTense.SIMPLE_PAST;
+        }
+        
+        return EnglishTense.SIMPLE_PRESENT;
+    }
+
     public static void main(String[] args) {
+
+//        System.out.println(WordTransformer.stemEnglishWord("bleed"));
+        System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        System.exit(0);
 
         // 335ms
 

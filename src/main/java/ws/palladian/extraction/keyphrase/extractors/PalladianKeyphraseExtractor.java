@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.tartarus.snowball.ext.porterStemmer;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -20,7 +19,8 @@ import ws.palladian.classification.page.Stopwords;
 import ws.palladian.classification.page.Stopwords.Predefined;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
@@ -133,8 +133,8 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             }
         });
         
-        pipeline.add(new StopTokenRemover(Predefined.EN));
-        pipeline.add(new StemmerAnnotator(new porterStemmer()));
+        pipeline.add(new StopTokenRemover(Language.ENGLISH));
+        pipeline.add(new StemmerAnnotator(Language.ENGLISH));
         
         pipeline.add(new CountCalculator());
         pipeline.add(new TokenSpreadCalculator());

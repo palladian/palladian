@@ -171,7 +171,7 @@ public class EvaluationSchedulerTask extends TimerTask {
                 // remove completed FeedTasks
                 boolean completed = removeFeedTaskIfDone(feed.getId());
                 if (completed) {
-                    feed.freeMemory(true);
+                    feed.freeMemory();
                 }
             }
         }

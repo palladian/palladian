@@ -19,10 +19,10 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -32,6 +32,7 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedClassifier;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
@@ -204,17 +205,21 @@ public class FeedStatisticCreator {
             }
         };
 
-        long maxOffset = dbm.runCountQuery(countQuery);
+        Integer maxOffset = dbm.runAggregateQuery(countQuery);
+        
+        if (maxOffset != null) {
 
-        for (long currentOffset = 0; currentOffset < maxOffset; currentOffset += 500000) {
+            for (int currentOffset = 0; currentOffset < maxOffset; currentOffset += 500000) {
 
-            String currentQuery = query.replaceAll("OFFSET", String.valueOf(currentOffset));
+                String currentQuery = query.replaceAll("OFFSET", String.valueOf(currentOffset));
 
-            Logger.getRootLogger().info(
-                    "query for delay to calculate median, offset/maxOffset:" + currentOffset + "/" + maxOffset);
+                Logger.getRootLogger().info(
+                        "query for delay to calculate median, offset/maxOffset:" + currentOffset + "/" + maxOffset);
 
-            List<Double> currentValues = dbm.runQuery(converter, currentQuery);
-            valueList.addAll(currentValues);
+                List<Double> currentValues = dbm.runQuery(converter, currentQuery);
+                valueList.addAll(currentValues);
+            }
+
         }
 
         Collections.sort(valueList);
@@ -651,7 +656,7 @@ public class FeedStatisticCreator {
 
             c++;
 
-            feed.freeMemory(true);
+            feed.freeMemory();
             feed.setMeticulousPostDistribution(null);
             feed = null;
 
@@ -696,8 +701,8 @@ public class FeedStatisticCreator {
     private static boolean isInTempTable(Feed feed) {
         String sql = "SELECT COUNT(*) AS count FROM tempTableMin WHERE feedID = " + feed.getId();
         DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
-        int c = dbm.runCountQuery(sql);
-        if (c > 0) {
+        Integer c = dbm.runAggregateQuery(sql);
+        if (c != null && c > 0) {
             return true;
         }
         return false;

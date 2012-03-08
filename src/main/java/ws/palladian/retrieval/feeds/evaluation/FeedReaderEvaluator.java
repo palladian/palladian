@@ -7,12 +7,13 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;

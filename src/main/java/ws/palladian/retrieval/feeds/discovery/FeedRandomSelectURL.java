@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.feeds.discovery;
 
 import ws.palladian.classification.page.evaluation.TrainingDataSeparation;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * Quickndirty random selection of feed URLs to get the final set of feeds to use in our experiment

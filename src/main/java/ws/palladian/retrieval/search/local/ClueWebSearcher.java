@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.index.CorruptIndexException;
 
 import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -31,7 +32,7 @@ public final class ClueWebSearcher implements Searcher<LocalIndexResult> {
     }
 
     @Override
-    public List<LocalIndexResult> search(String query, int resultCount) {
+    public List<LocalIndexResult> search(String query, int resultCount) throws SearcherException {
         List<LocalIndexResult> indexResults = new ArrayList<LocalIndexResult>();
 
         QueryProcessor queryProcessor = new QueryProcessor(indexPath);

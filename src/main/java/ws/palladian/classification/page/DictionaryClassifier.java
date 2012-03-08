@@ -18,13 +18,13 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LoremIpsumGenerator;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.TreeNode;
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.preprocessing.PipelineDocument;
 
 /**
@@ -333,9 +333,7 @@ public class DictionaryClassifier extends TextClassifier {
                 instance.empty();
             }
 
-            if (c++ % 50 == 0) {
-                LOGGER.info("trained " + MathHelper.round(100 * c / getTrainingInstances().size(), 2) + "%");
-            }
+            ProgressHelper.showProgress(c++, getTrainingInstances().size(), 5);
         }
 
     }
