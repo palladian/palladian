@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.classification.page.Stopwords.Predefined;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
@@ -80,7 +80,7 @@ public class KeywordAnnotator implements PipelineProcessor {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new Tokenizer());
         pipeline.add(new NGramCreator(4));
-        pipeline.add(new StopTokenRemover(Predefined.EN));
+        pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new FrequencyCalculator());
         pipeline.add(new TokenSpreadCalculator());
         
