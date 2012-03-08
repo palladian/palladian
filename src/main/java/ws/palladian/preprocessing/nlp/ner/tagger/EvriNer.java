@@ -67,6 +67,9 @@ public class EvriNer extends NamedEntityRecognizer {
 
     /** The maximum number of characters allowed to send per request (actually ???). */
     private final int MAXIMUM_TEXT_LENGTH = 50000;
+    
+    // FIXME make configurable
+    private static final String APP_ID = "xDqBQd435pyZMqU2xDzhBgmtOxGBWgMW";
 
     public EvriNer() {
         setName("Evri NER");
@@ -140,6 +143,7 @@ public class EvriNer extends NamedEntityRecognizer {
 
                 HTTPPoster poster = new HTTPPoster();
                 String response = poster.handleRequest(pm);
+                System.out.println(response);
 
                 JSONObject json = new JSONObject(response);
 
@@ -242,7 +246,7 @@ public class EvriNer extends NamedEntityRecognizer {
 
         try {
             method.setEntity(new StringEntity("uri=" + URLEncoder.encode("http://www.webknox.com", "UTF-8") + "&text="
-                    + URLEncoder.encode(inputText, "UTF-8") + "&appId=evri.com-restdoc", "text/raw", "UTF-8"));
+                    + URLEncoder.encode(inputText, "UTF-8") + "&appId=" + APP_ID, "text/raw", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("encoding is not supported, " + e.getMessage());
         }
@@ -299,9 +303,9 @@ public class EvriNer extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        System.out
-                .println(tagger
-                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
+//        System.out
+//                .println(tagger
+//                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
         System.out
                 .println(tagger
                         .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
