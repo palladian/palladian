@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -58,7 +58,7 @@ public class DownloadFilter {
     }
 
     public boolean isAcceptedFileType(String url) {
-        String fileType = FileHelper.getFileType(url);
+        String fileType = FileHelper.getFileType(url).toLowerCase();
         boolean whitelisted = whitelist.isEmpty() || whitelist.contains(fileType);
         boolean blacklisted = blacklist.contains(fileType);
         boolean accepted = whitelisted && !blacklisted;

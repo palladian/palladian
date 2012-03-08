@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -13,12 +14,16 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.RegExp;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
 public class HakiaDateGetter {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(HakiaDateGetter.class);
 
     private String url;
     private String title = null;
@@ -42,19 +47,23 @@ public class HakiaDateGetter {
         ExtractedDate date = null;
         // modified for new Palladian's new search API and untested -- 2011-11-26, Philipp
         WebSearcher<WebResult> webSearcher = SearcherFactory.createSearcher(HakiaNewsSearcher.class, ConfigHolder.getInstance().getConfig());
-        List<WebResult> webResults = webSearcher.search(title, 100);
+        try {
+            List<WebResult> webResults = webSearcher.search(title, 100);
 
-        for (int i = 0; i < webResults.size(); i++) {
-            WebResult result = webResults.get(i);
-            String tempUrl = result.getUrl();
-            String requestUrl = httpRetriever.getRedirectUrl(tempUrl);
-            if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
-                DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
-                String dateString = dateFormat.format(result.getDate());
-                date = DateGetterHelper.getDateFromString(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
-                break;
+            for (int i = 0; i < webResults.size(); i++) {
+                WebResult result = webResults.get(i);
+                String tempUrl = result.getUrl();
+                String requestUrl = httpRetriever.getRedirectUrl(tempUrl);
+                if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
+                    DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+                    String dateString = dateFormat.format(result.getDate());
+                    date = DateGetterHelper.getDateFromString(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
+                    break;
+                }
+
             }
-
+        } catch (SearcherException e) {
+            LOGGER.error(e);
         }
         return date;
     }

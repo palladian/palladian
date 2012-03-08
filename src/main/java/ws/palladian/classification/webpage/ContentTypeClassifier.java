@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.StringInputStream;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.NekoHtmlParser;

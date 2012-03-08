@@ -20,8 +20,8 @@ import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.StructureDateGetter;
 import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class DateGetterHelperTest {

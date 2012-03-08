@@ -10,9 +10,13 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.EvaluationDatabase;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.EvaluationFeedPoll;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.EvaluationItemIntervalItem;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollingStrategy;
 
 /**
  * @author Sandro Reichert

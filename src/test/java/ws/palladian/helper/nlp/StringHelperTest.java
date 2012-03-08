@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * Test cases for the StringHelper class.
@@ -20,6 +20,17 @@ import ws.palladian.helper.ResourceHelper;
  * @author Philipp Katz
  */
 public class StringHelperTest {
+
+    @Test
+    public void testContainsWord() {
+        
+        assertEquals(true, StringHelper.containsWord("test", "a test b"));
+        assertEquals(true, StringHelper.containsWord("test", "test"));
+        assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
+        assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
+        
+    }
 
     @Test
     public void testClean() {

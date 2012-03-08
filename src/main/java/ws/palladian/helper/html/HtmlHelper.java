@@ -38,6 +38,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.DocumentImpl;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -51,14 +53,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.StringInputStream;
-import ws.palladian.helper.StringOutputStream;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.helper.io.StringOutputStream;
 import ws.palladian.helper.nlp.StringHelper;
-
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -256,10 +257,8 @@ public class HtmlHelper {
      * @param joinTagsAndRemoveNewlines the join tags and remove newlines
      * @return The text of the web page.
      */
-    public static String stripHtmlTags(String htmlContent, boolean stripTags, boolean stripComments,
+    public static String stripHtmlTags(String htmlText, boolean stripTags, boolean stripComments,
             boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
-
-        String htmlText = htmlContent;
 
         String regExp = "";
 
@@ -269,20 +268,15 @@ public class HtmlHelper {
         }
 
         if (stripComments) {
-            regExp += "(\\<!--.*?-->)|";
-            // htmlText = htmlText.replaceAll("<!--.*?-->", "");
+            regExp += "<!--.*?-->|";
         }
 
         if (stripJSAndCSS) {
-            regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
-            // htmlText = removeConcreteHTMLTag(htmlText, "style");
-            // htmlText = removeConcreteHTMLTag(htmlText, "script");
+            regExp += "<style.*?>.*?</style>|<script.*?>.*?</script>|";
         }
 
         if (stripTags) {
-            regExp += "(<.*?>)";
-            // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
-            // htmlText = htmlText.replaceAll("<.*?>", "");
+            regExp += "<.*?>";
         }
 
         if (regExp.length() == 0) {
@@ -293,24 +287,13 @@ public class HtmlHelper {
             regExp = regExp.substring(0, regExp.length() - 1);
         }
 
-        Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
-        try {
-            Matcher matcher = pattern.matcher(htmlText);
-
-            while (matcher.find()) {
-                htmlText = htmlText.replace(matcher.group(), "");
-            }
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
+        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(htmlText).replaceAll("");
 
         // close gaps
         // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
 
         // return htmlText.trim();
-        return htmlText;
     }
 
     /**
@@ -668,7 +651,7 @@ public class HtmlHelper {
             XPathFactory xpathFactory = XPathFactory.newInstance();
             // XPath to find empty text nodes.
             XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");
-            NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(result, XPathConstants.NODESET);
+            NodeList emptyTextNodes = (NodeList)xpathExp.evaluate(result, XPathConstants.NODESET);
 
             // Remove each empty text node from document.
             for (int i = 0; i < emptyTextNodes.getLength(); i++) {
@@ -841,7 +824,7 @@ public class HtmlHelper {
             DOMSource source = new DOMSource(document);
             DOMResult target = new DOMResult();
             transformer.transform(source, target);
-            result = (Document) target.getNode();
+            result = (Document)target.getNode();
         } catch (TransformerConfigurationException e) {
             LOGGER.error("cloneDocument:TransformerConfigurationException " + e.getMessage());
         } catch (TransformerFactoryConfigurationError e) {
@@ -855,45 +838,6 @@ public class HtmlHelper {
             LOGGER.error("cloneDocument:DOMException " + e.getMessage());
         }
         return result;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        String input = FileHelper.readFileToString("NewFile2.xml");
-        // input = StringEscapeUtils.unescapeXml(input);
-        // System.out.println(input.hashCode());
-
-        input = StringEscapeUtils.unescapeHtml(input);
-
-        System.out.println(input);
-
-        HtmlHelper.stringToXml(input);
-
-        System.exit(0);
-
-        System.out.println(stripHtmlTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
-        System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
-
-        // String html = readHtmlFile("testfiles/readability/test004.html");
-        // html = htmlToString(html, true);
-        // System.out.println(html);
-
-        // DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
-        // Document doc = df.newDocumentBuilder().parse(new File("dumps/readability1275037727850.xml"));
-        // System.out.println(htmlDocToString(doc));
-        //
-
-        // System.out.println("1\n2\n3\n\n\n".trim());
-        // System.out.println("-------------");
-
-        // String s = null;
-        // System.out.println(s.toLowerCase());
-
-        // Crawler c = new Crawler();
-        // Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
-        // String result = htmlDocToString(doc);
-        // System.out.println(DigestUtils.md5Hex(result)); // 489eb91cf94343d0b62e69c396bc6b6f
-        // System.out.println(result);
     }
 
     public static String xmlToString(Node node) {
@@ -1035,10 +979,14 @@ public class HtmlHelper {
             sb.append("\n");
         }
 
-        Node child = node.getFirstChild();
-        while (child != null) {
-            sb.append(documentToText(child));
-            child = child.getNextSibling();
+        try {
+            Node child = node.getFirstChild();
+            while (child != null) {
+                sb.append(documentToText(child));
+                child = child.getNextSibling();
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
 
         return sb.toString().replaceAll("[ ]{2,}", "");
@@ -1167,6 +1115,53 @@ public class HtmlHelper {
             baseHref = baseNode.getTextContent();
         }
         return baseHref;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        String text = new DocumentRetriever().getText("http://blog.fefe.de/?q=noch");
+        // String text = new DocumentRetriever().getText("http://cinefreaks.com");
+        StopWatch stopWatch = new StopWatch();
+        System.out.println(text.length() / 1024.0 + " KB");
+        String t = HtmlHelper.stripHtmlTags(text, true, true, false, false);
+        System.out.println(t.length() / 1024.0 + " KB");
+        System.out.println(stopWatch.getTotalElapsedTimeString());
+        System.out.println(StringHelper.shorten(t, 2000));
+        System.exit(0);
+
+        String input = FileHelper.readFileToString("NewFile2.xml");
+        // input = StringEscapeUtils.unescapeXml(input);
+        // System.out.println(input.hashCode());
+
+        input = StringEscapeUtils.unescapeHtml(input);
+
+        System.out.println(input);
+
+        HtmlHelper.stringToXml(input);
+
+        System.out.println(stripHtmlTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
+        System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
+
+        // String html = readHtmlFile("testfiles/readability/test004.html");
+        // html = htmlToString(html, true);
+        // System.out.println(html);
+
+        // DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
+        // Document doc = df.newDocumentBuilder().parse(new File("dumps/readability1275037727850.xml"));
+        // System.out.println(htmlDocToString(doc));
+        //
+
+        // System.out.println("1\n2\n3\n\n\n".trim());
+        // System.out.println("-------------");
+
+        // String s = null;
+        // System.out.println(s.toLowerCase());
+
+        // Crawler c = new Crawler();
+        // Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
+        // String result = htmlDocToString(doc);
+        // System.out.println(DigestUtils.md5Hex(result)); // 489eb91cf94343d0b62e69c396bc6b6f
+        // System.out.println(result);
     }
 
 }

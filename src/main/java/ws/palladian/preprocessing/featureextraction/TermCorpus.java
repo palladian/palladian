@@ -10,8 +10,8 @@ import java.util.Set;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 public class TermCorpus {
 
@@ -79,7 +79,7 @@ public class TermCorpus {
         PrintWriter printWriter = null;
 
         try {
-            outputStream = /*new GZIPOutputStream(*/new FileOutputStream(fileName)/*)*/;
+            outputStream = /* new GZIPOutputStream( */new FileOutputStream(fileName)/* ) */;
             printWriter = new PrintWriter(outputStream);
 
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
@@ -109,7 +109,7 @@ public class TermCorpus {
         sb.append(" numTerms=").append(terms.size());
         return sb.toString();
     }
-    
+
     public static void main(String[] args) {
         TermCorpus termCorpus = new TermCorpus();
         termCorpus.load("/Users/pk/Desktop/corpus.txt");

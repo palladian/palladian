@@ -41,7 +41,6 @@
 					<argLine>-Xms256m -Xmx1024m</argLine>
 					<excludes>
 						<exclude>**/DictionaryDBIndexTest.java</exclude>
-						<exclude>**/FeedCheckerTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -414,6 +413,11 @@
 			<artifactId>icu4j</artifactId>
 			<version>3.8</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.apache</groupId>
+		  <artifactId>pdfbox</artifactId>
+		  <version>1.6.0</version>
+		</dependency>		
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

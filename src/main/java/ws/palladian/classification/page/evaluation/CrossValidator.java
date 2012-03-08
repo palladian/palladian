@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.TextClassifier;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * The CrossValidator valdidates a given classifier with the evaluation settings. It can also print results for manual

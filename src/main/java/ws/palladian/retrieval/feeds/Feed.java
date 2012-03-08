@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +11,12 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.EnumHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EnumHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
-import ws.palladian.retrieval.feeds.evaluation.PollDataSeries;
-import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.BoundedStack;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollDataSeries;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
@@ -52,17 +50,6 @@ public class Feed {
      * conditional get request and the feed has not been changed since the last request.
      */
     private Map<String, Date> itemCache = new HashMap<String, Date>();
-
-    /**
-     * Default capacity of {@link #itemBuffer} is two elements.
-     */
-    public static final int ITEM_BUFFER_DEFAULT_CAPACITY = 2;
-
-    /**
-     * This buffer holds the last X feed items received, independent of the feed's window size. The buffer is not
-     * deleted when {@link #freeMemory()} is called.
-     */
-    private BoundedStack<FeedItem> itemBuffer = new BoundedStack<FeedItem>(ITEM_BUFFER_DEFAULT_CAPACITY);
 
     /**
      * The items that were new in the most recent poll.
@@ -106,9 +93,14 @@ public class Feed {
     private int checks = 0;
 
     /**
+     * The default time in minutes until it is expected to find at least one new entry in the feed.
+     */
+    public static final int DEFAULT_UPDATE_INTERVAL = 60;
+
+    /**
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
-    private int updateInterval = 60;
+    private int updateInterval = DEFAULT_UPDATE_INTERVAL;
 
     public static final int MIN_DELAY = 0;
     public static final int MAX_COVERAGE = 1;
@@ -234,17 +226,6 @@ public class Feed {
         setFeedUrl(feedUrl, true);
     }
 
-    /**
-     * Create a feed that buffers the last X items independent from its window size. Be careful with large values since
-     * the buffer is not reset when calling {@link #freeMemory()}.
-     * 
-     * @param itemBufferCapacity Number of feed items to store in a FIFO buffer. Use value <= 0 to deactivate buffer.
-     */
-    public Feed(int itemBufferCapacity) {
-        super();
-        itemBuffer = new BoundedStack<FeedItem>(itemBufferCapacity);
-    }
-
     public int getId() {
         return id;
     }
@@ -319,7 +300,6 @@ public class Feed {
         }
 
         setNewItems(newItemsTemp);
-        addItemsToBuffer(newItemsTemp);
         this.items = items;
     }
 
@@ -341,7 +321,6 @@ public class Feed {
             // }
             addCacheItem(hash, item.getCorrectedPublishedDate());
             addNewItem(item);
-            addItemToBuffer(item);
         } else {
             addCacheItem(hash, getCachedItemTimestamp(hash));
         }
@@ -540,16 +519,10 @@ public class Feed {
     /**
      * Free the memory because feed objects might be held in memory. Free the memory whenever you get the feed only once
      * and won't let the garbage collector take care of it.
-     * 
-     * @param resetItemBuffer if <code>true</code>, also reset the item buffer. Do not reset buffer if items prior to
-     *            the last window are required in future.
      */
-    public void freeMemory(boolean resetItemBuffer) {
+    public void freeMemory() {
         this.items = new ArrayList<FeedItem>();
         this.newItems = new ArrayList<FeedItem>();
-        if (resetItemBuffer) {
-            this.itemBuffer.clear();
-        }
     }
 
     public void setChecks(Integer checks) {
@@ -1581,73 +1554,6 @@ public class Feed {
         this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
     }
 
-    /**
-     * Change the maxSize of the item buffer to this value. In case the buffer's size was larger than this value, the
-     * oldest elements are removed.
-     * 
-     * @param newMaxSize New maximum size of the buffer.
-     */
-    public void resizeItemBuffer(int newMaxSize) {
-        itemBuffer.resizeTo(newMaxSize);
-    }
-
-    /**
-     * Add an item to the buffer. It is assumed that the item is new (in the curent poll) and therefore its corrected
-     * publish date is newer or equal to the newest item stored in the buffer. In case the item to add is older, nothing
-     * is done.
-     * 
-     * @param item The new item to add.
-     * @return <code>true</code> if item has been added, <code>false</code> on any error.
-     */
-    private boolean addItemToBuffer(FeedItem itemToAdd) {
-        boolean added = false;
-        if (itemToAdd != null) {
-            FeedItem topItem = itemBuffer.getFirst();
-
-            // if stack is not empty, compare timestamps to not add an older item accidently.
-            if (topItem != null) {
-                Date topItemTime = topItem.getCorrectedPublishedDate();
-                Date newItemTime = itemToAdd.getCorrectedPublishedDate();
-
-                if (topItemTime != null && newItemTime != null && !newItemTime.before(topItemTime)) {
-                    itemBuffer.push(itemToAdd);
-                    added = true;
-                } else {
-                    // was warn, changed to debug by Philipp to avoid spamming the logs.
-                    LOGGER.debug("Feed id " + getId() + ", could not add item \"" + itemToAdd
-                            + "\" to item buffer since it is older than the newest item in the buffer.");
-                }
-            }
-            // if stack is empty, push item.
-            else {
-                itemBuffer.push(itemToAdd);
-                added = true;
-            }
-        }
-        return added;
-    }
-
-    /**
-     * Add a list of {@link FeedItem}s to the buffer. It is assumed that all items are newly found in the last
-     * poll. Collection is sorted by correctedPublishTime and added to buffer.
-     * 
-     * @param newItems Items to add.
-     * @return Number of items that have been added.
-     */
-    private int addItemsToBuffer(ArrayList<FeedItem> newItems) {
-        int numItemsAdded = 0;
-        if (itemBuffer.maxSize() > 0) {
-            Collections.sort(newItems, new FeedItemComparator());
-            boolean added = false;
-            for (FeedItem item : newItems) {
-                added = addItemToBuffer(item);
-                if (added) {
-                    numItemsAdded++;
-                }
-            }
-        }
-        return numItemsAdded;
-    }
 
     public static void main(String[] args) {
 

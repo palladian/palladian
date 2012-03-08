@@ -16,8 +16,8 @@ import ws.palladian.classification.page.ClassificationDocuments;
 import ws.palladian.classification.page.TestDocument;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**

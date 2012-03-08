@@ -13,7 +13,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * Test cases for the image handler.

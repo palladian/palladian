@@ -59,8 +59,8 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.math.SizeUnit;
+import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.FileHelper;
 
 // TODO remove deprecated methods, after dependent code has been adapted
 // TODO completely remove all java.net.* stuff
@@ -94,10 +94,10 @@ public class HttpRetriever {
     public static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
 
     /** The default timeout for a connection to be established, in milliseconds. */
-    public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
+    public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
+    public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 3;
@@ -121,7 +121,7 @@ public class HttpRetriever {
 
     // ///////////// Settings ////////
 
-    /** The maximum file size to download. -1 means no limit. */
+    /** The maximum file size in bytes to download. -1 means no limit. */
     private long maxFileSize = -1;
 
     /** Download size in bytes for this HttpRetriever instance. */
@@ -200,7 +200,7 @@ public class HttpRetriever {
      **/
     // TODO visibility should be set to protected, as instances are created by the factory
     public HttpRetriever() {
-
+        this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_SOCKET_TIMEOUT, DEFAULT_NUM_RETRIES, DEFAULT_NUM_CONNECTIONS);
     }
 
     /**

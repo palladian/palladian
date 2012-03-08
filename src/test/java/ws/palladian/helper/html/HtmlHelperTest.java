@@ -11,30 +11,21 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.ResourceHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
- * Test cases for the HTMLHelper class.
+ * <p>Test cases for the HTMLHelper class.</p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
  */
 public class HtmlHelperTest {
-
-    // @Test
-    // public void testGetHTMLContent() {
-    //
-    // Crawler crawler = new Crawler();
-    // Document document = crawler.getWebDocument(ResourceHelper.getResourcePath("/webPages/newsPage1.html"));
-    //
-    // // System.out.println(PageAnalyzer.getRawMarkup(document));
-    // System.out.println(HTMLHelper.htmlToReadableText(document));
-    //
-    // }
 
     @Test
     public void testCountTags() {
@@ -58,9 +49,6 @@ public class HtmlHelperTest {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HtmlHelper.stripHtmlTags(htmlContent, true, true, true, true).trim());
 
-//        DocumentRetriever crawler = new DocumentRetriever();
-//        String content = crawler.getTextDocument(ResourceHelper
-//                .getResourcePath("/webPages/removeHTMLContentTest1.html"));
         String content = FileHelper.readFileToString(ResourceHelper.getResourceFile("/webPages/removeHTMLContentTest1.html"));
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false).replaceAll("(\\s){2,}", " ").trim();
 
@@ -72,19 +60,11 @@ public class HtmlHelperTest {
     }
 
     @Test
-    public void testHtmlToString() throws FileNotFoundException {
-        DocumentRetriever c = new DocumentRetriever();
-        Document doc = c.getWebDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html"));
+    public void testDocumentToReadableText() throws FileNotFoundException, ParserException {
+        DocumentParser htmlParser = ParserFactory.createHtmlParser();
+        Document doc = htmlParser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"));
         String result = HtmlHelper.documentToReadableText(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
-    }
-
-    @Test
-    public void testHtmlToString2() {
-        String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        System.out.println(HtmlHelper.documentToReadableText(htmlContent, true));
-        // assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
-
     }
 
     @Test
@@ -92,5 +72,6 @@ public class HtmlHelperTest {
         String htmlText = "&nbsp; &Auml; &auml; &Ouml; &ouml; &Uuml; &uuml; &szlig; &lt; &gt; &amp; &quot;";
         String clearText = "  Ä ä Ö ö Ü ü ß < > & \"";
         assertEquals(clearText, StringHelper.replaceProtectedSpace(StringEscapeUtils.unescapeHtml(htmlText)));
+        assertEquals(clearText, HtmlHelper.replaceHtmlSymbols(htmlText));
     }
 }

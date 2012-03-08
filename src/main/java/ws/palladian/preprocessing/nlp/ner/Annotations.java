@@ -6,7 +6,7 @@ import java.util.Comparator;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationAnnotation;
 
 /**
