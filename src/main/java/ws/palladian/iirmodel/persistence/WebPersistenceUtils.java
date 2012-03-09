@@ -494,7 +494,12 @@ public final class WebPersistenceUtils extends AbstractPersistenceLayer implemen
     public void saveRelationType(RelationType relationType) {
         Boolean openedTransaction = openTransaction();
         try {
-            getManager().persist(relationType);
+            RelationType existingRelationType = loadRelationType(relationType.getName());
+            if (existingRelationType == null) {
+                getManager().persist(relationType);
+            } else {
+                getManager().merge(relationType);
+            }
         } finally {
             commitTransaction(openedTransaction);
         }

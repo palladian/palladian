@@ -45,14 +45,14 @@
 			<property name="hibernate.connection.password" value="" />
 			<property name="hibernate.connection.url" value="jdbc:hsqldb:mem:testdb" />
 			<property name="hibernate.show_sql" value="false" />
-			<property name=”hibernate.connection.provider_class”>org.hibernate.connection.C3P0ConnectionProvider
-			</property>
-			<property name=”hibernate.c3p0.min_size”>0</property>
-			<property name=”hibernate.c3p0.max_size”>30</property>
-			<property name=”hibernate.c3p0.timeout”>600</property>
-			<property name=”hibernate.c3p0.max_statements”>0</property>
-			<property name=”hibernate.c3p0.acquire_increment”>1</property>
-			<property name=”hibernate.c3p0.idle_test_period”>60</property>
+			<property name="hibernate.connection.provider_class"
+				value="org.hibernate.connection.C3P0ConnectionProvider" />
+			<property name="hibernate.c3p0.min_size" value="0" />
+			<property name="hibernate.c3p0.max_size" value="30" />
+			<property name="hibernate.c3p0.timeout" value="600" />
+			<property name="hibernate.c3p0.max_statements" value="0" />
+			<property name="hibernate.c3p0.acquire_increment" value="1" />
+			<property name="hibernate.c3p0.idle_test_period" value="60" />
 		</properties>
 	</persistence-unit>
 </persistence>
