@@ -8,6 +8,7 @@ import java.util.HashSet;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
 
 /**
  * List of stopwords. Use the enumeration {@link Predefined} for initialization
@@ -18,8 +19,9 @@ import ws.palladian.helper.io.LineAction;
  * is case insensitive.
  * 
  * @author Philipp Katz
- * 
+ * @deprecated This class has been replaced by {@link StopTokenRemover}.
  */
+@Deprecated
 public class Stopwords extends HashSet<String> {
 
     private static final long serialVersionUID = 8764752921113362657L;
