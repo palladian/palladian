@@ -101,7 +101,8 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @throws SearcherException In case the search fails.
      */
     public int getTotalResultCount(String query, Language language) throws SearcherException {
-        throw new UnsupportedOperationException("not supported for this searcher");
+        throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
+                + getName() + ".");
     }
 
     @Override
