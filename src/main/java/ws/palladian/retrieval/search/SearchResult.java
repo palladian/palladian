@@ -15,17 +15,14 @@ public abstract class SearchResult {
     private final String title;
     private final String summary;
     private final Date date;
-    private String searchEngine;
+    private final String searchEngine;
 
     public SearchResult(String title, String summary, Date date) {
-        super();
-        this.title = title;
-        this.summary = summary;
-        this.date = date;
+        this(title, summary, date, null);
     }
-    
+
     public SearchResult(String title, String summary) {
-        this(title, summary, null, "");
+        this(title, summary, null, null);
     }
 
     public SearchResult(String title, String summary, Date date, String searchEngine) {
@@ -61,12 +58,16 @@ public abstract class SearchResult {
         return date;
     }
 
+    /**
+     * <p>
+     * Get the name of the search engine which provided this {@link SearchResult}. Return <code>null</code> when search
+     * engine has not been specified.
+     * </p>
+     * 
+     * @return
+     */
     public String getSearchEngine() {
         return searchEngine;
-    }
-
-    public void setSearchEngine(String searchEngine) {
-        this.searchEngine = searchEngine;
     }
 
     @Override

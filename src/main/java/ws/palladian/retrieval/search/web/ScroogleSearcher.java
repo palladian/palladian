@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -17,8 +16,8 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -31,9 +30,6 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ScroogleSearcher.class);
-
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final DocumentParser parser;
@@ -43,7 +39,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
 
     public ScroogleSearcher() {
         super();
-        parser = new NekoHtmlParser();
+        parser = ParserFactory.createHtmlParser();
     }
 
     @Override
