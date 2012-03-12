@@ -565,9 +565,9 @@ public class AlchemyNer extends NamedEntityRecognizer {
                 .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
 				
 		if(coreferenceResolution){
-			content.add("coreference", "1");
+			content.put("coreference", "1");
 		}else{
-			content.add("coreference", "0");
+			content.put("coreference", "0");
 		}
 
         return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
