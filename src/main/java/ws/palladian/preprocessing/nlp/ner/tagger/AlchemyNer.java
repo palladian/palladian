@@ -388,10 +388,14 @@ public class AlchemyNer extends NamedEntityRecognizer {
     private final String apiKey;
 
     /**
-     * The maximum number of characters allowed to send per request (actually
-     * 150,000).
+     * The maximum number of characters allowed to send per request.
      */
-    private final int MAXIMUM_TEXT_LENGTH = 140000;
+    private final int MAXIMUM_TEXT_LENGTH = 15000;
+	
+	/**
+	 * Turns coreference resolution on/off.
+	 */
+	private boolean coreferenceResolution = false;
 
     /** The {@link HttpRetriever} is used for performing the POST requests to the API. */
     private final HttpRetriever httpRetriever;
@@ -439,6 +443,10 @@ public class AlchemyNer extends NamedEntityRecognizer {
         LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
         return false;
     }
+	
+	public void setCoreferenceResolution(boolean value) {
+		coreferenceResolution = value;
+	}
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
@@ -554,7 +562,13 @@ public class AlchemyNer extends NamedEntityRecognizer {
                 "application/x-www-form-urlencoded; charset=UTF-8").add("Accept", "application/json");
 
         Map<String, String> content = new MapBuilder<String, String>().add("text", inputText).add("apikey", apiKey)
-                .add("outputMode", "json").add("disambiguate", "1");
+                .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
+				
+		if(coreferenceResolution){
+			content.put("coreference", "1");
+		}else{
+			content.put("coreference", "0");
+		}
 
         return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
                 content);
