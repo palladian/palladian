@@ -18,7 +18,7 @@ public class StringTaggerTest {
         taggedText = "the United States of America (USA) are often called the USA, the U.S.A., or simply the U.S., the U.S.S. Enterprise is a space ship.";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
@@ -33,7 +33,7 @@ public class StringTaggerTest {
         taggedText = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(13, annotations.size());
@@ -56,7 +56,7 @@ public class StringTaggerTest {
         taggedText = "Dolce & Gabana as well as S&P are companies.";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(2, annotations.size());
@@ -83,7 +83,7 @@ public class StringTaggerTest {
         taggedText = "the Republic of Ireland, and Return of King Arthur, the National Bank of Scotland, Erin Purcell of Boston-based Reagan Communications";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
@@ -98,7 +98,7 @@ public class StringTaggerTest {
         taggedText = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice, Australia-- Germany";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(17, annotations.size());
@@ -124,7 +124,7 @@ public class StringTaggerTest {
         taggedText = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
 
         taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
         assertEquals(9, annotations.size());

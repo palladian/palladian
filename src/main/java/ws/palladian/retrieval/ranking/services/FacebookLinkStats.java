@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -33,6 +34,10 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
     private static final Logger LOGGER = Logger.getLogger(FacebookLinkStats.class);
 
     private static final String FQL_QUERY = "https://api.facebook.com/method/fql.query?format=json&query=select+total_count,like_count,comment_count,share_count+from+link_stat+where+";
+
+    // alternatively
+    // private static final String GRAPH_FQL_QUERY =
+    // "https://graph.facebook.com/fql?q=SELECT+total_count,like_count,comment_count,share_count+FROM+link_stat+WHERE+";
 
     /** The id of this service. */
     private static final String SERVICE_ID = "facebook";
@@ -221,4 +226,12 @@ public class FacebookLinkStats extends BaseRankingService implements RankingServ
         return RANKING_TYPES;
     }
 
+    public static void main(String[] args) {
+        FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
+        StopWatch stopWatch = new StopWatch();
+        System.out
+                .println(facebookLinkStats
+                        .getRanking("http://www.cinefreaks.com/news/698/Schau-10-Minuten-von-John-Carter-an---im-Kino-ab-08-M%C3%A4rz"));
+        System.out.println(stopWatch.getElapsedTimeString());
+    }
 }

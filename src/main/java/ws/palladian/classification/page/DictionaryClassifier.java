@@ -325,7 +325,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         getDictionary().setDatabaseType(Dictionary.DB_H2);
 
-        int c = 0;
+        int c = 1;
         for (UniversalInstance instance : getTrainingInstances()) {
 
             trainWithInstance(instance);

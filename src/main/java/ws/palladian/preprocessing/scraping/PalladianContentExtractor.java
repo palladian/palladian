@@ -240,7 +240,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return resultNode;
     }
 
-    public String getMainContentHTML() {
+    public String getMainContentHtml() {
         return mainContentHTML;
     }
 
@@ -345,7 +345,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 //        pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
 //        pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
-        pe.setDocument("http://slotmachinebasics.com/");
+        // pe.setDocument("http://slotmachinebasics.com/");
+        pe.setDocument("http://www.cinefreaks.com/news/696/Die-Hard-5");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title:"+pe.getResultTitle());

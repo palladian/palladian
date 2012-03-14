@@ -115,6 +115,19 @@ public class NormalizationTest {
         assertEquals(false, StringHelper.isNumber("44 000"));
         assertEquals(true, StringHelper.isNumber("44.000"));
         assertEquals(true, StringHelper.isNumber("41"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("two"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("three"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("four"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("five"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("six"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("seven"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("eight"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("nine"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("ten"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("eleven"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("twelve"));
     }
 
     @Test

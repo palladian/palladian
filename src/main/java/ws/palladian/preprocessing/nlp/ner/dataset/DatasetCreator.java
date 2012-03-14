@@ -269,7 +269,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @return The name of the concept.
      */
     private static String getConceptNameFromFileName(String fileName) {
-        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""), "en");
+        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""), Language.ENGLISH);
     }
 
     /**
@@ -601,7 +601,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
 
-            String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName, "en"), true);
+            String conceptName = StringHelper.makeCamelCase(
+                    WordTransformer.wordToSingular(seedFileName, Language.ENGLISH), true);
 
             if (seedFileName.length() == 0) {
                 continue;

@@ -33,6 +33,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -458,8 +459,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     /**
+     * <p>
      * Use only a set of annotations to learn, that is, no training file is required. Use this mostly in the English
      * language mode and do not expect great performance.
+     * </p>
      * 
      * @param annotations A set of annotations which are used for learning.
      * @param modelFilePath The path where the model should be saved to.
@@ -500,7 +503,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     /**
+     * <p>
      * Train the tagger in language independent mode.
+     * </p>
      * 
      * @param trainingFilePath The apther of the training file.
      * @param modelFilePath The path where the model should be saved to.
@@ -530,9 +535,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     /**
+     * <p>
      * Train the tagger in English mode.
+     * </p>
      * 
-     * @param trainingFilePath The apther of the training file.
+     * @param trainingFilePath The path of the training file.
      * @param modelFilePath The path where the model should be saved to.
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
@@ -541,6 +548,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             Annotations additionalTrainingAnnotations) {
 
         // get all training annotations including their features
+        LOGGER.info("get annotations from column-formatted training file");
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         // add the additional training annotations, they will be used for the context analysis too
@@ -549,6 +557,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // create instances with nominal and numeric features
         Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
 
+        LOGGER.info("add additional training annotations");
+        int c = 1;
         for (Annotation annotation : annotations) {
             UniversalInstance textInstance = new UniversalInstance(textInstances);
             textInstance.setTextFeature(annotation.getEntity());
@@ -556,6 +566,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             textInstances.add(textInstance);
 
             addToEntityDictionary(annotation);
+
+            ProgressHelper.showProgress(c++, annotations.size(), 1);
         }
 
         // train the text classifier
@@ -569,6 +581,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // in complete training mode, the tagger is learned twice on the training data
         if (retraining) {
+            LOGGER.info("start retraining (because of complete dataset, no sparse annotations)");
+
             // //////////////////////////////////////////// wrong entities //////////////////////////////////////
             universalClassifier.trainAll();
             saveModel(modelFilePath);
@@ -603,11 +617,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     removeAnnotations.add(wrongAnnotation);
                 }
             }
-            System.out.println(removeAnnotations.size() + " annotations need to be completely removed");
+            LOGGER.info(removeAnnotations.size() + " annotations need to be completely removed");
             // //////////////////////////////////////////////////////////////////////////////////////////////////
         }
 
-        universalClassifier.getTextClassifier().setTrainingInstances(textInstances);
+        universalClassifier.setTrainingInstances(textInstances);
         universalClassifier.trainAll();
 
         analyzeContexts(trainingFilePath, annotations);
@@ -1360,6 +1374,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private void analyzeContexts(String trainingFilePath, Annotations trainingAnnotations) {
 
+        LOGGER.info("start analyzing contexts");
+
         Map<String, CountMap> contextMap = new TreeMap<String, CountMap>();
         CountMap leftContextMapCountMap = new CountMap();
         leftContextMap = new CountMap();
@@ -1372,6 +1388,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
+        int c = 1;
         for (Annotation annotation : annotations) {
 
             String tag = annotation.getInstanceCategoryName();
@@ -1414,6 +1431,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());
             trainingInstance.setInstanceCategory(tag);
             trainingInstances.add(trainingInstance);
+
+            ProgressHelper.showProgress(c++, annotations.size(), 1);
         }
 
         // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
@@ -1693,24 +1712,26 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // // training the tagger
         // needs to point to a column separated file
         String trainingPath = "data/datasets/ner/conll/training.txt";
-        trainingPath = "data/temp/seedsTest100.txt";
-        // trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
+        // trainingPath = "data/temp/seedsTest100.txt";
+        trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
         String modelPath = "data/temp/palladianNerTudCs4Annotations";
         // modelPath = "data/temp/palladianNerConllAnnotations";
         // modelPath = "data/temp/palladianNerConll";
-        modelPath = "data/temp/palladianNerWebTrained100Annotations";
+        // modelPath = "data/temp/palladianNerWebTrained100Annotations";
 
         // set whether to tag dates
-        tagger.setTagDates(false);
+        // tagger.setTagDates(false);
+        tagger.setTagDates(true);
 
         // set whether to tag URLs
-        tagger.setTagUrls(false);
+        // tagger.setTagUrls(false);
+        tagger.setTagUrls(true);
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
 
         // set type of training set (complete supervised or sparse semi-supervised)
-        tagger.setTrainingMode(TrainingMode.Sparse);
+        tagger.setTrainingMode(TrainingMode.Complete);
 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");

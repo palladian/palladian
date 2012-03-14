@@ -1,7 +1,8 @@
 package ws.palladian.helper.nlp;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import weka.core.stemmers.SnowballStemmer;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
@@ -46,8 +48,8 @@ public class WordTransformer {
 
         // irregular verbs
         try {
-            File resourceFile = ResourceHelper.getResourceFile("irregularEnglishVerbs.csv");
-            List<String> list = FileHelper.readFileToArray(resourceFile);
+            InputStreamReader is = new InputStreamReader(ResourceHelper.getResourceStream("irregularEnglishVerbs.csv"));
+            List<String> list = FileHelper.readFileToArray(new BufferedReader(is));
             for (String string : list) {
                 String[] parts = string.split(";");
                 EnglishVerb englishVerb = new EnglishVerb(parts[0], parts[1], parts[2]);
@@ -184,10 +186,10 @@ public class WordTransformer {
      * @param language The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
-    public static String wordToSingular(String pluralForm, String language) {
-        if (language.equalsIgnoreCase("en")) {
+    public static String wordToSingular(String pluralForm, Language language) {
+        if (language.equals(Language.ENGLISH)) {
             return wordToSingularEnglish(pluralForm);
-        } else if (language.equalsIgnoreCase("de")) {
+        } else if (language.equals(Language.GERMAN)) {
             return wordToSingularGerman(pluralForm);
         }
 
@@ -304,10 +306,10 @@ public class WordTransformer {
      * @param language The language (either "en" for English of "de" for German).
      * @return The plural.
      */
-    public static String wordToPlural(String singular, String language) {
-        if (language.equalsIgnoreCase("en")) {
+    public static String wordToPlural(String singular, Language language) {
+        if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
-        } else if (language.equalsIgnoreCase("de")) {
+        } else if (language.equals(Language.GERMAN)) {
             return wordToPluralGerman(singular);
         }
 
@@ -621,27 +623,27 @@ public class WordTransformer {
         // 335ms
 
         StopWatch sw = new StopWatch();
-        System.out.println(WordTransformer.wordToSingular("women", "en"));
-        System.out.println(WordTransformer.wordToSingular("services", "en")); // wrong
-        System.out.println(WordTransformer.wordToSingular("series", "en"));
-        System.out.println(WordTransformer.wordToSingular("species", "en"));
-        System.out.println(WordTransformer.wordToSingular("automata", "en")); // wrong
-        System.out.println(WordTransformer.wordToSingular("archives", "en")); // wrong
+        System.out.println(WordTransformer.wordToSingular("women", Language.ENGLISH));
+        System.out.println(WordTransformer.wordToSingular("services", Language.ENGLISH)); // wrong
+        System.out.println(WordTransformer.wordToSingular("series", Language.ENGLISH));
+        System.out.println(WordTransformer.wordToSingular("species", Language.ENGLISH));
+        System.out.println(WordTransformer.wordToSingular("automata", Language.ENGLISH)); // wrong
+        System.out.println(WordTransformer.wordToSingular("archives", Language.ENGLISH)); // wrong
 
         // de (requires db)
-        System.out.println(WordTransformer.wordToSingular("Kleider", "de"));
-        System.out.println(WordTransformer.wordToSingular("Getränke", "de"));
-        System.out.println(WordTransformer.wordToSingular("Hüte", "de"));
-        System.out.println(WordTransformer.wordToSingular("Häuser", "de"));
-        System.out.println(WordTransformer.wordToSingular("Autos", "de"));
-        System.out.println(WordTransformer.wordToSingular("Oktober", "de"));
+        System.out.println(WordTransformer.wordToSingular("Kleider", Language.GERMAN));
+        System.out.println(WordTransformer.wordToSingular("Getränke", Language.GERMAN));
+        System.out.println(WordTransformer.wordToSingular("Hüte", Language.GERMAN));
+        System.out.println(WordTransformer.wordToSingular("Häuser", Language.GERMAN));
+        System.out.println(WordTransformer.wordToSingular("Autos", Language.GERMAN));
+        System.out.println(WordTransformer.wordToSingular("Oktober", Language.GERMAN));
 
-        System.out.println(WordTransformer.wordToPlural("Kleid", "de"));
-        System.out.println(WordTransformer.wordToPlural("Getränk", "de"));
-        System.out.println(WordTransformer.wordToPlural("Hut", "de"));
-        System.out.println(WordTransformer.wordToPlural("Haus", "de"));
-        System.out.println(WordTransformer.wordToPlural("Auto", "de"));
-        System.out.println(WordTransformer.wordToPlural("Oktober", "de"));
+        System.out.println(WordTransformer.wordToPlural("Kleid", Language.GERMAN));
+        System.out.println(WordTransformer.wordToPlural("Getränk", Language.GERMAN));
+        System.out.println(WordTransformer.wordToPlural("Hut", Language.GERMAN));
+        System.out.println(WordTransformer.wordToPlural("Haus", Language.GERMAN));
+        System.out.println(WordTransformer.wordToPlural("Auto", Language.GERMAN));
+        System.out.println(WordTransformer.wordToPlural("Oktober", Language.GERMAN));
         System.out.println(sw.getElapsedTimeString());
     }
 

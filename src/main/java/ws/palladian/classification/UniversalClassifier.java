@@ -1,6 +1,8 @@
 package ws.palladian.classification;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -9,9 +11,9 @@ import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.numeric.NumericInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
+import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.preprocessing.nlp.ner.Annotation;
-import ws.palladian.preprocessing.nlp.ner.Annotations;
 
 
 public class UniversalClassifier extends Classifier<UniversalInstance> {
@@ -43,6 +45,9 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     private int[] correctlyClassified = new int[3];
     private double[] weights = new double[3];
 
+    private CountMap2D correctlyClassified2 = new CountMap2D();
+    private Map<String, Double> weights2 = new HashMap<String, Double>();
+
     public UniversalClassifier() {
 
         // textClassifier = DictionaryClassifier.load("data/temp/textClassifier.gz");
@@ -63,7 +68,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
     }
 
-    public void learnClassifierWeights(Annotations annotations) {
+    public void learnClassifierWeights(Instances<UniversalInstance> annotations) {
 
         correctlyClassified = new int[3];
         correctlyClassified[0] = 0;
@@ -72,13 +77,10 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         weights = new double[3];
 
-        int c = 0;
-        for (Annotation annotation : annotations) {
-            classify(annotation);
-            c++;
-            if (c % 100 == 0) {
-                System.out.println(100 * c / (double) annotations.size());
-            }
+        int c = 1;
+        for (UniversalInstance annotation : annotations) {
+            classify(annotation, true);
+            ProgressHelper.showProgress(c++, annotations.size(), 1);
         }
 
         weights[0] = correctlyClassified[0] / (double) annotations.size();
@@ -91,7 +93,25 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
     }
 
+    public void learnClassifierWeightsByCategory(Instances<UniversalInstance> annotations) {
+
+        correctlyClassified2 = new CountMap2D();
+
+        weights2 = new HashMap<String, Double>();
+
+        int c = 1;
+        for (UniversalInstance annotation : annotations) {
+            classify(annotation, true);
+            ProgressHelper.showProgress(c++, annotations.size(), 1);
+        }
+
+    }
+
     public void classify(UniversalInstance instance) {
+        classify(instance, false);
+    }
+
+    public void classify(UniversalInstance instance, boolean learnWeights) {
 
         // separate instance in feature types
         String textFeature = instance.getTextFeature();
@@ -122,38 +142,53 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
 
-        if (instance.getInstanceCategory() != null && !instance.getInstanceCategoryName().equals("CANDIDATE")) {
+        if (instance.getInstanceCategory() != null && learnWeights) {
 
             if (isUseTextClassifier()
                     && textInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
                 correctlyClassified[0]++;
+                correctlyClassified2.increment("0", instance.getInstanceCategoryName());
                 mergedCategoryEntries.addAllRelative(textInstance.getAssignedCategoryEntries());
             }
             if (isUseNumericClassifier()
                     && numericInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
                 correctlyClassified[1]++;
+                correctlyClassified2.increment("1", instance.getInstanceCategoryName());
                 mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
             }
             if (isUseNominalClassifier()
                     && nominalInstance.getMainCategoryEntry().getCategory().getName()
                     .equals(instance.getInstanceCategoryName())) {
                 correctlyClassified[2]++;
+                correctlyClassified2.increment("2", instance.getInstanceCategoryName());
                 mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());
             }
 
         } else {
 
+            double weight = 1.0;
+
             // merge classification results
             if (isUseTextClassifier()) {
-                mergedCategoryEntries.addAllRelative(weights[0], textInstance.getAssignedCategoryEntries());
+                // weight =
+                // correctlyClassified2.get("0").get(textInstance.getMainCategoryEntry().getCategory().getName());
+                weight = weights[0];
+                mergedCategoryEntries.addAllRelative(weight, textInstance.getAssignedCategoryEntries());
+
             }
             if (isUseNumericClassifier()) {
-                mergedCategoryEntries.addAllRelative(weights[1], numericInstance.getAssignedCategoryEntries());
+                // weight =
+                // correctlyClassified2.get("1").get(textInstance.getMainCategoryEntry().getCategory().getName());
+                weight = weights[1];
+                mergedCategoryEntries.addAllRelative(weight, numericInstance.getAssignedCategoryEntries());
             }
             if (isUseNominalClassifier()) {
-                mergedCategoryEntries.addAllRelative(weights[2], nominalInstance.getAssignedCategoryEntries());
+                // weight =
+                // correctlyClassified2.get("2").get(textInstance.getMainCategoryEntry().getCategory().getName());
+                weight = weights[2];
+                mergedCategoryEntries.addAllRelative(weight, nominalInstance.getAssignedCategoryEntries());
             }
 
         }

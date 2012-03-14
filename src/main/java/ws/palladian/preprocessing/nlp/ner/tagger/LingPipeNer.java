@@ -81,7 +81,7 @@ public class LingPipeNer extends NamedEntityRecognizer {
             FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
             FileFormatParser.tsvToSsv(trainingFilePath2, trainingFilePath2);
 
-            FileFormatParser.columnToColumnBIO(trainingFilePath2, trainingFilePath2, " ");
+            FileFormatParser.columnToColumnBio(trainingFilePath2, trainingFilePath2, " ");
 
             File corpusFile = new File(trainingFilePath2);
             File modelFile = new File(modelFilePath);

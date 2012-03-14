@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
@@ -276,7 +277,7 @@ public class StringHelper {
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i == parts.length - 1 && toSingular) {
-                part = WordTransformer.wordToSingular(part, "en");
+                part = WordTransformer.wordToSingular(part, Language.ENGLISH);
             }
             camelCasedName += upperCaseFirstLetter(part);
         }

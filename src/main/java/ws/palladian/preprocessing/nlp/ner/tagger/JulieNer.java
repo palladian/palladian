@@ -178,7 +178,7 @@ public class JulieNer extends NamedEntityRecognizer {
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-        annotations = FileFormatParser.getAnnotationsFromXMLFile(outFile.getPath());
+        annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
 
         annotations.instanceCategoryToClassified();
 

@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
@@ -72,6 +73,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
         int firstNumericFeatureIndex = Integer.MAX_VALUE;
 
         // first we count how many times each feature value occurs with a class
+        int c = 1;
         for (UniversalInstance instance : getTrainingInstances()) {
 
             int featureIndex = 0;
@@ -112,6 +114,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
                 featureIndex++;
             }
 
+            ProgressHelper.showProgress(c++, getTrainingInstances().size(), 1);
         }
 
         // now we can transform the counts to actual probabilities for nominal values or pointers to mean and standard
