@@ -37,7 +37,7 @@ import ws.palladian.iirmodel.Labeler;
  */
 public final class WebPersistenceUtilsTest {
     private static final String TEST_PERSISTENCE_UNIT_NAME = System.getProperty("persistenceunitname");
-    private WebPersistenceUtils objectOfClassUnderTest;
+    private ModelPersistenceLayer objectOfClassUnderTest;
     private EntityManagerFactory factory;
 
     // fixture
@@ -58,7 +58,7 @@ public final class WebPersistenceUtilsTest {
     @Before
     public void setUp() throws Exception {
         factory = Persistence.createEntityManagerFactory(TEST_PERSISTENCE_UNIT_NAME);
-        objectOfClassUnderTest = new WebPersistenceUtils(factory.createEntityManager());
+        objectOfClassUnderTest = new ModelPersistenceLayer(factory.createEntityManager());
         questionType = new LabelType("QUESTION", "This is a question.");
         answerType = new LabelType("ANSWER", "This is an answer.");
 
