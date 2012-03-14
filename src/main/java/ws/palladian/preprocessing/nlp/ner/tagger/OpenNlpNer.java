@@ -261,7 +261,7 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
         String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+        annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
         annotations.instanceCategoryToClassified();
 
@@ -319,7 +319,7 @@ public class OpenNlpNer extends NamedEntityRecognizer {
         // }
 
         // open nlp needs xml format
-        FileFormatParser.columnToXML(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
+        FileFormatParser.columnToXml(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
 
         // let us get all tags that are used
         Set<String> usedTags = getUsedTags("data/temp/openNLPNERTraining.xml");

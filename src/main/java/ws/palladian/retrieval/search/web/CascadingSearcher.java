@@ -3,6 +3,8 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -18,6 +20,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  */
 public class CascadingSearcher extends WebSearcher<WebResult> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(CascadingSearcher.class);
 
     private List<WebSearcher<WebResult>> searchers;
 
@@ -38,12 +43,18 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebResult> search(String query, int resultCount, Language language) {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
 
         for (WebSearcher<WebResult> searcher : searchers) {
-            webResults.addAll(searcher.search(query, resultCount, language));
+
+            // some searchers go haywire if something goes wrong, so we catch the exception and try the next one
+            try {
+                webResults.addAll(searcher.search(query, resultCount, language));
+            } catch (SearcherException e) {
+                LOGGER.error(e.getMessage());
+            }
 
             // stop as soon as one searcher found something
             if (!webResults.isEmpty()) {
@@ -61,7 +72,7 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
      * </p>
      * 
      * @param args
-     * @throws SearcherException 
+     * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
         List<WebSearcher<WebResult>> searchers = new ArrayList<WebSearcher<WebResult>>();
@@ -73,6 +84,4 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
         List<WebResult> results = cs.search("the population of germany", 11);
         CollectionHelper.print(results);
     }
-
-
 }

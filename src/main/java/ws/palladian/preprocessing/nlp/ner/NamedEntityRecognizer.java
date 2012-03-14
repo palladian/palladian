@@ -706,7 +706,7 @@ public abstract class NamedEntityRecognizer {
 
     protected void alignContent(String alignFilePath, String correctContent) {
         // transform to XML
-        FileFormatParser.columnToXML(alignFilePath, alignFilePath, "\t");
+        FileFormatParser.columnToXml(alignFilePath, alignFilePath, "\t");
 
         String alignedContent = FileHelper.readFileToString(alignFilePath);
 

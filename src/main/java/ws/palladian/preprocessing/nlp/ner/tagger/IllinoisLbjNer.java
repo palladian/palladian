@@ -174,7 +174,7 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
         String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
         FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
-        FileFormatParser.columnToColumnBIO(trainingFilePath2, trainingFilePath2, " ");
+        FileFormatParser.columnToColumnBio(trainingFilePath2, trainingFilePath2, " ");
 
         // TODO is it a problem if training = testing? ask Lev who wrote the Lbj tagger
         // String testingFilePath = FileHelper.appendToFileName(trainingFilePath, "_");
@@ -255,7 +255,7 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
 
         alignContent(taggedFilePathTransformed, inputText);
 
-        Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
+        Annotations annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedFilePathTransformed);
 
         annotations.instanceCategoryToClassified();
 

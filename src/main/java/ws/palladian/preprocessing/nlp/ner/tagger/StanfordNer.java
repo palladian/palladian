@@ -241,7 +241,7 @@ public class StanfordNer extends NamedEntityRecognizer {
         String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-        annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+        annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
         annotations.instanceCategoryToClassified();
 
