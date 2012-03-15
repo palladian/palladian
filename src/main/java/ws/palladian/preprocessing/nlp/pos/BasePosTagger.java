@@ -19,10 +19,16 @@ import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 /**
  * <p>
  * This is the abstract base class for all Part of Speech taggers offered by Palladian. It implements two interfaces:
+ * 
  * <ol>
- * <li>PosTagger, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as String.
- * In this case, the text is tokenized using a default {@link Tokenizer} implementation specific for the respective POS
- * tagger.
+ * <li>{@link PosTagger}, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as
+ * String. In this case, the text is tokenized using a default {@link Tokenizer} implementation specific for the
+ * respective POS tagger.</li>
+ * 
+ * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
+ * means, that the input document must be tokenized in advance, using one of the available {@link Tokenizer}
+ * implementations. In this mode, the POS tags are appended to the token's {@link FeatureVector}s and can be retrieved
+ * later using the {@link #PROVIDED_FEATURE_DESCRIPTOR}.</li>
  * </ol>
  * </p>
  * 
@@ -56,6 +62,10 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
         // this.tokenizer = new LingPipeTokenizer();
     }
 
+    // ////////////////////////////////////////////
+    // PosTagger API
+    // ////////////////////////////////////////////
+
     @Override
     public TagAnnotations tag(String text) {
         PipelineDocument document = new PipelineDocument(text);
@@ -72,7 +82,9 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
         return ret;
     }
 
-    public abstract void tag(List<Annotation> annotations);
+    // ////////////////////////////////////////////
+    // PipelineProcessor API
+    // ////////////////////////////////////////////
 
     @Override
     public void process(PipelineDocument document) {
@@ -85,6 +97,28 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
         tag(annotationFeature.getValue());
     }
 
+    // ////////////////////////////////////////////
+    // internal/subclass methods
+    // ////////////////////////////////////////////
+
+    /**
+     * <p>
+     * Subclasses implement this method to perform the POS tagging. The POS tags can be assigned to each annotation
+     * using the provided convenience method {@link #assignTag(Annotation, String)}.
+     * </p>
+     * 
+     * @param annotations The list of annotations to process, this is the tokenized text.
+     */
+    protected abstract void tag(List<Annotation> annotations);
+
+    /**
+     * <p>
+     * Helper method to convert a {@link List} of {@link Annotation}s to a {@link List} with their String values.
+     * </p>
+     * 
+     * @param annotations
+     * @return
+     */
     protected static List<String> getTokenList(List<Annotation> annotations) {
         List<String> tokenList = new ArrayList<String>(annotations.size());
         for (Annotation annotation : annotations) {
@@ -99,6 +133,10 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
     }
 
     /**
+     * <p>
+     * Helper method to assign a POS tag to an {@link Annotation}.
+     * </p>
+     * 
      * @param annotation
      * @param tag
      */
