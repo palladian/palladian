@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -28,7 +26,7 @@ import javax.persistence.TemporalType;
  * @version 3.1
  */
 @Entity
-@Table(name = "ITEM")
+@Table(name = "Item")
 public class Item implements Serializable {
 
     /**
@@ -122,15 +120,6 @@ public class Item implements Serializable {
 
     /**
      * <p>
-     * A type giving the semantics of this items content. It defines for example if the entry is a question an answer or
-     * something completely different.
-     * </p>
-     */
-    @Enumerated(EnumType.STRING)
-    private ItemType type;
-
-    /**
-     * <p>
      * Creates a new {@code Item} with no values. This is used by the ORM.
      * </p>
      */
@@ -155,7 +144,7 @@ public class Item implements Serializable {
      */
     public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
             Date updateDate, String text) {
-        this(sourceInternalIdentifier, author, link, title, publicationDate, updateDate, text, null, null);
+        this(sourceInternalIdentifier, author, link, title, publicationDate, updateDate, text, null);
     }
 
     /**
@@ -181,7 +170,7 @@ public class Item implements Serializable {
      */
     // TODO wouldnt it be better to supply the parent stream also via constructor?
     public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
-            Date updateDate, String text, Item predecessor, ItemType type) {
+            Date updateDate, String text, Item predecessor) {
         this();
         this.sourceInternalIdentifier = sourceInternalIdentifier;
         this.author = author;
@@ -191,7 +180,6 @@ public class Item implements Serializable {
         this.updateDate = updateDate;
         this.text = text;
         this.predecessor = predecessor;
-        this.type = type;
     }
 
     public Author getAuthor() {
@@ -264,14 +252,6 @@ public class Item implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public ItemType getType() {
-        return type;
-    }
-
-    public void setType(ItemType type) {
-        this.type = type;
     }
 
     public Date getUpdateDate() {
@@ -359,8 +339,6 @@ public class Item implements Serializable {
         // builder.append(text);
         builder.append(", predecessor=");
         builder.append(predecessor);
-        builder.append(", type=");
-        builder.append(type);
         builder.append("]");
         return builder.toString();
     }

@@ -11,7 +11,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 
 import ws.palladian.iirmodel.helper.StreamVisitor;
 
@@ -41,7 +40,7 @@ public final class ItemStream extends StreamSource {
      * </p>
      */
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    @OrderBy("publicationDate ASC")
+    // @OrderBy("publicationDate ASC")
     private List<Item> items;
 
     /**

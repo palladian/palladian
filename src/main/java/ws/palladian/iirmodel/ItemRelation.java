@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -26,7 +27,7 @@ import javax.persistence.Table;
  * @since 1.0
  */
 @Entity
-@Table(name = "ITEMRELATION")
+@Table(name = "ItemRelation")
 public class ItemRelation implements Serializable {
 
     private static final long serialVersionUID = 9163914602749435760L;
@@ -44,6 +45,7 @@ public class ItemRelation implements Serializable {
     @OneToOne
     private Item secondItem;
 
+    @Lob
     private String comment;
 
     protected ItemRelation() {
@@ -172,5 +174,4 @@ public class ItemRelation implements Serializable {
         builder.append("]");
         return builder.toString();
     }
-
 }

@@ -103,7 +103,7 @@ public abstract class AbstractPersistenceLayer {
      * 
      * @return <code>true</code> if a new transaction was started, <code>false</code> if transaction was open already.
      */
-    protected final Boolean openTransaction() {
+    public final Boolean openTransaction() {
         if (manager.getTransaction().isActive()) {
             return false;
         } else {
@@ -120,7 +120,7 @@ public abstract class AbstractPersistenceLayer {
      * 
      * @param openedTransaction
      */
-    protected final void commitTransaction(final Boolean openedTransaction) {
+    public final void commitTransaction(final Boolean openedTransaction) {
         if (openedTransaction) {
             manager.getTransaction().commit();
         }

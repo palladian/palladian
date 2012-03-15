@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -18,8 +19,8 @@ import javax.persistence.UniqueConstraint;
  * @since 1.0
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "NAME"), name = "RELATIONTYPE")
-public final class RelationType implements Serializable {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "NAME"), name = "RelationType")
+public final class RelationType implements Serializable, Comparable<RelationType> {
 
     private static final long serialVersionUID = 4461664486685564343L;
 
@@ -29,13 +30,17 @@ public final class RelationType implements Serializable {
 
     private String name;
 
+    @Lob
+    private String explanation;
+
     protected RelationType() {
         super();
     }
 
-    public RelationType(String name) {
+    public RelationType(String name, String explanation) {
         this();
         this.name = name;
+        this.explanation = explanation;
     }
 
     public String getName() {
@@ -52,6 +57,20 @@ public final class RelationType implements Serializable {
 
     public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
+    }
+
+    /**
+     * @return the explanation
+     */
+    public String getExplanation() {
+        return explanation;
+    }
+
+    /**
+     * @param explanation the explanation to set
+     */
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
     }
 
     @Override
@@ -97,6 +116,11 @@ public final class RelationType implements Serializable {
         builder.append(name);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(RelationType otherRelationType) {
+        return this.name.compareTo(otherRelationType.name);
     }
 
 }

@@ -68,6 +68,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<distributionManagement>
 		<snapshotRepository>
@@ -85,7 +91,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<hibernate.version>3.6.7.Final</hibernate.version>
+				<hibernate.version>4.0.1.Final</hibernate.version>
 				<jpa.version>2.0-cr-1</jpa.version>
 			</properties>
 			<build>
@@ -111,6 +117,16 @@
 				<dependency>
 					<groupId>org.hibernate</groupId>
 					<artifactId>hibernate-entitymanager</artifactId>
+					<version>${hibernate.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-c3p0</artifactId>
+					<version>${hibernate.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-core</artifactId>
 					<version>${hibernate.version}</version>
 				</dependency>
 			</dependencies>

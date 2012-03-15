@@ -11,7 +11,8 @@ import javax.persistence.Table;
 
 /**
  * <p>
- * An annotation on an item.
+ * A label on an {@link Item} assigned by a person or some program. Labels give the semantics of the {@code Item}.
+ * Examples are question, answer, etc.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -19,17 +20,17 @@ import javax.persistence.Table;
  * @version 1.0.0
  */
 @Entity
-@Table(name = "ANNOTATION")
+@Table(name = "Label")
 public final class Label {
     @Id
     @GeneratedValue
     private final Integer identifier;
 
     @ManyToOne
-    private final Item annotatedItem;
+    private final Item labeledItem;
 
     @ManyToOne
-    private final LabelType annotation;
+    private final LabelType type;
 
     private final String comment;
 
@@ -38,29 +39,28 @@ public final class Label {
      */
     protected Label() {
         this(null, null, null);
-
     }
 
-    public Label(final Item annotatedItem, final LabelType labelType, final String comment) {
+    public Label(final Item labeledItem, final LabelType type, final String comment) {
         super();
         this.identifier = null;
-        this.annotatedItem = annotatedItem;
-        this.annotation = labelType;
+        this.labeledItem = labeledItem;
+        this.type = type;
         this.comment = comment;
     }
 
     /**
      * @return the annotatedItem
      */
-    public final Item getAnnotatedItem() {
-        return annotatedItem;
+    public final Item getLabeledItem() {
+        return labeledItem;
     }
 
     /**
      * @return the annotation
      */
-    public final LabelType getAnnotation() {
-        return annotation;
+    public final LabelType getType() {
+        return type;
     }
 
     /**
