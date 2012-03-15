@@ -149,7 +149,7 @@ public class Item implements Serializable {
 
     /**
      * <p>
-     * Creates a new completely initialized {@link Item} with an {@link ItemType} and a predecessor {@link Item}.
+     * Creates a new completely initialized {@link Item} with a predecessor {@link Item}.
      * </p>
      * 
      * @param sourceInternalIdentifier The identifier used to identify the item inside the item stream. It might not be
@@ -165,8 +165,6 @@ public class Item implements Serializable {
      * @param predecessor The item occurring as a parent or direct predecessor of this item. This might be {@code null}
      *            if this is the first item in a stream. In some cases an item might be the predecessor of multiple
      *            other items. This happens if a stream is not linear but forms a tree structure.
-     * @param type A type giving the semantics of this items content. It defines for example if the entry is a question
-     *            an answer or something completely different.
      */
     // TODO wouldnt it be better to supply the parent stream also via constructor?
     public Item(String sourceInternalIdentifier, Author author, String link, String title, Date publicationDate,
