@@ -68,9 +68,27 @@ public final class FeatureVector {
      * @param identifier
      *            The {@code FeatureVector} wide unique identifier of the requested {@code Feature}.
      * @return The {@code Feature} with identifier {@code identifier} or {@code null} if no such {@code Feature} exists.
+     * @deprecated Prefer using {@link #get(FeatureDescriptor)} when a {@link FeatureDescriptor} is available. This
+     *             improves type safety and avoids unnecessary casting.
      */
+    @Deprecated
     public Feature<?> get(String identifier) {
         return features.get(identifier);
+    }
+
+    /**
+     * <p>
+     * Provides a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
+     *            requested {@link Feature}.
+     * @return The {@link Feature} for the specified {@link FeatureDescriptor} or <code>null</code> if no such
+     *         {@link Feature} exists.
+     */
+    public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
+        Feature<?> feature = features.get(descriptor.getIdentifier());
+        return descriptor.getType().cast(feature);
     }
 
     @Override
@@ -101,4 +119,5 @@ public final class FeatureVector {
     public int countDimensions() {
         return this.features.size();
     }
+
 }

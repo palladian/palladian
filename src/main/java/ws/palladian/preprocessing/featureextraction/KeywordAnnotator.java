@@ -15,6 +15,8 @@ import ws.palladian.model.features.NumericFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
 import ws.palladian.preprocessing.ProcessingPipeline;
+import ws.palladian.preprocessing.nlp.tokenization.RegExTokenizer;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 public class KeywordAnnotator implements PipelineProcessor {
 
@@ -78,7 +80,7 @@ public class KeywordAnnotator implements PipelineProcessor {
         
         
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new Tokenizer());
+        pipeline.add(new RegExTokenizer());
         pipeline.add(new NGramCreator(4));
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new FrequencyCalculator());

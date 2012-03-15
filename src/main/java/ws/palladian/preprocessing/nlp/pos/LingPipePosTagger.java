@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.Cache;
@@ -18,119 +18,128 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.preprocessing.nlp.TagAnnotation;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;
 import com.aliasi.tag.Tagging;
-import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
-import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.FastCache;
 
 /**
  * @author Martin Wunderwald
+ * @author Philipp Katz
  */
-public class LingPipePosTagger extends PosTagger {
+public final class LingPipePosTagger extends BasePosTagger {
+
+    private static final long serialVersionUID = 1L;
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LingPipePosTagger.class);
 
+    /** The name of this {@link PosTagger}. */
+    private static final String TAGGER_NAME = "LingPipe POS-Tagger";
+
+    /** The model used by the LingPipe POS tagger. */
+    private final HiddenMarkovModel model;
+
+    /**
+     * <p>
+     * Instantiate a new LingPipe POS tagger from the given model.
+     * </p>
+     * 
+     * @param modelFile
+     */
+    public LingPipePosTagger(File modelFile) {
+        this.model = loadModel(modelFile);
+    }
+    
     /**
      * Constructor.
      */
     public LingPipePosTagger() {
-        super();
-        setName("LingPipe POS-Tagger");
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        File modelFile = new File(config.getString("models.root") + config.getString("models.lingpipe.en.postag"));
+        this.model = loadModel(modelFile);
     }
 
-    @Override
-    public LingPipePosTagger loadModel(final String modelFilePath) {
-
-        ObjectInputStream inputStream = null;
-
-        try {
-            HiddenMarkovModel hmm = null;
-
-            if (Cache.getInstance().containsDataObject(modelFilePath)) {
-                hmm = (HiddenMarkovModel) Cache.getInstance().getDataObject(modelFilePath);
-            } else {
-
-                final StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-
-                inputStream = new ObjectInputStream(new FileInputStream(modelFilePath));
-                hmm = (HiddenMarkovModel) inputStream.readObject();
-                Cache.getInstance().putDataObject(modelFilePath, hmm);
-
-                stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
-                        + stopWatch.getElapsedTimeString());
-            }
-
-            setModel(hmm);
-
-        } catch (final IOException ie) {
-            LOGGER.error("IO Error: " + ie.getMessage());
-
-        } catch (final ClassNotFoundException ce) {
-            LOGGER.error("Class error: " + ce.getMessage());
-
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (final IOException ie) {
-                    LOGGER.error(ie.getMessage());
-                }
+    /**
+     * @param modelFile
+     */
+    private HiddenMarkovModel loadModel(File modelFile) {
+        String modelFilePath = modelFile.getAbsolutePath();
+        HiddenMarkovModel ret = (HiddenMarkovModel) Cache.getInstance().getDataObject(modelFilePath);
+        if (ret == null) {
+            ObjectInputStream inputStream = null;
+            try {
+                inputStream = new ObjectInputStream(new FileInputStream(modelFile));
+                ret = (HiddenMarkovModel) inputStream.readObject();
+                Cache.getInstance().putDataObject(modelFilePath, model);
+            } catch (IOException e) {
+                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
+                        + e.getMessage());
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
+                        + e.getMessage());
+            } finally {
+                IOUtils.closeQuietly(inputStream);
             }
         }
-        return this;
+        return ret;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String)
-     */
+
     @Override
-    public LingPipePosTagger tag(final String sentence) {
+    public void tag(List<Annotation> annotations) {
 
         int cacheSize = Integer.valueOf(100);
         FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
 
-        // read HMM for pos tagging
+        HmmDecoder posTagger = new HmmDecoder(model, null, cache);
 
-        // construct chunker
-        HmmDecoder posTagger = new HmmDecoder((HiddenMarkovModel)getModel(), null, cache);
-        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-
-        // apply pos tagger
-        String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
-        List<String> tokenList = Arrays.asList(tokens);
+        List<String> tokenList = getTokenList(annotations);
         Tagging<String> tagging = posTagger.tag(tokenList);
 
-        TagAnnotations tagAnnotations = new TagAnnotations();
         for (int i = 0; i < tagging.size(); i++) {
-
-            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tagging.token(i)), tagging.tag(i)
-                    .toUpperCase(new Locale("en")), tagging.token(i));
-            tagAnnotations.add(tagAnnotation);
-
+            assignTag(annotations.get(i), tagging.tag(i));
         }
-        setTagAnnotations(tagAnnotations);
-        return this;
     }
 
-    @Override
-    public LingPipePosTagger tag(String sentence, String modelFilePath) {
-        return this.loadModel(modelFilePath).tag(sentence);
-    }
+    
+
+    // /*
+    // * (non-Javadoc)
+    // * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String)
+    // */
+    // @Override
+    // public LingPipePosTagger tag(String sentence) {
+    //
+    // int cacheSize = Integer.valueOf(100);
+    // FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
+    //
+    // // read HMM for pos tagging
+    //
+    // // construct chunker
+    // HmmDecoder posTagger = new HmmDecoder(model, null, cache);
+    // TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+    //
+    // // apply pos tagger
+    // String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
+    // List<String> tokenList = Arrays.asList(tokens);
+    // Tagging<String> tagging = posTagger.tag(tokenList);
+    //
+    // TagAnnotations tagAnnotations = new TagAnnotations();
+    // for (int i = 0; i < tagging.size(); i++) {
+    //
+    // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tagging.token(i)), tagging.tag(i)
+    // .toUpperCase(new Locale("en")), tagging.token(i));
+    // tagAnnotations.add(tagAnnotation);
+    //
+    // }
+    // setTagAnnotations(tagAnnotations);
+    // return this;
+    // }
 
     public void evaluate(String folderPath, String modelFilePath) {
-        loadModel(modelFilePath);
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start evaluating the tagger");
@@ -145,7 +154,7 @@ public class LingPipePosTagger extends PosTagger {
         FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
 
         // construct chunker
-        HmmDecoder posTagger = new HmmDecoder((HiddenMarkovModel)getModel(), null, cache);
+        HmmDecoder posTagger = new HmmDecoder(model, null, cache);
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
@@ -190,9 +199,27 @@ public class LingPipePosTagger extends PosTagger {
         LOGGER.info("finished evaluating the tagger in " + stopWatch.getElapsedTimeString());
     }
 
+    @Override
+    public String getName() {
+        return TAGGER_NAME;
+    }
+
     public static void main(String[] args) {
-        LingPipePosTagger tagger = new LingPipePosTagger();
-        tagger.loadModel();
+
+        final File modelFile = new File("/Users/pk/Desktop/pos-en-general-brown.HiddenMarkovModel");
+
+        // PipelineDocument document = new PipelineDocument("I'm here to say that we're about to do that.");
+        // ProcessingPipeline pipeline = new ProcessingPipeline();
+        // pipeline.add(new LingPipeTokenizer());
+        // pipeline.add(new LingPipePosTagger(modelFile));
+        // pipeline.process(document);
+        // AnnotationFeature annotations = (AnnotationFeature)
+        // document.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE);
+        // System.out.println(annotations.getValue());
+        //
+        // System.exit(0);
+
+        BasePosTagger tagger = new LingPipePosTagger(modelFile);
         System.out.println(tagger.tag("I'm here to say that we're about to do that.").getTaggedString());
         // System.out.println(tagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
         // tagger.evaluate("data/datasets/pos/testSmall/",

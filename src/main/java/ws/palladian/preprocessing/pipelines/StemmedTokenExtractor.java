@@ -17,7 +17,8 @@ import ws.palladian.preprocessing.featureextraction.LengthTokenRemover;
 import ws.palladian.preprocessing.featureextraction.RegExTokenRemover;
 import ws.palladian.preprocessing.featureextraction.StemmerAnnotator;
 import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
-import ws.palladian.preprocessing.featureextraction.Tokenizer;
+import ws.palladian.preprocessing.nlp.tokenization.RegExTokenizer;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>
@@ -38,7 +39,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
      * @param language The language for which to perform stemming and stop word removal.
      */
     public StemmedTokenExtractor(Language language) {
-        add(new Tokenizer());
+        add(new RegExTokenizer());
         add(new StemmerAnnotator(language));
         add(new StopTokenRemover(language));
         add(new LengthTokenRemover(2));
@@ -57,14 +58,14 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
      */
     public Map<String, Double> getTokens(String text) {
         PipelineDocument document = process(new PipelineDocument(text));
-        AnnotationFeature feature = (AnnotationFeature) document.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature feature = document.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Map<String, Double> result = new HashMap<String, Double>();
         for (Annotation annotation : feature.getValue()) {
             // String value = annotation.getValue();
-            NominalFeature stemmedValue = (NominalFeature) annotation.getFeatureVector().get(
-                    StemmerAnnotator.PROVIDED_FEATURE);
-            NumericFeature frequencyFeature = (NumericFeature) annotation.getFeatureVector().get(
-                    FrequencyCalculator.PROVIDED_FEATURE);
+            NominalFeature stemmedValue = annotation.getFeatureVector().get(
+                    StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+            NumericFeature frequencyFeature = annotation.getFeatureVector().get(
+                    FrequencyCalculator.PROVIDED_FEATURE_DESCRIPTOR);
             result.put(stemmedValue.getValue(), frequencyFeature.getValue());
         }
         return result;

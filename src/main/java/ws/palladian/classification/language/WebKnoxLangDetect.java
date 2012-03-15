@@ -1,8 +1,6 @@
 package ws.palladian.classification.language;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -10,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -43,12 +42,8 @@ public class WebKnoxLangDetect extends LanguageClassifier {
     public String classify(String text) {
 
         DocumentRetriever retriever = new DocumentRetriever();
-        String url = "http://webknox.com/api/text/posTags?text=";
-        try {
-            url += URLEncoder.encode(text, "UTF-8");
-        } catch (UnsupportedEncodingException e1) {
-            LOGGER.error(e1.getMessage());
-        }
+        String url = "http://webknox.com/api/text/language?text=";
+            url += UrlHelper.urlEncode(text);
         url += "&appId=" + appId;
         url += "&apiKey=" + apiKey;
         JSONArray result = retriever.getJsonArray(url);

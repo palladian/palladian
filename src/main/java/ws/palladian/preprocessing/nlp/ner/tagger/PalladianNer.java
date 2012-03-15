@@ -57,6 +57,7 @@ import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
 import ws.palladian.preprocessing.nlp.ner.UrlTagger;
 import ws.palladian.preprocessing.nlp.ner.dataset.DatasetCreator;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationResult;
+import ws.palladian.preprocessing.nlp.pos.BasePosTagger;
 import ws.palladian.preprocessing.nlp.pos.LingPipePosTagger;
 
 /**
@@ -805,11 +806,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         // load the lingpipe POS tagger only if the features that require them are turned on
-        LingPipePosTagger lpt = null;
+        BasePosTagger lpt = null;
 
         if (removeWrongEntityBeginnings || removeSentenceStartErrorsPos || removeSingleNonNounEntities) {
             lpt = new LingPipePosTagger();
-            lpt.loadModel();
         }
 
         // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"
@@ -821,7 +821,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 // remove it
                 String[] entityParts = annotation.getEntity().split(" ");
                 if (entityParts.length > 1 && Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
-                    TagAnnotations ta = lpt.tag(entityParts[0]).getTagAnnotations();
+                    TagAnnotations ta = lpt.tag(entityParts[0]);
                     if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1
                             && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
                             && ta.get(0).getTag().indexOf("UH") == -1) {
@@ -855,7 +855,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 if (Boolean.valueOf(annotation.getNominalFeatures().get(0))
                         && annotation.getEntity().indexOf(" ") == -1) {
 
-                    TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                    TagAnnotations ta = lpt.tag(annotation.getEntity());
                     if (ta.size() >= 1 && ta.get(0).getTag().indexOf("NP") == -1
                             && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
                             && ta.get(0).getTag().indexOf("UH") == -1) {
@@ -868,7 +868,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                         continue;
                     }
 
-                    ta = lpt.tag(rightContextParts[0]).getTagAnnotations();
+                    ta = lpt.tag(rightContextParts[0]);
 
                     Set<String> allowedPosTags = new HashSet<String>();
                     allowedPosTags.add("CD");
@@ -972,7 +972,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             c = 0;
             for (Annotation annotation : annotations) {
 
-                TagAnnotations ta = lpt.tag(annotation.getEntity()).getTagAnnotations();
+                TagAnnotations ta = lpt.tag(annotation.getEntity());
                 if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") == -1
                         && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
                     toRemove.add(annotation);

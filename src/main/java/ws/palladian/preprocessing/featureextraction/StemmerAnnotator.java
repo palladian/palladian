@@ -8,10 +8,13 @@ import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
 import ws.palladian.helper.constants.Language;
+import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>
@@ -32,6 +35,14 @@ public class StemmerAnnotator implements PipelineProcessor {
      * </p>
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.stem";
+
+    /**
+     * <p>
+     * The descriptor of the feature provided by this {@link PipelineProcessor}.
+     * </p>
+     */
+    public static final FeatureDescriptor<NominalFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
+            PROVIDED_FEATURE, NominalFeature.class);
 
     private final SnowballStemmer stemmer;
 
@@ -80,10 +91,9 @@ public class StemmerAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = featureVector.get(Tokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            // TODO replace by explicit exception
-            throw new RuntimeException("The required feature " + Tokenizer.PROVIDED_FEATURE + " is missing.");
+            throw new IllegalStateException("The required feature " + Tokenizer.PROVIDED_FEATURE + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {

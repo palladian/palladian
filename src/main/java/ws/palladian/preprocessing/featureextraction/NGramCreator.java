@@ -6,6 +6,7 @@ import java.util.List;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>

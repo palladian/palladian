@@ -3,6 +3,7 @@
  */
 package ws.palladian.preprocessing.pipelines;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -14,9 +15,10 @@ import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
 import ws.palladian.preprocessing.featureextraction.SequentialPatternAnnotator;
-import ws.palladian.preprocessing.featureextraction.Tokenizer;
+import ws.palladian.preprocessing.nlp.pos.OpenNlpPosTagger;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetector;
+import ws.palladian.preprocessing.nlp.tokenization.RegExTokenizer;
 
 /**
  * <p>
@@ -70,8 +72,8 @@ public class SequentialPatternMiner extends ProcessingPipeline {
     public SequentialPatternMiner(String pathToPartOfSpeechModel, Integer maxSequentialPatternSize) {
         super();
         add(new PalladianSentenceDetector());
-        add(new Tokenizer());
-        add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(pathToPartOfSpeechModel));
+        add(new RegExTokenizer());
+        add(new OpenNlpPosTagger(new File(pathToPartOfSpeechModel)));
         add(new SequentialPatternAnnotator(keywords, maxSequentialPatternSize));
 
     }
