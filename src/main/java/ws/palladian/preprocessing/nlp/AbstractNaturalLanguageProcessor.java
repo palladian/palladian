@@ -3,7 +3,7 @@ package ws.palladian.preprocessing.nlp;
 import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
-import ws.palladian.preprocessing.nlp.phrasechunking.AbstractPhraseChunker;
+import ws.palladian.preprocessing.nlp.phrasechunking.PhraseChunker;
 import ws.palladian.preprocessing.nlp.pos.PosTagger;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 
@@ -21,7 +21,7 @@ public abstract class AbstractNaturalLanguageProcessor {
     protected PosTagger posTagger;
 
     /** The PhraseChunker. **/
-    protected AbstractPhraseChunker phraseChunker;
+    protected PhraseChunker phraseChunker;
 
     /** The Parser. **/
     protected AbstractParser parser;
@@ -64,7 +64,7 @@ public abstract class AbstractNaturalLanguageProcessor {
     /**
      * @return the phraseChunker
      */
-    public final AbstractPhraseChunker getPhraseChunker() {
+    public final PhraseChunker getPhraseChunker() {
         return phraseChunker;
     }
 
@@ -76,7 +76,7 @@ public abstract class AbstractNaturalLanguageProcessor {
      * @return The part of speach tags.
      */
     public final TagAnnotations getPhraseChunks(final String sentence) {
-        return phraseChunker.loadDefaultModel().chunk(sentence).getTagAnnotations();
+        return phraseChunker.chunk(sentence);
     }
 
     /**
@@ -148,7 +148,7 @@ public abstract class AbstractNaturalLanguageProcessor {
      * @param phraseChunker
      *            the phraseChunker to set
      */
-    public final void setPhraseChunker(final AbstractPhraseChunker phraseChunker) {
+    public final void setPhraseChunker(final PhraseChunker phraseChunker) {
         this.phraseChunker = phraseChunker;
     }
 
