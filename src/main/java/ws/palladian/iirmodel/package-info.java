@@ -1,4 +1,5 @@
 /**
+ * <h2>Item Stream Model</h2>
  * <p>
  * This package contains a consolidated model for Internet Information Retrieval tasks on streams of items. Item streams
  * are common over the whole web in the form of web forum threads, Facebook, Twitter or web feeds. Each of these sources
@@ -47,6 +48,22 @@
  *              |
  *              + ItemStream : Git
  * </pre>
+ * 
+ * <h2>Labeler Model</h2>
+ * <p>
+ * In addition the package contains classes to hold meta data about the {@link ws.palladian.iirmodel.Item}s and
+ * {@link ws.palladian.iirmodel.ItemStream}s. This meta data mostly concerns with people or systems providing
+ * {@link ws.palladian.iirmodel.Label}s and {@link ws.palladian.iirmodel.ItemRelation}s for
+ * {@code ws.palladian.iirmodel.Item}s. They are represented by the class {@link ws.palladian.iirmodel.Labeler}.
+ * </p>
+ * <p>
+ * Each {@code ws.palladian.iirmodel.Label} as well as each {@code ws.palladian.iirmodel.ItemRelation} has a type
+ * represented by {@link ws.palladian.iirmodel.LabelType} and {@link ws.palladian.iirmodel.RelationType}.
+ * {@code ws.palladian.iirmodel.Label}s define the meaning of an {@code Item}. For example a
+ * {@code ws.palladian.iirmodel.Label} may carry the information that a certain {@code ws.palladian.iirmodel.Item} is a
+ * news item or a question. Similarily {@code ws.palladian.iirmodel.ItemRelation}s may be of types like "part-of" or
+ * "duplicate".
+ * </p>
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz

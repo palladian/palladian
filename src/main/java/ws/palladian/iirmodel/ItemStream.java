@@ -36,7 +36,7 @@ public final class ItemStream extends StreamSource {
 
     /**
      * <p>
-     * The items available within this item stream.
+     * The {@link Item}s available within this item stream.
      * </p>
      */
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
@@ -46,7 +46,8 @@ public final class ItemStream extends StreamSource {
     /**
      * <p>
      * Creates a new {@link ItemStream} with no initial values. Use the provided setter methods to initialize the
-     * instance.
+     * instance. This should only be called by the JPA persistence layer and never directly. Please use
+     * {@link #ItemStream(String, String)} instead.
      * </p>
      */
     protected ItemStream() {
@@ -68,10 +69,16 @@ public final class ItemStream extends StreamSource {
         this.items = new LinkedList<Item>();
     }
 
+    /**
+     * @return The {@link Item}s available within this item stream.
+     */
     public List<Item> getItems() {
         return items;
     }
 
+    /**
+     * @param items The {@link Item}s available within this item stream.
+     */
     public void setItems(List<Item> items) {
         this.items = items;
     }

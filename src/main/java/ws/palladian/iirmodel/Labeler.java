@@ -36,12 +36,17 @@ public final class Labeler implements Comparable<Labeler> {
     private final String name;
     /**
      * <p>
-     * The {@code Label}s this {@code Labeler} provided.
+     * The {@link Label}s this {@code Labeler} provided.
      * </p>
      */
     @OneToMany(cascade = CascadeType.ALL)
     private final Collection<Label> labels;
 
+    /**
+     * <p>
+     * The {@link ItemRelation}s this {@code Labeler} provided.
+     * </p>
+     */
     @OneToMany(cascade = CascadeType.ALL)
     private final Collection<ItemRelation> relations;
 
@@ -62,7 +67,7 @@ public final class Labeler implements Comparable<Labeler> {
     /**
      * <p>
      * This default constructor is only required by JPA to create objects of this class via reflection. It should never
-     * be called directly.
+     * be called directly. Please use {@link #Labeler(String)} instead.
      * </p>
      */
     protected Labeler() {
@@ -112,7 +117,7 @@ public final class Labeler implements Comparable<Labeler> {
     }
 
     /**
-     * @return the relations
+     * @return The {@link ItemRelation}s this {@code Labeler} provided.
      */
     public Collection<ItemRelation> getRelations() {
         Collection<ItemRelation> ret = new HashSet<ItemRelation>();
@@ -120,13 +125,21 @@ public final class Labeler implements Comparable<Labeler> {
         return ret;
     }
 
+    /**
+     * <p>
+     * Adds a new {@link ItemRelation} to the relations provided by this {@code Labeler}.
+     * </p>
+     * 
+     * @param relation The new {@code ItemRelation}.
+     * @return {@code true} if adding the relation was successful; {@code false} otherwise.
+     */
     public Boolean addRelation(final ItemRelation relation) {
         return this.relations.add(relation);
     }
 
     /**
      * <p>
-     * Order is based on the alphabetical order labeler names.
+     * Order is based on the alphabetical order of {@code Labeler} names.
      * </p>
      * 
      * @param otherLabeler The {@code Labeler} to compare to.

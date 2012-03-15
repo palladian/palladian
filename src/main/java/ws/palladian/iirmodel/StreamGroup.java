@@ -168,7 +168,9 @@ public final class StreamGroup extends StreamSource {
     }
 
     /**
-     * 
+     * <p>
+     * Deletes all children from this {@code StreamGroup}.
+     * </p>
      */
     public void removeChildren() {
         this.children.clear();

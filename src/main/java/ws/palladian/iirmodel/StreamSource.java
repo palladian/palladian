@@ -180,23 +180,6 @@ public abstract class StreamSource implements Serializable {
         this.parentSource = parentSource;
     }
 
-    // /**
-    // * <p>
-    // * Returns a fully qualified name for this StreamSource.
-    // * </p>
-    // *
-    // * @return
-    // */
-    // public final String getQualifiedSourceName() {
-    // StringBuilder result = new StringBuilder();
-    // if (parentSource != null) {
-    // result.append(parentSource.getQualifiedSourceName());
-    // result.append(QUALIFIED_NAME_SEPARATOR);
-    // }
-    // result.append(getSourceName());
-    // return result.toString();
-    // }
-
     public final Set<Author> getAuthors() {
         return authors;
     }
@@ -220,10 +203,25 @@ public abstract class StreamSource implements Serializable {
         return ret;
     }
 
+    /**
+     * <p>
+     * Sets a new set of {@link Author}s writing {@link Item}s for this {@code StreamSource} and overwrites the old set
+     * of {@code Author}s.
+     * </p>
+     * 
+     * @param authors The new {@code Author}s of this {@code StreamSource}.
+     */
     public final void setAuthors(Collection<Author> authors) {
         this.authors = new HashSet<Author>(authors);
     }
 
+    /**
+     * <p>
+     * Adds an {@link Author} who writes {@link Item}s for this {@code StreamSource}.
+     * </p>
+     * 
+     * @param author The {@code Author} to add.
+     */
     public final void addAuthor(Author author) {
         authors.add(author);
     }

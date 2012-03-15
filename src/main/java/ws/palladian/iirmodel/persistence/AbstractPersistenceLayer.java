@@ -12,7 +12,8 @@ import javax.persistence.TypedQuery;
 
 /**
  * <p>
- * 
+ * Abstract base class for persistence layers. Provides some convenience methods usually required by a persistence
+ * layer.
  * </p>
  * 
  * @author Klemens Muthmann

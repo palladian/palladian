@@ -22,25 +22,57 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "Label")
 public final class Label {
+    /**
+     * <p>
+     * The automatically generated, system wide unique database identifier.
+     * </p>
+     */
     @Id
     @GeneratedValue
     private final Integer identifier;
 
+    /**
+     * <p>
+     * The {@link Item} labeled by this label.
+     * </p>
+     */
     @ManyToOne
     private final Item labeledItem;
 
+    /**
+     * <p>
+     * The type of this {@code Label}.
+     * </p>
+     */
     @ManyToOne
     private final LabelType type;
 
+    /**
+     * <p>
+     * An optional comment explaining why the {@code Label} was created.
+     * </p>
+     */
     private final String comment;
 
     /**
-     * 
+     * <p>
+     * Default constructor, that should only be called by the JPA persistence layer. Please use
+     * {@link #Label(Item, LabelType, String)} instead.
+     * </p>
      */
     protected Label() {
         this(null, null, null);
     }
 
+    /**
+     * <p>
+     * Creates a fully initialized {@code Label} object.
+     * </p>
+     * 
+     * @param labeledItem The {@link Item} labeled by this label.
+     * @param type The type of this {@code Label}.
+     * @param comment An optional comment explaining why the {@code Label} was created.
+     */
     public Label(final Item labeledItem, final LabelType type, final String comment) {
         super();
         this.identifier = null;
@@ -50,28 +82,28 @@ public final class Label {
     }
 
     /**
-     * @return the annotatedItem
+     * @return The {@link Item} labeled by this label.
      */
     public final Item getLabeledItem() {
         return labeledItem;
     }
 
     /**
-     * @return the annotation
+     * @return The type of this {@code Label}.
      */
     public final LabelType getType() {
         return type;
     }
 
     /**
-     * @return the comment
+     * @return An optional comment explaining why the {@code Label} was created.
      */
     public final String getComment() {
         return comment;
     }
 
     /**
-     * @return the identifier
+     * @return The automatically generated, system wide unique database identifier.
      */
     public final Integer getIdentifier() {
         return identifier;
