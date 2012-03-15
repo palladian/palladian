@@ -9,11 +9,10 @@ import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
- * A specialized pipeline that registeres the time necessary to run each {@link PipelineProcessor}.
+ * A specialized pipeline that registers the time necessary to run each {@link PipelineProcessor}.
  * </p>
  * 
- * @author David Urbansky
- * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 1.0
  */
@@ -42,7 +41,7 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
     /**
      * <p>
-     * Registeres the time taken by one processor.
+     * Registers the time taken by one processor.
      * </p>
      * 
      * @param processor The processor to register.

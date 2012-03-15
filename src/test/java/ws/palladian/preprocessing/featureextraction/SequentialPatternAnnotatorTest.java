@@ -21,8 +21,10 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.SequentialPattern;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
+import ws.palladian.preprocessing.nlp.pos.OpenNlpPosTagger;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.sentencedetection.PalladianSentenceDetector;
+import ws.palladian.preprocessing.nlp.tokenization.RegExTokenizer;
 
 // TODO since the LSP algorithm is so slow this test should not run regularly.
 /**
@@ -90,9 +92,9 @@ public class SequentialPatternAnnotatorTest {
     public final void test() throws Exception {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
         processingPipeline.add(new PalladianSentenceDetector());
-        processingPipeline.add(new Tokenizer());
-        processingPipeline.add(new ws.palladian.preprocessing.featureextraction.OpenNlpPosTagger(ResourceHelper
-                .getResourcePath("/model/en-pos-maxent.bin")));
+        processingPipeline.add(new RegExTokenizer());
+        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper
+                .getResourceFile("/model/en-pos-maxent.bin")));
         processingPipeline.add(new SequentialPatternAnnotator(keywords, 4));
 
         PipelineDocument document = new PipelineDocument(inputText);

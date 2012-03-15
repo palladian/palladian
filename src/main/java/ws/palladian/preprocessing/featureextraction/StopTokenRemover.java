@@ -14,6 +14,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>
@@ -59,7 +60,7 @@ public class StopTokenRemover extends TokenRemover {
      * </p>
      * 
      * @param file The file which contains the stop words. Each line is treated as one stop word, lines starting with #
-     *            treated as comments and therefor ignored.
+     *            are treated as comments and are therefore ignored.
      * @throws IllegalArgumentException If the supplied file cannot be found.
      */
     public StopTokenRemover(File file) {

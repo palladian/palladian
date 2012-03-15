@@ -10,6 +10,8 @@ import ws.palladian.helper.io.FileHelper;
  * The Cache can be used to store data objects such as model files. These files do not have to be re-read from hard disk
  * every time they are needed.
  * 
+ * TODO this class should use weak references.
+ * 
  * @author David Urbansky
  */
 public class Cache {

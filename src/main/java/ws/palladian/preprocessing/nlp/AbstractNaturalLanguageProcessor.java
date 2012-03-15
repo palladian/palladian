@@ -93,7 +93,7 @@ public abstract class AbstractNaturalLanguageProcessor {
      * @return the tag annotations
      */
     public final TagAnnotations getPOSTags(final String sentence) {
-        return posTagger.loadModel().tag(sentence).getTagAnnotations();
+        return posTagger.tag(sentence);
     }
 
     /**

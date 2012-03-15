@@ -21,6 +21,10 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
     private static final long serialVersionUID = -328843608844181172L;
 
     /**
+     * <p>
+     * Get the tagged string with PoS annotations.
+     * </p>
+     * 
      * @return the tagged string
      */
     public String getTaggedString() {
@@ -57,7 +61,9 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
     }
 
     /**
+     * <p>
      * Provides all entries fitting one of the provided tags. This method is like a filter or whitelist for tags.
+     * </p>
      * 
      * @param tags The tags to consider in the returned tag list.
      */
@@ -73,7 +79,7 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
 
     /**
      * <p>
-     * Provides the list of token, which are the actual words PoS tags refer to.
+     * Provides the list of tokens, which are the actual words PoS tags refer to.
      * </p>
      * 
      * @return The tokens for all tags saved in this list.

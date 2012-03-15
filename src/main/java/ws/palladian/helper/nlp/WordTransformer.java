@@ -571,7 +571,7 @@ public class WordTransformer {
      * @return The detected English tense.
      */
     public static EnglishTense getTense(String string, PosTagger posTagger) {
-        return getTense(string, posTagger.getTags(string));
+        return getTense(string, posTagger.tag(string));
     }
     
     public static EnglishTense getTense(String string, TagAnnotations posTags) {

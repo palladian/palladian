@@ -19,7 +19,9 @@ import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.pos.OpenNlpPosTagger;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>

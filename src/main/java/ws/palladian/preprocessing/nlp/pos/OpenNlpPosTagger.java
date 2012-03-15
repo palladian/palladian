@@ -1,194 +1,72 @@
-/**
- * 
- */
 package ws.palladian.preprocessing.nlp.pos;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.preprocessing.nlp.TagAnnotation;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 
 /**
  * @author Martin Wunderwald
+ * @author Philipp Katz
  */
-public class OpenNlpPosTagger extends PosTagger {
+public final class OpenNlpPosTagger extends BasePosTagger {
 
-    /** The tokenizer. **/
-    private Tokenizer tokenizer;
+    private static final long serialVersionUID = 1L;
 
-    /** model file path. **/
-    private final transient String MODEL;
-    /** tokenizer model file path. **/
-    private final transient String MODEL_TOK;
+    /** The name of this POS tagger. */
+    private static final String TAGGER_NAME = "OpenNLP POS-Tagger";
 
+    /** The actual OpenNLP POS tagger. */
+    private final POSTagger tagger;
+
+    public OpenNlpPosTagger(File modelFile) {
+        this.tagger = loadModel(modelFile);
+    }
+    
     public OpenNlpPosTagger() {
-        super();
-        setName("OpenNLP POS-Tagger");
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.postag");
-        MODEL_TOK = config.getString("models.root") + config.getString("models.opennlp.en.tokenize");
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        File modelFile = new File(config.getString("models.root") + config.getString("models.opennlp.en.postag"));
+        this.tagger = loadModel(modelFile);
     }
 
-    /**
-     * @return the tokenizer
-     */
-    public Tokenizer getTokenizer() {
-        return tokenizer;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
-     */
-    @Override
-    public OpenNlpPosTagger loadModel() {
-        return loadModel(MODEL).loadTokenizer(MODEL_TOK);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.POSTagger#loadModel(java.lang.String)
-     */
-    @Override
-    public OpenNlpPosTagger loadModel(final String modelFilePath) {
-
-        POSTaggerME tagger = null;
-
-        if (Cache.getInstance().containsDataObject(modelFilePath)) {
-
-            tagger = (POSTaggerME) Cache.getInstance().getDataObject(modelFilePath);
-
-        } else {
-            final StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-
+    private POSTagger loadModel(File modelFile) {
+        String modelPath = modelFile.getAbsolutePath();
+        POSTagger model = (POSTagger) Cache.getInstance().getDataObject(modelPath);
+        if (model == null) {
             try {
-                final POSModel model = new POSModel(new FileInputStream(modelFilePath));
-
-                tagger = new POSTaggerME(model);
-                Cache.getInstance().putDataObject(modelFilePath, tagger);
-
-                stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
-                        + stopWatch.getElapsedTimeString());
-
-            } catch (final InvalidFormatException e) {
-                LOGGER.error(e);
-            } catch (final FileNotFoundException e) {
-                LOGGER.error(e);
-            } catch (final IOException e) {
-                LOGGER.error(e);
-            }
-
-        }
-
-        setModel(tagger);
-
-        return this;
-    }
-
-    /**
-     * Loads the Tokenizer.
-     * 
-     * @param modelFilePath
-     * @return
-     */
-    public OpenNlpPosTagger loadTokenizer(String modelFilePath) {
-
-        InputStream modelIn;
-
-        if (Cache.getInstance().containsDataObject(modelFilePath)) {
-
-            setTokenizer((Tokenizer) Cache.getInstance().getDataObject(modelFilePath));
-
-        } else {
-
-            try {
-                modelIn = new FileInputStream(modelFilePath);
-
-                try {
-                    final TokenizerModel model = new TokenizerModel(modelIn);
-                    final Tokenizer tokenizer = new TokenizerME(model);
-
-                    Cache.getInstance().putDataObject(modelFilePath, tokenizer);
-                    setTokenizer(tokenizer);
-
-                } catch (final IOException e) {
-                    LOGGER.error(e);
-                } finally {
-                    if (modelIn != null) {
-                        try {
-                            modelIn.close();
-                        } catch (final IOException e) {
-                            LOGGER.error(e);
-                        }
-                    }
-                }
-            } catch (final IOException e) {
-                LOGGER.error(e);
+                model = new POSTaggerME(new POSModel(new FileInputStream(modelFile)));
+                Cache.getInstance().putDataObject(modelPath, model);
+            } catch (IOException e) {
+                throw new IllegalStateException("Error initializing OpenNLP POS Tagger from \"" + modelPath + "\": "
+                        + e.getMessage());
             }
         }
-        return this;
+        return model;
     }
 
-    /**
-     * @param tokenizer
-     *            the tokenizer to set
-     */
-    public void setTokenizer(Tokenizer tokenizer) {
-        this.tokenizer = tokenizer;
+
+    @Override
+    public void tag(List<Annotation> annotations) {
+        List<String> tokenList = getTokenList(annotations);
+        String[] tags = tagger.tag(tokenList.toArray(new String[annotations.size()]));
+        for (int i = 0; i < tags.length; i++) {
+            assignTag(annotations.get(i), tags[i]);
+        }
     }
 
     @Override
-    public OpenNlpPosTagger tag(final String sentence) {
-
-        final String[] tokens = getTokenizer().tokenize(sentence);
-
-        final List<String> tokenList = new ArrayList<String>();
-        for (final String token : tokens) {
-            tokenList.add(token);
-        }
-
-        final List<String> tagList = ((POSTagger) getModel()).tag(tokenList);
-
-        final TagAnnotations tagAnnotations = new TagAnnotations();
-        for (int i = 0; i < tagList.size(); i++) {
-            final TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tokenList.get(i)), tagList.get(i),
-                    tokenList.get(i));
-            tagAnnotations.add(tagAnnotation);
-        }
-
-        setTagAnnotations(tagAnnotations);
-        return this;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String,
-     * java.lang.String)
-     */
-    @Override
-    public OpenNlpPosTagger tag(final String sentence, final String modelFilePath) {
-        return this.loadModel(modelFilePath).tag(sentence);
+    public String getName() {
+        return TAGGER_NAME;
     }
 
 }

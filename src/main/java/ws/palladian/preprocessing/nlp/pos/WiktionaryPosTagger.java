@@ -1,5 +1,6 @@
 package ws.palladian.preprocessing.nlp.pos;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,34 +8,28 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.helper.nlp.Tokenizer;
-import ws.palladian.preprocessing.nlp.TagAnnotation;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.model.features.NominalFeature;
+import ws.palladian.preprocessing.featureextraction.Annotation;
 import ws.palladian.retrieval.semantics.Word;
 import ws.palladian.retrieval.semantics.WordDB;
 
-public class WiktionaryPosTagger extends PosTagger {
+public class WiktionaryPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(WiktionaryPosTagger.class);
 
-    /**
-     * <p>We need a mapping from word type names in the Wiktionary DB to POS tags. We use the <a
-     * href="http://en.wikipedia.org/wiki/Brown_Corpus#Part-of-speech_tags_used">Brown Corpus</a> tags for the
-     * mapping.</p>
-     */
-    private Map<String, String> posTagMapping;
+    private static final String TAGGER_NAME = "WiktionaryPosTagger";
 
-    public WiktionaryPosTagger() {
-        setName("WiktionaryPosTagger");
+    /**
+     * <p>
+     * We need a mapping from word type names in the Wiktionary DB to POS tags. We use the <a
+     * href="http://en.wikipedia.org/wiki/Brown_Corpus#Part-of-speech_tags_used">Brown Corpus</a> tags for the mapping.
+     * </p>
+     */
+    private static final Map<String, String> posTagMapping;
+
+    static {
         posTagMapping = new HashMap<String, String>();
-        setMapping();
-    }
-
-    /**
-     * Create the mapping.
-     */
-    private void setMapping() {
         posTagMapping.put("Article", "AT");
         posTagMapping.put("Noun", "NN");
         posTagMapping.put("Proper", "NNP");
@@ -43,46 +38,32 @@ public class WiktionaryPosTagger extends PosTagger {
         posTagMapping.put("Preposition", "IN");
     }
 
-    @Override
-    public PosTagger loadModel() {
-        WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
-        setModel(wordDB);
-        return this;
+    private final WordDB wordDb;
+    
+    public WiktionaryPosTagger(File wordDatabase) {
+        wordDb = new WordDB(wordDatabase.getPath());
     }
 
-    @Override
-    public PosTagger loadModel(String modelFilePath) {
-        WordDB wordDB = new WordDB(modelFilePath);
-        setModel(wordDB);
-        return this;
+    public WiktionaryPosTagger() {
+        this(new File("data/temp/wordDatabaseEnglish/"));
     }
-
+    
     @Override
-    public WordDB getModel() {
-        return (WordDB) super.getModel();
-    }
-
-    @Override
-    public PosTagger tag(String sentence) {
-        List<String> tokens = Tokenizer.tokenize(sentence);
-
-        // you can load the database into the memory for faster read access (requires lots of RAM)
-        // wordDB.loadDbToMemory();
-
-        TagAnnotations tagAnnotations = new TagAnnotations();
-
+    public void tag(List<Annotation> annotations) {
+        
+        
         int lastIndex = -1;
 
-        for (String token : tokens) {
+        for (Annotation annotation : annotations) {
+            
+            String token = annotation.getValue();
 
-            TagAnnotation tagAnnotation = null;
-
-            int index = sentence.indexOf(token, lastIndex);
+            // int index = sentence.indexOf(token, lastIndex);
 
             // single characters are left alone (they are their own type)
             if (token.length() == 1 && !token.equals("I") && !token.equalsIgnoreCase("a")) {
 
-                tagAnnotation = new TagAnnotation(index, token, token);
+                // tagAnnotation = new TagAnnotation(index, token, token);
 
             } else {
 
@@ -142,7 +123,7 @@ public class WiktionaryPosTagger extends PosTagger {
                 } else {
 
                     // search a word in the database
-                    Word word = getModel().getWord(token);
+                    Word word = wordDb.getWord(token);
 
                     LOGGER.debug(word);
 
@@ -152,7 +133,7 @@ public class WiktionaryPosTagger extends PosTagger {
 
                         // if we did not find it, we try lowercase (since word could have been at the start of a
                         // sentence)
-                        word = getModel().getWord(token.toLowerCase());
+                        word = wordDb.getWord(token.toLowerCase());
                         if (word != null) {
                             type = word.getType();
                         }
@@ -164,26 +145,35 @@ public class WiktionaryPosTagger extends PosTagger {
                     }
 
                 }
+                
+                annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, type));
 
-                tagAnnotation = new TagAnnotation(sentence.indexOf(token), type, token);
+//                tagAnnotation = new TagAnnotation(sentence.indexOf(token), type, token);
             }
 
-            lastIndex = index + 1;
+//            lastIndex = index + 1;
 
-            tagAnnotations.add(tagAnnotation);
         }
-
-        setTagAnnotations(tagAnnotations);
-
-        return this;
+        
+        
     }
 
-    @Override
-    public PosTagger tag(String sentence, String modelFilePath) {
-        loadModel(modelFilePath);
-        tag(sentence);
-        return this;
-    }
+
+//    @Override
+//    public PosTagger tag(String sentence) {
+//        List<String> tokens = Tokenizer.tokenize(sentence);
+//
+//        // you can load the database into the memory for faster read access (requires lots of RAM)
+//        // wordDB.loadDbToMemory();
+//
+//        TagAnnotations tagAnnotations = new TagAnnotations();
+//
+//
+//
+//        setTagAnnotations(tagAnnotations);
+//
+//        return this;
+//    }
 
     /**
      * Test the Wiktionary POS Tagger. You would need the model (either in data/temp/wordDatabaseEnglish or you have to
@@ -200,9 +190,14 @@ public class WiktionaryPosTagger extends PosTagger {
         // Wiktionary: The/AT quick/JJ brown/NN fox/NN jumps/NN over/JJ the/AT lazy/JJ dog/NN ./. I/PPSS did/DOD this/DT
         // as/NN fast/VB as/NN you/PPSS and/CC was/BEDZ as/NN happy/JJ as/NN 1000/CD $/$ could/VB make/VB one/PPS ./.
 
-        PosTagger tagger = new WiktionaryPosTagger();
+        BasePosTagger tagger = new WiktionaryPosTagger();
         // tagger = new LingPipePOSTagger();
-        tagger.loadModel();
         LOGGER.info(tagger.tag(sentence).getTaggedString());
     }
+
+    @Override
+    public String getName() {
+        return TAGGER_NAME;
+    }
+
 }
