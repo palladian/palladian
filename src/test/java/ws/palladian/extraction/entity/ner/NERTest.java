@@ -76,15 +76,15 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1504, annotations.size());
-        assertEquals(annotations.get(0).getOffset(), 21);
-        assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(1675, annotations.size());
+        assertEquals(21,annotations.get(0).getOffset());
+        assertEquals(14, annotations.get(0).getLength());
 
-        assertEquals(annotations.get(500).getOffset(), 25542);
-        assertEquals(annotations.get(500).getLength(), 7);
+        assertEquals(25542, annotations.get(500).getOffset());
+        assertEquals(7, annotations.get(500).getLength());
 
-        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(105072, annotations.get(annotations.size() - 1).getOffset());
+        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
 
         // English
         tagger = new PalladianNer();
@@ -112,14 +112,14 @@ public class NERTest {
         System.out.println(annotations.get(annotations.size() - 1));
 
         assertEquals(2241, annotations.size());
-        assertEquals(annotations.get(0).getOffset(), 21);
-        assertEquals(annotations.get(0).getLength(), 14);
+        assertEquals(21, annotations.get(0).getOffset());
+        assertEquals(14, annotations.get(0).getLength());
 
-        assertEquals(annotations.get(500).getOffset(), 15212);
-        assertEquals(annotations.get(500).getLength(), 8);
+        assertEquals(15212, annotations.get(500).getOffset());
+        assertEquals(8, annotations.get(500).getLength());
 
-        assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
-        assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
+        assertEquals(105072, annotations.get(annotations.size() - 1).getOffset());
+        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class NERTest {
      * For no apparent reason the Illinois NER test is non-deterministic.
      * To enable this test you must have a valid model at:
      * data\models\illinoisner\data\BrownHierarchicalWordClusters\brownBllipClusters
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     @Test
     @Ignore
@@ -269,7 +269,7 @@ public class NERTest {
 
     /**
      * Different results when run locally in Eclipse and on Jenkins...ignore for now.
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     @Test
     @Ignore
