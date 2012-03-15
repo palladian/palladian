@@ -31,6 +31,7 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalClassifier;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
+import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.ProgressHelper;
@@ -141,6 +142,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     
     /** Whether the tagger should tag dates. */
     private boolean tagDates = true;
+    
+    private final static String NO_ENTITY = "###NO_ENTITY###";
     
     /**
      * The language mode, language independent uses more generic regexp to detect entities, while there are more
@@ -453,7 +456,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             addToEntityDictionary(annotation);
         }
 
-        universalClassifier.getTextClassifier().setTrainingInstances(textInstances);
+        universalClassifier.setTrainingInstances(textInstances);
 
         return train(trainingFilePath, modelFilePath);
     }
@@ -492,7 +495,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         // train the text classifier
-        universalClassifier.getTextClassifier().setTrainingInstances(textInstances);
+        universalClassifier.setTrainingInstances(textInstances);
 
         LOGGER.info("start training classifiers now...");
         universalClassifier.trainAll();
@@ -610,7 +613,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 UniversalInstance textInstance = new UniversalInstance(textInstances);
                 textInstance.setTextFeature(wrongAnnotation.getEntity());
-                textInstance.setInstanceCategory("###NO_ENTITY###");
+                textInstance.setInstanceCategory(NO_ENTITY);
                 textInstances.add(textInstance);
 
                 if (addAnnotation) {
@@ -635,6 +638,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return trainEnglish(trainingFilePath, modelFilePath, new Annotations());
     }
 
+    private boolean hasAssignedType(Annotation annotation) {
+        return !annotation.getMostLikelyTagName().equalsIgnoreCase(NO_ENTITY);
+    }
+    
     /**
      * Classify candidate annotations in English mode.
      * 
@@ -655,13 +662,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             if (!wrappedAnnotations.isEmpty()) {
                 for (Annotation annotation2 : wrappedAnnotations) {
-                    if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                    if (hasAssignedType(annotation2)) {
                         annotations.add(annotation2);
                     }
                 }
             } else {
                 universalClassifier.classify(annotation);
-                if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                if (hasAssignedType(annotation)) {
                     annotations.add(annotation);
                 }
             }
@@ -688,7 +695,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         for (Annotation annotation : entityCandidates) {
 
             universalClassifier.classify(annotation);
-            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+            if (hasAssignedType(annotation)) {
                 annotations.add(annotation);
             }
 
@@ -1047,7 +1054,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 if (!wrappedAnnotations.isEmpty()) {
                     for (Annotation annotation2 : wrappedAnnotations) {
-                        if (!annotation2.getMostLikelyTagName().equalsIgnoreCase("###NO_ENTITY###")) {
+                        if (hasAssignedType(annotation2)) {
                             toAdd.add(annotation2);
                             // LOGGER.debug("add " + annotation2.getEntity());
                         }

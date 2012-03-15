@@ -55,6 +55,8 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
+    
+    public static final String UNASSIGNED = "UNASSIGNED";
 
     /**
      * The constructor, initiate members.

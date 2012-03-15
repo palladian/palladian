@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
@@ -76,7 +77,7 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1675, annotations.size());
+        assertEquals(1504, annotations.size());
         assertEquals(21,annotations.get(0).getOffset());
         assertEquals(14, annotations.get(0).getLength());
 
@@ -106,17 +107,19 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-        System.out.println(annotations.size());
-        System.out.println(annotations.get(0));
-        System.out.println(annotations.get(500));
-        System.out.println(annotations.get(annotations.size() - 1));
+//        System.out.println(annotations.size());
+//        System.out.println(annotations.get(0));
+//        System.out.println(annotations.get(500));
+//        System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2241, annotations.size());
+        CollectionHelper.print(annotations);
+        
+        assertEquals(2218, annotations.size());
         assertEquals(21, annotations.get(0).getOffset());
         assertEquals(14, annotations.get(0).getLength());
 
-        assertEquals(15212, annotations.get(500).getOffset());
-        assertEquals(8, annotations.get(500).getLength());
+        assertEquals(15264, annotations.get(500).getOffset());
+        assertEquals(7, annotations.get(500).getLength());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getOffset());
         assertEquals(5, annotations.get(annotations.size() - 1).getLength());

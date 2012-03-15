@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
 /**
@@ -48,7 +49,7 @@ public class Category implements Serializable {
 
     public Category(String name) {
         if (name == null) {
-            this.name = "UNASSIGNED";
+            this.name = TextClassifier.UNASSIGNED;
             Logger.getRootLogger().warn("category with NULL as name was created");
         } else {
             this.name = name;

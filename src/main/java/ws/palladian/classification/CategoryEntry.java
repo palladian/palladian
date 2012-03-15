@@ -4,8 +4,10 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.page.TextClassifier;
+
 /**
- * Hold information about how relevant a category is.
+ * <p>Hold information about how relevant a category is.</p>
  * 
  * @author David Urbansky
  * 
@@ -27,8 +29,8 @@ public class CategoryEntry implements Serializable {
         if (category != null) {
             setCategory(category);
         } else {
+            setCategory(new Category(TextClassifier.UNASSIGNED));
             Logger.getRootLogger().warn("A category entry was created with NULL as category");
-            setCategory(new Category("-UNASSIGNED-"));
         }
         this.absoluteRelevance = absoluteRelevance;
     }
