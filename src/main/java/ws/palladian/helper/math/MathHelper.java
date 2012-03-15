@@ -14,6 +14,7 @@ import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -601,4 +602,9 @@ public class MathHelper {
         return (Math.log(num) / Math.log(2));
     }
 
+    public static void main(String[] a) {
+        
+        CollectionHelper.print(MathHelper.createRandomNumbers(10, 100, 989979));
+        
+    }
 }

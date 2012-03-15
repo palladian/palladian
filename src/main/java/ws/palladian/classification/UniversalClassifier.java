@@ -142,7 +142,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
 
-        if (instance.getInstanceCategory() != null && learnWeights) {
+        if (instance.getInstanceCategory() != null && (learnWeights || !instance.getInstanceCategoryName().equalsIgnoreCase("CANDIDATE"))) {
 
             if (isUseTextClassifier()
                     && textInstance.getMainCategoryEntry().getCategory().getName()
