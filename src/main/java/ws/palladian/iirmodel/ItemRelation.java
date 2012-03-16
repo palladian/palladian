@@ -9,17 +9,17 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
- * A generic relation between two {@link Item}s. This relation is an unordered pair of items, see
- * {@link #equals(Object)} and {@link #hashCode()}.
- * 
- * FIXME At the moment, relations are undirected, which is fine for relation types like "duplicate", but does not work
- * for ordered relations like "caused-by".
+ * <p>
+ * An abstract relation between two {@link Item}s.
+ * </p>
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -28,7 +28,8 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ItemRelation")
-public class ItemRelation implements Serializable {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class ItemRelation implements Serializable {
 
     private static final long serialVersionUID = 9163914602749435760L;
 
@@ -169,76 +170,21 @@ public class ItemRelation implements Serializable {
         this.type = type;
     }
 
-    /*
-     * ATTENTION: custom implementation, do not overwrite/generate!
-     */
     /**
      * <p>
-     * Compares two {@code ItemRelation}s on whether they are equal or not. This depends only on whether both are
-     * relations between the same {@link Item}s and have the same {@link RelationType}.
+     * Must be implemented by subclasses individually.
      * </p>
-     * 
-     * @param obj The object to compare this object to
-     * @return {@code true} if both objects are equal; {@code false} otherwise.
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ItemRelation other = (ItemRelation)obj;
-        if (firstItem == null) {
-            if (other.firstItem != null && other.secondItem != null) {
-                return false;
-            }
-        } else if (!(firstItem.equals(other.firstItem) || firstItem.equals(other.secondItem))) {
-            return false;
-        }
-        if (secondItem == null) {
-            if (other.secondItem != null && firstItem != null) {
-                return false;
-            }
-        } else if (!(secondItem.equals(other.secondItem) || secondItem.equals(other.firstItem))) {
-            return false;
-        }
-        if (type == null) {
-            if (other.type != null) {
-                return false;
-            }
-        } else if (!type.equals(other.type)) {
-            return false;
-        }
+    public abstract int hashCode();
 
-        return true;
-    }
-
-    /*
-     * ATTENTION: custom implementation, do not overwrite/generate!
-     */
     /**
      * <p>
-     * Calculates a hash value for objects of this class. Look for the documentation of {@link #equals(Object)} for the
-     * properties used in this calculation.
+     * Must be implemented by subclasses individually.
      * </p>
-     * 
-     * @return A hash code for this object.
      */
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((firstItem == null) ? 0 : firstItem.hashCode());
-        result = result + ((secondItem == null) ? 0 : secondItem.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-
-        return result;
-    }
+    public abstract boolean equals(Object obj);
 
     /**
      * <p>
@@ -263,4 +209,5 @@ public class ItemRelation implements Serializable {
         builder.append("]");
         return builder.toString();
     }
+
 }

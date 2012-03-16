@@ -10,6 +10,8 @@
 		<class>ws.palladian.iirmodel.StreamGroup</class>
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
+		<class>ws.palladian.iirmodel.DirectedItemRelation</class>
+		<class>ws.palladian.iirmodel.UndirectedItemRelation</class>		
 		<class>ws.palladian.iirmodel.RelationType</class>
 		<class>ws.palladian.iirmodel.Label</class>
 		<class>ws.palladian.iirmodel.LabelType</class>
@@ -33,6 +35,8 @@
 		<class>ws.palladian.iirmodel.StreamGroup</class>
 		<class>ws.palladian.iirmodel.Author</class>
 		<class>ws.palladian.iirmodel.ItemRelation</class>
+		<class>ws.palladian.iirmodel.DirectedItemRelation</class>
+		<class>ws.palladian.iirmodel.UndirectedItemRelation</class>		
 		<class>ws.palladian.iirmodel.RelationType</class>
 		<class>ws.palladian.iirmodel.Label</class>
 		<class>ws.palladian.iirmodel.LabelType</class>
