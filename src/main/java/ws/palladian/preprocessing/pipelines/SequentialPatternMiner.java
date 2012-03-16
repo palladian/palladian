@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import ws.palladian.model.SequentialPattern;
-import ws.palladian.model.features.Feature;
+import ws.palladian.model.SequentialPatternFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.ProcessingPipeline;
 import ws.palladian.preprocessing.featureextraction.Annotation;
@@ -55,8 +55,8 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      * [3] https://en.wikipedia.org/wiki/English_modal_auxiliary_verb <br />
      * </p>
      */
-    private final static String[] keywords = new String[] {"where", "when", "how", "who", "what", "why", "shall",
-            "should", "will", "would", "may", "might", "can", "could", "mote", "must", "do", "anyone"};
+    private final static String[] keywords = new String[] { "where", "when", "how", "who", "what", "why", "shall",
+            "should", "will", "would", "may", "might", "can", "could", "mote", "must", "do", "anyone" };
 
     /**
      * <p>
@@ -91,14 +91,14 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      */
     public static Collection<SequentialPattern> getExtractedPatterns(PipelineDocument document) {
         Collection<SequentialPattern> ret = new HashSet<SequentialPattern>();
-        AnnotationFeature sentencesFeature = (AnnotationFeature)document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE);
+        AnnotationFeature sentencesFeature = document.getFeatureVector().get(
+                AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         if (sentencesFeature != null) {
             List<Annotation> sentenceAnnotations = sentencesFeature.getValue();
 
             for (Annotation annotation : sentenceAnnotations) {
-                Feature<SequentialPattern> lspFeature = (Feature<SequentialPattern>)annotation.getFeatureVector().get(
-                        SequentialPatternAnnotator.PROVIDED_FEATURE);
+                SequentialPatternFeature lspFeature = annotation.getFeatureVector().get(
+                        SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
                 if (lspFeature != null) {
                     ret.add(lspFeature.getValue());
                 }
