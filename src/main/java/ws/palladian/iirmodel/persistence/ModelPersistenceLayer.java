@@ -559,7 +559,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @param relationIdentifier
      * @return
      */
-    public ItemRelation loadRelation(String relationIdentifier) {
+    public ItemRelation loadRelation(Integer relationIdentifier) {
         Boolean openedTransaction = openTransaction();
         try {
             ItemRelation ret = getManager().find(ItemRelation.class, relationIdentifier);
