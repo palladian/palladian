@@ -64,6 +64,18 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
         return ranking;
     }
 
+    public Map<RankingService, Ranking> getRankings(String url) {
+        Map<RankingService, Ranking> rankings = new HashMap<RankingService, Ranking>();
+
+        for (RankingService rankingService : rankingServices) {
+            Ranking ranking = rankingService.getRanking(url);
+            LOGGER.debug("retrieved " + ranking);
+            rankings.put(rankingService, ranking);
+        }
+
+        return rankings;
+    }
+
     @Override
     public String getServiceId() {
         return "compositeRankingService";
