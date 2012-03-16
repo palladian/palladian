@@ -15,10 +15,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.model.SequentialPattern;
+import ws.palladian.model.SequentialPatternFeature;
 import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.pos.BasePosTagger;
 import ws.palladian.preprocessing.nlp.pos.OpenNlpPosTagger;
 import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
@@ -58,6 +62,8 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
     private Set<String> keywords;
 
     public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
+    
+    public static final FeatureDescriptor<SequentialPatternFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(PROVIDED_FEATURE, SequentialPatternFeature.class);
 
     private Integer maxSequentialPatternSize = 0;
 
@@ -77,9 +83,9 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
 
     @Override
     public void process(PipelineDocument document) {
-        AnnotationFeature posFeature = (AnnotationFeature)document.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE);
-        AnnotationFeature sentencesFeature = (AnnotationFeature)document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE);
+        AnnotationFeature posFeature = document.getFeatureVector().get(Tokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature sentencesFeature = document.getFeatureVector().get(
+                AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> posTags = posFeature.getValue();
         List<Annotation> sentences = sentencesFeature.getValue();
         List<Annotation> markedKeywords = markKeywords(document);
@@ -107,8 +113,8 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && currentPosTag.getStartPosition().equals(i)) {
-                    sequentialPattern.add((String)currentPosTag.getFeatureVector()
-                            .get(OpenNlpPosTagger.PROVIDED_FEATURE).getValue());
+                    sequentialPattern.add(currentPosTag.getFeatureVector()
+                            .get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
                     i = currentPosTag.getEndPosition();
                 } else {
                     i++;

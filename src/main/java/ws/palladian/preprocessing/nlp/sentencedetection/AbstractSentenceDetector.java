@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.AbstractPipelineProcessor;
 import ws.palladian.preprocessing.PipelineDocument;
@@ -66,6 +68,14 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
      * </p>
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.sentence";
+
+    /**
+     * <p>
+     * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
+     * </p>
+     */
+    public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, AnnotationFeature.class);
 
     /** holds the model. **/
     private Object model;
