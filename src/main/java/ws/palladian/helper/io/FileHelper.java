@@ -549,6 +549,8 @@ public class FileHelper {
             LOGGER.error(reader + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(reader + ", " + e.getMessage());
+        } catch (OutOfMemoryError e) {
+            LOGGER.error(reader + ", " + e.getMessage());
         } finally {
             close(bufferedReader);
         }
