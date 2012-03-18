@@ -1,7 +1,6 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,13 +11,13 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.Instances;
+import ws.palladian.classification.NaiveBayesClassifier;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
@@ -338,8 +337,10 @@ public class ClassifierEvaluator {
 
         DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
         dictionaryClassifier1.setName("D1");
-        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(3);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(5);
+        dictionaryClassifier1.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        dictionaryClassifier1.getFeatureSetting().setMaxTerms(10);
+        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(1);
+        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(1);
         dictionaryClassifier1.setProcessingPipeline(pipeline);
         dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
 
@@ -371,6 +372,7 @@ public class ClassifierEvaluator {
         // dataset.setPath("data/datasets/classification/SentimentSentences.csv");
         dataset.setPath("data/temp/products_clean_id.csv");
         dataset.setPath("C:\\My Dropbox\\brainware\\articles.csv");
+        dataset.setPath("mjtrain.csv");
 
         Dataset dataset2 = new Dataset("Schottenland");
         dataset2.setFirstFieldLink(false);
@@ -403,10 +405,12 @@ public class ClassifierEvaluator {
         evaluator.setCrossValidation(3);
         // evaluator.setNumberOfInstancesPerClass(50);
 
-        dictionaryClassifier1.train(dataset2);
+        dictionaryClassifier1.train(dataset);
+
         FileHelper.serialize(dictionaryClassifier1, "dc2.gz");
-        // ClassifierPerformance evaluate = dictionaryClassifier1.evaluate(dataset);
-        // System.out.println(evaluate);
+        dataset2.setPath("mjtest.csv");
+        ClassifierPerformance evaluate = dictionaryClassifier1.evaluate(dataset2);
+        System.out.println(evaluate);
         System.exit(0);
 
         evaluator.addClassifier(dictionaryClassifier1);
@@ -431,6 +435,63 @@ public class ClassifierEvaluator {
         // FileHelper.serialize(dictionaryClassifier1, "topicClassifier.gz");
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier1.getName()));
         // LOGGER.info(evaluationMatrix.get(dataset.getName(), dictionaryClassifier2.getName()));
+    }
+
+    public void testNB() {
+
+        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+
+        List<String> lines = FileHelper.readFileToArray("mjtrain.csv");
+        for (String line : lines) {
+            UniversalInstance instance = new UniversalInstance(instances);
+
+            String[] parts = line.split("<###>");
+            String[] words = parts[0].split("\\s");
+
+            List<String> nominalFeatures = new ArrayList<String>();
+            if (words.length > 10) {
+                for (int i = 0; i < 10; i++) {
+                    nominalFeatures.add(words[i]);
+                }
+            }
+
+            instance.setInstanceCategory(parts[1]);
+            instance.setNominalFeatures(nominalFeatures);
+            instances.add(instance);
+        }
+
+        NaiveBayesClassifier nbc = new NaiveBayesClassifier();
+        nbc.setTrainingInstances(instances);
+        nbc.train();
+
+        int correct = 0;
+        int t = 0;
+        lines = FileHelper.readFileToArray("mjtest.csv");
+        for (String line : lines) {
+            UniversalInstance instance = new UniversalInstance(instances);
+
+            String[] parts = line.split("<###>");
+            String[] words = parts[0].split("\\s");
+
+            List<String> nominalFeatures = new ArrayList<String>();
+            if (words.length > 10) {
+                for (int i = 0; i < 10; i++) {
+                    nominalFeatures.add(words[i]);
+                }
+                t++;
+            }
+
+            instance.setNominalFeatures(nominalFeatures);
+
+            nbc.classify(instance);
+
+            if (instance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(parts[1])) {
+                correct++;
+            }
+        }
+
+        System.out.println(correct / (double)t);
+
     }
 
     public void evaluateClassifierPlaygroundRegression() throws IOException {
@@ -500,8 +561,9 @@ public class ClassifierEvaluator {
     public static void main(String[] args) throws IOException {
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
 
-        evaluator.evaluateClassifierPlaygroundRegression();
-        // evaluator.evaluateClassifierPlayground();
+        // evaluator.evaluateClassifierPlaygroundRegression();
+        evaluator.evaluateClassifierPlayground();
+        evaluator.testNB();
         System.exit(0);
 
         StringBuilder results = new StringBuilder();

@@ -22,7 +22,7 @@ public class BayesClassifierTest {
         List<String> nominalFeatures = null;
 
         NaiveBayesClassifier bc = new NaiveBayesClassifier();
-        bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"));
+        bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"), ";");
 
         // create an instance to classify
         UniversalInstance newInstance = new UniversalInstance(null);

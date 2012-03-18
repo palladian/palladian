@@ -213,8 +213,8 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
      * All features must be real values and the class must be nominal. Each line
      * is one training instance.
      */
-    public final void trainFromCSV(String trainingFilePath) {
-        setTrainingInstances(createInstances(trainingFilePath));
+    public final void trainFromCSV(String trainingFilePath, String separator) {
+        setTrainingInstances(createInstances(trainingFilePath, separator));
     }
 
     /**
@@ -224,7 +224,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
      * All features must be nominal values and the class must be nominal. Each
      * line is one training instance.
      */
-    private Instances<UniversalInstance> createInstances(String filePath) {
+    public Instances<UniversalInstance> createInstances(String filePath, String separator) {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
 
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
@@ -232,7 +232,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
         List<String> features = null;
 
         for (String trainingLine : trainingLines) {
-            String[] parts = trainingLine.split(";");
+            String[] parts = trainingLine.split(separator);
 
             instance = new UniversalInstance(instances);
             features = new ArrayList<String>();
@@ -287,9 +287,11 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
 
                 // if there was nothing learned for the featureValue class combination, we set the probability to 0
                 if (prob == null) {
-                    prob = 0.0;
+                    // TODO La Place Smoothing
+                    prob = 0.0000000000001;
                 }
                 probabilities.put(category, probabilities.get(category) * prob);
+
             }
 
             featureIndex++;
@@ -355,4 +357,22 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
         return classifier;
     }
 
+    public static void main(String[] args) {
+        NaiveBayesClassifier bc = new NaiveBayesClassifier();
+        bc.trainFromCSV("data/train.txt", " ");
+        bc.train();
+
+        int correct = 0;
+        Instances<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
+        for (UniversalInstance universalInstance : testInstances) {
+            bc.classify(universalInstance);
+            if (universalInstance.getMainCategoryEntry().getCategory().getName()
+                    .equalsIgnoreCase(universalInstance.getInstanceCategoryName())) {
+                correct++;
+            }
+        }
+        System.out.println(correct / (double)testInstances.size());
+
+        System.exit(0);
+    }
 }

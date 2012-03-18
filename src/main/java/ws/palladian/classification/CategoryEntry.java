@@ -97,6 +97,9 @@ public class CategoryEntry implements Serializable {
     }
 
     public void multAbsRel(double factor) {
+        if (absoluteRelevance <= 0) {
+            absoluteRelevance = 1;
+        }
         this.absoluteRelevance *= factor;
         this.categoryEntries.setRelevancesUpToDate(false);
     }
