@@ -469,9 +469,17 @@ public class DictionaryClassifier extends TextClassifier {
                         // use prior only
                         // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
 
+                        // int frequency = categoryEntry.getCategory().getFrequency();
+                        // System.out.println(frequency + " x in " + categoryEntry.getCategory().getName());
+                        // double mult = categoryEntry.getAbsoluteRelevance() / frequency;
+
+                        // c.addAbsoluteRelevance(mult * categoryEntry.getRelevance());
+
                         // use relevance
                         c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()
                                 * categoryEntry.getRelevance());
+                        // c.multAbsRel(categoryEntry.getRelevance());
+
 
                         // if (weightedTerm.getKey().getText().equalsIgnoreCase("the")) {
                         // System.out.println("the");

@@ -104,10 +104,10 @@ public class PalladianPosTagger extends BasePosTagger {
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
 
-        UniversalClassifier classifier = new UniversalClassifier();
-        classifier.setUseNumericClassifier(false);
-        // classifier.setUseNominalClassifier(false);
-        // classifier.setUseTextClassifier(false);
+        tagger = new UniversalClassifier();
+        tagger.setUseNumericClassifier(false);
+        // tagger.setUseNominalClassifier(false);
+        // tagger.setUseTextClassifier(false);
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(7);
@@ -117,8 +117,8 @@ public class PalladianPosTagger extends BasePosTagger {
         // featureSetting.setMinNGramLength(1);
         // featureSetting.setMaxNGramLength(1);
         // featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        classifier.getTextClassifier().setFeatureSetting(featureSetting);
-        classifier.getTextClassifier().setClassificationTypeSetting(cts);
+        tagger.getTextClassifier().setFeatureSetting(featureSetting);
+        tagger.getTextClassifier().setClassificationTypeSetting(cts);
         Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
 
         int c = 1;
@@ -157,12 +157,13 @@ public class PalladianPosTagger extends BasePosTagger {
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
-        classifier.setTrainingInstances(trainingInstances);
-        classifier.trainAll();
+        tagger.setTrainingInstances(trainingInstances);
+        tagger.trainAll();
 
         // classifier.learnClassifierWeightsByCategory(trainingInstances);
 
-        FileHelper.serialize(classifier, modelFilePath);
+        FileHelper.serialize(tagger, modelFilePath);
+        Cache.getInstance().putDataObject(modelFilePath, tagger);
 
         LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
     }
@@ -183,13 +184,15 @@ public class PalladianPosTagger extends BasePosTagger {
                 String.valueOf(StringHelper.isNumberOrNumberWord(word)),
                 String.valueOf(StringHelper.isCompletelyUppercase(word)),
                 String.valueOf(StringHelper.countOccurences(word, "[`'\",.:;*\\(\\)]", true)),
-                word.substring(word.length() - 1), word.substring(0, 1), lastTwo));
+                word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word));
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
 
     }
     
     public void evaluate(String folderPath, String modelFilePath) {
+
+        tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start evaluating the tagger");
@@ -260,15 +263,15 @@ public class PalladianPosTagger extends BasePosTagger {
     
     public static void main(String[] args) {
         PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
-        // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
+        palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // /palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-//        palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-//        palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
+        palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
+        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
+        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
         // .getTaggedString());
-        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
+        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 

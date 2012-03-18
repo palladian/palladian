@@ -32,7 +32,7 @@ public abstract class Instance<T> implements Serializable {
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
-        categoryEntries.transformRelevancesInPercent(true);
+        assignedCategoryEntries.transformRelevancesInPercent(true);
     }
 
     public CategoryEntries getAssignedCategoryEntries() {
