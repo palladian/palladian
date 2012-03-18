@@ -45,12 +45,21 @@ public class DownloadFilter {
         whitelist = new HashSet<String>(fileTypes);
     }
 
+    public void addIncludeFileTypes(String... fileTypes) {
+        whitelist.addAll(Arrays.asList(fileTypes));
+    }
+
     public void setIncludeFileTypes(String... fileTypes) {
         setIncludeFileTypes(Arrays.asList(fileTypes));
     }
 
     public void setExcludeFileTypes(Collection<String> fileTypes) {
         blacklist = new HashSet<String>(fileTypes);
+    }
+
+    public void addExcludeFileTypes(String... fileTypes) {
+        blacklist.addAll(Arrays.asList(fileTypes));
+
     }
 
     public void setExcludeFileTypes(String... fileTypes) {
