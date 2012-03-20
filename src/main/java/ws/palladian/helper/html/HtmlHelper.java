@@ -1,8 +1,8 @@
 package ws.palladian.helper.html;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,94 +154,94 @@ public class HtmlHelper {
         return tagCount;
     }
 
-    /**
-     * <p>
-     * Lists all tags. Deletes arguments within the tags, if there are any.
-     * </p>
-     * 
-     * @param htmlText The html text.
-     * @return A list of tags.
-     */
-    public static List<String> listTags(String htmlText) {
-        List<String> tags = new ArrayList<String>();
-
-        List<String> lev = new ArrayList<String>();
-        String currentTag = "";
-
-        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlText);
-
-        while (matcher.find()) {
-            currentTag = matcher.group();
-
-            // Delete arguments within the tags
-            if (currentTag.contains(" ")) {
-                currentTag = currentTag.substring(0, currentTag.indexOf(" ")) + ">";
-
-                // System.out.print("+++++++++++++++++++"+currentTag);
-
-                if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
-                        || currentTag.contains("<title") || currentTag.contains("<body") /*
-                                                                                          * ||
-                                                                                          * currentTag.contains("meta_name"
-                                                                                          * )
-                                                                                          */) {
-                    continue;
-                }
-
-                // if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
-                // currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
-                // }
-                //
-                // if (currentTag.contains("id=")) {
-                // currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
-                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1,
-                // currentTag.indexOf(">")+1));
-                // }
-                //
-                // if (currentTag.contains("name=")) {
-                // currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
-                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1,
-                // currentTag.indexOf(">")+1));
-                // }
-                //
-                //
-                //
-                // if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
-                // if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
-                // if (currentTag.contains("<div class")) currentTag="<div>";
-                // if (currentTag.contains("<meta ")) currentTag="<meta>";
-                //
-                //
-                //
-                // //System.out.println(" ersetzt zu "+currentTag);
-                //
-                //
-                // currentTag=currentTag.replaceAll(" ", "_");
-            }
-
-            /*
-             * Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
-             * if (!currentTag.contains("/")) level++;
-             * tags.add(level+currentTag);
-             * if (currentTag.contains("/")) level--;
-             * tags.add(level+currentTag);
-             */
-
-            if (!lev.contains(currentTag)) {
-                // System.out.println(currentTag+"..."+lev);
-
-                lev.add(currentTag);
-                // lev2.add("1"+"o"+currentTag);
-                // currentTag="1"+"o"+currentTag;
-
-            }
-
-            tags.add(currentTag);
-        }
-
-        return tags;
-    }
+//    /**
+//     * <p>
+//     * Lists all tags. Deletes arguments within the tags, if there are any.
+//     * </p>
+//     * 
+//     * @param htmlText The html text.
+//     * @return A list of tags.
+//     */
+//    public static List<String> listTags(String htmlText) {
+//        List<String> tags = new ArrayList<String>();
+//
+//        List<String> lev = new ArrayList<String>();
+//        String currentTag = "";
+//
+//        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+//        Matcher matcher = pattern.matcher(htmlText);
+//
+//        while (matcher.find()) {
+//            currentTag = matcher.group();
+//
+//            // Delete arguments within the tags
+//            if (currentTag.contains(" ")) {
+//                currentTag = currentTag.substring(0, currentTag.indexOf(" ")) + ">";
+//
+//                // System.out.print("+++++++++++++++++++"+currentTag);
+//
+//                if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
+//                        || currentTag.contains("<title") || currentTag.contains("<body") /*
+//                                                                                          * ||
+//                                                                                          * currentTag.contains("meta_name"
+//                                                                                          * )
+//                                                                                          */) {
+//                    continue;
+//                }
+//
+//                // if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
+//                // currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
+//                // }
+//                //
+//                // if (currentTag.contains("id=")) {
+//                // currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
+//                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1,
+//                // currentTag.indexOf(">")+1));
+//                // }
+//                //
+//                // if (currentTag.contains("name=")) {
+//                // currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
+//                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1,
+//                // currentTag.indexOf(">")+1));
+//                // }
+//                //
+//                //
+//                //
+//                // if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
+//                // if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
+//                // if (currentTag.contains("<div class")) currentTag="<div>";
+//                // if (currentTag.contains("<meta ")) currentTag="<meta>";
+//                //
+//                //
+//                //
+//                // //System.out.println(" ersetzt zu "+currentTag);
+//                //
+//                //
+//                // currentTag=currentTag.replaceAll(" ", "_");
+//            }
+//
+//            /*
+//             * Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
+//             * if (!currentTag.contains("/")) level++;
+//             * tags.add(level+currentTag);
+//             * if (currentTag.contains("/")) level--;
+//             * tags.add(level+currentTag);
+//             */
+//
+//            if (!lev.contains(currentTag)) {
+//                // System.out.println(currentTag+"..."+lev);
+//
+//                lev.add(currentTag);
+//                // lev2.add("1"+"o"+currentTag);
+//                // currentTag="1"+"o"+currentTag;
+//
+//            }
+//
+//            tags.add(currentTag);
+//        }
+//
+//        return tags;
+//    }
 
     /**
      * <p>
@@ -666,41 +666,59 @@ public class HtmlHelper {
 
         return result;
     }
-
-    public static void writeXmlDump(Node node, String filename) {
-        String string = getXmlDump(node);
-        FileHelper.writeToFile(filename, string);
-    }
-
-    /**
-     * <p>
-     * Converts a String representation with XML markup to DOM Document. Returns an empty Document if parsing failed.
-     * </p>
-     * 
-     * @param input
-     * @return
-     */
-    public static Document stringToXml(String input) {
-        DocumentBuilder builder = null;
-        Document result = null;
+    
+    public static boolean writeToFile(Node node, File file) {
+        boolean success = false;
+        Source source = new DOMSource(node);
+        Result result = new StreamResult(file);
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            builder = factory.newDocumentBuilder();
-            result = builder.parse(new InputSource(new StringReader(input)));
-        } catch (ParserConfigurationException e) {
-            LOGGER.error("stringToXml:ParserConfigurationException " + e.getMessage());
-        } catch (SAXException e) {
-            LOGGER.error("stringToXml:SAXException " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error("stringToXml:IOException " + e.getMessage());
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.transform(source, result);
+            success = true;
+        } catch (TransformerConfigurationException e) {
+            LOGGER.error(e);
+        } catch (TransformerFactoryConfigurationError e) {
+            LOGGER.error(e);
+        } catch (TransformerException e) {
+            LOGGER.error(e);
         }
-        if (result == null && builder != null) {
-            // return an empty Document
-            result = builder.newDocument();
-        }
-        return result;
+        return success;
     }
+
+//    public static void writeXmlDump(Node node, String filename) {
+//        String string = getXmlDump(node);
+//        FileHelper.writeToFile(filename, string);
+//    }
+
+//    /**
+//     * <p>
+//     * Converts a String representation with XML markup to DOM Document. Returns an empty Document if parsing failed.
+//     * </p>
+//     * 
+//     * @param input
+//     * @return
+//     */
+//    public static Document stringToXml(String input) {
+//        DocumentBuilder builder = null;
+//        Document result = null;
+//        try {
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            factory.setNamespaceAware(true);
+//            builder = factory.newDocumentBuilder();
+//            result = builder.parse(new InputSource(new StringReader(input)));
+//        } catch (ParserConfigurationException e) {
+//            LOGGER.error("stringToXml:ParserConfigurationException " + e.getMessage());
+//        } catch (SAXException e) {
+//            LOGGER.error("stringToXml:SAXException " + e.getMessage());
+//        } catch (IOException e) {
+//            LOGGER.error("stringToXml:IOException " + e.getMessage());
+//        }
+//        if (result == null && builder != null) {
+//            // return an empty Document
+//            result = builder.newDocument();
+//        }
+//        return result;
+//    }
 
     /**
      * <p>
@@ -714,7 +732,6 @@ public class HtmlHelper {
      * @return
      */
     public static String getOuterXml(Node node) {
-        // logger.trace(">getOuterXml");
         String result = "";
         Transformer transformer;
         try {
@@ -732,7 +749,6 @@ public class HtmlHelper {
         } catch (TransformerException e) {
             LOGGER.error("getOuterXml:TransformerException", e);
         }
-        // logger.trace("<getOuterXml " + result);
         return result;
     }
 
@@ -746,13 +762,11 @@ public class HtmlHelper {
      * @return
      */
     public static String getInnerXml(Node node) {
-        // logger.trace(">getInnerXml");
         StringBuilder sb = new StringBuilder();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             sb.append(getOuterXml(children.item(i)));
         }
-        // logger.trace("<getInnerXml");
         return sb.toString();
     }
 
@@ -840,22 +854,22 @@ public class HtmlHelper {
         return result;
     }
 
-    public static String xmlToString(Node node) {
-        try {
-            Source source = new DOMSource(node);
-            StringWriter stringWriter = new StringWriter();
-            Result result = new StreamResult(stringWriter);
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
-            transformer.transform(source, result);
-            return stringWriter.getBuffer().toString();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public static String xmlToString(Node node) {
+//        try {
+//            Source source = new DOMSource(node);
+//            StringWriter stringWriter = new StringWriter();
+//            Result result = new StreamResult(stringWriter);
+//            TransformerFactory factory = TransformerFactory.newInstance();
+//            Transformer transformer = factory.newTransformer();
+//            transformer.transform(source, result);
+//            return stringWriter.getBuffer().toString();
+//        } catch (TransformerConfigurationException e) {
+//            e.printStackTrace();
+//        } catch (TransformerException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     /**
      * <p>
@@ -992,6 +1006,11 @@ public class HtmlHelper {
         return sb.toString().replaceAll("[ ]{2,}", "");
     }
 
+    /**
+     * TODO duplicate of {@link #getXmlDump(Node)}?
+     * @param document
+     * @return
+     */
     public static String getDocumentTextDump(Document document) {
         if (document != null && document.getLastChild() != null) {
             return document.getLastChild().getTextContent();
@@ -1137,7 +1156,7 @@ public class HtmlHelper {
 
         System.out.println(input);
 
-        HtmlHelper.stringToXml(input);
+//        HtmlHelper.stringToXml(input);
 
         System.out.println(stripHtmlTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
         System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
