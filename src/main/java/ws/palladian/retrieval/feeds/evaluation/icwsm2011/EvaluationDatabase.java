@@ -5,14 +5,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 
-import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
-import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
-import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator.Policy;
+import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
  * A database for feed reading evaluation of first feed paper.
@@ -57,10 +57,10 @@ public final class EvaluationDatabase extends DatabaseManager {
     private static final String psGetTransferVolumeByHourFromProbabilisticMinTime = "SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_probabilistic_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC";
 
     /**
-     * @param connectionManager
+     * @param dataSource
      */
-    protected EvaluationDatabase(ConnectionManager connectionManager) {
-        super(connectionManager);
+    protected EvaluationDatabase(DataSource dataSource) {
+        super(dataSource);
     }
 
     /**
