@@ -10,11 +10,11 @@ import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.HttpDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.DateArrayHelper;
 
 
 public class HttpEvaluator {

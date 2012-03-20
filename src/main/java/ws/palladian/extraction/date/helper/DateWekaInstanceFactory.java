@@ -1,4 +1,4 @@
-package ws.palladian.helper.date;
+package ws.palladian.extraction.date.helper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

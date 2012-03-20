@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.DateGetter;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ReferenceDate;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  * This class rates reference dates.

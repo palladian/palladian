@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ExtractedDate;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
-import ws.palladian.helper.date.RatedDateComparator;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  * 

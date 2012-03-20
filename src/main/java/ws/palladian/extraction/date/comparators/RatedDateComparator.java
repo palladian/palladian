@@ -1,4 +1,4 @@
-package ws.palladian.helper.date;
+package ws.palladian.extraction.date.comparators;
 
 import java.util.Comparator;
 

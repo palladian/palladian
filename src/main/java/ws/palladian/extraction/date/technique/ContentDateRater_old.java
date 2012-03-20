@@ -7,7 +7,7 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  *This class evaluates content-dates. <br>

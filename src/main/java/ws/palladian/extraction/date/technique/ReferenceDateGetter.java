@@ -11,11 +11,11 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.date.DateConverter;
 import ws.palladian.extraction.date.DateEvaluator;
 import ws.palladian.extraction.date.DateGetter;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  * This class tries get dates in lined pages.<br>

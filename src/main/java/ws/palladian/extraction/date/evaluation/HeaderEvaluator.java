@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.HeadDateGetter;
 import ws.palladian.extraction.date.technique.HeadDateRater;
@@ -22,7 +23,6 @@ import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
 import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 

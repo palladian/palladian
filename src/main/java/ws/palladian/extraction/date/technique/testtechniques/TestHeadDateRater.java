@@ -8,12 +8,12 @@ import java.util.Map.Entry;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.ExtractedDateHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.technique.HeadDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
 
 public class TestHeadDateRater extends HeadDateRater {
 	

@@ -6,11 +6,11 @@ import java.util.List;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.DateConverter;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**

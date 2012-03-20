@@ -1,6 +1,8 @@
-package ws.palladian.extraction.date.dates;
+package ws.palladian.extraction.date.comparators;
 
 import java.util.Comparator;
+
+import ws.palladian.extraction.date.dates.ExtractedDate;
 
 public class DateExactnessComparator implements Comparator<ExtractedDate> {
 
