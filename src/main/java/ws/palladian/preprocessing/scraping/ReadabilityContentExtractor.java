@@ -1,5 +1,6 @@
 package ws.palladian.preprocessing.scraping;
 
+import java.io.File;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -292,7 +293,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         // write Document's dump to disk, using time stamped file name
         if (isWriteDump()) {
             String filename = "dumps/pageContentExtractor" + System.currentTimeMillis() + ".xml";
-            HtmlHelper.writeXmlDump(cache, filename);
+            HtmlHelper.writeToFile(cache, new File(filename));
             LOGGER.info("wrote dump to " + filename);
         }
 
@@ -1116,7 +1117,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 System.out.println(pageContentExtractor.getResultText());
 
                 if (outputfile != null) {
-                    HtmlHelper.writeXmlDump(pageContentExtractor.getResultNode(), outputfile);
+                    HtmlHelper.writeToFile(pageContentExtractor.getResultNode(), new File(outputfile));
                 }
 
 
