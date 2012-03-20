@@ -8,8 +8,6 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
-
 /**
  * This class allows one to save data into a database instead of keeping it in memory.
  * 
@@ -21,7 +19,7 @@ public class DbStore {
 
     protected static final Logger logger = Logger.getLogger(DbStore.class);
 
-    // database paramenters
+    // database parameters
     private Connection connection = null;
     private String dbType = "h2";// "mysql";
     private String dbDriver = "org.h2.Driver";// "com.mysql.jdbc.Driver";
@@ -299,36 +297,6 @@ public class DbStore {
 
     public int size() {
         return size;
-    }
-
-    // TODO Move to JUnit test.
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        DbStore dbStore = new DbStore("testStore");
-        dbStore.put("abc", "def");
-        System.out.println(dbStore.get("abc"));
-
-        dbStore.remove("abc");
-        System.out.println(dbStore.get("abc"));
-
-        dbStore.put("abc", "def");
-        System.out.println(dbStore.get("abc"));
-
-        dbStore.clear();
-        System.out.println(dbStore.get("abc"));
-
-        // performance test (H2 is about 8-40 times faster than MySQL
-        long t1 = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            DbStore dbs = new DbStore("table" + i);
-            dbs.put("abc", "def");
-            dbs.remove("abc");
-            dbs.put("abc", "def");
-            dbs.clear();
-        }
-        DateHelper.getRuntime(t1, System.currentTimeMillis(), true);
     }
 
 }
