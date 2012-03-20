@@ -315,8 +315,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0) {
                 BufferedImage image = ImageHandler.load(webImage.getUrl());
-                webImage.setWidth(image.getWidth());
-                webImage.setHeight(image.getHeight());
+                if (image != null) {
+                    webImage.setWidth(image.getWidth());
+                    webImage.setHeight(image.getHeight());
+                }
             }
         }
 
