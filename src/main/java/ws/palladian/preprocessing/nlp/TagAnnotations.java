@@ -47,7 +47,7 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
      * Provides the list of tags saved in this list.
      * </p>
      * 
-     * @return The part of speach tags saved in this list.
+     * @return The part of speech tags saved in this list.
      */
     public List<String> getTagList() {
 
@@ -62,7 +62,7 @@ public class TagAnnotations extends ArrayList<TagAnnotation> {
 
     /**
      * <p>
-     * Provides all entries fitting one of the provided tags. This method is like a filter or whitelist for tags.
+     * Provides all entries fitting one of the provided tags. This method is like a filter or white list for tags.
      * </p>
      * 
      * @param tags The tags to consider in the returned tag list.

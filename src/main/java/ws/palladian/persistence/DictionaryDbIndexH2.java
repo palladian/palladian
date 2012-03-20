@@ -63,6 +63,11 @@ public class DictionaryDbIndexH2 extends DictionaryIndex {
      * if true, the db will be kept in memory until the virtual machine is closed, if false, db is serialized to disk.
      */
     private boolean inMemoryMode = false;
+    
+    public DictionaryDbIndexH2(String indexPath) {
+        setIndexPath(indexPath);
+        connection = getConnection();
+    }
 
     public DictionaryDbIndexH2(String dbName, String dbUsername, String dbPassword, String indexPath) {
         setDbName(dbName);
@@ -233,6 +238,7 @@ public class DictionaryDbIndexH2 extends DictionaryIndex {
      * @param word The word in the dictionary.
      */
     public CategoryEntries read(String word) {
+        word = word.toLowerCase();
         if (fastMode) {
             return read1(word);
         }
