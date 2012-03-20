@@ -15,7 +15,7 @@ public class DictionaryDbIndexTest {
     @Test
     public void testDBIndex() {
 
-        DictionaryDbIndexH2 dbIndex = new DictionaryDbIndexH2("test_dictionary", "root", "", "");
+        DictionaryDbIndexH2 dbIndex = new DictionaryDbIndexH2("test_dictionary", "root", "", "data/temp/");
         dbIndex.setDictionary(new Dictionary("test_dictionary", 1));
         dbIndex.empty();
 
