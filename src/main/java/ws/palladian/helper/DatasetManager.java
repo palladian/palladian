@@ -66,7 +66,7 @@ public class DatasetManager {
 
             String className = FileHelper.getFolderName(classFolder.getPath());
 
-            if (includeClasses != null && !CollectionHelper.contains(includeClasses, className)) {
+            if (includeClasses != null && !Arrays.asList(includeClasses).contains(className)) {
                 LOGGER.info("skip class " + className);
                 continue;
             }

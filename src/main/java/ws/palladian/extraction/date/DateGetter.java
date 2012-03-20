@@ -2,11 +2,11 @@ package ws.palladian.extraction.date;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.technique.ContentDateGetter;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -92,7 +92,7 @@ public class DateGetter {
 				dates.addAll((Collection<? extends T>) cdg.getDates());
 			}
 		}
-		dates = CollectionHelper.removeNullElements(dates);
+        dates.removeAll(Collections.singletonList(null));
 		return dates;
 
 	}

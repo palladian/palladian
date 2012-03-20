@@ -16,7 +16,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -147,7 +146,7 @@ public class JRCCorpusConverter {
 
             String currentLanguageCode = FileHelper.getFolderName(languageFolder.getPath());
 
-            if (includeLanguages != null && !CollectionHelper.contains(includeLanguages, currentLanguageCode)) {
+            if (includeLanguages != null && !Arrays.asList(includeLanguages).contains(currentLanguageCode)) {
                 LOGGER.info("skip language " + currentLanguageCode);
                 continue;
             }

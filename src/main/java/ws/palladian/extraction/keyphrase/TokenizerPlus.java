@@ -408,7 +408,7 @@ public class TokenizerPlus {
             cm.increment(token.getStemmedValue());
         }
 
-        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm.entrySet(), false);
+        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm, false);
         for (Entry<Object, Integer> entry : sort.entrySet()) {
             System.out.println(entry.getValue() + " " + entry.getKey());
         }

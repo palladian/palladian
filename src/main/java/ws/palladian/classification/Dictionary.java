@@ -367,7 +367,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             }
         }
 
-        bestFitCategoryEntries = CollectionHelper.sortByValue(bestFitCategoryEntries.entrySet());
+        bestFitCategoryEntries = CollectionHelper.sortByValue(bestFitCategoryEntries);
 
         // Category c = new
         // Category(bestFitCategoryEntries.entrySet().iterator().next().getKey());

@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -821,7 +822,7 @@ public class Feed {
 
     public void setActivityPattern(Integer activityPattern) {
         if (activityPattern != null
-                && CollectionHelper.contains(FeedClassifier.getActivityPatternIDs(), activityPattern)) {
+                && Arrays.asList(FeedClassifier.getActivityPatternIDs()).contains(activityPattern)) {
             this.activityPattern = activityPattern;
         }
 

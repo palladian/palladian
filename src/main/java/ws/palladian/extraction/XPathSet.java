@@ -60,7 +60,7 @@ public class XPathSet {
     }
 
     public String getHighestCountXPath(int minCount) {
-        xPathMap = CollectionHelper.sortByValue(xPathMap.entrySet(), CollectionHelper.DESCENDING);
+        xPathMap = CollectionHelper.sortByValue(xPathMap, CollectionHelper.DESCENDING);
 
         // Iterator<Map.Entry<String, Integer>> it = xPathMap.entrySet().iterator();
         // while (it.hasNext()) {
@@ -99,7 +99,7 @@ public class XPathSet {
     public String getLongestHighCountXPath(Document document) {
         String longestHighCountXPath = "";
 
-        xPathMap = CollectionHelper.sortByValue(xPathMap.entrySet(), CollectionHelper.DESCENDING);
+        xPathMap = CollectionHelper.sortByValue(xPathMap, CollectionHelper.DESCENDING);
 
         Iterator<Map.Entry<String, Integer>> it = xPathMap.entrySet().iterator();
         String highestHitCountXPath = "";

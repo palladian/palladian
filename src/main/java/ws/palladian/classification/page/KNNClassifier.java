@@ -76,7 +76,7 @@ public class KNNClassifier extends TextClassifier {
         }
 
         // sort near neighbor map by distance
-        Map<TextInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors.entrySet());
+        Map<TextInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
 
         // get votes from k nearest neighbors and decide in which category the document is in also consider distance for nearest neighbors
         Map<String, Double> votes = new HashMap<String, Double>();
@@ -101,7 +101,7 @@ public class KNNClassifier extends TextClassifier {
             ++ck;
         }
 
-        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes.entrySet(), CollectionHelper.DESCENDING);
+        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes, CollectionHelper.DESCENDING);
 
         // assign category entries
         for (Entry<String, Double> entry : sortedVotes.entrySet()) {
