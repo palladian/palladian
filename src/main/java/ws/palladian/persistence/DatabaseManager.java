@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -21,7 +23,7 @@ import org.apache.log4j.Logger;
  * 
  * <p>
  * Instances of the DatabaseManager or its subclasses are created using the {@link DatabaseManagerFactory}, which takes
- * care of injecting the {@link ConnectionManager}, which provides pooled database connections.
+ * care of injecting the {@link DataSource}, which provides database connections.
  * </p>
  * 
  * @author David Urbansky
@@ -34,26 +36,27 @@ public class DatabaseManager {
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
     /**
-     * The manager handling database connections to the underlying database.
+     * The {@link DataSource} providing Connection to the underlying database.
      */
-    private ConnectionManager connectionManager;
+    private DataSource dataSource;
 
     /**
      * <p>
-     * Creates a new {@code DatabaseManager} connected to a database over a {@code DatabaseManager}. The constructor is
-     * not exposed since new objects of this type must be constructed using the {@link DatabaseManagerFactory}.
+     * Creates a new {@code DatabaseManager} which connects to the database via the specified {@link DataSource}. The
+     * constructor is not exposed since new objects of this type must be constructed using the
+     * {@link DatabaseManagerFactory}.
      * </p>
      * 
-     * @param connectionManager The manager handling database connections to the underlying database.
+     * @param dataSource
      */
-    protected DatabaseManager(final ConnectionManager connectionManager) {
+    protected DatabaseManager(DataSource dataSource) {
         super();
-        this.connectionManager = connectionManager;
+        this.dataSource = dataSource;
     }
 
     /**
      * <p>
-     * Get a {@link Connection} from the {@link ConnectionManager}. If you use this method, e.g. in your subclass, it's
+     * Get a {@link Connection} from the {@link DataSourceFactory}. If you use this method, e.g. in your subclass, it's
      * your responsibility to close all database resources after work has been done. This can be done conveniently by
      * using one of the various close methods offered by this class.
      * </p>
@@ -62,7 +65,7 @@ public class DatabaseManager {
      * @throws SQLException
      */
     protected final Connection getConnection() throws SQLException {
-        return connectionManager.getConnection();
+        return dataSource.getConnection();
     }
 
     /**
@@ -550,7 +553,7 @@ public class DatabaseManager {
         };
 
         runQuery(callback, converter, sql, args);
-        return (T) result[0];
+        return (T)result[0];
     }
 
     /**

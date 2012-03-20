@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.date.DateGetterHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.LocalizeHelper;
-import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
@@ -164,8 +165,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
     /**
      * Constructor, prepares the {@link PageTitleCache}.
      */
-    protected MediaWikiDatabase(final ConnectionManager connectionManager) {
-        super(connectionManager);
+    protected MediaWikiDatabase(final DataSource dataSource) {
+        super(dataSource);
         cache = new PageTitleCache();
         for (WikiDescriptor wiki : getAllWikiDescriptors()) {
             cache.addWiki(wiki.getWikiID());

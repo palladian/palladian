@@ -10,10 +10,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
@@ -132,8 +133,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     private static final int QUEUE_CAPACITY = 1000;
     
-    protected EvaluationFeedDatabase(ConnectionManager connectionManager) {
-        super(connectionManager);
+    protected EvaluationFeedDatabase(DataSource dataSource) {
+        super(dataSource);
         feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
         initializeNewestItemHashes();
     }

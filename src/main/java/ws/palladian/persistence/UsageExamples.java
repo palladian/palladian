@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -40,8 +42,8 @@ class CatDatabase extends DatabaseManager {
     private static final String GET_CATS = "SELECT * FROM cats";
     private static final String GET_CAT_BY_NAME = "SELECT * FROM cats WHERE name = ?";
 
-    protected CatDatabase(ConnectionManager connectionManager) {
-        super(connectionManager);
+    protected CatDatabase(DataSource dataSource) {
+        super(dataSource);
     }
 
     public void createTable() {
