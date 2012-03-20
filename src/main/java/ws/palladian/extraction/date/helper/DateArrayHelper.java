@@ -1,4 +1,4 @@
-package ws.palladian.helper.date;
+package ws.palladian.extraction.date.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.ExtractedDateHelper;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;

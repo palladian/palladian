@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.AbstractDate;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.helper.RegExp;

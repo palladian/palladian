@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.dates.ExtractedDate;
-import ws.palladian.helper.date.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  * <p>

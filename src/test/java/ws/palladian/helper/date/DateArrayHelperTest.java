@@ -11,8 +11,10 @@ import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.DateGetter;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class DateArrayHelperTest {
