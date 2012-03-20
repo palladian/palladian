@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-// FIXME make this generic
+// FIXME make this generic, or better use org.apache.commons.collections15.Bag<E> instead
 public class CountMap extends HashMap<Object, Integer> {
 
     /** The serial version id. */

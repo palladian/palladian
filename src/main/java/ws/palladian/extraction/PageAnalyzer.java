@@ -867,7 +867,7 @@ public class PageAnalyzer {
             return 0;
         }
 
-        tdCountMap = CollectionHelper.sortByValue(tdCountMap.entrySet(), CollectionHelper.DESCENDING);
+        tdCountMap = CollectionHelper.sortByValue(tdCountMap, CollectionHelper.DESCENDING);
         numberOfColumns = tdCountMap.entrySet().iterator().next().getKey();
 
         // rowspan might have led to zero columns
@@ -1171,7 +1171,7 @@ public class PageAnalyzer {
 
         // return url with highest similarity or an empty string if nothing has
         // been found
-        similarityMap = CollectionHelper.sortByValue(similarityMap.entrySet(), CollectionHelper.DESCENDING);
+        similarityMap = CollectionHelper.sortByValue(similarityMap, CollectionHelper.DESCENDING);
 
         if (similarityMap.entrySet().size() > 0) {
             try {

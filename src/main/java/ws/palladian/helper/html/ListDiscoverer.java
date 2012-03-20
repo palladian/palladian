@@ -174,8 +174,7 @@ public class ListDiscoverer {
                         xPathsBySimilarity.put(entry.getKey(), averageLinkSimilarity);
                     }
                 }
-                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity.entrySet(),
-                        CollectionHelper.DESCENDING);
+                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity, CollectionHelper.DESCENDING);
 
                 if (!xPathsBySimilarity.isEmpty()) {
                     paginationXPath = xPathsBySimilarity.entrySet().iterator().next().getKey();

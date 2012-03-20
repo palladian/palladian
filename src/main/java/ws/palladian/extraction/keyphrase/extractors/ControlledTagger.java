@@ -915,7 +915,7 @@ public class ControlledTagger extends KeyphraseExtractor {
             idfMap.put(tagName, tagCount);
         }
 
-        LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap.entrySet(), false);
+        LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap, false);
 
         StringBuilder idfBuilder = new StringBuilder();
         for (Entry<String, Integer> tagEntry : idfMapSorted.entrySet()) {
@@ -932,7 +932,7 @@ public class ControlledTagger extends KeyphraseExtractor {
             tagCountMap.put(tagName, tagCount);
         }
 
-        LinkedHashMap<String, Integer> sorted = CollectionHelper.sortByValue(tagCountMap.entrySet(), false);
+        LinkedHashMap<String, Integer> sorted = CollectionHelper.sortByValue(tagCountMap, false);
 
         StringBuilder sb = new StringBuilder();
         for (Entry<String, Integer> tagEntry : sorted.entrySet()) {
