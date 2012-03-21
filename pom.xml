@@ -3,9 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
+	<packaging>pom</packaging>
 	<name>Palladian - TUD Information Retrieval Toolkit</name>
 	<version>0.1.7-SNAPSHOT</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
+	<modules>
+		<module>palladian-extraction</module>
+		<module>palladian-helper</module>
+		<module>palladian-persistence</module>
+		<module>palladian-retrieval</module>
+	</modules>
 	<build>
 		<plugins>
 			<plugin>
