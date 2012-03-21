@@ -6,16 +6,16 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.ner.Annotations;
 import ws.palladian.preprocessing.nlp.ner.FileFormatParser;
 import ws.palladian.preprocessing.nlp.ner.NamedEntityRecognizer;
 import ws.palladian.preprocessing.nlp.ner.TaggingFormat;
 import ws.palladian.preprocessing.nlp.ner.dataset.DatasetProcessor;
-import ws.palladian.preprocessing.nlp.ner.tagger.IllinoisLbjNER;
-import ws.palladian.preprocessing.nlp.ner.tagger.OpenNLPNER;
+import ws.palladian.preprocessing.nlp.ner.tagger.IllinoisLbjNer;
+import ws.palladian.preprocessing.nlp.ner.tagger.OpenNlpNer;
 import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer;
 import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer.LanguageMode;
 import ws.palladian.preprocessing.nlp.ner.tagger.PalladianNer.TrainingMode;
@@ -435,13 +435,13 @@ public class Evaluator {
 
         List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
-        IllinoisLbjNER lbjNer = new IllinoisLbjNER();
+        IllinoisLbjNer lbjNer = new IllinoisLbjNer();
         taggerList.add(new PalladianNer(LanguageMode.English));
         taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
         lbjNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         // taggerList.add(lbjNer);
         // taggerList.add(new LingPipeNER());
-        OpenNLPNER openNlpNer = new OpenNLPNER();
+        OpenNlpNer openNlpNer = new OpenNlpNer();
         openNlpNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         // taggerList.add(openNlpNer);
         // taggerList.add(new JulieNER());

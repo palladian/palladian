@@ -19,7 +19,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.evaluation.PollData;
+import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -638,7 +638,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        feed.freeMemory(true);
+        feed.freeMemory();
     }
 
     /**

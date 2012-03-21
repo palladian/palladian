@@ -17,7 +17,17 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * Do a batch evaluation on a single update strategy, simulate several interval bounds such as 1, 5, 15, 60 minutes as
- * lower bound and 1 day, 1 week and an open upper bound.
+ * lower bound and 1 day, 1 week and 4 weeks as upper bound. It is presumed, that the given {@link UpdateStrategy} has
+ * already been evaluated by {@link DatasetEvaluator} with {@link IntervalBoundsEvaluator#DEFAULT_LOWER_BOUND} and
+ * {@link IntervalBoundsEvaluator#DEFAULT_UPPER_BOUND}, so some evaluation results can be copied from this initial
+ * evaluation.
+ * 
+ * Example with 2 feeds A and B: In the first evaluation, done by {@link DatasetEvaluator}, the lower bound was 1 minute
+ * and the upper bound was 1 day. Lets assume feed A has been checked exactly every hour, feed B has been checked in
+ * intervals ranging from 2 minutes to 8 hours. Now, IntervalBoundsEvaluator evaluates the same strategy with bounds 5
+ * minutes and 1 day. These new bounds only affect feed B, since feed a has always been checked hourly. Therefore, feed
+ * A's evaluation results are copied from the first run. Feed B has to be evaluated again. This strategy saves a lot or
+ * computing resources!
  * 
  * @author Sandro Reichert
  * 
@@ -27,11 +37,13 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(IntervalBoundsEvaluator.class);
 
-    // private static final int[] lowerBounds = { 1, 5, 15, 60 };
-    private static final int[] lowerBounds = { 1 };
+    private static final int[] lowerBounds = { 1, 5, 15, 60 };
 
-    // private static final int[] upperBounds = { 1440, 10080, 43200 };
-    private static final int[] upperBounds = { 60, 360, 720 };
+    private static final int[] upperBounds = { 1440, 10080, 43200 };
+
+    private static final int DEFAULT_LOWER_BOUND = 1;
+
+    private static final int DEFAULT_UPPER_BOUND = 43200;
 
     public IntervalBoundsEvaluator(EvaluationFeedDatabase feedStore) {
         super(feedStore);
@@ -51,7 +63,6 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize IntervalBoundsEvaluator. Evaluating strategy ");
-        int feedItemBufferSize = 10;
         String sourceTableName = "";
 
         EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, ConfigHolder
@@ -137,7 +148,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                 for (int upperBound : upperBounds) {
 
                     // skip default setting, this has been done before
-                    if (lowerBound == 1 && upperBound == 43200) {
+                    if (lowerBound == DEFAULT_LOWER_BOUND && upperBound == DEFAULT_UPPER_BOUND) {
                         continue;
                     }
 
@@ -157,7 +168,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                             .getConfig());
                     IntervalBoundsEvaluator evaluator = new IntervalBoundsEvaluator(feedStore);
                     String timestamp = evaluator.initialize(benchmarkPolicy, benchmarkMode, benchmarkSampleSize,
-                            updateStrategy, wakeUpInterval, feedItemBufferSize);
+                            updateStrategy, wakeUpInterval);
 
 
                     // since we have done one evaluation without interval bounds (lower bound 1 minute, no upper bound),

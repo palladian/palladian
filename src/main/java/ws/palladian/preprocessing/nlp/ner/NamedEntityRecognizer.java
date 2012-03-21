@@ -13,10 +13,10 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationAnnotation;
@@ -706,7 +706,7 @@ public abstract class NamedEntityRecognizer {
 
     protected void alignContent(String alignFilePath, String correctContent) {
         // transform to XML
-        FileFormatParser.columnToXML(alignFilePath, alignFilePath, "\t");
+        FileFormatParser.columnToXml(alignFilePath, alignFilePath, "\t");
 
         String alignedContent = FileHelper.readFileToString(alignFilePath);
 

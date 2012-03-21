@@ -54,31 +54,31 @@ This sections outlines important evaluation measures which are typically used fo
 
 \subsection{Precision, Recall, and F-measure} \label{sec:Introduction:PrRcF1}
 
-Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative'', as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errenously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
+Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relevant and non-relevant documents and a subset of retrieved -- i.\,e. found -- documents, we can distinguish between four disjoint sets, which can be classified as combinations of the attributes ``true'' or ``false'' with ``positive'' or ``negative'', as depicted in Figure~\ref{fig:PrecisionRecall}. Documents which have been filtered out by the system errnously are classified as ``false negatives'', irrelevant documents which are presented to the user are classified as ``false positives''. Precision $P$ and Recall $R$ can be determined as stated in Equations~\ref{eqn:Precision} and \ref{eqn:Recall}. Intuitively, both take a range between 0 and 1 inclusively, where 1 denotes the optimum.
 
-\begin{align}
-%	
-	\textit{Precision} &= P = \frac{\left|\,\textit{relevant, retrieved docs}\,\right|}{\left|\,\textit{retrieved docs}\,\right|} = \frac{\left|\,\textit{true positives}\,\right|}{\left|\,\textit{true positives}\,\right| + \left|\,\textit{false positives}\,\right|}
-	\label{eqn:Precision} \\[5mm]
-%	
-	\textit{Recall} &= R = \frac{\left|\,\textit{relevant, retrieved docs}\,\right|}{\left|\,\textit{relevant docs}\,\right|} = \frac{\left|\,\textit{true positives}\,\right|}{\left|\,\textit{true positives}\,\right| + \left|\,\textit{false negatives}\,\right|}
+\begin{equation}
+	\label{eqn:Precision}
+	Precision &= P = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{retrieved docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false positives}\,\right|}
+\end{equation}
+
+\begin{equation}	
 	\label{eqn:Recall}
-%	
-\end{align}
+	Recall &= R = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{relevant docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false negatives}\,\right|}
+\end{equation}
 
 The F-measure combines both the Precsion and the Recall to one value. Usually the so called $F_1$ score is calculated by employing a harmonic mean as depicted in Equation~\ref{eqn:F1Measure}. The universal F-measure which allows weighting, and thus prioritizing, Precision and Recall values differently is described in \cite[p.\,156]{Manning:2009}. 
 
 \begin{equation}
-	F_1 = \frac{2 \cdot P \cdot R}{P + R}
 	\label{eqn:F1Measure}
+	F_1 = \frac{2 \cdot P \cdot R}{P + R}
 \end{equation}
 
 
 \begin{figure}[t!]
+\label{fig:PrecisionRecall}
 \centering
 \includegraphics[width=0.6\textwidth]{img/PrecisionRecallSets.pdf}
 \caption{Set of Documents as Basis for Precision and Recall \cite{katz2010diploma}.}
-\label{fig:PrecisionRecall}
 \end{figure}
 
 \subsection{Mean Squared Error, Root Mean Squared Error}
@@ -86,8 +86,8 @@ The F-measure combines both the Precsion and the Recall to one value. Usually th
 The Mean Squared Error (MSE) is used for measuring the deviation of estimated or predicted numeric values from their actual values. Therefor, the average of the quadratic differences between each actual value $y$ and the predicted value $\bar y$ is calculated. By squaring down the differences, the bigger errors are weighted stronger compared to small errors. The Root Mean Squared Error (RMSE) additionally extracts the square root from the MSE, as depicted in Equation~\ref{eqn:RMSE}.
 
 \begin{equation}
-	\mathit{RMSE} = \sqrt{\frac{1}{n} \sum\limits_{i=1}^{n}(y_i - \bar y_i)^2}
 	\label{eqn:RMSE}
+	\mathit{RMSE} = \sqrt{\frac{1}{n} \sum\limits_{i=1}^{n}(y_i - \bar y_i)^2}
 \end{equation}
 
 \subsection{Precision at k, Average Precision, Mean Average Precision}
@@ -97,19 +97,20 @@ Precision, Recall and F-measure as described in Section~\ref{sec:Introduction:Pr
 ``Precision at k'' denotes the precision for a ranked sublist of the first k documents as illustrated in Equation~\ref{eqn:PrAtK}. The binary function $rel(i)$ takes a value of 1, if the document at position $i$ is relevant for the current query, 0 elsewise \cite{Mahesh:1999}. For example, $P(k = 10)$ with 5 relevant and 5 irrelevant documents results in a value of 0.5.
 
 \begin{equation}
-	P(k) = \frac{\sum_{i = 1}^{k} \textit{rel}(i)}{k}
 	\label{eqn:PrAtK}
+	P(k) = \frac{\sum_{i = 1}^{k} \mathit{rel}(i)}{k}
 \end{equation}
 
 Equation~\ref{eqn:AP} shows the Average Precision (AP), which is the sum of the precisions from Equation~\ref{eqn:PrAtK} where $rel(i)$ equals a value of 1, divided by the total count of relevant documents in the sublist of $n$ results \cite{Mahesh:1999}. Table~\ref{tab:ExampleMAP} gives a calculation example.
 
 \begin{equation}
-	\mathit{AP} = \frac{\sum_{k = 1}^{n} P(k) \textit{rel}(k)}{R}
 	\label{eqn:AP}
+	\mathit{AP} = \frac{\sum_{k = 1}^{n} P(k) \mathit{rel}(k)}{R}
 \end{equation}
 
 % Daten siehe --> AveragePrecision.numbers
 \begin{table}[h!tbp]
+	\label{tab:ExampleMAP}
 	\centering
 	\begin{tabular}{|c|c|c|c|c|}
 				
@@ -129,7 +130,6 @@ Equation~\ref{eqn:AP} shows the Average Precision (AP), which is the sum of the 
 	\end{tabular}
 
 	\caption{Example for calculating Precision and Average Precision for a ranked list.}
-	\label{tab:ExampleMAP}
 \end{table}
 
 % TODO ... MAP

@@ -15,16 +15,26 @@ public abstract class SearchResult {
     private final String title;
     private final String summary;
     private final Date date;
+    private final String searchEngine;
 
     public SearchResult(String title, String summary, Date date) {
+        this(title, summary, date, null);
+    }
+
+    public SearchResult(String title, String summary) {
+        this(title, summary, null, null);
+    }
+
+    public SearchResult(String title, String summary, Date date, String searchEngine) {
         super();
         this.title = title;
         this.summary = summary;
         this.date = date;
+        this.searchEngine = searchEngine;
     }
-    
-    public SearchResult(String title, String summary) {
-        this(title, summary, null);
+
+    public SearchResult(String title, String summary, String searchEngine) {
+        this(title, summary, null, searchEngine);
     }
 
     /**
@@ -48,10 +58,18 @@ public abstract class SearchResult {
         return date;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
+    /**
+     * <p>
+     * Get the name of the search engine which provided this {@link SearchResult}. Return <code>null</code> when search
+     * engine has not been specified.
+     * </p>
+     * 
+     * @return
      */
+    public String getSearchEngine() {
+        return searchEngine;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -62,10 +80,6 @@ public abstract class SearchResult {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -93,10 +107,6 @@ public abstract class SearchResult {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -106,6 +116,8 @@ public abstract class SearchResult {
         builder.append(summary);
         builder.append(", date=");
         builder.append(date);
+        builder.append(", search engine=");
+        builder.append(searchEngine);
         builder.append("]");
         return builder.toString();
     }

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
+import ws.palladian.extraction.date.comparators.ContentDateComparator;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
@@ -16,6 +18,7 @@ import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.dates.UrlDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.technique.ArchiveDateRater;
 import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.extraction.date.technique.MetaDateRater;
@@ -23,9 +26,6 @@ import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.extraction.date.technique.ReferenceDateRater;
 import ws.palladian.extraction.date.technique.StructureDateRater;
 import ws.palladian.extraction.date.technique.UrlDateRater;
-import ws.palladian.helper.date.ContentDateComparator;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
 
 /**
  * This class is responsible for rating dates. <br>

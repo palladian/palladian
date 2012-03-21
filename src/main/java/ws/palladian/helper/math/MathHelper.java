@@ -14,8 +14,9 @@ import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 /**
  * The MathHelper adds mathematical functionality.
@@ -599,5 +600,11 @@ public class MathHelper {
 
     public static double log2(double num) {
         return (Math.log(num) / Math.log(2));
+    }
+
+    public static void main(String[] a) {
+        
+        CollectionHelper.print(MathHelper.createRandomNumbers(10, 100, 989979));
+        
     }
 }

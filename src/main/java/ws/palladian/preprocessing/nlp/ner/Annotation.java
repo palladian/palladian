@@ -20,6 +20,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 import ws.palladian.preprocessing.nlp.ner.evaluation.EvaluationAnnotation;
+import ws.palladian.preprocessing.nlp.pos.BasePosTagger;
 import ws.palladian.preprocessing.nlp.pos.LingPipePosTagger;
 
 /**
@@ -48,7 +49,9 @@ public class Annotation extends UniversalInstance {
 
     /** The right context of the annotation */
     private String rightContext = "";
-
+	
+	private List<String> subTypes = null;
+	
     public Annotation(Annotation annotation) {
         super(null);
         offset = annotation.getOffset();
@@ -321,16 +324,16 @@ public class Annotation extends UniversalInstance {
         return contexts;
     }
 
+    // yuk. looks like this shouldn't be here.
     public String[] getLeftContextsPOS() {
 
         Object o = Cache.getInstance().getDataObject("lpt");
-        LingPipePosTagger lpt;
+        BasePosTagger lpt;
 
         if (o != null) {
-            lpt = (LingPipePosTagger) o;
+            lpt = (BasePosTagger) o;
         } else {
             lpt = new LingPipePosTagger();
-            lpt.loadModel();
             Cache.getInstance().putDataObject("lpt", lpt);
         }
 
@@ -342,7 +345,7 @@ public class Annotation extends UniversalInstance {
         String leftContext = getLeftContext();
 
         String posLeftContext = "";
-        TagAnnotations tas = lpt.tag(leftContext).getTagAnnotations();
+        TagAnnotations tas = lpt.tag(leftContext);
         for (TagAnnotation ta : tas) {
             posLeftContext += ta.getTag() + " ";
         }
@@ -436,13 +439,12 @@ public class Annotation extends UniversalInstance {
     public String[] getRightContextsPOS() {
 
         Object o = Cache.getInstance().getDataObject("lpt");
-        LingPipePosTagger lpt;
+        BasePosTagger lpt;
 
         if (o != null) {
-            lpt = (LingPipePosTagger) o;
+            lpt = (BasePosTagger) o;
         } else {
             lpt = new LingPipePosTagger();
-            lpt.loadModel();
             Cache.getInstance().putDataObject("lpt", lpt);
         }
 
@@ -454,7 +456,7 @@ public class Annotation extends UniversalInstance {
         String rightContext = getRightContext();
 
         String posRightContext = "";
-        TagAnnotations tas = lpt.tag(rightContext).getTagAnnotations();
+        TagAnnotations tas = lpt.tag(rightContext);
         for (TagAnnotation ta : tas) {
             posRightContext += ta.getTag() + " ";
         }
@@ -516,6 +518,26 @@ public class Annotation extends UniversalInstance {
     public CategoryEntries getTags() {
         return getAssignedCategoryEntries();
     }
+	
+	public void addSubTypes(List<String> subTypes){
+	
+		if(this.subTypes == null){
+		
+			this.subTypes = subTypes;
+			
+		}else{
+		
+			this.subTypes.addAll(subTypes);
+		
+		}
+	
+	}
+	
+	public List<String> getSubTypes(){
+	
+		return subTypes;
+	
+	}
 
     public boolean matches(Annotation annotation) {
         if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {

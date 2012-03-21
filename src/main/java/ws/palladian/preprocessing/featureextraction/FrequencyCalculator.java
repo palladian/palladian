@@ -5,10 +5,13 @@ import java.util.List;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 
+import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 /**
  * <p>
@@ -23,14 +26,28 @@ public class FrequencyCalculator implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * <p>
+     * The identifier of the feature provided by this {@link PipelineProcessor}.
+     * </p>
+     */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens.frequency";
+
+    /**
+     * <p>
+     * The descriptor of the feature provided by this {@link PipelineProcessor}.
+     * </p>
+     */
+    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
+            PROVIDED_FEATURE, NumericFeature.class);
 
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = featureVector.get(Tokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new RuntimeException();
+            throw new IllegalStateException("The required feature " + Tokenizer.PROVIDED_FEATURE_DESCRIPTOR
+                    + " is missing.");
         }
         List<Annotation> tokenList = annotationFeature.getValue();
         Bag<String> tokenBag = new HashBag<String>();
@@ -45,7 +62,7 @@ public class FrequencyCalculator implements PipelineProcessor {
         }
 
         for (Annotation annotation : tokenList) {
-            double frequency = (double)tokenBag.getCount(annotation.getValue()) / maxCount;
+            double frequency = (double) tokenBag.getCount(annotation.getValue()) / maxCount;
             NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
             annotation.getFeatureVector().add(frequencyFeature);
         }

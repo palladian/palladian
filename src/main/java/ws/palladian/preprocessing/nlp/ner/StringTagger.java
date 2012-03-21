@@ -2,7 +2,7 @@ package ws.palladian.preprocessing.nlp.ner;
 
 import java.io.File;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 public class StringTagger {
 
@@ -84,14 +84,14 @@ public class StringTagger {
     public static Annotations getTaggedEntities(String text, String regexp) {
         Annotations annotations = new Annotations();
         String taggedText = tagString(text, regexp);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         return annotations;
     }
 
     public static Annotations getTaggedEntities(String text) {
         Annotations annotations = new Annotations();
         String taggedText = tagString(text);
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         return annotations;
     }
 

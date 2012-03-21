@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.persistence.ConnectionManager;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
@@ -67,10 +68,10 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     
     
     /**
-     * @param connectionManager
+     * @param dataSource
      */
-    protected FeedDatabase(ConnectionManager connectionManager) {
-        super(connectionManager);
+    protected FeedDatabase(DataSource dataSource) {
+        super(dataSource);
     }
 
     /**

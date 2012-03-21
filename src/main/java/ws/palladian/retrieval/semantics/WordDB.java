@@ -19,9 +19,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.h2.tools.RunScript;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LoremIpsumGenerator;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -39,7 +38,6 @@ public class WordDB {
     private Connection connection = null;
     private final String dbType = "h2";
     private final String dbDriver = "org.h2.Driver";
-    private String dbName = "wordDB";
     private final String dbUsername = "root";
     private final String dbPassword = "";
     private String databasePath = "";
@@ -63,14 +61,7 @@ public class WordDB {
     private PreparedStatement psDeleteHyponyms = null;
 
     public WordDB(String databasePath) {
-        this.databasePath = FileHelper.addTrailingSlash(databasePath);
-        connection = getConnection();
-        setup();
-    }
-
-    public WordDB(String databasePath, String dbName) {
-        this.databasePath = FileHelper.addTrailingSlash(databasePath);
-        this.dbName = dbName;
+        this.databasePath = databasePath;
         connection = getConnection();
         setup();
     }
@@ -83,12 +74,12 @@ public class WordDB {
 
         String url;
         if (isInMemoryMode()) {
-            url = "jdbc:" + dbType + ":mem:" + databasePath + dbName + ";DB_CLOSE_DELAY=-1";
+            url = "jdbc:" + dbType + ":mem:" + databasePath + ";DB_CLOSE_DELAY=-1";
         } else {
-            if (!new File(databasePath).exists()) {
-                throw new IllegalArgumentException("Path to word db does not exist: " + databasePath);
-            }
-            url = "jdbc:" + dbType + ":" + databasePath + dbName;
+            // if (!new File(databasePath + ".h2").exists()) {
+            // throw new IllegalArgumentException("Path to word db does not exist: " + databasePath);
+            // }
+            url = "jdbc:" + dbType + ":" + databasePath;
         }
 
         try {
@@ -829,7 +820,8 @@ public class WordDB {
         StopWatch sw = new StopWatch();
 
         // load a word DB
-         WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        // WordDB wordDB = new WordDB("data/temp/wordDatabaseEnglish/");
+        WordDB wordDB = new WordDB("data/temp/englishWordDb");
         //WordDB wordDB = new WordDB("data/models/palladian/language/wiktionary_de/");
         // WordDB wordDB = new WordDB("data/temp/wordDatabaseGerman_latest/");
 
@@ -839,7 +831,16 @@ public class WordDB {
         // search a word in the database
         sw.start();
         Word word = wordDB.getWord("freedom");
+        wordDB.aggregateInformation(word);
         // Word word = wordDB.getWord("Freiheit");
+        LOGGER.info(word);
+
+        word = wordDB.getWord("beer");
+        wordDB.aggregateInformation(word);
+        LOGGER.info(word);
+
+        word = wordDB.getWord("health");
+        wordDB.aggregateInformation(word);
         LOGGER.info(word);
 
         word = wordDB.getWord("Strand");

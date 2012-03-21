@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,14 +20,15 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.DatasetCreatorInterface;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.WordTransformer;
 import ws.palladian.preprocessing.nlp.ner.Annotation;
@@ -37,12 +39,12 @@ import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
-import ws.palladian.retrieval.search.web.WebSearcherLanguage;
 
 /**
  * The DatasetCreator crawls web pages and marks the given seed entities.
@@ -267,7 +269,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @return The name of the concept.
      */
     private static String getConceptNameFromFileName(String fileName) {
-        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""), "en");
+        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""), Language.ENGLISH);
     }
 
     /**
@@ -357,7 +359,13 @@ public class DatasetCreator implements DatasetCreatorInterface {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         String query = "\"" + seedEntity + "\" " + conceptName.toLowerCase();
-        return searcher.searchUrls(query, getMentionsPerEntity(), WebSearcherLanguage.ENGLISH);
+        List<String> result = Collections.emptyList();
+        try {
+            result = searcher.searchUrls(query, getMentionsPerEntity(), Language.ENGLISH);
+        } catch (SearcherException e) {
+            LOGGER.error(e);
+        }
+        return result;
     }
 
     /**
@@ -593,7 +601,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
 
-            String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName, "en"), true);
+            String conceptName = StringHelper.makeCamelCase(
+                    WordTransformer.wordToSingular(seedFileName, Language.ENGLISH), true);
 
             if (seedFileName.length() == 0) {
                 continue;

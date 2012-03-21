@@ -18,17 +18,18 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LoremIpsumGenerator;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.TreeNode;
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.preprocessing.PipelineDocument;
 
 /**
  * This classifier builds a weighed term look up table for the categories to classify new documents.
+ * XXX add second dictionary: p(at|the), p(the|at) to counter the problem of sparse categories
  * 
  * @author David Urbansky
  */
@@ -324,7 +325,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         getDictionary().setDatabaseType(Dictionary.DB_H2);
 
-        int c = 0;
+        int c = 1;
         for (UniversalInstance instance : getTrainingInstances()) {
 
             trainWithInstance(instance);
@@ -333,9 +334,7 @@ public class DictionaryClassifier extends TextClassifier {
                 instance.empty();
             }
 
-            if (c++ % 50 == 0) {
-                LOGGER.info("trained " + MathHelper.round(100 * c / getTrainingInstances().size(), 2) + "%");
-            }
+            ProgressHelper.showProgress(c++, getTrainingInstances().size(), 5);
         }
 
     }
@@ -394,6 +393,8 @@ public class DictionaryClassifier extends TextClassifier {
             CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
             bestFitList.add(c);
         }
+
+        // dictionary.calculateCategoryPriors();
 
         // count the number of categories that are somehow relevant for the current document
         // Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
@@ -468,9 +469,35 @@ public class DictionaryClassifier extends TextClassifier {
                         // use prior only
                         // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
 
+                        // int frequency = categoryEntry.getCategory().getFrequency();
+                        // System.out.println(frequency + " x in " + categoryEntry.getCategory().getName());
+                        // double mult = categoryEntry.getAbsoluteRelevance() / frequency;
+
+                        // c.addAbsoluteRelevance(mult * categoryEntry.getRelevance());
+
                         // use relevance
                         c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()
                                 * categoryEntry.getRelevance());
+                        // c.multAbsRel(categoryEntry.getRelevance());
+
+
+                        // if (weightedTerm.getKey().getText().equalsIgnoreCase("the")) {
+                        // System.out.println("the");
+                        // System.out.println("appears " + categoryEntry.getAbsoluteRelevance() + " times in "
+                        // + categoryEntry.getCategory().getName());
+                        // System.out.println("that is " + categoryEntry.getAbsoluteRelevance() + " out of "
+                        // + categoryEntry.getCategory().getFrequency() + " times the category occurs");
+                        // }
+
+                        // weight by category prior
+                        // double relevanceToAdd = weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // / categoryEntry.getCategory().getPrior();
+                        // c.addAbsoluteRelevance(relevanceToAdd);
+                        //
+                        // categoryEntry.getCategory().getFrequency();
+
+                        // c.multAbsRel(weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // * categoryEntry.getRelevance());
 
                         // double idf = categoryEntry.getAbsoluteRelevance() / (double)
                         // dictionary.getNumberOfDocuments();

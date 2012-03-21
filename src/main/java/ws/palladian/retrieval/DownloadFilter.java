@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -45,6 +45,10 @@ public class DownloadFilter {
         whitelist = new HashSet<String>(fileTypes);
     }
 
+    public void addIncludeFileTypes(String... fileTypes) {
+        whitelist.addAll(Arrays.asList(fileTypes));
+    }
+
     public void setIncludeFileTypes(String... fileTypes) {
         setIncludeFileTypes(Arrays.asList(fileTypes));
     }
@@ -53,12 +57,17 @@ public class DownloadFilter {
         blacklist = new HashSet<String>(fileTypes);
     }
 
+    public void addExcludeFileTypes(String... fileTypes) {
+        blacklist.addAll(Arrays.asList(fileTypes));
+
+    }
+
     public void setExcludeFileTypes(String... fileTypes) {
         setExcludeFileTypes(Arrays.asList(fileTypes));
     }
 
     public boolean isAcceptedFileType(String url) {
-        String fileType = FileHelper.getFileType(url);
+        String fileType = FileHelper.getFileType(url).toLowerCase();
         boolean whitelisted = whitelist.isEmpty() || whitelist.contains(fileType);
         boolean blacklisted = blacklist.contains(fileType);
         boolean accepted = whitelisted && !blacklisted;

@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -24,14 +25,26 @@ import ws.palladian.preprocessing.normalization.DateNormalizer;
  */
 public class DateHelper {
 
-    // shortcuts to the number of milliseconds of certain time spans
-    // TODO there is java.util.concurrent.TimeUnit which provides units and conversion operations
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long SECOND_MS = 1000;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long MINUTE_MS = 60 * SECOND_MS;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long HOUR_MS = 60 * MINUTE_MS;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long DAY_MS = 24 * HOUR_MS;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long WEEK_MS = 7 * DAY_MS;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long MONTH_MS = 30 * DAY_MS;
+    /** @deprecated Use {@link TimeUnit} instead. */
+    @Deprecated
     public static final long YEAR_MS = 365 * DAY_MS;
 
     public static boolean containsDate(String searchString) {

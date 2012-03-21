@@ -10,10 +10,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.TokenFrequencyMap;
 import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
@@ -29,7 +29,7 @@ public class InformativenessAssigner {
     private Map<String, Double> normalizedTokenFrequencies = new HashMap<String, Double>();
 
     private InformativenessAssigner() {
-        loadFrequencyMap();
+        //loadFrequencyMap();
     }
 
     static class SingletonHolder {
@@ -73,7 +73,7 @@ public class InformativenessAssigner {
 
         CountMap tokenFrequencyMap = new CountMap();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 2; i++) {
             // get texts from web pages
             List<String> texts = getTexts();
 
@@ -117,18 +117,18 @@ public class InformativenessAssigner {
         // List<String> urls = sr.searchUrls("and with many in of", 20);
         
         List<String> urls = new ArrayList<String>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 2; i++) {
             urls.add("http://en.wikipedia.org/wiki/Special:Random?a=" + Math.random());
             urls.add("http://random.yahoo.com/bin/ryl?a=" + Math.random());
             urls.add("http://www.randomwebsite.com/cgi-bin/random.pl?a=" + Math.random());
         }
 
-        final PalladianContentExtractor pse = new PalladianContentExtractor();
         
-        RetrieverCallback callback = new RetrieverCallback() {
+        RetrieverCallback<Document> callback = new RetrieverCallback<Document>() {
             
             @Override
             public void onFinishRetrieval(Document document) {
+                PalladianContentExtractor pse = new PalladianContentExtractor();
                 pse.setDocument(document);
                 texts.add(pse.getSentencesString());
             }
@@ -143,7 +143,7 @@ public class InformativenessAssigner {
         // texts.add(pse.getSentencesString());
         // }
 
-        LOGGER.info("got " + texts.size() + " in " + sw.getElapsedTimeString());
+        LOGGER.info("got " + texts.size() + " texts in " + sw.getElapsedTimeString());
 
         return texts;
     }
@@ -237,9 +237,12 @@ public class InformativenessAssigner {
 
         StopWatch sw = new StopWatch();
 
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        Logger.getRootLogger().setLevel(Level.INFO);
         InformativenessAssigner ia = new InformativenessAssigner();
-
+        ia.initTokenFrequencyMap();
+        
+        System.exit(0);
+        
         // ia.initTokenFrequencyMap();
         ia.loadFrequencyMap();
 

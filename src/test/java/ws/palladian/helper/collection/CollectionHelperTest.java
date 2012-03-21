@@ -2,11 +2,11 @@ package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -16,55 +16,59 @@ import org.junit.Test;
  */
 public class CollectionHelperTest {
 
+    @SuppressWarnings("deprecation")
     @Test
-    public void testListToMap() {
-        List<Double> list = Arrays.asList(1., 1., 1., 2., 1., 3., 4., 2., 3.);
-        Map<Double, Integer> map = CollectionHelper.toMap(list);
-        assertEquals(4, (int) map.get(1.));
-        assertEquals(2, (int) map.get(2.));
-        assertEquals(2, (int) map.get(3.));
-        assertEquals(1, (int) map.get(4.));
-        assertEquals(4, map.size());
+    public void testSortyMapByValue() {
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        map.put(1, 5);
+        map.put(3, 3);
+        map.put(2, 4);
+        map.put(5, 1);
+        map.put(4, 2);
+        LinkedHashMap<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
+        Iterator<Entry<Integer, Integer>> iterator = mapSortedByValue.entrySet().iterator();
+        assertEquals((Integer)1, iterator.next().getValue());
+        assertEquals((Integer)2, iterator.next().getValue());
+        assertEquals((Integer)3, iterator.next().getValue());
+        assertEquals((Integer)2, iterator.next().getKey());
+        assertEquals((Integer)1, iterator.next().getKey());
+
+        LinkedHashMap<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map,
+                CollectionHelper.DESCENDING);
+        iterator = mapSortedByValueDescending.entrySet().iterator();
+        assertEquals((Integer)5, iterator.next().getValue());
+        assertEquals((Integer)4, iterator.next().getValue());
+        assertEquals((Integer)3, iterator.next().getValue());
+        assertEquals((Integer)4, iterator.next().getKey());
+        assertEquals((Integer)5, iterator.next().getKey());
+
     }
-    
-    @Test
-    public void testGetElementsByType() {
-        List<Object> list = new ArrayList<Object>();
-        list.add("string");
-        list.add(Double.valueOf(1));
-        list.add(Float.valueOf(1));
-        list.add(Boolean.TRUE);
-        list.add(Integer.valueOf(1));
-        assertEquals(3, CollectionHelper.getElementsByType(Number.class, list).size());
-        assertEquals(1, CollectionHelper.getElementsByType(String.class, list).size());
-        assertEquals(0, CollectionHelper.getElementsByType(List.class, list).size());
-    }
-    
-    @Test
-    public void removeNullElementsTest() {
-        ArrayList<String> array = new ArrayList<String>();
-        String temp = null;
-        array.add(temp);
-        temp = "1";
-        array.add(temp);
-        temp = "2";
-        array.add(temp);
-        temp = null;
-        array.add(temp);
-        temp = "3";
-        array.add(temp);
-        temp = null;
-        array.add(temp);
-        temp = "4";
-        array.add(temp);
-        temp = null;
-        array.add(temp);
-        array = CollectionHelper.removeNullElements(array);
-        assertEquals(4, array.size());
-        for (int i = 0; i < array.size(); i++) {
-            assertEquals(i + 1, Integer.parseInt(array.get(i)));
-        }
-    }
+
+    // @Test
+    // public void removeNullElementsTest() {
+    // ArrayList<String> array = new ArrayList<String>();
+    // String temp = null;
+    // array.add(temp);
+    // temp = "1";
+    // array.add(temp);
+    // temp = "2";
+    // array.add(temp);
+    // temp = null;
+    // array.add(temp);
+    // temp = "3";
+    // array.add(temp);
+    // temp = null;
+    // array.add(temp);
+    // temp = "4";
+    // array.add(temp);
+    // temp = null;
+    // array.add(temp);
+    // array = CollectionHelper.removeNullElements(array);
+    // assertEquals(4, array.size());
+    // for (int i = 0; i < array.size(); i++) {
+    // assertEquals(i + 1, Integer.parseInt(array.get(i)));
+    // }
+    // }
 
     @Test
     public void sortByStringKeyLength() {

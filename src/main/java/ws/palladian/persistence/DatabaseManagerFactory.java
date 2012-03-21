@@ -7,6 +7,10 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.ConfigHolder;
@@ -28,7 +32,7 @@ import ws.palladian.helper.ConfigHolder;
  */
 public final class DatabaseManagerFactory {
 
-    private final static Map<String, ConnectionManager> connectionManagerRegistry = new ConcurrentHashMap<String, ConnectionManager>();
+    private final static Map<String, DataSource> dataSourceRegistry = new ConcurrentHashMap<String, DataSource>();
 
     private DatabaseManagerFactory() {
         super();
@@ -127,10 +131,10 @@ public final class DatabaseManagerFactory {
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
             String jdbcConnectionUrl, String username, String password) {
         try {
-            Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(ConnectionManager.class);
+            Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(DataSource.class);
             dbManagerConstructor.setAccessible(true);
-            D ret = dbManagerConstructor.newInstance(getConnectionManager(jdbcDriverClassName, jdbcConnectionUrl,
-                    username, password));
+            D ret = dbManagerConstructor.newInstance(getDataSource(jdbcDriverClassName, jdbcConnectionUrl, username,
+                    password));
             return ret;
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to instantiate DatabaseManager", e);
@@ -138,13 +142,13 @@ public final class DatabaseManagerFactory {
 
     }
 
-    private static synchronized Object getConnectionManager(String jdbcDriverClassName, String jdbcConnectionUrl,
+    private static synchronized DataSource getDataSource(String jdbcDriverClassName, String jdbcConnectionUrl,
             String username, String password) {
-        ConnectionManager connectionManager = connectionManagerRegistry.get(jdbcConnectionUrl);
-        if (connectionManager == null) {
-            connectionManager = new ConnectionManager(jdbcDriverClassName, jdbcConnectionUrl, username, password);
-            connectionManagerRegistry.put(jdbcConnectionUrl, connectionManager);
+        DataSource dataSource = dataSourceRegistry.get(jdbcConnectionUrl);
+        if (dataSource == null) {
+            dataSource = DataSourceFactory.createDataSource(jdbcDriverClassName, jdbcConnectionUrl, username, password);
+            dataSourceRegistry.put(jdbcConnectionUrl, dataSource);
         }
-        return connectionManager;
+        return dataSource;
     }
 }

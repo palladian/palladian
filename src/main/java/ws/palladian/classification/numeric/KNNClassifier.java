@@ -10,11 +10,10 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
-import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * A concrete KNN classifier.
@@ -91,7 +90,7 @@ public final class KNNClassifier extends NumericClassifier {
         // CollectionHelper.print(neighbors, 10);
 
         // sort near neighbor map by distance
-        Map<NumericInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors.entrySet());
+        Map<NumericInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
 
         // CollectionHelper.print(sortedList, 10);
 
@@ -123,7 +122,7 @@ public final class KNNClassifier extends NumericClassifier {
             ++ck;
         }
 
-        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes.entrySet(), CollectionHelper.DESCENDING);
+        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes, CollectionHelper.DESCENDING);
 
         // assign category entries
         for (Entry<String, Double> entry : sortedVotes.entrySet()) {

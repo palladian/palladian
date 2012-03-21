@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * An implementation of the update strategy described in [LIHZ08]

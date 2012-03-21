@@ -422,8 +422,8 @@ public class UrlHelper {
         try {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // this will not happen, as we always use UTF-8 as encoding
-            throw new IllegalStateException("houston, we have a problem");
+            LOGGER.error(e.getMessage());
+            return string;
         }
     }
 

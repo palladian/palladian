@@ -2,8 +2,8 @@ package ws.palladian.preprocessing.featureextraction;
 
 import java.util.Set;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 public abstract class TermCorpus {
 

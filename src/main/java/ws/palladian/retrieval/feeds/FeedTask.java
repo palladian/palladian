@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
+import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,11 +11,10 @@ import java.util.concurrent.Callable;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
-import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.HttpHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -289,9 +289,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
-        // FIXME: should we really empty the buffer here? Currently no-one using the FeedTask is using the buffer but
-        // this may change over time. This maybe needs to be configurable. -- Sandro 2011-11-12
-        feed.freeMemory(true);
+        feed.freeMemory();
     }
 
     /**

@@ -8,11 +8,12 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 
@@ -69,7 +70,7 @@ public class FileFormatParser {
             return getTextFromXML(inputFilePath);
         } else if (format.equals(TaggingFormat.COLUMN)) {
             String outputFilePath = FileHelper.appendToFileName(inputFilePath, "_temp");
-            columnToXML(inputFilePath, outputFilePath, "\t");
+            columnToXml(inputFilePath, outputFilePath, "\t");
             return getText(outputFilePath, TaggingFormat.XML);
         }
 
@@ -88,7 +89,7 @@ public class FileFormatParser {
      * @param outputFilePath The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
-    public static void columnToXML(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToXml(String inputFilePath, String outputFilePath, String columnSeparator) {
 
         final Object[] obj = new Object[4];
         final StringBuilder xml = new StringBuilder();
@@ -178,7 +179,7 @@ public class FileFormatParser {
      * @param outputFilePath The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
-    public static void columnToXMLTokenBased(String inputFilePath, String outputFilePath, final String columnSeparator) {
+    public static void columnToXmlTokenBased(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
         final StringBuilder transformedText = new StringBuilder();
 
@@ -275,7 +276,7 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
     }
 
-    public static void columnToColumnBIO(String inputFilePath, String outputFilePath, final String columnSeparator) {
+    public static void columnToColumnBio(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
         final Object[] obj = new Object[1];
         // the bio format string
@@ -338,7 +339,7 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, sb);
     }
 
-    public static void columnBIOToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnBioToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
 
         final Object[] obj = new Object[2];
         obj[0] = new StringBuilder();
@@ -420,10 +421,10 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, columnFile);
     }
 
-    public static void slashToXML(String slashFilePath, String xmlFilePath) {
+    public static void slashToXml(String slashFilePath, String xmlFilePath) {
 
         slashToColumn(slashFilePath, xmlFilePath, "\t");
-        columnToXML(xmlFilePath, xmlFilePath, "\t");
+        columnToXml(xmlFilePath, xmlFilePath, "\t");
 
     }
 
@@ -480,7 +481,7 @@ public class FileFormatParser {
         FileHelper.writeToFile(slashFilePath, slashFile);
     }
 
-    public static void bracketToXML(String inputFilePath, String outputFilePath) {
+    public static void bracketToXml(String inputFilePath, String outputFilePath) {
 
         String inputText = FileHelper.readFileToString(inputFilePath);
         String outputText = inputText;
@@ -502,7 +503,7 @@ public class FileFormatParser {
 
     public static void bracketToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
 
-        bracketToXML(inputFilePath, outputFilePath);
+        bracketToXml(inputFilePath, outputFilePath);
         xmlToColumn(outputFilePath, outputFilePath, columnSeparator);
 
     }
@@ -542,7 +543,7 @@ public class FileFormatParser {
     public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {
-            return getAnnotationsFromXMLFile(taggedTextFilePath);
+            return getAnnotationsFromXmlFile(taggedTextFilePath);
         } else if (format.equals(TaggingFormat.COLUMN)) {
             return getAnnotationsFromColumn(taggedTextFilePath);
         } else {
@@ -553,13 +554,13 @@ public class FileFormatParser {
     }
 
     public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
-        columnToXML(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
-        return getAnnotationsFromXMLFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
+        columnToXml(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
+        return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
     public static Annotations getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
-        columnToXMLTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
-        return getAnnotationsFromXMLFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
+        columnToXmlTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
+        return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
     /**
@@ -568,7 +569,7 @@ public class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    public static Annotations getAnnotationsFromXMLText(String taggedText) {
+    public static Annotations getAnnotationsFromXmlText(String taggedText) {
         Annotations annotations = new Annotations();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
@@ -632,17 +633,19 @@ public class FileFormatParser {
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
             cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
+
+            ProgressHelper.showProgress(cumulatedTagOffset, taggedText.length(), 1);
         }
 
         return annotations;
     }
 
-    public static Annotations getAnnotationsFromXMLFile(String taggedTextFilePath) {
+    public static Annotations getAnnotationsFromXmlFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
         // taggedText = taggedText.replace("'", "").replace("=", "");
-        return getAnnotationsFromXMLText(taggedText);
+        return getAnnotationsFromXmlText(taggedText);
     }
 
     /**
@@ -696,10 +699,10 @@ public class FileFormatParser {
         // "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
         // FileFormatParser.xmlToColumn("data/datasets/ner/all.xml", "data/datasets/ner/all.tsv", "\t");
         // FileFormatParser.columnToXML("data/datasets/ner/all.tsv", "data/datasets/ner/allBack.xml", "\t");
-        FileFormatParser.columnToXMLTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
+        FileFormatParser.columnToXmlTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
         System.exit(0);
 
-        FileFormatParser.columnToXML("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
+        FileFormatParser.columnToXml("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
         FileFormatParser.xmlToColumn("data/temp/xmlFormat.xml", "data/temp/columnFormat2.tsv", "\\t");
         FileFormatParser.xmlToColumn("data/temp/allTagged.xml", "data/temp/allTaggedColumn.tsv", "\\t");
 
@@ -708,19 +711,19 @@ public class FileFormatParser {
 
         FileFormatParser.columnTrainingToTest("data/temp/allColumn.tsv", "data/temp/allColumnTest.tsv", "\t");
 
-        FileFormatParser.columnToColumnBIO("data/temp/allColumn.tsv", "data/temp/allColumnBIO.tsv", "\t");
+        FileFormatParser.columnToColumnBio("data/temp/allColumn.tsv", "data/temp/allColumnBIO.tsv", "\t");
 
         FileFormatParser.columnToBracket("data/temp/allColumn.tsv", "data/temp/allBracket.tsv", "\t");
-        FileFormatParser.bracketToXML("data/temp/allBracket.tsv", "data/temp/allXMLFromBracket.tsv");
+        FileFormatParser.bracketToXml("data/temp/allBracket.tsv", "data/temp/allXMLFromBracket.tsv");
         FileFormatParser.bracketToColumn("data/temp/allBracket.tsv", "data/temp/allColumnFromBracket.tsv", "\t");
 
-        FileFormatParser.columnToXML("data/temp/allColumn.tsv", "data/temp/allXML.xml", "\t");
+        FileFormatParser.columnToXml("data/temp/allColumn.tsv", "data/temp/allXML.xml", "\t");
         FileFormatParser.xmlToColumn("data/temp/allXML.xml", "data/temp/allColumnFromXML.tsv", "\t");
 
-        FileFormatParser.slashToXML("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
+        FileFormatParser.slashToXml("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
         FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile("data/temp/xmlFromSlashed.xml");
+        Annotations annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
     }
 

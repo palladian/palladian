@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateGetterHelper;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.searchengine.DBExport;
@@ -15,7 +16,6 @@ import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
 import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.extraction.date.technique.UrlDateRater;
-import ws.palladian.helper.date.DateComparator;
 
 public class UrlEvaluator {
 

@@ -8,13 +8,13 @@ import java.util.Map;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
 import ws.palladian.extraction.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.RatedDateComparator;
 
 /**
  * Use this class to rate a webpage. <br>
