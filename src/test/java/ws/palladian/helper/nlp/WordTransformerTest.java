@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.TagAnnotation;
+import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.preprocessing.nlp.TagAnnotation;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
 
 /**
  * Test cases for the WordTransformer class.

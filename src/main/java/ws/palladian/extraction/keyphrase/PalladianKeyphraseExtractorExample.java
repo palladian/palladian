@@ -3,10 +3,10 @@ package ws.palladian.extraction.keyphrase;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
 import ws.palladian.extraction.keyphrase.extractors.PalladianKeyphraseExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 
 /**
  * Example on {@link PalladianKeyphraseExtractor} usage.

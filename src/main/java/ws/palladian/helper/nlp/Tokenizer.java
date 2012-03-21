@@ -13,10 +13,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.preprocessing.nlp.ner.Annotation;
-import ws.palladian.preprocessing.nlp.ner.Annotations;
-import ws.palladian.preprocessing.nlp.ner.UrlTagger;
 
 /**
  * <p>

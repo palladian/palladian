@@ -17,11 +17,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.helper.normalization.StringNormalizer;
+import ws.palladian.extraction.helper.normalization.UnitNormalizer;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.preprocessing.normalization.StringNormalizer;
-import ws.palladian.preprocessing.normalization.UnitNormalizer;
 
 /**
  * <p>The StringHelper provides functionality for typical String manipulation operations.</p>

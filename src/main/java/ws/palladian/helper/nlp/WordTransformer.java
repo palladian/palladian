@@ -14,14 +14,14 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import weka.core.stemmers.SnowballStemmer;
+import ws.palladian.extraction.TagAnnotations;
+import ws.palladian.extraction.pos.PosTagger;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.preprocessing.nlp.TagAnnotations;
-import ws.palladian.preprocessing.nlp.pos.PosTagger;
 import ws.palladian.retrieval.semantics.Word;
 import ws.palladian.retrieval.semantics.WordDB;
 

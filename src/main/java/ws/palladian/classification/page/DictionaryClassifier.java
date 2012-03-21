@@ -17,6 +17,7 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -25,7 +26,6 @@ import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.LoremIpsumGenerator;
-import ws.palladian.preprocessing.PipelineDocument;
 
 /**
  * This classifier builds a weighed term look up table for the categories to classify new documents.

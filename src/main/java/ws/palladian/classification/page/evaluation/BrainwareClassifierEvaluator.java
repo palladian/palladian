@@ -18,6 +18,8 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
+import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.helper.StopWordRemover;
 import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -25,8 +27,6 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.StopWordRemover;
 
 public class BrainwareClassifierEvaluator {
 
