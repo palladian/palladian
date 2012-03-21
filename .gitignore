@@ -34,3 +34,8 @@
 /test_dictionary.h2.db
 /test_dictionary.trace.db
 .pmd
+
+/palladian-retrieval/target
+/palladian-persistence/target
+/palladian-helper/target
+/palladian-extraction/target
