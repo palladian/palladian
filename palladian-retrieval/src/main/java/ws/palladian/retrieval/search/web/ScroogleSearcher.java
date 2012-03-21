@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +59,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
                 String requestUrl = "https://www.google.com/search?hl=en&safe=off&output=search&start="
                         + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
                 HttpResult httpResult = retriever.httpGet(requestUrl);
-                Document document = parser.parse(httpResult);
+                Document document = parser.parse(new ByteArrayInputStream(httpResult.getContent()));
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);

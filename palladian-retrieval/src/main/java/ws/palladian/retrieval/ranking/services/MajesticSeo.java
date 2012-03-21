@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class MajesticSeo extends BaseRankingService implements RankingService {
             HttpResult httpResult = retriever.httpGet("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
                     + "&url=" + encUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
-            Document doc = xmlParser.parse(httpResult);
+            Document doc = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
             Node refDomainsNode = XPathHelper.getNode(doc, "/Results/Result/@StatsRefDomains");
             if (refDomainsNode != null) {
                 String refDomains = refDomainsNode.getNodeValue();
