@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.extraction.date.DateGetterHelper;
+import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.StringHelper;

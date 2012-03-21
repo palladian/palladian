@@ -7,9 +7,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.extraction.helper.date.DateHelper;
 import ws.palladian.helper.Callback;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
