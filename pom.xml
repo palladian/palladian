@@ -4,10 +4,8 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
 	<name>Palladian - TUD Information Retrieval Toolkit</name>
-	<version>0.1.5</version>
-
-	<description>Palladian is the IIR Toolkit from the Computer Networks
-		Chair of the TU Dresden.</description>
+	<version>0.1.6</version>
+	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -43,7 +41,6 @@
 					<argLine>-Xms256m -Xmx1024m</argLine>
 					<excludes>
 						<exclude>**/DictionaryDBIndexTest.java</exclude>
-						<exclude>**/FeedCheckerTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -124,13 +121,12 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.12</version>
+			<version>1.2.16</version>
 		</dependency>
 		<dependency>
 			<groupId>stax</groupId>
 			<artifactId>stax</artifactId>
 			<version>1.1.1-dev</version>
-			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>xmlbeans-jsr173-api</artifactId>
@@ -147,6 +143,12 @@
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>com.ibm.icu</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>weka</groupId>
@@ -177,29 +179,21 @@
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-memory</artifactId>
 			<version>3.5.0</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId>
 			<version>3.5.0</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
 			<version>3.5.0</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
 			<version>3.9.2</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.stanford</groupId>
@@ -219,7 +213,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.0.1</version>
+			<version>2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -236,15 +230,11 @@
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>1.9.15</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
-			<version>1.6</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.media</groupId>
@@ -327,6 +317,10 @@
 					<artifactId>trove</artifactId>
 					<groupId>gnu</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>icu4j</artifactId>
+					<groupId>icu4j</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -343,15 +337,11 @@
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
 			<version>1.1.0</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>jwbf</artifactId>
 			<version>1.3.3</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>
@@ -394,6 +384,51 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>10.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>3.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>3.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>3.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
 		</dependency>
 	</dependencies>
 	<properties>

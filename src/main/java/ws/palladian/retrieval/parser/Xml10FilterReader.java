@@ -4,12 +4,14 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import com.sun.org.apache.xerces.internal.util.XMLChar;
+import org.apache.xerces.util.XMLChar;
 
 /**
- * <p>{@link FilterReader} to skip invalid xml version 1.0 characters. Valid Unicode chars for xml version 1.0 according to
+ * <p>
+ * {@link FilterReader} to skip invalid xml version 1.0 characters. Valid Unicode chars for xml version 1.0 according to
  * http://www.w3.org/TR/xml are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD], [#x10000-#x10FFFF] . In other words -
- * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.</p>
+ * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
+ * </p>
  * 
  * @author Philipp Katz
  * 
@@ -40,16 +42,11 @@ class Xml10FilterReader extends FilterReader {
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
         int read = super.read(cbuf, off, len);
-        /*
-         * If read chars are -1 then we have reach the end of the reader.
-         */
+        // If read chars are -1 then we have reach the end of the reader.
         if (read == -1) {
             return -1;
         }
-        /*
-         * pos will show the index where chars should be moved if there are gaps
-         * from invalid characters.
-         */
+        // pos will show the index where chars should be moved if there are gaps from invalid characters.
         int pos = off - 1;
 
         for (int readPos = off; readPos < off + read; readPos++) {
@@ -60,20 +57,15 @@ class Xml10FilterReader extends FilterReader {
 
             if (XMLChar.isValid(cbuf[readPos]) && !ignoreCharacter) {
                 pos++;
-
             } else {
                 continue;
             }
-            /*
-             * If there is gap(s) move current char to its position.
-             */
+            // If there is gap(s) move current char to its position.
             if (pos < readPos) {
                 cbuf[pos] = cbuf[readPos];
             }
         }
-        /*
-         * Number of read valid characters.
-         */
+        // Number of read valid characters.
         return pos - off + 1;
     }
 

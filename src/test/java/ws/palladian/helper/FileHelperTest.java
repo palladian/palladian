@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.io.FileHelper;
+
 /**
  * Test cases for the FileHelper class.
  * 

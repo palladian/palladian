@@ -19,9 +19,10 @@ import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -54,6 +55,8 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
+    
+    public static final String UNASSIGNED = "UNASSIGNED";
 
     /**
      * The constructor, initiate members.
@@ -75,21 +78,21 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
         performance = null;
         initTime = System.currentTimeMillis();
     }
-    
+
     public TextClassifier copy() {
-        
+
         TextClassifier copyClassifier = new DictionaryClassifier(getName(), "data/temp/");
         copyClassifier.setName(getName());
-        
-        Preprocessor preprocessorCopy = new Preprocessor(copyClassifier,getPreprocessor());
+
+        Preprocessor preprocessorCopy = new Preprocessor(copyClassifier, getPreprocessor());
         copyClassifier.setPreprocessor(preprocessorCopy);
-        
+
         FeatureSetting fs = new FeatureSetting(getFeatureSetting());
         copyClassifier.setFeatureSetting(fs);
-        
+
         ClassificationTypeSetting cts = new ClassificationTypeSetting(getClassificationTypeSetting());
         copyClassifier.setClassificationTypeSetting(cts);
-        
+
         return copyClassifier;
     }
 
@@ -395,7 +398,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
             if (getClassificationType() == ClassificationTypeSetting.TAG) {
 
-                int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
+                int correctlyAssigned = ((TestDocument)document).getCorrectlyAssignedCategoryEntries().size();
                 int totalAssigned = document.getAssignedCategoryEntries().size();
                 int real = document.getRealCategories().size();
 
@@ -405,11 +408,11 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
                 }
 
                 for (int i = 1; i <= precisionAtRank; i++) {
-                    totalPrecisionAts[i - 1] += ((TestDocument) document).getPrecisionAt(i);
+                    totalPrecisionAts[i - 1] += ((TestDocument)document).getPrecisionAt(i);
                 }
 
-                double precision = (double) correctlyAssigned / (double) totalAssigned;
-                double recall = (double) correctlyAssigned / (double) real;
+                double precision = (double)correctlyAssigned / (double)totalAssigned;
+                double recall = (double)correctlyAssigned / (double)real;
 
                 totalPrecision += precision;
                 totalRecall += recall;
@@ -420,7 +423,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
             } else {
                 String result = "WRONG";
-                if (((TestDocument) document).isCorrectClassified()) {
+                if (((TestDocument)document).isCorrectClassified()) {
                     result = "CORRECT";
                 }
                 show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ")
@@ -438,13 +441,12 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
             show.append("Average Precision@: ");
             for (int i = 1; i <= precisionAtRank; i++) {
                 double averagePrecisionAtX = totalPrecisionAts[i - 1] / testDocuments.size();
-                show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX))
-                        .append("% ");
+                show.append("@").append(i).append(": ").append((int)Math.floor(100 * averagePrecisionAtX)).append("% ");
             }
             show.append("\n");
-            show.append("Average Precision: ").append((int) Math.floor(100 * averagePrecision)).append("%\n");
-            show.append("Average Recall: ").append((int) Math.floor(100 * averageRecall)).append("%\n");
-            show.append("Average F1: ").append((int) Math.floor(100 * averageF1)).append("%\n");
+            show.append("Average Precision: ").append((int)Math.floor(100 * averagePrecision)).append("%\n");
+            show.append("Average Recall: ").append((int)Math.floor(100 * averageRecall)).append("%\n");
+            show.append("Average F1: ").append((int)Math.floor(100 * averageF1)).append("%\n");
         }
 
         // FileHelper.writeToFile("data/temp/dataRewrittenCombinedClassified.csv", structuredOutput);
@@ -463,31 +465,30 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
         Instances<UniversalInstance> instances = getTrainingInstances();
 
-        int added = 0;
-        // TODO make work with first field link true, too
-        if (!dataset.isFirstFieldLink()) {
+        int added = 1;
+        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
+        for (String string : trainingArray) {
 
-            List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
-            for (String string : trainingArray) {
-                
-                String[] parts = string.split(dataset.getSeparationString());
-                if (parts.length != 2) {
-                    continue;
-                }
-
-                String learningText = parts[0];
-                String instanceCategory = parts[1];
-
-                UniversalInstance instance = new UniversalInstance(instances);
-                instance.setInstanceCategory(instanceCategory);
-                instance.setTextFeature(learningText);
-
-                train(instance);
-                if (added++ % 100 == 0) {
-                    LOGGER.info("trained another 100 documents from " + dataset.getPath());
-                }
+            String[] parts = string.split(dataset.getSeparationString());
+            if (parts.length != 2) {
+                continue;
             }
 
+            String learningText = "";
+            if (!dataset.isFirstFieldLink()) {
+                learningText = parts[0];
+            } else {
+                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
+            }
+
+            String instanceCategory = parts[1];
+
+            UniversalInstance instance = new UniversalInstance(instances);
+            instance.setInstanceCategory(instanceCategory);
+            instance.setTextFeature(learningText);
+
+            train(instance);
+            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
         }
 
         LOGGER.info("trained with " + added + " documents from " + dataset.getPath());

@@ -23,10 +23,10 @@ import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.extractors.ControlledTaggerSettings.TaggingCorrelationType;
 import ws.palladian.extraction.keyphrase.extractors.ControlledTaggerSettings.TaggingType;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -915,7 +915,7 @@ public class ControlledTagger extends KeyphraseExtractor {
             idfMap.put(tagName, tagCount);
         }
 
-        LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap.entrySet(), false);
+        LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap, false);
 
         StringBuilder idfBuilder = new StringBuilder();
         for (Entry<String, Integer> tagEntry : idfMapSorted.entrySet()) {
@@ -932,7 +932,7 @@ public class ControlledTagger extends KeyphraseExtractor {
             tagCountMap.put(tagName, tagCount);
         }
 
-        LinkedHashMap<String, Integer> sorted = CollectionHelper.sortByValue(tagCountMap.entrySet(), false);
+        LinkedHashMap<String, Integer> sorted = CollectionHelper.sortByValue(tagCountMap, false);
 
         StringBuilder sb = new StringBuilder();
         for (Entry<String, Integer> tagEntry : sorted.entrySet()) {

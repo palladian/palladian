@@ -11,6 +11,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.ResourceHelper;
+
 /**
  * <p>
  * Holds the configuration of the framework. This configuration is obtained from an external file called
@@ -77,7 +79,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 17;
+    private static final int VERSION = 18;
 
     /**
      * <p>
@@ -186,7 +188,7 @@ public final class ConfigHolder {
 //     * <p>
 //     * Return the value of the field with the specified field name.
 //     * </p>
-//     * 
+//     *
 //     * @param fieldName
 //     *            The name of the field for which a value should be retrieved.
 //     * @return The value of the field as Object since we don't know the type.

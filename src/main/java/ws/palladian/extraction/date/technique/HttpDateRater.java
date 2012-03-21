@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.ExtractedDateHelper;
+import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ExtractedDate;
 import ws.palladian.extraction.date.dates.MetaDate;
-import ws.palladian.helper.date.DateArrayHelper;
-import ws.palladian.helper.date.DateComparator;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 
 /**
  * This class rates HTTP-dates by constant and age of date.

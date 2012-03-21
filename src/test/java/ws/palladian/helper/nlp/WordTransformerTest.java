@@ -4,6 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.constants.Language;
+import ws.palladian.preprocessing.nlp.TagAnnotation;
+import ws.palladian.preprocessing.nlp.TagAnnotations;
+
 /**
  * Test cases for the WordTransformer class.
  * 
@@ -13,152 +17,257 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToSingular() {
-        assertEquals("elephant", WordTransformer.wordToSingular("elephants", "en"));
-        assertEquals("city", WordTransformer.wordToSingular("cities", "en"));
-        assertEquals("enemy", WordTransformer.wordToSingular("enemies", "en"));
-        assertEquals("tray", WordTransformer.wordToSingular("trays", "en"));
-        assertEquals("studio", WordTransformer.wordToSingular("studios", "en"));
-        assertEquals("box", WordTransformer.wordToSingular("boxes", "en"));
-        assertEquals("church", WordTransformer.wordToSingular("churches", "en"));
-        assertEquals("fish", WordTransformer.wordToSingular("fish", "en"));
-        assertEquals("lady", WordTransformer.wordToSingular("ladies", "en"));
-        assertEquals("thief", WordTransformer.wordToSingular("thieves", "en"));
-        assertEquals("wife", WordTransformer.wordToSingular("wives", "en"));
-        assertEquals("shelf", WordTransformer.wordToSingular("shelves", "en"));
-        assertEquals("tomato", WordTransformer.wordToSingular("tomatoes", "en"));
-        assertEquals("hero", WordTransformer.wordToSingular("heroes", "en"));
-        assertEquals("piano", WordTransformer.wordToSingular("pianos", "en"));
-        assertEquals("article", WordTransformer.wordToSingular("articles", "en"));
-        assertEquals("kiss", WordTransformer.wordToSingular("kisses", "en"));
-        assertEquals("dish", WordTransformer.wordToSingular("dishes", "en"));
-        assertEquals("phase", WordTransformer.wordToSingular("phases", "en"));
-        assertEquals("vertex", WordTransformer.wordToSingular("vertices", "en"));
-        assertEquals("index", WordTransformer.wordToSingular("indices", "en"));
-        assertEquals("matrix", WordTransformer.wordToSingular("matrices", "en"));
-        assertEquals("movie", WordTransformer.wordToSingular("movies", "en"));
-        assertEquals("status", WordTransformer.wordToSingular("status", "en"));
+        assertEquals("elephant", WordTransformer.wordToSingular("elephants", Language.ENGLISH));
+        assertEquals("city", WordTransformer.wordToSingular("cities", Language.ENGLISH));
+        assertEquals("enemy", WordTransformer.wordToSingular("enemies", Language.ENGLISH));
+        assertEquals("tray", WordTransformer.wordToSingular("trays", Language.ENGLISH));
+        assertEquals("studio", WordTransformer.wordToSingular("studios", Language.ENGLISH));
+        assertEquals("box", WordTransformer.wordToSingular("boxes", Language.ENGLISH));
+        assertEquals("church", WordTransformer.wordToSingular("churches", Language.ENGLISH));
+        assertEquals("fish", WordTransformer.wordToSingular("fish", Language.ENGLISH));
+        assertEquals("lady", WordTransformer.wordToSingular("ladies", Language.ENGLISH));
+        assertEquals("thief", WordTransformer.wordToSingular("thieves", Language.ENGLISH));
+        assertEquals("wife", WordTransformer.wordToSingular("wives", Language.ENGLISH));
+        assertEquals("shelf", WordTransformer.wordToSingular("shelves", Language.ENGLISH));
+        assertEquals("tomato", WordTransformer.wordToSingular("tomatoes", Language.ENGLISH));
+        assertEquals("hero", WordTransformer.wordToSingular("heroes", Language.ENGLISH));
+        assertEquals("piano", WordTransformer.wordToSingular("pianos", Language.ENGLISH));
+        assertEquals("article", WordTransformer.wordToSingular("articles", Language.ENGLISH));
+        assertEquals("kiss", WordTransformer.wordToSingular("kisses", Language.ENGLISH));
+        assertEquals("dish", WordTransformer.wordToSingular("dishes", Language.ENGLISH));
+        assertEquals("phase", WordTransformer.wordToSingular("phases", Language.ENGLISH));
+        assertEquals("vertex", WordTransformer.wordToSingular("vertices", Language.ENGLISH));
+        assertEquals("index", WordTransformer.wordToSingular("indices", Language.ENGLISH));
+        assertEquals("matrix", WordTransformer.wordToSingular("matrices", Language.ENGLISH));
+        assertEquals("movie", WordTransformer.wordToSingular("movies", Language.ENGLISH));
+        assertEquals("status", WordTransformer.wordToSingular("status", Language.ENGLISH));
 
         // this transformation makes no sense, but it caused a StringIndexOutOfBoundsException which I fixed.
-        assertEquals("yf", WordTransformer.wordToSingular("yves", "en"));
+        assertEquals("yf", WordTransformer.wordToSingular("yves", Language.ENGLISH));
     }
 
     @Test
     public void testWordToPlural() {
-        assertEquals(WordTransformer.wordToPlural("elephant", "en"), "elephants");
-        assertEquals(WordTransformer.wordToPlural("city", "en"), "cities");
-        assertEquals(WordTransformer.wordToPlural("enemy", "en"), "enemies");
-        assertEquals(WordTransformer.wordToPlural("tray", "en"), "trays");
-        assertEquals(WordTransformer.wordToPlural("studio", "en"), "studios");
-        assertEquals(WordTransformer.wordToPlural("box", "en"), "boxes");
-        assertEquals(WordTransformer.wordToPlural("church", "en"), "churches");
-        assertEquals("vertices", WordTransformer.wordToPlural("vertex", "en"));
-        assertEquals("movies", WordTransformer.wordToPlural("movie", "en"));
-        assertEquals("status", WordTransformer.wordToPlural("status", "en"));
-        assertEquals("computer mice", WordTransformer.wordToPlural("computer mouse", "en"));
-        assertEquals("computer keys", WordTransformer.wordToPlural("computer key", "en"));
+        assertEquals(WordTransformer.wordToPlural("elephant", Language.ENGLISH), "elephants");
+        assertEquals(WordTransformer.wordToPlural("city", Language.ENGLISH), "cities");
+        assertEquals(WordTransformer.wordToPlural("enemy", Language.ENGLISH), "enemies");
+        assertEquals(WordTransformer.wordToPlural("tray", Language.ENGLISH), "trays");
+        assertEquals(WordTransformer.wordToPlural("studio", Language.ENGLISH), "studios");
+        assertEquals(WordTransformer.wordToPlural("box", Language.ENGLISH), "boxes");
+        assertEquals(WordTransformer.wordToPlural("church", Language.ENGLISH), "churches");
+        assertEquals("vertices", WordTransformer.wordToPlural("vertex", Language.ENGLISH));
+        assertEquals("movies", WordTransformer.wordToPlural("movie", Language.ENGLISH));
+        assertEquals("status", WordTransformer.wordToPlural("status", Language.ENGLISH));
+        assertEquals("computer mice", WordTransformer.wordToPlural("computer mouse", Language.ENGLISH));
+        assertEquals("computer keys", WordTransformer.wordToPlural("computer key", Language.ENGLISH));
 
         // http://www.esldesk.com/vocabulary/irregular-nouns
-        assertEquals("addenda", WordTransformer.wordToPlural("addendum", "en"));
-        assertEquals("algae", WordTransformer.wordToPlural("alga", "en"));
-        assertEquals("alumnae", WordTransformer.wordToPlural("alumna", "en"));
-        assertEquals("alumni", WordTransformer.wordToPlural("alumnus", "en"));
-        assertEquals("analyses", WordTransformer.wordToPlural("analysis", "en"));
-        assertEquals("antenna", WordTransformer.wordToPlural("antennas", "en"));
-        assertEquals("apparatuses", WordTransformer.wordToPlural("apparatus", "en"));
-        assertEquals("appendices", WordTransformer.wordToPlural("appendix", "en"));
-        assertEquals("axes", WordTransformer.wordToPlural("axis", "en"));
-        assertEquals("bacilli", WordTransformer.wordToPlural("bacillus", "en"));
-        assertEquals("bacteria", WordTransformer.wordToPlural("bacterium", "en"));
-        assertEquals("bases", WordTransformer.wordToPlural("basis", "en"));
-        assertEquals("beaux", WordTransformer.wordToPlural("beau", "en"));
-        assertEquals("bison", WordTransformer.wordToPlural("bison", "en"));
-        assertEquals("buffalos", WordTransformer.wordToPlural("buffalo", "en"));
-        assertEquals("bureaus", WordTransformer.wordToPlural("bureau", "en"));
-        assertEquals("buses", WordTransformer.wordToPlural("bus", "en"));
-        assertEquals("cactuses", WordTransformer.wordToPlural("cactus", "en"));
-        assertEquals("calves", WordTransformer.wordToPlural("calf", "en"));
-        assertEquals("children", WordTransformer.wordToPlural("child", "en"));
-        assertEquals("corps", WordTransformer.wordToPlural("corps", "en"));
-        assertEquals("corpuses", WordTransformer.wordToPlural("corpus", "en"));
-        assertEquals("crises", WordTransformer.wordToPlural("crisis", "en"));
-        assertEquals("criteria", WordTransformer.wordToPlural("criterion", "en"));
-        assertEquals("curricula", WordTransformer.wordToPlural("curriculum", "en"));
-        assertEquals("data", WordTransformer.wordToPlural("datum", "en"));
-        assertEquals("deer", WordTransformer.wordToPlural("deer", "en"));
-        assertEquals("dice", WordTransformer.wordToPlural("die", "en"));
-        assertEquals("dwarfs", WordTransformer.wordToPlural("dwarf", "en"));
-        assertEquals("diagnoses", WordTransformer.wordToPlural("diagnosis", "en"));
-        assertEquals("echoes", WordTransformer.wordToPlural("echo", "en"));
-        assertEquals("elves", WordTransformer.wordToPlural("elf", "en"));
-        assertEquals("ellipses", WordTransformer.wordToPlural("ellipsis", "en"));
-        assertEquals("embargoes", WordTransformer.wordToPlural("embargo", "en"));
-        assertEquals("emphases", WordTransformer.wordToPlural("emphasis", "en"));
-        assertEquals("errata", WordTransformer.wordToPlural("erratum", "en"));
-        assertEquals("firemen", WordTransformer.wordToPlural("fireman", "en"));
-        assertEquals("fish", WordTransformer.wordToPlural("fish", "en"));
-        assertEquals("focuses", WordTransformer.wordToPlural("focus", "en"));
-        assertEquals("feet", WordTransformer.wordToPlural("foot", "en"));
-        assertEquals("formulas", WordTransformer.wordToPlural("formula", "en"));
-        assertEquals("fungi", WordTransformer.wordToPlural("fungus", "en"));
-        assertEquals("genera", WordTransformer.wordToPlural("genus", "en"));
-        assertEquals("geese", WordTransformer.wordToPlural("goose", "en"));
-        assertEquals("halves", WordTransformer.wordToPlural("half", "en"));
-        assertEquals("heroes", WordTransformer.wordToPlural("hero", "en"));
-        assertEquals("hippopotami", WordTransformer.wordToPlural("hippopotamus", "en"));
-        assertEquals("hoofs", WordTransformer.wordToPlural("hoof", "en"));
-        assertEquals("hypotheses", WordTransformer.wordToPlural("hypothesis", "en"));
-        assertEquals("indices", WordTransformer.wordToPlural("index", "en"));
-        assertEquals("knives", WordTransformer.wordToPlural("knife", "en"));
-        assertEquals("leaves", WordTransformer.wordToPlural("leaf", "en"));
-        assertEquals("lives", WordTransformer.wordToPlural("life", "en"));
-        assertEquals("loaves", WordTransformer.wordToPlural("loaf", "en"));
-        assertEquals("lice", WordTransformer.wordToPlural("louse", "en"));
-        assertEquals("men", WordTransformer.wordToPlural("man", "en"));
-        assertEquals("matrices", WordTransformer.wordToPlural("matrix", "en"));
-        assertEquals("means", WordTransformer.wordToPlural("means", "en"));
-        assertEquals("media", WordTransformer.wordToPlural("medium", "en"));
-        assertEquals("memoranda", WordTransformer.wordToPlural("memorandum", "en"));
-        assertEquals("milennia", WordTransformer.wordToPlural("millennium", "en"));
-        assertEquals("moose", WordTransformer.wordToPlural("moose", "en"));
-        assertEquals("mosquitoes", WordTransformer.wordToPlural("mosquito", "en"));
-        assertEquals("mice", WordTransformer.wordToPlural("mouse", "en"));
-        assertEquals("nebulas", WordTransformer.wordToPlural("nebula", "en"));
-        assertEquals("neuroses", WordTransformer.wordToPlural("neurosis", "en"));
-        assertEquals("nuclei", WordTransformer.wordToPlural("nucleus", "en"));
-        assertEquals("oases", WordTransformer.wordToPlural("oasis", "en"));
-        assertEquals("octopuses", WordTransformer.wordToPlural("octopus", "en"));
-        assertEquals("ova", WordTransformer.wordToPlural("ovum", "en"));
-        assertEquals("oxen", WordTransformer.wordToPlural("ox", "en"));
-        assertEquals("paralyses", WordTransformer.wordToPlural("paralysis", "en"));
-        assertEquals("parentheses", WordTransformer.wordToPlural("parenthesis", "en"));
-        assertEquals("people", WordTransformer.wordToPlural("person", "en"));
-        assertEquals("phenomena", WordTransformer.wordToPlural("phenomenon", "en"));
-        assertEquals("potatoes", WordTransformer.wordToPlural("potato", "en"));
-        assertEquals("radiuses", WordTransformer.wordToPlural("radius", "en"));
-        assertEquals("scarfs", WordTransformer.wordToPlural("scarf", "en"));
-        assertEquals("series", WordTransformer.wordToPlural("series", "en"));
-        assertEquals("sheep", WordTransformer.wordToPlural("sheep", "en"));
-        assertEquals("shelves", WordTransformer.wordToPlural("shelf", "en"));
-        assertEquals("scissors", WordTransformer.wordToPlural("scissors", "en"));
-        assertEquals("species", WordTransformer.wordToPlural("species", "en"));
-        assertEquals("stimuli", WordTransformer.wordToPlural("stimulus", "en"));
-        assertEquals("strata", WordTransformer.wordToPlural("stratum", "en"));
-        assertEquals("syllabuses", WordTransformer.wordToPlural("syllabus", "en"));
-        assertEquals("symposia", WordTransformer.wordToPlural("symposium", "en"));
-        assertEquals("syntheses", WordTransformer.wordToPlural("synthesis", "en"));
-        assertEquals("synopses", WordTransformer.wordToPlural("synopsis", "en"));
-        assertEquals("tableaux", WordTransformer.wordToPlural("tableau", "en"));
-        assertEquals("theses", WordTransformer.wordToPlural("thesis", "en"));
-        assertEquals("thieves", WordTransformer.wordToPlural("thief", "en"));
-        assertEquals("tomatoes", WordTransformer.wordToPlural("tomato", "en"));
-        assertEquals("teeth", WordTransformer.wordToPlural("tooth", "en"));
-        assertEquals("torpedoes", WordTransformer.wordToPlural("torpedo", "en"));
-        assertEquals("vertebrae", WordTransformer.wordToPlural("vertebra", "en"));
-        assertEquals("vetoes", WordTransformer.wordToPlural("veto", "en"));
-        assertEquals("vitae", WordTransformer.wordToPlural("vita", "en"));
-        assertEquals("watches", WordTransformer.wordToPlural("watch", "en"));
-        assertEquals("wives", WordTransformer.wordToPlural("wife", "en"));
-        assertEquals("wolves", WordTransformer.wordToPlural("wolf", "en"));
-        assertEquals("women", WordTransformer.wordToPlural("woman", "en"));
+        assertEquals("addenda", WordTransformer.wordToPlural("addendum", Language.ENGLISH));
+        assertEquals("algae", WordTransformer.wordToPlural("alga", Language.ENGLISH));
+        assertEquals("alumnae", WordTransformer.wordToPlural("alumna", Language.ENGLISH));
+        assertEquals("alumni", WordTransformer.wordToPlural("alumnus", Language.ENGLISH));
+        assertEquals("analyses", WordTransformer.wordToPlural("analysis", Language.ENGLISH));
+        assertEquals("antenna", WordTransformer.wordToPlural("antennas", Language.ENGLISH));
+        assertEquals("apparatuses", WordTransformer.wordToPlural("apparatus", Language.ENGLISH));
+        assertEquals("appendices", WordTransformer.wordToPlural("appendix", Language.ENGLISH));
+        assertEquals("axes", WordTransformer.wordToPlural("axis", Language.ENGLISH));
+        assertEquals("bacilli", WordTransformer.wordToPlural("bacillus", Language.ENGLISH));
+        assertEquals("bacteria", WordTransformer.wordToPlural("bacterium", Language.ENGLISH));
+        assertEquals("bases", WordTransformer.wordToPlural("basis", Language.ENGLISH));
+        assertEquals("beaux", WordTransformer.wordToPlural("beau", Language.ENGLISH));
+        assertEquals("bison", WordTransformer.wordToPlural("bison", Language.ENGLISH));
+        assertEquals("buffalos", WordTransformer.wordToPlural("buffalo", Language.ENGLISH));
+        assertEquals("bureaus", WordTransformer.wordToPlural("bureau", Language.ENGLISH));
+        assertEquals("buses", WordTransformer.wordToPlural("bus", Language.ENGLISH));
+        assertEquals("cactuses", WordTransformer.wordToPlural("cactus", Language.ENGLISH));
+        assertEquals("calves", WordTransformer.wordToPlural("calf", Language.ENGLISH));
+        assertEquals("children", WordTransformer.wordToPlural("child", Language.ENGLISH));
+        assertEquals("corps", WordTransformer.wordToPlural("corps", Language.ENGLISH));
+        assertEquals("corpuses", WordTransformer.wordToPlural("corpus", Language.ENGLISH));
+        assertEquals("crises", WordTransformer.wordToPlural("crisis", Language.ENGLISH));
+        assertEquals("criteria", WordTransformer.wordToPlural("criterion", Language.ENGLISH));
+        assertEquals("curricula", WordTransformer.wordToPlural("curriculum", Language.ENGLISH));
+        assertEquals("data", WordTransformer.wordToPlural("datum", Language.ENGLISH));
+        assertEquals("deer", WordTransformer.wordToPlural("deer", Language.ENGLISH));
+        assertEquals("dice", WordTransformer.wordToPlural("die", Language.ENGLISH));
+        assertEquals("dwarfs", WordTransformer.wordToPlural("dwarf", Language.ENGLISH));
+        assertEquals("diagnoses", WordTransformer.wordToPlural("diagnosis", Language.ENGLISH));
+        assertEquals("echoes", WordTransformer.wordToPlural("echo", Language.ENGLISH));
+        assertEquals("elves", WordTransformer.wordToPlural("elf", Language.ENGLISH));
+        assertEquals("ellipses", WordTransformer.wordToPlural("ellipsis", Language.ENGLISH));
+        assertEquals("embargoes", WordTransformer.wordToPlural("embargo", Language.ENGLISH));
+        assertEquals("emphases", WordTransformer.wordToPlural("emphasis", Language.ENGLISH));
+        assertEquals("errata", WordTransformer.wordToPlural("erratum", Language.ENGLISH));
+        assertEquals("firemen", WordTransformer.wordToPlural("fireman", Language.ENGLISH));
+        assertEquals("fish", WordTransformer.wordToPlural("fish", Language.ENGLISH));
+        assertEquals("focuses", WordTransformer.wordToPlural("focus", Language.ENGLISH));
+        assertEquals("feet", WordTransformer.wordToPlural("foot", Language.ENGLISH));
+        assertEquals("formulas", WordTransformer.wordToPlural("formula", Language.ENGLISH));
+        assertEquals("fungi", WordTransformer.wordToPlural("fungus", Language.ENGLISH));
+        assertEquals("genera", WordTransformer.wordToPlural("genus", Language.ENGLISH));
+        assertEquals("geese", WordTransformer.wordToPlural("goose", Language.ENGLISH));
+        assertEquals("halves", WordTransformer.wordToPlural("half", Language.ENGLISH));
+        assertEquals("heroes", WordTransformer.wordToPlural("hero", Language.ENGLISH));
+        assertEquals("hippopotami", WordTransformer.wordToPlural("hippopotamus", Language.ENGLISH));
+        assertEquals("hoofs", WordTransformer.wordToPlural("hoof", Language.ENGLISH));
+        assertEquals("hypotheses", WordTransformer.wordToPlural("hypothesis", Language.ENGLISH));
+        assertEquals("indices", WordTransformer.wordToPlural("index", Language.ENGLISH));
+        assertEquals("knives", WordTransformer.wordToPlural("knife", Language.ENGLISH));
+        assertEquals("leaves", WordTransformer.wordToPlural("leaf", Language.ENGLISH));
+        assertEquals("lives", WordTransformer.wordToPlural("life", Language.ENGLISH));
+        assertEquals("loaves", WordTransformer.wordToPlural("loaf", Language.ENGLISH));
+        assertEquals("lice", WordTransformer.wordToPlural("louse", Language.ENGLISH));
+        assertEquals("men", WordTransformer.wordToPlural("man", Language.ENGLISH));
+        assertEquals("matrices", WordTransformer.wordToPlural("matrix", Language.ENGLISH));
+        assertEquals("means", WordTransformer.wordToPlural("means", Language.ENGLISH));
+        assertEquals("media", WordTransformer.wordToPlural("medium", Language.ENGLISH));
+        assertEquals("memoranda", WordTransformer.wordToPlural("memorandum", Language.ENGLISH));
+        assertEquals("milennia", WordTransformer.wordToPlural("millennium", Language.ENGLISH));
+        assertEquals("moose", WordTransformer.wordToPlural("moose", Language.ENGLISH));
+        assertEquals("mosquitoes", WordTransformer.wordToPlural("mosquito", Language.ENGLISH));
+        assertEquals("mice", WordTransformer.wordToPlural("mouse", Language.ENGLISH));
+        assertEquals("nebulas", WordTransformer.wordToPlural("nebula", Language.ENGLISH));
+        assertEquals("neuroses", WordTransformer.wordToPlural("neurosis", Language.ENGLISH));
+        assertEquals("nuclei", WordTransformer.wordToPlural("nucleus", Language.ENGLISH));
+        assertEquals("oases", WordTransformer.wordToPlural("oasis", Language.ENGLISH));
+        assertEquals("octopuses", WordTransformer.wordToPlural("octopus", Language.ENGLISH));
+        assertEquals("ova", WordTransformer.wordToPlural("ovum", Language.ENGLISH));
+        assertEquals("oxen", WordTransformer.wordToPlural("ox", Language.ENGLISH));
+        assertEquals("paralyses", WordTransformer.wordToPlural("paralysis", Language.ENGLISH));
+        assertEquals("parentheses", WordTransformer.wordToPlural("parenthesis", Language.ENGLISH));
+        assertEquals("people", WordTransformer.wordToPlural("person", Language.ENGLISH));
+        assertEquals("phenomena", WordTransformer.wordToPlural("phenomenon", Language.ENGLISH));
+        assertEquals("potatoes", WordTransformer.wordToPlural("potato", Language.ENGLISH));
+        assertEquals("radiuses", WordTransformer.wordToPlural("radius", Language.ENGLISH));
+        assertEquals("scarfs", WordTransformer.wordToPlural("scarf", Language.ENGLISH));
+        assertEquals("series", WordTransformer.wordToPlural("series", Language.ENGLISH));
+        assertEquals("sheep", WordTransformer.wordToPlural("sheep", Language.ENGLISH));
+        assertEquals("shelves", WordTransformer.wordToPlural("shelf", Language.ENGLISH));
+        assertEquals("scissors", WordTransformer.wordToPlural("scissors", Language.ENGLISH));
+        assertEquals("species", WordTransformer.wordToPlural("species", Language.ENGLISH));
+        assertEquals("stimuli", WordTransformer.wordToPlural("stimulus", Language.ENGLISH));
+        assertEquals("strata", WordTransformer.wordToPlural("stratum", Language.ENGLISH));
+        assertEquals("syllabuses", WordTransformer.wordToPlural("syllabus", Language.ENGLISH));
+        assertEquals("symposia", WordTransformer.wordToPlural("symposium", Language.ENGLISH));
+        assertEquals("syntheses", WordTransformer.wordToPlural("synthesis", Language.ENGLISH));
+        assertEquals("synopses", WordTransformer.wordToPlural("synopsis", Language.ENGLISH));
+        assertEquals("tableaux", WordTransformer.wordToPlural("tableau", Language.ENGLISH));
+        assertEquals("theses", WordTransformer.wordToPlural("thesis", Language.ENGLISH));
+        assertEquals("thieves", WordTransformer.wordToPlural("thief", Language.ENGLISH));
+        assertEquals("tomatoes", WordTransformer.wordToPlural("tomato", Language.ENGLISH));
+        assertEquals("teeth", WordTransformer.wordToPlural("tooth", Language.ENGLISH));
+        assertEquals("torpedoes", WordTransformer.wordToPlural("torpedo", Language.ENGLISH));
+        assertEquals("vertebrae", WordTransformer.wordToPlural("vertebra", Language.ENGLISH));
+        assertEquals("vetoes", WordTransformer.wordToPlural("veto", Language.ENGLISH));
+        assertEquals("vitae", WordTransformer.wordToPlural("vita", Language.ENGLISH));
+        assertEquals("watches", WordTransformer.wordToPlural("watch", Language.ENGLISH));
+        assertEquals("wives", WordTransformer.wordToPlural("wife", Language.ENGLISH));
+        assertEquals("wolves", WordTransformer.wordToPlural("wolf", Language.ENGLISH));
+        assertEquals("women", WordTransformer.wordToPlural("woman", Language.ENGLISH));
+    }
+
+    @Test
+    public void testGetThirdPersonSingular() {
+        assertEquals("jumps", WordTransformer.getThirdPersonSingular("jump"));
+        assertEquals("done", WordTransformer.getThirdPersonSingular("done"));
+        assertEquals("did", WordTransformer.getThirdPersonSingular("did"));
+        assertEquals("jumped", WordTransformer.getThirdPersonSingular("jumped"));
+        assertEquals("misses", WordTransformer.getThirdPersonSingular("miss"));
+        assertEquals("flies", WordTransformer.getThirdPersonSingular("fly"));
+        assertEquals("boxes", WordTransformer.getThirdPersonSingular("box"));
+        assertEquals("searches", WordTransformer.getThirdPersonSingular("search"));
+        assertEquals("searched", WordTransformer.getThirdPersonSingular("searched"));
+        assertEquals("wishes", WordTransformer.getThirdPersonSingular("wish"));
+        assertEquals("goes", WordTransformer.getThirdPersonSingular("go"));
+    }
+
+    @Test
+    public void testGetSimplePast() {
+        assertEquals("jumped", WordTransformer.getSimplePast("jump"));
+        assertEquals("jumped", WordTransformer.getSimplePast("jumped"));
+        assertEquals("equipped", WordTransformer.getSimplePast("equip"));
+        assertEquals("tried", WordTransformer.getSimplePast("tried"));
+        assertEquals("found", WordTransformer.getSimplePast("find"));
+        assertEquals("grated", WordTransformer.getSimplePast("grate"));
+        assertEquals("went", WordTransformer.getSimplePast("go"));
+    }
+
+    @Test
+    public void testGetPastParticiple() {
+        assertEquals("caused", WordTransformer.getPastParticiple("causes"));
+        assertEquals("jumped", WordTransformer.getPastParticiple("jump"));
+        assertEquals("jumped", WordTransformer.getPastParticiple("jumped"));
+        assertEquals("equipped", WordTransformer.getPastParticiple("equip"));
+        assertEquals("tried", WordTransformer.getPastParticiple("tried"));
+        assertEquals("found", WordTransformer.getPastParticiple("find"));
+        assertEquals("grated", WordTransformer.getPastParticiple("grate"));
+        assertEquals("gone", WordTransformer.getPastParticiple("go"));
+    }
+
+    @Test
+    public void testGetTense() {
+        
+//        LingPipePosTagger posTagger = new LingPipePosTagger();
+//        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
+        
+        TagAnnotations tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VB", ""));
+//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "BEZ", ""));
+        tas.add(new TagAnnotation(0, "VBN", ""));
+        tas.add(new TagAnnotation(0, "BE", ""));
+//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VBN", ""));
+//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VBD", ""));
+//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VB", ""));
+        tas.add(new TagAnnotation(0, "DOD", ""));
+//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "BEDZ", ""));
+//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",tas));
+        
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "BEZ", ""));
+//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",tas));
+
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VB", ""));
+//         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",posTagger));
+         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",tas));
+         
+         tas = new TagAnnotations();
+         tas.add(new TagAnnotation(0, "VBD", ""));
+//         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",posTagger));
+         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",tas));
+         
+         tas = new TagAnnotations();
+         tas.add(new TagAnnotation(0, "HV", ""));
+         tas.add(new TagAnnotation(0, "HVN", ""));
+//         assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",posTagger));
+         assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",tas));
+         
+         tas = new TagAnnotations();
+         tas.add(new TagAnnotation(0, "HVD", ""));
+         tas.add(new TagAnnotation(0, "VBN", ""));
+//         assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",posTagger));
+         assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",tas));
     }
 }

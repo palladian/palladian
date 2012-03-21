@@ -2,6 +2,7 @@ package ws.palladian.helper.nlp;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.preprocessing.normalization.StringNormalizer;
 import ws.palladian.preprocessing.normalization.UnitNormalizer;
@@ -275,7 +277,7 @@ public class StringHelper {
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i == parts.length - 1 && toSingular) {
-                part = WordTransformer.wordToSingular(part, "en");
+                part = WordTransformer.wordToSingular(part, Language.ENGLISH);
             }
             camelCasedName += upperCaseFirstLetter(part);
         }
@@ -391,6 +393,60 @@ public class StringHelper {
         }
 
         return false;
+    }
+
+    /**
+     * <p>
+     * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
+     * within another word.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWord(String word, String searchString) {
+        String allowedNeighbors = "[\\s,.;-]";
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return false;
+        }
+        Matcher m = pat.matcher(searchString);
+        if (m.find()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static String removeWord(String word, String searchString) {
+        return replaceWord(word, " ", searchString);
+    }
+    public static String replaceWord(String word, String replacement, String searchString) {
+        String allowedNeighbors = "[\\s,.;\\-´\"']";
+
+        String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
+                + allowedNeighbors
+                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return searchString;
+        }
+        Matcher m = pat.matcher(searchString);
+
+        searchString = m.replaceAll(replacement).trim();
+
+        return searchString;
     }
 
     /**
@@ -544,7 +600,7 @@ public class StringHelper {
     /**
      * Checks if is number.
      * 
-     * @param string the string
+     * @param string The string to check.
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
@@ -566,6 +622,24 @@ public class StringHelper {
         }
 
         return isNumber;
+    }
+
+    public static boolean isNumberOrNumberWord(String string) {
+        if (string.length() == 0) {
+            return false;
+        }
+
+        if (isNumber(string)) {
+            return true;
+        }
+
+        string = StringHelper.trim(string).toLowerCase();
+
+        Set<String> set = new HashSet<String>();
+        set.addAll(Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "eleven", "twelve"));
+
+        return set.contains(string);
     }
 
     /**
@@ -740,11 +814,9 @@ public class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•"}; // whitespace
-        // is also
-        // unwanted
-        // but trim()
-        // handles
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`"}; // whitespace is also
+                                                                                            // unwanted but
+                                                                                  // trim() handles
         // that, " "
         // here is
         // another
@@ -803,7 +875,7 @@ public class StringHelper {
         }
 
         // remove all control characters from string
-        string = removeControlCharacters(string);
+        // string = removeControlCharacters(string);
 
         string = replaceProtectedSpace(string);
 
@@ -1078,22 +1150,6 @@ public class StringHelper {
     }
 
     /**
-     * Gets the array as string.
-     * 
-     * @param array the array
-     * @return the array as string
-     * @deprecated There is {@link StringUtils#join(Object[])}, which is more flexible and also works for Collections.
-     */
-    @Deprecated
-    public static String getArrayAsString(String[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (String element : array) {
-            sb.append(element).append(",");
-        }
-        return sb.toString().substring(0, sb.length() - 1);
-    }
-
-    /**
      * Reverse a string. ABC => CBA.
      * 
      * @param string The string to be reversed.
@@ -1296,7 +1352,7 @@ public class StringHelper {
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("\\s{1,}", " ");
+        return text.replaceAll("[ ]{1,}", " ");
     }
 
     /**
@@ -1416,7 +1472,25 @@ public class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
+        return getRegexpMatch(regexp, text, false, false);
+    }
+
+    public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
+        Pattern p;
+
+        if (caseInsensitive) {
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            }
+        } else {
+            if (dotAll) {
+                p = Pattern.compile(regexp, Pattern.DOTALL);
+            } else {
+                p = Pattern.compile(regexp);
+            }
+        }
 
         Matcher m = p.matcher(text);
         if (m.find()) {
@@ -1425,6 +1499,7 @@ public class StringHelper {
 
         return "";
     }
+
 
     public static List<String> getRegexpMatches(String regexp, String text) {
 

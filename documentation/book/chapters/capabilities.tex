@@ -540,7 +540,7 @@ Palladian wraps 8 Named Entity Recognizers using a single interface making it ea
 
 \paragraph{OpenNLP} The OpenNLP toolkit \cite{opennlp} provides a maximum entropy based approach for named entity recognition. The toolkit comes with a small set of pre-trained models covering concepts such as locations, organizations, and persons. More details can be found in the JavaDoc.
 
-\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp} \cite{finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
+\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp, finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
 
 \paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
 
@@ -815,7 +815,7 @@ System.out.println(r2);
 The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. Palladian is able to detect the age of many web pages by using four main techniques:
 \begin{enumerate}
 \item Reading the \textbf{ HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
-\item Recognize a date in the \textbf{ URL} of the web page. Especially blogs use the URL style which often reads similar to ``http://domain.tld/posts/YYYY/MM/PostName''. In these cases the date in the domain is a very good indicator of the web page's age.
+\item Recognize a date in the \textbf{ URL} of the web page. Especially blogs use the URL style which often reads similar to \texttt{http://domain.tld/posts/YYYY/MM/PostName}. In these cases the date in the domain is a very good indicator of the web page's age.
 \item Recognizing and ranking dates in the \textbf{ structure and content} of the web page. Especially news pages start or end their news posts with the location and the date that the event they are reporting about happened. Since many dates might be found in the content it is necessary to rank them among each other. This is done using indicators such as the nearness to certain keywords such as ``published'' for example.
 \item Searching for \textbf{ inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
 \end{enumerate}
@@ -1101,7 +1101,7 @@ feedReader.aggregate();
 \end{codelisting}
 
 \subsection{Wiktionary Database}\label{sec:wiktionaryDB}
-Palladian offers a simple interface to the Wiktionary\footnote{http://www.wiktionary.org/} data. So far, there are two databases available, one in German and one in English. The database contains information about each word. This information is in particular:
+Palladian offers a simple interface to the Wiktionary\footnote{\url{http://www.wiktionary.org/}} data. So far, there are two databases available, one in German and one in English. The database contains information about each word. This information is in particular:
 \begin{itemize}
 \item Language, the language of the word. For example, English, German, Spanish...
 \item Type, the type of the word. For example, Noun, Adjective, Verb...
@@ -1401,5 +1401,93 @@ String r = StringHelper.reverse("abc");
 String e = StringHelper.encodeBase64("abc");
 String d = StringHelper.decodeBase64(e);
 
+\end{lstlisting}
+\end{codelisting}
+
+\section{Persistence}
+
+Working with JDBC can be annoying and error prone as one has to deal with SQLExceptions and take care of closing open resources to avoid memory leaks which leads to loads of boilerplate code. Of course, we are not the first to stumble over these issues; the Java Persistence API (JPA) and frameworks like Hibernate or 	EclipseLink provide sophisticated solutions for dealing with relational databases. Nevertheless we have made the experience, that the power offered by these frameworks comes with a big portion of black magic, making it hard to understand how they work internally, which can lead to plenty of frustration.
+
+Because of that, we provide our own light weight ORM implementation with Palladian which can be found in \texttt{ws.palladian.persistence}. The class \texttt{DatabaseManager} offers various methods for working with SQL databases. For specific applications, it is intended to subclass \texttt{DatabaseManager} and to add domain specific persistence operations. Instances of \texttt{DatabaseManager} and its subclasses are created using the \texttt{DatabaseManagerFactory}, which takes care of proper configuration and provides database connections using the BoneCP\footnote{\url{http://jolbox.com/}} connection pool library.
+
+Processing and transforming database results can be simplified by subclassing or implementing \texttt{ResultCallback}s and \texttt{RowConverter}s. While the first provides a simple callback for results from database rows, the latter goes a step further and transforms database rows to arbitrary domain objects. \texttt{ResultIterator}s can be used for iterating over big amounts of database results.
+
+For a minimal example on the usage of the persistence mechanism, see the following listings. Listing~\ref{lst:persistence1} shows a typical domain class which we want to persist. Listing~\ref{lst:persistence2} is a domain specific \texttt{DatabaseManager} subclass. The conversion from the database rows to the domain objects is done by the \texttt{RowConverter} implementation given in Listing~\ref{lst:persistence3}. Listing~\ref{lst:persistence4} gives a short example on how to use the persistence mechanism.
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence1,caption=Domain class]
+class Cat {
+    private String name;
+    private String color;
+
+    public Cat(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat [name=" + name + ", color=" + color + "]";
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence2,caption=Domain specific database manager]
+class CatDatabase extends DatabaseManager {
+
+    private static final String ADD_CAT = 
+               "INSERT INTO cats SET name = ?, color = ?";
+    private static final String GET_CATS = "SELECT * FROM cats";
+    private static final String GET_CAT_BY_NAME = 
+               "SELECT * FROM cats WHERE name = ?";
+
+    protected CatDatabase(ConnectionManager connectionManager) {
+        super(connectionManager);
+    }
+
+    public boolean saveCat(Cat cat) {
+        return runInsertReturnId(
+               ADD_CAT, cat.getName(), cat.getColor()) > 0;
+    }
+
+    public List<Cat> getCats() {
+        return runQuery(new CatRowConverter(), GET_CATS);
+    }
+
+    public Cat getCat(String name) {
+        return runSingleQuery(
+               new CatRowConverter(), GET_CAT_BY_NAME, name);
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+	
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence3,caption=Row converter for domain objects]
+class CatRowConverter implements RowConverter<Cat> {
+    @Override
+    public Cat convert(ResultSet resultSet) throws SQLException {
+        String name = resultSet.getString("name");
+        String color = resultSet.getString("color");
+        return new Cat(name, color);
+    }
+}
+\end{lstlisting}
+\end{codelisting}
+
+\begin{codelisting}
+\begin{lstlisting}[label=lst:persistence4,caption=Usage example]
+CatDatabase catDatabase = 
+       DatabaseManagerFactory.create(CatDatabase.class, getConfig());
+
+catDatabase.saveCat(new Cat("Snowball 1", "black"));
+catDatabase.saveCat(new Cat("Snowball 2", "grey"));
+catDatabase.saveCat(new Cat("Snowball 3", "dark grey"));
+
+CollectionHelper.print(catDatabase.getCats());
+
+System.out.println(catDatabase.getCat("Snowball 1"));
 \end{lstlisting}
 \end{codelisting}

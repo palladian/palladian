@@ -18,10 +18,10 @@ class DocumentRetrieverThread implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(DocumentRetrieverThread.class);
 
     private final BlockingQueue<String> urlQueue;
-    private final RetrieverCallback callback;
+    private final RetrieverCallback<Document> callback;
     private final DocumentRetriever documentRetriever;
 
-    protected DocumentRetrieverThread(BlockingQueue<String> urlQueue, RetrieverCallback callback,
+    protected DocumentRetrieverThread(BlockingQueue<String> urlQueue, RetrieverCallback<Document> callback,
             DocumentRetriever documentRetriever) {
         super();
         this.urlQueue = urlQueue;

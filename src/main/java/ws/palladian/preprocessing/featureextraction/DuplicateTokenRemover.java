@@ -8,6 +8,7 @@ import java.util.Set;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.preprocessing.PipelineDocument;
 import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.preprocessing.nlp.tokenization.Tokenizer;
 
 public class DuplicateTokenRemover implements PipelineProcessor {
 
@@ -16,7 +17,7 @@ public class DuplicateTokenRemover implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = featureVector.get(Tokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new RuntimeException("required feature is missing");
         }

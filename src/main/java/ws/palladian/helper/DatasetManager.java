@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 
 public class DatasetManager {
@@ -64,7 +66,7 @@ public class DatasetManager {
 
             String className = FileHelper.getFolderName(classFolder.getPath());
 
-            if (includeClasses != null && !CollectionHelper.contains(includeClasses, className)) {
+            if (includeClasses != null && !Arrays.asList(includeClasses).contains(className)) {
                 LOGGER.info("skip class " + className);
                 continue;
             }

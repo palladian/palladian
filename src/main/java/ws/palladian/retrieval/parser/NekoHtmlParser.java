@@ -41,6 +41,7 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
             // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
             // supposedly breaking other stuff :(
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+            
             NekoTbodyFix tbodyFix = new NekoTbodyFix();
             // end fix.
 

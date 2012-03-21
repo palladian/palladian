@@ -28,9 +28,12 @@ import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -42,6 +45,9 @@ import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.TwitterSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * Dump class to test various algorithms.
@@ -155,7 +161,7 @@ public class Temp {
 
         documentRetriever.setNumThreads(200);
 
-        RetrieverCallback retrieverCallback = new RetrieverCallback() {
+        RetrieverCallback retrieverCallback = new RetrieverCallback<Document>() {
 
             @Override
             public void onFinishRetrieval(Document document) {
@@ -612,6 +618,22 @@ public class Temp {
      */
     public static void main(String[] args) throws Exception {
         
+        TwitterSearcher twitterSearcher = new TwitterSearcher();
+        // List<WebResult> results = twitterSearcher.search("\"scheiß Film\"", 20, Language.GERMAN);
+        List<WebResult> results = twitterSearcher.search("lustig Ziemlich beste Freunde", 20,
+                Language.GERMAN);
+        CollectionHelper.print(results);
+
+        // FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
+        // Ranking ranking = facebookLinkStats.getRanking("http://cinefreaks.com");
+        // System.out.println(ranking);
+        System.exit(0);
+
+        BingSearcher gs = new BingSearcher("D35DE1803D6F6F03AB5044430997A91924AD347A");
+        CollectionHelper.print(gs.search("site:cinefreaks.com", 1));
+        System.out.println(gs.getTotalResultCount("site:cinefreaks.com"));
+        System.exit(0);
+
         HttpRetrieverFactory.setFactory(new HttpRetrieverFactory() {
             @Override
             protected HttpRetriever createHttpRetriever() {

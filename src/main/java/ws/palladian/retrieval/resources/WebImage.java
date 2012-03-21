@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.resources;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>An extracted image from a Web page.</p>

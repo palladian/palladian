@@ -26,8 +26,8 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.Tokenizer;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
+import ws.palladian.preprocessing.nlp.pos.BasePosTagger;
 import ws.palladian.preprocessing.nlp.pos.LingPipePosTagger;
-import ws.palladian.preprocessing.nlp.pos.PosTagger;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -50,7 +50,7 @@ public class TokenizerPlus {
     // private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
     /** POS tagger, only necessary if POS tagging is enabled. */
-    private PosTagger posTagger = null; // new LingPipePOSTagger();
+    private BasePosTagger posTagger = null; // new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;
@@ -113,8 +113,7 @@ public class TokenizerPlus {
         int sentencePosition = 0;
         int sentenceNumber = 0;
         for (String sentence : sentences) {
-            posTagger.tag(sentence);
-            TagAnnotations tagAnnotations = posTagger.getTagAnnotations();
+            TagAnnotations tagAnnotations = posTagger.tag(sentence);
             for (TagAnnotation tagAnnotation : tagAnnotations) {
                 String string = tagAnnotation.getChunk();
                 String tag = tagAnnotation.getTag();
@@ -338,7 +337,6 @@ public class TokenizerPlus {
         this.usePosTagging = usePosTagging;
         if (usePosTagging) {
             posTagger = new LingPipePosTagger();
-            posTagger.loadModel();
         }
     }
 
@@ -410,7 +408,7 @@ public class TokenizerPlus {
             cm.increment(token.getStemmedValue());
         }
 
-        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm.entrySet(), false);
+        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm, false);
         for (Entry<Object, Integer> entry : sort.entrySet()) {
             System.out.println(entry.getValue() + " " + entry.getKey());
         }

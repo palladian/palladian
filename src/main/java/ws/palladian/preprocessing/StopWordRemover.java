@@ -5,7 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 public class StopWordRemover implements PipelineProcessor {
 
@@ -24,7 +25,7 @@ public class StopWordRemover implements PipelineProcessor {
                 continue;
             }
 
-            text = text.replaceAll("\\W" + stopWord + "\\W", " ");
+            text = StringHelper.removeWord(stopWord, text);
         }
 
         return text;
@@ -39,4 +40,8 @@ public class StopWordRemover implements PipelineProcessor {
         document.setModifiedContent(content);
     }
 
+    public static void main(String[] args) {
+        StopWordRemover stopWordRemover = new StopWordRemover();
+        System.out.println(stopWordRemover.removeStopWords("is the"));
+    }
 }

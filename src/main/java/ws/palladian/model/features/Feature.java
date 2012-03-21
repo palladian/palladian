@@ -9,6 +9,7 @@ package ws.palladian.model.features;
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
+ * @author Philipp Katz
  * @see ws.palladian.classification.Classifier
  * @param <T>
  *            The data type used to represent this {@code Feature}'s value.
@@ -42,6 +43,18 @@ public class Feature<T> {
         super();
         this.name = name;
         this.value = value;
+    }
+
+    /**
+     * <p>
+     * Creates a new {@link Feature} with all attributes initialized.
+     * 
+     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and type information for this
+     *            {@link Feature}.
+     * @param value The {@link Feature}'s value containing concrete extracted data from a document.
+     */
+    public Feature(FeatureDescriptor<Feature<T>> descriptor, T value) {
+        this(descriptor.getIdentifier(), value);
     }
 
     /**

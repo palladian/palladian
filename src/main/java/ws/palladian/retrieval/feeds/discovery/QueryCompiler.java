@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 public class QueryCompiler {
 

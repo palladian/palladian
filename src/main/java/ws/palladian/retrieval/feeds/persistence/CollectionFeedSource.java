@@ -48,9 +48,8 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean updateFeed(Feed feed) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean updateFeed(Feed feed) {  
+        return true;
     }
 
     @Override
@@ -110,8 +109,8 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
-        // TODO Auto-generated method stub
-        return false;
+        // nothing to do when feed is inMemory only and not written to data base.
+        return true;
     }
 
     @Override

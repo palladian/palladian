@@ -7,9 +7,9 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.DateType;
+import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.DateArrayHelper;
 
 /**
  * This class is responsible for rating dates. <br>

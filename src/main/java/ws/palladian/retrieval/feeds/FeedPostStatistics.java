@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
@@ -182,7 +183,7 @@ public class FeedPostStatistics {
                 setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
                 setAveragePostGap(getTimeRange() / ((double) feedPubdates.size() - 1));
                 setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
-                setLongestPostGap(MathHelper.getLongestGap(CollectionHelper.toTreeSet(timeList)));
+                setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
                 setValidStatistics(true);
             }
         }

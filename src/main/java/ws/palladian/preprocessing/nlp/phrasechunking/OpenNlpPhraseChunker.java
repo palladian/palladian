@@ -1,5 +1,6 @@
 package ws.palladian.preprocessing.nlp.phrasechunking;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -11,134 +12,144 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.StopWatch;
 import ws.palladian.preprocessing.nlp.TagAnnotation;
 import ws.palladian.preprocessing.nlp.TagAnnotations;
 import ws.palladian.preprocessing.nlp.pos.OpenNlpPosTagger;
 
-public class OpenNlpPhraseChunker extends AbstractPhraseChunker {
+public final class OpenNlpPhraseChunker implements PhraseChunker {
+    
+    private static final String CHUNKER_NAME = "OpenNLP Phrase Chunker";
+    
+    private final ChunkerME model;
+    
+    private final OpenNlpPosTagger tagger;
 
-    /** The model path. **/
-    private final transient String MODEL;
 
+    public OpenNlpPhraseChunker(File chunkerModelFile, File posTaggerModelFile) {
+        model = loadModel(chunkerModelFile);
+        tagger = new OpenNlpPosTagger(posTaggerModelFile);
+    }
     /**
      * Constructor.
      */
     public OpenNlpPhraseChunker() {
-        super();
-        setName("OpenNLP Phrase Chunker");
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        File modelFile = new File(config.getString("models.root") + config.getString("models.opennlp.en.chunker"));
+        model = loadModel(modelFile);
+        tagger = new OpenNlpPosTagger();
+    }
+    
 
-        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
+//    /*
+//     * (non-Javadoc)
+//     * @see
+//     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
+//     */
+//    @Override
+//    public final OpenNlpPhraseChunker chunk(String sentence) {
+//
+//        final OpenNlpPosTagger tagger = new OpenNlpPosTagger();
+//        TagAnnotations tagAnnotations = tagger.tag(sentence);
+//
+//        return chunk(sentence, tagAnnotations.getTokenList(), tagAnnotations.getTagList());
+//
+//    }
+    
+    @Override
+    public TagAnnotations chunk(String sentence) {
+        TagAnnotations tagAnnotations = tagger.tag(sentence);
+        return chunk(sentence, tagAnnotations.getTokenList(), tagAnnotations.getTagList());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
-     */
     @Override
-    public final OpenNlpPhraseChunker chunk(String sentence) {
-
-        final OpenNlpPosTagger tagger = new OpenNlpPosTagger();
-        tagger.loadModel().tag(sentence);
-
-        return chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger.getTagAnnotations().getTagList());
-
+    public String getName() {
+        return CHUNKER_NAME;
     }
 
     /**
-     * Chunks a sentence into annotations by a given list of tokens and postags.
+     * <p>Chunks a sentence into annotations by a given list of tokens and postags.</p>
      * 
      * @param sentence
      * @param tokenList
      * @param posList
      */
-    public OpenNlpPhraseChunker chunk(final String sentence, List<String> tokenList, List<String> posList) {
+    private TagAnnotations chunk(final String sentence, List<String> tokenList, List<String> posList) {
 
-        final List<String> chunkList = ((ChunkerME) getModel()).chunk(tokenList, posList);
+        // List<String> chunkList = model.chunk(tokenList, posList);
+        String[] toks = tokenList.toArray(new String[tokenList.size()]);
+        String[] tags = posList.toArray(new String[posList.size()]);
+        String[] chunks = model.chunk(toks, tags);
 
         String tag = "";
-        final StringBuffer token = new StringBuffer();
+        StringBuilder token = new StringBuilder();
 
-        final TagAnnotations tagAnnotations = new TagAnnotations();
+        TagAnnotations tagAnnotations = new TagAnnotations();
 
         // joining Tags
-        for (int i = 0; i < chunkList.size(); i++) {
+        for (int i = 0; i < chunks.length; i++) {
+            
+            String chunk = chunks[i];
 
-            if (chunkList.get(i).contains("B-")) {
-                tag = chunkList.get(i).substring(2);
+            if (chunk.contains("B-")) {
+                tag = chunk.substring(2);
                 token.replace(0, token.length(), tokenList.get(i));
 
-            } else if (chunkList.get(i).contains("I-")) {
+            } else if (chunk.contains("I-")) {
                 token.append(' ').append(tokenList.get(i));
-                tag = chunkList.get(i).substring(2);
+                tag = chunk.substring(2);
 
             }
-            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains("B-") || i == chunkList.size() - 1) {
+            if (i + 1 < chunks.length && chunks[i + 1].contains("B-") || i == chunks.length - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token.toString()), tag, token.toString()));
             }
         }
-        setTagAnnotations(tagAnnotations);
-        return this;
+        return tagAnnotations;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
-     * java.lang.String)
-     */
-    @Override
-    public final OpenNlpPhraseChunker chunk(String sentence, String modelFilePath) {
-        loadModel(modelFilePath);
-        return this.chunk(sentence);
-    }
+//    /*
+//     * (non-Javadoc)
+//     * @see
+//     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
+//     * java.lang.String)
+//     */
+//    @Override
+//    public final OpenNlpPhraseChunker chunk(String sentence, String modelFilePath) {
+//        loadModel(modelFilePath);
+//        return this.chunk(sentence);
+//    }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
-     */
-    @Override
-    public final OpenNlpPhraseChunker loadDefaultModel() {
-        return loadModel(MODEL);
-    }
+//    /*
+//     * (non-Javadoc)
+//     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+//     */
+//    @Override
+//    public final OpenNlpPhraseChunker loadDefaultModel() {
+//        return loadModel(MODEL);
+//    }
 
-    /*
-     * (non-Javadoc)
-     * @see
-     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
-     * )
-     */
-    @Override
-    public final OpenNlpPhraseChunker loadModel(String modelFilePath) {
-        try {
-
-            ChunkerME tbc = null;
-            if (Cache.getInstance().containsDataObject(modelFilePath)) {
-
-                tbc = (ChunkerME) Cache.getInstance().getDataObject(modelFilePath);
-
-            } else {
-                final StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-
+//    /*
+//     * (non-Javadoc)
+//     * @see
+//     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
+//     * )
+//     */
+//    @Override
+    private final ChunkerME loadModel(File modelFile) {
+        String modelFilePath = modelFile.getAbsolutePath();
+        ChunkerME tbc = (ChunkerME) Cache.getInstance().getDataObject(modelFilePath);
+        if (tbc == null) {
+            try {
                 tbc = new ChunkerME(new ChunkerModel(new FileInputStream(modelFilePath)));
                 Cache.getInstance().putDataObject(modelFilePath, tbc);
-
-                stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
-                        + stopWatch.getElapsedTimeString());
+            } catch (final IOException e) {
+                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
+                        + e.getMessage());
             }
-
-            setModel(tbc);
-
-        } catch (final IOException e) {
-            LOGGER.error(e);
         }
-
-        return this;
+        return tbc;
     }
+
+
 
 }

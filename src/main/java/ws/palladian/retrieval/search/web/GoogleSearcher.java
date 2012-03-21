@@ -22,7 +22,7 @@ public final class GoogleSearcher extends BaseGoogleSearcher<WebResult> {
         String title = resultData.getString("titleNoFormatting");
         String content = resultData.getString("content");
         String url = resultData.getString("unescapedUrl");
-        WebResult webResult = new WebResult(url, title, content);
+        WebResult webResult = new WebResult(url, title, content, getName());
         return webResult;
     }
 

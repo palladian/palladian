@@ -867,7 +867,7 @@ public class PageAnalyzer {
             return 0;
         }
 
-        tdCountMap = CollectionHelper.sortByValue(tdCountMap.entrySet(), CollectionHelper.DESCENDING);
+        tdCountMap = CollectionHelper.sortByValue(tdCountMap, CollectionHelper.DESCENDING);
         numberOfColumns = tdCountMap.entrySet().iterator().next().getKey();
 
         // rowspan might have led to zero columns
@@ -963,7 +963,7 @@ public class PageAnalyzer {
 
             // do not consider comment nodes (type 8) TODO only take text nodes
             if (child.getNodeValue() != null && child.getNodeType() == 3) {
-                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:.?!");
+                String nodeValue = StringHelper.trim(child.getNodeValue(), "-:.?!'\"");
                 if (nodeValue.length() > 0) {
                     currentString.append(nodeValue).append(" ");// + ", "; TODO changed without testing!
                 }
@@ -1171,7 +1171,7 @@ public class PageAnalyzer {
 
         // return url with highest similarity or an empty string if nothing has
         // been found
-        similarityMap = CollectionHelper.sortByValue(similarityMap.entrySet(), CollectionHelper.DESCENDING);
+        similarityMap = CollectionHelper.sortByValue(similarityMap, CollectionHelper.DESCENDING);
 
         if (similarityMap.entrySet().size() > 0) {
             try {

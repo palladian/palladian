@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.RetrieverCallback;
 
@@ -20,7 +20,7 @@ import ws.palladian.retrieval.RetrieverCallback;
  * @author Philipp Katz
  * 
  */
-public class FeedDiscoveryCallback implements RetrieverCallback {
+public class FeedDiscoveryCallback implements RetrieverCallback<Document> {
 
     /** The singleton. */
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();

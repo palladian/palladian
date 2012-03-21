@@ -7,6 +7,7 @@ package ws.palladian.model.features;
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public final class NumericFeature extends Feature<Double> {
 
@@ -20,6 +21,19 @@ public final class NumericFeature extends Feature<Double> {
      */
     public NumericFeature(String name, Double value) {
         super(name, value);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code NumericFeature} instance with all attributes initialized.
+     * </p>
+     * 
+     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
+     *            {@code Feature}.
+     * @param value The {@code Double} value of this {@code Feature}.
+     */
+    public NumericFeature(FeatureDescriptor<NumericFeature> descriptor, Double value) {
+        this(descriptor.getIdentifier(), value);
     }
 
 }

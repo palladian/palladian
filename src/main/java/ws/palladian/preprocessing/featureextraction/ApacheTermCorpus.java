@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 public class ApacheTermCorpus extends TermCorpus {
     

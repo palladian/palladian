@@ -1,17 +1,19 @@
 package ws.palladian.classification.language;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.helper.collection.MapBuilder;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>
@@ -32,51 +34,53 @@ public class TagTheNetLangDetect extends LanguageClassifier {
     /** tagthe.net provides no information, which languages it supports, so we record all detected ones here in the set. */
     private Set<String> detectedLanguages = new HashSet<String>();
 
+    private final HttpRetriever httpRetriever;
+
+    public TagTheNetLangDetect() {
+        httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+    }
+
     @Override
     public String classify(String text) {
 
         String result = "";
 
-        HTTPPoster poster = new HTTPPoster();
-        HttpPost postMethod = new HttpPost("http://tagthe.net/api");
-        postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        Map<String, String> headers = new MapBuilder<String, String>().add("Content-Type",
+                "application/x-www-form-urlencoded; charset=UTF-8");
+
+        Map<String, String> content = new MapBuilder<String, String>().add("text", text).add("view", "json");
 
         try {
-
-            postMethod.setEntity(new StringEntity("text=" + UrlHelper.urlEncode(text) + "&view=json",
-                    "text/raw", "UTF-8"));
-
-            String response = poster.handleRequest(postMethod);
+            HttpResult httpResult = httpRetriever.httpPost("http://tagthe.net/api", headers, content);
+            String response = new String(httpResult.getContent(), Charset.forName("UTF-8"));
             JSONObject json = new JSONObject(response);
 
             String language = json.getJSONArray("memes").getJSONObject(0).getJSONObject("dimensions")
                     .getJSONArray("language").getString(0);
 
             result = mapLanguage(language);
-            
+
             detectedLanguages.add(result);
 
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
         } catch (JSONException e) {
+            LOGGER.error(e);
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
 
         return result;
 
     }
-    
+
     public Set<String> getDetectedLanguages() {
         return detectedLanguages;
     }
 
     public static void main(String[] args) {
-
         LanguageClassifier lc = new TagTheNetLangDetect();
         for (int i = 0; i < 1000; i++) {
             System.out.println(lc.classify("olala, mademoiselle. c'est la vie."));
         }
-
     }
 
 }

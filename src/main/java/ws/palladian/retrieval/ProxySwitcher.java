@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +48,7 @@ public class ProxySwitcher implements HttpHook {
 
     public ProxySwitcher() {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        @SuppressWarnings("unchecked")
-        List<String> proxies = config.getList("proxySwitcher.proxyList");
+        List<String> proxies = Arrays.asList(config.getStringArray("proxySwitcher.proxyList"));
         int switchRequests = config.getInt("proxySwitcher.switchRequests");
         setup(proxies, switchRequests);
     }

@@ -1,5 +1,6 @@
 package ws.palladian.classification.language;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,8 +19,10 @@ import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.EvaluationSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.helper.Cache;
 import ws.palladian.helper.DatasetManager;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * The best setting for medium to long texts is to use word n-grams with 1<=n<=3.
@@ -39,7 +42,7 @@ public class PalladianLangDetect extends LanguageClassifier {
     private Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
-        palladianClassifier = DictionaryClassifier.load(modelPath);
+        palladianClassifier = (TextClassifier)Cache.getInstance().getDataObject(modelPath, new File(modelPath));
     }
 
     public PalladianLangDetect() {
@@ -164,9 +167,6 @@ public class PalladianLangDetect extends LanguageClassifier {
         // create a classifier mananger object
         ClassifierManager classifierManager = new ClassifierManager();
 
-        // tell the preprocessor that the first field in the file is a link to the actual document
-        dataset.setFirstFieldLink(true);
-
         // create a text classifier by giving a name and a path where it should be saved to
         TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
         // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
@@ -206,7 +206,9 @@ public class PalladianLangDetect extends LanguageClassifier {
         // now we can train the classifier using the given dataset
         // classifier.train(dataset);
         // classifier.save(classifierPath);
-        classifierManager.trainClassifier(dataset, classifier);
+        // classifierManager.trainClassifier(dataset, classifier);
+
+        classifier.train(dataset);
 
         // test the classifier
         // Dataset testDataset = new Dataset();
@@ -218,6 +220,8 @@ public class PalladianLangDetect extends LanguageClassifier {
         // testDataset.setSeparationString(" ");
         //
         // System.out.println(classifier.evaluate(testDataset));
+
+        FileHelper.serialize(classifier, classifierPath + classifierName + ".gz");
 
         LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
     }
@@ -239,7 +243,8 @@ public class PalladianLangDetect extends LanguageClassifier {
         // String languageModelPath =
         // "C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC_o\\palladianLanguageJRC.gz";
         //
-        PalladianLangDetect pld0 = new PalladianLangDetect("data/models/PLC/PLC.gz");
+        PalladianLangDetect pld0 = new PalladianLangDetect(
+                "data/models/palladian/language/wikipedia76Languages20ipc.gz");
         String language = pld0.classify("This is a sample text in English");
         System.out.println("The text was classified as: " + language);
         language = pld0.classify("Das ist ein Beispieltext auf Deutsch");
@@ -257,25 +262,33 @@ public class PalladianLangDetect extends LanguageClassifier {
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// learn from a given dataset ///////////////////
-        String datasetRootFolder = "C:\\Data\\datasets\\JRCLanguageCorpus\\";
+        String datasetRootFolder = "H:\\PalladianData\\Datasets\\JRCLanguageCorpus";
 
-        // create an index over the dataset
+        // // create an index over the dataset
         DatasetManager dsManager = new DatasetManager();
-        String path = dsManager.createIndex(datasetRootFolder, new String[] { "en", "es", "de" });
-
-        // create an excerpt with 1000 instances per class
-        String indexExcerpt = dsManager.createIndexExcerpt(datasetRootFolder + path, " ", 1000);
-
-        // specify the dataset that should be used as training data
+        // String path = dsManager.createIndex(datasetRootFolder, new String[] { "en", "es", "de" });
+        // String path = dsManager.createIndex(datasetRootFolder);
+        //
+        // // create an excerpt with 1000 instances per class
+        String indexExcerpt = dsManager.createIndexExcerpt(
+                "H:\\PalladianData\\Datasets\\Wikipedia76Languages\\languageDocumentIndex.txt", " ", 20);
+        //
+        // // specify the dataset that should be used as training data
         Dataset dataset = new Dataset();
 
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(true);
+
         // set the path to the dataset, the first field is a link, and columns are separated with a space
+        // dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20.txt");
+        // dataset.setPath("H:\\PalladianData\\Datasets\\Microblogging35Languages\\languageDocumentIndex.txt");
+        // dataset.setPath("H:\\PalladianData\\Datasets\\Wikipedia76Languages\\languageDocumentIndex.txt");
         dataset.setPath(indexExcerpt);
 
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        PalladianLangDetect.train(dataset, "PLC", "data/models/");
+        PalladianLangDetect.train(dataset, "wikipedia76Languages20ipc", "data/models/palladian/language/");
         // ////////////////////////////////////////////////////////////////
 
     }

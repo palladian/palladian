@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.SizeUnit;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
