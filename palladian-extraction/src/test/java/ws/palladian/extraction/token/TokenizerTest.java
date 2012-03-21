@@ -1,4 +1,4 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.extraction.token;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.token.Tokenizer;
 
 /**
  * Test cases for the Tokenizer class.
