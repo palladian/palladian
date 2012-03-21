@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 
+import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
 
 /**
  * List of stopwords. Use the enumeration {@link Predefined} for initialization

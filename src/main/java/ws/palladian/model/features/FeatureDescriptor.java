@@ -1,6 +1,6 @@
 package ws.palladian.model.features;
 
-import ws.palladian.preprocessing.PipelineProcessor;
+import ws.palladian.extraction.PipelineProcessor;
 
 /**
  * <p>

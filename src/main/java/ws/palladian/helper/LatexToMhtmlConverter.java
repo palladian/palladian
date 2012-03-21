@@ -25,11 +25,11 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.multimedia.ImageHandler;
+import ws.palladian.extraction.multimedia.PdfToImageConverter;
+import ws.palladian.extraction.multimedia.PdfToImageConverter.ImageFormat;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.preprocessing.multimedia.ImageHandler;
-import ws.palladian.preprocessing.multimedia.PdfToImageConverter;
-import ws.palladian.preprocessing.multimedia.PdfToImageConverter.ImageFormat;
 
 public class LatexToMhtmlConverter {
 

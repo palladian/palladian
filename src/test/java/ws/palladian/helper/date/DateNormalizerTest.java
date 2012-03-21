@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.preprocessing.normalization.DateNormalizer;
+import ws.palladian.extraction.helper.normalization.DateNormalizer;
 
 public class DateNormalizerTest {
 
