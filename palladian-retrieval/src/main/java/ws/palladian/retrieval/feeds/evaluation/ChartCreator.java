@@ -9,8 +9,8 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.helper.date.DateHelper;
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.EvaluationDatabase;

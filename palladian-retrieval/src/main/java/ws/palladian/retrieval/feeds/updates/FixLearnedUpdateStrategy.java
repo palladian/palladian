@@ -3,7 +3,7 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Date;
 import java.util.List;
 
-import ws.palladian.extraction.helper.date.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;

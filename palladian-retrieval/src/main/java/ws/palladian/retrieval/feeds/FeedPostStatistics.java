@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import ws.palladian.extraction.helper.date.DateHelper;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 

@@ -217,7 +217,7 @@ public class FeedDiscovery {
         List<DiscoveredFeed> result = new LinkedList<DiscoveredFeed>();
 
         String pageUrl = document.getDocumentURI();
-        String baseUrl = HtmlHelper.getBaseUrl(document);
+        String baseUrl = UrlHelper.getBaseUrl(document);
 
         // get all Nodes from the Document containing feeds
         List<Node> feedNodes = XPathHelper.getXhtmlNodes(document, FEED_XPATH);

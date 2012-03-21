@@ -11,9 +11,9 @@ import java.util.concurrent.Callable;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.helper.date.DateHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

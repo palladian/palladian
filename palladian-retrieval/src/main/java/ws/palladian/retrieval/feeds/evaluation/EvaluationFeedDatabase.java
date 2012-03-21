@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.helper.date.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;

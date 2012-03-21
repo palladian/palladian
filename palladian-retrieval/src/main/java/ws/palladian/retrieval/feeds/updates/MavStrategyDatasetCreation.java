@@ -2,7 +2,7 @@ package ws.palladian.retrieval.feeds.updates;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.helper.date.DateHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;

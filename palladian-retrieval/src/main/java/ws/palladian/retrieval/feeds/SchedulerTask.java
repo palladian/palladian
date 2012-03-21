@@ -16,10 +16,10 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.helper.date.DateHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.SendMail;
+import ws.palladian.helper.date.DateHelper;
 
 /**
  * <p>A scheduler task handles the distribution of feeds to worker threads that read these feeds.
