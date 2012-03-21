@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -89,7 +90,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
         TOTAL_REQUEST_COUNT.incrementAndGet();
         Document resultDocument;
         try {
-            resultDocument = xmlParser.parse(httpResult);
+            resultDocument = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
         } catch (ParserException e) {
             throw new SearcherException("Error parsing the XML response for query \"" + query + "\" with " + getName()
                     + "(request url: \"" + requestUrl + "\"): " + e.getMessage(), e);

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.discovery;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,7 +169,7 @@ public class FeedDiscovery {
         try {
 
             HttpResult httpResult = httpRetriever.httpGet(pageUrl);
-            document = parser.parse(httpResult);
+            document = parser.parse(new ByteArrayInputStream(httpResult.getContent()));
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.
