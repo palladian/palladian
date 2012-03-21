@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.helper.date.DateHelper;
-
 public class DateHelperTest {
 
     @Test

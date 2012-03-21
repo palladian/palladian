@@ -18,11 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.helper.normalization.StringNormalizer;
 import ws.palladian.helper.helper.normalization.UnitNormalizer;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.semantics.WordTransformer;
 
 /**
  * <p>The StringHelper provides functionality for typical String manipulation operations.</p>
@@ -270,25 +268,33 @@ public class StringHelper {
      * @param toSingular If true, the last part is translated to its singular form.
      * @return The camel cased name.
      */
-    public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
-        String camelCasedName = "";
-        String modName = name.replaceAll("\\s", "_");
-
-        String[] parts = modName.split("_");
-        for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
-            if (i == parts.length - 1 && toSingular) {
-                part = WordTransformer.wordToSingular(part, Language.ENGLISH);
-            }
-            camelCasedName += upperCaseFirstLetter(part);
-        }
-
-        if (!uppercaseFirst) {
-            camelCasedName = lowerCaseFirstLetter(camelCasedName);
-        }
-
-        return camelCasedName;
-    }
+    
+    //
+    // Removed while modularizing Palladian. 
+    // If required somewhere, do the Singular transformation first,
+    // then the camelCase transformation. -- Philipp, 2012-03-21
+    //
+    
+    
+//    public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
+//        String camelCasedName = "";
+//        String modName = name.replaceAll("\\s", "_");
+//
+//        String[] parts = modName.split("_");
+//        for (int i = 0; i < parts.length; i++) {
+//            String part = parts[i];
+//            if (i == parts.length - 1 && toSingular) {
+//                part = WordTransformer.wordToSingular(part, Language.ENGLISH);
+//            }
+//            camelCasedName += upperCaseFirstLetter(part);
+//        }
+//
+//        if (!uppercaseFirst) {
+//            camelCasedName = lowerCaseFirstLetter(camelCasedName);
+//        }
+//
+//        return camelCasedName;
+//    }
 
     /**
      * Make camel case.
@@ -298,7 +304,23 @@ public class StringHelper {
      * @return the string
      */
     public static String makeCamelCase(String name, boolean uppercaseFirst) {
-        return makeCamelCase(name, uppercaseFirst, false);
+//        return makeCamelCase(name, uppercaseFirst, false);
+        
+        String camelCasedName = "";
+        String modName = name.replaceAll("\\s", "_");
+
+        String[] parts = modName.split("_");
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            camelCasedName += upperCaseFirstLetter(part);
+        }
+
+        if (!uppercaseFirst) {
+            camelCasedName = lowerCaseFirstLetter(camelCasedName);
+        }
+
+        return camelCasedName;
+        
     }
 
     /**

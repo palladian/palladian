@@ -1,4 +1,4 @@
-package ws.palladian.helper.date;
+package ws.palladian.extraction.date.comparators;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ExtractedDate;

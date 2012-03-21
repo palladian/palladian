@@ -1,4 +1,4 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.semantics;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,8 +7,6 @@ import org.junit.Test;
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.semantics.EnglishTense;
-import ws.palladian.semantics.WordTransformer;
 
 /**
  * Test cases for the WordTransformer class.
