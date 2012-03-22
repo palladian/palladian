@@ -40,7 +40,7 @@ public class ResourceHelper {
         URL url = Thread.currentThread().getContextClassLoader().getResource(resourceLocation);
 
         if (url == null) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
         String resourcePath;
