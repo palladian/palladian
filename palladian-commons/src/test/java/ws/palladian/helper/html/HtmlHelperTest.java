@@ -2,9 +2,11 @@ package ws.palladian.helper.html;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
-import junit.framework.Assert;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -14,9 +16,6 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>Test cases for the {@link HtmlHelper} class.</p>
@@ -61,13 +60,13 @@ public class HtmlHelperTest {
 //        assertThat(result,is(stripped));
     }
 
-    @Test
-    public void testDocumentToReadableText() throws FileNotFoundException, ParserException {
-        DocumentParser htmlParser = ParserFactory.createHtmlParser();
-        Document doc = htmlParser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"));
-        String result = HtmlHelper.documentToReadableText(doc);
-        Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
-    }
+//    @Test
+//    public void testDocumentToReadableText() throws FileNotFoundException {
+//        DocumentParser htmlParser = ParserFactory.createHtmlParser();
+//        Document doc = htmlParser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"));
+//        String result = HtmlHelper.documentToReadableText(doc);
+//        Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
+//    }
 
     @Test
     public void testReplaceHTMLSymbols() {
@@ -76,4 +75,5 @@ public class HtmlHelperTest {
         assertEquals(clearText, StringHelper.replaceProtectedSpace(StringEscapeUtils.unescapeHtml(htmlText)));
         assertEquals(clearText, HtmlHelper.replaceHtmlSymbols(htmlText));
     }
+
 }
