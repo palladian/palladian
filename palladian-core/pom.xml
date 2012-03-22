@@ -6,9 +6,9 @@
 		<artifactId>palladian</artifactId>
 		<version>0.1.7-SNAPSHOT</version>
 	</parent>
-	<artifactId>palladian-extraction</artifactId>
-	<name>Palladian: Extraction</name>
-	<description>Palladian Extraction Functionality</description>
+	<artifactId>palladian-core</artifactId>
+	<name>Palladian: Core</name>
+	<description>Core Palladian functionality</description>
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
