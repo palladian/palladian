@@ -12,12 +12,12 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.EnumHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollDataSeries;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * <p>

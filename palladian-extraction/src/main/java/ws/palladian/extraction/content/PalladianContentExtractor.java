@@ -17,10 +17,10 @@ import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.XPathSet;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.helper.UrlHelper;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**

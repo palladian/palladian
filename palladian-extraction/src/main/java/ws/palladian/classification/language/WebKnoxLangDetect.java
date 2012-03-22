@@ -8,8 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * <p>

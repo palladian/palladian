@@ -23,12 +23,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.
@@ -1190,68 +1190,6 @@ public class PageAnalyzer {
     public String getSiblingPage(String url) {
         setDocument(url);
         return getSiblingPage(getDocument());
-    }
-
-
-    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
-
-        Set<String> pageLinks = new HashSet<String>();
-
-        if (document == null) {
-            return pageLinks;
-        }
-
-        // remove anchors from url
-        String url = document.getDocumentURI();
-        url = UrlHelper.removeAnchors(url);
-        String domain = UrlHelper.getDomain(url, false);
-
-        // get value of base element, if present
-        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
-        String baseHref = null;
-        if (baseNode != null) {
-            baseHref = baseNode.getTextContent();
-        }
-
-        // get all internal domain links
-        // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
-        for (int i = 0; i < linkNodes.size(); i++) {
-            String currentLink = linkNodes.get(i).getTextContent();
-            currentLink = currentLink.trim();
-
-            // remove anchors from link
-            currentLink = UrlHelper.removeAnchors(currentLink);
-
-            // normalize relative and absolute links
-            // currentLink = makeFullURL(url, currentLink);
-            currentLink = UrlHelper.makeFullUrl(url, baseHref, currentLink);
-
-            if (currentLink.length() == 0) {
-                continue;
-            }
-
-            String currentDomain = UrlHelper.getDomain(currentLink, false);
-
-            boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
-
-            if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
-                pageLinks.add(currentLink);
-            }
-        }
-
-        return pageLinks;
-    }
-
-    /**
-     * Get a set of links from the source page.
-     * 
-     * @param inDomain If true all links that point to other pages within the same domain of the source page are added.
-     * @param outDomain If true all links that point to other pages outside the domain of the source page are added.
-     * @return A set of urls.
-     */
-    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
-        return PageAnalyzer.getLinks(document, inDomain, outDomain, "");
     }
 
     public static String extractTitle(Document webPage) {

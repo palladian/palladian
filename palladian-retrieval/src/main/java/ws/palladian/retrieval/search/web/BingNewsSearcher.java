@@ -6,8 +6,8 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * <p>

@@ -14,11 +14,11 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.UrlHelper;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.XmlParser;
 import ws.palladian.retrieval.search.SearcherException;
