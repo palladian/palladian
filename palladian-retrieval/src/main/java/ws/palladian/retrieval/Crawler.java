@@ -7,9 +7,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -75,7 +75,7 @@ public class Crawler {
         // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = documentRetriever.getWebDocument(currentURL);
 
-        Set<String> links = PageAnalyzer.getLinks(document, inDomain, outDomain);
+        Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
         LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || stack size: "
                 + urlStack.size() + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
 

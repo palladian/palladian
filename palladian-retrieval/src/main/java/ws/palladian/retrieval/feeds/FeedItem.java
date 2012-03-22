@@ -6,8 +6,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * <p>

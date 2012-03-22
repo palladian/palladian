@@ -9,10 +9,10 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.helper.UrlHelper;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 

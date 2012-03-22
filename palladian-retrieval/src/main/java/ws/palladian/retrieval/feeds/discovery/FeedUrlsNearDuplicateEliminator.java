@@ -17,9 +17,9 @@ import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * <p>Implementation for Sandro's highly sophisticated Feed-URLs-Near-Duplicate-Detection-Algorithm.</p>

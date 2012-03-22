@@ -15,13 +15,13 @@ import org.w3c.dom.Node;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.UrlHelper;
 
 /**
  * The ListDiscoverer tries to find a list (with entities) on a web page. If a "good" list is found the xPath for one or

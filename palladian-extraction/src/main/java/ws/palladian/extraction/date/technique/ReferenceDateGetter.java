@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.date.DateEvaluator;
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -16,6 +15,7 @@ import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.ReferenceDate;
+import ws.palladian.helper.html.HtmlHelper;
 
 /**
  * This class tries get dates in lined pages.<br>
@@ -58,7 +58,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
     private static ArrayList<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
         ArrayList<ReferenceDate> dates = new ArrayList<ReferenceDate>();
         if (document != null) {
-            Iterator<String> linksTo = PageAnalyzer.getLinks(document, true, true).iterator();
+            Iterator<String> linksTo = HtmlHelper.getLinks(document, true, true).iterator();
             DateGetter dateGetter = new DateGetter();
 
             DateComparator dc = new DateComparator();

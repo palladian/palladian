@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.helper;
+package ws.palladian.helper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.retrieval.HttpRetriever;
 
 /**
  * <p>
@@ -404,12 +403,11 @@ public class UrlHelper {
 
         try {
 
-            // get redirect url if it exists and continue with this url
-            HttpRetriever retriever = new HttpRetriever();
-            String redirectUrl = retriever.getRedirectUrl(url);
-
-            if (isValidUrl(redirectUrl))
-                url = redirectUrl;
+            // get redirect url if it exists and continue with this url FIXME resolve redirects somewhere else
+            // HttpRetriever retriever = new HttpRetriever();
+            // String redirectUrl = retriever.getRedirectUrl(url);
+            // if (isValidUrl(redirectUrl))
+            // url = redirectUrl;
 
             URL urlObj = new URL(url);
 

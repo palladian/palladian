@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.control.AllTests;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -207,10 +208,10 @@ public class PageAnalyzerTest {
     public void testGetLinks() throws FileNotFoundException, ParserException {
         
         Document doc = parser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test9.html"));
-        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
+        assertEquals("http://www.example.com/test.html", HtmlHelper.getLinks(doc, true, true).iterator().next());
 
         doc = parser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test10.html"));
-        assertEquals("http://www.example.com/test.html", PageAnalyzer.getLinks(doc, true, true).iterator().next());
+        assertEquals("http://www.example.com/test.html", HtmlHelper.getLinks(doc, true, true).iterator().next());
 
     }
 

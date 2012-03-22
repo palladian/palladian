@@ -52,6 +52,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.io.StringOutputStream;
 import ws.palladian.helper.nlp.StringHelper;
@@ -151,7 +152,7 @@ public class HtmlHelper {
 //     * <p>
 //     * Lists all tags. Deletes arguments within the tags, if there are any.
 //     * </p>
-//     * 
+//     *
 //     * @param htmlText The html text.
 //     * @return A list of tags.
 //     */
@@ -687,7 +688,7 @@ public class HtmlHelper {
 //     * <p>
 //     * Converts a String representation with XML markup to DOM Document. Returns an empty Document if parsing failed.
 //     * </p>
-//     * 
+//     *
 //     * @param input
 //     * @return
 //     */
@@ -997,6 +998,67 @@ public class HtmlHelper {
         }
 
         return sb.toString().replaceAll("[ ]{2,}", "");
+    }
+
+    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
+
+        Set<String> pageLinks = new HashSet<String>();
+
+        if (document == null) {
+            return pageLinks;
+        }
+
+        // remove anchors from url
+        String url = document.getDocumentURI();
+        url = UrlHelper.removeAnchors(url);
+        String domain = UrlHelper.getDomain(url, false);
+
+        // get value of base element, if present
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
+        String baseHref = null;
+        if (baseNode != null) {
+            baseHref = baseNode.getTextContent();
+        }
+
+        // get all internal domain links
+        // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
+        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
+        for (int i = 0; i < linkNodes.size(); i++) {
+            String currentLink = linkNodes.get(i).getTextContent();
+            currentLink = currentLink.trim();
+
+            // remove anchors from link
+            currentLink = UrlHelper.removeAnchors(currentLink);
+
+            // normalize relative and absolute links
+            // currentLink = makeFullURL(url, currentLink);
+            currentLink = UrlHelper.makeFullUrl(url, baseHref, currentLink);
+
+            if (currentLink.length() == 0) {
+                continue;
+            }
+
+            String currentDomain = UrlHelper.getDomain(currentLink, false);
+
+            boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
+
+            if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
+                pageLinks.add(currentLink);
+            }
+        }
+
+        return pageLinks;
+    }
+
+    /**
+     * Get a set of links from the source page.
+     * 
+     * @param inDomain If true all links that point to other pages within the same domain of the source page are added.
+     * @param outDomain If true all links that point to other pages outside the domain of the source page are added.
+     * @return A set of urls.
+     */
+    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
+        return getLinks(document, inDomain, outDomain, "");
     }
 
     /**
