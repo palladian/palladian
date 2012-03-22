@@ -19,6 +19,7 @@ public class ExtractedDateHelper {
 
     /**
      * Convert month-name in a number; January is 01..
+     * TODO somewhat duplicate to {@link DateHelper#monthNameToNumber(String)}
      * 
      * @param month
      * @return month-number as string

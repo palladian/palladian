@@ -55,7 +55,7 @@ public class FeedDiscoveryTest {
 
         // testcase from http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
         // 9 valid Feed-Links pointing to http://www.example.com/xml/atom.xml
-        List<DiscoveredFeed> temp = feedDiscovery.discoverFeeds(ResourceHelper.getResourceFile("/pageContentExtractor/test11.html"));
+        List<DiscoveredFeed> temp = feedDiscovery.discoverFeeds(ResourceHelper.getResourceFile("/feedDiscoveryPage.html"));
         assertEquals(9, temp.size());
         for (DiscoveredFeed t : temp) {
             assertEquals("http://www.example.com/xml/atom.xml", t.getFeedLink());
