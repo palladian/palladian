@@ -1,2 +1,0 @@
-"%JAVA_HOME%"\bin\javadoc -source 1.6 -classpath "%HOMEPATH%\.m2\repository" -doclet com.tarsec.javadoc.pdfdoclet.PDFDoclet -docletpath pdfdoclet-1.0.2-all.jar -pdf ../../documentation/javadoc/javadoc.pdf -config config.properties -public -sourcepath ../../src/main/java -subpackages tud
-pause
