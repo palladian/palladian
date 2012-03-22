@@ -20,11 +20,53 @@
 			<artifactId>palladian-persistence</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-extraction</artifactId>
-			<version>${project.version}</version>
-		</dependency-->
+		<!-- dependency> <groupId>ws.palladian</groupId> <artifactId>palladian-extraction</artifactId> 
+			<version>${project.version}</version> </dependency -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.catnip</groupId>
+			<artifactId>eddie</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.temesoft</groupId>
+			<artifactId>google-pagerank-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-memory</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge</groupId>
+			<artifactId>jwbf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
 
