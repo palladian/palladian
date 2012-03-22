@@ -12,7 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-helper</artifactId>
+			<artifactId>palladian-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

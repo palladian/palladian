@@ -8,8 +8,8 @@
 	<version>0.1.7-SNAPSHOT</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<modules>
+		<module>palladian-commons</module>
 		<module>palladian-extraction</module>
-		<module>palladian-helper</module>
 		<module>palladian-persistence</module>
 		<module>palladian-retrieval</module>
 	</modules>

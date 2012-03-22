@@ -6,9 +6,9 @@
 		<artifactId>palladian</artifactId>
 		<version>0.1.7-SNAPSHOT</version>
 	</parent>
-	<artifactId>palladian-helper</artifactId>
-	<name>Palladian: Helper</name>
-	<description>Palladian Helpers</description>
+	<artifactId>palladian-commons</artifactId>
+	<name>Palladian: Commons</name>
+	<description>Common functionality shared by Palladian modules</description>
 	<dependencies>
 		<!-- dependency> <groupId>ws.palladian</groupId> <artifactId>palladian-helper</artifactId> 
 			<version>${project.version}</version> </dependency -->
