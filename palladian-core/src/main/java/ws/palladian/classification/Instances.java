@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ws.palladian.classification.numeric.MinMaxNormalization;
-import ws.palladian.classification.numeric.NumericInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
 public class Instances<T> extends ArrayList<T> {
@@ -88,11 +87,11 @@ public class Instances<T> extends ArrayList<T> {
         // find the min and max values
         for (Instance instance : (Instances<Instance>) this) {
 
-            NumericInstance nInstance = (NumericInstance) instance;
+            UniversalInstance nInstance = (UniversalInstance)instance;
 
-            for (int i = 0; i < nInstance.getFeatures().size(); i++) {
+            for (int i = 0; i < nInstance.getNumericFeatures().size(); i++) {
 
-                double featureValue = nInstance.getFeatures().get(i);
+                double featureValue = nInstance.getNumericFeatures().get(i);
 
                 // check min value
                 if (featureMinValueMap.get(i) != null) {
@@ -122,15 +121,15 @@ public class Instances<T> extends ArrayList<T> {
         Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
         for (Instance instance : (Instances<Instance>) this) {
 
-            NumericInstance nInstance = (NumericInstance) instance;
+            UniversalInstance nInstance = (UniversalInstance)instance;
 
-            for (int i = 0; i < nInstance.getFeatures().size(); i++) {
+            for (int i = 0; i < nInstance.getNumericFeatures().size(); i++) {
 
                 double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
-                double featureValue = nInstance.getFeatures().get(i);
+                double featureValue = nInstance.getNumericFeatures().get(i);
                 double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
 
-                nInstance.getFeatures().set(i, normalizedValue);
+                nInstance.getNumericFeatures().set(i, normalizedValue);
 
                 normalizationMap.put(i, max_minus_min);
                 minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));

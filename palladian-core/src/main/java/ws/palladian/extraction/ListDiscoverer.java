@@ -24,9 +24,10 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
+ * <p>
  * The ListDiscoverer tries to find a list (with entities) on a web page. If a "good" list is found the xPath for one or
- * all entries in the list is returned.
- * Features of a "good" list are as follows.
+ * all entries in the list is returned. Features of a "good" list are as follows.
+ * </p>
  * <ul>
  * <li>the list has at least 10 entries</li>
  * <li>it is the only long list on the web page, not just one of many (path lengths distribution)</li>
@@ -34,7 +35,9 @@ import ws.palladian.retrieval.DocumentRetriever;
  * <li>the list is specific for the web page, it should not be a navigation list that can be found on another page of
  * the website</li>
  * </ul>
+ * <p>
  * If no good list is found, an empty string is returned.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -95,7 +98,7 @@ public class ListDiscoverer {
 
             XPathSet paginationPaths = new XPathSet();
             PageAnalyzer pa = new PageAnalyzer();
-            String[] removeCountElements = { "a", "tr", "td", "p", "span", "li" };
+            String[] removeCountElements = {"a", "tr", "td", "p", "span", "li"};
             List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//a");
             if (paginationCandidates == null) {
                 return paginationURLs;
@@ -141,7 +144,7 @@ public class ListDiscoverer {
                         hrefTexts.add(hrefText);
                     }
 
-                    if ((double) samePageLinks / (double) hrefNodes.size() > 0.5) {
+                    if ((double)samePageLinks / (double)hrefNodes.size() > 0.5) {
                         paginationXPath = "";
                         return paginationURLs;
                     }
@@ -297,7 +300,7 @@ public class ListDiscoverer {
             return;
         }
 
-        int mostLikelyLength = (Integer) countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
+        int mostLikelyLength = (Integer)countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
 
         Set<String> filteredUrls = new HashSet<String>();
 
@@ -325,8 +328,8 @@ public class ListDiscoverer {
      * @return A set of xPaths.
      */
     public XPathSet getXPathSet(Document document) {
-        String[] listElements = { "//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i",
-                "//div", "//strong", "//span" };
+        String[] listElements = {"//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i",
+                "//div", "//strong", "//span"};
         PageAnalyzer pa = new PageAnalyzer();
         XPathSet xPathSet = new XPathSet();
 
@@ -342,7 +345,7 @@ public class ListDiscoverer {
                 // String xPath = PageAnalyzer.removeCounts(pa.constructXPath(currentNode));
                 // 1/1 better results
                 // String[] rcElements = {"DIV","TABLE","P","A"};
-                String[] rcElements = { "table" }; // TODO! get more than one table?:
+                String[] rcElements = {"table"}; // TODO! get more than one table?:
                 // http://www.blu-ray.com/movies/movies.php?genre=action AND
                 // http://www.nytimes.com/ref/movies/1000best.html
                 String xPath = PageAnalyzer.removeXPathIndicesNot(pa.constructXPath(currentNode), rcElements);
@@ -505,7 +508,7 @@ public class ListDiscoverer {
 
         // if almost everything is the same, it indicates that it is the same page but with another url (e.g. different
         // sorting etc.)
-        if ((double) samePathContent / (double) xPathSet.getXPathMap().entrySet().size() >= 0.9) {
+        if ((double)samePathContent / (double)xPathSet.getXPathMap().entrySet().size() >= 0.9) {
             Logger.getRootLogger().info("sibling url was probably the same as source url");
             return xPathSet;
         }
@@ -530,8 +533,7 @@ public class ListDiscoverer {
             List<String> columnEntries = new ArrayList<String>();
             List<Node> columnNodes = XPathHelper.getXhtmlNodes(document, setIndex(entityXPath, "td", i));
             List<Node> pureColumnNodes = XPathHelper.getXhtmlNodes(document,
-                    pa.getTableCellPath(setIndex(entityXPath, "td",
-                    i)));
+                    pa.getTableCellPath(setIndex(entityXPath, "td", i)));
             for (int j = 0; j < columnNodes.size(); j++) {
                 columnEntries.add(columnNodes.get(j).getTextContent());
             }
@@ -644,23 +646,22 @@ public class ListDiscoverer {
             }
         }
 
-        if ((double) numericEntries / (double) totalEntries > 0.15) {
+        if ((double)numericEntries / (double)totalEntries > 0.15) {
             LOGGER.info("entries not uniform because too many numeric entries");
             return false;
         }
-        if ((double) completelyCapitalized / (double) totalEntries > 0.5) {
-            LOGGER.info(
-            "entries not uniform because too many entirely capitalized entries");
+        if ((double)completelyCapitalized / (double)totalEntries > 0.5) {
+            LOGGER.info("entries not uniform because too many entirely capitalized entries");
             return false;
         }
-        if ((double) totalWordLength / (double) totalEntries > 12) {
+        if ((double)totalWordLength / (double)totalEntries > 12) {
             LOGGER.info("entries not uniform because average word length too long");
             return false;
         }
-        if (tableDuplicateCheck && (double) duplicateCount / (double) totalEntries > 0.1) {
+        if (tableDuplicateCheck && (double)duplicateCount / (double)totalEntries > 0.1) {
             LOGGER.info("entries not uniform because too many duplicates");
             return false;
-        } else if (!tableDuplicateCheck && (double) duplicateWordCount / (double) duplicateCountSet.size() > 0.6) {
+        } else if (!tableDuplicateCheck && (double)duplicateWordCount / (double)duplicateCountSet.size() > 0.6) {
             LOGGER.info("entries not uniform because too many duplicate words");
             return false;
         }
