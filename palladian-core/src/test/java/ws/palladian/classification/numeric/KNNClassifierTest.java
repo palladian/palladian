@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.Instances;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class KNNClassifierTest {
@@ -17,55 +18,55 @@ public class KNNClassifierTest {
     public void testKNNClassifier() {
 
         // create some instances for the vector space
-        Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
+        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
 
-        NumericInstance trainingInstance = null;
+        UniversalInstance trainingInstance = null;
         List<Double> features = null;
 
         // instance 1
-        trainingInstance = new NumericInstance(trainingInstances);
+        trainingInstance = new UniversalInstance(trainingInstances);
         features = new ArrayList<Double>();
         features.add(3d);
         features.add(4d);
         features.add(5d);
-        trainingInstance.setFeatures(features);
+        trainingInstance.setNumericFeatures(features);
         trainingInstance.setClassNominal(true);
         trainingInstance.setInstanceCategory("A");
         trainingInstances.add(trainingInstance);
 
         // instance 2
-        trainingInstance = new NumericInstance(trainingInstances);
+        trainingInstance = new UniversalInstance(trainingInstances);
         features = new ArrayList<Double>();
         features.add(3d);
         features.add(6d);
         features.add(6d);
-        trainingInstance.setFeatures(features);
+        trainingInstance.setNumericFeatures(features);
         trainingInstance.setClassNominal(true);
         trainingInstance.setInstanceCategory("A");
         trainingInstances.add(trainingInstance);
 
         // instance 3
-        trainingInstance = new NumericInstance(trainingInstances);
+        trainingInstance = new UniversalInstance(trainingInstances);
         features = new ArrayList<Double>();
         features.add(4d);
         features.add(4d);
         features.add(4d);
-        trainingInstance.setFeatures(features);
+        trainingInstance.setNumericFeatures(features);
         trainingInstance.setClassNominal(true);
         trainingInstance.setInstanceCategory("B");
         trainingInstances.add(trainingInstance);
 
         // create the KNN classifier and add the training instances
-        KNNClassifier knn = new KNNClassifier();
+        KnnClassifier knn = new KnnClassifier();
         knn.setTrainingInstances(trainingInstances);
 
         // create an instance to classify
-        NumericInstance newInstance = new NumericInstance(null);
+        UniversalInstance newInstance = new UniversalInstance(null);
         features = new ArrayList<Double>();
         features.add(1d);
         features.add(2d);
         features.add(3d);
-        newInstance.setFeatures(features);
+        newInstance.setNumericFeatures(features);
 
         // classify
         knn.classify(newInstance);
@@ -78,13 +79,13 @@ public class KNNClassifierTest {
     public void testKNNClassifierLoadFromFile() throws FileNotFoundException {
 
         // create the KNN classifier and add the training instances
-        KNNClassifier knn = new KNNClassifier();
+        KnnClassifier knn = new KnnClassifier();
         knn.trainFromCSV(ResourceHelper.getResourcePath("/classifier/wineData.txt"));
 
         // create an instance to classify
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 => this is an actual instance from the
         // training data and should therefore also be classified as "1"
-        NumericInstance newInstance = new NumericInstance(null);
+        UniversalInstance newInstance = new UniversalInstance(null);
         List<Double> features = new ArrayList<Double>();
         features.add(13.82);
         features.add(1.75);
@@ -99,7 +100,7 @@ public class KNNClassifierTest {
         features.add(1.01);
         features.add(3.26);
         features.add(1190d);
-        newInstance.setFeatures(features);
+        newInstance.setNumericFeatures(features);
 
         // classify
         knn.classify(newInstance);
@@ -112,19 +113,19 @@ public class KNNClassifierTest {
     public void testKNNClassifierLoadFromFileNormalize() throws FileNotFoundException {
 
         // create the KNN classifier and add the training instances
-        KNNClassifier knn = new KNNClassifier();
+        KnnClassifier knn = new KnnClassifier();
         knn.trainFromCSV(ResourceHelper.getResourcePath("/classifier/wineData.txt"));
         knn.getTrainingInstances().normalize();
 
         knn.setName("testKNN");
         knn.save("data/temp/");
 
-        KNNClassifier loadedKnn = KNNClassifier.load("data/temp/testKNN.gz");
+        KnnClassifier loadedKnn = KnnClassifier.load("data/temp/testKNN.gz");
 
         // create an instance to classify
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 => this is an actual instance from the
         // training data and should therefore also be classified as "1"
-        NumericInstance newInstance = new NumericInstance(null);
+        UniversalInstance newInstance = new UniversalInstance(null);
         List<Double> features = new ArrayList<Double>();
         features.add(13.82);
         features.add(1.75);
@@ -139,7 +140,7 @@ public class KNNClassifierTest {
         features.add(1.01);
         features.add(3.26);
         features.add(1190d);
-        newInstance.setFeatures(features);
+        newInstance.setNumericFeatures(features);
 
         // classify
         loadedKnn.classify(newInstance);
