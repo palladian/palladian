@@ -34,6 +34,7 @@ import ws.palladian.iirmodel.ItemStream;
 import ws.palladian.iirmodel.RelationType;
 import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
+import ws.palladian.iirmodel.UndirectedItemRelation;
 
 /**
  * @author Klemens Muthmann
@@ -301,7 +302,7 @@ public class PersistenceLayerTest {
         // persistenceLayer.saveItem(testItem2);
 
         // persistenceLayer.createItemRelation(testItem1, testItem2, relationType, "duplicates");
-        ItemRelation itemRelation = new ItemRelation(testItem1, testItem2, relationType, "duplicates");
+        ItemRelation itemRelation = new UndirectedItemRelation(testItem1, testItem2, relationType, "duplicates");
         persistenceLayer.saveItemRelation(itemRelation);
 
     }

@@ -6,6 +6,7 @@ package ws.palladian.iirmodel;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -52,6 +53,7 @@ public final class Label {
      * An optional comment explaining why the {@code Label} was created.
      * </p>
      */
+    @Lob
     private final String comment;
 
     /**

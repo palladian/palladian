@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 /**
  * <p>
- * A type for relations defining an {@link ItemRelation}s semantical meaning.
+ * A type for relations defining an {@link ItemRelation}'s semantical meaning.
  * </p>
  * 
  * @author Klemens Muthmann
