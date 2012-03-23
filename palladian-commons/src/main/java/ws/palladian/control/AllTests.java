@@ -5,6 +5,7 @@ package ws.palladian.control;
  * 
  * @author David Urbansky
  */
+@Deprecated
 public class AllTests {
 
     // if true, also tests that require network access (online) are run

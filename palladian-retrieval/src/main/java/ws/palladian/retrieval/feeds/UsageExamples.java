@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds;
 
 import java.util.List;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
@@ -37,7 +38,7 @@ public class UsageExamples {
         CollectionHelper.print(feedItems);
 
         // initialize the FeedDatabase for storing the data
-        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
 
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);

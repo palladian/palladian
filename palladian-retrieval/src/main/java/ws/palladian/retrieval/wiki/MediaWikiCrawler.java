@@ -171,8 +171,8 @@ public class MediaWikiCrawler implements Runnable {
      * @param wikiName The name of the Wiki this crawler processes.
      * @param pageQueue Synchronized FIFO queue to put new pages. Multiple consumers can process these pages.
      */
-    public MediaWikiCrawler(final String wikiName, LinkedBlockingQueue<WikiPage> pageQueue) {
-        this.mwDatabase = DatabaseManagerFactory.create(MediaWikiDatabase.class);
+    public MediaWikiCrawler(final String wikiName, LinkedBlockingQueue<WikiPage> pageQueue, MediaWikiDatabase mwDatabase) {
+        this.mwDatabase = mwDatabase;
         if (!mwDatabase.wikiExists(wikiName)) {
             throw new IllegalArgumentException("Wiki name \"" + wikiName
                     + "\" is unknown in data base! Can not create MediaWikiCrawler!");

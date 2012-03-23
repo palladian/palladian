@@ -22,6 +22,7 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManager;
@@ -273,7 +274,7 @@ public class WekaClassifierWrapper {
 
     public List<FeatureObject> readFeatureObjects(int conceptID, PreparedStatement featureQuery) {
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         RowConverter<FeatureObject> converter = new RowConverter<FeatureObject>() {
 

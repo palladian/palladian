@@ -9,9 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-
-import ws.palladian.helper.ConfigHolder;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * <p>
@@ -38,33 +36,33 @@ public final class DatabaseManagerFactory {
 
     /**
      * <p>
-     * Create a DatabaseManager with the configuration obtained from the Palladian configuration file. See
-     * {@link ConfigHolder} for a documentation about the location of this configuration file. The configuration file
-     * must supply the following fields:
-     * </p>
-     * <ul>
-     * <li>db.driver</li>
-     * <li>db.jdbcUrl</li>
-     * <li>db.username</li>
-     * <li>db.password</li>
-     * </ul>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
-     * @param managerClass The fully qualified name of the DatabaseManager class.
-     * @return A configured DatabaseManager with access to a connection pool
-     * @deprecated Use one of the create methods which explicitly requires to supply a configuration.
-     */
-    @Deprecated
-    public static <D extends DatabaseManager> D create(Class<D> managerClass) {
-        // The configuration file can be found under
-        // config/palladian.properties.
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        return create(managerClass, config);
-    }
+//     * Create a DatabaseManager with the configuration obtained from the Palladian configuration file. See
+//     * {@link ConfigHolder} for a documentation about the location of this configuration file. The configuration file
+//     * must supply the following fields:
+//     * </p>
+//     * <ul>
+//     * <li>db.driver</li>
+//     * <li>db.jdbcUrl</li>
+//     * <li>db.username</li>
+//     * <li>db.password</li>
+//     * </ul>
+//     * 
+//     * @param <D> Type of the DataManager (sub)class to create.
+//     * @param managerClass The fully qualified name of the DatabaseManager class.
+//     * @return A configured DatabaseManager with access to a connection pool
+//     * @deprecated Use one of the create methods which explicitly requires to supply a configuration.
+//     */
+//    @Deprecated
+//    public static <D extends DatabaseManager> D create(Class<D> managerClass) {
+//        // The configuration file can be found under
+//        // config/palladian.properties.
+//        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+//        return create(managerClass, config);
+//    }
 
     /**
      * <p>
-     * Create a DatabaseManager with configurations from a {@link PropertiesConfiguration}. The PropertiesConfiguration
+     * Create a DatabaseManager with configurations from a {@link Configuration}. The Configuration
      * must at least provide the following fields:
      * </p>
      * <ul>
@@ -79,7 +77,7 @@ public final class DatabaseManagerFactory {
      * @param config The PropertiesConfiguration containing the four required fields.
      * @return A configured DatabaseManager with access to a connection pool
      */
-    public static <D extends DatabaseManager> D create(Class<D> managerClass, PropertiesConfiguration config) {
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, Configuration config) {
 
         String driver = config.getString("db.driver");
         String jdbcUrl = config.getString("db.jdbcUrl");

@@ -4,6 +4,7 @@ import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -41,7 +42,7 @@ public class FeedSizeCalculator {
     @SuppressWarnings("deprecation")
     public void restoreFeedSizes() {
 
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         FeedReader feedChecker = new FeedReader(feedStore);
         FeedSizeCalculationScheduler csvToDbScheduler = new FeedSizeCalculationScheduler(feedChecker);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);

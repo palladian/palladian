@@ -42,8 +42,8 @@ public class RevisionThread implements Runnable {
      * @param mwDescriptor The Wiki the PAGE is in.
      * @param page The page to crawl revisions for.
      */
-    public RevisionThread(MediaWikiBot bot, final WikiDescriptor mwDescriptor, final WikiPage page) {
-        this.mwDatabase = DatabaseManagerFactory.create(MediaWikiDatabase.class);
+    public RevisionThread(MediaWikiBot bot, WikiDescriptor mwDescriptor, WikiPage page, MediaWikiDatabase mwDatabase) {
+        this.mwDatabase = mwDatabase;
         this.mwDescriptor = mwDescriptor;
         this.bot = bot;
         this.page = page;
