@@ -13,6 +13,7 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.MediaWikiCrawler;
 import ws.palladian.retrieval.wiki.data.MWCrawlerConfiguration;
@@ -37,7 +38,7 @@ public final class MWConfigLoader {
     protected static MWConfigLoader instance = null;
 
     /** The {@link MediaWikiDatabase} which acts as persistence layer. */
-    protected final MediaWikiDatabase mwDatabase = DatabaseManagerFactory.create(MediaWikiDatabase.class);
+    protected final MediaWikiDatabase mwDatabase = DatabaseManagerFactory.create(MediaWikiDatabase.class, ConfigHolder.getInstance().getConfig());
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -168,7 +169,7 @@ public final class MWConfigLoader {
      */
     private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
         for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
-            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
+            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue, mwDatabase), "WikID-"
                     + wikis.getWikiID());
             mwCrawler.start();
         }

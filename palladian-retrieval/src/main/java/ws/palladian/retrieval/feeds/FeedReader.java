@@ -508,12 +508,12 @@ public final class FeedReader {
         feedReader.startContinuousReading();
         System.exit(0);
 
-        FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
         r.setThreadPoolSize(1);
         r.aggregate(1000 * 60 * 5);
         System.exit(0);
 
-        FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
         fchecker.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
         fchecker.startContinuousReading();
         System.exit(0);
@@ -579,7 +579,7 @@ public final class FeedReader {
             updateStrategy = new PostRateUpdateStrategy();
         }
 
-        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class));
+        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override

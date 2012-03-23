@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
@@ -63,7 +64,8 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
             // in benchmark mode we keep it in memory
             if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class);
+                // TODO database should be injected.
+                FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
                 postDistribution = fd.getFeedPostDistribution(feed);
             }
 
@@ -110,7 +112,8 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
         // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
         if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-            FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class);
+            // TODO database should be injected.
+            FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
             fd.updateFeedPostDistribution(feed, postDistribution);
         }
 

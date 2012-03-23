@@ -4,6 +4,7 @@ import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -40,7 +41,7 @@ public class SessionIdFixer {
 
     public void removeFalseMisses() {
 
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class);
+        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         FeedReader feedChecker = new FeedReader(feedStore);
 
         SessionIdFixProcessingAction fpa = new SessionIdFixProcessingAction(feedStore);

@@ -10,11 +10,11 @@
 	<name>Palladian: Persistence</name>
 	<description>Palladian Persistence Functionality</description>
 	<dependencies>
-		<dependency>
+		<!-- dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-commons</artifactId>
 			<version>${project.version}</version>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>
@@ -33,6 +33,18 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 </project>
