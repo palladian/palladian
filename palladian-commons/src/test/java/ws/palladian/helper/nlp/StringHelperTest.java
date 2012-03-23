@@ -23,13 +23,13 @@ public class StringHelperTest {
 
     @Test
     public void testContainsWord() {
-        
+
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
         assertEquals(true, StringHelper.containsWord("test", "test"));
         assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
         assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
         assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
-        
+
     }
 
     @Test
@@ -37,7 +37,8 @@ public class StringHelperTest {
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
         assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
-        assertEquals("abcödef ghjiåjkl <mno å ???", StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
+        assertEquals("abcödef ghjiåjkl <mno å ???",
+                StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
         assertEquals("here starts the <clean> \"text\" stop",
                 StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
 
@@ -74,9 +75,9 @@ public class StringHelperTest {
     public void testGetOccurrenceIndices() {
         List<Integer> list = StringHelper.getOccurrenceIndices("This is a test.", " ");
         assertEquals(3, list.size());
-        assertEquals(4, (int) list.get(0));
-        assertEquals(7, (int) list.get(1));
-        assertEquals(9, (int) list.get(2));
+        assertEquals(4, (int)list.get(0));
+        assertEquals(7, (int)list.get(1));
+        assertEquals(9, (int)list.get(2));
     }
 
     @Test
@@ -97,11 +98,10 @@ public class StringHelperTest {
     public void testRename() throws FileNotFoundException {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.getRenamedFilename(
-                new File(ResourceHelper.getResourcePath("/sampleTextForTagging.txt")),
-                "sampleTextForTagging_tagged");
+        String renamedFile = FileHelper.getRenamedFilename(new File(ResourceHelper.getResourcePath("/empty.txt")),
+                "empty_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
-        assertEquals("sampleTextForTagging_tagged.txt", renamedFile);
+        assertEquals("empty_tagged.txt", renamedFile);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class StringHelperTest {
         assertEquals("27 30 N, 90 30 E", StringHelper.trim("; ,.  27 30 N, 90 30 E -"));
         assertEquals("27 30 N, 90 30 E", StringHelper.trim(",.  27 30 N, 90 30 E  ##"));
         assertEquals("2", StringHelper.trim("' 2''"));
-        //assertEquals("' 2\"", StringHelper.trim("' 2\""));
+        // assertEquals("' 2\"", StringHelper.trim("' 2\""));
         assertEquals("abc", StringHelper.trim("\"abc\""));
         assertEquals("abc\"def", StringHelper.trim("\"abc\"def\""));
         assertEquals("abc", StringHelper.trim("\"abc"));
@@ -229,7 +229,5 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getFirstWords("", 10));
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
-
-
 
 }
