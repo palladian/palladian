@@ -32,7 +32,7 @@ public final class KnnClassifier extends NumericClassifier {
     private int k = 3;
 
     /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
-    // private Instances<NumericInstance> serializableTrainingInstances;
+    private Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
 
 
     /**
@@ -40,6 +40,17 @@ public final class KnnClassifier extends NumericClassifier {
      */
     public KnnClassifier() {
         setName("k-NN");
+    }
+
+    @Override
+    public void setTrainingInstances(Instances<UniversalInstance> trainingInstances) {
+        this.trainingInstances = trainingInstances;
+        getPossibleCategories(trainingInstances);
+    }
+
+    @Override
+    public Instances<UniversalInstance> getTrainingInstances() {
+        return trainingInstances;
     }
 
     @Override
