@@ -6,9 +6,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.numeric.KNNClassifier;
+import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.NumericClassifier;
-import ws.palladian.classification.numeric.NumericInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.ProgressHelper;
@@ -55,7 +54,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // nominalClassifier = BayesClassifier.load("data/temp/nominalClassifier.gz");
 
         textClassifier = new DictionaryClassifier();
-        numericClassifier = new KNNClassifier();
+        numericClassifier = new KnnClassifier();
         nominalClassifier = new NaiveBayesClassifier();
 
         weights[0] = 1.0;
@@ -125,10 +124,10 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         }
 
         // classify numeric features with the KNN
-        NumericInstance numericInstance = null;
+        UniversalInstance numericInstance = null;
         if (isUseNumericClassifier()) {
-            numericInstance = new NumericInstance(null);
-            numericInstance.setFeatures(numericFeatures);
+            numericInstance = new UniversalInstance(null);
+            numericInstance.setNumericFeatures(numericFeatures);
             numericClassifier.classify(numericInstance);
         }
 

@@ -10,6 +10,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instances;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -20,12 +21,9 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @author David Urbansky
  */
-public final class KNNClassifier extends NumericClassifier {
+public final class KnnClassifier extends NumericClassifier {
 
     private static final long serialVersionUID = 1064061946261174688L;
-
-    /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
-    private Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
 
     /**
      * Number of nearest neighbors that are allowed to vote. If neighbors have the same distance they will all be
@@ -40,23 +38,23 @@ public final class KNNClassifier extends NumericClassifier {
     /**
      * The constructor.
      */
-    public KNNClassifier() {
+    public KnnClassifier() {
         setName("k-NN");
     }
 
     @Override
-    public void classify(Instances<NumericInstance> instances) {
-        for (NumericInstance instance : instances) {
+    public void classify(Instances<UniversalInstance> instances) {
+        for (UniversalInstance instance : instances) {
             classify(instance);
         }
     }
 
-    @Override
     /**
      * Classify a given instance.
      * @param instance The instance to be classified.
      */
-    public void classify(NumericInstance instance) {
+    @Override
+    public void classify(UniversalInstance instance) {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -81,8 +79,8 @@ public final class KNNClassifier extends NumericClassifier {
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        Map<NumericInstance, Double> neighbors = new HashMap<NumericInstance, Double>();
-        for (NumericInstance knownInstance : getTrainingInstances()) {
+        Map<UniversalInstance, Double> neighbors = new HashMap<UniversalInstance, Double>();
+        for (UniversalInstance knownInstance : getTrainingInstances()) {
             double distance = getDistanceBetween(instance, knownInstance);
             neighbors.put(knownInstance, distance);
         }
@@ -90,7 +88,7 @@ public final class KNNClassifier extends NumericClassifier {
         // CollectionHelper.print(neighbors, 10);
 
         // sort near neighbor map by distance
-        Map<NumericInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
+        Map<UniversalInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
 
         // CollectionHelper.print(sortedList, 10);
 
@@ -101,13 +99,13 @@ public final class KNNClassifier extends NumericClassifier {
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
-        for (Entry<NumericInstance, Double> entry : sortedList.entrySet()) {
+        for (Entry<UniversalInstance, Double> entry : sortedList.entrySet()) {
 
             if (ck >= k && entry.getValue() != lastDistance) {
                 break;
             }
 
-            NumericInstance votingDocument = entry.getKey();
+            UniversalInstance votingDocument = entry.getKey();
 
             Category realCategory = votingDocument.getInstanceCategory();
 
@@ -171,16 +169,16 @@ public final class KNNClassifier extends NumericClassifier {
      * @param knownInstance The instance in the vector space with known categories.
      * @return distance The Euclidean distance between the two instances in the vector space.
      */
-    private Double getDistanceBetween(NumericInstance instance, NumericInstance knownInstance) {
+    private Double getDistanceBetween(UniversalInstance instance, UniversalInstance knownInstance) {
 
         double distance = Double.MAX_VALUE;
 
         double squaredSum = 0;
 
-        List<Double> instanceFeatures = instance.getFeatures();
-        List<Double> knownInstanceFeatures = knownInstance.getFeatures();
+        List<Double> instanceFeatures = instance.getNumericFeatures();
+        List<Double> knownInstanceFeatures = knownInstance.getNumericFeatures();
 
-        for (int i = 0; i < instance.getFeatures().size(); i++) {
+        for (int i = 0; i < instanceFeatures.size(); i++) {
             squaredSum += Math.pow(instanceFeatures.get(i) - knownInstanceFeatures.get(i), 2);
         }
 
@@ -200,10 +198,10 @@ public final class KNNClassifier extends NumericClassifier {
         FileHelper.serialize(this, path + getName() + ".gz");
     }
 
-    public static KNNClassifier load(String classifierPath) {
+    public static KnnClassifier load(String classifierPath) {
         LOGGER.info("deserialzing classifier from " + classifierPath);
 
-        KNNClassifier classifier = (KNNClassifier) FileHelper.deserialize(classifierPath);
+        KnnClassifier classifier = (KnnClassifier) FileHelper.deserialize(classifierPath);
 
         // we attach the serialized training instances
         // classifier.setTrainingInstances(classifier.serializableTrainingInstances);
@@ -218,17 +216,6 @@ public final class KNNClassifier extends NumericClassifier {
 
     public void setK(int k) {
         this.k = k;
-    }
-
-    @Override
-    public Instances<NumericInstance> getTrainingInstances() {
-        return trainingInstances;
-    }
-
-    @Override
-    public void setTrainingInstances(Instances<NumericInstance> trainingInstances) {
-        this.trainingInstances = trainingInstances;
-        getPossibleCategories(trainingInstances);
     }
 
 }

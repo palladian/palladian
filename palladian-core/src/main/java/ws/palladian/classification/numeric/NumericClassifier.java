@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instances;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -15,7 +16,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * @param <T>
  */
-public abstract class NumericClassifier extends Classifier<NumericInstance> {
+public abstract class NumericClassifier extends Classifier<UniversalInstance> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -8370153238631532469L;
@@ -66,24 +67,24 @@ public abstract class NumericClassifier extends Classifier<NumericInstance> {
      * feature1;..;featureN;NominalClass<br>
      * All features must be real values and the class must be nominal. Each line is one training instance.
      */
-    private Instances<NumericInstance> createInstances(String filePath) {
+    private Instances<UniversalInstance> createInstances(String filePath) {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
 
-        Instances<NumericInstance> instances = new Instances<NumericInstance>();
-        NumericInstance instance = null;
+        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        UniversalInstance instance = null;
         List<Double> features = null;
 
         for (String trainingLine : trainingLines) {
             String[] parts = trainingLine.split(";");
 
-            instance = new NumericInstance(instances);
+            instance = new UniversalInstance(instances);
             features = new ArrayList<Double>();
 
             for (int f = 0; f < parts.length - 1; f++) {
                 features.add(Double.valueOf(parts[f]));
             }
 
-            instance.setFeatures(features);
+            instance.setNumericFeatures(features);
             instance.setClassNominal(true);
             // instance.setInstanceClass(parts[parts.length - 1]);
             instance.setInstanceCategory(parts[parts.length - 1]);
@@ -102,9 +103,11 @@ public abstract class NumericClassifier extends Classifier<NumericInstance> {
         classify(createInstances(instancesFilePath));
     }
 
-    public abstract void classify(NumericInstance instance);
+    public abstract void classify(UniversalInstance instance);
 
-    public abstract void classify(Instances<NumericInstance> instances);
+    public abstract void classify(Instances<UniversalInstance> instances);
+
+    @Override
     public abstract void save(String path);
 
 }
