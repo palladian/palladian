@@ -108,4 +108,19 @@ public final class Label {
     public final Integer getIdentifier() {
         return identifier;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Label [identifier=");
+        builder.append(identifier);
+        builder.append(", labeledItem=");
+        builder.append(labeledItem);
+        builder.append(", type=");
+        builder.append(type);
+        builder.append(", comment=");
+        builder.append(comment);
+        builder.append("]");
+        return builder.toString();
+    }
 }
