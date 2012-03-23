@@ -2,16 +2,11 @@ package ws.palladian.helper.html;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
-import org.w3c.dom.Document;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -48,7 +43,7 @@ public class HtmlHelperTest {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HtmlHelper.stripHtmlTags(htmlContent, true, true, true, true).trim());
 
-        String content = FileHelper.readFileToString(ResourceHelper.getResourceFile("/webPages/removeHTMLContentTest1.html"));
+        String content = FileHelper.readFileToString(ResourceHelper.getResourceFile("removeHtmlTest.html"));
         String result = HtmlHelper.stripHtmlTags(content, true, true, true, false);
         
         assertEquals("65efc6cba6ae65e3e53e15c07e491fc4", DigestUtils.md5Hex(result));
