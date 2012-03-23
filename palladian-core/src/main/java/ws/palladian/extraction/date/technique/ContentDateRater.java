@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 import weka.classifiers.Classifier;
@@ -43,7 +43,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     private void loadClassifier() {
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
 
         String classifierFile;
         String modelsRoot = config.getString("models.root");
@@ -59,6 +59,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             classifierFile = modelsRoot + modelModified;
         }
         
+        // FIXME there are two different models, but they are cached as one item whith one identifier? 
         try {
             this.classifier = (Classifier)Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
             if (this.classifier == null) {
