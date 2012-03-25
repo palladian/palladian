@@ -42,6 +42,21 @@ public final class UndirectedItemRelation extends ItemRelation {
         super(firstEntry, secondEntry, type, comment);
     }
 
+    /**
+     * <p>
+     * Creates a completely initialized {@link UndirectedItemRelation}.
+     * </p>
+     * 
+     * @param firstEntry One {@link Item} in the relation.
+     * @param secondEntry One {@link Item} in the relation.
+     * @param type The type of the relation between {@code firstItem} and {@code secondItem}.
+     * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
+     * @param confidence An optional confidence value for the relation, may be <code>null</code>.
+     */
+    public UndirectedItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment, Double confidence) {
+        super(firstEntry, secondEntry, type, comment, confidence);
+    }
+
     /*
      * ATTENTION: custom implementation, do not overwrite/generate!
      */
@@ -65,7 +80,7 @@ public final class UndirectedItemRelation extends ItemRelation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ItemRelation other = (ItemRelation) obj;
+        ItemRelation other = (ItemRelation)obj;
         if (getFirstItem() == null) {
             if (other.getFirstItem() != null && other.getSecondItem() != null) {
                 return false;

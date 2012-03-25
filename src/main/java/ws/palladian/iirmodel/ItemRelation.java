@@ -71,6 +71,13 @@ public abstract class ItemRelation implements Serializable {
 
     /**
      * <p>
+     * An optional confidence value for the relation.
+     * </p>
+     */
+    private Double confidence;
+
+    /**
+     * <p>
      * Protected default constructor. This should only be used by the JPA persistence layer and never invoked directly.
      * </p>
      */
@@ -89,11 +96,27 @@ public abstract class ItemRelation implements Serializable {
      * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
      */
     public ItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment) {
+        this(firstEntry, secondEntry, type, comment, null);
+    }
+
+    /**
+     * <p>
+     * Creates a completely initialized {@code ItemRelation}.
+     * </p>
+     * 
+     * @param firstEntry One {@link Item} in the relation.
+     * @param secondEntry One {@link Item} in the relation.
+     * @param type The type of the relation between {@code firstItem} and {@code secondItem}.
+     * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
+     * @param confidence An optional confidence value for the relation, may be <code>null</code>.
+     */
+    public ItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment, Double confidence) {
         this();
         this.firstItem = firstEntry;
         this.secondItem = secondEntry;
         this.type = type;
         this.comment = comment;
+        this.confidence = confidence;
     }
 
     /**
@@ -168,6 +191,22 @@ public abstract class ItemRelation implements Serializable {
      */
     public void setType(RelationType type) {
         this.type = type;
+    }
+
+    /**
+     * @return The confidence value for the relation between the two items, or <code>null</code> if no confidence
+     *         specified.
+     */
+    public Double getConfidence() {
+        return confidence;
+    }
+
+    /**
+     * @param confidence The confidence value for the relation between the two items, or <code>null</code> if no
+     *            confidence specified.
+     */
+    public void setConfidence(Double confidence) {
+        this.confidence = confidence;
     }
 
     /**

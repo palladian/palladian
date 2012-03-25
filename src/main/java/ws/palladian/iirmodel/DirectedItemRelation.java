@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 
 /**
  * <p>
- * A directem {@link ItemRelation}, i.e. relation(Item1, Item2) is not equal to relation(Item2, Item1). In other words,
+ * A directed {@link ItemRelation}, i.e. relation(Item1, Item2) is not equal to relation(Item2, Item1). In other words,
  * this relation is an <b>ordered</b> pair of {@link Item}s, see {@link #equals(Object)} and {@link #hashCode()} for
  * implementation specific details.
  * </p>
@@ -40,6 +40,21 @@ public final class DirectedItemRelation extends ItemRelation {
      */
     public DirectedItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment) {
         super(firstEntry, secondEntry, type, comment);
+    }
+    
+    /**
+     * <p>
+     * Creates a completely initialized {@link DirectedItemRelation}.
+     * </p>
+     * 
+     * @param firstEntry One {@link Item} in the relation.
+     * @param secondEntry One {@link Item} in the relation.
+     * @param type The type of the relation between {@code firstItem} and {@code secondItem}.
+     * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
+     * @param confidence An optional confidence value for the relation, may be <code>null</code>.
+     */
+    public DirectedItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment, Double confidence) {
+        super(firstEntry, secondEntry, type, comment, confidence);
     }
 
     /*
