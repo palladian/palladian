@@ -1530,7 +1530,9 @@ public class Feed {
      * Set enum from String.
      * 
      * @param lastFeedTaskResult the recentFeedTaskResult to set
+     * @deprecated Use {@link #setLastFeedTaskResult(FeedTaskResult)}
      */
+    @Deprecated
     public final void setLastFeedTaskResult(String lastFeedTaskResult) {
         this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
     }

@@ -2,6 +2,12 @@ package ws.palladian.helper.collection;
 
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author Sandro Reichert
+ * @deprecated This task is so trivial, that no helper class is required.
+ */
+@Deprecated
 public class EnumHelper {
 
     /** The logger for this class. */
