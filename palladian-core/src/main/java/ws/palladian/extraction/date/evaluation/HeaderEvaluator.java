@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.HeadDateGetter;
 import ws.palladian.extraction.date.technique.HeadDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;

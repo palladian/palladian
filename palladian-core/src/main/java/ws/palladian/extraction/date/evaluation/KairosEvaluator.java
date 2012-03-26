@@ -8,7 +8,6 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.ContentDateGetter;
 import ws.palladian.extraction.date.technique.ContentDateRater;
 import ws.palladian.extraction.date.technique.MetaDateGetter;

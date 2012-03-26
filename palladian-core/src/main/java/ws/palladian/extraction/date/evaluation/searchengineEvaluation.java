@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 

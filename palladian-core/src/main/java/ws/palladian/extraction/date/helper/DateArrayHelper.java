@@ -9,12 +9,9 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
-import ws.palladian.helper.date.dates.StructureDate;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
@@ -96,71 +93,71 @@ public class DateArrayHelper {
         return temp;
     }
 
-    /**
-     * Filters an array-list.<br>
-     * For filters use this static fields.
-     * 
-     * @param <T>
-     * @param dates
-     * @param filter
-     * @return
-     */
-    public static <T> Map<T, Double> filter(Map<T, Double> dates, int filter) {
-        HashMap<T, Double> temp = new HashMap<T, Double>();
-        T date;
-        Double rate;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            date = e.getKey();
-            rate = e.getValue();
-            switch (filter) {
-                case FILTER_IS_IN_RANGE:
-                    if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
-                        temp.put(date, rate);
-                    }
-                    break;
-            }
+//    /**
+//     * Filters an array-list.<br>
+//     * For filters use this static fields.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param filter
+//     * @return
+//     */
+//    public static <T> Map<T, Double> filter(Map<T, Double> dates, int filter) {
+//        HashMap<T, Double> temp = new HashMap<T, Double>();
+//        T date;
+//        Double rate;
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            date = e.getKey();
+//            rate = e.getValue();
+//            switch (filter) {
+//                case FILTER_IS_IN_RANGE:
+//                    if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
+//                        temp.put(date, rate);
+//                    }
+//                    break;
+//            }
+//
+//        }
+//        return temp;
+//
+//    }
 
-        }
-        return temp;
+//    /**
+//     * Filters an array-list.<br>
+//     * For filters use this static fields.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param filter
+//     * @return
+//     */
+//    public static <T> Map<T, Double> filter(Map<T, Double> dates, DateType filter) {
+//        HashMap<T, Double> temp = new HashMap<T, Double>();
+//        T date;
+//        Double rate;
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            date = e.getKey();
+//            rate = e.getValue();
+//            if (((ExtractedDate) date).getType().equals(filter)) {
+//                temp.put(date, rate);
+//            }
+//        }
+//        return temp;
+//
+//    }
 
-    }
-
-    /**
-     * Filters an array-list.<br>
-     * For filters use this static fields.
-     * 
-     * @param <T>
-     * @param dates
-     * @param filter
-     * @return
-     */
-    public static <T> Map<T, Double> filter(Map<T, Double> dates, DateType filter) {
-        HashMap<T, Double> temp = new HashMap<T, Double>();
-        T date;
-        Double rate;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            date = e.getKey();
-            rate = e.getValue();
-            if (((ExtractedDate) date).getType().equals(filter)) {
-                temp.put(date, rate);
-            }
-        }
-        return temp;
-
-    }
-
-    public static <T> List<T> filterFormat(List<T> dates, String format) {
-        ArrayList<T> temp = new ArrayList<T>();
-        T date;
-        Iterator<T> iterator = dates.iterator();
-        while (iterator.hasNext()) {
-            date = iterator.next();
-            if (((ExtractedDate) date).getFormat().equalsIgnoreCase(format)) {
-                temp.add(date);
-            }
-        }
-        return temp;
-    }
+//    public static <T> List<T> filterFormat(List<T> dates, String format) {
+//        ArrayList<T> temp = new ArrayList<T>();
+//        T date;
+//        Iterator<T> iterator = dates.iterator();
+//        while (iterator.hasNext()) {
+//            date = iterator.next();
+//            if (((ExtractedDate) date).getFormat().equalsIgnoreCase(format)) {
+//                temp.add(date);
+//            }
+//        }
+//        return temp;
+//    }
 
     /**
      * Group equal dates in array lists. <br>
@@ -214,79 +211,79 @@ public class DateArrayHelper {
         return arrangeByDate(dates, DateComparator.STOP_DAY);
     }
 
-    /**
-     * Orders a map by dates.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates) {
-        return arrangeMapByDate(dates, DateComparator.STOP_DAY);
-    }
+//    /**
+//     * Orders a map by dates.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates) {
+//        return arrangeMapByDate(dates, DateComparator.STOP_DAY);
+//    }
 
-    /**
-     * Orders a map by dates.
-     * 
-     * @param <T>
-     * @param dates
-     * @param stopFlag
-     *            At what exactness a comparison should stop. Use {@link DateComparator} static fields.
-     * @return
-     */
-    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates, int stopFlag) {
-        ArrayList<Map<T, Double>> result = new ArrayList<Map<T, Double>>();
-        DateComparator dc = new DateComparator();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            boolean sameDatestamp = false;
-            T date = e.getKey();
-            for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
-                T firstDate = null;
-                for (Entry<T, Double> temp : result.get(resultIndex).entrySet()) {
-                    firstDate = temp.getKey();
-                    break;
-                }
-                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date, stopFlag);
-                if (compare == 0) {
-                    result.get(resultIndex).put(date, e.getValue());
-                    sameDatestamp = true;
-                    break;
-                }
-            }
-            if (!sameDatestamp) {
-                HashMap<T, Double> newDate = new HashMap<T, Double>();
-                newDate.put(date, e.getValue());
-                result.add(newDate);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Orders a map by dates.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param stopFlag
+//     *            At what exactness a comparison should stop. Use {@link DateComparator} static fields.
+//     * @return
+//     */
+//    public static <T> List<Map<T, Double>> arrangeMapByDate(Map<T, Double> dates, int stopFlag) {
+//        ArrayList<Map<T, Double>> result = new ArrayList<Map<T, Double>>();
+//        DateComparator dc = new DateComparator();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            boolean sameDatestamp = false;
+//            T date = e.getKey();
+//            for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
+//                T firstDate = null;
+//                for (Entry<T, Double> temp : result.get(resultIndex).entrySet()) {
+//                    firstDate = temp.getKey();
+//                    break;
+//                }
+//                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date, stopFlag);
+//                if (compare == 0) {
+//                    result.get(resultIndex).put(date, e.getValue());
+//                    sameDatestamp = true;
+//                    break;
+//                }
+//            }
+//            if (!sameDatestamp) {
+//                HashMap<T, Double> newDate = new HashMap<T, Double>();
+//                newDate.put(date, e.getValue());
+//                result.add(newDate);
+//            }
+//        }
+//        return result;
+//    }
 
-    /**
-     * Count how often a date is in a list. <br>
-     * Not the object, but the exact date.<br>
-     * If the date-object is also in the list, it will not count.<br>
-     * <br>
-     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
-     * Look up for date1, the returning value will be 1 and not 2!
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
-     */
-    public static <T, V> int countDates(T date, List<V> dates) {
-
-        return countDates(date, dates, -1);
-        /*
-         * int count = 0; DateComparator dc = new DateComparator(); for (int i =
-         * 0; i < dates.size(); i++) { if (!date.equals(dates.get(i))) { int
-         * stopFlag = Math.min(((ExtractedDate) date).getExactness(),
-         * ((ExtractedDate) dates.get(i)) .getExactness()); if
-         * (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i),
-         * stopFlag) == 0) { count++; } } } return count;
-         */
-    }
+//    /**
+//     * Count how often a date is in a list. <br>
+//     * Not the object, but the exact date.<br>
+//     * If the date-object is also in the list, it will not count.<br>
+//     * <br>
+//     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+//     * Look up for date1, the returning value will be 1 and not 2!
+//     * 
+//     * @param <T>
+//     * @param date
+//     * @param dates
+//     * @return
+//     */
+//    public static <T, V> int countDates(T date, List<V> dates) {
+//
+//        return countDates(date, dates, -1);
+//        /*
+//         * int count = 0; DateComparator dc = new DateComparator(); for (int i =
+//         * 0; i < dates.size(); i++) { if (!date.equals(dates.get(i))) { int
+//         * stopFlag = Math.min(((ExtractedDate) date).getExactness(),
+//         * ((ExtractedDate) dates.get(i)) .getExactness()); if
+//         * (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i),
+//         * stopFlag) == 0) { count++; } } } return count;
+//         */
+//    }
 
     /**
      * Count how often a date is in a list.<br>
@@ -320,22 +317,22 @@ public class DateArrayHelper {
         return count;
     }
 
-    /**
-     * Count how often a date is in a list. <br>
-     * Not the object, but the exact date.<br>
-     * If the date-object is also in the list, it will not count.<br>
-     * <br>
-     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
-     * Look up for date1, the returning value will be 1 and not 2!
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
-     */
-    public static <T> int countDates(T date, Map<T, Double> dates) {
-        return countDates(date, dates, DateComparator.STOP_DAY);
-    }
+//    /**
+//     * Count how often a date is in a list. <br>
+//     * Not the object, but the exact date.<br>
+//     * If the date-object is also in the list, it will not count.<br>
+//     * <br>
+//     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+//     * Look up for date1, the returning value will be 1 and not 2!
+//     * 
+//     * @param <T>
+//     * @param date
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> int countDates(T date, Map<T, Double> dates) {
+//        return countDates(date, dates, DateComparator.STOP_DAY);
+//    }
 
     public static <T> int countDates(T date, Map<T, Double> dates, int stopFlag) {
         int count = 0;
@@ -450,121 +447,121 @@ public class DateArrayHelper {
         printDateArray(dates, filterTechnique, null);
     }
 
-    /**
-     * Remove dates from the array.
-     * 
-     * @param <T>
-     * @param dates
-     * @param format
-     * @return
-     */
-    public static <T> List<T> removeFormat(List<T> dates, String format) {
-        ArrayList<T> result = new ArrayList<T>();
-        for (int i = 0; i < dates.size(); i++) {
-            T date = dates.get(i);
-            if (!((ExtractedDate) date).getFormat().equalsIgnoreCase(format)) {
-                result.add(date);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Remove dates from the array.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param format
+//     * @return
+//     */
+//    public static <T> List<T> removeFormat(List<T> dates, String format) {
+//        ArrayList<T> result = new ArrayList<T>();
+//        for (int i = 0; i < dates.size(); i++) {
+//            T date = dates.get(i);
+//            if (!((ExtractedDate) date).getFormat().equalsIgnoreCase(format)) {
+//                result.add(date);
+//            }
+//        }
+//        return result;
+//    }
 
-    /**
-     * Prints an entry-array.
-     * 
-     * @param <T>
-     * @param dateMap
-     */
-    public static <T> void printDateMap(Entry<T, Double>[] dateMap) {
-        printDateMap(dateMap, null);
-    }
+//    /**
+//     * Prints an entry-array.
+//     * 
+//     * @param <T>
+//     * @param dateMap
+//     */
+//    public static <T> void printDateMap(Entry<T, Double>[] dateMap) {
+//        printDateMap(dateMap, null);
+//    }
 
-    /**
-     * Prints an entry-array.<br>
-     * You got possibility to filter first.
-     * 
-     * @param <T>
-     * @param dateMap
-     * @param filter
-     */
-    public static <T> void printDateMap(Entry<T, Double>[] dateMap, DateType filter) {
-        for (int i = 0; i < dateMap.length; i++) {
-            T date = dateMap[i].getKey();
-            String dateString = ((ExtractedDate) date).getDateString();
-            String normDate = ((ExtractedDate) date).getNormalizedDateString();
-            String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
-            String keyword = "";
-            int dist = -1;
-            switch (((ExtractedDate) date).getType()) {
-                case ContentDate:
-                    keyword = ((ContentDate) date).getKeyword();
-                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
-                    break;
-                case StructureDate:
-                    keyword = ((StructureDate) date).getKeyword();
-                    break;
-                case MetaDate:
-                    keyword = ((MetaDate) date).getKeyword();
-                    break;
-            }
-            if (((ExtractedDate) date).getType().equals(filter) || filter == null) {
-                System.out.println("Rate: " + dateMap[i].getValue() + " Type: " + type + " Keyword: " + keyword
-                        + " Distance: " + dist);
-                System.out.println(dateString + " --> " + normDate);
-                System.out
-                        .println("-------------------------------------------------------------------------------------");
-            }
-        }
-    }
+//    /**
+//     * Prints an entry-array.<br>
+//     * You got possibility to filter first.
+//     * 
+//     * @param <T>
+//     * @param dateMap
+//     * @param filter
+//     */
+//    public static <T> void printDateMap(Entry<T, Double>[] dateMap, DateType filter) {
+//        for (int i = 0; i < dateMap.length; i++) {
+//            T date = dateMap[i].getKey();
+//            String dateString = ((ExtractedDate) date).getDateString();
+//            String normDate = ((ExtractedDate) date).getNormalizedDateString();
+//            String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
+//            String keyword = "";
+//            int dist = -1;
+//            switch (((ExtractedDate) date).getType()) {
+//                case ContentDate:
+//                    keyword = ((ContentDate) date).getKeyword();
+//                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
+//                    break;
+//                case StructureDate:
+//                    keyword = ((StructureDate) date).getKeyword();
+//                    break;
+//                case MetaDate:
+//                    keyword = ((MetaDate) date).getKeyword();
+//                    break;
+//            }
+//            if (((ExtractedDate) date).getType().equals(filter) || filter == null) {
+//                System.out.println("Rate: " + dateMap[i].getValue() + " Type: " + type + " Keyword: " + keyword
+//                        + " Distance: " + dist);
+//                System.out.println(dateString + " --> " + normDate);
+//                System.out
+//                        .println("-------------------------------------------------------------------------------------");
+//            }
+//        }
+//    }
 
-    /**
-     * Print hashmap of dates.
-     * 
-     * @param <T>
-     * @param dateMap
-     */
-    public static <T> void printDateMap(Map<T, Double> dateMap) {
-        printDateMap(dateMap, null);
-    }
+//    /**
+//     * Print hashmap of dates.
+//     * 
+//     * @param <T>
+//     * @param dateMap
+//     */
+//    public static <T> void printDateMap(Map<T, Double> dateMap) {
+//        printDateMap(dateMap, null);
+//    }
 
-    /**
-     * Print hashmap of dates.<br>
-     * With possibility of filtering.
-     * 
-     * @param <T>
-     * @param dateMap
-     * @param filter
-     */
-    public static <T> void printDateMap(Map<T, Double> dateMap, DateType filter) {
-        for (Entry<T, Double> e : dateMap.entrySet()) {
-            T date = e.getKey();
-            String dateString = ((ExtractedDate) date).getDateString();
-            String normDate = ((ExtractedDate) date).getNormalizedDateString();
-            String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
-            String keyword = "";
-            int dist = -1;
-            switch (((ExtractedDate) date).getType()) {
-                case ContentDate:
-                    keyword = ((ContentDate) date).getKeyword();
-                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
-
-                    break;
-                case StructureDate:
-                    keyword = ((StructureDate) date).getKeyword();
-                    break;
-                case MetaDate:
-                    keyword = ((MetaDate) date).getKeyword();
-                    break;
-            }
-            if (((ExtractedDate) e.getKey()).getType().equals(filter) || filter == null) {
-                System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword + " Distance: "
-                        + dist);
-                System.out.println(dateString + " --> " + normDate);
-                System.out
-                        .println("-------------------------------------------------------------------------------------");
-            }
-        }
-    }
+//    /**
+//     * Print hashmap of dates.<br>
+//     * With possibility of filtering.
+//     * 
+//     * @param <T>
+//     * @param dateMap
+//     * @param filter
+//     */
+//    public static <T> void printDateMap(Map<T, Double> dateMap, DateType filter) {
+//        for (Entry<T, Double> e : dateMap.entrySet()) {
+//            T date = e.getKey();
+//            String dateString = ((ExtractedDate) date).getDateString();
+//            String normDate = ((ExtractedDate) date).getNormalizedDateString();
+//            String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
+//            String keyword = "";
+//            int dist = -1;
+//            switch (((ExtractedDate) date).getType()) {
+//                case ContentDate:
+//                    keyword = ((ContentDate) date).getKeyword();
+//                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
+//
+//                    break;
+//                case StructureDate:
+//                    keyword = ((StructureDate) date).getKeyword();
+//                    break;
+//                case MetaDate:
+//                    keyword = ((MetaDate) date).getKeyword();
+//                    break;
+//            }
+//            if (((ExtractedDate) e.getKey()).getType().equals(filter) || filter == null) {
+//                System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword + " Distance: "
+//                        + dist);
+//                System.out.println(dateString + " --> " + normDate);
+//                System.out
+//                        .println("-------------------------------------------------------------------------------------");
+//            }
+//        }
+//    }
 
     /**
      * Returns an array of dates, that have a given rate.
@@ -633,74 +630,74 @@ public class DateArrayHelper {
         return result;
     }
 
-    /**
-     * Returns an array of dates, that have a given rate.
-     * 
-     * @param <T>
-     * @param dates
-     * @param rate
-     * @return
-     */
-    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate) {
-        return getRatedDatesMap(dates, rate, true);
-    }
+//    /**
+//     * Returns an array of dates, that have a given rate.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param rate
+//     * @return
+//     */
+//    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate) {
+//        return getRatedDatesMap(dates, rate, true);
+//    }
 
-    /**
-     * Returns an array of dates, that have the given rate. (include = true) <br>
-     * Returns an array of dates, that have <b>not</b> the given rate. (include
-     * = false) <br>
-     * 
-     * @see DateArrayHelper.getRatedDates
-     * @param <T>
-     * @param dates
-     * @param rate
-     * @param include
-     * @return
-     */
-    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate, boolean include) {
-        HashMap<T, Double> result = new HashMap<T, Double>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            if (e.getValue() == rate == include) {
-                result.put(e.getKey(), e.getValue());
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Returns an array of dates, that have the given rate. (include = true) <br>
+//     * Returns an array of dates, that have <b>not</b> the given rate. (include
+//     * = false) <br>
+//     * 
+//     * @see DateArrayHelper.getRatedDates
+//     * @param <T>
+//     * @param dates
+//     * @param rate
+//     * @param include
+//     * @return
+//     */
+//    public static <T> Map<T, Double> getRatedDatesMap(Map<T, Double> dates, double rate, boolean include) {
+//        HashMap<T, Double> result = new HashMap<T, Double>();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            if (e.getValue() == rate == include) {
+//                result.put(e.getKey(), e.getValue());
+//            }
+//        }
+//        return result;
+//    }
 
-    /**
-     * Returns an array of dates that are equal to a given date.
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
-     */
-    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates) {
-        return getSameDates(date, dates, DateComparator.STOP_DAY);
-    }
+//    /**
+//     * Returns an array of dates that are equal to a given date.
+//     * 
+//     * @param <T>
+//     * @param date
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates) {
+//        return getSameDates(date, dates, DateComparator.STOP_DAY);
+//    }
 
-    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates, int stopFlag) {
-        DateComparator dc = new DateComparator();
-        ArrayList<T> result = new ArrayList<T>();
-        for (int i = 0; i < dates.size(); i++) {
-            if (dc.compare(date, (ExtractedDate) dates.get(i), stopFlag) == 0) {
-                result.add(dates.get(i));
-            }
-        }
-        return result;
-    }
+//    public static <T> List<T> getSameDates(ExtractedDate date, List<T> dates, int stopFlag) {
+//        DateComparator dc = new DateComparator();
+//        ArrayList<T> result = new ArrayList<T>();
+//        for (int i = 0; i < dates.size(); i++) {
+//            if (dc.compare(date, (ExtractedDate) dates.get(i), stopFlag) == 0) {
+//                result.add(dates.get(i));
+//            }
+//        }
+//        return result;
+//    }
 
-    /**
-     * Returns a hashmap of date are equal to given date.
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
-     */
-    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates) {
-        return getSameDatesMap(date, dates, DateComparator.STOP_DAY);
-    }
+//    /**
+//     * Returns a hashmap of date are equal to given date.
+//     * 
+//     * @param <T>
+//     * @param date
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates) {
+//        return getSameDatesMap(date, dates, DateComparator.STOP_DAY);
+//    }
 
     /**
      * Returns a hashmap of date are equal to given date.<br>
@@ -722,16 +719,16 @@ public class DateArrayHelper {
         return result;
     }
 
-    /**
-     * Order by rate.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public static <T> Entry<T, Double>[] orderHashMap(Map<T, Double> dates) {
-        return orderHashMap(dates, false);
-    }
+//    /**
+//     * Order by rate.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> Entry<T, Double>[] orderHashMap(Map<T, Double> dates) {
+//        return orderHashMap(dates, false);
+//    }
 
     /**
      * Order by rate. Lowest is first.
@@ -844,76 +841,76 @@ public class DateArrayHelper {
         return isAllZero;
     }
 
-    /**
-     * Returns Hashmap of Dates, where there exactness is equal or greater to
-     * given exactness.
-     * 
-     * @param <T>
-     * @param dates
-     * @param exactness
-     * @return
-     */
-    public static <T> Map<T, Double> getExacterDates(Map<T, Double> dates, int exactness) {
-        HashMap<T, Double> resultDates = new HashMap<T, Double>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            if (((ExtractedDate) e.getKey()).getExactness() >= exactness) {
-                resultDates.put(e.getKey(), e.getValue());
-            }
-        }
-        return resultDates;
-    }
+//    /**
+//     * Returns Hashmap of Dates, where there exactness is equal or greater to
+//     * given exactness.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @param exactness
+//     * @return
+//     */
+//    public static <T> Map<T, Double> getExacterDates(Map<T, Double> dates, int exactness) {
+//        HashMap<T, Double> resultDates = new HashMap<T, Double>();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            if (((ExtractedDate) e.getKey()).getExactness() >= exactness) {
+//                resultDates.put(e.getKey(), e.getValue());
+//            }
+//        }
+//        return resultDates;
+//    }
 
-    /**
-     * Finds out the greatest exactness of the given dates. <br>
-     * Returns all dates with this greatest exactness.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public static <T> List<T> getExactestDates(Map<T, Double> dates) {
-        ArrayList<T> result = new ArrayList<T>();
-        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            exactedDates.put(e.getKey(), ((ExtractedDate) e.getKey()).getExactness() * 1.0);
-        }
-        Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
-        if (orderedHashMap.length > 0) {
-            double greatestExactness = orderedHashMap[0].getValue();
-            for (Entry<T, Double> e : exactedDates.entrySet()) {
-                if (e.getValue() == greatestExactness) {
-                    result.add(e.getKey());
-                }
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Finds out the greatest exactness of the given dates. <br>
+//     * Returns all dates with this greatest exactness.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> List<T> getExactestDates(Map<T, Double> dates) {
+//        ArrayList<T> result = new ArrayList<T>();
+//        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            exactedDates.put(e.getKey(), ((ExtractedDate) e.getKey()).getExactness() * 1.0);
+//        }
+//        Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
+//        if (orderedHashMap.length > 0) {
+//            double greatestExactness = orderedHashMap[0].getValue();
+//            for (Entry<T, Double> e : exactedDates.entrySet()) {
+//                if (e.getValue() == greatestExactness) {
+//                    result.add(e.getKey());
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
-    /**
-     * Finds out the greatest exactness of the given dates. <br>
-     * Returns all dates with this greatest exactness.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public static <T> List<T> getExactestDates(List<T> dates) {
-        ArrayList<T> result = new ArrayList<T>();
-        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
-        for (int i = 0; i < dates.size(); i++) {
-            exactedDates.put(dates.get(i), ((ExtractedDate) dates.get(i)).getExactness() * 1.0);
-        }
-        Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
-        if (orderedHashMap.length > 0) {
-            double greatestExactness = orderedHashMap[0].getValue();
-            for (Entry<T, Double> e : exactedDates.entrySet()) {
-                if (e.getValue() == greatestExactness) {
-                    result.add(e.getKey());
-                }
-            }
-        }
-        return result;
-    }
+//    /**
+//     * Finds out the greatest exactness of the given dates. <br>
+//     * Returns all dates with this greatest exactness.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public static <T> List<T> getExactestDates(List<T> dates) {
+//        ArrayList<T> result = new ArrayList<T>();
+//        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
+//        for (int i = 0; i < dates.size(); i++) {
+//            exactedDates.put(dates.get(i), ((ExtractedDate) dates.get(i)).getExactness() * 1.0);
+//        }
+//        Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
+//        if (orderedHashMap.length > 0) {
+//            double greatestExactness = orderedHashMap[0].getValue();
+//            for (Entry<T, Double> e : exactedDates.entrySet()) {
+//                if (e.getValue() == greatestExactness) {
+//                    result.add(e.getKey());
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
     /**
      * Finds out the greatest exactness of the given dates. <br>
@@ -978,6 +975,7 @@ public class DateArrayHelper {
      * @param map
      * @return
      */
+    // WTF? What is a "first" element of a HashMap?!?!?!
     public static <T, V> T getFirstElement(Map<T, V> map) {
         T result = null;
         for (Entry<T, V> e : map.entrySet()) {
@@ -996,20 +994,20 @@ public class DateArrayHelper {
         return returnList;
     }
 
-    /**
-     * If some rates are greater then one, use this method to normalize them.
-     * 
-     * @param <T>
-     * @param dates
-     */
-    public static <T> Map<T, Double> normalizeRate(Map<T, Double> dates) {
-        Map<T, Double> returnDates = dates;
-        double highestRate = DateArrayHelper.getHighestRate(returnDates);
-        if (highestRate > 1.0) {
-            for (Entry<T, Double> e : returnDates.entrySet()) {
-                returnDates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
-            }
-        }
-        return returnDates;
-    }
+//    /**
+//     * If some rates are greater then one, use this method to normalize them.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     */
+//    public static <T> Map<T, Double> normalizeRate(Map<T, Double> dates) {
+//        Map<T, Double> returnDates = dates;
+//        double highestRate = DateArrayHelper.getHighestRate(returnDates);
+//        if (highestRate > 1.0) {
+//            for (Entry<T, Double> e : returnDates.entrySet()) {
+//                returnDates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
+//            }
+//        }
+//        return returnDates;
+//    }
 }

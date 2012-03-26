@@ -3,8 +3,8 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ws.palladian.helper.SqlHelper;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 public class FeedPollRowConverter implements RowConverter<PollMetaInformation> {

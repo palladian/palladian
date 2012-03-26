@@ -1,6 +1,5 @@
-package ws.palladian.extraction.date.searchengine;
+package ws.palladian.extraction.date.evaluation;
 
-import ws.palladian.extraction.date.evaluation.EvaluationHelper;
 
 public class DBExport {
 	private String url = "";

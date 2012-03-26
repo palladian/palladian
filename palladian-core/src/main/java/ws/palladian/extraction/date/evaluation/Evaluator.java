@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.TechniqueDateGetter;
 import ws.palladian.extraction.date.technique.TechniqueDateRater;
 import ws.palladian.extraction.date.technique.UrlDateGetter;

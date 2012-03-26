@@ -196,20 +196,20 @@ public final class DateGetterHelper {
     	return date;
     }
     
-    /**
-     * Returns a string of whitespace as long as the parameter string.
-     * 
-     * @param text
-     * @return String of whitespace.
-     */
-    public static String getWhitespaces(String text) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < text.length(); i++) {
-            sb.append("x");
-            // sb.append(" ");
-        }
-        return sb.toString();
-    }
+//    /**
+//     * Returns a string of whitespace as long as the parameter string.
+//     * 
+//     * @param text
+//     * @return String of whitespace.
+//     */
+//    public static String getWhitespaces(String text) {
+//        StringBuffer sb = new StringBuffer();
+//        for (int i = 0; i < text.length(); i++) {
+//            sb.append("x");
+//            // sb.append(" ");
+//        }
+//        return sb.toString();
+//    }
 
     /**
      * Returns a string of "x"s as long as the parameter string.
@@ -248,16 +248,16 @@ public final class DateGetterHelper {
         return keyword;
     }
 
-    /**
-     * Finds out the separating symbol of date-string
-     * 
-     * @param date
-     * @return
-     */
-    public static String getSeparator(final ExtractedDate date) {
-        final String dateString = date.getDateString();
-        return ExtractedDateHelper.getSeparator(dateString);
-    }
+//    /**
+//     * Finds out the separating symbol of date-string
+//     * 
+//     * @param date
+//     * @return
+//     */
+//    public static String getSeparator(final ExtractedDate date) {
+//        final String dateString = date.getDateString();
+//        return ExtractedDateHelper.getSeparator(dateString);
+//    }
 
     /**
      * 
@@ -311,100 +311,100 @@ public final class DateGetterHelper {
 
     
     
-    /**
-     * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
-     * But with condition that keyword is no part of a word. <br>
-     * E.g.: date in timedate will not be found, but there for time-date matches. <br>
-     * (Underscores won't match, e.g. time_date is wrong.)
-     * 
-     * @param node HTML-node to be searched.
-     * @param keyWords Array of keywords to look for.
-     * @return
-     */
-    public static String findNodeKeywordPart(Node node, String[] keyWords) {
-        String keyword = null;
-        //Node tempNode = XPathHelper.removeAllCildren(node);
-        Node tempNode = node.cloneNode(false);
-        String nodeDump =  HtmlHelper.getXmlDump(tempNode);
-        boolean hasKeyword = false;
-        for (int j = 0; j < keyWords.length; j++) {
-        	int index = nodeDump.indexOf(keyWords[j]);
-        	if(index != -1){
-        		hasKeyword = true;
-        	}
-        }
-        NamedNodeMap attrMap = node.getAttributes();
-       
-        if (attrMap != null && hasKeyword) {
-            for (int j = 0; j < keyWords.length; j++) {
-                String lookUp = keyWords[j].toLowerCase();
-                for (int i = 0; i < attrMap.getLength(); i++) {
-                    Node attr = attrMap.item(i);
-                    String attrText = attr.getNodeValue().toLowerCase();
-                    int index = attrText.indexOf(lookUp);
-                    if (index != -1) {
-                        boolean letter = false;
-                        int start = index;
-                        int end = index + lookUp.length();
+//    /**
+//     * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
+//     * But with condition that keyword is no part of a word. <br>
+//     * E.g.: date in timedate will not be found, but there for time-date matches. <br>
+//     * (Underscores won't match, e.g. time_date is wrong.)
+//     * 
+//     * @param node HTML-node to be searched.
+//     * @param keyWords Array of keywords to look for.
+//     * @return
+//     */
+//    public static String findNodeKeywordPart(Node node, String[] keyWords) {
+//        String keyword = null;
+//        //Node tempNode = XPathHelper.removeAllCildren(node);
+//        Node tempNode = node.cloneNode(false);
+//        String nodeDump =  HtmlHelper.getXmlDump(tempNode);
+//        boolean hasKeyword = false;
+//        for (int j = 0; j < keyWords.length; j++) {
+//        	int index = nodeDump.indexOf(keyWords[j]);
+//        	if(index != -1){
+//        		hasKeyword = true;
+//        	}
+//        }
+//        NamedNodeMap attrMap = node.getAttributes();
+//       
+//        if (attrMap != null && hasKeyword) {
+//            for (int j = 0; j < keyWords.length; j++) {
+//                String lookUp = keyWords[j].toLowerCase();
+//                for (int i = 0; i < attrMap.getLength(); i++) {
+//                    Node attr = attrMap.item(i);
+//                    String attrText = attr.getNodeValue().toLowerCase();
+//                    int index = attrText.indexOf(lookUp);
+//                    if (index != -1) {
+//                        boolean letter = false;
+//                        int start = index;
+//                        int end = index + lookUp.length();
+//
+//                        if (start > 0) {
+//                        	String sub = attrText.substring(start - 1, start);
+//                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
+//                        	if(sub.split("\\w").length == 0){
+//                        		letter = true;;
+//                        	}
+//                        }
+//
+//                        if (attrText.length() > end) {
+//                        	String sub = attrText.substring(end, end + 1);
+//                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
+//                        	if(sub.split("\\w").length == 0){
+//                        		letter = true;;
+//                        	}
+//                        }
+//                        if (!letter) {
+//                            keyword = lookUp;
+//                        }
+//                        break;
+//                    }
+//                }
+//                if (keyword != null) {
+//                    break;
+//                }
+//            }
+//        }
+//        return keyword;
+//    }
 
-                        if (start > 0) {
-                        	String sub = attrText.substring(start - 1, start);
-                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
-                        	if(sub.split("\\w").length == 0){
-                        		letter = true;;
-                        	}
-                        }
-
-                        if (attrText.length() > end) {
-                        	String sub = attrText.substring(end, end + 1);
-                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
-                        	if(sub.split("\\w").length == 0){
-                        		letter = true;;
-                        	}
-                        }
-                        if (!letter) {
-                            keyword = lookUp;
-                        }
-                        break;
-                    }
-                }
-                if (keyword != null) {
-                    break;
-                }
-            }
-        }
-        return keyword;
-    }
-
-    /**
-     * Looks up in a node for keywords. <br>
-     * Only find keywords if the attribute values are equals to the keyword. <br>
-     * Date in pubdate will not be found, also in time-date the keyword will not be found.
-     * 
-     * @param node HTML-node to be searched.
-     * @param keyWords Array of keywords to look for.
-     * @return
-     */
-    public static String findNodeKeyword(Node node, String[] keyWords) {
-        String keyword = null;
-        NamedNodeMap attrMap = node.getAttributes();
-        if (attrMap != null) {
-            for (int j = 0; j < keyWords.length; j++) {
-                String lookUp = keyWords[j];
-                for (int i = 0; i < attrMap.getLength(); i++) {
-                    Node attr = attrMap.item(i);
-                    if (lookUp.equalsIgnoreCase(attr.getNodeValue())) {
-                        keyword = lookUp;
-                        break;
-                    }
-                }
-                if (keyword != null) {
-                    break;
-                }
-            }
-        }
-        return keyword;
-    }
+//    /**
+//     * Looks up in a node for keywords. <br>
+//     * Only find keywords if the attribute values are equals to the keyword. <br>
+//     * Date in pubdate will not be found, also in time-date the keyword will not be found.
+//     * 
+//     * @param node HTML-node to be searched.
+//     * @param keyWords Array of keywords to look for.
+//     * @return
+//     */
+//    public static String findNodeKeyword(Node node, String[] keyWords) {
+//        String keyword = null;
+//        NamedNodeMap attrMap = node.getAttributes();
+//        if (attrMap != null) {
+//            for (int j = 0; j < keyWords.length; j++) {
+//                String lookUp = keyWords[j];
+//                for (int i = 0; i < attrMap.getLength(); i++) {
+//                    Node attr = attrMap.item(i);
+//                    if (lookUp.equalsIgnoreCase(attr.getNodeValue())) {
+//                        keyword = lookUp;
+//                        break;
+//                    }
+//                }
+//                if (keyword != null) {
+//                    break;
+//                }
+//            }
+//        }
+//        return keyword;
+//    }
 
     //Monat und Jahr sind nur gerundet.
     public static ExtractedDate findRelativeDate(String text){
