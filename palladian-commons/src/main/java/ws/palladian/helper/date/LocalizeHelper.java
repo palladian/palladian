@@ -8,6 +8,7 @@ import java.util.TimeZone;
 
 /**
  * This class helps to (temporarily) change the {@link Locale} or {@link TimeZone}.
+ * FIXME No word about wtf this is necessary?
  * 
  * @author Sandro Reichert
  * 

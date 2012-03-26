@@ -46,9 +46,6 @@
 				<version>2.5</version>
 				<configuration>
 					<argLine>-Xms256m -Xmx1024m</argLine>
-					<excludes>
-						<exclude>**/DictionaryDBIndexTest.java</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
