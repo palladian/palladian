@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.HttpDateGetter;
 import ws.palladian.extraction.date.technique.HttpDateRater;
 import ws.palladian.extraction.date.technique.PageDateType;

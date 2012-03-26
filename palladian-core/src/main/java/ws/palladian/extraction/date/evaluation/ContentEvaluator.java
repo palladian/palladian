@@ -1,6 +1,5 @@
 package ws.palladian.extraction.date.evaluation;
 
-import ws.palladian.extraction.date.searchengine.DBExport;
 import ws.palladian.extraction.date.technique.ContentDateGetter;
 import ws.palladian.extraction.date.technique.ContentDateRater_old;
 import ws.palladian.extraction.date.technique.PageDateType;

@@ -37,46 +37,46 @@ public class DateRaterHelper {
         return gt && lt;
     }
 
-    /**
-     * Returns the date with highest rate. <br>
-     * 
-     * @param <T>
-     * @param dates
-     * @return Hashmap with a single entry.
-     */
-    public static <T> Map<T, Double> getHighestRate(Map<T, Double> dates) {
-        HashMap<T, Double> map = new HashMap<T, Double>();
-        T date = null;
-        double temp = -1;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            double value = e.getValue();
+//    /**
+//     * Returns the date with highest rate. <br>
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return Hashmap with a single entry.
+//     */
+//    public static <T> Map<T, Double> getHighestRate(Map<T, Double> dates) {
+//        HashMap<T, Double> map = new HashMap<T, Double>();
+//        T date = null;
+//        double temp = -1;
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            double value = e.getValue();
+//
+//            if (value > temp) {
+//                date = e.getKey();
+//                temp = value;
+//            }
+//        }
+//        map.put(date, temp);
+//        return map;
+//    }
 
-            if (value > temp) {
-                date = e.getKey();
-                temp = value;
-            }
-        }
-        map.put(date, temp);
-        return map;
-    }
-
-    /**
-     * Returns the date with highest rate. <br>
-     * 
-     * @param <T>
-     * @param dates
-     * @return Hashmap with a single entry.
-     */
-    public static <T> Double getHighestRateValue(Map<T, Double> dates) {
-        double temp = -1;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            double value = e.getValue();
-            if (value > temp) {
-                temp = value;
-            }
-        }
-        return temp;
-    }
+//    /**
+//     * Returns the date with highest rate. <br>
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return Hashmap with a single entry.
+//     */
+//    public static <T> Double getHighestRateValue(Map<T, Double> dates) {
+//        double temp = -1;
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            double value = e.getValue();
+//            if (value > temp) {
+//                temp = value;
+//            }
+//        }
+//        return temp;
+//    }
 
     /**
      * Increase the rate by 10 percent, if date sourrunding tag is a headline-tag.
