@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.persistence.helper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
