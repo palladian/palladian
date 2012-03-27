@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * 

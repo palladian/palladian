@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * Shingle index with in-memory Java Object graph. Persistence is achieved via Java serialization.

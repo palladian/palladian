@@ -3,28 +3,28 @@ package com.newsseecr.xperimental;
 import java.util.Iterator;
 import java.util.List;
 
-import ws.palladian.classification.page.Stopwords.Predefined;
+import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
+import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.content.PageContentExtractorException;
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.content.WebPageContentExtractor;
+import ws.palladian.extraction.feature.Annotation;
+import ws.palladian.extraction.feature.AnnotationFeature;
+import ws.palladian.extraction.feature.DuplicateTokenRemover;
+import ws.palladian.extraction.feature.FrequencyCalculator;
+import ws.palladian.extraction.feature.NGramCreator;
+import ws.palladian.extraction.feature.RegExTokenRemover;
+import ws.palladian.extraction.feature.StopTokenRemover;
+import ws.palladian.extraction.feature.TokenOverlapRemover;
+import ws.palladian.extraction.feature.TokenSpreadCalculator;
+import ws.palladian.extraction.token.RegExTokenizer;
+import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
-import ws.palladian.preprocessing.PerformanceCheckProcessingPipeline;
-import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.PipelineProcessor;
-import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.featureextraction.Annotation;
-import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
-import ws.palladian.preprocessing.featureextraction.DuplicateTokenRemover;
-import ws.palladian.preprocessing.featureextraction.FrequencyCalculator;
-import ws.palladian.preprocessing.featureextraction.NGramCreator;
-import ws.palladian.preprocessing.featureextraction.RegExTokenRemover;
-import ws.palladian.preprocessing.featureextraction.StopTokenRemover;
-import ws.palladian.preprocessing.featureextraction.TokenOverlapRemover;
-import ws.palladian.preprocessing.featureextraction.TokenSpreadCalculator;
-import ws.palladian.preprocessing.featureextraction.Tokenizer;
-import ws.palladian.preprocessing.scraping.PageContentExtractorException;
-import ws.palladian.preprocessing.scraping.PalladianContentExtractor;
-import ws.palladian.preprocessing.scraping.ReadabilityContentExtractor;
-import ws.palladian.preprocessing.scraping.WebPageContentExtractor;
 
 import com.newsseecr.xperimental.wikipedia.WikipediaAnnotator;
 
@@ -43,7 +43,7 @@ public class PipelineTest {
 
         // ProcessingPipeline pipeline = new ProcessingPipeline();
         ProcessingPipeline pipeline = new PerformanceCheckProcessingPipeline();
-        pipeline.add(new Tokenizer());
+        pipeline.add(new RegExTokenizer());
         pipeline.add(new NGramCreator(2, 4));
         pipeline.add(new TokenSpreadCalculator());
         pipeline.add(new FrequencyCalculator());
@@ -51,12 +51,12 @@ public class PipelineTest {
         pipeline.add(new RegExTokenRemover(".{1,2}"));
         pipeline.add(new DuplicateTokenRemover());
         pipeline.add(new WikipediaAnnotator());
-        pipeline.add(new StopTokenRemover(Predefined.EN));
+        pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new PipelineProcessor() {
             @Override
             public void process(PipelineDocument document) {
                 FeatureVector featureVector = document.getFeatureVector();
-                AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+                AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 Iterator<Annotation> iterator = annotations.iterator();
                 while (iterator.hasNext()) {
@@ -92,7 +92,7 @@ public class PipelineTest {
         System.out.println(pipeline);
 
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature tokenList = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature tokenList = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
         System.out.println("# tokens " + tokenList.getValue().size());
         System.out.println(tokenList.toStringList());
 
