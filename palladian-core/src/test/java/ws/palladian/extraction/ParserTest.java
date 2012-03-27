@@ -51,11 +51,11 @@ public class ParserTest {
     @Test
     @Ignore
     public void testOpenNLPParser() throws Exception {
-        OpenNlpParser objectOfClassUnderTest = new OpenNlpParser();
-        objectOfClassUnderTest.loadDefaultModel();
-        objectOfClassUnderTest.parse(fixture);
-        Parse result = objectOfClassUnderTest.getParse();
-        System.out.println(result);
-
+//        OpenNlpParser objectOfClassUnderTest = new OpenNlpParser();
+//        objectOfClassUnderTest.loadDefaultModel();
+//        objectOfClassUnderTest.parse(fixture);
+//        Parse result = objectOfClassUnderTest.getParse();
+//        System.out.println(result);
+//
     }
 }

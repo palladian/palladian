@@ -808,7 +808,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         BasePosTagger lpt = null;
 
         if (removeWrongEntityBeginnings || removeSentenceStartErrorsPos || removeSingleNonNounEntities) {
-            lpt = new LingPipePosTagger();
+            // FIXME nö
+//            lpt = new LingPipePosTagger();
         }
 
         // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"

@@ -325,66 +325,66 @@ public class Annotation extends UniversalInstance {
     }
 
     // yuk. looks like this shouldn't be here.
-    public String[] getLeftContextsPOS() {
-
-        Object o = Cache.getInstance().getDataObject("lpt");
-        BasePosTagger lpt;
-
-        if (o != null) {
-            lpt = (BasePosTagger) o;
-        } else {
-            lpt = new LingPipePosTagger();
-            Cache.getInstance().putDataObject("lpt", lpt);
-        }
-
-        String[] contexts = new String[3];
-        contexts[0] = "";
-        contexts[1] = "";
-        contexts[2] = "";
-
-        String leftContext = getLeftContext();
-
-        String posLeftContext = "";
-        TagAnnotations tas = lpt.tag(leftContext);
-        for (TagAnnotation ta : tas) {
-            posLeftContext += ta.getTag() + " ";
-        }
-        posLeftContext = posLeftContext.trim();
-
-        String[] words = posLeftContext.split(" ");
-        int wordNumber = 1;
-        for (int i = words.length - 1; i >= 0; i--) {
-
-            String token = words[i];
-
-            if (wordNumber == 1) {
-                contexts[0] = token;
-                contexts[1] = token;
-                contexts[2] = token;
-            }
-
-            if (wordNumber == 2) {
-                contexts[1] = token + " " + contexts[1];
-                contexts[2] = token + " " + contexts[2];
-            }
-
-            if (wordNumber == 3) {
-                contexts[2] = token + " " + contexts[2];
-                break;
-            }
-
-            wordNumber++;
-        }
-
-        if (words.length < 3) {
-            contexts[2] = "";
-        }
-        if (words.length < 2) {
-            contexts[1] = "";
-        }
-
-        return contexts;
-    }
+//    public String[] getLeftContextsPOS() {
+//
+//        Object o = Cache.getInstance().getDataObject("lpt");
+//        BasePosTagger lpt;
+//
+//        if (o != null) {
+//            lpt = (BasePosTagger) o;
+//        } else {
+//            lpt = new LingPipePosTagger();
+//            Cache.getInstance().putDataObject("lpt", lpt);
+//        }
+//
+//        String[] contexts = new String[3];
+//        contexts[0] = "";
+//        contexts[1] = "";
+//        contexts[2] = "";
+//
+//        String leftContext = getLeftContext();
+//
+//        String posLeftContext = "";
+//        TagAnnotations tas = lpt.tag(leftContext);
+//        for (TagAnnotation ta : tas) {
+//            posLeftContext += ta.getTag() + " ";
+//        }
+//        posLeftContext = posLeftContext.trim();
+//
+//        String[] words = posLeftContext.split(" ");
+//        int wordNumber = 1;
+//        for (int i = words.length - 1; i >= 0; i--) {
+//
+//            String token = words[i];
+//
+//            if (wordNumber == 1) {
+//                contexts[0] = token;
+//                contexts[1] = token;
+//                contexts[2] = token;
+//            }
+//
+//            if (wordNumber == 2) {
+//                contexts[1] = token + " " + contexts[1];
+//                contexts[2] = token + " " + contexts[2];
+//            }
+//
+//            if (wordNumber == 3) {
+//                contexts[2] = token + " " + contexts[2];
+//                break;
+//            }
+//
+//            wordNumber++;
+//        }
+//
+//        if (words.length < 3) {
+//            contexts[2] = "";
+//        }
+//        if (words.length < 2) {
+//            contexts[1] = "";
+//        }
+//
+//        return contexts;
+//    }
 
     public String[] getRightContexts() {
 
@@ -436,64 +436,64 @@ public class Annotation extends UniversalInstance {
         return contexts;
     }
 
-    public String[] getRightContextsPOS() {
-
-        Object o = Cache.getInstance().getDataObject("lpt");
-        BasePosTagger lpt;
-
-        if (o != null) {
-            lpt = (BasePosTagger) o;
-        } else {
-            lpt = new LingPipePosTagger();
-            Cache.getInstance().putDataObject("lpt", lpt);
-        }
-
-        String[] contexts = new String[3];
-        contexts[0] = "";
-        contexts[1] = "";
-        contexts[2] = "";
-
-        String rightContext = getRightContext();
-
-        String posRightContext = "";
-        TagAnnotations tas = lpt.tag(rightContext);
-        for (TagAnnotation ta : tas) {
-            posRightContext += ta.getTag() + " ";
-        }
-        posRightContext = posRightContext.trim();
-
-        String[] words = posRightContext.split(" ");
-        int wordNumber = 1;
-        for (String token : words) {
-
-            if (wordNumber == 1) {
-                contexts[0] = token;
-                contexts[1] = token;
-                contexts[2] = token;
-            }
-
-            if (wordNumber == 2) {
-                contexts[1] = contexts[1] + " " + token;
-                contexts[2] = contexts[2] + " " + token;
-            }
-
-            if (wordNumber == 3) {
-                contexts[2] = contexts[2] + " " + token;
-                break;
-            }
-
-            wordNumber++;
-        }
-
-        if (words.length < 3) {
-            contexts[2] = "";
-        }
-        if (words.length < 2) {
-            contexts[1] = "";
-        }
-
-        return contexts;
-    }
+//    public String[] getRightContextsPOS() {
+//
+//        Object o = Cache.getInstance().getDataObject("lpt");
+//        BasePosTagger lpt;
+//
+//        if (o != null) {
+//            lpt = (BasePosTagger) o;
+//        } else {
+//            lpt = new LingPipePosTagger();
+//            Cache.getInstance().putDataObject("lpt", lpt);
+//        }
+//
+//        String[] contexts = new String[3];
+//        contexts[0] = "";
+//        contexts[1] = "";
+//        contexts[2] = "";
+//
+//        String rightContext = getRightContext();
+//
+//        String posRightContext = "";
+//        TagAnnotations tas = lpt.tag(rightContext);
+//        for (TagAnnotation ta : tas) {
+//            posRightContext += ta.getTag() + " ";
+//        }
+//        posRightContext = posRightContext.trim();
+//
+//        String[] words = posRightContext.split(" ");
+//        int wordNumber = 1;
+//        for (String token : words) {
+//
+//            if (wordNumber == 1) {
+//                contexts[0] = token;
+//                contexts[1] = token;
+//                contexts[2] = token;
+//            }
+//
+//            if (wordNumber == 2) {
+//                contexts[1] = contexts[1] + " " + token;
+//                contexts[2] = contexts[2] + " " + token;
+//            }
+//
+//            if (wordNumber == 3) {
+//                contexts[2] = contexts[2] + " " + token;
+//                break;
+//            }
+//
+//            wordNumber++;
+//        }
+//
+//        if (words.length < 3) {
+//            contexts[2] = "";
+//        }
+//        if (words.length < 2) {
+//            contexts[1] = "";
+//        }
+//
+//        return contexts;
+//    }
 
     public int getLength() {
         return length;

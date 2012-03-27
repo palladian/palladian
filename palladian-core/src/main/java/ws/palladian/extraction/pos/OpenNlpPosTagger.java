@@ -32,12 +32,6 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     public OpenNlpPosTagger(File modelFile) {
         this.tagger = loadModel(modelFile);
     }
-    
-    public OpenNlpPosTagger() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        File modelFile = new File(config.getString("models.root") + config.getString("models.opennlp.en.postag"));
-        this.tagger = loadModel(modelFile);
-    }
 
     private POSTagger loadModel(File modelFile) {
         String modelPath = modelFile.getAbsolutePath();

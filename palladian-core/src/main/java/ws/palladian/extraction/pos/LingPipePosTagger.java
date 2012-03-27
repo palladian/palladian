@@ -52,15 +52,6 @@ public final class LingPipePosTagger extends BasePosTagger {
     public LingPipePosTagger(File modelFile) {
         this.model = loadModel(modelFile);
     }
-    
-    /**
-     * Constructor.
-     */
-    public LingPipePosTagger() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        File modelFile = new File(config.getString("models.root") + config.getString("models.lingpipe.en.postag"));
-        this.model = loadModel(modelFile);
-    }
 
     /**
      * @param modelFile

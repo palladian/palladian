@@ -34,14 +34,10 @@ public class PalladianPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianPosTagger.class);
-    
+
     private static final String TAGGER_NAME = "Palladian POS-Tagger";
 
     private UniversalClassifier tagger;
-
-    public PalladianPosTagger() {
-        this(ConfigHolder.getInstance().getConfig().getString("models.root") + ConfigHolder.getInstance().getConfig().getString("models.palladian.en.pos"));
-    }
 
     public PalladianPosTagger(String modelFilePath) {
         tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath);
@@ -50,15 +46,15 @@ public class PalladianPosTagger extends BasePosTagger {
             Cache.getInstance().putDataObject(modelFilePath, tagger);
         }
     }
-    
+
     @Override
     public void tag(List<Annotation> annotations) {
-        
+
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
-        
+
         String previousTag = "";
         for (Annotation annotation : annotations) {
-            
+
             UniversalInstance instance = new UniversalInstance(instances);
             setFeatures(instance, previousTag, annotation.getValue());
 
@@ -69,35 +65,35 @@ public class PalladianPosTagger extends BasePosTagger {
         }
     }
 
-//    @Override
-//    public PosTagger tag(String sentence) {
-//
-//        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
-//        TagAnnotations tagAnnotations = new TagAnnotations();
-//
-//        String previousTag = "";
-//        String[] words = sentence.split("\\s");
-//        for (String word : words) {
-//            // TextInstance result = tagger.classify(word);
-//            // String tag = result.getMainCategoryEntry().getCategory().getName();
-//            // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
-//            // tagAnnotations.add(tagAnnotation);
-//
-//            UniversalInstance instance = new UniversalInstance(instances);
-//            setFeatures(instance, previousTag, word);
-//
-//            tagger.classify(instance);
-//            String tag = instance.getMainCategoryEntry().getCategory().getName();
-//            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
-//            tagAnnotations.add(tagAnnotation);
-//
-//            previousTag = tag;
-//        }
-//
-//        setTagAnnotations(tagAnnotations);
-//
-//        return this;
-//    }
+    // @Override
+    // public PosTagger tag(String sentence) {
+    //
+    // Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+    // TagAnnotations tagAnnotations = new TagAnnotations();
+    //
+    // String previousTag = "";
+    // String[] words = sentence.split("\\s");
+    // for (String word : words) {
+    // // TextInstance result = tagger.classify(word);
+    // // String tag = result.getMainCategoryEntry().getCategory().getName();
+    // // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
+    // // tagAnnotations.add(tagAnnotation);
+    //
+    // UniversalInstance instance = new UniversalInstance(instances);
+    // setFeatures(instance, previousTag, word);
+    //
+    // tagger.classify(instance);
+    // String tag = instance.getMainCategoryEntry().getCategory().getName();
+    // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
+    // tagAnnotations.add(tagAnnotation);
+    //
+    // previousTag = tag;
+    // }
+    //
+    // setTagAnnotations(tagAnnotations);
+    //
+    // return this;
+    // }
 
     public void trainModel(String folderPath, String modelFilePath) {
 
@@ -189,7 +185,7 @@ public class PalladianPosTagger extends BasePosTagger {
         // instance.setNominalFeatures(Arrays.asList(word));
 
     }
-    
+
     public void evaluate(String folderPath, String modelFilePath) {
 
         tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
@@ -260,12 +256,12 @@ public class PalladianPosTagger extends BasePosTagger {
     public String getName() {
         return TAGGER_NAME;
     }
-    
+
     public static void main(String[] args) {
-        PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
-        palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
+        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
+        // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // /palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
-        palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
+        // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
         // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
@@ -273,7 +269,5 @@ public class PalladianPosTagger extends BasePosTagger {
         // .getTaggedString());
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
-
-
 
 }

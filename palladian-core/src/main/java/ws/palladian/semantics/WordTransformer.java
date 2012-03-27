@@ -189,7 +189,9 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToSingularEnglish(pluralForm);
         } else if (language.equals(Language.GERMAN)) {
-            return wordToSingularGerman(pluralForm);
+//            return wordToSingularGerman(pluralForm);
+            // TODO
+            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
         }
 
         throw new IllegalArgumentException("Language must be 'en' or 'de'.");
@@ -268,28 +270,28 @@ public class WordTransformer {
         return plural;
     }
 
-    /**
-     * <p>
-     * Transform a German plural word to its singular form using the wiktionary DB.
-     * </p>
-     * 
-     * @param pluralForm The plural form of the word.
-     * @return The singular form of the word.
-     */
-    public static String wordToSingularGerman(String pluralForm) {
-
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
-
-        WordDB wordDB = new WordDB(path);
-        Word word = wordDB.getWord(pluralForm);
-
-        if (word != null) {
-            return word.getWord();
-        }
-
-        return pluralForm;
-    }
+//    /**
+//     * <p>
+//     * Transform a German plural word to its singular form using the wiktionary DB.
+//     * </p>
+//     * 
+//     * @param pluralForm The plural form of the word.
+//     * @return The singular form of the word.
+//     */
+//    public static String wordToSingularGerman(String pluralForm) {
+//
+//        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+//        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+//
+//        WordDB wordDB = new WordDB(path);
+//        Word word = wordDB.getWord(pluralForm);
+//
+//        if (word != null) {
+//            return word.getWord();
+//        }
+//
+//        return pluralForm;
+//    }
 
     /**
      * <p>
@@ -309,7 +311,9 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            return wordToPluralGerman(singular);
+//            return wordToPluralGerman(singular);
+            // TODO
+            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
         }
 
         throw new IllegalArgumentException("Language must be 'en' or 'de'.");
@@ -400,27 +404,27 @@ public class WordTransformer {
         return prefix + singular + "s";
     }
 
-    /**
-     * <p>
-     * Transform a German singular word to its plural form using the wiktionary DB.
-     * </p>
-     * 
-     * @param singularForm The singular form of the word.
-     * @return The plural form of the word.
-     */
-    public static String wordToPluralGerman(String singularForm) {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
-
-        WordDB wordDB = new WordDB(path);
-        Word word = wordDB.getWord(singularForm);
-
-        if (word != null && !word.getPlural().isEmpty()) {
-            return word.getPlural();
-        }
-
-        return singularForm;
-    }
+//    /**
+//     * <p>
+//     * Transform a German singular word to its plural form using the wiktionary DB.
+//     * </p>
+//     * 
+//     * @param singularForm The singular form of the word.
+//     * @return The plural form of the word.
+//     */
+//    public static String wordToPluralGerman(String singularForm) {
+//        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+//        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+//
+//        WordDB wordDB = new WordDB(path);
+//        Word word = wordDB.getWord(singularForm);
+//
+//        if (word != null && !word.getPlural().isEmpty()) {
+//            return word.getPlural();
+//        }
+//
+//        return singularForm;
+//    }
 
     public static String stemEnglishWord(String word) {
         SnowballStemmer snowballStemmer = new SnowballStemmer();

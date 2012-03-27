@@ -52,7 +52,9 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * This class loads the training and test data, classifies and stores the results.
  * 
  * @author David Urbansky
+ * @deprecated To be removed. Soon!
  */
+@Deprecated
 public class ClassifierManager {
 
     /** The logger for this class. */

@@ -29,15 +29,6 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
         model = loadModel(chunkerModelFile);
         tagger = new OpenNlpPosTagger(posTaggerModelFile);
     }
-    /**
-     * Constructor.
-     */
-    public OpenNlpPhraseChunker() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        File modelFile = new File(config.getString("models.root") + config.getString("models.opennlp.en.chunker"));
-        model = loadModel(modelFile);
-        tagger = new OpenNlpPosTagger();
-    }
     
 
 //    /*

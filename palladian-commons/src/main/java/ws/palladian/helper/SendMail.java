@@ -22,7 +22,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,12 +57,13 @@ public class SendMail {
      */
     public SendMail(String smtpHost, int smtpPort, String smtpUser, String smtpPass) {
         super();
+        // TODO check for validity
         init(smtpHost, smtpPort, smtpUser, smtpPass);
     }
 
     /**
      * <p>
-     * Constructor that loads config from properties file. The properties file should supply the following options:
+     * Constructor that takes configuration from {@link Configuration}, it must supply the following parameters:
      * </p>
      * <ul>
      * <li>sendMail.smtpHost</li>
@@ -70,11 +71,9 @@ public class SendMail {
      * <li>sendMail.smtpPass</li>
      * <li>sendMail.smtpPort (optional)</li>
      * </ul>
+     * @param config The {@link Configuration} providing the specified parameters.
      */
-    public SendMail() {
-        super();
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        config.setThrowExceptionOnMissing(true);
+    public SendMail(Configuration config) {
         String smtpHost = config.getString("sendMail.smtpHost");
         int smtpPort = config.getInt("sendMail.smtpPort", DEFAULT_SMTP_PORT);
         String smtpUser = config.getString("sendMail.smtpUser");

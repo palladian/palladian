@@ -1,16 +1,12 @@
 package ws.palladian.retrieval;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
-
-import ws.palladian.helper.ConfigHolder;
 
 /**
  * <p>
@@ -46,13 +42,15 @@ public class ProxySwitcher implements HttpHook {
     /** The DocumentRetriever which is only used for checking the proxies. */
     private HttpRetriever testRetriever;
 
-    public ProxySwitcher() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        List<String> proxies = Arrays.asList(config.getStringArray("proxySwitcher.proxyList"));
-        int switchRequests = config.getInt("proxySwitcher.switchRequests");
-        setup(proxies, switchRequests);
-    }
-
+    /**
+     * <p>
+     * Create a new {@link ProxySwitcher} with the supplied proxy {@link Collection}, switching at the specified number
+     * of requests.
+     * </p>
+     * 
+     * @param proxies The proxies to use.
+     * @param switchRequests The number of requests after the switch is performed.
+     */
     public ProxySwitcher(Collection<String> proxies, int switchRequests) {
         setup(proxies, switchRequests);
     }
@@ -71,7 +69,9 @@ public class ProxySwitcher implements HttpHook {
     }
 
     /**
+     * <p>
      * Get the next proxy by cycling through the list.
+     * </p>
      * 
      * @return
      */
@@ -80,7 +80,9 @@ public class ProxySwitcher implements HttpHook {
     }
 
     /**
+     * <p>
      * Get the currently active proxy.
+     * </p>
      * 
      * @return
      */
@@ -89,7 +91,9 @@ public class ProxySwitcher implements HttpHook {
     }
 
     /**
+     * <p>
      * Check, whether the supplied proxy is working by performing a test request.
+     * </p>
      * 
      * @param proxy
      * @return
@@ -141,7 +145,9 @@ public class ProxySwitcher implements HttpHook {
     }
 
     /**
+     * <p>
      * Check all proxies which have been supplied and optionally remove those, which are not working.
+     * </p>
      * 
      * @param iterations the number of iterations for checking.
      * @param removeNonWorking <code>true</code>, to remove those proxies which were not working from the list.
