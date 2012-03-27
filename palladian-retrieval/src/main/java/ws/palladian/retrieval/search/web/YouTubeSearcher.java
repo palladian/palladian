@@ -49,7 +49,7 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
         url += "&max-results=" + Math.min(50, resultCount);
         url += "&v=2";
         url += "&alt=json";
-        if (!apiKey.isEmpty()) {
+        if (apiKey != null && !apiKey.isEmpty()) {
             url += "&key=" + apiKey;
         }
 
@@ -62,7 +62,7 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
             feed = root.getJSONObject("feed");
             entries = feed.getJSONArray("entry");
         } catch (Exception e) {
-            LOGGER.error(e.getMessage() + ", url: " + url);
+            LOGGER.warn(e.getMessage() + ", url: " + url);
         }
 
         List<WebResult> webResults = new ArrayList<WebResult>();
