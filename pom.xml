@@ -4,7 +4,7 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
-	<name>Palladian - TUD Information Retrieval Toolkit</name>
+	<name>Palladian: TUD Information Retrieval Toolkit</name>
 	<version>0.1.7-SNAPSHOT</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<modules>
@@ -12,6 +12,9 @@
 		<module>palladian-core</module>
 		<module>palladian-persistence</module>
 		<module>palladian-retrieval</module>
+		<!-- module>palladian-experimental</module -->
+		<module>palladian-external-code</module>
+		<!-- module>palladian-iirmodel</module -->
 	</modules>
 	<build>
 		<plugins>

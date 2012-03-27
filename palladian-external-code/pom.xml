@@ -1,10 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ws.palladian</groupId>
-	<artifactId>PalladianExternalCode</artifactId>
+	<artifactId>palladian-external-code</artifactId>
 	<version>0.7.2</version>
-	<name>Palladian External Code</name>
+	<name>Palladian: External Code</name>
 	<description>External modified source code that is used by Palladian.</description>
 	<build>
 		<plugins>
@@ -139,4 +138,9 @@
 			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
 		</repository>
 	</repositories>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.1.7-SNAPSHOT</version>
+	</parent>
 </project>
