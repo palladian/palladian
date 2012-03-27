@@ -16,26 +16,26 @@ package de.philippkatz.activities.sourceforge.experimental;
  * limitations under the License.
  */
  
-import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.TermVectorMapper;
-import org.apache.lucene.index.TermVectorOffsetInfo;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermVectorMapper;
+import org.apache.lucene.index.TermVectorOffsetInfo;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.search.spans.Spans;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
- 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ArrayList;
  
 /**
  *  This class is for demonstration purposes only.  No warranty, guarantee, etc. is implied.
