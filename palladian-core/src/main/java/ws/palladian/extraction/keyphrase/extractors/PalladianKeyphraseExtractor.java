@@ -60,7 +60,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     public PalladianKeyphraseExtractor() {
         tokenizer = new TokenizerPlus(settings);
-        tokenizer.setUsePosTagging(false);
+//        tokenizer.setUsePosTagging(false);
         // tokenizer.setUsePosTagging(true);
     }
 
@@ -129,7 +129,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             if (switched == false) {
                 switched = true;
                 System.out.println("switched to fast mode...");
-                tokenizer.setUsePosTagging(false);
+//                tokenizer.setUsePosTagging(false);
             }
             return;
         }

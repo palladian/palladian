@@ -198,12 +198,6 @@ public final class LingPipePhraseChunker implements PhraseChunker {
     public LingPipePhraseChunker(File modelFile) {
         model = loadModel(modelFile);
     }
-    
-    public LingPipePhraseChunker() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        File modelFile = new File(config.getString("models.root") + config.getString("models.lingpipe.en.postag"));
-        model = loadModel(modelFile);
-    }
 
     /**
      * The internal chunking method.

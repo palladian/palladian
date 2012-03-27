@@ -100,7 +100,7 @@ public class HttpRetriever {
     public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
-    public static final int DEFAULT_NUM_RETRIES = 3;
+    public static final int DEFAULT_NUM_RETRIES = 0;
 
     /** The default number of connections in the connection pool. */
     public static final int DEFAULT_NUM_CONNECTIONS = 100;
@@ -189,7 +189,7 @@ public class HttpRetriever {
      * </tr>
      * <tr>
      * <td>retries</td>
-     * <td>3</td>
+     * <td>0</td>
      * </tr>
      * <tr>
      * <td>maximum number of simultanous connections</td>

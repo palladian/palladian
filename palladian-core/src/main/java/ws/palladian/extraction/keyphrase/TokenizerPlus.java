@@ -3,7 +3,6 @@ package ws.palladian.extraction.keyphrase;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,19 +15,9 @@ import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
-import org.w3c.dom.Document;
 
 import ws.palladian.classification.page.Stopwords;
-import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Special tokenizer implementation which keeps positional and POS features of extracted Tokens. Also supports
@@ -48,9 +37,6 @@ public class TokenizerPlus {
 
     /** Set of stopwords. */
     // private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
-
-    /** POS tagger, only necessary if POS tagging is enabled. */
-    private BasePosTagger posTagger = null; // new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;
@@ -98,41 +84,41 @@ public class TokenizerPlus {
         // either tokenize with or without POS tagging
         // POS tagging takes time
         List<Token> tokens;
-        if (usePosTagging) {
-            tokens = tokenizePos(sentences);
-        } else {
+//        if (usePosTagging) {
+//            tokens = tokenizePos(sentences);
+//        } else {
             tokens = tokenizePlain(sentences);
-        }
+//        }
         
         return tokens;
     }
 
-    private List<Token> tokenizePos(List<String> sentences) {
-        List<Token> tokens = new ArrayList<Token>();
-        int textPosition = 0;
-        int sentencePosition = 0;
-        int sentenceNumber = 0;
-        for (String sentence : sentences) {
-            TagAnnotations tagAnnotations = posTagger.tag(sentence);
-            for (TagAnnotation tagAnnotation : tagAnnotations) {
-                String string = tagAnnotation.getChunk();
-                String tag = tagAnnotation.getTag();
-                Token token = new Token();
-                token.setUnstemmedValue(string);
-                token.setStemmedValue(stem(string));
-                token.setTextPosition(textPosition);
-                token.setSentencePosition(sentencePosition);
-                token.setSentenceNumber(sentenceNumber);
-                token.setPosTag(tag);
-                tokens.add(token);
-                sentencePosition++;
-                textPosition++;
-            }
-            sentencePosition = 0;
-            sentenceNumber++;
-        }
-        return tokens;
-    }
+//    private List<Token> tokenizePos(List<String> sentences) {
+//        List<Token> tokens = new ArrayList<Token>();
+//        int textPosition = 0;
+//        int sentencePosition = 0;
+//        int sentenceNumber = 0;
+//        for (String sentence : sentences) {
+//            TagAnnotations tagAnnotations = posTagger.tag(sentence);
+//            for (TagAnnotation tagAnnotation : tagAnnotations) {
+//                String string = tagAnnotation.getChunk();
+//                String tag = tagAnnotation.getTag();
+//                Token token = new Token();
+//                token.setUnstemmedValue(string);
+//                token.setStemmedValue(stem(string));
+//                token.setTextPosition(textPosition);
+//                token.setSentencePosition(sentencePosition);
+//                token.setSentenceNumber(sentenceNumber);
+//                token.setPosTag(tag);
+//                tokens.add(token);
+//                sentencePosition++;
+//                textPosition++;
+//            }
+//            sentencePosition = 0;
+//            sentenceNumber++;
+//        }
+//        return tokens;
+//    }
 
     private List<Token> tokenizePlain(List<String> sentences) {
         List<Token> tokens = new ArrayList<Token>();
@@ -328,17 +314,17 @@ public class TokenizerPlus {
         return usePosTagging;
     }
 
-    /**
-     * Allows to enable or disable POS tagging. When enabled, the tokenization process takes considerably more time.
-     * 
-     * @param usePosTagging
-     */
-    public void setUsePosTagging(boolean usePosTagging) {
-        this.usePosTagging = usePosTagging;
-        if (usePosTagging) {
-            posTagger = new LingPipePosTagger();
-        }
-    }
+//    /**
+//     * Allows to enable or disable POS tagging. When enabled, the tokenization process takes considerably more time.
+//     * 
+//     * @param usePosTagging
+//     */
+//    public void setUsePosTagging(boolean usePosTagging) {
+//        this.usePosTagging = usePosTagging;
+//        if (usePosTagging) {
+//            posTagger = new LingPipePosTagger();
+//        }
+//    }
 
     private static String makeCanonicalForm(String text) {
         String[] split = text.split(" ");
@@ -350,73 +336,73 @@ public class TokenizerPlus {
         return StringUtils.join(parts, " ");
     }
 
-    public static void main(String[] args) {
-
-        String str = "the quick brown fox jumps over the lazy dog.";
-        // String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
-        str = HtmlHelper.stripHtmlTags(str);
-        
-        // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
-        // String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
-
-        TokenizerPlus tokenizer = new TokenizerPlus();
-        tokenizer.setUsePosTagging(true); // 33s:888ms
-        // tokenizer.setUsePosTagging(false); // 4s:813ms
-
-        StopWatch sw = new StopWatch();
-        // for (int i = 0; i < 100; i++) {
-            List<Token> t = tokenizer.tokenize(str);
-            System.out.println(t);
-            // tokenizer.makeCollocations(t, 1, 4);
-        // }
-        // System.out.println(sw);
-
-        System.exit(0);
-
-        System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
-        System.exit(0);
-
-        DocumentRetriever crawler = new DocumentRetriever();
-        // Document doc =
-        // crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
-        // Document doc =
-        // crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
-        // Document doc =
-        // crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
-        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
-        // Document doc =
-        // crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
-        // Document doc =
-        // crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
-        // Document doc =
-        // crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-        String text = HtmlHelper.documentToReadableText(doc);
-
-        // String text =
-        // "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";
-        // StopWatch sw = new StopWatch();
-        List<Token> tokens = tokenizer.tokenize(text);
-        System.out.println("# of tokens : " + tokens.size());
-        List<Token> collocations = tokenizer.makeCollocations(tokens, 1, 5);
-
-        List<Token> allTokens = new ArrayList<Token>();
-        // allTokens.addAll(tokens);
-        allTokens.addAll(collocations);
-
-        CountMap cm = new CountMap();
-        for (Token token : allTokens) {
-            cm.increment(token.getStemmedValue());
-        }
-
-        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm, false);
-        for (Entry<Object, Integer> entry : sort.entrySet()) {
-            System.out.println(entry.getValue() + " " + entry.getKey());
-        }
-        System.out.println(sw.getElapsedTimeString());
-        System.out.println(sort.size());
-
-        // CollectionHelper.print(tokens);
-
-    }
+//    public static void main(String[] args) {
+//
+//        String str = "the quick brown fox jumps over the lazy dog.";
+//        // String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
+//        str = HtmlHelper.stripHtmlTags(str);
+//        
+//        // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
+//        // String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
+//
+//        TokenizerPlus tokenizer = new TokenizerPlus();
+//        tokenizer.setUsePosTagging(true); // 33s:888ms
+//        // tokenizer.setUsePosTagging(false); // 4s:813ms
+//
+//        StopWatch sw = new StopWatch();
+//        // for (int i = 0; i < 100; i++) {
+//            List<Token> t = tokenizer.tokenize(str);
+//            System.out.println(t);
+//            // tokenizer.makeCollocations(t, 1, 4);
+//        // }
+//        // System.out.println(sw);
+//
+//        System.exit(0);
+//
+//        System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
+//        System.exit(0);
+//
+//        DocumentRetriever crawler = new DocumentRetriever();
+//        // Document doc =
+//        // crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
+//        // Document doc =
+//        // crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
+//        // Document doc =
+//        // crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
+//        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
+//        // Document doc =
+//        // crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
+//        // Document doc =
+//        // crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
+//        // Document doc =
+//        // crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
+//        String text = HtmlHelper.documentToReadableText(doc);
+//
+//        // String text =
+//        // "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";
+//        // StopWatch sw = new StopWatch();
+//        List<Token> tokens = tokenizer.tokenize(text);
+//        System.out.println("# of tokens : " + tokens.size());
+//        List<Token> collocations = tokenizer.makeCollocations(tokens, 1, 5);
+//
+//        List<Token> allTokens = new ArrayList<Token>();
+//        // allTokens.addAll(tokens);
+//        allTokens.addAll(collocations);
+//
+//        CountMap cm = new CountMap();
+//        for (Token token : allTokens) {
+//            cm.increment(token.getStemmedValue());
+//        }
+//
+//        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm, false);
+//        for (Entry<Object, Integer> entry : sort.entrySet()) {
+//            System.out.println(entry.getValue() + " " + entry.getKey());
+//        }
+//        System.out.println(sw.getElapsedTimeString());
+//        System.out.println(sort.size());
+//
+//        // CollectionHelper.print(tokens);
+//
+//    }
 
 }

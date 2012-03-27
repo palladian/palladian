@@ -15,8 +15,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.SendMail;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -76,18 +74,6 @@ public class EvaluationSchedulerTask extends TimerTask {
 
     private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
 
-    /** By default, do not send error reports via email */
-    private static final boolean ERROR_MAIL_NOTIFICATION_DEFAULT = false;
-
-    /** If true, send error reports via email */
-    private static boolean errorMailNotification;
-
-    /** The receipient of email notifications. */
-    private static String emailRecipient;
-
-    /** The receipient of email notifications. */
-    private static final String EMAIL_RECEIPIENT_DEFAULT = "user@example.org";
-
     /** Number of Feeds that are expected to be processed per minute */
     private static int HIGH_LOAD_THROUGHPUT = 0;
 
@@ -125,11 +111,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         // configure monitoring and logging
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        errorMailNotification = ERROR_MAIL_NOTIFICATION_DEFAULT;
         if (config != null) {
-            errorMailNotification = config.getBoolean("schedulerTask.errorMailNotification",
-                    ERROR_MAIL_NOTIFICATION_DEFAULT);
-            emailRecipient = config.getString("schedulerTask.emailRecipient", EMAIL_RECEIPIENT_DEFAULT);
             maxSlowPercentage = config.getInt("schedulerTask.maxSlowPercentage", MAX_SLOW_PERCENTAGE_DEFAULT);
             maxUnreachablePercentage = config.getInt("schedulerTask.maxUnreachablePercentage",
                     MAX_UNREACHABLE_PERCENTAGE_DEFAULT);
@@ -242,19 +224,6 @@ public class EvaluationSchedulerTask extends TimerTask {
         if (errorOccurred) {
             logMsg += ", detected errors: " + detectedErrors.toString();
             LOGGER.error(logMsg);
-
-            if (errorMailNotification) {
-                String hostname = ProcessHelper.runCommand("hostname");
-                String recipient = emailRecipient; // FIXME: multiple recipients
-                                                   // philipp.katz@tu-dresden.de,
-                                                   // david.urbansky@tu-dresden.de,
-                                                   // klemens.muthmann@tu-dresden.de";
-                String subject = "FeedReader " + hostname + " notification "
-                        + DateHelper.getCurrentDatetime("yyyy-MM-dd HH:mm:ss");
-
-                SendMail mailer = new SendMail();
-                mailer.send("notification@palladian.ws", recipient, subject, logMsg);
-            }
         } else {
             LOGGER.info(" " + logMsg); // whitespace required to align lines in log file.
         }

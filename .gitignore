@@ -40,3 +40,6 @@
 **/.classpath
 **/.project
 **/bin
+
+**/data/temp
+**/data/test

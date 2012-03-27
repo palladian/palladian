@@ -1,5 +1,6 @@
 package ws.palladian.extraction;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,11 +18,9 @@ import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -37,7 +36,22 @@ public class OpenNlpParser extends AbstractParser {
      */
     protected static final Logger LOGGER = Logger.getLogger(OpenNlpParser.class);
 
-    private static final String COREF_PATH = "data/models/opennlp/coref/";
+    private final String corefPath;
+    
+    private transient opennlp.tools.parser.Parse openNLPParse;
+
+    /** The model path. **/
+    private final transient String model;
+    
+    public OpenNlpParser(File modelFile, File corefModelDirectory) {
+        super();
+        if (!corefModelDirectory.isDirectory()) {
+            throw new IllegalArgumentException("\"" + corefModelDirectory.getAbsolutePath() + "\" is not a directory.");
+        }
+        setName("OpenNLP Parser");
+        model = modelFile.getAbsolutePath();
+        corefPath = corefModelDirectory.getAbsolutePath();
+    }
 
     /**
      * Identifies coreferences in an array of full parses of sentences.
@@ -45,19 +59,19 @@ public class OpenNlpParser extends AbstractParser {
      * @param parses
      *            array of full parses of sentences
      */
-    public static void link(final Parse[] parses) {
+    public void link(final Parse[] parses) {
         int sentenceNumber = 0;
         final List<Mention> document = new ArrayList<Mention>();
 
         TreebankLinker linker;
         try {
-            if (Cache.getInstance().containsDataObject(COREF_PATH)) {
-                linker = (TreebankLinker) Cache.getInstance().getDataObject(COREF_PATH);
+            if (Cache.getInstance().containsDataObject(corefPath)) {
+                linker = (TreebankLinker) Cache.getInstance().getDataObject(corefPath);
 
             } else {
 
-                linker = new TreebankLinker(COREF_PATH, LinkerMode.TEST);
-                Cache.getInstance().putDataObject(COREF_PATH, linker);
+                linker = new TreebankLinker(corefPath, LinkerMode.TEST);
+                Cache.getInstance().putDataObject(corefPath, linker);
             }
             final DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
 
@@ -95,18 +109,7 @@ public class OpenNlpParser extends AbstractParser {
         }
     }
 
-    private transient opennlp.tools.parser.Parse openNLPParse;
 
-    /** The model path. **/
-    private final transient String MODEL;
-
-    public OpenNlpParser() {
-        super();
-        setName("OpenNLP Parser");
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        MODEL = config.getString("models.root") + config.getString("models.opennlp.en.parser");
-    }
 
     /**
      * Returns the full parse for a sentence as openNLP parse.
@@ -135,7 +138,7 @@ public class OpenNlpParser extends AbstractParser {
 
     @Override
     public OpenNlpParser loadDefaultModel() {
-        return loadModel(MODEL);
+        return loadModel(model);
     }
 
     @Override

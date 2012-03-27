@@ -19,24 +19,6 @@ public abstract class AbstractParser {
     protected static final Logger LOGGER = Logger.getLogger(AbstractParser.class);
 
     /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        final OpenNlpParser onlpp = new OpenNlpParser();
-
-        onlpp.loadDefaultModel();
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final Parse[] parse = onlpp.getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
-        onlpp.printParse(parse[0]);
-
-        stopWatch.stop();
-        LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
-    }
-
-    /**
      * Object holding the model.
      */
     private Object model = null;
@@ -160,5 +142,23 @@ public abstract class AbstractParser {
     public final void setTagAnnotations(final TagAnnotations tagAnnotations) {
         this.tagAnnotations = tagAnnotations;
     }
+    
+//  /**
+//  * @param args
+//  */
+// public static void main(String[] args) {
+//     final OpenNlpParser onlpp = new OpenNlpParser();
+//
+//     onlpp.loadDefaultModel();
+//
+//     final StopWatch stopWatch = new StopWatch();
+//     stopWatch.start();
+//
+//     final Parse[] parse = onlpp.getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
+//     onlpp.printParse(parse[0]);
+//
+//     stopWatch.stop();
+//     LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
+// }
 
 }
