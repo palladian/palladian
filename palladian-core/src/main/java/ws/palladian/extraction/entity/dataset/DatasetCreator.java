@@ -24,7 +24,6 @@ import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.DatasetCreatorInterface;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -58,7 +57,7 @@ import ws.palladian.semantics.WordTransformer;
  * @author David Urbansky
  * 
  */
-public class DatasetCreator implements DatasetCreatorInterface {
+public class DatasetCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
@@ -96,7 +95,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @param seedFolderPath The path to the folder with the seed entities. Each file must be named with the concept
      *            name (_partX is ignored for markup) and there must be one seed entity per line.
      */
-    @Override
     public final void createDataset(String seedFolderPath) {
         StopWatch stopWatch = new StopWatch();
 
