@@ -17,7 +17,7 @@ import jdbm.helper.IntegerComparator;
 import jdbm.helper.LongComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * Implementation of a ShinglesIndex which uses B+Trees via JDBM.

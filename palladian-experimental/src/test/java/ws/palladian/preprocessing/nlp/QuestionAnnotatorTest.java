@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.feature.Annotation;
+import ws.palladian.extraction.sentence.AbstractSentenceDetector;
+import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
 import ws.palladian.model.features.Feature;
-import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.featureextraction.Annotation;
-import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
-import ws.palladian.preprocessing.nlp.sentencedetection.LingPipeSentenceDetector;
 
 public class QuestionAnnotatorTest {
     private String fixture = "Who is the nicest question without question mark. The last was! Or was it? How about no.";
@@ -23,7 +23,7 @@ public class QuestionAnnotatorTest {
         pipeline.add(objectOfClassUnderTest);
         
         PipelineDocument document = pipeline.process(new PipelineDocument(fixture));
-        Feature<List<Annotation>> questions = (Feature<List<Annotation>>)document.getFeatureVector().get(QuestionAnnotator.FEAUTRE_IDENTIFIER);
+        Feature<List<Annotation>> questions = (Feature<List<Annotation>>)document.getFeatureVector().get(QuestionAnnotator.FEATURE_IDENTIFIER);
         for(Annotation question:questions.getValue()) {
             System.out.println(question);
         }

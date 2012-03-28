@@ -6,11 +6,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.newsseecr.xperimental.PersistentWordCorrelationMatrix;
-
 import ws.palladian.classification.Term;
 import ws.palladian.classification.WordCorrelationMatrix;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * 

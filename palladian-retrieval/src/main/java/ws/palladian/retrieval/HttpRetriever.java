@@ -218,7 +218,7 @@ public class HttpRetriever {
         setConnectionTimeout(connectionTimeout);
         setSocketTimeout(socketTimeout);
         setNumRetries(numRetries);
-        setNumConnections(numRetries);
+        setNumConnections(numConnections);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -612,7 +612,7 @@ public class HttpRetriever {
      * </p>
      * 
      * @param file
-     * @return The http result from file or <code>null</code> on in case an {@link IOException} was caught.
+     * @return The {@link HttpResult} from file or <code>null</code> on in case an {@link IOException} was caught.
      */
     // TODO should this be extended to handle files without the written header?
     public static HttpResult loadSerializedGzip(File file) {

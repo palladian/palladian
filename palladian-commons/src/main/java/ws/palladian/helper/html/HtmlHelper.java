@@ -148,94 +148,7 @@ public class HtmlHelper {
         return tagCount;
     }
 
-//    /**
-//     * <p>
-//     * Lists all tags. Deletes arguments within the tags, if there are any.
-//     * </p>
-//     *
-//     * @param htmlText The html text.
-//     * @return A list of tags.
-//     */
-//    public static List<String> listTags(String htmlText) {
-//        List<String> tags = new ArrayList<String>();
-//
-//        List<String> lev = new ArrayList<String>();
-//        String currentTag = "";
-//
-//        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-//        Matcher matcher = pattern.matcher(htmlText);
-//
-//        while (matcher.find()) {
-//            currentTag = matcher.group();
-//
-//            // Delete arguments within the tags
-//            if (currentTag.contains(" ")) {
-//                currentTag = currentTag.substring(0, currentTag.indexOf(" ")) + ">";
-//
-//                // System.out.print("+++++++++++++++++++"+currentTag);
-//
-//                if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
-//                        || currentTag.contains("<title") || currentTag.contains("<body") /*
-//                                                                                          * ||
-//                                                                                          * currentTag.contains("meta_name"
-//                                                                                          * )
-//                                                                                          */) {
-//                    continue;
-//                }
-//
-//                // if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
-//                // currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
-//                // }
-//                //
-//                // if (currentTag.contains("id=")) {
-//                // currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
-//                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1,
-//                // currentTag.indexOf(">")+1));
-//                // }
-//                //
-//                // if (currentTag.contains("name=")) {
-//                // currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
-//                // currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1,
-//                // currentTag.indexOf(">")+1));
-//                // }
-//                //
-//                //
-//                //
-//                // if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
-//                // if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
-//                // if (currentTag.contains("<div class")) currentTag="<div>";
-//                // if (currentTag.contains("<meta ")) currentTag="<meta>";
-//                //
-//                //
-//                //
-//                // //System.out.println(" ersetzt zu "+currentTag);
-//                //
-//                //
-//                // currentTag=currentTag.replaceAll(" ", "_");
-//            }
-//
-//            /*
-//             * Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
-//             * if (!currentTag.contains("/")) level++;
-//             * tags.add(level+currentTag);
-//             * if (currentTag.contains("/")) level--;
-//             * tags.add(level+currentTag);
-//             */
-//
-//            if (!lev.contains(currentTag)) {
-//                // System.out.println(currentTag+"..."+lev);
-//
-//                lev.add(currentTag);
-//                // lev2.add("1"+"o"+currentTag);
-//                // currentTag="1"+"o"+currentTag;
-//
-//            }
-//
-//            tags.add(currentTag);
-//        }
-//
-//        return tags;
-//    }
+
 
     /**
      * <p>
@@ -1000,6 +913,7 @@ public class HtmlHelper {
         return sb.toString().replaceAll("[ ]{2,}", "");
     }
 
+    // TODO doesn't this belong to PageAnalyzer (actually it was there in the past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
 
         Set<String> pageLinks = new HashSet<String>();
@@ -1057,6 +971,7 @@ public class HtmlHelper {
      * @param outDomain If true all links that point to other pages outside the domain of the source page are added.
      * @return A set of urls.
      */
+    // TODO doesn't this belong to PageAnalyzer (actually it was there in the past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
         return getLinks(document, inDomain, outDomain, "");
     }

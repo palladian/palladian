@@ -7,10 +7,10 @@ import java.io.FileNotFoundException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.ResourceHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class HtmlStripperTest {
 

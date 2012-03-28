@@ -1,15 +1,7 @@
 package com.newsseecr.xperimental;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class CorrelationMatrix<T> {
 
@@ -46,22 +38,22 @@ public class CorrelationMatrix<T> {
     
     ///////////////
     
-    public List<Pair<T>> getHighestPairs(int limit) {
-        
-        List<Pair<T>> result = new ArrayList<Pair<T>>();
-        
-        Map<Pair<T>, Integer> map = CollectionHelper.toMap(pairs);
-        LinkedHashMap<Pair<T>, Integer> sortedMap = CollectionHelper.sortByValue(map, CollectionHelper.DESCENDING);
-        int count = 0;
-        for(Entry<Pair<T>, Integer> x : sortedMap.entrySet()) {
-            if (count++ == limit) {
-                break;
-            }
-            result.add(x.getKey());
-        }
-        
-        return result;
-        
-    }
+//    public List<Pair<T>> getHighestPairs(int limit) {
+//        
+//        List<Pair<T>> result = new ArrayList<Pair<T>>();
+//        
+//        Map<Pair<T>, Integer> map = CollectionHelper.toMap(pairs);
+//        LinkedHashMap<Pair<T>, Integer> sortedMap = CollectionHelper.sortByValue(map, CollectionHelper.DESCENDING);
+//        int count = 0;
+//        for(Entry<Pair<T>, Integer> x : sortedMap.entrySet()) {
+//            if (count++ == limit) {
+//                break;
+//            }
+//            result.add(x.getKey());
+//        }
+//        
+//        return result;
+//        
+//    }
 
 }

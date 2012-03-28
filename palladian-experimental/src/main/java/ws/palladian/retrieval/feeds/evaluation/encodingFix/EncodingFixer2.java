@@ -9,10 +9,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.buffer.BoundedFifoBuffer;
+import org.apache.commons.collections15.buffer.BoundedFifoBuffer;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;

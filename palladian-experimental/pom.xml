@@ -1,9 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.philippkatz</groupId>
-	<artifactId>experimental</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>palladian-experimental</artifactId>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.1.7-SNAPSHOT</version>
+	</parent>
+	<name>Palladian: Experimental</name>
+	<description>Experimental code snippets, leftovers, unused code, etc.</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -27,14 +32,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian</artifactId>
-			<version>0.1.6-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
-			<artifactId>api</artifactId>
-			<version>0.5.0</version>
+			<artifactId>de.tudarmstadt.ukp.wikipedia.api</artifactId>
+			<version>0.9.1</version>
 		</dependency>
 		<dependency>
 			<groupId>jdbm</groupId>
@@ -55,27 +55,19 @@
 			<groupId>org.prefuse</groupId>
 			<artifactId>prefuse</artifactId>
 			<version>beta-20071021</version>
-			<type>jar</type>
-			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-core</artifactId>
+			<version>0.1.7-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	<repositories>
-		<repository>
-			<id>releases</id>
-			<url>http://effingo.de/nexus/content/groups/public</url>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
-		</repository>
-	</repositories>
 </project>

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import wb.Han;
-import ws.palladian.helper.FileHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * ShinglesIndex implementation using "WB B-Tree Database". The API is plain shocking and seems to be ported directly
