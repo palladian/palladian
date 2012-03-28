@@ -12,17 +12,6 @@ import ws.palladian.retrieval.feeds.FeedPostStatistics;
  */
 public abstract class UpdateStrategy {
 
-    /** Benchmark off. */
-    public static final int BENCHMARK_OFF = 0;
-
-    /** Benchmark algorithms towards their prediction ability for the next post. */
-    public static final int BENCHMARK_MIN_CHECK_TIME = 1;
-
-    /**
-     * Benchmark algorithms towards their prediction ability for the next almost filled post list.
-     */
-    public static final int BENCHMARK_MAX_CHECK_TIME = 2;
-
     /**
      * What is the lowest allowed interval (in minutes) in which feeds should be read (independent of checking mode). -1
      * = no lowest
