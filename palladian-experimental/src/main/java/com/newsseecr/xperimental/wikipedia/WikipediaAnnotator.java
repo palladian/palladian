@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.feature.Annotation;
+import ws.palladian.extraction.feature.AnnotationFeature;
+import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
-import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.PipelineProcessor;
-import ws.palladian.preprocessing.featureextraction.Annotation;
-import ws.palladian.preprocessing.featureextraction.AnnotationFeature;
-import ws.palladian.preprocessing.featureextraction.Tokenizer;
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
@@ -65,7 +65,7 @@ public class WikipediaAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(Tokenizer.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
         if (annotationFeature == null) {
             throw new RuntimeException();
         }

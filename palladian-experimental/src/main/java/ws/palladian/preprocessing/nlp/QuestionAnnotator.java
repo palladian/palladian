@@ -3,14 +3,14 @@ package ws.palladian.preprocessing.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.feature.Annotation;
+import ws.palladian.extraction.feature.PositionAnnotation;
+import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.model.features.Feature;
-import ws.palladian.preprocessing.AbstractPipelineProcessor;
-import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.PipelineProcessor;
-import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.featureextraction.Annotation;
-import ws.palladian.preprocessing.featureextraction.PositionAnnotation;
-import ws.palladian.preprocessing.nlp.sentencedetection.AbstractSentenceDetector;
 
 /**
  * <p>
@@ -43,13 +43,12 @@ public final class QuestionAnnotator extends AbstractPipelineProcessor {
     /**
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
      */
-    public final static String FEAUTRE_IDENTIFIER = "ws.palladian.features.question";
+    public final static String FEATURE_IDENTIFIER = "ws.palladian.features.question";
 
     @Override
     public void processDocument(PipelineDocument document) {
-        @SuppressWarnings("unchecked")
-        Feature<List<Annotation>> sentences = (Feature<List<Annotation>>) document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE);
+        Feature<List<Annotation>> sentences = document.getFeatureVector().get(
+                AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> questions = new ArrayList<Annotation>();
         for (Annotation sentence : sentences.getValue()) {
             String coveredText = sentence.getValue();
@@ -60,7 +59,7 @@ public final class QuestionAnnotator extends AbstractPipelineProcessor {
                 questions.add(createQuestion(sentence));
             }
         }
-        Feature<List<Annotation>> questionsFeature = new Feature<List<Annotation>>(FEAUTRE_IDENTIFIER, questions);
+        Feature<List<Annotation>> questionsFeature = new Feature<List<Annotation>>(FEATURE_IDENTIFIER, questions);
         document.getFeatureVector().add(questionsFeature);
     }
 

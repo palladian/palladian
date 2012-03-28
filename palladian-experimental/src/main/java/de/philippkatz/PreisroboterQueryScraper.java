@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

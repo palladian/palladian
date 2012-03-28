@@ -13,19 +13,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import org.apache.commons.collections15.Bag;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.helper.FileHelper;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -59,7 +59,7 @@ public class PageSegmenterTrainer {
         PageSegmenter seg = new PageSegmenter();
 
         File files[] = readURLsFromDisc(place);
-        Map<String, Integer> page1 = seg.createFingerprintForURL(c.getWebDocument(orgURL), numberOfQgrams,
+        Bag<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
                 lengthOfQgrams);
 
         BufferedWriter doc1 = new BufferedWriter(new FileWriter(place + "results_" + numberOfQgrams + "_"
@@ -72,7 +72,7 @@ public class PageSegmenterTrainer {
         doc1.newLine();
 
         for (int i = 0; i < files.length; i++) {
-            Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()),
+            Bag<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
             LOGGER.info(page2);
 
@@ -114,11 +114,11 @@ public class PageSegmenterTrainer {
         ArrayList<Double> average = new ArrayList<Double>();
 
         File files[] = readURLsFromDisc(place);
-        Map<String, Integer> page1 = seg.createFingerprintForURL(c.getWebDocument(orgURL), numberOfQgrams,
+        Bag<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
                 lengthOfQgrams);
 
         for (int i = 0; i < files.length; i++) {
-            Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()),
+            Bag<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
 
             Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
@@ -240,7 +240,7 @@ public class PageSegmenterTrainer {
         Document d = c.getWebDocument(domain);
 
         Set<String> te = new HashSet<String>();
-        te = PageAnalyzer.getLinks(d, true, false, "");
+        te = HtmlHelper.getLinks(d, true, false, "");
         LOGGER.info(te.size() + " intern verlinkte URLs gefunden!");
         LOGGER.info(te);
 
@@ -337,7 +337,7 @@ public class PageSegmenterTrainer {
         Document d = c.getWebDocument(siteWithLinks);
 
         Set<String> te = new HashSet<String>();
-        te = PageAnalyzer.getLinks(d, true, false, "");
+        te = HtmlHelper.getLinks(d, true, false, "");
 
         int i = 0;
         Iterator<String> it = te.iterator();

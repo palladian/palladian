@@ -1,9 +1,6 @@
 package ws.palladian.preprocessing.segmentation;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -36,20 +35,20 @@ public class SimilarityCalculator {
      * @param page2 Map of q-grams of the document to compare.
      * @return The similarity value between 0 and 1.
      */
-    public static double calculateSimilarity(Map<String, Integer> page1, Map<String, Integer> page2) {
+    public static double calculateSimilarity(Bag<String> page1, Bag<String> page2) {
 
         double result = 0;
         List<Double> variance = new ArrayList<Double>();
 
-        for (String key : page1.keySet()) {
+        for (String qGram : page1.uniqueSet()) {
             // If both maps contain same key, exermine if there is a difference in the value
-            if (page2.keySet().contains(key)) {
+            if (page2.contains(qGram)) {
                 // Calculate the difference in the value
-                if (page2.get(key) == page1.get(key)) {
+                if (page2.getCount(qGram) == page1.getCount(qGram)) {
                     variance.add(new Double(0));
                 } else {
-                    Integer value = page1.get(key);
-                    Integer value2 = page2.get(key);
+                    Integer value = page1.getCount(qGram);
+                    Integer value2 = page2.getCount(qGram);
 
                     double d = 0;
                     if (value > value2)
@@ -85,17 +84,18 @@ public class SimilarityCalculator {
      * @param page2 The document to compare.
      * @return The Jaccard value between 0 and 1.
      */
-    public static double calculateJaccard(Map<String, Integer> page1, Map<String, Integer> page2) {
+    public static double calculateJaccard(Bag<String> page1, Bag<String> page2) {
         double result = 0;
 
-        Map<String, Integer> helperMap = new HashMap<String, Integer>(page1);
+        Set<String> helperSet = new HashSet<String>();
+        helperSet.addAll(page1.uniqueSet());
 
-        helperMap.keySet().retainAll(page2.keySet());
+        helperSet.retainAll(page2.uniqueSet());
 
-        int z1 = helperMap.size();
+        int z1= helperSet.size();
 
-        Set<String> s1 = new HashSet<String>(page1.keySet());
-        Set<String> s2 = new HashSet<String>(page2.keySet());
+        Set<String> s1 = new HashSet<String>(page1.uniqueSet());
+        Set<String> s2 = new HashSet<String>(page2.uniqueSet());
 
         s1.addAll(s2);
 
@@ -118,30 +118,30 @@ public class SimilarityCalculator {
      */
     public static double calculateSimilarityForNode(List<Document> list, String xPath) {
         double result = 0.0;
-        List<Map<String, Integer>> listOfNodeLines = new ArrayList<Map<String, Integer>>();
+        List<Bag<String>> listOfNodeLines = new ArrayList<Bag<String>>();
 
         for (Document doc : list) {
 
             String simNode = HtmlHelper.documentToReadableText(XPathHelper.getXhtmlNode(doc, xPath));
 
-            Map<String, Integer> nodeLines = new LinkedHashMap<String, Integer>();
+            Bag<String> nodeLines = new HashBag<String>();
             StringTokenizer st = new StringTokenizer(simNode, "\n");
 
             while (st.hasMoreTokens()) {
                 String line = st.nextToken();
-                nodeLines.put(line, 0);
+                nodeLines.add(line);
             }
             listOfNodeLines.add(nodeLines);
         }
 
         List<Double> allJaccAverage = new ArrayList<Double>();
         for (int i = 0; i < listOfNodeLines.size(); i++) {
-            Map<String, Integer> currentNodeLines = listOfNodeLines.get(i);
+            Bag<String> currentNodeLines = listOfNodeLines.get(i);
             List<Double> jaccArray = new ArrayList<Double>();
             double jaccAverage = 0.0;
 
             for (int j = 0; j < listOfNodeLines.size(); j++) {
-                Map<String, Integer> compareNodeLines = listOfNodeLines.get(j);
+                Bag<String> compareNodeLines = listOfNodeLines.get(j);
 
                 if (currentNodeLines != compareNodeLines) {
                     Double jacc = calculateJaccard(currentNodeLines, compareNodeLines);
@@ -175,7 +175,7 @@ public class SimilarityCalculator {
      * @return A map of all conflict nodes combined with its similarity values.
      */
     public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, List<String> conflictNodes,
-            List<Document> similarFiles) throws MalformedURLException, IOException {
+            List<Document> similarFiles) {
 
         Map<String, Double> similarityOfNodes = new LinkedHashMap<String, Double>();
 

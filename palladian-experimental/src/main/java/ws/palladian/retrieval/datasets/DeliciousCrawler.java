@@ -12,11 +12,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.LineAction;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -360,7 +360,7 @@ public class DeliciousCrawler {
         double avgURLLength = MathHelper.round(Double.valueOf((Integer) la.arguments[2]) / Double.valueOf((Integer) la.arguments[0]), 4);
         double avgTagsPerURL = MathHelper.round(Double.valueOf((Integer) la.arguments[3]) / Double.valueOf((Integer) la.arguments[0]), 4);
         HashMap<String, Integer> tagMap = (HashMap<String, Integer>) la.arguments[1];
-        tagMap = CollectionHelper.sortByValue(tagMap.entrySet(), false);
+        tagMap = CollectionHelper.sortByValue(tagMap, false);
 
         s.append("URLs in data set:     	" + totalURLs + "\n");
         s.append("Number of distinct tags:	" + tagMap.keySet().size() + "\n");

@@ -9,14 +9,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.helper.FileHelper;
-import ws.palladian.helper.shingling.ShinglesIndex;
-import ws.palladian.helper.shingling.ShinglesIndexBaseImpl;
-import ws.palladian.helper.shingling.ShinglesIndexH2;
-import ws.palladian.helper.shingling.ShinglesIndexJDBM;
-import ws.palladian.helper.shingling.ShinglesIndexJava;
-import ws.palladian.helper.shingling.ShinglesIndexLucene;
-import ws.palladian.helper.shingling.ShinglesIndexWB;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * Test for various ShinglesIndex implementations.

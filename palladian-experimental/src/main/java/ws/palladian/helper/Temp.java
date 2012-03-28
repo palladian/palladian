@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
@@ -29,6 +30,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
@@ -245,7 +247,7 @@ public class Temp {
 
     public static void createTrainingData() {
 
-        FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class);
+        FeedDatabase fd = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
         List<Feed> feeds = fd.getFeeds();
 
         FileWriter fileWriter = null;
@@ -515,7 +517,7 @@ public class Temp {
         FileHelper.addTrailingSlash(rootPath);
         FileHelper.addTrailingSlash(targetPath);
 
-        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class);
+        DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
 
         final Set<Integer> useFeedIds = new HashSet<Integer>();
         ResultSetCallback callback = new ResultSetCallback() {

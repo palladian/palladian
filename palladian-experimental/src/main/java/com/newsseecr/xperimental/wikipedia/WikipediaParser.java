@@ -14,14 +14,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.preprocessing.PipelineDocument;
-import ws.palladian.preprocessing.ProcessingPipeline;
-import ws.palladian.preprocessing.featureextraction.ControlledVocabularyFilter;
-import ws.palladian.preprocessing.featureextraction.DuplicateTokenRemover;
-import ws.palladian.preprocessing.featureextraction.NGramCreator;
-import ws.palladian.preprocessing.featureextraction.TermCorpusBuilder;
-import ws.palladian.preprocessing.featureextraction.Tokenizer;
-import de.tudarmstadt.ukp.wikipedia.parser.ParsedPage;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParser;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
 
