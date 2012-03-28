@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * <p>
  * A {@link ResultCallback}, just providing the pure {@link ResultSet} from the database query.
+ * </p>
  * 
  * @author Philipp Katz
  */

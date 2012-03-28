@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,9 +22,9 @@ import org.junit.Test;
 public class DatabaseManagerTest {
 
     // test prepared statements
-    private static final String CREATE_TABLE = "CREATE TABLE test (id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id));";
+    private static final String CREATE_TABLE = "CREATE TABLE test (id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, name VARCHAR(255), age INTEGER, weight REAL, cool BOOLEAN, PRIMARY KEY (id));";
     private static final String DROP_TABLE = "DROP TABLE test";
-    private static final String INSERT_TEST = "INSERT INTO test (name) VALUES (?)";
+    private static final String INSERT_TEST = "INSERT INTO test (name, age, weight, cool) VALUES (?, ?, ?, ?)";
     private static final String GET_TEST = "SELECT * FROM test";
     private static final String GET_TEST_BY_NAME = "SELECT * FROM test WHERE name = ?";
     private static final String COUNT_TEST = "SELECT COUNT(*) FROM test";
@@ -38,22 +36,24 @@ public class DatabaseManagerTest {
     private static final String JDBC_USERNAME = "sa";
     private static final String JDBC_PASSWORD = "";
 
+    // test data
+    private final Object[] d1 = {"bob", 30, 70, true};
+    private final Object[] d2 = {"mary", 25, 45, true};
+    private final Object[] d3 = {"john", 27, 80, false};
+    private final Object[] d4 = {"carol", 16, 60, true};
+    private final TestClazz c1 = new TestClazz("bob", 30, 70, true);
+    private final TestClazz c2 = new TestClazz("mary", 25, 45, true);
+    private final TestClazz c3 = new TestClazz("john", 27, 80, false);
+    private final TestClazz c4 = new TestClazz("carol", 16, 60, true);
+
     /** The class under test. */
     private DatabaseManager databaseManager;
-
-    private static final RowConverter<String> CONVERTER = new RowConverter<String>() {
-        @Override
-        public String convert(ResultSet resultSet) throws SQLException {
-            return resultSet.getString("name");
-        }
-    };
 
     @Before
     public void before() {
         databaseManager = DatabaseManagerFactory.create(DatabaseManager.class, JDBC_DRIVER, JDBC_URL, JDBC_USERNAME,
                 JDBC_PASSWORD);
-        databaseManager
-                .runUpdate(CREATE_TABLE);
+        databaseManager.runUpdate(CREATE_TABLE);
     }
 
     @After
@@ -63,56 +63,61 @@ public class DatabaseManagerTest {
 
     @Test
     public void testRunInsert() {
-        assertEquals(1, databaseManager.runInsertReturnId(INSERT_TEST, "bob"));
-        assertEquals(2, databaseManager.runInsertReturnId(INSERT_TEST, "mary"));
+        assertEquals(1, databaseManager.runInsertReturnId(INSERT_TEST, d1));
+        assertEquals(2, databaseManager.runInsertReturnId(INSERT_TEST, d2));
     }
 
     @Test
     public void testRunQuery() {
-        databaseManager.runInsertReturnId(INSERT_TEST, "bob");
-        databaseManager.runInsertReturnId(INSERT_TEST, "mary");
-        List<String> result = databaseManager.runQuery(CONVERTER, GET_TEST);
+        databaseManager.runInsertReturnId(INSERT_TEST, d1);
+        databaseManager.runInsertReturnId(INSERT_TEST, d2);
+        List<TestClazz> result = databaseManager.runQuery(new TestClazzRowConverter(), GET_TEST);
         assertEquals(2, result.size());
-        assertEquals("bob", result.get(0));
-        assertEquals("mary", result.get(1));
+        assertEquals("bob", result.get(0).getName());
+        assertEquals("mary", result.get(1).getName());
     }
 
     @Test
     public void testRunSingleQuery() {
-        databaseManager.runInsertReturnId(INSERT_TEST, "bob");
-        databaseManager.runInsertReturnId(INSERT_TEST, "mary");
-        String result = databaseManager.runSingleQuery(CONVERTER, GET_TEST_BY_NAME, "bob");
-        assertEquals("bob", result);
+        databaseManager.runInsertReturnId(INSERT_TEST, d1);
+        databaseManager.runInsertReturnId(INSERT_TEST, d2);
+        TestClazz result = databaseManager.runSingleQuery(new TestClazzRowConverter(), GET_TEST_BY_NAME, "bob");
+        assertEquals("bob", result.getName());
     }
 
     @Test
     public void testRunQueryWithIterator() {
-        databaseManager.runInsertReturnId(INSERT_TEST, "bob");
-        databaseManager.runInsertReturnId(INSERT_TEST, "mary");
-        ResultIterator<String> iterator = databaseManager.runQueryWithIterator(CONVERTER, GET_TEST);
+        databaseManager.runInsertReturnId(INSERT_TEST, d1);
+        databaseManager.runInsertReturnId(INSERT_TEST, d2);
+        ResultIterator<TestClazz> iterator = databaseManager
+                .runQueryWithIterator(new TestClazzRowConverter(), GET_TEST);
         assertTrue(iterator.hasNext());
-        assertEquals("bob", iterator.next());
+        assertEquals("bob", iterator.next().getName());
         assertTrue(iterator.hasNext());
-        assertEquals("mary", iterator.next());
+        assertEquals("mary", iterator.next().getName());
         assertFalse(iterator.hasNext());
     }
 
     @Test
     public void testRunBatchUpdate() {
-        final List<String> names = Arrays.asList("bob", "mary", "john", "carol");
-        final int[] expectedIds = new int[] { 1, 2, 3, 4 };
+        final List<TestClazz> test = Arrays.asList(c1, c2, c3, c4);
+        final int[] expectedIds = new int[] {1, 2, 3, 4};
         boolean success = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
 
             @Override
             public List<Object> getData(int number) {
                 List<Object> data = new ArrayList<Object>();
-                data.add(names.get(number));
+                TestClazz testClazz = test.get(number);
+                data.add(testClazz.getName());
+                data.add(testClazz.getAge());
+                data.add(testClazz.getWeight());
+                data.add(testClazz.isCool());
                 return data;
             }
 
             @Override
             public int getCount() {
-                return names.size();
+                return test.size();
             }
 
             @Override
@@ -126,10 +131,10 @@ public class DatabaseManagerTest {
     @Test
     public void testRunBatchUpdateReturnIds() {
         List<List<Object>> params = new ArrayList<List<Object>>();
-        params.add(Arrays.asList((Object) "bob"));
-        params.add(Arrays.asList((Object) "mary"));
-        params.add(Arrays.asList((Object) "john"));
-        params.add(Arrays.asList((Object) "carol"));
+        params.add(Arrays.asList(d1));
+        params.add(Arrays.asList(d2));
+        params.add(Arrays.asList(d3));
+        params.add(Arrays.asList(d4));
         int[] generatedIds = databaseManager.runBatchInsertReturnIds(INSERT_TEST, params);
         assertEquals(4, generatedIds.length);
         assertEquals(1, generatedIds[0]);
@@ -140,13 +145,29 @@ public class DatabaseManagerTest {
 
     @Test
     public void runAggregateQuery() {
-        databaseManager.runInsertReturnId(INSERT_TEST, "bob");
-        databaseManager.runInsertReturnId(INSERT_TEST, "alice");
-        databaseManager.runInsertReturnId(INSERT_TEST, "mary");
+        databaseManager.runInsertReturnId(INSERT_TEST, d1);
+        databaseManager.runInsertReturnId(INSERT_TEST, d2);
+        databaseManager.runInsertReturnId(INSERT_TEST, d3);
         int aggregateResult = databaseManager.runAggregateQuery(COUNT_TEST);
         assertEquals(3, aggregateResult);
         aggregateResult = databaseManager.runAggregateQuery(MAX_TEST);
         assertEquals(3, aggregateResult);
+    }
+
+    @Test
+    public void testReflectionRowConverter() {
+        databaseManager.runInsertReturnId(INSERT_TEST, d1);
+        databaseManager.runInsertReturnId(INSERT_TEST, d2);
+        // test with null value
+        databaseManager.runInsertReturnId(INSERT_TEST, "mary", null, 45, true);
+
+        RowConverter<TestClazz> rowConverter = ReflectionRowConverter.create(TestClazz.class);
+        List<TestClazz> result = databaseManager.runQuery(rowConverter, GET_TEST);
+        assertEquals(3, result.size());
+        assertEquals("mary", result.get(2).getName());
+        assertEquals(0, result.get(2).getAge());
+        assertEquals(45., result.get(2).getWeight(), 0);
+        assertEquals(true, result.get(2).isCool());
     }
 
 }
