@@ -67,7 +67,7 @@ import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
- * The {@link HttpRetriever} performs all HTTP specific operations withing Palladian. This includes HTTP requests like
+ * The {@link HttpRetriever} performs all HTTP specific operations within Palladian. This includes HTTP requests like
  * GET, POST, and HEAD. Results for these requests are supplied as instances of {@link HttpResult}. Further more, this
  * class provides the possibility to save the results from HTTP requests as files for archival purposes. This class is
  * heavily based upon Apache HttpComponents, which provide a much more reliable HTTP implementation than the original
@@ -94,13 +94,13 @@ public class HttpRetriever {
     public static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
 
     /** The default timeout for a connection to be established, in milliseconds. */
-    public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
+    public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
     public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
-    public static final int DEFAULT_NUM_RETRIES = 0;
+    public static final int DEFAULT_NUM_RETRIES = 1; // FIXME fails with 0 but why?
 
     /** The default number of connections in the connection pool. */
     public static final int DEFAULT_NUM_CONNECTIONS = 100;
@@ -192,7 +192,7 @@ public class HttpRetriever {
      * <td>0</td>
      * </tr>
      * <tr>
-     * <td>maximum number of simultanous connections</td>
+     * <td>maximum number of simultaneous connections</td>
      * <td>100</td>
      * </tr>
      * </table>

@@ -167,4 +167,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.intValue();
     }
 
+    // public static void main(String[] args) throws SearcherException {
+    // CollectionHelper.print(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()).search("cinefreaks", 10));
+    // }
 }
