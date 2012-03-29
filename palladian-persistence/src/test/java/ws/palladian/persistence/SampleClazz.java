@@ -1,6 +1,6 @@
 package ws.palladian.persistence;
 
-final class TestClazz {
+final class SampleClazz {
     private Integer id;
     private String name;
     private int age;
@@ -13,7 +13,7 @@ final class TestClazz {
      * @param weight
      * @param cool
      */
-    public TestClazz(String name, int age, double weight, boolean cool) {
+    public SampleClazz(String name, int age, double weight, boolean cool) {
         super();
         this.name = name;
         this.age = age;
@@ -24,7 +24,7 @@ final class TestClazz {
     /**
      * 
      */
-    public TestClazz() {
+    public SampleClazz() {
         super();
     }
 

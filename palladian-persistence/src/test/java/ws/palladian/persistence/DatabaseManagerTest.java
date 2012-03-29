@@ -41,10 +41,10 @@ public class DatabaseManagerTest {
     private final Object[] d2 = {"mary", 25, 45, true};
     private final Object[] d3 = {"john", 27, 80, false};
     private final Object[] d4 = {"carol", 16, 60, true};
-    private final TestClazz c1 = new TestClazz("bob", 30, 70, true);
-    private final TestClazz c2 = new TestClazz("mary", 25, 45, true);
-    private final TestClazz c3 = new TestClazz("john", 27, 80, false);
-    private final TestClazz c4 = new TestClazz("carol", 16, 60, true);
+    private final SampleClazz c1 = new SampleClazz("bob", 30, 70, true);
+    private final SampleClazz c2 = new SampleClazz("mary", 25, 45, true);
+    private final SampleClazz c3 = new SampleClazz("john", 27, 80, false);
+    private final SampleClazz c4 = new SampleClazz("carol", 16, 60, true);
 
     /** The class under test. */
     private DatabaseManager databaseManager;
@@ -71,7 +71,7 @@ public class DatabaseManagerTest {
     public void testRunQuery() {
         databaseManager.runInsertReturnId(INSERT_TEST, d1);
         databaseManager.runInsertReturnId(INSERT_TEST, d2);
-        List<TestClazz> result = databaseManager.runQuery(new TestClazzRowConverter(), GET_TEST);
+        List<SampleClazz> result = databaseManager.runQuery(new SampleClazzRowConverter(), GET_TEST);
         assertEquals(2, result.size());
         assertEquals("bob", result.get(0).getName());
         assertEquals("mary", result.get(1).getName());
@@ -81,7 +81,7 @@ public class DatabaseManagerTest {
     public void testRunSingleQuery() {
         databaseManager.runInsertReturnId(INSERT_TEST, d1);
         databaseManager.runInsertReturnId(INSERT_TEST, d2);
-        TestClazz result = databaseManager.runSingleQuery(new TestClazzRowConverter(), GET_TEST_BY_NAME, "bob");
+        SampleClazz result = databaseManager.runSingleQuery(new SampleClazzRowConverter(), GET_TEST_BY_NAME, "bob");
         assertEquals("bob", result.getName());
     }
 
@@ -89,8 +89,8 @@ public class DatabaseManagerTest {
     public void testRunQueryWithIterator() {
         databaseManager.runInsertReturnId(INSERT_TEST, d1);
         databaseManager.runInsertReturnId(INSERT_TEST, d2);
-        ResultIterator<TestClazz> iterator = databaseManager
-                .runQueryWithIterator(new TestClazzRowConverter(), GET_TEST);
+        ResultIterator<SampleClazz> iterator = databaseManager
+                .runQueryWithIterator(new SampleClazzRowConverter(), GET_TEST);
         assertTrue(iterator.hasNext());
         assertEquals("bob", iterator.next().getName());
         assertTrue(iterator.hasNext());
@@ -100,14 +100,14 @@ public class DatabaseManagerTest {
 
     @Test
     public void testRunBatchUpdate() {
-        final List<TestClazz> test = Arrays.asList(c1, c2, c3, c4);
+        final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c4);
         final int[] expectedIds = new int[] {1, 2, 3, 4};
         boolean success = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
 
             @Override
             public List<Object> getData(int number) {
                 List<Object> data = new ArrayList<Object>();
-                TestClazz testClazz = test.get(number);
+                SampleClazz testClazz = test.get(number);
                 data.add(testClazz.getName());
                 data.add(testClazz.getAge());
                 data.add(testClazz.getWeight());
@@ -161,8 +161,8 @@ public class DatabaseManagerTest {
         // test with null value
         databaseManager.runInsertReturnId(INSERT_TEST, "mary", null, 45, true);
 
-        RowConverter<TestClazz> rowConverter = ReflectionRowConverter.create(TestClazz.class);
-        List<TestClazz> result = databaseManager.runQuery(rowConverter, GET_TEST);
+        RowConverter<SampleClazz> rowConverter = ReflectionRowConverter.create(SampleClazz.class);
+        List<SampleClazz> result = databaseManager.runQuery(rowConverter, GET_TEST);
         assertEquals(3, result.size());
         assertEquals("mary", result.get(2).getName());
         assertEquals(0, result.get(2).getAge());
