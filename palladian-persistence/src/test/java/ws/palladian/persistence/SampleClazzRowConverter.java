@@ -5,11 +5,11 @@ import java.sql.SQLException;
 
 import ws.palladian.persistence.helper.SqlHelper;
 
-final class TestClazzRowConverter implements RowConverter<TestClazz> {
+final class SampleClazzRowConverter implements RowConverter<SampleClazz> {
 
     @Override
-    public TestClazz convert(ResultSet resultSet) throws SQLException {
-        TestClazz testClazz = new TestClazz();
+    public SampleClazz convert(ResultSet resultSet) throws SQLException {
+        SampleClazz testClazz = new SampleClazz();
         testClazz.setId(SqlHelper.getInteger(resultSet, "id"));
         testClazz.setName(resultSet.getString("name"));
         testClazz.setAge(resultSet.getInt("age"));
