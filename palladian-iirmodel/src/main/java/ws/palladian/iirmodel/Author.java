@@ -35,7 +35,7 @@ public class Author {
      * The absolute count of items this author has published. This value might or might not be the same as
      * {@code items.size()}. This depends on whether the count of items was extracted from a user profile page and if
      * the extractor for items missed some items during extraction. Missing items may happen if the stream was started
-     * before extraction began and if old items are lost after some time. Web feed for example show such a behaviour.
+     * before extraction began and if old items are lost after some time. Web feed for example show such a behavior.
      * </p>
      */
     private Integer countOfItems;
@@ -56,7 +56,7 @@ public class Author {
 
     /**
      * <p>
-     * The system wide unqiue identifier of this author. This is created by the database and is not always the same as
+     * The system wide unique identifier of this author. This is created by the database and is not always the same as
      * its username. Usernames are ambiguous since the same username might occur for different users in different stream
      * sources.
      * </p>
@@ -84,7 +84,7 @@ public class Author {
     /**
      * <p>
      * The source of streams this {@code Author} creates {@link Item}s for, such as <a
-     * href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web Forum or other
+     * href="http://www.twitter.com">Twitter</a>, <a href="http://www.facebook.com">Facebook</a>, any Web Forum or other
      * kind of source the author's username is unique in.
      * </p>
      */
@@ -125,9 +125,9 @@ public class Author {
      *            same as {@code items.size()}. This depends on whether the count of items was extracted from a user
      *            profile page and if the extractor for items missed some items during extraction. Missing items may
      *            happen if the stream was started before extraction began and if old items are lost after some time.
-     *            Web feed for example show such a behaviour.
+     *            Web feed for example show such a behavior.
      * @param countOfStreamsStarted This is the amount of streams this author created by publishing the first item.
-     * @param authorRating The rating of this author. A value often recieved from other authors for high quality items.
+     * @param authorRating The rating of this author. A value often received from other authors for high quality items.
      * @param registeredSince The date and time the author was created.
      * @param streamSource The source of streams this {@code Author} creates {@link Item}s for, such as <a
      *            href="http://www.twitter.com">Twitter</a>, <a href="http://ww.facebook.com">Facebook</a>, any Web
@@ -176,7 +176,7 @@ public class Author {
      *         {@code items.size()}. This depends on whether the count of items was extracted from a user profile page
      *         and if the extractor for items missed some items during extraction. Missing items may happen if the
      *         stream was started before extraction began and if old items are lost after some time. Web feed for
-     *         example show such a behaviour.
+     *         example show such a behavior.
      */
     public Integer getCountOfItems() {
         return this.countOfItems;
@@ -191,7 +191,7 @@ public class Author {
      *            same as {@code items.size()}. This depends on whether the count of items was extracted from a user
      *            profile page and if the extractor for items missed some items during extraction. Missing items may
      *            happen if the stream was started before extraction began and if old items are lost after some time.
-     *            Web feed for example show such a behaviour.
+     *            Web feed for example show such a behavior.
      */
     public void setCountOfItems(Integer countOfItems) {
         this.countOfItems = countOfItems;
@@ -225,7 +225,7 @@ public class Author {
      * The system wide unique identifier for this author. Generated and used by the persistence layer.
      * </p>
      * 
-     * @return The system wide unqiue identifier of this author. This is created by the database and is not always the
+     * @return The system wide unique identifier of this author. This is created by the database and is not always the
      *         same as its username. Usernames are ambiguous since the same username might occur for different users in
      *         different stream sources.
      */
@@ -239,7 +239,7 @@ public class Author {
      * persistence layer only to serialize this author to a database.
      * </p>
      * 
-     * @param identifier The system wide unqiue identifier of this author. This is created by the database and is not
+     * @param identifier The system wide unique identifier of this author. This is created by the database and is not
      *            always the same as its username. Usernames are ambiguous since the same username might occur for
      *            different users in different stream sources.
      */

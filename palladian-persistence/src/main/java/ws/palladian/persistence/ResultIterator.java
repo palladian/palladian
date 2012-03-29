@@ -1,5 +1,6 @@
 package ws.palladian.persistence;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
  * @param <T> Type of the processed objects.
  * @author Philipp Katz
  */
-public class ResultIterator<T> implements Iterator<T> {
+public class ResultIterator<T> implements Iterator<T>, Closeable {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ResultIterator.class);
@@ -103,6 +104,7 @@ public class ResultIterator<T> implements Iterator<T> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void close() {
         LOGGER.trace("closing ...");
         DatabaseManager.close(connection, statement, resultSet);
