@@ -4,9 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * <p>
  * A {@link RowConverter} is responsible for transforming {@link ResultSet}s to specific types. Implementations perform
  * the conversion by implementing {@link #convert(ResultSet)}. A simple converter is available as
  * {@link SimpleRowConverter}, but feel free to create your own, more sophisticated mapping implementations.
+ * </p>
  * 
  * @param <T> Type of the objects to be processed.
  * @author Philipp Katz
@@ -14,8 +16,10 @@ import java.sql.SQLException;
 public interface RowConverter<T> {
 
     /**
+     * <p>
      * Convert one row to the specified type. <b>Attention:</b> Only perform conversion operations here, do <b>not</b>
      * use methods like {@link ResultSet#next()}, or {@link ResultSet#close()}.
+     * </p>
      * 
      * @param resultSet
      * @return

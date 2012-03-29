@@ -85,17 +85,8 @@ api.youtube.key =
 # number of threads in the pool for the FeedReader
 feedReader.threadPoolSize = 100
 
-# number of threads in the pool for the MetadataCreator
-metaInformationCreator.threadPoolSize = 500
-
 # if false, do not check system limitations like number of available file descriptors 
 feedReader.checkSystemLimitations=true
-
-# if true, detected errors will be send by mail 
-schedulerTask.errorMailNotification=false 
-
-# The receipient of email notifications.
-#schedulerTask.emailRecipient
 
 # This many percent of the feeds processed per interval are allowed to be slow.
 schedulerTask.maxSlowPercentage = 10
@@ -116,9 +107,6 @@ datasetEvaluator.fixCheckInterval = 60
 # If datasetEvaluator.updateStrategy = FixLearned, choose mode 0 to average over first window or 1 to also use 
 # timestamp of first poll 
 datasetEvaluator.fixLearnedMode = 0
-
-# If datasetEvaluator.updateStrategy = AdaptiveTTL or IndHistTTL, choose weight M > 0, common values are 0.1 or 0.2
-datasetEvaluator.adaptiveTTLweightM = 0.1
 
 # If datasetEvaluator.updateStrategy = IndHist, choose threshold theta as 0 < theta < 1, common values are between 0.15 and 0.5
 datasetEvaluator.indHistTheta = 0.5
