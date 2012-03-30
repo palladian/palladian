@@ -49,7 +49,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
 
     }
 
-    public static final NullIterator NULL_ITERATOR = new NullIterator();
+    static final NullIterator NULL_ITERATOR = new NullIterator();
 
     private final Connection connection;
     private final Statement statement;
@@ -60,7 +60,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
     /** Reference to the next item which can be retrieved via next(). */
     private T next = null;
 
-    public ResultIterator(Connection connection, Statement statement, ResultSet resultSet, RowConverter<T> rowConverter) {
+    ResultIterator(Connection connection, Statement statement, ResultSet resultSet, RowConverter<T> rowConverter) {
         this.connection = connection;
         this.statement = statement;
         this.resultSet = resultSet;

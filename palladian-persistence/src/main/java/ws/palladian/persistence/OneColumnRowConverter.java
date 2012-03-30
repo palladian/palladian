@@ -17,6 +17,11 @@ public final class OneColumnRowConverter {
         // prevent instances.
     }
 
+    /**
+     * <p>
+     * A {@link RowConverter} for {@link Boolean} types.
+     * </p>
+     */
     public final static RowConverter<Boolean> BOOLEAN = new RowConverter<Boolean>() {
         @Override
         public Boolean convert(ResultSet resultSet) throws SQLException {
@@ -24,6 +29,11 @@ public final class OneColumnRowConverter {
         }
     };
 
+    /**
+     * <p>
+     * A {@link RowConverter} for {@link Integer} types.
+     * </p>
+     */
     public final static RowConverter<Integer> INTEGER = new RowConverter<Integer>() {
         @Override
         public Integer convert(ResultSet resultSet) throws SQLException {
@@ -31,6 +41,11 @@ public final class OneColumnRowConverter {
         }
     };
 
+    /**
+     * <p>
+     * A {@link RowConverter} for {@link Double} types.
+     * </p>
+     */
     public final static RowConverter<Double> DOUBLE = new RowConverter<Double>() {
         @Override
         public Double convert(ResultSet resultSet) throws SQLException {
@@ -38,6 +53,11 @@ public final class OneColumnRowConverter {
         }
     };
 
+    /**
+     * <p>
+     * A {@link RowConverter} for {@link String} types.
+     * </p>
+     */
     public final static RowConverter<String> STRING = new RowConverter<String>() {
         @Override
         public String convert(ResultSet resultSet) throws SQLException {
