@@ -7,13 +7,13 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.feature.Annotation;
+import ws.palladian.extraction.token.LingPipeTokenizer;
+import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -31,6 +31,7 @@ import com.aliasi.util.FastCache;
  */
 public final class LingPipePosTagger extends BasePosTagger {
 
+
     private static final long serialVersionUID = 1L;
 
     /** The logger for this class. */
@@ -41,6 +42,9 @@ public final class LingPipePosTagger extends BasePosTagger {
 
     /** The model used by the LingPipe POS tagger. */
     private final HiddenMarkovModel model;
+    
+    /** The tokenizer used by the LingPipe POS tagger. */
+    private static final LingPipeTokenizer TOKENIZER = new LingPipeTokenizer();
 
     /**
      * <p>
@@ -193,6 +197,11 @@ public final class LingPipePosTagger extends BasePosTagger {
     @Override
     public String getName() {
         return TAGGER_NAME;
+    }
+    
+    @Override
+    protected TokenizerInterface getTokenizer() {
+        return TOKENIZER;
     }
 
     public static void main(String[] args) {

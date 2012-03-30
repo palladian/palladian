@@ -22,8 +22,8 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * <ol>
  * <li>{@link PosTagger}, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as
- * String. In this case, the text is tokenized using a default {@link TokenizerInterface} implementation specific for the
- * respective POS tagger.</li>
+ * String. In this case, the text is tokenized using a default {@link TokenizerInterface} implementation specific for
+ * the respective POS tagger. Subclasses may override {@link #getTokenizer()} if they require a specific tokenizer.</li>
  * 
  * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
  * means, that the input document must be tokenized in advance, using one of the available {@link TokenizerInterface}
@@ -55,12 +55,12 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
     public static final FeatureDescriptor<NominalFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
             PROVIDED_FEATURE, NominalFeature.class);
 
-    private final TokenizerInterface tokenizer;
-
-    public BasePosTagger() {
-        this.tokenizer = new RegExTokenizer();
-        // this.tokenizer = new LingPipeTokenizer();
-    }
+    /**
+     * <p>
+     * The default {@link TokenizerInterface} used if not overridden.
+     * </p>
+     */
+    private static final TokenizerInterface DEFAULT_TOKENIZER = new RegExTokenizer();
 
     // ////////////////////////////////////////////
     // PosTagger API
@@ -69,9 +69,10 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
     @Override
     public TagAnnotations tag(String text) {
         PipelineDocument document = new PipelineDocument(text);
-        tokenizer.process(document);
+        getTokenizer().process(document);
         process(document);
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
         for (Annotation annotation : annotationFeature.getValue()) {
@@ -80,6 +81,19 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
             ret.add(tagAnnotation);
         }
         return ret;
+    }
+
+    /**
+     * <p>
+     * Return the {@link TokenizerInterface} which this {@link PosTagger} uses when tagging String using
+     * {@link #tag(String)}. Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if
+     * a specific {@link TokenizerInterface} is required.
+     * </p>
+     * 
+     * @return The {@link TokenizerInterface} to use.
+     */
+    protected TokenizerInterface getTokenizer() {
+        return DEFAULT_TOKENIZER;
     }
 
     // ////////////////////////////////////////////
