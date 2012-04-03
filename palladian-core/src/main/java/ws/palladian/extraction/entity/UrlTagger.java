@@ -17,7 +17,10 @@ public class UrlTagger {
 	public static final String URI_TAG_NAME = "URI";
 	
 	/** The URL regular expression. */
-    private static final String URL_REGEXP = "((http://|https://|www.).*?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-]*(\\.[A-Za-z]{2,5})?)";
+//	private static final String URL_REGEXP = "((http://|https://|www.).*?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-]*(\\.[A-Za-z]{2,5})?)";
+//    private static final String URL_REGEXP = "((http://|https://|www.).{0,63}?(?=[.,;?!]?(\\s|\\]|\\))|[.,;?!]?$))|([A-Za-z.0-9-]{0,63}?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)[/A-Za-z0-9-\\?=&\\+]{0,1024}(\\.[A-Za-z]{2,5})?)";
+//	private static final String URL_REGEXP = "(http(s)?://)?([A-Za-z0-9-.]*?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)((/[/A-Za-z0-9-?=&+]*(\\.[A-Za-z?]{2,5})?)|(?=(\\s|\\.|\\)|\\]|\\?|\\!|\\,))))";
+	private static final String URL_REGEXP = "(http(s)?://)?([A-Za-z0-9-.]{0,63}?\\.(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk)((/[/A-Za-z0-9-?=&+]{0,255}(\\.[A-Za-z?]{2,5})?)|(?=(\\s|\\.|\\)|\\]|\\?|\\!|\\,))))";
 
 	private final Pattern urlPattern;
 
