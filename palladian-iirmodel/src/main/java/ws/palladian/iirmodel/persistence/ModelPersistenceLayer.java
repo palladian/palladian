@@ -55,7 +55,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      * </p>
      */
-    @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(ModelPersistenceLayer.class);
 
     /**
@@ -638,7 +637,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @return
      */
     public Collection<StreamSource> loadStreamSources() {
-        Query query = getManager().createQuery("SELECT ss FROM StreamSource ss");
+        TypedQuery<StreamSource> query = getManager().createQuery("SELECT ss FROM StreamSource ss", StreamSource.class);
         Boolean openedTransaction = openTransaction();
         try {
             Collection<StreamSource> results = query.getResultList();
