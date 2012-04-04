@@ -1200,4 +1200,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
          */
         void fillParameter(final Query query);
     }
+
+    /**
+     * <p>
+     * Saves all provided relations to the database.
+     * </p>
+     * 
+     * @param relations The relations to save to the database.
+     */
+    public void saveItemRelations(List<ItemRelation> relations) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            for (ItemRelation relation : relations) {
+                getManager().persist(relation);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
 }
