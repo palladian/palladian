@@ -71,12 +71,12 @@ public class UrlTaggerTest {
         assertEquals(26, annotations.get(0).getOffset());
         assertEquals(25, annotations.get(0).getLength());
 
-		annotations = urlTagger.tagUrls("http://www.google.com/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m");
+		annotations = urlTagger.tagUrls("http://www.google.cpm/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m");
+		CollectionHelper.print(annotations);
 		assertEquals(1, annotations.size());
 		assertEquals(0, annotations.get(0).getOffset());
 		assertEquals(151, annotations.get(0).getLength());
 
-		CollectionHelper.print(annotations);
 		
 	}
 }
