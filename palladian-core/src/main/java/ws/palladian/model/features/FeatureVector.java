@@ -3,7 +3,6 @@ package ws.palladian.model.features;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -80,19 +79,26 @@ public class FeatureVector {
         return features.get(identifier);
     }
 
+    /**
+     * <p>
+     * Provides all {@link Feature}s with the specified type from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param type The type of the {@link Feature}s to retrieve.
+     * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
+     *         exist, never <code>null</code>.
+     */
     @SuppressWarnings("unchecked")
-    public <F extends Feature<T>, T> List<F> getAll(Class<T> clazz) {
-        List<F> collection = new ArrayList<F>();
-        
+    public <F extends Feature<T>, T> List<F> getAll(Class<T> type) {
+        List<F> ret = new ArrayList<F>();
         for (Entry<String, Feature<?>> featureEntry : features.entrySet()) {
-            if(clazz.isInstance(featureEntry.getValue())) {
-                collection.add((F) clazz.cast(featureEntry.getValue()));
+            if (type.isInstance(featureEntry.getValue())) {
+                ret.add((F)type.cast(featureEntry.getValue()));
             }
         }
-        
-        return collection;
+        return ret;
     }
-    
+
     /**
      * <p>
      * Provides a {@link Feature} from this {@link FeatureVector}.
