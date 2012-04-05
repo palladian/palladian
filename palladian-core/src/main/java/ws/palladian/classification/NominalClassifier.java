@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,10 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.model.features.ClassificationFeatureVector;
+import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureDescriptorBuilder;
+import ws.palladian.model.features.FeatureVector;
 
 public class NominalClassifier extends Classifier<UniversalInstance> {
 
@@ -41,6 +46,30 @@ public class NominalClassifier extends Classifier<UniversalInstance> {
         LOGGER.info("trained in " + sw.getElapsedTimeString());
     }
 
+    public final CategoryEntries classify(ClassificationFeatureVector fv) {
+        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        
+        UniversalInstance universalInstance = new UniversalInstance(instances);
+        
+        Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
+        
+        // add numeric features
+        for (Feature<Double> numericFeature : numericFeatures) {            
+            universalInstance.getNumericFeatures().add(numericFeature.getValue());            
+        }
+        
+        Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
+        
+        // add nominal features
+        for (Feature<String> nominalFeature : nominalFeatures) {            
+            universalInstance.getNominalFeatures().add(nominalFeature.getValue());            
+        }
+        
+        classify(universalInstance);
+        
+        return universalInstance.getAssignedCategoryEntries();
+    }
+    
     public final void classify(UniversalInstance instance) {
 
         if (categories == null) {

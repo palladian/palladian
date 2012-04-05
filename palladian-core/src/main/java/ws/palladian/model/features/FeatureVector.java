@@ -1,5 +1,9 @@
 package ws.palladian.model.features;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -13,7 +17,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class FeatureVector {
+public class FeatureVector {
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -21,7 +25,7 @@ public final class FeatureVector {
      * type.
      * </p>
      */
-    private final transient SortedMap<String, Feature<?>> features;
+    protected final transient SortedMap<String, Feature<?>> features;
 
     /**
      * <p>
@@ -76,6 +80,19 @@ public final class FeatureVector {
         return features.get(identifier);
     }
 
+    @SuppressWarnings("unchecked")
+    public <F extends Feature<T>, T> List<F> getAll(Class<T> clazz) {
+        List<F> collection = new ArrayList<F>();
+        
+        for (Entry<String, Feature<?>> featureEntry : features.entrySet()) {
+            if(clazz.isInstance(featureEntry.getValue())) {
+                collection.add((F) clazz.cast(featureEntry.getValue()));
+            }
+        }
+        
+        return collection;
+    }
+    
     /**
      * <p>
      * Provides a {@link Feature} from this {@link FeatureVector}.
