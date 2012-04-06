@@ -43,6 +43,15 @@ public final class KnnClassifier extends NumericClassifier {
     }
 
     @Override
+    public void addTrainingInstances(Instances<UniversalInstance> trainingInstances) {
+        if (this.trainingInstances == null) {
+            this.trainingInstances = new Instances<UniversalInstance>();
+        }
+        this.trainingInstances.addAll(trainingInstances);
+        getPossibleCategories(trainingInstances);
+    }
+
+    @Override
     public void setTrainingInstances(Instances<UniversalInstance> trainingInstances) {
         this.trainingInstances = trainingInstances;
         getPossibleCategories(trainingInstances);
