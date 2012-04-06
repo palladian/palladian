@@ -305,6 +305,7 @@ public class UrlHelper {
      * @return true, if is a valid URL
      * @author Martin Werner
      */
+    // TODO too specific, move to WebKnox
     public static boolean isValidUrl(String url) {
         String[] schemes = { "http", "https" };
         UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
@@ -363,6 +364,7 @@ public class UrlHelper {
      * @param pageUrl the pageURL
      * @return the verified URL
      */
+    // TODO too specific, move to WebKnox
     public static String verifyUrl(final String urlCandidate, final String pageUrl) {
 
         String returnValue = "";
@@ -495,33 +497,35 @@ public class UrlHelper {
         }
     }
 
-    /**
-     * <p>
-     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
-     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
-     * processing of the extracted URLs.
-     * </p>
-     * 
-     * <p>
-     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls and alternative one
-     * can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
-     * </p>
-     * 
-     * @param text
-     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
-     */
-    public static List<String> extractUrls(String text) {
-        List<String> urls = new ArrayList<String>();
-        Pattern p = Pattern
-        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
-                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
-
-        Matcher m = p.matcher(text);
-        while (m.find()) {
-            urls.add(m.group());
-        }
-        return urls;
-    }
+//    /**
+//     * <p>
+//     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
+//     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
+//     * processing of the extracted URLs.
+//     * </p>
+//     * 
+//     * <p>
+//     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls and alternative one
+//     * can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
+//     * </p>
+//     * 
+//     * @param text
+//     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
+//     * @deprecated Use UrlTagger from palladian-core instead.
+//     */
+//    @Deprecated
+//    public static List<String> extractUrls(String text) {
+//        List<String> urls = new ArrayList<String>();
+//        Pattern p = Pattern
+//        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
+//                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+//
+//        Matcher m = p.matcher(text);
+//        while (m.find()) {
+//            urls.add(m.group());
+//        }
+//        return urls;
+//    }
 
     public static boolean isLocalFile(URL url) {
         String protocol = url.getProtocol();
