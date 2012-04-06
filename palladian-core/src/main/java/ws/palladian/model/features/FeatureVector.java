@@ -1,5 +1,8 @@
 package ws.palladian.model.features;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -13,7 +16,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class FeatureVector {
+public class FeatureVector {
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -21,7 +24,7 @@ public final class FeatureVector {
      * type.
      * </p>
      */
-    private final transient SortedMap<String, Feature<?>> features;
+    protected final transient SortedMap<String, Feature<?>> features;
 
     /**
      * <p>
@@ -74,6 +77,26 @@ public final class FeatureVector {
     @Deprecated
     public Feature<?> get(String identifier) {
         return features.get(identifier);
+    }
+
+    /**
+     * <p>
+     * Provides all {@link Feature}s with the specified type from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param type The type of the {@link Feature}s to retrieve.
+     * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
+     *         exist, never <code>null</code>.
+     */
+    @SuppressWarnings("unchecked")
+    public <F extends Feature<T>, T> List<F> getAll(Class<T> type) {
+        List<F> ret = new ArrayList<F>();
+        for (Entry<String, Feature<?>> featureEntry : features.entrySet()) {
+            if (type.isInstance(featureEntry.getValue())) {
+                ret.add((F)type.cast(featureEntry.getValue()));
+            }
+        }
+        return ret;
     }
 
     /**
