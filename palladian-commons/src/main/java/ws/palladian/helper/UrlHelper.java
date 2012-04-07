@@ -342,6 +342,30 @@ public class UrlHelper {
         return result;
     }
 
+    // FIXME, this is only to fix the build, duplicate with UrlTagger
+    public static List<String> extractUrls(String text) {
+
+        List<String> urls = new ArrayList<String>();
+
+        final String DOMAIN_ALLOWED_CHARACTERS = "[^;/?:@=&\\s]";
+        final String PATH_ALLOWED_CHARACTERS = "[^\\s]";
+        final String NEGLECTED_ENDINGS = "[.,?!;\\[\\](){}\"\\s]";
+        final String TOP_LEVEL_DOMAINS = "(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk|ws)";
+        final String URL_REGEXP = "(http(s)?://)?(" + DOMAIN_ALLOWED_CHARACTERS + "{0,63}?\\."
+                + TOP_LEVEL_DOMAINS + "((/" + PATH_ALLOWED_CHARACTERS + "{0,255}(\\.[A-Za-z?]{2,5})?)|(?="
+                + NEGLECTED_ENDINGS + ")))";
+
+        Pattern urlPattern = Pattern.compile(URL_REGEXP);
+
+        Matcher matcher = urlPattern.matcher(text);
+
+        while (matcher.find()) {
+            urls.add(matcher.group(0));
+        }
+
+        return urls;
+    }
+
     /**
      * <p>
      * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
@@ -503,12 +527,12 @@ public class UrlHelper {
 //     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
 //     * processing of the extracted URLs.
 //     * </p>
-//     * 
+//     *
 //     * <p>
 //     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls and alternative one
 //     * can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
 //     * </p>
-//     * 
+//     *
 //     * @param text
 //     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
 //     * @deprecated Use UrlTagger from palladian-core instead.
