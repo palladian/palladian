@@ -1217,4 +1217,15 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             commitTransaction(openedTransaction);
         }
     }
+
+    public <T> List<T> runQuery(String loadAnswersForQuestion, ParameterFiller parameterFiller, Class<T> clazz) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            TypedQuery<T> query = getManager().createQuery(loadAnswersForQuestion, clazz);
+            parameterFiller.fillParameter(query);
+            return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
 }
