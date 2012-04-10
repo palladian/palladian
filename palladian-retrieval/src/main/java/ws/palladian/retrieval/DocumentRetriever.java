@@ -39,21 +39,20 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * </p>
  * 
  * <p>
- * The intention of this class is to provide a convenient wrapper for obtaining XML, (X)HTML and JSON data from the web
- * and from local resources. This class throws no exceptions, when IO or parse errors occures, but follows a
+ * The intention of this class is to provide a convenient wrapper for obtaining XML, (X)HTML and JSON data from the Web
+ * and from local resources. This class throws no exceptions, when IO or parse errors occur, but follows a
  * <code>null</code> return policy, which means, the return values should be checked for <code>null</code> values under
  * all circumstances. Errors are logged using the {@link Logger}.
  * </p>
  * 
  * <p>
- * If you need more control, e.g. when you need access to the HTTP headers for data downloaded from the web, want to
+ * If you need more control, e.g. when you need access to the HTTP headers for data downloaded from the Web, want to
  * react to specific errors, etc. consider using the more specialized classes like {@link HttpRetriever},
  * {@link DocumentParser}, etc., which provide less convenience, but more control.
  * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
- * @author Martin Werner
  */
 public class DocumentRetriever {
 

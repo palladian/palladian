@@ -247,15 +247,16 @@ public class UnitNormalizer {
             multiplier = 0.001;
 
             // binary size, all to byte
-        } else if (unit.equals("terra byte") || unit.equals("tb")) {
+        } else if (unit.equals("tera byte") || unit.equals("terabytes") || unit.equals("tb")) {
             multiplier = 1099511627776.0;
-        } else if (unit.equals("giga byte") || unit.equals("gb")) {
+        } else if (unit.equals("giga byte") || unit.equals("gigabytes") || unit.equals("gb")) {
             multiplier = 1073741824.0;
-        } else if (unit.equals("mega byte") || unit.equals("mb")) {
+        } else if (unit.equals("mega byte") || unit.equals("megabytes") || unit.equals("mb")) {
             multiplier = 1048576.0;
-        } else if (unit.equals("kilo byte") || unit.equals("kilobyte") || unit.equals("kb") || unit.equals("kbyte")) {
+        } else if (unit.equals("kilo byte") || unit.equals("kilobyte") || unit.equals("kilobytes") || unit.equals("kb")
+                || unit.equals("kbyte")) {
             multiplier = 1024.0;
-        } else if (unit.equals("byte") || unit.equals("b")) {
+        } else if (unit.equals("byte") || unit.equals("bytes") || unit.equals("b")) {
             multiplier = 1.0;
         } else if (unit.equals("bit") || unit.equals("bits")) {
             multiplier = 0.125;
