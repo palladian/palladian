@@ -94,7 +94,7 @@ public class NominalClassifier extends Classifier<UniversalInstance> {
                 if (currentScore == null) {
                     currentScore = 0.0;
                 }
-                scores.put(category, currentScore * score);
+                scores.put(category, currentScore + score);
             }
 
         }

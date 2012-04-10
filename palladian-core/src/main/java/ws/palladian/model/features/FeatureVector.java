@@ -2,7 +2,6 @@ package ws.palladian.model.features;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -91,9 +90,9 @@ public class FeatureVector {
     @SuppressWarnings("unchecked")
     public <F extends Feature<T>, T> List<F> getAll(Class<T> type) {
         List<F> ret = new ArrayList<F>();
-        for (Entry<String, Feature<?>> featureEntry : features.entrySet()) {
-            if (type.isInstance(featureEntry.getValue())) {
-                ret.add((F)type.cast(featureEntry.getValue()));
+        for (Feature<?> feature : features.values()) {
+            if (type.isInstance(feature.getValue())) {
+                ret.add((F) feature);
             }
         }
         return ret;
