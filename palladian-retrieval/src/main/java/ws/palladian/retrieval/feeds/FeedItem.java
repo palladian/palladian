@@ -167,18 +167,6 @@ public class FeedItem {
         this.added = added;
     }
 
-    /**
-     * When the entry was added to the database, usually set by the database.
-     * 
-     * @return Date the entry was added to the database, usually set by the database.
-     */
-    public Timestamp getAddedSQLTimestamp() {
-        if (added != null) {
-            return new Timestamp(added.getTime());
-        }
-        return null;
-    }
-
     public String getAuthors() {
         return authors;
     }
