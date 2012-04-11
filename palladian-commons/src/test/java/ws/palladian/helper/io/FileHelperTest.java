@@ -40,4 +40,12 @@ public class FileHelperTest {
         assertEquals("data/temp/abc_0.jpg", FileHelper.appendToFileName("data/temp/abc.jpg", "_0"));
         assertEquals("abcX123.jpg", FileHelper.appendToFileName("abc.jpg", "X123"));
     }
+    
+    @Test
+    public void testIsFileName() {
+        assertEquals(true, FileHelper.isFileName(" website.html"));
+        assertEquals(true, FileHelper.isFileName("test.ai "));
+        assertEquals(false, FileHelper.isFileName(".just a sentence. "));
+        assertEquals(false, FileHelper.isFileName("everything..."));
+    }
 }

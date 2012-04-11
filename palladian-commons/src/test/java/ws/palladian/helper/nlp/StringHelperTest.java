@@ -105,14 +105,6 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testIsFileName() {
-        assertEquals(true, FileHelper.isFileName(" website.html"));
-        assertEquals(true, FileHelper.isFileName("test.ai "));
-        assertEquals(false, FileHelper.isFileName(".just a sentence. "));
-        assertEquals(false, FileHelper.isFileName("everything..."));
-    }
-
-    @Test
     public void testContainsNumber() {
         assertEquals(true, StringHelper.containsNumber("120"));
         assertEquals(true, StringHelper.containsNumber("120.2 GB"));
