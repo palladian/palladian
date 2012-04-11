@@ -120,10 +120,28 @@ public class UrlHelperTest {
         assertEquals("http://example.com/quotes-are-“part”", UrlHelper.extractUrls("http://example.com/quotes-are-“part”").get(0));
         assertEquals("example.com", UrlHelper.extractUrls("example.com").get(0));
         assertEquals("example.com/", UrlHelper.extractUrls("example.com/").get(0));
+        assertThat(UrlHelper.extractUrls("[url=http://foo.com/blah_blah]http://foo.com/blah_blah[/url]"), hasItem("http://foo.com/blah_blah"));
+        
+        assertEquals("cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
+        assertEquals("1-2-3.net/auctions-Are-out.jpg", UrlHelper.extractUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.").get(0));
+        assertEquals("http://www.cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
+        assertEquals("www.cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: www.cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
+        assertEquals("http://www.cinefreaks.com/", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com/").get(0));
+        assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com.").get(0));
+        assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com?").get(0));
+        assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com! Or somewhere else").get(0));
+        assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com. This is the next sentence").get(0));
+        assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com, this is the next...").get(0));
+        assertEquals("http://www.google.com/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m", UrlHelper.extractUrls("http://www.google.com/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m").get(0));
 
         // no URLs
         assertEquals(0, UrlHelper.extractUrls("6:00p").size());
-////        assertEquals(0, UrlHelper.extractUrls("filename.txt").size());
+        assertEquals(0, UrlHelper.extractUrls("filename.txt").size());
+
+        assertEquals(0, UrlHelper.extractUrls("16-28-33.0.backup.allcues.update.7z").size());
+        assertEquals(0, UrlHelper.extractUrls("09.Sep.11").size());
+        assertEquals(0, UrlHelper.extractUrls("Environment.CurrentDirectory").size());
+        assertEquals(0, UrlHelper.extractUrls("zipProcess.StandardOutput.ReadToEnd()").size());
 
     }
     
