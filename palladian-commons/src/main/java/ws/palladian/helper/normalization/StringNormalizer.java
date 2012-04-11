@@ -1,4 +1,4 @@
-package ws.palladian.helper.helper.normalization;
+package ws.palladian.helper.normalization;
 
 import java.text.DecimalFormat;
 import java.util.Locale;

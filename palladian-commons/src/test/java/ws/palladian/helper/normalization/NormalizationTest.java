@@ -1,13 +1,13 @@
-package ws.palladian.extraction.helper.normalization;
+package ws.palladian.helper.normalization;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.helper.helper.normalization.StringNormalizer;
-import ws.palladian.helper.helper.normalization.UnitNormalizer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.normalization.StringNormalizer;
+import ws.palladian.helper.normalization.UnitNormalizer;
 
 /**
  * Test cases for the normalization.
