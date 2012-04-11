@@ -32,51 +32,21 @@ public class UrlHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(UrlHelper.class);
-    
+
     /** Names of attributes in (X)HTML containing links. */
     private static final List<String> LINK_ATTRIBUTES = Arrays.asList("href", "src");
-
-    // /** A format string must not be preceded by a word character [a-zA-Z0-9] */
-    // private static final String START_PATTERN = "(?<!\\w)";
-
-    // /** A format string must not be followed by a word character [a-zA-Z0-9] */
-    // private static final String STOP_PATTERN = "(?!\\w)";
-
-    // /** Identifiers that are typically used for sessionIDs */
-    // private static final String[] SESSIONID_IDENTIFIER_PATTERN = { "jsessionid=", "s=", "sid=", "PHPSESSID=",
-    // "sessionid=" };
-
-    // private static final String SESSIONID_PATTERN = "[a-f0-9]{32}";
-
-    // /** The compiled pattern for all sessionIDs. */
-    // private static Pattern sessionIDPattern;
 
     /** RegEx pattern defining a session ID. */
     private static final Pattern SESSION_ID_PATTERN = Pattern
             .compile("(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[a-f0-9]{32}(?!\\w)");
 
+    // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
+    public static final Pattern URL_PATTERN = Pattern
+            .compile("\\b(?:https?://)?[\\w.-]{0,63}?\\.(?:[A-Za-z]{2,4})(?:\\([^\\s()<>]{0,255}\\)|[^\\s()<>]{0,255})+(?:\\([^\\s()<>]{0,255}\\)|[^\\s.,;!?:()<>])");
+
     private UrlHelper() {
         // prevent instantiation.
     }
-
-    // /**
-    // * Compiles the {@link #sessionIDPattern} pattern. Pattern should look like
-    // * (?<!\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[a-f0-9]{32}(?!\w)
-    // */
-    // private static void compilePattern() {
-    // StringBuilder formatPatternBuilder = new StringBuilder();
-    // formatPatternBuilder.append(START_PATTERN).append("(");
-    // for (String identifiers : SESSIONID_IDENTIFIER_PATTERN) {
-    // formatPatternBuilder.append(identifiers).append("|");
-    // }
-    // formatPatternBuilder.deleteCharAt(formatPatternBuilder.length() - 1);
-    // formatPatternBuilder.append(")");
-    // formatPatternBuilder.append(SESSIONID_PATTERN);
-    // formatPatternBuilder.append(STOP_PATTERN);
-    // LOGGER.debug(formatPatternBuilder.toString());
-    // System.out.println(formatPatternBuilder.toString());
-    // sessionIDPattern = Pattern.compile(formatPatternBuilder.toString(), Pattern.CASE_INSENSITIVE);
-    // }
 
     /**
      * <p>
@@ -91,7 +61,6 @@ public class UrlHelper {
         URL replacedURL = original;
         if (original != null) {
             String origURL = original.toString();
-            // compilePattern();
             Matcher matcher = SESSION_ID_PATTERN.matcher(origURL);
             String sessionID = null;
             String newURL = null;
@@ -138,7 +107,7 @@ public class UrlHelper {
         }
         return replacedURL;
     }
-    
+
     /**
      * <p>
      * Transforms all relative URLs (i.e. in attributes <tt>href</tt> and <tt>src</tt>) of an (X)HTML {@link Document}
@@ -166,7 +135,7 @@ public class UrlHelper {
             }
         }
     }
-    
+
     /**
      * <p>
      * Get the Base URL of the supplied (X)HTML document, which is specified via the <tt>base</tt> tag in the document's
@@ -221,45 +190,6 @@ public class UrlHelper {
             contextUrl = baseUrl;
         }
         return makeFullUrl(contextUrl, linkUrl);
-
-        // // LOGGER.trace(">makeFullURL " + pageUrl + " " + baseUrl + " " + linkUrl);
-        // String result = "";
-        // if (linkUrl != null && !linkUrl.startsWith("javascript") && !linkUrl.startsWith("mailto:")) {
-        // // let's java.net.URL do all the conversion work from relative to absolute
-        // URL resultUrl = null;
-        // // create URL object from the supplied pageUrl
-        // if (pageUrl != null) {
-        // try {
-        // resultUrl = new URL(pageUrl);
-        // } catch (MalformedURLException e) {
-        // LOGGER.trace("makeFullURL: pageUrl: " + e.getMessage());
-        // }
-        // }
-        // // create URL object considering baseUrl, relative to pageUrl
-        // try {
-        // if (baseUrl != null) {
-        // if (!baseUrl.endsWith("/")) {
-        // baseUrl = baseUrl.concat("/");
-        // }
-        // // this creates a new URL object with resultUrl as "context", which means that the specified baseUrl
-        // // is *relative* to the "context"
-        // resultUrl = new URL(resultUrl, baseUrl);
-        // }
-        // } catch (MalformedURLException e) {
-        // LOGGER.trace("makeFullURL: baseUrl: " + e.getMessage());
-        // }
-        // // create URL object considering linkUrl, relative to pageUrl+baseUrl
-        // try {
-        // resultUrl = new URL(resultUrl, linkUrl);
-        // } catch (MalformedURLException e) {
-        // LOGGER.trace("makeFullURL: linkUrl: " + e.getMessage());
-        // }
-        // if (resultUrl != null) {
-        // result = resultUrl.toString();
-        // }
-        // }
-        // // LOGGER.trace("<makeFullURL " + result);
-        // return result;
     }
 
     public static String makeFullUrl(String contextUrl, String linkUrl) {
@@ -307,7 +237,7 @@ public class UrlHelper {
      */
     // TODO too specific, move to WebKnox
     public static boolean isValidUrl(String url) {
-        String[] schemes = { "http", "https" };
+        String[] schemes = {"http", "https"};
         UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
         return urlValidator.isValid(url);
     }
@@ -340,30 +270,6 @@ public class UrlHelper {
             LOGGER.trace("could not determine domain " + url);
         }
         return result;
-    }
-
-    // FIXME, this is only to fix the build, duplicate with UrlTagger
-    public static List<String> extractUrls(String text) {
-
-        List<String> urls = new ArrayList<String>();
-
-        final String DOMAIN_ALLOWED_CHARACTERS = "[^;/?:@=&\\s]";
-        final String PATH_ALLOWED_CHARACTERS = "[^\\s]";
-        final String NEGLECTED_ENDINGS = "[.,?!;\\[\\](){}\"\\s]";
-        final String TOP_LEVEL_DOMAINS = "(de|com|cc|tv|us|net|org|gov|mil|edu|fr|it|com.au|co.uk|ws)";
-        final String URL_REGEXP = "(http(s)?://)?(" + DOMAIN_ALLOWED_CHARACTERS + "{0,63}?\\."
-                + TOP_LEVEL_DOMAINS + "((/" + PATH_ALLOWED_CHARACTERS + "{0,255}(\\.[A-Za-z?]{2,5})?)|(?="
-                + NEGLECTED_ENDINGS + ")))";
-
-        Pattern urlPattern = Pattern.compile(URL_REGEXP);
-
-        Matcher matcher = urlPattern.matcher(text);
-
-        while (matcher.find()) {
-            urls.add(matcher.group(0));
-        }
-
-        return urls;
     }
 
     /**
@@ -521,35 +427,22 @@ public class UrlHelper {
         }
     }
 
-//    /**
-//     * <p>
-//     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
-//     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
-//     * processing of the extracted URLs.
-//     * </p>
-//     *
-//     * <p>
-//     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls and alternative one
-//     * can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
-//     * </p>
-//     *
-//     * @param text
-//     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
-//     * @deprecated Use UrlTagger from palladian-core instead.
-//     */
-//    @Deprecated
-//    public static List<String> extractUrls(String text) {
-//        List<String> urls = new ArrayList<String>();
-//        Pattern p = Pattern
-//        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
-//                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
-//
-//        Matcher m = p.matcher(text);
-//        while (m.find()) {
-//            urls.add(m.group());
-//        }
-//        return urls;
-//    }
+    /**
+     * <p>
+     * Extracts all recognizable URLs from a given text.
+     * </p>
+     * 
+     * @param text
+     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
+     */
+    public static List<String> extractUrls(String text) {
+        List<String> urls = new ArrayList<String>();
+        Matcher matcher = URL_PATTERN.matcher(text);
+        while (matcher.find()) {
+            urls.add(matcher.group(0));
+        }
+        return urls;
+    }
 
     public static boolean isLocalFile(URL url) {
         String protocol = url.getProtocol();

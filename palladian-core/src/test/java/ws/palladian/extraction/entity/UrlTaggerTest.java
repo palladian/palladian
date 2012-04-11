@@ -11,6 +11,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 public class UrlTaggerTest {
 
 	
+    // TODO these tests should be performed in UrlHelperTest,
+    // as UrlTagger is only a wrapper around the RegExp providing additional position information
 	@Test
 	public void testUrlTagging() {
 		UrlTagger urlTagger = new UrlTagger();
