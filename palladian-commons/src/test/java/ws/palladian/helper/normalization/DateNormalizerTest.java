@@ -1,4 +1,4 @@
-package ws.palladian.extraction.helper.normalization;
+package ws.palladian.helper.normalization;
 
 import org.junit.Test;
 

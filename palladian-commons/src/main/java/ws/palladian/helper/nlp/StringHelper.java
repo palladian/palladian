@@ -18,9 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.helper.normalization.StringNormalizer;
-import ws.palladian.helper.helper.normalization.UnitNormalizer;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.normalization.StringNormalizer;
+import ws.palladian.helper.normalization.UnitNormalizer;
 
 /**
  * <p>The StringHelper provides functionality for typical String manipulation operations.</p>

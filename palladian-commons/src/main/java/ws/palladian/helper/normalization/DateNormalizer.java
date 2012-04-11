@@ -1,4 +1,4 @@
-package ws.palladian.helper.helper.normalization;
+package ws.palladian.helper.normalization;
 
 import java.text.DateFormat;
 import java.text.ParseException;
