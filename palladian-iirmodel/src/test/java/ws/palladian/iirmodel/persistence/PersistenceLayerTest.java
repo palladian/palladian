@@ -11,13 +11,13 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import junit.framework.Assert;
@@ -53,6 +53,7 @@ public class PersistenceLayerTest {
      */
     @Before
     public void setUp() throws Exception {
+        System.err.println("setup");
         emFactory = Persistence.createEntityManagerFactory(TEST_PERSISTENCE_UNIT_NAME);
         persistenceLayer = new ModelPersistenceLayer(emFactory.createEntityManager());
     }
@@ -64,21 +65,34 @@ public class PersistenceLayerTest {
     public void tearDown() throws Exception {
         persistenceLayer.shutdown();
         persistenceLayer = null;
+        
+        EntityManager entityManager = emFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        entityManager.createNativeQuery("SHUTDOWN").executeUpdate();
+        transaction.commit();
+        entityManager.close();
+        
         if (emFactory != null && emFactory.isOpen()) {
             emFactory.close();
         }
         emFactory = null;
 
-        DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
-        final Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:testdb", "sa", "");
-        try {
-            if (conn != null) {
-                conn.createStatement().execute("SHUTDOWN");
-                conn.commit();
-            }
-        } finally {
-            conn.close();
-        }
+//        DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
+//        Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:testdb", "sa", "");
+//        Statement statement = null;
+//        try {
+//            if (conn != null) {
+//                statement = conn.createStatement();
+//                statement.execute("SHUTDOWN");
+//                conn.commit();
+//            }
+//        } finally {
+//            if (statement != null) {
+//                statement.close();
+//            }
+//            conn.close();
+//        }
     }
 
     /**
