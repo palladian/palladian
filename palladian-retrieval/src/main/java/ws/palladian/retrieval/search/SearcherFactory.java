@@ -52,7 +52,7 @@ public final class SearcherFactory {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length == 1 && parameterTypes[0].equals(Configuration.class)) {
                 try {
-                    searcher = (S) constructor.newInstance(config);
+                    searcher = (S)constructor.newInstance(config);
                 } catch (Exception e) {
                     throw new IllegalStateException("Could not instantiate " + searcherType.getName()
                             + " using the constructor with Configuration.", e);
@@ -92,7 +92,7 @@ public final class SearcherFactory {
             Class<R> resultType, Configuration config) {
         try {
             @SuppressWarnings("unchecked")
-            Class<S> searcherClass = (Class<S>) Class.forName(searcherTypeName);
+            Class<S> searcherClass = (Class<S>)Class.forName(searcherTypeName);
             return createSearcher(searcherClass, config);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Could not instantiate " + searcherTypeName, e);
@@ -106,7 +106,9 @@ public final class SearcherFactory {
      * @return
      */
     public static WebSearcher<WebResult> createWebSearcher(String searcherTypeName, Configuration config) {
-        return createSearcher(searcherTypeName, WebResult.class, config);
+        // return createSearcher(searcherTypeName, WebResult.class, config);
+        return SearcherFactory.<WebSearcher<WebResult>, WebResult> createSearcher(searcherTypeName, WebResult.class,
+                config);
     }
 
     /**
@@ -116,7 +118,9 @@ public final class SearcherFactory {
      * @return
      */
     public static WebSearcher<WebImageResult> createImageSearcher(String searcherTypeName, Configuration config) {
-        return createSearcher(searcherTypeName, WebImageResult.class, config);
+        // return createSearcher(searcherTypeName, WebImageResult.class, config);
+        return SearcherFactory.<WebSearcher<WebImageResult>, WebImageResult> createSearcher(searcherTypeName,
+                WebImageResult.class, config);
     }
 
     /**

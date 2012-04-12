@@ -2,31 +2,6 @@
 <persistence version="2.0"
 	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-	<persistence-unit name="eclipselink" transaction-type="RESOURCE_LOCAL">
-		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>ws.palladian.iirmodel.Item</class>
-		<class>ws.palladian.iirmodel.StreamSource</class>
-		<class>ws.palladian.iirmodel.ItemStream</class>
-		<class>ws.palladian.iirmodel.StreamGroup</class>
-		<class>ws.palladian.iirmodel.Author</class>
-		<class>ws.palladian.iirmodel.ItemRelation</class>
-		<class>ws.palladian.iirmodel.DirectedItemRelation</class>
-		<class>ws.palladian.iirmodel.UndirectedItemRelation</class>
-		<class>ws.palladian.iirmodel.RelationType</class>
-		<class>ws.palladian.iirmodel.Label</class>
-		<class>ws.palladian.iirmodel.LabelType</class>
-		<class>ws.palladian.iirmodel.Labeler</class>
-		<properties>
-			<property name="eclipselink.jdbc.batch-writing" value="JDBC" />
-			<!-- <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:file:temp/testdb"/> -->
-			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />
-			<property name="javax.persistence.jdbc.user" value="sa" />
-			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
-			<property name="eclipselink.weaving.lazy" value="false" />
-			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-			<property name="eclipselink.logging.level" value="FINEST" /> <!-- Possible values: FINEST, SEVERE -->
-		</properties>
-	</persistence-unit>
 	<persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<class>ws.palladian.iirmodel.Item</class>
