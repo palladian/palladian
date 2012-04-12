@@ -73,21 +73,31 @@ public abstract class Annotation implements Comparable<Annotation> {
 
     /**
      * <p>
-     * Provides the index of the first character of this {@link Annotation}.
+     * Provides the position of the first character of this {@link Annotation}.
      * </p>
      * 
-     * @return the index of the first character of this {@link Annotation}.
+     * @return the position of the first character of this {@link Annotation}.
      */
     public abstract Integer getStartPosition();
 
     /**
      * <p>
-     * Provides the index of the first character after the end of this {@link Annotation}.
+     * Provides the position of the first character after the end of this {@link Annotation}.
      * </p>
      * 
-     * @return the index of the first character after the end of this {@link Annotation}.
+     * @return the position of the first character after the end of this {@link Annotation}.
      */
     public abstract Integer getEndPosition();
+    
+    /**
+     * <p>
+     * Provides a running index of this {@link Annotation}. This makes it possible to determine, if {@link Annotation}s
+     * have been removed later.
+     * </p>
+     * 
+     * @return the running index of this {@link Annotation}.
+     */
+    public abstract Integer getIndex();
 
     /**
      * <p>

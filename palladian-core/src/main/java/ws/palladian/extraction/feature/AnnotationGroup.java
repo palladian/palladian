@@ -67,6 +67,15 @@ public class AnnotationGroup extends Annotation {
         }
         return endPosition;
     }
+    
+    @Override
+    public Integer getIndex() {
+        int index = -1;
+        if (!annotations.isEmpty()) {
+            index = annotations.get(0).getIndex();
+        }
+        return index;
+    }
 
     @Override
     public String getValue() {
@@ -121,6 +130,8 @@ public class AnnotationGroup extends Annotation {
         builder.append(getStartPosition());
         builder.append(", endPosition=");
         builder.append(getEndPosition());
+        builder.append(", index=");
+        builder.append(getIndex());
         builder.append(", featureVector()=");
         builder.append(getFeatureVector());
         // builder.append(", annotations=");

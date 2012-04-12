@@ -21,7 +21,9 @@ import ws.palladian.model.features.NumericFeature;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Integrated into {@link TokenMetricsCalculator}.
  */
+@Deprecated
 public class FrequencyCalculator implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
