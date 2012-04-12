@@ -34,8 +34,8 @@ import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
+import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.feature.TokenRemover;
-import ws.palladian.extraction.feature.TokenSpreadCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
@@ -43,7 +43,6 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
@@ -140,7 +139,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH));
         
         pipeline.add(new CountCalculator());
-        pipeline.add(new TokenSpreadCalculator());
+        pipeline.add(new TokenMetricsCalculator());
         pipeline.add(new FrequencyCalculator());
         corpus = new TermCorpus();
         corpus.load("/Users/pk/Desktop/KEX/corpus.txt");
@@ -248,16 +247,16 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             
             lineBuilder.append(featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
-//            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_SPREAD).getValue());
-//            lineBuilder.append(";");
-//            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue());
-//            lineBuilder.append(";");
-//            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue());
-//            lineBuilder.append(";");
-//            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_CHAR_LENGTH).getValue());
-//            lineBuilder.append(";");
-//            lineBuilder.append(featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_WORD_LENGTH).getValue());
-//            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.SPREAD).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.FIRST).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.LAST).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.CHAR_LENGTH).getValue());
+            lineBuilder.append(";");
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue());
+            lineBuilder.append(";");
             lineBuilder.append(featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue());
@@ -340,11 +339,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 
                 FeatureVector featureVector = annotation.getFeatureVector();
                 double freq = (Double) featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue();
-//                double spread = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_SPREAD).getValue();
-//                double first = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_FIRST).getValue();
-//                double last = (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_LAST).getValue();
-//                double charLength= (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_CHAR_LENGTH).getValue();
-//                double wordLength= (Double) featureVector.get(TokenSpreadCalculator.PROVIDED_FEATURE_WORD_LENGTH).getValue();
+                double spread = (Double) featureVector.get(TokenMetricsCalculator.SPREAD).getValue();
+                double first = (Double) featureVector.get(TokenMetricsCalculator.FIRST).getValue();
+                double last = (Double) featureVector.get(TokenMetricsCalculator.LAST).getValue();
+                double charLength= (Double) featureVector.get(TokenMetricsCalculator.CHAR_LENGTH).getValue();
+                double wordLength= (Double) featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue();
                 double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
                 double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
                 double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue();
@@ -353,11 +352,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 
                 Instance instance = new Instance(10);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(0), freq);
-//                instance.setValue((Attribute) fvWekaAttributes.elementAt(1), spread);
-//                instance.setValue((Attribute) fvWekaAttributes.elementAt(2), first);
-//                instance.setValue((Attribute) fvWekaAttributes.elementAt(3), last);
-//                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), charLength);
-//                instance.setValue((Attribute) fvWekaAttributes.elementAt(5), wordLength);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(1), spread);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(2), first);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(3), last);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(4), charLength);
+                instance.setValue((Attribute) fvWekaAttributes.elementAt(5), wordLength);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(6), phraseness);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(7), idf);
                 instance.setValue((Attribute) fvWekaAttributes.elementAt(8), tfidf);
