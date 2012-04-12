@@ -88,11 +88,11 @@ public class FeatureVector {
      *         exist, never <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    public <F extends Feature<T>, T> List<F> getAll(Class<T> type) {
-        List<F> ret = new ArrayList<F>();
+    public <T> List<Feature<T>> getAll(Class<T> type) {
+        List<Feature<T>> ret = new ArrayList<Feature<T>>();
         for (Feature<?> feature : features.values()) {
             if (type.isInstance(feature.getValue())) {
-                ret.add((F) feature);
+                ret.add((Feature<T>) feature);
             }
         }
         return ret;
