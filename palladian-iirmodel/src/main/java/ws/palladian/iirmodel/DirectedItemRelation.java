@@ -1,0 +1,105 @@
+package ws.palladian.iirmodel;
+
+import javax.persistence.Entity;
+
+/**
+ * <p>
+ * A directed {@link ItemRelation}, i.e. relation(Item1, Item2) is not equal to relation(Item2, Item1). In other words,
+ * this relation is an <b>ordered</b> pair of {@link Item}s, see {@link #equals(Object)} and {@link #hashCode()} for
+ * implementation specific details.
+ * </p>
+ * 
+ * @author Klemens Muthmann
+ * @author Philipp Katz
+ * @version 1.0
+ * @since 3.0
+ */
+@Entity
+public final class DirectedItemRelation extends ItemRelation {
+
+    private static final long serialVersionUID = -7455070525391489422L;
+
+    /**
+     * <p>
+     * JPA specific constructor, not to be used by human beings.
+     * </p>
+     */
+    protected DirectedItemRelation() {
+        super();
+    }
+
+    /**
+     * <p>
+     * Creates a completely initialized {@link DirectedItemRelation}.
+     * </p>
+     * 
+     * @param firstEntry One {@link Item} in the relation.
+     * @param secondEntry One {@link Item} in the relation.
+     * @param type The type of the relation between {@code firstItem} and {@code secondItem}.
+     * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
+     */
+    public DirectedItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment) {
+        super(firstEntry, secondEntry, type, comment);
+    }
+    
+    /**
+     * <p>
+     * Creates a completely initialized {@link DirectedItemRelation}.
+     * </p>
+     * 
+     * @param firstEntry One {@link Item} in the relation.
+     * @param secondEntry One {@link Item} in the relation.
+     * @param type The type of the relation between {@code firstItem} and {@code secondItem}.
+     * @param comment An optional comment describing why {@link #firstItem} is related to {@link #secondItem}.
+     * @param confidence An optional confidence value for the relation, may be <code>null</code>.
+     */
+    public DirectedItemRelation(Item firstEntry, Item secondEntry, RelationType type, String comment, Double confidence) {
+        super(firstEntry, secondEntry, type, comment, confidence);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((getFirstItem() == null) ? 0 : getFirstItem().hashCode());
+        result = prime * result + ((getSecondItem() == null) ? 0 : getSecondItem().hashCode());
+        result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ItemRelation other = (ItemRelation) obj;
+        if (getFirstItem() == null) {
+            if (other.getFirstItem() != null)
+                return false;
+        } else if (!getFirstItem().equals(other.getFirstItem()))
+            return false;
+        if (getSecondItem() == null) {
+            if (other.getSecondItem() != null)
+                return false;
+        } else if (!getSecondItem().equals(other.getSecondItem()))
+            return false;
+        if (getType() == null) {
+            if (other.getType() != null)
+                return false;
+        } else if (!getType().equals(other.getType()))
+            return false;
+        return true;
+    }
+
+}
