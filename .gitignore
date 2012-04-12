@@ -1,6 +1,7 @@
 
 # /
 /.settings
+/.project
 
 # /data/
 /data/datasets
@@ -34,3 +35,12 @@
 /test_dictionary.h2.db
 /test_dictionary.trace.db
 .pmd
+
+**/target
+**/.settings
+**/.classpath
+**/.project
+**/bin
+
+**/data/temp
+**/data/test

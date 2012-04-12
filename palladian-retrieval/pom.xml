@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.1.7-SNAPSHOT</version>
+	</parent>
+	<artifactId>palladian-retrieval</artifactId>
+	<name>Palladian: Retrieval</name>
+	<description>Palladian Retrieval Functionality</description>
+	<dependencies>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!-- dependency> <groupId>ws.palladian</groupId> <artifactId>palladian-extraction</artifactId> 
+			<version>${project.version}</version> </dependency -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.catnip</groupId>
+			<artifactId>eddie</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.temesoft</groupId>
+			<artifactId>google-pagerank-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-memory</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge</groupId>
+			<artifactId>jwbf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.rome</groupId>
+			<artifactId>rome</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+		</dependency>
+	</dependencies>
+</project>
+
