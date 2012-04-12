@@ -18,7 +18,7 @@ import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TokenOverlapRemover;
-import ws.palladian.extraction.feature.TokenSpreadCalculator;
+import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
@@ -45,7 +45,7 @@ public class PipelineTest {
         ProcessingPipeline pipeline = new PerformanceCheckProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new NGramCreator(2, 4));
-        pipeline.add(new TokenSpreadCalculator());
+        pipeline.add(new TokenMetricsCalculator());
         pipeline.add(new FrequencyCalculator());
         pipeline.add(new RegExTokenRemover("\\p{Punct}"));
         pipeline.add(new RegExTokenRemover(".{1,2}"));
