@@ -34,7 +34,7 @@ public class PhrasenessAnnotator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         for (Annotation annotation : annotations) {
@@ -68,11 +68,11 @@ public class PhrasenessAnnotator implements PipelineProcessor {
     }
 
     private double getCount(Annotation annotation) {
-        if (annotation.getFeatureVector().get(FrequencyCalculator.PROVIDED_FEATURE) == null) {
+        if (annotation.getFeatureVector().get(FrequencyCalculator.PROVIDED_FEATURE_DESCRIPTOR) == null) {
             // System.err.println("something is wrong for " + annotation);
             return 1;
         }
-        double frequency = (Double) annotation.getFeatureVector().get(CountCalculator.PROVIDED_FEATURE).getValue();
+        double frequency = (Double) annotation.getFeatureVector().get(CountCalculator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
         return frequency;
     }
 

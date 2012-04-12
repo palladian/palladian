@@ -32,10 +32,11 @@ public final class RegExTokenizer implements TokenizerInterface {
         String text = document.getOriginalContent();
         Matcher matcher = TOKENIZE_REGEXP.matcher(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE);
+        int index = 0;
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();
-            Annotation annotation = new PositionAnnotation(document, startPosition, endPosition);
+            Annotation annotation = new PositionAnnotation(document, startPosition, endPosition, index++);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

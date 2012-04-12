@@ -15,16 +15,23 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
-     * The index of the first character of this {@code Annotation}.
+     * The position of the first character of this {@code Annotation}.
      * </p>
      */
     private final int startPosition;
     /**
      * <p>
-     * The index of the first character after the end of this {@code Annotation}.
+     * The position of the first character after the end of this {@code Annotation}.
      * </p>
      */
     private final int endPosition;
+
+    /**
+     * <p>
+     * The running index of this {@link Annotation}.
+     * </p>
+     */
+    private final int index;
 
     /**
      * <p>
@@ -40,11 +47,12 @@ public final class PositionAnnotation extends Annotation {
      * </p>
      * 
      * @param document The document this {@code Annotation} points to.
-     * @param startPosition The index of the first character of this {@code Annotation}.
-     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     * @param index The running index of this {@link Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition) {
-        this(document, "originalContent", startPosition, endPosition);
+    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, int index) {
+        this(document, "originalContent", startPosition, endPosition, index);
     }
 
     /**
@@ -54,12 +62,27 @@ public final class PositionAnnotation extends Annotation {
      * </p>
      * 
      * @param document The document this {@code Annotation} points to.
-     * @param startPosition The index of the first character of this {@code Annotation}.
-     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     */
+    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition) {
+        this(document, "originalContent", startPosition, endPosition, -1);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
+     * provided {@code PipelineDocument}.
+     * </p>
+     * 
+     * @param document The document this {@code Annotation} points to.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, String value) {
-        this(document, "originalContent", startPosition, endPosition, value);
+    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, int index, String value) {
+        this(document, "originalContent", startPosition, endPosition, index, value);
     }
 
     /**
@@ -70,15 +93,16 @@ public final class PositionAnnotation extends Annotation {
      * @param document The document this {@code Annotation} points to.
      * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
      *            to.
-     * @param startPosition The index of the first character of this {@code Annotation}.
-     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     * @param index The running index of this {@link Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition) {
+    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition, int index) {
         // return a copy of the String, elsewise we will run into memory problems,
         // as the original String from the document might never get GC'ed, as long
         // as we keep its Tokens in memory
         // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-        this(document, viewName, startPosition, endPosition, new String(document.getOriginalContent().substring(
+        this(document, viewName, startPosition, endPosition, index, new String(document.getOriginalContent().substring(
                 startPosition, endPosition)));
     }
 
@@ -90,16 +114,34 @@ public final class PositionAnnotation extends Annotation {
      * @param document The document this {@code Annotation} points to.
      * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
      *            to.
-     * @param startPosition The index of the first character of this {@code Annotation}.
-     * @param endPosition The index of the first character after the end of this {@code Annotation}.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
     public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition,
-            String value) {
+            int index, String value) {
         super(document, viewName);
         this.startPosition = startPosition;
         this.endPosition = endPosition;
+        this.index = index;
         this.value = value;
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code PositionAnnotation} completely initialized.
+     * </p>
+     * 
+     * @param document The document this {@code Annotation} points to.
+     * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
+     *            to.
+     * @param startPosition The position of the first character of this {@code Annotation}.
+     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+     * @param value The text value of this {@link Annotation}.
+     */
+    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition) {
+        this(document, viewName, startPosition, endPosition, -1);
     }
 
     @Override
@@ -110,6 +152,11 @@ public final class PositionAnnotation extends Annotation {
     @Override
     public Integer getEndPosition() {
         return endPosition;
+    }
+
+    @Override
+    public Integer getIndex() {
+        return index;
     }
 
     @Override
@@ -131,6 +178,8 @@ public final class PositionAnnotation extends Annotation {
         builder.append(getStartPosition());
         builder.append(", endPosition=");
         builder.append(getEndPosition());
+        builder.append(", index=");
+        builder.append(getIndex());
         builder.append(", featureVector=");
         builder.append(getFeatureVector());
         builder.append("]");
@@ -148,6 +197,7 @@ public final class PositionAnnotation extends Annotation {
         int result = 1;
         result = prime * result + endPosition;
         result = prime * result + startPosition;
+        result = prime * result + index;
         result = prime * result + ((getDocument() == null) ? 0 : getDocument().hashCode());
         return result;
     }
@@ -163,11 +213,14 @@ public final class PositionAnnotation extends Annotation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        PositionAnnotation other = (PositionAnnotation) obj;
+        PositionAnnotation other = (PositionAnnotation)obj;
         if (endPosition != other.endPosition) {
             return false;
         }
         if (startPosition != other.startPosition) {
+            return false;
+        }
+        if (index != other.index) {
             return false;
         }
         if (getDocument() == null) {
