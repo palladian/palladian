@@ -59,8 +59,12 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
         JSONObject feed;
         JSONArray entries = new JSONArray();
         try {
-            feed = root.getJSONObject("feed");
-            entries = feed.getJSONArray("entry");
+            if (root.has("feed")) {
+                feed = root.getJSONObject("feed");
+                if (feed.has("entry")) {
+                    entries = feed.getJSONArray("entry");
+                }
+            }
         } catch (Exception e) {
             LOGGER.warn(e.getMessage() + ", url: " + url);
         }
