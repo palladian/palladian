@@ -13,5 +13,6 @@ public static ${enclosing_type} getInstance() {
 </template><template autoinsert="true" context="java-statements" deleted="false" description="new StringBuilder" enabled="true" name="StringBuilder">StringBuilder sb = new StringBuilder();
 sb.append(${word_selection}${});${cursor}
 </template><template autoinsert="true" context="java-statements" deleted="false" description="exit" enabled="true" name="sysex">System.exit(0);</template><template autoinsert="true" context="java-statements" deleted="false" description="print a Collection" enabled="true" name="print_collection">${:import(ws.palladian.helper.collection.CollectionHelper)}
-CollectionHelper.print(${collection});</template>
+CollectionHelper.print(${collection});</template><templates><template autoinsert="true" context="java-statements" deleted="false" description="print an Array" enabled="true" name="print_array">${:import(ws.palladian.helper.collection.CollectionHelper)}
+CollectionHelper.print(${array});</template>
 </templates>
