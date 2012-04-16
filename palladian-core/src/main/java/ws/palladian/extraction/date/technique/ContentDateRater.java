@@ -59,7 +59,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             classifierFile = modelsRoot + modelModified;
         }
         
-        // FIXME there are two different models, but they are cached as one item whith one identifier? 
+        // FIXME there are two different models, but they are cached as one item with one identifier?
         try {
             this.classifier = (Classifier)Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
             if (this.classifier == null) {

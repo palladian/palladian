@@ -127,7 +127,7 @@ public class ImageHandler {
             images.clear();
 
             // compare images with almost or exactly the same width height ratio
-            HashSet<String> duplicateImages = new HashSet<String>();
+            Set<String> duplicateImages = new HashSet<String>();
             for (int i = 0; i < normalizedImages.size() - 1; i++) {
                 ExtractedImage image1 = normalizedImages.get(i);
 
@@ -738,6 +738,11 @@ public class ImageHandler {
     }
 
     public static boolean isDuplicate(BufferedImage image1, BufferedImage image2) {
+
+        if (image1 == null || image2 == null) {
+            return true;
+        }
+
         // normalize size if not done already
         // if (image1.getWidth() != image2.getWidth()) {
         // image1 = rescaleImage(image1, 200);

@@ -20,6 +20,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
@@ -159,13 +160,10 @@ public class FeedImporter {
 
     public int addDiscoveredFeeds(Collection<DiscoveredFeed> discoveredFeeds) {
         Set<String> feedUrls = new HashSet<String>();
-        int counter = 0;
+        int counter = 1;
         for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
-            counter++;
-            if (counter % 10000 == 0) {
-                LOGGER.info("processed " + counter + " feeds.");
-            }
             feedUrls.add(discoveredFeed.getFeedLink());
+            ProgressHelper.showProgress(counter++, discoveredFeeds.size(), 1);
         }
         return addFeeds(feedUrls);
     }
