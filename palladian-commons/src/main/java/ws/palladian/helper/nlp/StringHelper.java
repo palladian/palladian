@@ -270,7 +270,7 @@ public class StringHelper {
      */
     
     //
-    // Removed while modularizing Palladian. 
+    // Removed while modularizing Palladian.
     // If required somewhere, do the Singular transformation first,
     // then the camelCase transformation. -- Philipp, 2012-03-21
     //
@@ -1608,6 +1608,9 @@ public class StringHelper {
         // }
         // System.out.println(stopWatch.getTotalElapsedTimeString());
         // System.exit(0);
+
+        System.out.println(makeSafeName("htc_vivow_3.com/avatar/d547725f43a991ef15e5e5e6947b4bc5"));
+        System.exit(0);
 
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 

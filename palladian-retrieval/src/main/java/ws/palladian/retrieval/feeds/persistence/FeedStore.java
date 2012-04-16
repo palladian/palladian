@@ -39,7 +39,7 @@ public interface FeedStore {
      * @param replaceCachedItems If <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return True if feed was updated successfully.
      */
-    boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems);
+    boolean updateFeed(Feed feed, boolean replaceCachedItems);
     
     /**
      * <p>Remove a feed by its feedUrl</p>

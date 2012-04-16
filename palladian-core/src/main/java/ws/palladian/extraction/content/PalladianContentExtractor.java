@@ -60,14 +60,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
 
     @Override
-    public PalladianContentExtractor setDocument(Document document) {
+    public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
         this.document = document;
         imageURLs = null;
         parseDocument();
         return this;
     }
-
-
 
     public Document getDocument() {
         return document;
@@ -77,7 +75,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return sentences;
     }
 
-    private void parseDocument() {
+    private void parseDocument() throws PageContentExtractorException {
 
         String content = HtmlHelper.documentToText(document);
         sentences = Tokenizer.getSentences(content, true);
@@ -112,6 +110,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
         shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
         shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
+
+        // in case we did not find anything, we take the body content
+        if (shortestMatchingXPath.isEmpty()) {
+            shortestMatchingXPath = "//body";
+        }
+
         // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
         // shortestMatchingXPath =
         // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
@@ -124,8 +128,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         resultNode = XPathHelper.getXhtmlNode(getDocument(), shortestMatchingXPath);
         if (resultNode == null) {
             //System.out.println(content);
-            LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
-            return;
+            throw new PageContentExtractorException("could not get main content node for URL: "
+                    + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
         }
 
         mainContentHTML = HtmlHelper.documentToHtmlString(resultNode);
@@ -288,7 +292,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public String getResultTitle() {
         Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
 
-        String resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+        String resultTitle = "";
         if (titleNode != null) {
             resultTitle = titleNode.getTextContent();
         } else {
