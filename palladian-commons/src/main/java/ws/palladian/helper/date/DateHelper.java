@@ -175,15 +175,20 @@ public class DateHelper {
 
     public static String getRuntime(long startTime, long stopTime, boolean output) {
         long seconds = (stopTime - startTime) / 1000;
-        long hours = seconds / 3600;
+        long days = seconds / 86400;
+        long hours = (seconds % 86400) / 3600;
         seconds = seconds % 3600;
         long minutes = seconds / 60;
         seconds = seconds % 60;
         long millis = (stopTime - startTime) % 1000;
 
+
         StringBuilder sb = new StringBuilder();
 
-        if (hours > 0) {
+        if (days > 0) {
+            sb.append(days).append("d:");
+        }
+        if (hours > 0 || days > 0) {
             sb.append(hours).append("h:");
         }
         if (hours > 0 || minutes > 0) {
@@ -306,6 +311,7 @@ public class DateHelper {
     }
 
     public static void main(String[] t) {
+        System.out.println(DateHelper.getRuntime(0, 10800000));
         System.out.println(DateHelper.getCurrentDatetime());
         System.out.println(getTimeString(-1));
         System.out.println(getCurrentDatetime("yyyy-MM-dd HH:mm:ss"));

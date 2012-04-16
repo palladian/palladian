@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -15,6 +17,9 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  */
 public class Cache {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(Cache.class);
 
     /** List of objects in the cache. */
     private Map<String, Object> dataObjects = new HashMap<String, Object>();
@@ -68,8 +73,10 @@ public class Cache {
         Object object = dataObjects.get(identifier);
 
         if (object == null) {
+            StopWatch stopWatch = new StopWatch();
             object = FileHelper.deserialize(file.getPath());
             putDataObject(identifier, object);
+            LOGGER.info("file " + file.getPath() + " loaded into cache in " + stopWatch.getElapsedTimeString());
         }
 
         return object;
