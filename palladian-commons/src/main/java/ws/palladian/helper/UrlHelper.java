@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -210,7 +209,6 @@ public class UrlHelper {
             }
         }
         return result;
-        // return makeFullUrl(pageUrl, null, linkUrl);
     }
 
     public static String getCleanUrl(String url) {
@@ -232,22 +230,6 @@ public class UrlHelper {
 
     public static String removeAnchors(String url) {
         return url.replaceAll("#.*", "");
-    }
-
-    /**
-     * <p>
-     * Check if a URL is in a valid form.
-     * </p>
-     * 
-     * @param url the URL
-     * @return true, if is a valid URL
-     * @author Martin Werner
-     */
-    // TODO too specific, move to WebKnox
-    public static boolean isValidUrl(String url) {
-        String[] schemes = {"http", "https"};
-        UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
-        return urlValidator.isValid(url);
     }
 
     /**
@@ -291,38 +273,6 @@ public class UrlHelper {
      */
     public static String getDomain(String url) {
         return getDomain(url, true);
-    }
-
-    /**
-     * <p>
-     * Check URL for validness and eventually modify e.g. relative path.
-     * </p>
-     * 
-     * @param urlCandidate the URLCandidate
-     * @param pageUrl the pageURL
-     * @return the verified URL
-     */
-    // TODO too specific, move to WebKnox
-    public static String verifyUrl(final String urlCandidate, final String pageUrl) {
-
-        String returnValue = "";
-
-        final String modUrlCandidate = urlCandidate.trim();
-        if (modUrlCandidate.startsWith("http://")) {
-            if (isValidUrl(modUrlCandidate)) {
-                returnValue = modUrlCandidate;
-            }
-        } else {
-
-            if (modUrlCandidate.length() > 2) {
-                final String modifiedURL = makeFullUrl(pageUrl, modUrlCandidate);
-                if (isValidUrl(modifiedURL)) {
-                    returnValue = modifiedURL;
-                }
-            }
-
-        }
-        return returnValue;
     }
 
     /**

@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -106,6 +105,7 @@ public final class FeedReader {
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
         threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+        feedProcessingAction = new DefaultFeedProcessingAction();
     }
 
     public FeedReader(FeedStore feedStore, int numThreads) {
@@ -114,6 +114,7 @@ public final class FeedReader {
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
         threadPoolSize = numThreads;
+        feedProcessingAction = new DefaultFeedProcessingAction();
     }
 
     /**
@@ -430,38 +431,10 @@ public final class FeedReader {
         /**
          * Bug #14 sample code
          */
-        FeedProcessingAction fpanew = new FeedProcessingAction() {
-
-            @Override
-            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            @Override
-            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            @Override
-            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                CollectionHelper.print(feed.getItems());
-                System.out.println(feed.getUpdateInterval());
-                return false;
-            }
-        };
         FeedStore feedStore = new CollectionFeedSource();
         feedStore.addFeed(new Feed("http://lifehacker.com/excerpts.xml"));
         FeedReader feedReader = new FeedReader(feedStore);
         feedReader.setUpdateStrategy(new MAVSynchronizationUpdateStrategy(), false);
-        feedReader.setFeedProcessingAction(fpanew);
         feedReader.startContinuousReading();
         System.exit(0);
 
@@ -559,7 +532,7 @@ public final class FeedReader {
             }
 
             @Override
-            public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
+            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
                 // TODO Auto-generated method stub
                 return false;
             }
