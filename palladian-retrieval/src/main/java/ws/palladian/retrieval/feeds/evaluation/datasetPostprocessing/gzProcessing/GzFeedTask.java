@@ -435,7 +435,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
      * @param storeMetadata
      */
     private void updateFeed(boolean storeMetadata) {
-        boolean dbSuccess = feedReader.updateFeed(correctedFeed, storeMetadata, correctedFeed.hasNewItem());
+        boolean dbSuccess = feedReader.updateFeed(correctedFeed, correctedFeed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }

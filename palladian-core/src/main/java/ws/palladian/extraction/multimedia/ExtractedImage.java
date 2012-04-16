@@ -10,7 +10,7 @@ import ws.palladian.retrieval.search.web.WebImageResult;
 public class ExtractedImage extends WebImageResult {
 
     public ExtractedImage(WebImageResult image) {
-        super(image.getUrl(), image.getTitle(), image.getWidth(), image.getHeight());
+        super(image.getUrl(), image.getTitle(), image.getWidth(), image.getHeight(), image.getImageContent());
     }
 
     private int rankCount = 1;

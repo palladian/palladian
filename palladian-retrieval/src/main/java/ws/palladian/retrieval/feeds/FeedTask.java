@@ -17,7 +17,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
@@ -117,7 +116,6 @@ class FeedTask implements Callable<FeedTaskResult> {
         try {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
-            boolean storeMetadata = false;
 
             buildConditionalGetHeader();
             HttpResult httpResult = null;
@@ -133,7 +131,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 feed.incrementUnreachableCount();
                 resultSet.add(FeedTaskResult.UNREACHABLE);
 
-                doFinalStuff(timer, storeMetadata);
+                doFinalStuff(timer);
                 return getResult();
             }
 
@@ -189,7 +187,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                             resultSet.add(FeedTaskResult.ERROR);
                         }
 
-                        doFinalStuff(timer, storeMetadata);
+                        doFinalStuff(timer);
                         return getResult();
                     }
                     Date httpDate = HttpHelper.getDateFromHeader(httpResult, "Date", true);
@@ -210,8 +208,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                     // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
                     // }
 
-                    storeMetadata = generateMetaInformation(httpResult, downloadedFeed);
-
                     feedReader.updateCheckIntervals(feed, false);
 
                     // perform actions on this feeds entries.
@@ -230,7 +226,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 }
             }
 
-            doFinalStuff(timer, storeMetadata);
+            doFinalStuff(timer);
             return getResult();
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
@@ -244,38 +240,13 @@ class FeedTask implements Callable<FeedTaskResult> {
     }
 
     /**
-     * Classify feed and process general meta data like feed title, language, size, format.
-     * Everything in this method is done only if it has never been done before or once every month.
-     * 
-     * @param httpResult
-     * @param downloadedFeed
-     * @return
-     */
-    private boolean generateMetaInformation(HttpResult httpResult, Feed downloadedFeed) {
-        boolean metadataCreated = false;
-
-        if (feed.getActivityPattern() == FeedClassifier.CLASS_UNKNOWN || feed.getLastPollTime() != null
-                && (System.currentTimeMillis() - feed.getLastPollTime().getTime()) > DateHelper.MONTH_MS) {
-
-            metadataCreated = true;
-            feed.setActivityPattern(FeedClassifier.classify(feed));
-            MetaInformationExtractor metaInfExt = new MetaInformationExtractor(httpResult);
-            metaInfExt.updateFeedMetaInformation(feed.getMetaInformation());
-            feed.getMetaInformation().setTitle(downloadedFeed.getMetaInformation().getTitle());
-            feed.getMetaInformation().setByteSize(downloadedFeed.getMetaInformation().getByteSize());
-            feed.getMetaInformation().setLanguage(downloadedFeed.getMetaInformation().getLanguage());
-        }
-        return metadataCreated;
-    }
-
-    /**
      * Sets the feed task result and processing time of this task, saves the feed to database, does the final logging
      * and frees the feed's memory.
      * 
      * @param timer The {@link StopWatch} to estimate processing time
      * @param storeMetadata Specify whether metadata should be updated in database.
      */
-    private void doFinalStuff(StopWatch timer, boolean storeMetadata) {
+    private void doFinalStuff(StopWatch timer) {
         if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
             LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
             resultSet.add(FeedTaskResult.EXECUTION_TIME_WARNING);
@@ -285,7 +256,7 @@ class FeedTask implements Callable<FeedTaskResult> {
         // updating the database. This has no effect as long as we do not restart the FeedReader in this case.
         feed.setLastFeedTaskResult(getResult());
         feed.increaseTotalProcessingTimeMS(timer.getElapsedTime());
-        updateFeed(storeMetadata);
+        updateFeed();
 
         doFinalLogging(timer);
         // since the feed is kept in memory we need to remove all items and the document stored in the feed
@@ -358,8 +329,8 @@ class FeedTask implements Callable<FeedTaskResult> {
      * 
      * @param storeMetadata
      */
-    private void updateFeed(boolean storeMetadata) {
-        boolean dbSuccess = feedReader.updateFeed(feed, storeMetadata, feed.hasNewItem());
+    private void updateFeed() {
+        boolean dbSuccess = feedReader.updateFeed(feed, feed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }
