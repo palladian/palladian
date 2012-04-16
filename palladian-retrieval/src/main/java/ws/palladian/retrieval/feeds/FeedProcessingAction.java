@@ -36,6 +36,6 @@ public interface FeedProcessingAction {
      * @param httpResult The {@link HttpResult} we got when downloading the {@link Feed}.
      * @return <code>true</code> if no error occurred, <code>false</code> otherwise.
      */
-    boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult);
+    boolean performActionOnError(Feed feed, HttpResult httpResult);
 
 }

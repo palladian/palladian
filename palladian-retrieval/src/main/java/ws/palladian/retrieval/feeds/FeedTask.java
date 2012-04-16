@@ -143,7 +143,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 feed.incrementUnreachableCount();
                 resultSet.add(FeedTaskResult.UNREACHABLE);
 
-                boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnHighHttpStatusCode(feed,
+                boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnError(feed,
                         httpResult);
                 if (!actionSuccess) {
                     resultSet.add(FeedTaskResult.ERROR);

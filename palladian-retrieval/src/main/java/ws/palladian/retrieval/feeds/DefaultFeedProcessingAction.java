@@ -38,7 +38,7 @@ public class DefaultFeedProcessingAction implements FeedProcessingAction {
     }
 
     @Override
-    public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
+    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
         return true;
     }
 
