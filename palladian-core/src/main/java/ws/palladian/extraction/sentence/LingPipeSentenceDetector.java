@@ -3,7 +3,12 @@
  */
 package ws.palladian.extraction.sentence;
 
+import java.util.Collection;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.PositionAnnotation;
@@ -45,8 +50,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * @param inputViewNames The names of all the input views processed when using this sentence detector as a pipeline
      *            processor. Sentences are created from all these views.
      */
-    public LingPipeSentenceDetector(String[] inputViewNames) {
-        super(inputViewNames);
+    public LingPipeSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
+        super(documentToInputMapping);
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 
@@ -62,7 +67,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * </p>
      */
     public LingPipeSentenceDetector() {
-        this(new String[] {"originalContent"});
+        super();
     }
 
     @Override
@@ -72,7 +77,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
         PipelineDocument document = new PipelineDocument(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = new PositionAnnotation(document, getCurrentViewName(), chunk.start(), chunk.end());
+            sentences[ite] = new PositionAnnotation(document, PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME,
+                    chunk.start(), chunk.end());
             ite++;
         }
         setSentences(sentences);
