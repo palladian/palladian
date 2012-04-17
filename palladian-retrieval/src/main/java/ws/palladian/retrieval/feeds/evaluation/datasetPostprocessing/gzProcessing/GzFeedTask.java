@@ -164,7 +164,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                     LOGGER.error("Could not get Document for feed id " + correctedFeed.getId()
                             + ". Server returned HTTP status code " + gzHttpResult.getStatusCode());
 
-                    boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnClientOrServerError(
+                    boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnError(
                             correctedFeed, gzHttpResult);
                     if (!actionSuccess) {
                         resultSet.add(FeedTaskResult.ERROR);

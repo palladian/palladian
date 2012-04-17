@@ -152,7 +152,7 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnClientOrServerError(Feed feed, HttpResult httpResult) {
+    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
 
         return processPollMetadata(feed, httpResult, null);
     }
