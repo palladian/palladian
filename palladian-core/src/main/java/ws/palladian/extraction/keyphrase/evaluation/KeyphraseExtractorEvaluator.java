@@ -28,8 +28,6 @@ public class KeyphraseExtractorEvaluator {
     /** The stemmer is needed to compare the assigned tags to the existing ones. */
     private SnowballStemmer stemmer = new englishStemmer();
 
-    // private KeyphraseExtractor extractor;
-
     private List<KeyphraseExtractor> extractors = new ArrayList<KeyphraseExtractor>();
 
     private static final String TEMP_TRAINING_DATA = "data/temp/KeyphraseExtractorEvaluation_train.txt";
@@ -37,10 +35,6 @@ public class KeyphraseExtractorEvaluator {
     private static final String TEMP_TESTING_DATA = "data/temp/KeyphraseExtractorEvaluation_test.txt";
 
     private static final String EVALUATION_RESULT = "data/temp/KeyphraseExtractorEvaluation_result.txt";
-
-    // public KeyphraseExtractorEvaluator(KeyphraseExtractor extractor) {
-    // this.extractor = extractor;
-    // }
 
     public void addExtractor(KeyphraseExtractor extractor) {
         extractors.add(extractor);
@@ -215,26 +209,20 @@ public class KeyphraseExtractorEvaluator {
 
     }
 
-    // public KeyphraseExtractorEvaluationResult test() {
-    // return test(TEMP_TESTING_DATA, -1);
-    // }
-
+    /** Stems each token of a phrase. */
     private String stem(String unstemmed) {
-
-        StringBuilder sb = new StringBuilder();
-
+        StringBuilder result = new StringBuilder();
         // stem each part of the phrase
         String[] parts = unstemmed.toLowerCase().split(" ");
         for (String part : parts) {
             stemmer.setCurrent(part);
             stemmer.stem();
-            sb.append(stemmer.getCurrent());
+            result.append(stemmer.getCurrent());
         }
-
-        return sb.toString();
-
+        return result.toString();
     }
 
+    /** Stems a list of tokens. */
     private Set<String> stem(Set<String> unstemmed) {
         Set<String> result = new HashSet<String>();
         for (String unstemmedTag : unstemmed) {
@@ -246,41 +234,18 @@ public class KeyphraseExtractorEvaluator {
 
     public static void main(String[] args) {
 
-        KeyphraseExtractor keyphraseExtractor;
-        PalladianKeyphraseExtractor palladianKeyphraseExtractor = new PalladianKeyphraseExtractor();
-        // keyphraseExtractor = new AlchemyKeywordExtraction();
-        // keyphraseExtractor = new ControlledTagger();
-        // keyphraseExtractor = new FiveFiltersTermExtraction();
-        // keyphraseExtractor = new YahooTermExtraction();
-        // palladianKeyphraseExtractor.getSettings().setModelPath("data/temp/PalladianWithPOS");
-        
-        keyphraseExtractor = palladianKeyphraseExtractor;
-
+        KeyphraseExtractor keyphraseExtractor = new PalladianKeyphraseExtractor();
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
-
-        // evaluator.addExtractor(palladianKeyphraseExtractor);
-        // evaluator.addExtractor(controlledTagger);
+        evaluator.addExtractor(keyphraseExtractor);
 
         Dataset dataset = new Dataset();
-        // dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
-        // dataset.setRootPath("/Users/pk/temp/citeulike180/documents/");
-        // dataset.setPath("/Users/pk/temp/fao780.txt");
-        // dataset.setRootPath("/Users/pk/temp/fao780/");
-
-        // dataset.setSeparationString("#");
-
-        // dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
-        // dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
-        
         dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
         dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
         dataset.setSeparationString(" ");
         dataset.setFirstFieldLink(true);
         dataset.setUsePercentTraining(50);
 
-        // evaluator.evaluate(keyphraseExtractor, dataset, -1, true);
         evaluator.evaluate(keyphraseExtractor, dataset, 1000, true);
-
     }
 
 }
