@@ -322,6 +322,33 @@ public class ClassifierEvaluator {
         return numberOfInstancesPerClass;
     }
 
+    public void createModel() {
+        String classifierName = "germanSentimentWeblogs.gz";
+
+        // classifier
+        DictionaryClassifier classifier = new DictionaryClassifier();
+        classifier.setName("D1");
+        classifier.getFeatureSetting().setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        // classifier.getFeatureSetting().setMaxTerms(10);
+        classifier.getFeatureSetting().setMinNGramLength(3);
+        classifier.getFeatureSetting().setMaxNGramLength(7);
+        classifier.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+
+        // dataset
+        Dataset dataset = new Dataset("Dataset");
+        dataset.setFirstFieldLink(false);
+        dataset.setSeparationString("<###>");
+        dataset.setPath("H:\\PalladianData\\Datasets\\SentimentDatasets\\German\\WebBlogsNews.csv");
+
+        // train
+        classifier.train(dataset);
+        FileHelper.serialize(classifier, classifierName);
+
+        // evaluate
+        ClassifierPerformance result = classifier.evaluate(dataset);
+        System.out.println(result);
+    }
+
     /**
      * Evaluate the classifier playground. Do not use...just for quality control and manual testing.
      * 
@@ -562,8 +589,9 @@ public class ClassifierEvaluator {
         ClassifierEvaluator evaluator = new ClassifierEvaluator();
 
         // evaluator.evaluateClassifierPlaygroundRegression();
-        evaluator.evaluateClassifierPlayground();
-        evaluator.testNB();
+        // evaluator.evaluateClassifierPlayground();
+        evaluator.createModel();
+        // evaluator.testNB();
         System.exit(0);
 
         StringBuilder results = new StringBuilder();

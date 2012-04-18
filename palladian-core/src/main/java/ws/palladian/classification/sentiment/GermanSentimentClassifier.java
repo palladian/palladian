@@ -185,9 +185,9 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             categoryEntries.add(negativeCategoryEntry);
             
             
-            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold && 
+            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold &&
                     (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence) &&
-                    (positiveSentimentSumSentence > 0.1 || negativeSentimentSumSentence > 0.1)) {
+ (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
                 addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory().getName(), sentence);
             }
             
@@ -222,13 +222,15 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         
         // build the model
         gsc = new GermanSentimentClassifier();
-        gsc.buildModel("data/temp/SentiWS_v1.8b_", "data/temp/gsc.gz");
+        gsc.buildModel("data/temp/SentiWS_v1.8c_", "gsc.gz");
 
-        gsc = new GermanSentimentClassifier("data/temp/gsc.gz");
+        gsc = new GermanSentimentClassifier("gsc.gz");
         gsc.setConfidenceThreshold(0.6);
         CategoryEntry result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
-        //result = gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen, 3.");
-        result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));
+        result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
+        // result =
+        // gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen");
+        // result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));
         
         Map<String, List<String>> opinionatedSentences = gsc.getOpinionatedSentences();
         for (Entry<String, List<String>> entry : opinionatedSentences.entrySet()) {

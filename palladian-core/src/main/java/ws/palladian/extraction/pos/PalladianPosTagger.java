@@ -13,7 +13,6 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -45,6 +44,9 @@ public class PalladianPosTagger extends BasePosTagger {
             tagger = FileHelper.deserialize(modelFilePath);
             Cache.getInstance().putDataObject(modelFilePath, tagger);
         }
+    }
+
+    public PalladianPosTagger() {
     }
 
     @Override
@@ -258,16 +260,16 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     public static void main(String[] args) {
-        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
+        PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
         // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // /palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
         // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
+        palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
         // .getTaggedString());
-        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
+        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }
