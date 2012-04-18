@@ -22,7 +22,7 @@ public class DateHelperTest {
     @Test
     public void testGetTimeString() {
         assertEquals("0ms", DateHelper.getTimeString(0));
-        assertEquals("76h:3m:43s:872ms", DateHelper.getTimeString(273823872));
+        assertEquals("3d:4h:3m:43s:872ms", DateHelper.getTimeString(273823872));
         assertEquals("1m:0s:0ms", DateHelper.getTimeString(60000));
         assertEquals("1h:0m:0s:0ms", DateHelper.getTimeString(3600000));
     }

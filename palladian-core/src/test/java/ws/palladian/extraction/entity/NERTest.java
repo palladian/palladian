@@ -233,7 +233,7 @@ public class NERTest {
     }
 
     @Test
-    public void testOpenNLPNER() throws FileNotFoundException {
+    public void testOpenNlpNer() throws FileNotFoundException {
         String openNlpModelFile = ResourceHelper.getResourcePath("/ner/openNLP.bin");
         OpenNlpNer tagger = new OpenNlpNer();
 
@@ -254,17 +254,17 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-        // System.out.println(annotations.size());
-        // System.out.println(annotations.get(0));
-        // System.out.println(annotations.get(500));
-        // System.out.println(annotations.get(annotations.size() - 1));
+//         System.out.println(annotations.size());
+//         System.out.println(annotations.get(0));
+//         System.out.println(annotations.get(500));
+//         System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1988, annotations.size());
+        assertEquals(1924, annotations.size());
         assertEquals(annotations.get(0).getOffset(), 2);
         assertEquals(annotations.get(0).getLength(), 8);
 
-        assertEquals(annotations.get(500).getOffset(), 16902);
-        assertEquals(annotations.get(500).getLength(), 3);
+        assertEquals(annotations.get(500).getOffset(), 16348);
+        assertEquals(annotations.get(500).getLength(), 1);
 
         assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
         assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);

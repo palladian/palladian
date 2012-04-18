@@ -41,15 +41,23 @@
 			<groupId>com.sun.media</groupId>
 			<artifactId>jai-codec</artifactId>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
 			<classifier>incubating</classifier>
-		</dependency>
-		<dependency>
+		</dependency -->
+		<!-- dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>maxent</artifactId>
 			<classifier>incubating</classifier>
+		</dependency -->
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-maxent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.uea.stemmer</groupId>

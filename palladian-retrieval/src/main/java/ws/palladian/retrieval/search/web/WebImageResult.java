@@ -17,18 +17,24 @@ public class WebImageResult extends WebResult {
     private final int height;
     private BufferedImage imageContent = null;
 
-    public WebImageResult(String url, String title, String summary, int width, int height, Date date) {
+    public WebImageResult(String url, String title, String summary, int width, int height, Date date,
+            BufferedImage imageContent) {
         super(url, title, summary, date);
         this.width = width;
         this.height = height;
+        this.imageContent = imageContent;
     }
 
     public WebImageResult(String url, String title, String summary, int width, int height) {
-        this(url, title, summary, width, height, null);
+        this(url, title, summary, width, height, null, null);
     }
 
     public WebImageResult(String url, String title, int width, int height) {
-        this(url, title, null, width, height, null);
+        this(url, title, null, width, height, null, null);
+    }
+
+    public WebImageResult(String url, String title, int width, int height, BufferedImage imageContent) {
+        this(url, title, null, width, height, null, imageContent);
     }
 
     /**

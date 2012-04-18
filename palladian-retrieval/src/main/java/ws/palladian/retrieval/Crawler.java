@@ -125,9 +125,11 @@ public class Crawler {
 
             // if stack is still empty, let all threads finish before checking
             // in loop again
-            while (urlStack.isEmpty() && getThreadCount() > 0) {
+            int wc = 0;
+            while (urlStack.isEmpty() && getThreadCount() > 0 && wc < 60) {
                 try {
-                    Thread.sleep(500);
+                    wc++;
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     LOGGER.warn(e.getMessage());
                     return;
@@ -136,22 +138,25 @@ public class Crawler {
         }
 
         // wait for the threads to finish
-        while (getThreadCount() > 0) {
+        int wc = 0;
+        while (getThreadCount() > 0 && wc < 180) {
             try {
-                Thread.sleep(500);
+                LOGGER.info("wait a second (" + (180 - wc) + " more times)");
+                wc++;
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 LOGGER.warn(e.getMessage());
                 return;
             }
         }
 
-        LOGGER.info("-----------------------------------------------");
-        LOGGER.info("-----------------------------------------------");
-        LOGGER.info("-------------------URL DUMP--------------------");
-        Iterator<String> urlDumpIterator = urlDump.iterator();
-        while (urlDumpIterator.hasNext()) {
-            LOGGER.info(urlDumpIterator.next());
-        }
+        // LOGGER.info("-----------------------------------------------");
+        // LOGGER.info("-----------------------------------------------");
+        // LOGGER.info("-------------------URL DUMP--------------------");
+        // Iterator<String> urlDumpIterator = urlDump.iterator();
+        // while (urlDumpIterator.hasNext()) {
+        // LOGGER.info(urlDumpIterator.next());
+        // }
 
         if (crawlerCallbackOnFinish != null) {
             crawlerCallbackOnFinish.callback();
@@ -293,7 +298,7 @@ public class Crawler {
         this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
     }
 
-    public void addCrawlerCallback(RetrieverCallback crawlerCallback) {
+    public void addCrawlerCallback(RetrieverCallback<Document> crawlerCallback) {
         documentRetriever.addRetrieverCallback(crawlerCallback);
     }
 

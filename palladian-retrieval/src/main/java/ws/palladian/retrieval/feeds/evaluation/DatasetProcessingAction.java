@@ -158,8 +158,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnHighHttpStatusCode(Feed feed, HttpResult httpResult) {
-
+    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
         return processPollMetadata(feed, httpResult, null);
     }
 

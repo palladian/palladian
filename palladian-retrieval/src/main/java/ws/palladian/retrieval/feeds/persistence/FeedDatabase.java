@@ -312,7 +312,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return <code>true</code> if (all) update(s) successful.
      */
     @Override
-    public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
+    public boolean updateFeed(Feed feed, boolean replaceCachedItems) {
 
         if (feed.getId() == -1) {
             LOGGER.debug("feed does not exist and is added therefore");
@@ -350,7 +350,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         updated = runUpdate(UPDATE_FEED, parameters) != -1;
 
-        if (updated && updateMetaInformation) {
+        if (updated) {
             updated = updateMetaInformation(feed);
             if (!updated) {
                 LOGGER.error("Updating meta information for feed id " + feed.getId() + " (" + feed.getFeedUrl()
@@ -379,7 +379,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Override
     public boolean updateFeed(Feed feed) {
-        return updateFeed(feed, true, true);
+        return updateFeed(feed, true);
     }
     
     @Override

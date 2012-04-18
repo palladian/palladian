@@ -48,7 +48,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean updateFeed(Feed feed) {  
+    public boolean updateFeed(Feed feed) {
         return true;
     }
 
@@ -108,7 +108,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean updateFeed(Feed feed, boolean updateMetaInformation, boolean replaceCachedItems) {
+    public boolean updateFeed(Feed feed, boolean replaceCachedItems) {
         // nothing to do when feed is inMemory only and not written to data base.
         return true;
     }

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.TokenFrequencyMap;
+import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
@@ -129,7 +130,12 @@ public class InformativenessAssigner {
             @Override
             public void onFinishRetrieval(Document document) {
                 PalladianContentExtractor pse = new PalladianContentExtractor();
-                pse.setDocument(document);
+                try {
+                    pse.setDocument(document);
+                } catch (PageContentExtractorException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 texts.add(pse.getSentencesString());
             }
         };
