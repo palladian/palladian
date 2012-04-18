@@ -199,6 +199,11 @@
 				<version>3.5.0</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.lucene</groupId>
+				<artifactId>lucene-queries</artifactId>
+				<version>3.5.0</version>
+			</dependency>
+			<dependency>
 				<groupId>com.aliasi</groupId>
 				<artifactId>lingpipe</artifactId>
 				<version>3.9.2</version>

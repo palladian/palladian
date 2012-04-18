@@ -35,7 +35,6 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.external.maui.filters.MauiFilter;
 import ws.palladian.external.maui.main.MauiModelBuilder;
 import ws.palladian.external.maui.main.MauiTopicExtractor;
@@ -101,53 +100,50 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** Format of the vocabulary {skos,text} */
     private String vocabularyFormat = null;
+    
+    /** Number of documents which have been used for training. */
+    private int numTrainDocs = 0;
+    
+    /** The maximum number of documents to use for training. Used to avoid out of memory errors. */
+    private static final int TRAIN_DOCUMENTS_LIMIT = 5;
 
     public MauiKeyphraseExtractor() {
-
+        reset();
+    }
+    
+    @Override
+    public void reset() {
         FastVector atts = new FastVector(3);
         atts.addElement(new Attribute("filename", (FastVector) null));
         atts.addElement(new Attribute("document", (FastVector) null));
         atts.addElement(new Attribute("keyphrases", (FastVector) null));
         data = new Instances("keyphrase_training_data", atts, 0);
-
-        // XXX
         mauiFilter = new MauiFilter();
-
         setBasicWikipediaFeatures(false);
         setAllWikipediaFeatures(false);
-
+        numTrainDocs = 0;
     }
 
     @Override
     public void startTraining() {
-
-        LOGGER.trace(">startTraining");
-
-        //        mauiFilter = new MauiFilter();
-
         mauiFilter.setDebug(debugMode);
         mauiFilter.setVocabularyName(vocabularyName);
         mauiFilter.setVocabularyFormat(vocabularyFormat);
-
         try {
             mauiFilter.setInputFormat(data);
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
-        LOGGER.trace("<startTraining");
-
     }
+    
+    int indexX = 0;
 
     @Override
-    public void train(String inputText, Set<String> keyphrases, int index) {
-
-        // XXX
-        if (index > 1500){
+    public void train(String inputText, Set<String> keyphrases) {
+        if (numTrainDocs == TRAIN_DOCUMENTS_LIMIT) {
+            LOGGER.warn("Train limit reached (" + TRAIN_DOCUMENTS_LIMIT + ")");
             return;
         }
-
-        LOGGER.trace(">train " + index + " " + keyphrases);
 
         double[] newInst = new double[3];
 
@@ -156,38 +152,30 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         newInst[2] = data.attribute(2).addStringValue(StringUtils.join(keyphrases, "\n"));
 
         data.add(new Instance(1.0, newInst));
-
         try {
             mauiFilter.input(data.instance(0));
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
         data = data.stringFreeStructure();
-
-        LOGGER.trace("<train");
-
+        numTrainDocs++;
     }
 
     @Override
     public void endTraining() {
-
         try {
             mauiFilter.batchFinished();
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
         while ((mauiFilter.output()) != null) {
             // noop
         }
-
         try {
             saveModel();
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
     }
 
     @Override
@@ -591,31 +579,6 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             // e.printStackTrace();
             LOGGER.error("Failed to load thesaurus!", e);
         }
-
-    }
-
-    public static void main(String[] args) {
-
-        MauiKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
-        // System.exit(0);
-
-
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("/home/pk/Desktop/Maui_Small/dataset.txt");
-        trainingDataset.setSeparationString("#");
-        trainingDataset.setFirstFieldLink(true);
-
-        extractor.train(trainingDataset);
-
-        System.exit(0);
-
-
-        extractor.setKeyphraseCount(20);
-
-        extractor.startExtraction();
-        List<Keyphrase> extract = extractor
-        .extract("Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.");
-        System.out.println(extract);
 
     }
 

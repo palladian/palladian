@@ -137,10 +137,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new StemmerAnnotator(Language.ENGLISH));
-        
-        pipeline.add(new CountCalculator());
         pipeline.add(new TokenMetricsCalculator());
-        pipeline.add(new FrequencyCalculator());
         corpus = new TermCorpus();
         corpus.load("/Users/pk/Desktop/KEX/corpus.txt");
         pipeline.add(new IdfAnnotator(corpus));
@@ -184,7 +181,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     int mappedAnnotations = 0;
 
     @Override
-    public void train(String inputText, Set<String> keyphrases, int index) {
+    public void train(String inputText, Set<String> keyphrases) {
         
         // System.out.println("inTrain");
         System.out.println(keyphrases);
@@ -573,7 +570,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         System.exit(0);        
         
         PalladianKeyphraseExtractor extractor = new PalladianKeyphraseExtractor();
-        extractor.train("the quick brown fox jumps over the lazy dog", new HashSet<String>(Arrays.asList("fox", "dog", "lazy dog", "brown fox")), 0);
+        extractor.train("the quick brown fox jumps over the lazy dog", new HashSet<String>(Arrays.asList("fox", "dog", "lazy dog", "brown fox")));
         System.exit(0);
 
         String d1 = "If it walks like a duck and quacks like a duck, it must be a duck.";

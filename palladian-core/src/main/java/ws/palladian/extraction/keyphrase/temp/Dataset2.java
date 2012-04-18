@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * 
  * @author Philipp Katz
  */
-public class Dataset extends ArrayList<DatasetItem> {
+public class Dataset2 extends ArrayList<DatasetItem> {
 
     private static final long serialVersionUID = 1L;
 

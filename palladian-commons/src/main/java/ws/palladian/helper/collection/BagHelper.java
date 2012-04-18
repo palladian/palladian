@@ -1,4 +1,4 @@
-package ws.palladian;
+package ws.palladian.helper.collection;
 
 import java.util.Iterator;
 
