@@ -1,6 +1,7 @@
 package ws.palladian.extraction.feature;
 
 import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import ws.palladian.extraction.PipelineProcessor;
  * @author Philipp Katz
  * 
  */
-public class LengthTokenRemover extends TokenRemover {
+public class LengthTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 

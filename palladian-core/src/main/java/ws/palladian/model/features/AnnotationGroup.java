@@ -1,4 +1,4 @@
-package ws.palladian.extraction.feature;
+package ws.palladian.model.features;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import ws.palladian.extraction.PipelineDocument;
  * @author Philipp Katz
  * 
  */
-public class AnnotationGroup extends Annotation {
+public final class AnnotationGroup extends Annotation {
 
     /**
      * <p>

@@ -3,18 +3,18 @@ package ws.palladian.extraction;
 import java.util.HashMap;
 import java.util.Map;
 
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
-import ws.palladian.extraction.feature.FrequencyCalculator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StopTokenRemover;
+import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
 
@@ -41,8 +41,9 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
         add(new StemmerAnnotator(language));
         add(new StopTokenRemover(language));
         add(new LengthTokenRemover(2));
+        // FIXME shouldn't this character class be negated?
         add(new RegExTokenRemover("[A-Za-z0-9\\.]"));
-        add(new FrequencyCalculator());
+        add(new TokenMetricsCalculator());
         add(new DuplicateTokenRemover());
     }
 
@@ -63,7 +64,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
             NominalFeature stemmedValue = annotation.getFeatureVector().get(
                     StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
             NumericFeature frequencyFeature = annotation.getFeatureVector().get(
-                    FrequencyCalculator.PROVIDED_FEATURE_DESCRIPTOR);
+                    TokenMetricsCalculator.FREQUENCY);
             result.put(stemmedValue.getValue(), frequencyFeature.getValue());
         }
         return result;

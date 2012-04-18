@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 
 /**
  * <p>

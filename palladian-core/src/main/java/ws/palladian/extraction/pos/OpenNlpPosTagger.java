@@ -8,8 +8,8 @@ import java.util.List;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
-import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.helper.Cache;
+import ws.palladian.model.features.Annotation;
 
 /**
  * @author Martin Wunderwald

@@ -16,11 +16,11 @@ import opennlp.tools.util.Span;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.PositionAnnotation;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>

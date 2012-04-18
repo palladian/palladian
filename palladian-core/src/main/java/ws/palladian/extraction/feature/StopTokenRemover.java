@@ -15,6 +15,7 @@ import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  * 
  */
-public class StopTokenRemover extends TokenRemover {
+public class StopTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 

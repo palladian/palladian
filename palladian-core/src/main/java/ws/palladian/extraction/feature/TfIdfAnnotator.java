@@ -5,31 +5,54 @@ import java.util.List;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
+/**
+ * <p>
+ * A {@link PipelineProcessor} for annotating <a
+ * href="http://nlp.stanford.edu/IR-book/html/htmledition/tf-idf-weighting-1.html">TF-IDF</a> values. The
+ * {@link PipelineDocument}s need to be processed by {@link TokenMetricsCalculator} to calculate token frequencies and
+ * {@link IdfAnnotator} to calculate inverse document frequencies first.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class TfIdfAnnotator implements PipelineProcessor {
 
-    public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.tfidf";
+    private static final long serialVersionUID = 1L;
+
     public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            PROVIDED_FEATURE, NumericFeature.class);
+            "ws.palladian.preprocessing.tokens.tfidf", NumericFeature.class);
 
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE + "\" is missing.");
+            throw new IllegalStateException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE
+                    + "\" is missing.");
         }
-        List<Annotation> tokenList = annotationFeature.getValue();
-        for (Annotation annotation : tokenList) {
+        List<Annotation> annotationList = annotationFeature.getValue();
+        for (Annotation annotation : annotationList) {
             FeatureVector tokenFeatureVector = annotation.getFeatureVector();
-            double tf = tokenFeatureVector.get(FrequencyCalculator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
-            double idf = tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
-            NumericFeature tfidfFeature = new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf);
-            tokenFeatureVector.add(tfidfFeature);
+            NumericFeature tfFeature = tokenFeatureVector.get(TokenMetricsCalculator.FREQUENCY);
+            if (tfFeature == null) {
+                throw new IllegalStateException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
+                        + "\" is missing.");
+            }
+            NumericFeature idfFeature = tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+            if (idfFeature == null) {
+                throw new IllegalStateException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR
+                        + "\" is missing.");
+            }
+            double tf = tfFeature.getValue();
+            double idf = idfFeature.getValue();
+            tokenFeatureVector.add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf));
         }
     }
 

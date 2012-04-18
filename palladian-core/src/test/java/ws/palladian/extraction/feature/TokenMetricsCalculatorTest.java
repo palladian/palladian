@@ -9,6 +9,8 @@ import org.junit.Test;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
 public class TokenMetricsCalculatorTest {

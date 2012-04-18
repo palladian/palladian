@@ -6,13 +6,19 @@ import java.util.List;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>
- * The NGramCreator creates token n-grams and stores them {@link AnnotationGroup}s. For example, using n-gram length of
- * 2, for the list of {@link Annotation}s [<i>the, quick, brown, fox, jumps, over, the, lazy, dog</i>], the following
- * {@link AnnotationGroup}s will be created: [<i>the quick</i>, <i>quick brown</i>, <i>brown fox</i>, ...].
+ * The NGramCreator creates token/word n-grams and stores them as {@link AnnotationGroup}s. For example, using an n-gram
+ * length of 2, for the list of {@link Annotation}s [<i>the, quick, brown, fox, jumps, over, the, lazy, dog</i>], the
+ * following {@link AnnotationGroup}s will be created: [<i>the quick</i>, <i>quick brown</i>, <i>brown fox</i>, ...].
+ * {@link AnnotationGroup}s will only be created for <i>consecutive</i> {@link Annotation}s determined by their
+ * {@link Annotation#getIndex()}. This means, if there are holes between the supplied annotations (e.g. by stopwords
+ * which have been removed in advance), no {@link AnnotationGroup}s are created spanning these holes.
  * </p>
  * 
  * @author Philipp Katz
@@ -60,9 +66,10 @@ public class NGramCreator implements PipelineProcessor {
     @Override
     public void process(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new RuntimeException();
+            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+                    + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
@@ -73,6 +80,16 @@ public class NGramCreator implements PipelineProcessor {
         annotations.addAll(gramTokens);
     }
 
+    /**
+     * <p>
+     * Create n-grams of annotations with the specified length.
+     * </p>
+     * 
+     * @param document
+     * @param annotations
+     * @param length
+     * @return
+     */
     private List<AnnotationGroup> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
@@ -81,9 +98,34 @@ public class NGramCreator implements PipelineProcessor {
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
             }
-            gramTokens.add(gramToken);
+            if (isConsecutive(gramToken)) {
+                gramTokens.add(gramToken);
+            }
         }
         return gramTokens;
+    }
+
+    /**
+     * <p>
+     * Check, whether the {@link Annotation}s in the supplied {@link AnnotationGroup} are consecutive, i.e. the
+     * difference between two following {@link Annotation}s in the group is one for each pair.
+     * </p>
+     * 
+     * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link Annotation}s.
+     * @return <code>true</code>, if {@link Annotation}s are consecutive, <code>false</code> otherwise.
+     */
+    private boolean isConsecutive(AnnotationGroup annotationGroup) {
+        boolean ret = true;
+        int index = -1;
+        for (Annotation annotation : annotationGroup.getAnnotations()) {
+            int currentIndex = annotation.getIndex();
+            if (index != -1 && index + 1 != currentIndex) {
+                ret = false;
+                break;
+            }
+            index = currentIndex;
+        }
+        return ret;
     }
 
 }

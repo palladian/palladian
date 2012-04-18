@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.Cache;
@@ -19,6 +18,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.model.features.Annotation;
 
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;

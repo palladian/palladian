@@ -22,10 +22,13 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.SequentialPatternFeature;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.NominalFeature;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>

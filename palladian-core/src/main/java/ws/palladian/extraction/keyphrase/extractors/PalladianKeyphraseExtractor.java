@@ -21,12 +21,7 @@ import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.feature.AnnotationGroup;
-import ws.palladian.extraction.feature.CountCalculator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
-import ws.palladian.extraction.feature.FrequencyCalculator;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
@@ -35,7 +30,7 @@ import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
-import ws.palladian.extraction.feature.TokenRemover;
+import ws.palladian.extraction.feature.AbstractTokenRemover;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
@@ -43,6 +38,9 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
@@ -81,7 +79,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         
         // remove those NGrams, which start or end with a stopword; this
         // helps to reduce the number of training instances by about 50 percent
-        pipeline.add(new TokenRemover() {
+        pipeline.add(new AbstractTokenRemover() {
             
             @Override
             protected boolean remove(Annotation annotation) {
@@ -102,7 +100,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         });
         
         // remove Tokens with many numbers
-        pipeline.add(new TokenRemover() {
+        pipeline.add(new AbstractTokenRemover() {
             
             @Override
             protected boolean remove(Annotation annotation) {
@@ -115,7 +113,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         });
         
         // remove Token which start/end with punctation
-        pipeline.add(new TokenRemover() {
+        pipeline.add(new AbstractTokenRemover() {
             
             @Override
             protected boolean remove(Annotation annotation) {
@@ -195,7 +193,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // TODO need to consider stems and composite terms here
         for (Annotation annotation : tokenList.getValue()) {
             String annotationValue = annotation.getValue();
-            String unstemmedValue = (String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue();
+            String unstemmedValue = (String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
             
             boolean isCandidate = false;
             isCandidate = isCandidate || keyphrases.contains(annotationValue.toLowerCase());
@@ -242,7 +240,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             
-            lineBuilder.append(featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(featureVector.get(TokenMetricsCalculator.FREQUENCY).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(TokenMetricsCalculator.SPREAD).getValue());
             lineBuilder.append(";");
@@ -258,7 +256,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
-            lineBuilder.append(featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get("keyphraseness").getValue());
             lineBuilder.append(";");
@@ -335,7 +333,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
                 
                 FeatureVector featureVector = annotation.getFeatureVector();
-                double freq = (Double) featureVector.get(FrequencyCalculator.PROVIDED_FEATURE).getValue();
+                double freq = (Double) featureVector.get(TokenMetricsCalculator.FREQUENCY).getValue();
                 double spread = (Double) featureVector.get(TokenMetricsCalculator.SPREAD).getValue();
                 double first = (Double) featureVector.get(TokenMetricsCalculator.FIRST).getValue();
                 double last = (Double) featureVector.get(TokenMetricsCalculator.LAST).getValue();
@@ -343,7 +341,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 double wordLength= (Double) featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue();
                 double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
                 double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
-                double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE).getValue();
+                double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
                 double keyphraseness= (Double) featureVector.get("keyphraseness").getValue();
                 
                 
@@ -369,7 +367,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 //if (distributionForInstance[1] > distributionForInstance[0]) {
                 if (distributionForInstance[0] < 0.5) {
                     // System.out.println(annotation);
-                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE).getValue(), 1-distributionForInstance[0]));
+                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue(), 1-distributionForInstance[0]));
                 }
             }
             

@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.model.features.Annotation;
 
-public class ControlledVocabularyFilter extends TokenRemover {
+public class ControlledVocabularyFilter extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 

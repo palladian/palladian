@@ -4,10 +4,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.feature.PositionAnnotation;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>

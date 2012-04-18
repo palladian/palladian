@@ -6,6 +6,9 @@ import java.util.regex.Pattern;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.PositionAnnotation;
 
 public class TextPatternAnnotator implements PipelineProcessor {
     

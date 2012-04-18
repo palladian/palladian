@@ -8,7 +8,8 @@ import java.util.Set;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 
 public class DuplicateTokenRemover implements PipelineProcessor {
 
@@ -16,16 +17,15 @@ public class DuplicateTokenRemover implements PipelineProcessor {
 
     @Override
     public void process(PipelineDocument document) {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new RuntimeException("required feature is missing");
+            throw new IllegalStateException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+                    + "\" is missing.");
         }
-        List<Annotation> annotations = annotationFeature.getValue();
         Set<String> tokenValues = new HashSet<String>();
-
         List<Annotation> resultTokens = new ArrayList<Annotation>();
-        for (Annotation annotation : annotations) {
+        for (Annotation annotation : annotationFeature.getValue()) {
             String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
                 resultTokens.add(annotation);
