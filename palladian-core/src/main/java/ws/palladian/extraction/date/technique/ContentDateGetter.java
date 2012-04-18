@@ -159,7 +159,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             // TODO: Check if an element is visible
             // checkVisiblityOfAllNodes(body.item(0));
             // Get webpage as text (for finding position).
-            this.doc = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(HtmlHelper
+            this.doc = StringHelper.removeDoubleWhitespaces(DateGetterHelper.replaceHtmlSymbols(HtmlHelper
                     .documentToReadableText(body.item(0))));
 
             /*
@@ -209,7 +209,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
-        String text = HtmlHelper.replaceHtmlSymbols(node.getNodeValue());
+        String text = DateGetterHelper.replaceHtmlSymbols(node.getNodeValue());
 
         int index = -1;
         Node parent = node.getParentNode();
