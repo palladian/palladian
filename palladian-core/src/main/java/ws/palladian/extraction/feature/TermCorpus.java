@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Set;
 
+import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
@@ -20,11 +21,15 @@ public class TermCorpus {
     private static final String SEPARATOR = "#";
 
     private int numDocs;
-    private final HashBag<String> terms;
+    private final Bag<String> terms;
 
     public TermCorpus() {
-        numDocs = 0;
-        terms = new HashBag<String>();
+        this(new HashBag<String>(), 0);
+    }
+    
+    public TermCorpus(Bag<String> terms, int numDocs) {
+        this.numDocs = numDocs;
+        this.terms = terms;
     }
 
     public void addTermsFromDocument(Set<String> terms) {
@@ -98,6 +103,11 @@ public class TermCorpus {
         } finally {
             FileHelper.close(outputStream, printWriter);
         }
+    }
+    
+    public void reset() {
+        this.numDocs = 0;
+        this.terms.clear();
     }
 
     @Override

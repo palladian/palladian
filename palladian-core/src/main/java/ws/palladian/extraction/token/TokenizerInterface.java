@@ -1,7 +1,7 @@
 package ws.palladian.extraction.token;
 
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.feature.AnnotationFeature;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 

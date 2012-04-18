@@ -1,13 +1,10 @@
-package ws.palladian.extraction.feature;
+package ws.palladian.model.features;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>

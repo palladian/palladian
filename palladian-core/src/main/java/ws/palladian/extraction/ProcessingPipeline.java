@@ -22,6 +22,7 @@ import ws.palladian.helper.StopWatch;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public class ProcessingPipeline implements Serializable {
 
@@ -41,7 +42,7 @@ public class ProcessingPipeline implements Serializable {
      * The processors this pipeline will execute as ordered by this list from the first to the last.
      * </p>
      */
-    private List<PipelineProcessor> pipelineProcessors;
+    private final List<PipelineProcessor> pipelineProcessors;
 
     /**
      * <p>
@@ -51,6 +52,21 @@ public class ProcessingPipeline implements Serializable {
      */
     public ProcessingPipeline() {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
+    }
+    
+    /**
+     * <p>
+     * Creates a new {@link ProcessingPipeline} with the {@link PipelineProcessor}s from the supplied
+     * {@link ProcessingPipeline}. The newly created {@link ProcessingPipeline} will use the instances of the
+     * {@link PipelineProcessor}s from the supplied {@link ProcessingPipeline}. In other words, a <i>shallow copy</i> of
+     * the workflow is created, where {@link PipelineProcessor}s share their states.
+     * </p>
+     * 
+     * @param processingPipeline The {@link ProcessingPipeline} from which the {@link PipelineProcessor}s will be added
+     *            to the newly created instance.
+     */
+    public ProcessingPipeline(ProcessingPipeline processingPipeline) {
+        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
     }
 
     /**

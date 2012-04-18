@@ -7,9 +7,9 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.retrieval.DocumentRetriever;
 

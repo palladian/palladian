@@ -59,13 +59,14 @@ public class Keyphrase implements Comparable<Keyphrase>{
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        // builder.append("Keyphrase [value=");
-        builder.append(value);
-         builder.append(", weight=");
-         builder.append(weight);
-         builder.append("]");
-        return builder.toString();
+//        StringBuilder builder = new StringBuilder();
+//        // builder.append("Keyphrase [value=");
+//        builder.append(value);
+//         builder.append(", weight=");
+//         builder.append(weight);
+//         builder.append("]");
+//        return builder.toString();
+        return value;
     }
 
     @Override

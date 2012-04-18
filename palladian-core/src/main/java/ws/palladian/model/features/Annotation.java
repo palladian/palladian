@@ -1,7 +1,6 @@
-package ws.palladian.extraction.feature;
+package ws.palladian.model.features;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>

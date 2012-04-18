@@ -8,14 +8,14 @@ import org.junit.Test;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 
 public class StemmerAnnotatorTest {
     

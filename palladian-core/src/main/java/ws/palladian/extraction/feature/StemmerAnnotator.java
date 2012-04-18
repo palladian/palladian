@@ -11,6 +11,8 @@ import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
@@ -19,8 +21,9 @@ import ws.palladian.model.features.NominalFeature;
 /**
  * <p>
  * A {@link PipelineProcessor} for stemming a pre-tokenized text. This means, the documents to be processed by this
- * class must be processed by a {@link TokenizerInterface} in advance, supplying {@link TokenizerInterface#PROVIDED_FEATURE} annotations.
- * The stemmer is based on the <a href="http://snowball.tartarus.org/">Snowball</a> algorithm.
+ * class must be processed by a {@link TokenizerInterface} in advance, supplying
+ * {@link TokenizerInterface#PROVIDED_FEATURE} annotations. The stemmer is based on the <a
+ * href="http://snowball.tartarus.org/">Snowball</a> algorithm.
  * </p>
  * 
  * @author Philipp Katz
@@ -31,18 +34,11 @@ public class StemmerAnnotator implements PipelineProcessor {
 
     /**
      * <p>
-     * The identifier of the feature provided by this {@link PipelineProcessor}.
-     * </p>
-     */
-    public static final String PROVIDED_FEATURE = "ws.palladian.features.stem";
-
-    /**
-     * <p>
      * The descriptor of the feature provided by this {@link PipelineProcessor}.
      * </p>
      */
     public static final FeatureDescriptor<NominalFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            PROVIDED_FEATURE, NominalFeature.class);
+            "ws.palladian.features.stem", NominalFeature.class);
 
     private final SnowballStemmer stemmer;
 
@@ -93,12 +89,13 @@ public class StemmerAnnotator implements PipelineProcessor {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE + " is missing.");
+            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
+                    + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
             String stem = stem(annotation.getValue());
-            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE, stem);
+            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE_DESCRIPTOR, stem);
             annotation.getFeatureVector().add(stemFeature);
         }
     }

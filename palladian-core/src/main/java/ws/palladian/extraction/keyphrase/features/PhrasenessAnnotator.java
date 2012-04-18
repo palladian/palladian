@@ -4,12 +4,11 @@ import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.feature.AnnotationGroup;
-import ws.palladian.extraction.feature.CountCalculator;
-import ws.palladian.extraction.feature.FrequencyCalculator;
+import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
@@ -68,11 +67,11 @@ public class PhrasenessAnnotator implements PipelineProcessor {
     }
 
     private double getCount(Annotation annotation) {
-        if (annotation.getFeatureVector().get(FrequencyCalculator.PROVIDED_FEATURE_DESCRIPTOR) == null) {
+        if (annotation.getFeatureVector().get(TokenMetricsCalculator.FREQUENCY) == null) {
             // System.err.println("something is wrong for " + annotation);
             return 1;
         }
-        double frequency = (Double) annotation.getFeatureVector().get(CountCalculator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
+        double frequency = (Double) annotation.getFeatureVector().get(TokenMetricsCalculator.COUNT).getValue();
         return frequency;
     }
 

@@ -16,6 +16,7 @@ import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.extractors.MauiKeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.extractors.SimExtractor;
+import ws.palladian.extraction.keyphrase.extractors.TfidfExtractor;
 import ws.palladian.extraction.keyphrase.extractors.YahooTermExtraction;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
@@ -139,7 +140,8 @@ public class KeyphraseExtractorEvaluator {
     public static void main(String[] args) {
         // KeyphraseExtractor keyphraseExtractor = new YahooTermExtraction();
         // KeyphraseExtractor keyphraseExtractor = new SimExtractor();
-        KeyphraseExtractor keyphraseExtractor = new MauiKeyphraseExtractor();
+        // KeyphraseExtractor keyphraseExtractor = new MauiKeyphraseExtractor();
+        KeyphraseExtractor keyphraseExtractor = new TfidfExtractor();
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
         evaluator.addExtractor(keyphraseExtractor);
         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/temp/citeulike180index.txt"), "#");

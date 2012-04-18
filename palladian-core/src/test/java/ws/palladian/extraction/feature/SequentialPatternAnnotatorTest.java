@@ -19,8 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
 import ws.palladian.extraction.feature.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
@@ -28,6 +26,8 @@ import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.SequentialPattern;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 
 // TODO since the LSP algorithm is so slow this test should not run regularly.
 /**

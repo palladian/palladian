@@ -5,6 +5,8 @@ import java.util.List;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
 public class TokenOverlapRemover implements PipelineProcessor {

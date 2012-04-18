@@ -8,11 +8,11 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
 import ws.palladian.extraction.sentence.OpenNlpSentenceDetector;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.model.features.Annotation;
 
 public class SentenceChunkerTest {
 

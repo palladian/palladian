@@ -3,8 +3,8 @@ package ws.palladian.extraction.token;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.feature.PositionAnnotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.PositionAnnotation;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 
 /**

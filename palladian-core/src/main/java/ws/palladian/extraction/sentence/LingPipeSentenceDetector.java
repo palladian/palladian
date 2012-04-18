@@ -5,8 +5,8 @@ package ws.palladian.extraction.sentence;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.PositionAnnotation;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.PositionAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
