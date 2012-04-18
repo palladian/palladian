@@ -2,6 +2,7 @@ package ws.palladian.extraction.keyphrase.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.log4j.Logger;
@@ -39,72 +41,56 @@ public class DatasetWriter {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetWriter.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
-        // createCiteULike(
-        //        "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/taggers",
-        //        "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/citeulike180index.txt");
+        createCiteULike(
+               new File("/Users/pk/Desktop/citeulike180/taggers"),
+                new File("/Users/pk/Desktop/citeulike180index.txt"));
         // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
         
         
         
         // createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
-        createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
+        // createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
 
     }
 
-    public static void createCiteULike(String pathToRawFiles, String resultFile) {
-
+    public static void createCiteULike(File taggerDirectory, File indexOutput) throws IOException {
         Factory<Bag<String>> factory = new Factory<Bag<String>>() {
             @Override
             public Bag<String> create() {
                 return new HashBag<String>();
             }
         };
-        Map<Integer, Bag<String>> documentsTags = LazyMap.decorate(new TreeMap<Integer, Bag<String>>(), factory);
+        Map<String, Bag<String>> filenameTags = LazyMap.decorate(new TreeMap<String, Bag<String>>(), factory);
 
-        // go through all .tags files and get the tags
-
-        File[] taggerDirectories = FileHelper.getFiles(pathToRawFiles);
-        for (File file : taggerDirectories) {
-
-            if (!file.isDirectory()) {
-                continue;
-            }
-
-            File[] tagFiles = FileHelper.getFiles(file.getPath());
-            for (File tagFile : tagFiles) {
-
-                List<String> tags = FileHelper.readFileToArray(tagFile);
-                Bag<String> documentTags = documentsTags.get(Integer.valueOf(tagFile.getName().replace(".tags", "")));
-
-                for (String tag : tags) {
-                    if (tag.length() > 0) {
-
-                        // some .tag files in the dataset contain junk,
-                        // which we filter here
-                        if (tag.contains("  ")) {
-                            tag = tag.substring(tag.indexOf("  ") + 2, tag.length());
-                        }
-
-                        documentTags.add(tag.trim());
+        Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
+        for (File tagFile : tagFiles) {
+            List<String> tags = FileUtils.readLines(tagFile);
+            String filename = tagFile.getName().replace(".tags", ".txt");
+            Bag<String> documentTags = filenameTags.get(filename);
+            for (String tag : tags) {
+                if (tag.length() > 0) {
+                    // some .tag files in the dataset contain junk,
+                    // which we filter here
+                    if (tag.contains("  ")) {
+                        tag = tag.substring(tag.indexOf("  ") + 2, tag.length());
                     }
+                    tag = tag.trim();
+                    documentTags.add(tag);
                 }
             }
         }
 
         // write index file
-        StringBuilder sb = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-        Set<Entry<Integer, Bag<String>>> entrySet = documentsTags.entrySet();
-        for (Entry<Integer, Bag<String>> entry : entrySet) {
-            sb.append(entry.getKey()).append(".txt").append("#");
-            sb.append(StringUtils.join(entry.getValue().uniqueSet(), "#"));
-            sb.append("\n");
+        for (Entry<String, Bag<String>> entry : filenameTags.entrySet()) {
+            builder.append(entry.getKey()).append("#");
+            builder.append(StringUtils.join(entry.getValue().uniqueSet(), "#"));
+            builder.append("\n");
         }
-
-        FileHelper.writeToFile(resultFile, sb);
-
+        FileUtils.write(indexOutput, builder);
     }
 
     public static void createFAO(String pathToRawFiles, String resultFile) {

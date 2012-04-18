@@ -1,12 +1,18 @@
 package ws.palladian.extraction.keyphrase;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import scala.actors.threadpool.Arrays;
+
 import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.extraction.keyphrase.temp.Dataset2;
+import ws.palladian.extraction.keyphrase.temp.DatasetItem;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -46,7 +52,7 @@ public abstract class KeyphraseExtractor {
                     keyphrases.add(split[i]);
                 }
 
-                train(inputText, keyphrases, lineNumber);
+                train(inputText, keyphrases);
                 
                 if (lineNumber % 10 == 0) {
                     LOGGER.info(lineNumber);
@@ -57,6 +63,23 @@ public abstract class KeyphraseExtractor {
 
         endTraining();
 
+    }
+    
+    public final void train(Dataset2 dataset) {
+        startTraining();
+        int i = 0;
+        for (DatasetItem item : dataset) {
+            System.out.println(i++ + "// " + dataset.size());
+            String[] categories = item.getCategories();
+            String text;
+            try {
+                text = FileUtils.readFileToString(item.getFile());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+            train(text, new HashSet<String>(Arrays.asList(categories)));
+        }
+        endTraining();
     }
 
     /**
@@ -73,7 +96,7 @@ public abstract class KeyphraseExtractor {
      * @param keyphrases
      * @param index
      */
-    public void train(String inputText, Set<String> keyphrases, int index) {
+    public void train(String inputText, Set<String> keyphrases) {
         // override if this extractor needs training
     }
 
@@ -117,5 +140,10 @@ public abstract class KeyphraseExtractor {
     }
     
     public abstract String getExtractorName();
+
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

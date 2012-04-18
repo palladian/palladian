@@ -10,11 +10,6 @@
 	<name>Palladian: Persistence</name>
 	<description>Palladian Persistence Functionality</description>
 	<dependencies>
-		<!-- dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-commons</artifactId>
-			<version>${project.version}</version>
-		</dependency -->
 		<dependency>
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>

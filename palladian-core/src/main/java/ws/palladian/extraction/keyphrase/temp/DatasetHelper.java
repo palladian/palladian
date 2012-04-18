@@ -20,8 +20,8 @@ public final class DatasetHelper {
         // prevent instantiation.
     }
 
-    public static Dataset loadDataset(File filePath, final String separator) {
-        final Dataset ret = new Dataset();
+    public static Dataset2 loadDataset(final File filePath, final String separator) {
+        final Dataset2 ret = new Dataset2();
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -29,7 +29,9 @@ public final class DatasetHelper {
                 if (split.length < 2) {
                     throw new IllegalStateException();
                 }
-                File file = new File(split[0]);
+                // FIXME build filename from filePath + file name in index file
+                // File file = new File(split[0]);
+                File file = new File(filePath.getParent(), split[0]);
                 String[] categories = Arrays.copyOfRange(split, 1, split.length);
                 ret.add(new DatasetItem(file, categories));
             }
@@ -41,7 +43,7 @@ public final class DatasetHelper {
      * <p>
      * Return an {@link Iterator} for <a
      * href="http://en.wikipedia.org/wiki/Cross-validation_(statistics)#K-fold_cross-validation">K-fold
-     * cross-validation</a>. The {@link Iterator} iterates over an Array with two {@link Dataset} elements, the first
+     * cross-validation</a>. The {@link Iterator} iterates over an Array with two {@link Dataset2} elements, the first
      * one meant for training, the second one for testing.
      * </p>
      * 
@@ -49,21 +51,21 @@ public final class DatasetHelper {
      * @param folds The number of subsamples to create, i.e. <i>k</i> in statistics jargon.
      * @return An {@link Iterator} for for each fold, i.e. it contains the number of folds specified.
      */
-    public static Iterator<Dataset[]> crossValidate(Dataset dataset, int folds) {
+    public static Iterator<Dataset2[]> crossValidate(Dataset2 dataset, int folds) {
         return new CrossValidationIterator(dataset, folds);
     }
 
     /**
      * <p>
-     * An {@link Iterator} implementation for K-fold cross-validation. Each iteration returns a pair of {@link Dataset}
+     * An {@link Iterator} implementation for K-fold cross-validation. Each iteration returns a pair of {@link Dataset2}
      * s, the first one meant for training, the second one meant for testing.
      * </p>
      * 
      * @author Philipp Katz
      */
-    private static final class CrossValidationIterator implements Iterator<Dataset[]> {
+    private static final class CrossValidationIterator implements Iterator<Dataset2[]> {
 
-        private final Dataset inputDataset;
+        private final Dataset2 inputDataset;
         private final int folds;
 
         // sizes of all partitions
@@ -75,7 +77,7 @@ public final class DatasetHelper {
         // pointing at the start index used for training
         private int startIndex;
 
-        public CrossValidationIterator(Dataset inputDataset, int folds) {
+        public CrossValidationIterator(Dataset2 inputDataset, int folds) {
             this.inputDataset = inputDataset;
             this.folds = folds;
             this.iteration = 0;
@@ -88,9 +90,9 @@ public final class DatasetHelper {
         }
 
         @Override
-        public Dataset[] next() {
-            Dataset train = new Dataset();
-            Dataset test = new Dataset();
+        public Dataset2[] next() {
+            Dataset2 train = new Dataset2();
+            Dataset2 test = new Dataset2();
             int endIndex = startIndex + partitionSizes[iteration];
             int index = 0;
             for (DatasetItem item : inputDataset) {
@@ -103,7 +105,7 @@ public final class DatasetHelper {
             }
             startIndex += partitionSizes[iteration];
             iteration++;
-            return new Dataset[] {train, test};
+            return new Dataset2[] {train, test};
         }
 
         @Override

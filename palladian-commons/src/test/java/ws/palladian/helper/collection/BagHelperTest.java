@@ -1,4 +1,4 @@
-package com.newsseecr.xperimental;
+package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,7 +6,6 @@ import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.junit.Test;
 
-import ws.palladian.BagHelper;
 
 public class BagHelperTest {
 

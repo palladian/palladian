@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 /**
  * <p>
- * An item in a {@link Dataset}, typically used for classification evaluation tasks.
+ * An item in a {@link Dataset2}, typically used for classification evaluation tasks.
  * </p>
  * 
  * @author Philipp Katz
