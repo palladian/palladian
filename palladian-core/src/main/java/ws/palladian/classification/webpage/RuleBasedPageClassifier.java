@@ -131,9 +131,9 @@ public abstract class RuleBasedPageClassifier<T> {
 
         // set images
         PalladianContentExtractor pse = new PalladianContentExtractor();
-        pse.setDocument(document);
 
         try {
+            pse.setDocument(document);
             setImages(pse.getImages());
         } catch (Exception e) {
             e.printStackTrace();

@@ -34,6 +34,14 @@ public final class Labeler implements Comparable<Labeler> {
      */
     @Id
     private final String name;
+
+    /**
+     * <p>
+     * The {@code password} of this {@link Labeler}. This can be used for authentication at the web application. The
+     * password should not be stored in plain text of course.
+     * </p>
+     */
+    private final String password;
     /**
      * <p>
      * The {@link Label}s this {@code Labeler} provided.
@@ -52,16 +60,29 @@ public final class Labeler implements Comparable<Labeler> {
 
     /**
      * <p>
-     * Creates a new {@code Labeler} with no {@code Label}s provided initially.
+     * Creates a new {@code Labeler} with no {@code Label}s provided initially and no specified password.
+     * </p>
+     * 
+     * @param name The {@code name} of this {@code Labeler}.
+     * @param password The {@code password} of this {@link Labeler}.
+     */
+    public Labeler(final String name, final String password) {
+        super();
+        this.name = name;
+        this.password = password;
+        this.labels = new HashSet<Label>();
+        this.relations = new HashSet<ItemRelation>();
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code Labeler} with no {@code Label}s provided initially and no specified password.
      * </p>
      * 
      * @param name The {@code name} of this {@code Labeler}.
      */
     public Labeler(final String name) {
-        super();
-        this.name = name;
-        this.labels = new HashSet<Label>();
-        this.relations = new HashSet<ItemRelation>();
+        this(name, null);
     }
 
     /**
@@ -71,10 +92,7 @@ public final class Labeler implements Comparable<Labeler> {
      * </p>
      */
     protected Labeler() {
-        super();
-        this.name = null;
-        this.labels = new HashSet<Label>();
-        this.relations = new HashSet<ItemRelation>();
+        this(null);
     }
 
     /**
@@ -88,6 +106,17 @@ public final class Labeler implements Comparable<Labeler> {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * <p>
+     * Provides the {@code password} of this {@link Labeler}.
+     * </p>
+     * 
+     * @return
+     */
+    public String getPassword() {
+        return password;
     }
 
     /**

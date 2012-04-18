@@ -1,10 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ws.palladian</groupId>
-	<artifactId>iirmodel</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
-	<name>Palladian IIR Model</name>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.1.7-SNAPSHOT</version>
+	</parent>
+	<artifactId>palladian-iirmodel</artifactId>
+	<name>Palladian: IIR Model</name>
 	<description>An aggregated model for internet information retrieval tasks</description>
 
 	<properties>
@@ -12,7 +15,7 @@
 		<log4j.version>1.2.16</log4j.version>
 		<hsql.version>2.2.8</hsql.version>
 		<mysqlconnector.version>5.1.17</mysqlconnector.version>
-		<hibernate.version>4.0.1.Final</hibernate.version>
+		<hibernate.version>4.1.2</hibernate.version>
 		<jpa.version>2.0-cr-1</jpa.version>
 	</properties>
 

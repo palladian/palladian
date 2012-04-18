@@ -46,7 +46,6 @@ import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.RegExp;
@@ -61,8 +60,8 @@ import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
- * This is the Named Entity Recognizer from Palladian. It is based on rule-based entity delimitation (for English
- * texts), a text classification approach, and analyses the contexts around annotations. The major different to other
+ * This is the Named Entity Recognizer from Palladian. It is based on rule-based entity delimination (for English
+ * texts), a text classification approach, and analyzes the contexts around annotations. The major different to other
  * NERs is that it can be learned on seed entities (just the names) or classically using supervised learning on a tagged
  * dataset.
  * </p>
