@@ -9,6 +9,10 @@ import ws.palladian.classification.CategoryEntry;
 
 public abstract class AbstractSentimentClassifier {
     
+    public static final String POSITIVE = "positive";
+    public static final String NEGATIVE = "negative";
+    public static final String NEUTRAL = "neutral";
+
     /** Only sentences above this confidence threshold are taken into account for later calculations. */
     protected double confidenceThreshold = 0.5;
     
