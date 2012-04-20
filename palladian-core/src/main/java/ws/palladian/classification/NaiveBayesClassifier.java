@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
+import ws.palladian.model.features.ClassificationFeatureVector;
+import ws.palladian.model.features.Feature;
 
 /**
  * <p>
@@ -27,7 +30,7 @@ import ws.palladian.helper.math.Tensor;
  * @author David Urbansky
  * 
  */
-public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
+public class NaiveBayesClassifier extends Classifier<UniversalInstance> implements Predictor<String> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = 6975099985734139052L;
@@ -60,6 +63,35 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
      */
     private List<Double[]> meansAndStandardDeviations = new ArrayList<Double[]>();
 
+    /**
+     * FIXME this needs to go into BaseClassifier
+     * @param fv
+     * @return
+     */
+    public final CategoryEntries classify(ClassificationFeatureVector fv) {
+        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        
+        UniversalInstance universalInstance = new UniversalInstance(instances);
+        
+        Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
+        
+        // add numeric features
+        for (Feature<Double> numericFeature : numericFeatures) {            
+            universalInstance.getNumericFeatures().add(numericFeature.getValue());            
+        }
+        
+        Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
+        
+        // add nominal features
+        for (Feature<String> nominalFeature : nominalFeatures) {            
+            universalInstance.getNominalFeatures().add(nominalFeature.getValue());            
+        }
+        
+        classify(universalInstance);
+        
+        return universalInstance.getAssignedCategoryEntries();
+    }
+    
     /**
      * Build the bayesProbabilityMap for nominal and numeric features.
      */
@@ -374,5 +406,15 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> {
         System.out.println(correct / (double)testInstances.size());
 
         System.exit(0);
+    }
+
+    @Override
+    public void learn(List<Instance2<String>> instances) {
+        // FIXME        
+    }
+
+    @Override
+    public CategoryEntries predict(ClassificationFeatureVector vector) {
+        return classify(vector);
     }
 }
