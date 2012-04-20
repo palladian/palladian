@@ -3,6 +3,7 @@ package ws.palladian.helper.nlp;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -418,6 +419,19 @@ public class StringHelper {
         return false;
     }
 
+    public static boolean containsWord(Collection<String> words, String searchString) {
+
+        boolean contained = false;
+
+        for (String word : words) {
+            contained = containsWord(word, searchString);
+            if (contained) {
+                break;
+            }
+        }
+
+        return contained;
+    }
     /**
      * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be

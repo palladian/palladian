@@ -14,11 +14,15 @@ public class StopWordRemover implements PipelineProcessor {
 
     private static final long serialVersionUID = 5014188120999997379L;
 
-    public String removeStopWords(String text) {
+    private List<String> stopWords;
 
+    public StopWordRemover() {
         InputStream stream = this.getClass().getResourceAsStream("/stopwords_en.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        List<String> stopWords = FileHelper.readFileToArray(br);
+        stopWords = FileHelper.readFileToArray(br);
+    }
+
+    public String removeStopWords(String text) {
 
         for (String stopWord : stopWords) {
 

@@ -243,8 +243,8 @@ public class PalladianLangDetect extends LanguageClassifier {
         // String languageModelPath =
         // "C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC_o\\palladianLanguageJRC.gz";
         //
-        PalladianLangDetect pld0 = new PalladianLangDetect(
-                "data/models/palladian/language/wikipedia76Languages20ipc.gz");
+        PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/wikipedia76Languages20ipc.gz");
+        // PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/languageMicroblogging.gz");
         String language = pld0.classify("This is a sample text in English");
         System.out.println("The text was classified as: " + language);
         language = pld0.classify("Das ist ein Beispieltext auf Deutsch");

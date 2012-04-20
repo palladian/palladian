@@ -33,7 +33,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
@@ -55,7 +54,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.io.StringOutputStream;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -988,6 +986,7 @@ public class HtmlHelper {
         return "";
     }
 
+    // FIXME -- wrapping node == block level element (see constant).
     private static boolean isWrappingNode(Node node) {
 
         String nodeName = node.getNodeName().toLowerCase();
@@ -1033,78 +1032,6 @@ public class HtmlHelper {
         }
 
         return documentString;
-    }
-
-    /**
-     * <p>
-     * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
-     * this text reasonably you need to convert this code.
-     * </p>
-     * 
-     * @param text
-     * @return
-     */
-    // TODO way too specific and only used by date recognition
-    public static String replaceHtmlSymbols(String text) {
-
-        String result = StringEscapeUtils.unescapeHtml(text);
-        result = StringHelper.replaceProtectedSpace(result);
-
-        // remove undesired characters
-        result = result.replace("&#8203;", " "); // empty whitespace
-        result = result.replace("\n", " ");
-        result = result.replace("&#09;", " "); // html tabulator
-        result = result.replace("\t", " ");
-        result = result.replace(" ,", " ");
-
-        return result;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-//        String text = new DocumentRetriever().getText("http://blog.fefe.de/?q=noch");
-//        // String text = new DocumentRetriever().getText("http://cinefreaks.com");
-//        StopWatch stopWatch = new StopWatch();
-//        System.out.println(text.length() / 1024.0 + " KB");
-//        String t = HtmlHelper.stripHtmlTags(text, true, true, false, false);
-//        System.out.println(t.length() / 1024.0 + " KB");
-//        System.out.println(stopWatch.getTotalElapsedTimeString());
-//        System.out.println(StringHelper.shorten(t, 2000));
-//        System.exit(0);
-//
-//        String input = FileHelper.readFileToString("NewFile2.xml");
-//        // input = StringEscapeUtils.unescapeXml(input);
-//        // System.out.println(input.hashCode());
-//
-//        input = StringEscapeUtils.unescapeHtml(input);
-//
-//        System.out.println(input);
-//
-////        HtmlHelper.stringToXml(input);
-//
-//        System.out.println(stripHtmlTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
-//        System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
-
-        // String html = readHtmlFile("testfiles/readability/test004.html");
-        // html = htmlToString(html, true);
-        // System.out.println(html);
-
-        // DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
-        // Document doc = df.newDocumentBuilder().parse(new File("dumps/readability1275037727850.xml"));
-        // System.out.println(htmlDocToString(doc));
-        //
-
-        // System.out.println("1\n2\n3\n\n\n".trim());
-        // System.out.println("-------------");
-
-        // String s = null;
-        // System.out.println(s.toLowerCase());
-
-        // Crawler c = new Crawler();
-        // Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
-        // String result = htmlDocToString(doc);
-        // System.out.println(DigestUtils.md5Hex(result)); // 489eb91cf94343d0b62e69c396bc6b6f
-        // System.out.println(result);
     }
 
 }

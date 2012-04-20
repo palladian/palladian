@@ -25,6 +25,10 @@ public class NominalClassifier extends Classifier<UniversalInstance> {
 
     private CountMap2D cooccurrenceMatrix;
 
+    /**
+     * FIXME belongs to BaseClassifier
+     * @param instances
+     */
     public final void train(Instances<UniversalInstance> instances) {
 
         setTrainingInstances(instances);
