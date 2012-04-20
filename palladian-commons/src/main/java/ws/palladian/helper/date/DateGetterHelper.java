@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -269,7 +267,7 @@ public final class DateGetterHelper {
      */
     public static ExtractedDate getDateFromString(final String dateString, final String[] regExp) {
     	
-        String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(dateString));
+        String text = StringHelper.removeDoubleWhitespaces(DateGetterHelper.replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
         Pattern pattern;
@@ -447,5 +445,29 @@ public final class DateGetterHelper {
 			}
 		}
 		return date;
+    }
+
+    /**
+     * <p>
+     * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
+     * this text reasonably you need to convert this code.
+     * </p>
+     * 
+     * @param text
+     * @return
+     */
+    public static String replaceHtmlSymbols(String text) {
+    
+        String result = StringEscapeUtils.unescapeHtml(text);
+        result = StringHelper.replaceProtectedSpace(result);
+    
+        // remove undesired characters
+        result = result.replace("&#8203;", " "); // empty whitespace
+        result = result.replace("\n", " ");
+        result = result.replace("&#09;", " "); // html tabulator
+        result = result.replace("\t", " ");
+        result = result.replace(" ,", " ");
+    
+        return result;
     }
 }

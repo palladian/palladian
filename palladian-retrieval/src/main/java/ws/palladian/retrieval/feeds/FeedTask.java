@@ -114,7 +114,7 @@ class FeedTask implements Callable<FeedTaskResult> {
     public FeedTaskResult call() {
         StopWatch timer = new StopWatch();
         try {
-            LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
+            LOGGER.info("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
             buildConditionalGetHeader();
