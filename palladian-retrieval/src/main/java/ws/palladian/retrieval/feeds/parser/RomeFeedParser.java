@@ -364,8 +364,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
                 rawDate = rawDateModule.getRawDate();
             }
 
-            // FIXME see Mail from Sandro to David, 18-04-2011 21:42;
-            // test with Mon, 18 Apr 2011 09:16:00 GMT-0700 fails
             if (rawDate != null) {
 
                 try {

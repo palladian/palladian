@@ -21,7 +21,7 @@ import ws.palladian.helper.io.ResourceHelper;
 
 public class XPathHelperTest {
 
-//    private DocumentParser htmlParser = ParserFactory.createHtmlParser();
+    // private Parser htmlParser = ParserFactory.makeParser();
 //    private DocumentParser xmlParser = ParserFactory.createXmlParser();
 
     @Test
@@ -39,24 +39,24 @@ public class XPathHelperTest {
     }
 
     // FIXME needs to be re-added
-//    @Test
-//    public void testGetXhtmlChildNodes() throws FileNotFoundException, ParserException {
-//
-//        Document doc = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase1.html"));
-//
-//        List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//table/tr");
-//        assertEquals(3, rows.size());
-//
-//        for (Node row : rows) {
-//
-//            // iterate over TDs
-//            List<Node> cells = XPathHelper.getXhtmlChildNodes(row, "//td"); // does not work EDIT: now it does
-//            assertEquals(3, cells.size());
-//
-//            cells = XPathHelper.getXhtmlChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.
-//            assertEquals(3, cells.size());
-//        }
-//    }
+    // @Test
+    // public void testGetXhtmlChildNodes() throws FileNotFoundException, ParserException {
+    //
+    // Document doc = htmlParser.parse(ResourceHelper.getResourceStream("/webPages/NekoTableTestcase1.html"));
+    //
+    // List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//table/tr");
+    // assertEquals(3, rows.size());
+    //
+    // for (Node row : rows) {
+    //
+    // // iterate over TDs
+    // List<Node> cells = XPathHelper.getXhtmlChildNodes(row, "//td"); // does not work EDIT: now it does
+    // assertEquals(3, cells.size());
+    //
+    // cells = XPathHelper.getXhtmlChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.
+    // assertEquals(3, cells.size());
+    // }
+    // }
 
     @Test
     public void testGetElementById() throws ParserConfigurationException, SAXException, IOException {

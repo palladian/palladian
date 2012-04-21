@@ -404,7 +404,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      */
     public void clearTables() {
         LOGGER.fatal("TRUNCATE all tables!!");
-        // FIXME: disable keys before truncating and enable it afterwards! This saves a lot of processing time
+        // NOTE: disable keys before truncating and enable it afterwards! This saves a lot of processing time
         runUpdate("TRUNCATE TABLE revisions");
         runUpdate("TRUNCATE TABLE links");
         runUpdate("TRUNCATE TABLE pages");
