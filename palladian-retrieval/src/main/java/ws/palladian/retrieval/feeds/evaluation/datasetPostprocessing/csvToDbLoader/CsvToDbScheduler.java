@@ -78,14 +78,8 @@ public class CsvToDbScheduler extends TimerTask {
         // schedule all feeds only once
         for (Feed feed : feedReader.getFeeds()) {
             if (firstRun) {
-
-
-                // FIXME: remove dbug filter
-                // if (feed.getId() == 8654) {
                 scheduledTasks.put(feed.getId(),
                         threadPool.submit(new CsvToDbTask(feed, (EvaluationFeedDatabase) feedReader.getFeedStore())));
-                // }
-
                 newlyScheduledFeedsCount++;
             } else {
                 removeFeedTaskIfDone(feed.getId());
@@ -118,8 +112,6 @@ public class CsvToDbScheduler extends TimerTask {
         feedResults.clear();
         if (scheduledTasks.isEmpty()) {
             LOGGER.info("All tasks done. Exiting.");
-
-            // FIXME: find better way to exit since we loose some log messages when using buffered logj4
             System.exit(0);
         }
     }

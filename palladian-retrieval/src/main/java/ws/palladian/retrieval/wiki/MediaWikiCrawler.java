@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.LocalizeHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.data.Revision;
 import ws.palladian.retrieval.wiki.data.WikiDescriptor;
 import ws.palladian.retrieval.wiki.data.WikiPage;
@@ -699,8 +698,6 @@ public class MediaWikiCrawler implements Runnable {
      */
     @Deprecated
     private Date predictNextCheck(final int pageID) {
-
-        // FIXME: do a real prediction here!
         return new Date(System.currentTimeMillis() + DateHelper.MINUTE_MS);
     }
 

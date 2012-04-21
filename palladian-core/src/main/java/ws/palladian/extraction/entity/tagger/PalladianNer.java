@@ -3,12 +3,10 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -34,7 +32,6 @@ import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.persistence.DictionaryDbIndexH2;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -45,7 +42,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.RegExp;
@@ -126,10 +122,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     private boolean removeDates = true;
     private boolean removeDateEntries = true;
     private boolean removeIncorrectlyTaggedInTraining = true;
-    private boolean removeWrongEntityBeginnings = false;
-    private boolean removeSentenceStartErrorsPos = false;
     private boolean removeSentenceStartErrorsCaseDictionary = false;
-    private boolean removeSingleNonNounEntities = false;
     private boolean switchTagAnnotationsUsingPatterns = true;
     private boolean switchTagAnnotationsUsingDictionary = true;
     private boolean unwrapEntities = true;
@@ -303,10 +296,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         this.removeDates = n.removeDates;
         this.removeDateEntries = n.removeDateEntries;
         this.removeIncorrectlyTaggedInTraining = n.removeIncorrectlyTaggedInTraining;
-        this.removeWrongEntityBeginnings = n.removeWrongEntityBeginnings;
-        this.removeSentenceStartErrorsPos = n.removeSentenceStartErrorsPos;
         this.removeSentenceStartErrorsCaseDictionary = n.removeSentenceStartErrorsCaseDictionary;
-        this.removeSingleNonNounEntities = n.removeSingleNonNounEntities;
         this.switchTagAnnotationsUsingPatterns = n.switchTagAnnotationsUsingPatterns;
         this.switchTagAnnotationsUsingDictionary = n.switchTagAnnotationsUsingDictionary;
         this.unwrapEntities = n.unwrapEntities;
@@ -573,7 +563,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         // train the text classifier
-        universalClassifier.getTextClassifier().addTrainingInstances(textInstances);
+        universalClassifier.setTrainingInstances(textInstances);
+        // universalClassifier.getTextClassifier().addTrainingInstances(textInstances);
 
         // fill the case dictionary
         List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN));
@@ -803,115 +794,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     + stopWatch.getElapsedTimeString());
         }
 
-        // load the lingpipe POS tagger only if the features that require them are turned on
-        BasePosTagger lpt = null;
-
-        if (removeWrongEntityBeginnings || removeSentenceStartErrorsPos || removeSingleNonNounEntities) {
-            // FIXME nö
-//            lpt = new LingPipePosTagger();
-        }
-
-        // rule-based removal of possibly wrong beginnings of entities, for example "In Ireland" => "Ireland"
-        if (removeWrongEntityBeginnings) {
-            stopWatch.start();
-            for (Annotation annotation : annotations) {
-
-                // if annotation starts at sentence AND if first token of entity has POS tag != NP, NN, JJ, and UH,
-                // remove it
-                String[] entityParts = annotation.getEntity().split(" ");
-                if (entityParts.length > 1 && Boolean.valueOf(annotation.getNominalFeatures().get(0))) {
-                    TagAnnotations ta = lpt.tag(entityParts[0]);
-                    if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1
-                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
-                            && ta.get(0).getTag().indexOf("UH") == -1) {
-
-                        StringBuilder shortEntity = new StringBuilder();
-                        for (int i = 1; i < entityParts.length; i++) {
-                            shortEntity.append(entityParts[i]).append(" ");
-                        }
-
-                        annotation.setEntity(shortEntity.toString().trim());
-                        annotation.setOffset(annotation.getOffset() + entityParts[0].length() + 1);
-                        annotation.setLength(annotation.getEntity().length());
-                        LOGGER.debug("removing beginning: " + entityParts[0] + " => " + annotation.getEntity());
-                    }
-                }
-
-            }
-
-            LOGGER.info("removed wrong entity beginnings in " + stopWatch.getElapsedTimeString());
-        }
-
-        // remove annotations which are at the beginning of a sentence, are some kind of noun but because of the
-        // following POS tag probably not an entity
-        int c = 0;
-        if (removeSentenceStartErrorsPos) {
-            stopWatch.start();
-
-            for (Annotation annotation : annotations) {
-
-                // if the annotation is at the start of a sentence
-                if (Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                        && annotation.getEntity().indexOf(" ") == -1) {
-
-                    TagAnnotations ta = lpt.tag(annotation.getEntity());
-                    if (ta.size() >= 1 && ta.get(0).getTag().indexOf("NP") == -1
-                            && ta.get(0).getTag().indexOf("NN") == -1 && ta.get(0).getTag().indexOf("JJ") == -1
-                            && ta.get(0).getTag().indexOf("UH") == -1) {
-                        continue;
-                    }
-
-                    String[] rightContextParts = annotation.getRightContext().split(" ");
-
-                    if (rightContextParts.length == 0) {
-                        continue;
-                    }
-
-                    ta = lpt.tag(rightContextParts[0]);
-
-                    Set<String> allowedPosTags = new HashSet<String>();
-                    allowedPosTags.add("CD");
-                    allowedPosTags.add("VB");
-                    allowedPosTags.add("VBZ");
-                    allowedPosTags.add("VBD");
-                    allowedPosTags.add("VBN");
-                    allowedPosTags.add("MD");
-                    allowedPosTags.add("RB");
-                    allowedPosTags.add("NN");
-                    allowedPosTags.add("NNS");
-                    allowedPosTags.add("NP");
-                    allowedPosTags.add("HV");
-                    allowedPosTags.add("HVD");
-                    allowedPosTags.add("HVZ");
-                    allowedPosTags.add("BED");
-                    allowedPosTags.add("BER");
-                    allowedPosTags.add("BEZ");
-                    allowedPosTags.add("BEDZ");
-                    allowedPosTags.add(",");
-                    allowedPosTags.add("(");
-                    allowedPosTags.add("-");
-                    allowedPosTags.add("--");
-                    allowedPosTags.add(".");
-                    allowedPosTags.add("CC");
-                    allowedPosTags.add("'");
-                    allowedPosTags.add("AP");
-
-                    if (ta.size() > 0 && !allowedPosTags.contains(ta.get(0).getTag())) {
-                        c++;
-                        toRemove.add(annotation);
-                        LOGGER.debug("remove noun at beginning of sentence: " + annotation.getEntity() + "|"
-                                + rightContextParts[0] + "|" + ta.get(0).getTag());
-                    }
-
-                }
-            }
-
-            LOGGER.info("removed " + c + " nouns at beginning of sentence in " + stopWatch.getElapsedTimeString());
-        }
 
         // similar to removeSentenceStartErrorsPos but we use a learned case dictionary to remove possibly incorrectly
         // tagged sentence starts. For example ". This" is removed since "this" is usually spelled using lowercase
         // characters only. This is done NOT only for words at sentence start but all single token words.
+        int c = 0;
         if (removeSentenceStartErrorsCaseDictionary) {
             stopWatch.start();
 
@@ -962,25 +849,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             }
 
             LOGGER.info("removed " + c + " words at beginning of sentence in " + stopWatch.getElapsedTimeString());
-        }
-
-        // remove entities which contain only one word which is not a noun (requires POS tagger)
-        if (removeSingleNonNounEntities) {
-            stopWatch.start();
-
-            c = 0;
-            for (Annotation annotation : annotations) {
-
-                TagAnnotations ta = lpt.tag(annotation.getEntity());
-                if (ta.size() == 1 && ta.get(0).getTag().indexOf("NP") == -1 && ta.get(0).getTag().indexOf("NN") == -1
-                        && ta.get(0).getTag().indexOf("JJ") == -1 && ta.get(0).getTag().indexOf("UH") == -1) {
-                    toRemove.add(annotation);
-                    c++;
-                }
-
-            }
-
-            LOGGER.info("removed " + c + " non-noun entities in " + stopWatch.getElapsedTimeString());
         }
 
         LOGGER.info("remove " + toRemove.size() + " entities");
@@ -1164,9 +1032,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         removeDates = false;
         removeDateEntries = false;
         removeIncorrectlyTaggedInTraining = false;
-        removeWrongEntityBeginnings = false;
-        removeSentenceStartErrorsPos = false;
-        removeSingleNonNounEntities = false;
         switchTagAnnotationsUsingPatterns = false;
         switchTagAnnotationsUsingDictionary = true;
         unwrapEntities = false;
@@ -1512,10 +1377,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             removeDates = true;
             removeDateEntries = true;
             removeIncorrectlyTaggedInTraining = false;
-            removeWrongEntityBeginnings = false;
-            removeSentenceStartErrorsPos = false;
             removeSentenceStartErrorsCaseDictionary = true;
-            removeSingleNonNounEntities = false;
             switchTagAnnotationsUsingPatterns = true;
             switchTagAnnotationsUsingDictionary = true;
             unwrapEntities = true;
@@ -1721,17 +1583,18 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // trainingPath = "data/temp/seedsTest100.txt";
         trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
         String modelPath = "data/temp/palladianNerTudCs4Annotations";
+        modelPath = "data/temp/palladianNerTudCs4";
         // modelPath = "data/temp/palladianNerConllAnnotations";
         // modelPath = "data/temp/palladianNerConll";
         // modelPath = "data/temp/palladianNerWebTrained100Annotations";
 
         // set whether to tag dates
-        // tagger.setTagDates(false);
-        tagger.setTagDates(true);
+        tagger.setTagDates(false);
+        // tagger.setTagDates(true);
 
         // set whether to tag URLs
-        // tagger.setTagUrls(false);
-        tagger.setTagUrls(true);
+        tagger.setTagUrls(false);
+        // tagger.setTagUrls(true);
 
         // set mode (English or language independent)
         tagger.setLanguageMode(LanguageMode.English);
@@ -1747,8 +1610,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
 
         // train the tagger on the training file (with or without additional training annotations)
-        tagger.train(trainingPath, trainingAnnotations, modelPath);
-        // tagger.train(trainingPath, modelPath);
+        // tagger.train(trainingPath, trainingAnnotations, modelPath);
+        tagger.train(trainingPath, modelPath);
 
         System.exit(0);
 

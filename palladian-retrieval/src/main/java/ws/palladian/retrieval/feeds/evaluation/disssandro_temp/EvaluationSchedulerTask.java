@@ -209,7 +209,6 @@ public class EvaluationSchedulerTask extends TimerTask {
             detectedErrors.append("Too many feeds are unparsable. ");
         }
 
-        // FIXME: needs to be fine tuned?
         if (alreadyScheduledFeedCount > 10 && (processedCounter < HIGH_LOAD_THROUGHPUT)) {
             consecutiveDelays++;
             if (consecutiveDelays >= 3) {
