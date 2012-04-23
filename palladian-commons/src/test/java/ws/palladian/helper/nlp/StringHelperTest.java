@@ -27,8 +27,24 @@ public class StringHelperTest {
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
         assertEquals(true, StringHelper.containsWord("test", "test"));
         assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there?"));
+        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there!"));
         assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
         assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
+
+        // faster but case sensitive
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "a test b"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "test"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("yes", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("there", "Yes, he went there?"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("there", "Yes, he went there!"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("there", "Yes, he went there."));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("Nokia N9", "hello, this, nokia N9 is pretty cool."));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("cab", "Copacabana, he went there."));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("na", "Copacabana, he went there."));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("we", "Copacabana, he went there."));
 
     }
 

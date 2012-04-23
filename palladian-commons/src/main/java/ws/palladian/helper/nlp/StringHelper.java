@@ -19,12 +19,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
 
 /**
- * <p>The StringHelper provides functionality for typical String manipulation operations.</p>
+ * <p>
+ * The StringHelper provides functionality for typical String manipulation operations.
+ * </p>
  * 
  * @author David Urbansky
  * @author Martin Werner
@@ -34,16 +37,16 @@ import ws.palladian.helper.normalization.UnitNormalizer;
 public class StringHelper {
 
     /** The Constant BRACKETS. A list of bracket types. */
-    private static final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
+    private static final char[] BRACKETS = {'(', ')', '{', '}', '[', ']'};
 
     /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
     private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
 
     /** Used to replace a double quote " in a string to store it in csv file that uses double quotes to enclose fields. */
     private static final String DOUBLE_QUOTES_REPLACEMENT = "###putDoubleQuotesHere###";
-    
+
     private StringHelper() {
-        
+
     }
 
     /**
@@ -92,7 +95,6 @@ public class StringHelper {
         }
         return string.substring(0, Math.min(string.length(), maxLength));
     }
-
 
     /**
      * <p>
@@ -269,33 +271,32 @@ public class StringHelper {
      * @param toSingular If true, the last part is translated to its singular form.
      * @return The camel cased name.
      */
-    
+
     //
     // Removed while modularizing Palladian.
     // If required somewhere, do the Singular transformation first,
     // then the camelCase transformation. -- Philipp, 2012-03-21
     //
-    
-    
-//    public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
-//        String camelCasedName = "";
-//        String modName = name.replaceAll("\\s", "_");
-//
-//        String[] parts = modName.split("_");
-//        for (int i = 0; i < parts.length; i++) {
-//            String part = parts[i];
-//            if (i == parts.length - 1 && toSingular) {
-//                part = WordTransformer.wordToSingular(part, Language.ENGLISH);
-//            }
-//            camelCasedName += upperCaseFirstLetter(part);
-//        }
-//
-//        if (!uppercaseFirst) {
-//            camelCasedName = lowerCaseFirstLetter(camelCasedName);
-//        }
-//
-//        return camelCasedName;
-//    }
+
+    // public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
+    // String camelCasedName = "";
+    // String modName = name.replaceAll("\\s", "_");
+    //
+    // String[] parts = modName.split("_");
+    // for (int i = 0; i < parts.length; i++) {
+    // String part = parts[i];
+    // if (i == parts.length - 1 && toSingular) {
+    // part = WordTransformer.wordToSingular(part, Language.ENGLISH);
+    // }
+    // camelCasedName += upperCaseFirstLetter(part);
+    // }
+    //
+    // if (!uppercaseFirst) {
+    // camelCasedName = lowerCaseFirstLetter(camelCasedName);
+    // }
+    //
+    // return camelCasedName;
+    // }
 
     /**
      * Make camel case.
@@ -305,8 +306,8 @@ public class StringHelper {
      * @return the string
      */
     public static String makeCamelCase(String name, boolean uppercaseFirst) {
-//        return makeCamelCase(name, uppercaseFirst, false);
-        
+        // return makeCamelCase(name, uppercaseFirst, false);
+
         String camelCasedName = "";
         String modName = name.replaceAll("\\s", "_");
 
@@ -321,7 +322,7 @@ public class StringHelper {
         }
 
         return camelCasedName;
-        
+
     }
 
     /**
@@ -350,10 +351,10 @@ public class StringHelper {
         }
         return term.substring(0, 1).toLowerCase() + term.substring(1);
     }
-    
+
     /**
      * <p>
-     * Transform a name  For example: jim carrey => Jim Carrey, university of los angeles => University of Los Angeles
+     * Transform a name For example: jim carrey => Jim Carrey, university of los angeles => University of Los Angeles
      * </p>
      * <p>
      * <em>Note: This works for English only!</em>
@@ -369,14 +370,14 @@ public class StringHelper {
         noUppercaseSet.add("of");
         noUppercaseSet.add("and");
         noUppercaseSet.add("the");
-        
+
         String[] parts = name.split("\\s");
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i > 0 && noUppercaseSet.contains(part)) {
-            	normalizedName += part + " ";
+                normalizedName += part + " ";
             } else {
-            	normalizedName += upperCaseFirstLetter(part) + " ";
+                normalizedName += upperCaseFirstLetter(part) + " ";
             }
         }
 
@@ -407,8 +408,7 @@ public class StringHelper {
             pat = Pattern.compile(RegExp.STRING);
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.STRING, e);
+                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.STRING, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -432,6 +432,7 @@ public class StringHelper {
 
         return contained;
     }
+
     /**
      * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
@@ -443,9 +444,9 @@ public class StringHelper {
      * @return True, if the word is contained, false if not.
      */
     public static boolean containsWord(String word, String searchString) {
-        String allowedNeighbors = "[\\s,.;-]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
-                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+        String allowedNeighbors = "[\\s,.;-?!()]";
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+                + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         Pattern pat = null;
         try {
@@ -454,8 +455,27 @@ public class StringHelper {
             Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
             return false;
         }
-        Matcher m = pat.matcher(searchString);
-        if (m.find()) {
+        return pat.matcher(searchString).find();
+    }
+
+    /**
+     * <p>
+     * Same as {@link containsWord} but much faster.
+     * </p>
+     * 
+     * @param word The word to check for occurrence.
+     * @param searchString The search string.
+     * @return True if it is contained, false otherwise.
+     */
+    public static boolean containsWordCaseSensitive(String word, String searchString) {
+
+        if (searchString.equalsIgnoreCase(word) || searchString.indexOf(" " + word + " ") > -1
+                || searchString.indexOf(word + " ") == 0
+                || searchString.indexOf(" " + word) == searchString.length() - word.length()
+                || searchString.indexOf(" " + word + "!") > -1 || searchString.indexOf(" " + word + "?") > -1
+                || searchString.indexOf(" " + word + ",") > -1 || searchString.indexOf(" " + word + ";") > -1
+                || searchString.indexOf(" " + word + ".") > -1 || searchString.indexOf(" " + word + ")") > -1
+                || searchString.indexOf("(" + word + " ") > -1 || searchString.indexOf("(" + word + ")") > -1) {
             return true;
         }
 
@@ -465,12 +485,12 @@ public class StringHelper {
     public static String removeWord(String word, String searchString) {
         return replaceWord(word, " ", searchString);
     }
+
     public static String replaceWord(String word, String replacement, String searchString) {
         String allowedNeighbors = "[\\s,.;\\-´\"']";
 
         String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
-                + allowedNeighbors
-                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+                + allowedNeighbors + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         Pattern pat = null;
         try {
@@ -498,8 +518,7 @@ public class StringHelper {
             pat = Pattern.compile(RegExp.NUMBER);
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.NUMBER, e);
+                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.NUMBER, e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -515,8 +534,8 @@ public class StringHelper {
      */
     @Deprecated
     public static String removeStopWords(String string) {
-        String[] stopWords = { "the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
-                "at", "up", "what", "how", "why", "when", "where" };
+        String[] stopWords = {"the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
+                "at", "up", "what", "how", "why", "when", "where"};
         int stopWordsSize = stopWords.length;
 
         String modString = " " + string + " ";
@@ -583,9 +602,6 @@ public class StringHelper {
     public static String escapeForRegularExpression(String inputString) {
         String string = inputString;
         try {
-            // modified by Philipp Katz, 2010-05-14
-            // added further meta characters like . ? -
-            // using normal replace methods instead of replaceAll
             string = string.replace("\\", "\\\\");
             string = string.replace("(", "\\(");
             string = string.replace(")", "\\)");
@@ -701,7 +717,7 @@ public class StringHelper {
                     && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
                     && Character.getType(ch) != Character.CURRENCY_SYMBOL
                     && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
-                        && ch != ',' && ch != ':') {
+                    && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -713,8 +729,8 @@ public class StringHelper {
 
             if (m.find()) {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string
-                        .length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
+                        string.substring(m.end(), string.length()));
                 if (number != convertedNumber) {
                     return true;
                 }
@@ -775,7 +791,8 @@ public class StringHelper {
         if (string.length() == 0) {
             return false;
         }
-        return Character.isUpperCase(string.charAt(0));    }
+        return Character.isUpperCase(string.charAt(0));
+    }
 
     /**
      * Letter number count.
@@ -801,7 +818,7 @@ public class StringHelper {
         StringTokenizer st = new StringTokenizer(string);
         int capitalizedWordCount = 0;
         while (st.hasMoreTokens()) {
-            String token = (String) st.nextElement();
+            String token = (String)st.nextElement();
             if (StringHelper.isCompletelyUppercase(token)) {
                 capitalizedWordCount++;
             }
@@ -850,10 +867,10 @@ public class StringHelper {
 
         string = StringEscapeUtils.unescapeHtml(string);
 
-        String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
+        String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
                 "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`"}; // whitespace is also
                                                                                             // unwanted but
-                                                                                  // trim() handles
+        // trim() handles
         // that, " "
         // here is
         // another
@@ -863,11 +880,11 @@ public class StringHelper {
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
         // Pattern p = Pattern.compile("((\\d)+'')|('(\\s)?(\\d)+\")");
-//        Pattern p = Pattern.compile("(\\A\"([^\"]*)[^\"]$)|((\\d)+'')|('(\\s)?(\\d)+\")");
-//        if (p.matcher(string).find()) {
-//            unwanted[12] = " ";
-//            unwanted[13] = " ";
-//        }
+        // Pattern p = Pattern.compile("(\\A\"([^\"]*)[^\"]$)|((\\d)+'')|('(\\s)?(\\d)+\")");
+        // if (p.matcher(string).find()) {
+        // unwanted[12] = " ";
+        // unwanted[13] = " ";
+        // }
 
         boolean deleteFirst = true;
         boolean deleteLast = true;
@@ -941,19 +958,19 @@ public class StringHelper {
         return string;
     }
 
-//    /**
-//     * Trim.
-//     *
-//     * @param strings the strings
-//     * @return the hash set
-//     */
-//    public static HashSet<String> trim(HashSet<String> strings) {
-//        HashSet<String> trimmedStrings = new HashSet<String>();
-//        for (String s : strings) {
-//            trimmedStrings.add(trim(s));
-//        }
-//        return trimmedStrings;
-//    }
+    // /**
+    // * Trim.
+    // *
+    // * @param strings the strings
+    // * @return the hash set
+    // */
+    // public static HashSet<String> trim(HashSet<String> strings) {
+    // HashSet<String> trimmedStrings = new HashSet<String>();
+    // for (String s : strings) {
+    // trimmedStrings.add(trim(s));
+    // }
+    // return trimmedStrings;
+    // }
 
     /**
      * <p>
@@ -980,20 +997,20 @@ public class StringHelper {
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
-        text = StringHelper.trim(text,".?!");
+        text = StringHelper.trim(text, ".?!");
 
         return text;
     }
 
-//    /**
-//     * Remove tabs, line breaks and double spaces.
-//     *
-//     * @param text The text to be cleaned.
-//     * @return The cleaned text.
-//     */
-//    public static String makeContinuousText(String text) {
-//        return text.replaceAll("(\\s){1,}", " ");
-//    }
+    // /**
+    // * Remove tabs, line breaks and double spaces.
+    // *
+    // * @param text The text to be cleaned.
+    // * @return The cleaned text.
+    // */
+    // public static String makeContinuousText(String text) {
+    // return text.replaceAll("(\\s){1,}", " ");
+    // }
 
     /**
      * Put article in front.
@@ -1376,7 +1393,7 @@ public class StringHelper {
             returnString = string.replace(removedString, " ");
             returnString = returnString.replaceAll("  ", " ");
         }
-        String[] result = { returnString, removedString };
+        String[] result = {returnString, removedString};
         return result;
     }
 
@@ -1459,26 +1476,26 @@ public class StringHelper {
      */
     public static float getLevenshteinSim(String s1, String s2) {
         int distance = StringUtils.getLevenshteinDistance(s1, s2);
-        float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
+        float similarity = 1 - (float)distance / Math.max(s1.length(), s2.length());
         return similarity;
     }
 
-//    /**
-//     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-//     * similarity which is computationally expensive.
-//     *
-//     * @param s1
-//     * @param s2
-//     * @return similarity between 0 and 1 (inclusive).
-//     */
-//    public static float getLengthSim(String s1, String s2) {
-//        int length1 = s1.length();
-//        int length2 = s2.length();
-//        if (length1 == 0 && length2 == 0) {
-//            return 1;
-//        }
-//        return (float) Math.min(length1, length2) / Math.max(length1, length2);
-//    }
+    // /**
+    // * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+    // * similarity which is computationally expensive.
+    // *
+    // * @param s1
+    // * @param s2
+    // * @return similarity between 0 and 1 (inclusive).
+    // */
+    // public static float getLengthSim(String s1, String s2) {
+    // int length1 = s1.length();
+    // int length2 = s2.length();
+    // if (length1 == 0 && length2 == 0) {
+    // return 1;
+    // }
+    // return (float) Math.min(length1, length2) / Math.max(length1, length2);
+    // }
 
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
@@ -1536,7 +1553,6 @@ public class StringHelper {
 
         return "";
     }
-
 
     public static List<String> getRegexpMatches(String regexp, String text) {
 
@@ -1612,6 +1628,41 @@ public class StringHelper {
      */
     public static void main(String[] args) {
 
+        // String word = "test";
+        // String allowedNeighbors = "[\\s,.;-]";
+        // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+        // + allowedNeighbors + word + "$)|(^" + word + "$)";
+        //
+        // Pattern pat = null;
+        // try {
+        // pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        // } catch (PatternSyntaxException e) {
+        // }
+
+        String word = "([^\\s,.;-?!()]+?)";
+        String allowedNeighbors = "[\\s,.;-?!()]";
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+                + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+        }
+
+        StopWatch stopWatch = new StopWatch();
+
+        for (int i = 0; i < 100000; i++) {
+
+            String.valueOf(i);
+            // StringHelper
+            // .containsWord(
+            // "test",
+            // "this is a pretty long string with lotsss of content and sometimes the word test appears such as test test or test When you rest your hands on the  like they told you in high school, check out what keys you're touching -- A, S, D, F, J, K, L and semicolon. Besides A and S, you're looking at a conga line of some of the least-used letters in the English language and possibly the least useful punctuation mark of all time. In fact, your right index finger, the dominant finger on most people's dominant hand, is sitting on goddamn J, which is worth 8 points in Scrabble for a reason -- it's the fourth-least-used letter, trumped only by the loser letters X, Q and Z. How did we wind up with this intuition-defying random configuration? Well, back in 1868, when Christopher Sholes and a couple of other guys had just finished inventing the first typing machine, the keys were arranged in alphabetical order (our current middle row shows vestiges of this, with A, D, F, G, H, J, K and L still in order). But there was a problem: Before long, people were mashing away on these fragile early keyboards, which had a tendency to jam when two keys next to each other were pressed in rapid succession.Read more: 5 Bad Ideas Humanity Is Sticking With Out of Habit | Cracked.com http://www.cracked.com/article_19151_5-bad-ideas-humanity-sticking-with-out-habit.html#ixzz1soW0KYBn");
+        }
+
+        System.out.println(stopWatch.getElapsedTimeString());
+        System.exit(0);
         // StopWatch stopWatch = new StopWatch();
         // for (int i = 0; i < 1000; i++) {
         // String t = LoremIpsumGenerator.getRandomText(1000);
@@ -1748,6 +1799,5 @@ public class StringHelper {
         }
 
     }
-
 
 }
