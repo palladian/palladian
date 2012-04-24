@@ -38,13 +38,10 @@ public class StemmerAnnotatorTest {
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(12, annotations.size());
-        assertEquals("tri", annotations.get(3).getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR)
-                .getValue());
-        assertEquals("token", annotations.get(7).getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR)
-                .getValue());
-        assertEquals("languag", annotations.get(10).getFeatureVector()
-                .get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-
+        assertEquals("tri", annotations.get(3).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
+        assertEquals("token", annotations.get(7).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
+        assertEquals("languag", annotations.get(10).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
+        
     }
 
     @Test

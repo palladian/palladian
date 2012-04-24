@@ -89,8 +89,9 @@ public final class OpenNlpTokenizer implements TokenizerInterface {
         String content = document.getOriginalContent();
         AnnotationFeature annotationFeature = new AnnotationFeature(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         Span[] spans = tokenizer.tokenizePos(content);
+        int index = 0;
         for (Span span : spans) {
-            Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd());
+            Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd(), index++);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

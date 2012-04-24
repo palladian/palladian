@@ -24,52 +24,54 @@ public abstract class KeyphraseExtractor {
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
 
-    public final void train(final Dataset dataset) {
-
-        LOGGER.info("training");
-
-        startTraining();
-
-        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String[] split = line.split(dataset.getSeparationString());
-
-                if (split.length < 2) {
-                    return;
-                }
-
-                String inputText = split[0];
-                if (dataset.isFirstFieldLink()) {
-                    inputText = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
-                }
-
-                // the manually assigned keyphrases
-                Set<String> keyphrases = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    keyphrases.add(split[i]);
-                }
-
-                train(inputText, keyphrases);
-                
-                if (lineNumber % 10 == 0) {
-                    LOGGER.info(lineNumber);
-                }
-
-            }
-        });
-
-        endTraining();
-
-    }
+//    public final void train(final Dataset dataset) {
+//
+//        LOGGER.info("training");
+//
+//        startTraining();
+//
+//        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+//
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//
+//                String[] split = line.split(dataset.getSeparationString());
+//
+//                if (split.length < 2) {
+//                    return;
+//                }
+//
+//                String inputText = split[0];
+//                if (dataset.isFirstFieldLink()) {
+//                    inputText = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
+//                }
+//
+//                // the manually assigned keyphrases
+//                Set<String> keyphrases = new HashSet<String>();
+//                for (int i = 1; i < split.length; i++) {
+//                    keyphrases.add(split[i]);
+//                }
+//
+//                train(inputText, keyphrases);
+//                
+//                if (lineNumber % 10 == 0) {
+//                    LOGGER.info(lineNumber);
+//                }
+//
+//            }
+//        });
+//
+//        endTraining();
+//
+//    }
     
+    @SuppressWarnings("unchecked")
     public final void train(Dataset2 dataset) {
         startTraining();
         int i = 0;
         for (DatasetItem item : dataset) {
-            System.out.println(i++ + "// " + dataset.size());
+            i++;
+            System.out.println(i + "/" + dataset.size());
             String[] categories = item.getCategories();
             String text;
             try {

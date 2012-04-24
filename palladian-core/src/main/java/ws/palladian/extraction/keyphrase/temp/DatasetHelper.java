@@ -21,6 +21,9 @@ public final class DatasetHelper {
     }
 
     public static Dataset2 loadDataset(final File filePath, final String separator) {
+        if (!filePath.exists() || !filePath.isFile()) {
+            throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file.");
+        }
         final Dataset2 ret = new Dataset2();
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override

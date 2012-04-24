@@ -14,6 +14,7 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.extractors.ClassifierExtractor;
 import ws.palladian.extraction.keyphrase.extractors.MauiKeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.extractors.SimExtractor;
 import ws.palladian.extraction.keyphrase.extractors.TfidfExtractor;
@@ -141,10 +142,11 @@ public class KeyphraseExtractorEvaluator {
         // KeyphraseExtractor keyphraseExtractor = new YahooTermExtraction();
         // KeyphraseExtractor keyphraseExtractor = new SimExtractor();
         // KeyphraseExtractor keyphraseExtractor = new MauiKeyphraseExtractor();
-        KeyphraseExtractor keyphraseExtractor = new TfidfExtractor();
+        // KeyphraseExtractor keyphraseExtractor = new TfidfExtractor();
+        KeyphraseExtractor keyphraseExtractor = new ClassifierExtractor();
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
         evaluator.addExtractor(keyphraseExtractor);
-        Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/temp/citeulike180index.txt"), "#");
+        Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"), "#");
         evaluator.evaluate(keyphraseExtractor, dataset, 2);
     }
 

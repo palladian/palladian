@@ -67,7 +67,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
         for (Annotation annotation : feature.getValue()) {
             // String value = annotation.getValue();
             NominalFeature stemmedValue = annotation.getFeatureVector().get(
-                    StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+                    StemmerAnnotator.STEM);
             NumericFeature frequencyFeature = annotation.getFeatureVector().get(
                     TokenMetricsCalculator.FREQUENCY);
             result.put(stemmedValue.getValue(), frequencyFeature.getValue());

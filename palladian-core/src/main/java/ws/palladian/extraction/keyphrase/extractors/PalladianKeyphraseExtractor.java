@@ -1,5 +1,6 @@
 package ws.palladian.extraction.keyphrase.extractors;
 
+import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import weka.core.Instances;
 import weka.core.SerializationHelper;
 import ws.palladian.classification.page.Stopwords;
 import ws.palladian.classification.page.Stopwords.Predefined;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -193,7 +195,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // TODO need to consider stems and composite terms here
         for (Annotation annotation : tokenList.getValue()) {
             String annotationValue = annotation.getValue();
-            String unstemmedValue = (String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
+            String unstemmedValue = (String) annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
             
             boolean isCandidate = false;
             isCandidate = isCandidate || keyphrases.contains(annotationValue.toLowerCase());
@@ -223,7 +225,12 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     private AnnotationFeature extractFeatures(String inputText) {
-        PipelineDocument document = pipeline.process(new PipelineDocument(inputText));
+        PipelineDocument document;
+        try {
+            document = pipeline.process(new PipelineDocument(inputText));
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalStateException(e);
+        }
         // LOGGER.debug(pipeline);
         
         FeatureVector featureVector = document.getFeatureVector();
@@ -252,7 +259,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue());
             lineBuilder.append(";");
-            lineBuilder.append(featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue());
+            lineBuilder.append(featureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue());
             lineBuilder.append(";");
             lineBuilder.append(featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue());
             lineBuilder.append(";");
@@ -339,7 +346,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 double last = (Double) featureVector.get(TokenMetricsCalculator.LAST).getValue();
                 double charLength= (Double) featureVector.get(TokenMetricsCalculator.CHAR_LENGTH).getValue();
                 double wordLength= (Double) featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue();
-                double phraseness = (Double) featureVector.get(PhrasenessAnnotator.PROVIDED_FEATURE).getValue();
+                double phraseness = (Double) featureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
                 double idf = (Double) featureVector.get(IdfAnnotator.PROVIDED_FEATURE).getValue();
                 double tfidf = (Double) featureVector.get(TfIdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
                 double keyphraseness= (Double) featureVector.get("keyphraseness").getValue();
@@ -367,7 +374,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
                 //if (distributionForInstance[1] > distributionForInstance[0]) {
                 if (distributionForInstance[0] < 0.5) {
                     // System.out.println(annotation);
-                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue(), 1-distributionForInstance[0]));
+                    ret.add(new Keyphrase((String) annotation.getFeatureVector().get(StemmerAnnotator.STEM).getValue(), 1-distributionForInstance[0]));
                 }
             }
             

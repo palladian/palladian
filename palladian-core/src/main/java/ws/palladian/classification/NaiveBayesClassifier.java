@@ -15,6 +15,8 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
 import ws.palladian.model.features.ClassificationFeatureVector;
 import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.NumericFeature;
 
 /**
  * <p>
@@ -68,28 +70,35 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
      * @param fv
      * @return
      */
-    public final CategoryEntries classify(ClassificationFeatureVector fv) {
+    public final CategoryEntries classify(FeatureVector fv) {
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
         
+        UniversalInstance universalInstance = createUv(fv, instances);
+        
+        classify(universalInstance);
+        
+        return universalInstance.getAssignedCategoryEntries();
+    }
+
+    private UniversalInstance createUv(FeatureVector fv, Instances<UniversalInstance> instances) {
         UniversalInstance universalInstance = new UniversalInstance(instances);
         
-        Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
+        //Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
+        Collection<Feature<Number>> numericFeatures = fv.getAll(Number.class);
         
         // add numeric features
-        for (Feature<Double> numericFeature : numericFeatures) {            
-            universalInstance.getNumericFeatures().add(numericFeature.getValue());            
+        for (Feature<Number> numericFeature : numericFeatures) {            
+            universalInstance.getNumericFeatures().add(numericFeature.getValue().doubleValue());            
         }
         
-        Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
+        //Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
+        Collection<Feature<String>> nominalFeatures = fv.getAll(String.class);
         
         // add nominal features
         for (Feature<String> nominalFeature : nominalFeatures) {            
             universalInstance.getNominalFeatures().add(nominalFeature.getValue());            
         }
-        
-        classify(universalInstance);
-        
-        return universalInstance.getAssignedCategoryEntries();
+        return universalInstance;
     }
     
     /**
@@ -410,11 +419,21 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
 
     @Override
     public void learn(List<Instance2<String>> instances) {
+        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
+        for (Instance2<String> i : instances) {
+            UniversalInstance uv = createUv(i.featureVector, trainingInstances);
+            trainingInstances.add(uv);
+            uv.setInstanceCategory(i.target);
+        }
+        System.out.println("addingTi");
+        addTrainingInstances(trainingInstances);
+        System.out.println("training");
+        train();
         // FIXME        
     }
 
     @Override
-    public CategoryEntries predict(ClassificationFeatureVector vector) {
+    public CategoryEntries predict(FeatureVector vector) {
         return classify(vector);
     }
 }

@@ -42,7 +42,7 @@ public class FeatureVectorTest {
         featureVector.add(f2);
         featureVector.add(f3);
         featureVector.add(f4);
-        assertEquals(4, featureVector.countDimensions());
+        assertEquals(4, featureVector.size());
         List<Feature<String>> stringFeatures = featureVector.getAll(String.class);
         assertEquals(2, stringFeatures.size());
         assertTrue(stringFeatures.contains(f1));
