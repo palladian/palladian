@@ -1,5 +1,6 @@
 package ws.palladian.extraction;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -136,7 +137,7 @@ public class PipelineDocument {
 
     /**
      * <p>
-     * Resets and overrides the content of a named view.
+     * Resets and overrides the content of a named view or initializes the view of it didn't exist yet.
      * </p>
      * 
      * @param viewName The name of the view.
@@ -178,6 +179,6 @@ public class PipelineDocument {
      * @return The set of all provided view names.
      */
     public Set<String> getProvidedViewNames() {
-        return this.views.keySet();
+        return Collections.unmodifiableSet(this.views.keySet());
     }
 }

@@ -16,8 +16,24 @@ import ws.palladian.model.features.FeatureVector;
  * </p>
  * 
  * @author David Urbansky
+ * @author Klemens Muthmann
+ * @version 2.0
+ * @since 0.0.8
  */
 public interface PipelineProcessor extends Serializable {
+
+    /**
+     * <p>
+     * The name of the default original content view.
+     * </p>
+     */
+    String ORIGINAL_CONTENT_VIEW_NAME = "originalContent";
+    /**
+     * <p>
+     * The name of the default modified content view.
+     * </p>
+     */
+    String MODIFIED_CONTENT_VIEW_NAME = "modifiedContent";
 
     /**
      * <p>
@@ -25,7 +41,9 @@ public interface PipelineProcessor extends Serializable {
      * </p>
      * 
      * @param document The document to be processed by this processor.
+     * @throws DocumentUnprocessableException If the {@code document} could not be processed by this
+     *             {@code PipelineProcessor}.
      */
-    void process(PipelineDocument document);
+    void process(PipelineDocument document) throws DocumentUnprocessableException;
 
 }
