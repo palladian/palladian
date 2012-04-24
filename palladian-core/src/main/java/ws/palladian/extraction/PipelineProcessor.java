@@ -41,7 +41,9 @@ public interface PipelineProcessor extends Serializable {
      * </p>
      * 
      * @param document The document to be processed by this processor.
+     * @throws DocumentUnprocessableException If the {@code document} could not be processed by this
+     *             {@code PipelineProcessor}.
      */
-    void process(PipelineDocument document);
+    void process(PipelineDocument document) throws DocumentUnprocessableException;
 
 }

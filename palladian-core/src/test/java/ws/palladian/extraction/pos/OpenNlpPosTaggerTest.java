@@ -9,12 +9,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.io.ResourceHelper;
@@ -30,26 +29,37 @@ public class OpenNlpPosTaggerTest {
     }
 
     @Test
-    public void testOpenNlpPosTagger() {
+    public void testOpenNlpPosTagger() throws DocumentUnprocessableException {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
         processingPipeline.add(new RegExTokenizer());
         processingPipeline.add(new OpenNlpPosTagger(modelFile));
         processingPipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
-        
+
         assertEquals(10, annotations.size());
-        assertEquals("DT", annotations.get(0).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("JJ", annotations.get(1).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("JJ", annotations.get(2).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("NN", annotations.get(3).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("NNS", annotations.get(4).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("IN", annotations.get(5).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("DT", annotations.get(6).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("JJ", annotations.get(7).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals("NN", annotations.get(8).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
-        assertEquals(".", annotations.get(9).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
+        assertEquals("DT", annotations.get(0).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("JJ", annotations.get(1).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("JJ", annotations.get(2).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("NN", annotations.get(3).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("NNS", annotations.get(4).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("IN", annotations.get(5).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("DT", annotations.get(6).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("JJ", annotations.get(7).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals("NN", annotations.get(8).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
+        assertEquals(".", annotations.get(9).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)
+                .getValue());
     }
 
 }

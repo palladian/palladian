@@ -95,7 +95,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final void process(PipelineDocument document) {
+    public final void process(PipelineDocument document) throws DocumentUnprocessableException {
         if (document == null)
             throw new IllegalArgumentException("Document may not be null");
 
@@ -140,8 +140,10 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * </p>
      * 
      * @param document The {@code PipelineDocument} to process.
+     * @throws DocumentUnprocessableException If the {@code document} could not be processed by this
+     *             {@code PipelineProcessor}.
      */
-    protected abstract void processDocument(PipelineDocument document);
+    protected abstract void processDocument(PipelineDocument document) throws DocumentUnprocessableException;
 
     /**
      * <p>
