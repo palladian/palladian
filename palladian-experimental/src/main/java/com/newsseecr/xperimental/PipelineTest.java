@@ -3,6 +3,7 @@ package com.newsseecr.xperimental;
 import java.util.Iterator;
 import java.util.List;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -30,14 +31,11 @@ import com.newsseecr.xperimental.wikipedia.WikipediaAnnotator;
 
 public class PipelineTest {
 
-    public static void main(String[] args) throws PageContentExtractorException {
-        
-        
-        
+    public static void main(String[] args) throws PageContentExtractorException, DocumentUnprocessableException {
 
         WebPageContentExtractor extractor = new PalladianContentExtractor();
-        //extractor.setDocument("http://edition.cnn.com/2011/OPINION/08/25/iftikhar.arab.spring/index.html?hpt=hp_c1");
-        //extractor.setDocument("http://arstechnica.com/business/news/2011/08/the-ipad-is-a-personal-computer-true-or-false.ars");
+        // extractor.setDocument("http://edition.cnn.com/2011/OPINION/08/25/iftikhar.arab.spring/index.html?hpt=hp_c1");
+        // extractor.setDocument("http://arstechnica.com/business/news/2011/08/the-ipad-is-a-personal-computer-true-or-false.ars");
         extractor.setDocument("http://www.engadget.com/2011/08/25/tim-cook-who-is-apples-new-ceo/");
         String text = extractor.getResultText();
 
@@ -56,12 +54,14 @@ public class PipelineTest {
             @Override
             public void process(PipelineDocument document) {
                 FeatureVector featureVector = document.getFeatureVector();
-                AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                AnnotationFeature annotationFeature = (AnnotationFeature)featureVector
+                        .get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 Iterator<Annotation> iterator = annotations.iterator();
                 while (iterator.hasNext()) {
                     Annotation annotation = iterator.next();
-                    NominalFeature wikiFeature = (NominalFeature)annotation.getFeatureVector().get(WikipediaAnnotator.PROVIDED_FEATURE_WIKIPAGE);
+                    NominalFeature wikiFeature = (NominalFeature)annotation.getFeatureVector().get(
+                            WikipediaAnnotator.PROVIDED_FEATURE_WIKIPAGE);
                     if (wikiFeature.getValue().equals("false")) {
                         // System.out.println("removed " + annotation);
                         iterator.remove();
@@ -87,7 +87,8 @@ public class PipelineTest {
         // String text = FileHelper.readFileToString("/Users/pk/Desktop/openReport.txt");
         // String text = FileHelper.readFileToString("/Users/pk/Desktop/text.txt");
         // String text = FileHelper.readFileToString("/Users/pk/Desktop/bbc.txt");
-        // String text = "Pakistan threatens to cut off access to a facility used by NATO forces, signaling a growing rift that began when U.S. commandos killed Osama bin Laden in Pakistan.";
+        // String text =
+        // "Pakistan threatens to cut off access to a facility used by NATO forces, signaling a growing rift that began when U.S. commandos killed Osama bin Laden in Pakistan.";
         PipelineDocument document = pipeline.process(new PipelineDocument(text));
         System.out.println(pipeline);
 
@@ -97,14 +98,17 @@ public class PipelineTest {
         System.out.println(tokenList.toStringList());
 
         System.out.println(createCSVHeader(tokenList.getValue().get(0)));
-        
+
         for (Annotation annotation : tokenList.getValue()) {
-            /*NominalFeature redirectFeature = (NominalFeature)annotation.getFeatureVector().get(WikipediaAnnotator.PROVIDED_FEATURE_REDIRECT);
-            if (redirectFeature == null) {
-                System.out.println(annotation.getValue());
-            } else {
-                System.out.println(annotation.getValue() + " -> " + redirectFeature.getValue());
-            }*/
+            /*
+             * NominalFeature redirectFeature =
+             * (NominalFeature)annotation.getFeatureVector().get(WikipediaAnnotator.PROVIDED_FEATURE_REDIRECT);
+             * if (redirectFeature == null) {
+             * System.out.println(annotation.getValue());
+             * } else {
+             * System.out.println(annotation.getValue() + " -> " + redirectFeature.getValue());
+             * }
+             */
             System.out.println(toCSV(annotation));
         }
 
@@ -113,34 +117,33 @@ public class PipelineTest {
         // CollectionHelper.print(keywords.getValue());
 
     }
-    
+
     public static String createCSVHeader(Annotation annotation) {
         StringBuilder builder = new StringBuilder();
         builder.append("value").append(";");
-//        builder.append("startPosition").append(";");
-//        builder.append("endPosition").append(";");
-        
+        // builder.append("startPosition").append(";");
+        // builder.append("endPosition").append(";");
+
         Feature<?>[] features = annotation.getFeatureVector().toValueArray();
         for (Feature<?> feature : features) {
             builder.append(feature.getName()).append(";");
         }
-        
+
         return builder.toString();
     }
-    
-    
+
     public static String toCSV(Annotation annotation) {
         StringBuilder builder = new StringBuilder();
-        
+
         builder.append("\"").append(annotation.getValue()).append("\"").append(";");
-//        builder.append(annotation.getStartPosition()).append(";");
-//        builder.append(annotation.getEndPosition()).append(";");
-        
+        // builder.append(annotation.getStartPosition()).append(";");
+        // builder.append(annotation.getEndPosition()).append(";");
+
         Feature<?>[] features = annotation.getFeatureVector().toValueArray();
         for (Feature<?> feature : features) {
             builder.append(feature.getValue()).append(";");
         }
-        
+
         return builder.toString();
     }
 

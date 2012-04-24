@@ -7,6 +7,7 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -19,13 +20,14 @@ import ws.palladian.model.features.NominalFeature;
 /**
  * <p>
  * A {@link PipelineProcessor} for stemming a pre-tokenized text. This means, the documents to be processed by this
- * class must be processed by a {@link TokenizerInterface} in advance, supplying {@link TokenizerInterface#PROVIDED_FEATURE} annotations.
- * The stemmer is based on the <a href="http://snowball.tartarus.org/">Snowball</a> algorithm.
+ * class must be processed by a {@link TokenizerInterface} in advance, supplying
+ * {@link TokenizerInterface#PROVIDED_FEATURE} annotations. The stemmer is based on the <a
+ * href="http://snowball.tartarus.org/">Snowball</a> algorithm.
  * </p>
  * 
  * @author Philipp Katz
  */
-public class StemmerAnnotator implements PipelineProcessor {
+public class StemmerAnnotator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -89,11 +91,12 @@ public class StemmerAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE + " is missing.");
+            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
+                    + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
