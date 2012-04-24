@@ -1,5 +1,6 @@
 package ws.palladian.extraction;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public class PipelineDocument {
 
@@ -35,7 +37,7 @@ public class PipelineDocument {
      * original content but might be changed to represent a cleaned or extended representation.
      * </p>
      */
-    private final Map<String, byte[]> views;
+    private final Map<String, String> views;
 
     /**
      * <p>
@@ -47,9 +49,9 @@ public class PipelineDocument {
      */
     public PipelineDocument(String originalContent) {
         super();
-        this.views = new HashMap<String, byte[]>();
-        this.views.put("originalContent", originalContent.getBytes());
-        this.views.put("modifiedContent", originalContent.getBytes());
+        this.views = new HashMap<String, String>();
+        this.views.put("originalContent", originalContent);
+        this.views.put("modifiedContent", originalContent);
         this.featureVector = new FeatureVector();
     }
 
@@ -84,7 +86,7 @@ public class PipelineDocument {
      * @return The unmodified original content representing the document.
      */
     public String getOriginalContent() {
-        return new String(this.views.get("originalContent"));
+        return this.views.get("originalContent");
     }
 
     /**
@@ -95,7 +97,7 @@ public class PipelineDocument {
      * @param originalContent The new unmodified original content representing the document.
      */
     public void setOriginalContent(String originalContent) {
-        this.views.put("originalContent", originalContent.getBytes());
+        this.views.put("originalContent", originalContent);
     }
 
     /**
@@ -107,7 +109,7 @@ public class PipelineDocument {
      * @return The modified content of the document or {@code null} if no modified content is available yet.
      */
     public String getModifiedContent() {
-        return new String(this.views.get("modifiedContent"));
+        return this.views.get("modifiedContent");
     }
 
     /**
@@ -118,7 +120,7 @@ public class PipelineDocument {
      * @param modifiedContent The content of this document modified by some {@link PipelineProcessor}.
      */
     public void setModifiedContent(String modifiedContent) {
-        this.views.put("modifiedContent", modifiedContent.getBytes());
+        this.views.put("modifiedContent", modifiedContent);
     }
 
     @Override
@@ -136,14 +138,14 @@ public class PipelineDocument {
 
     /**
      * <p>
-     * Resets and overrides the content of a named view.
+     * Resets and overrides the content of a named view or initializes the view of it didn't exist yet.
      * </p>
      * 
      * @param viewName The name of the view.
      * @param content The text content as the new view of the document.
      */
     public void putView(String viewName, String content) {
-        this.views.put(viewName, content.getBytes());
+        this.views.put(viewName, content);
     }
 
     /**
@@ -155,12 +157,12 @@ public class PipelineDocument {
      * @return The views content or {@code null} if there is no such view available.
      */
     public String getView(String viewName) {
-        return new String(this.views.get(viewName));
+        return this.views.get(viewName);
     }
 
     /**
      * <p>
-     * Checks wether this document provides a view with the provided name.
+     * Checks whether this document provides a view with the provided name.
      * </p>
      * 
      * @param inputViewName The name of the requested view.
@@ -178,6 +180,6 @@ public class PipelineDocument {
      * @return The set of all provided view names.
      */
     public Set<String> getProvidedViewNames() {
-        return this.views.keySet();
+        return Collections.unmodifiableSet(this.views.keySet());
     }
 }

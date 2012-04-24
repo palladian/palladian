@@ -56,7 +56,12 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
      * @return {@link Map} containing the stemmed token values as keys, their frequencies as values.
      */
     public Map<String, Double> getTokens(String text) {
-        PipelineDocument document = process(new PipelineDocument(text));
+        PipelineDocument document;
+        try {
+            document = process(new PipelineDocument(text));
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalArgumentException(e);
+        }
         AnnotationFeature feature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         Map<String, Double> result = new HashMap<String, Double>();
         for (Annotation annotation : feature.getValue()) {

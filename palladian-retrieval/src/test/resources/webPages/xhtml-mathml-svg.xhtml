@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="style/xhtml-default.css"?>
+<?xml-stylesheet type="text/css" title="ruby" href="style/ruby.css"?>
+<?xml-stylesheet type="text/css" href="style/style.css"?>
+<?xml-stylesheet type="text/css" href="style/hover.css"?>
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr">
+<head>
+  <title xml:lang="en">Sample XHTML + MathML + SVG document</title>
+  <link rel="stylesheet" type="text/css" href="style/xhtml-default.css"/>
+  <link rel="stylesheet" type="text/css" title="ruby" href="style/ruby.css"/>
+  <link rel="stylesheet" type="text/css" href="style/style.css"/>
+  <link rel="stylesheet" type="text/css" href="style/hover.css"/>
+</head>
+<body>
+
+<h1 id="title">Sample XHTML 1.1 plus MathML 2.0 plus SVG 1.1 document</h1>
+
+<h2 id="ToC">Contents</h2>
+
+<ul>
+  <li><a href="#ruby">XHTML 1.1 sample (ruby)</a></li>
+  <li><a href="#math">MathML sample</a></li>
+  <li><a href="#svg">SVG sample</a></li>
+  <li><a href="#mixed">Mixed sample</a></li>
+</ul>
+
+<h2 id="ruby">XHTML 1.1 sample (ruby)</h2>
+
+
+<table border="1" summary="This table shows various ruby examples.">
+<thead>
+<tr>
+<th>Simple ruby, with <code>rp</code> fall-back</th>
+<th>Simple ruby, without <code>rp</code> fall-back</th>
+<th>Complex ruby</th>
+<th>Complex ruby, with multiple ruby texts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<ruby xml:lang="ja"
+><rb>斎藤信男</rb>
+<rp>(</rp><rt>さいとうのぶお</rt><rp>)</rp
+></ruby>
+</td>
+<td>
+<ruby xml:lang="ja"><rb>斎藤信男</rb>
+<rt>さいとうのぶお</rt></ruby>
+</td>
+<td>
+<ruby xml:lang="ja"><rbc><rb>斎</rb><rb>藤</rb><rb>信</rb><rb>男</rb></rbc>
+<rtc><rt>さい</rt><rt>とう</rt><rt>のぶ</rt><rt>お</rt></rtc></ruby>
+</td>
+<td>
+<p>Multilingual ruby example: Hebrew base (right-to-left)
+with Japanese katakana ruby (right-to-left, quite unusual but
+occasionally used) and English ruby (left-to-right)</p>
+
+<p dir="rtl">
+<ruby>
+  <rbc>
+    <rb xml:lang="he" dir="rtl">&#x05D0;&#x05D3;&#x05DD;</rb>
+  </rbc>
+  <rtc>
+    <rt xml:lang="ja"><bdo dir="rtl">アーダーム</bdo></rt>
+  </rtc>
+  <rtc>
+    <rt xml:lang="en" dir="ltr">Adam</rt>
+  </rtc>
+</ruby>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="math">MathML sample</h2>
+
+<p>Math expression
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>y</mi>
+    <mo>=</mo>
+    <mfrac>
+      <mn>1</mn>
+      <msqrt>
+        <mrow>
+          <msup>
+            <mi>x</mi>
+            <mn>2</mn>
+          </msup>
+          <mo>+</mo>
+          <mn>1</mn>
+        </mrow>
+      </msqrt>
+    </mfrac>
+  </mrow>
+</math>
+inside an XHTML paragraph.</p>
+
+<p>Math expression in display style:</p>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mo>det</mo>
+  <mo>|</mo>
+  <mtable>
+
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>0</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+
+        <msub>
+          <mi>c</mi>
+          <mn>1</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mn>2</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mi>n</mi>
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mn>1</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mn>2</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>3</mn>
+
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>1</mn>
+          </mrow>
+        </msub>
+      </mtd>
+
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>2</mn>
+        </msub>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>3</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mn>4</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>2</mn>
+          </mrow>
+
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+      <mtd columnalign="center">
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mi>n</mi>
+        </msub>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>1</mn>
+
+          </mrow>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+
+            <mo>+</mo>
+            <mn>2</mn>
+          </mrow>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mn>2</mn>
+            <mi>n</mi>
+          </mrow>
+
+        </msub>
+      </mtd>
+    </mtr>
+  </mtable>
+  <mo>|</mo>
+  <mo>&gt;</mo>
+  <mn>0</mn>
+</mrow>
+</math>
+
+
+<h2 id="svg">SVG sample</h2>
+
+<p>
+  <svg:svg xmlns:svg="http://www.w3.org/2000/svg" width="10cm" height="8cm"
+    viewBox="0 0 500 400" version="1.1">
+    <svg:title>A star</svg:title>
+    <svg:polygon style="fill:red; stroke:blue; stroke-width:10"
+                 points="210,46 227,96 281,97 238,129
+                         254,181 210,150 166,181 182,129
+                         139,97 193,97"/>
+  </svg:svg> 
+</p>
+
+<h2 id="mixed">Mixed sample</h2>
+
+<p>XHTML and MathML inside SVG (via <code>foreignObject</code>):</p>
+
+<svg:svg xmlns:svg="http://www.w3.org/2000/svg" width="20cm" height="20cm"
+  viewBox="0 0 500 500" version="1.1">
+  <svg:g transform="scale(1.25)">
+    <svg:polygon style="fill:lime; stroke:blue; stroke-width:10"
+                 points="250,20  466,145 466,395
+                         250,520 34,395.2 34,145"/>
+    <svg:switch>
+      <svg:foreignObject x="70" y="140" width="360" height="340">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<p>Inside the <code>foreignObject</code> element, math expression like
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <mi>y</mi>
+      <mo>=</mo>
+      <mfrac>
+        <mn>1</mn>
+        <msqrt>
+          <mrow>
+            <msup>
+              <mi>x</mi>
+              <mn>2</mn>
+            </msup>
+            <mo>+</mo>
+            <mn>1</mn>
+          </mrow>
+        </msqrt>
+      </mfrac>
+    </mrow>
+  </math>
+can be put inside XHTML as well as ruby like
+<ruby>
+<rbc>
+<rb>W</rb><rb>W</rb><rb>W</rb></rbc>
+<rtc>
+<rt>World</rt>
+<rt>Wide</rt>
+<rt>Web</rt>
+</rtc>
+</ruby>.</p>
+
+<p>The base direction of the following
+paragraph is <code>rtl</code>.</p>
+
+<p dir="rtl">
+<ruby>
+  <rbc>
+    <rb xml:lang="he" dir="rtl">&#x05D0;&#x05D3;&#x05DD;</rb>
+  </rbc>
+  <rtc>
+    <rt xml:lang="ja"><bdo dir="rtl">アーダーム</bdo></rt>
+  </rtc>
+  <rtc>
+    <rt xml:lang="en" dir="ltr">Adam</rt>
+  </rtc>
+</ruby>
+</p>
+
+<p>Display math inside SVG:</p>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mo>det</mo>
+  <mo>|</mo>
+  <mtable>
+
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>0</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+
+        <msub>
+          <mi>c</mi>
+          <mn>1</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mn>2</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mi>n</mi>
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mn>1</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mn>2</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>3</mn>
+
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>1</mn>
+          </mrow>
+        </msub>
+      </mtd>
+
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>2</mn>
+        </msub>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mn>3</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+
+          <mi>c</mi>
+          <mn>4</mn>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+      <mtd columnalign="center">
+
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>2</mn>
+          </mrow>
+
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+      <mtd columnalign="center">
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x22EE;</mo>
+      </mtd>
+
+    </mtr>
+    <mtr>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mi>n</mi>
+        </msub>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+            <mo>+</mo>
+            <mn>1</mn>
+
+          </mrow>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mi>n</mi>
+
+            <mo>+</mo>
+            <mn>2</mn>
+          </mrow>
+        </msub>
+      </mtd>
+      <mtd columnalign="center">
+        <mo>&#x2026;</mo>
+      </mtd>
+
+      <mtd columnalign="center">
+        <msub>
+          <mi>c</mi>
+          <mrow>
+            <mn>2</mn>
+            <mi>n</mi>
+          </mrow>
+
+        </msub>
+      </mtd>
+    </mtr>
+  </mtable>
+  <mo>|</mo>
+  <mo>&gt;</mo>
+  <mn>0</mn>
+</mrow>
+</math>
+</div>
+      </svg:foreignObject>
+    </svg:switch>
+  </svg:g>
+</svg:svg>
+
+</body>
+</html>

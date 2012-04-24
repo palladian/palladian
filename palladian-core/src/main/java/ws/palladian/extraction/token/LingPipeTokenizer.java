@@ -1,5 +1,6 @@
 package ws.palladian.extraction.token;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.PositionAnnotation;
@@ -16,7 +17,7 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * 
  * @author Philipp Katz
  */
-public final class LingPipeTokenizer implements TokenizerInterface {
+public final class LingPipeTokenizer extends AbstractPipelineProcessor implements TokenizerInterface {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,7 +29,7 @@ public final class LingPipeTokenizer implements TokenizerInterface {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) {
         String text = document.getOriginalContent();
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         AnnotationFeature annotationFeature = new AnnotationFeature(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
