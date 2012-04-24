@@ -123,16 +123,16 @@ public class PageAnalyzerTest {
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website3.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
         Document doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website3.html"));
-        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[2]/tr/td"));
+        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[2]/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website5.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website5.html"));
-        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tr/td/blockquote/table[1]/tr/td/p"));
+        assertEquals(6, pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tbody/tr/td/blockquote/table[1]/tbody/tr/td/p"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website9.html"),"/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website9.html"));
         assertEquals(2,
-                pa.getNumberOfTableColumns(doc, "/html/body/table/tr/td/table[1]/tr/td/table[1]/tr/td/div/ul/li/a/b"));
+                pa.getNumberOfTableColumns(doc, "/html/body/table/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/div/ul/li/a/b"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website11.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website11.html"));
@@ -140,7 +140,7 @@ public class PageAnalyzerTest {
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website17.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website17.html"));
-        assertEquals(5, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[4]/tr/td/ul/li/a"));
+        assertEquals(5, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[4]/tbody/tr/td/ul/li/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website27.html"),"/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website27.html"));
@@ -148,30 +148,30 @@ public class PageAnalyzerTest {
                 3,
                 pa.getNumberOfTableColumns(
                         doc,
-                        "/html/body/form/table[1]/tr/td/div/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td/div/table[1]/tr/td/div/div/span/span/span/p/table/tbody/tr/td"));
+                        "/html/body/form/table[1]/tbody/tr/td/div/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/div/table[1]/tbody/tr/td/div/div/span/span/span/p/table/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website29.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website29.html"));
         assertEquals(5,
-                pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td"));
+                pa.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website33.html"),"/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website33.html"));
         assertEquals(2,
-                pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/table[1]/tr/td/p/table[3]/tr/td/table/tr/td/a"));
+                pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/table[1]/tbody/tr/td/p/table[3]/tbody/tr/td/table/tbody/tr/td/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website65.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website65.html"));
-        assertEquals(11, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/div/table[1]/tr/td"));
+        assertEquals(11, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/div/table[1]/tbody/tr/td"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website67.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website67.html"));
-        assertEquals(3, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[3]/tr/td/i/a"));
+        assertEquals(3, pa.getNumberOfTableColumns(doc, "/html/body/div/div/div/div/table[3]/tbody/tr/td/i/a"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website69.html"),"/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website69.html"));
         assertEquals(4, pa.getNumberOfTableColumns(doc,
-                "/html/body/div/div/layer/div/table[1]/tr/td/div/table[1]/tr/td/p/table/tr/td/font/a"));
+                "/html/body/div/div/layer/div/table[1]/tbody/tr/td/div/table[1]/tbody/tr/td/p/table/tbody/tr/td/font/a"));
 
     }
 
