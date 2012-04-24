@@ -33,32 +33,6 @@ public class NekoHtmlParserTest {
 
     /**
      * <p>
-     * Test undesired behavior from NekoHTML for which we introduced workarounds/fixes.
-     * </p>
-     * 
-     * @see NekoTbodyFix
-     * @throws FileNotFoundException
-     * @throws ParserException
-     */
-    @Test
-    public void testTbodyFix() throws FileNotFoundException, ParserException {
-
-        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase1.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase2.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tbody/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase3.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tbody/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase4.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tr[1]/td").size());
-
-    }
-
-    /**
-     * <p>
      * Test for {@link StackOverflowError} caused by some webpages.
      * </p>
      * 
@@ -84,10 +58,8 @@ public class NekoHtmlParserTest {
      * @throws ParserException
      */
     @Test
-    // @Ignore(value = "Still needs to be fixed")
     public void testNekoTrNamespace() throws FileNotFoundException, ParserException {
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTrNamespaceTest.html"));
-        // div[1]/table[3]/tr[1]/td[2]/blockquote[2]
         Node node = XPathHelper.getXhtmlNode(document, "//div[1]/table[3]/tbody[1]/tr[1]/td[2]/blockquote[2]");
         assertNotNull(node);
 
