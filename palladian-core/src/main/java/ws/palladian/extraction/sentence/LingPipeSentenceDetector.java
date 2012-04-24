@@ -68,6 +68,11 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      */
     public LingPipeSentenceDetector() {
         super();
+        final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
+
+        final SentenceChunker sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
+        setModel(sentenceChunker);
     }
 
     @Override
