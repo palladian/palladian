@@ -92,7 +92,7 @@ public class FeatureVector {
         List<Feature<T>> ret = new ArrayList<Feature<T>>();
         for (Feature<?> feature : features.values()) {
             if (type.isInstance(feature.getValue())) {
-                ret.add((Feature<T>) feature);
+                ret.add((Feature<T>)feature);
             }
         }
         return ret;
@@ -125,21 +125,47 @@ public class FeatureVector {
      * 
      * @return The vector as array.
      */
-    public Feature<?>[] toValueArray() {
-        Feature<?>[] ret = new Feature[features.size()];
-        ret = features.values().toArray(ret);
-        return ret;
+    public Feature<?>[] toArray() {
+        return features.values().toArray(new Feature[features.size()]);
     }
 
     /**
      * <p>
-     * Counts the dimensions, i.e. how many entries the vector has.
+     * Get the dimension of this feature vector, i.e. how many {@link Feature}s the vector contains.
      * </p>
      * 
-     * @return The dimensions of this {@code FeatureVector}.
+     * @return The size of this {@code FeatureVector}.
      */
-    public int countDimensions() {
+    public int size() {
         return this.features.size();
+    }
+
+    /**
+     * <p>
+     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param identifier
+     *            The {@link FeatureVector} wide unique identifier of the {@link Feature} to remove.
+     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
+     *         specified identifier to remove.
+     */
+    public boolean remove(String identifier) {
+        return this.features.remove(identifier) != null;
+    }
+
+    /**
+     * <p>
+     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
+     *            {@link Feature} to remove.
+     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
+     *         specified identifier to remove.
+     */
+    public boolean remove(FeatureDescriptor<?> featureDescriptor) {
+        return this.features.remove(featureDescriptor.getIdentifier()) != null;
     }
 
 }

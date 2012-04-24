@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -18,7 +19,7 @@ import ws.palladian.model.features.AnnotationFeature;
 public class RegExTokenRemoverTest {
     
     @Test
-    public void testRegExTokenRemover() {
+    public void testRegExTokenRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));

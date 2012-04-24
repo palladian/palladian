@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -18,7 +19,7 @@ public class TokenMetricsCalculatorTest {
     private static final String SAMPLE_TEXT = "Das Reh springt hoch, das Reh springt weit. Warum auch nicht - es hat ja Zeit!";
 
     @Test
-    public void testTokenMetrics() {
+    public void testTokenMetrics() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new TokenMetricsCalculator());

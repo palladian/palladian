@@ -13,7 +13,7 @@ import ws.palladian.model.features.Annotation;
  * @author Philipp Katz
  * 
  */
-public class LengthTokenRemover extends AbstractTokenRemover {
+public final class LengthTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 

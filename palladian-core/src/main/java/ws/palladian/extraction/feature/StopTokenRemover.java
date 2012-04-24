@@ -27,7 +27,7 @@ import ws.palladian.model.features.Annotation;
  * @author Philipp Katz
  * 
  */
-public class StopTokenRemover extends AbstractTokenRemover {
+public final class StopTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 

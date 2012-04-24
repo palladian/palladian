@@ -1,5 +1,8 @@
 package ws.palladian.model.features;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ws.palladian.extraction.PipelineDocument;
 
 /**
@@ -102,8 +105,12 @@ public final class PositionAnnotation extends Annotation {
         // as the original String from the document might never get GC'ed, as long
         // as we keep its Tokens in memory
         // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-        this(document, viewName, startPosition, endPosition, index, new String(document.getOriginalContent().substring(
-                startPosition, endPosition)));
+//        this(document, viewName, startPosition, endPosition, index, new String(document.getOriginalContent().substring(
+//                startPosition, endPosition)));
+        // XXX
+        this(document, viewName, startPosition, endPosition, index, document.getOriginalContent().substring(startPosition, endPosition));
+        // TODO would it make sense to use String#intern() here?
+//        this(document, viewName, startPosition, endPosition, index, document.getOriginalContent().substring(startPosition, endPosition).intern());
     }
 
     /**
