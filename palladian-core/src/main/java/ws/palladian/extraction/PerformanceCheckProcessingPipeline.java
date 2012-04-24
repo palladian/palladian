@@ -24,7 +24,7 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
     private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
 
     @Override
-    public PipelineDocument process(PipelineDocument document) {
+    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException{
 
         for (PipelineProcessor processor : getPipelineProcessors()) {
 
