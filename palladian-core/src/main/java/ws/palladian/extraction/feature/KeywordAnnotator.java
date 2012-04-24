@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -18,7 +19,7 @@ import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
-public class KeywordAnnotator implements PipelineProcessor {
+public class KeywordAnnotator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,7 +36,7 @@ public class KeywordAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
         List<Annotation> tokenList = annotationFeature.getValue();
@@ -72,25 +73,21 @@ public class KeywordAnnotator implements PipelineProcessor {
         Feature<List<Keyword>> keywordFeature = new Feature<List<Keyword>>(PROVIDED_FEATURE, keywordList);
         document.getFeatureVector().add(keywordFeature);
     }
-    
-    
-    public static void main(String[] args) {
-        
-        
-        
-        
+
+    public static void main(String[] args) throws DocumentUnprocessableException {
+
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new NGramCreator(4));
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new FrequencyCalculator());
         pipeline.add(new TokenSpreadCalculator());
-        
+
         pipeline.add(new KeywordAnnotator());
-        
+
         String originalContent = "Compatibility of systems of linear constraints over the set of natural numbers Criteria of compatibility of a system of linear Diophantine equations, strict inequations, and nonstrict inequations are considered. Upper bounds for components of a minimal set of solutions and algorithms of construction of minimal generating sets of solutions for all types of systems are given. These criteria and the corresponding algorithms for constructing a minimal supporting set of solutions can be used in solving all the considered types of systems and systems of mixed types";
         PipelineDocument result = pipeline.process(new PipelineDocument(originalContent));
-        
+
         Feature<List<Keyword>> feature = (Feature<List<Keyword>>)result.getFeatureVector().get(PROVIDED_FEATURE);
         List<Keyword> keywords = feature.getValue();
         for (Keyword keyword : keywords) {
