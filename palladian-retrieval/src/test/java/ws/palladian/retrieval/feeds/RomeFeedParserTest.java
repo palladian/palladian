@@ -135,9 +135,6 @@ public class RomeFeedParserTest {
         // //////////// Atom feeds ////////////
         Feed feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/atomSample1.xml")));
         FeedItem feedItem = feed.getItems().iterator().next();
-        // FIXME time offset since Atom bug fixed.
-        // assertEquals("John Doe; Mary Duff", feedItem.getAuthors());
-        // assertEquals(df.parse("2003-12-13 18:30:02.000 GMT+00:00"), feedItem.getPublished());
 
         feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath("/feeds/atomSample2.xml")));
         feedItem = feed.getItems().iterator().next();

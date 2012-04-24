@@ -103,7 +103,7 @@ public class ProcessingPipeline implements Serializable {
      *         guaranteed. The returned document contains all features and modified representations created by the
      *         pipeline.
      */
-    public PipelineDocument process(PipelineDocument document) {
+    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException {
 
         StopWatch stopWatch = new StopWatch();
 

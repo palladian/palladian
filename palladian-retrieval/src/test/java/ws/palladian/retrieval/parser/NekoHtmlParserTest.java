@@ -15,6 +15,13 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
+/**
+ * <p>
+ * Test for various peculiarities of NekoHTML.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class NekoHtmlParserTest {
 
     private NekoHtmlParser htmlParser;
@@ -22,32 +29,6 @@ public class NekoHtmlParserTest {
     @Before
     public void setUp() {
         htmlParser = new NekoHtmlParser();
-    }
-
-    /**
-     * <p>
-     * Test undesired behavior from NekoHTML for which we introduced workarounds/fixes.
-     * </p>
-     * 
-     * @see NekoTbodyFix
-     * @throws FileNotFoundException
-     * @throws ParserException
-     */
-    @Test
-    public void testTbodyFix() throws FileNotFoundException, ParserException {
-
-        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase1.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase2.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tbody/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase3.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tbody/tr[1]/td").size());
-
-        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTableTestcase4.html"));
-        assertEquals(3, XPathHelper.getXhtmlNodes(document, "//table/tr[1]/td").size());
-
     }
 
     /**
@@ -67,21 +48,38 @@ public class NekoHtmlParserTest {
 
     /**
      * <p>
-     * Originally, NekoHTML does set the namespace when inserting elements.
+     * Originally, NekoHTML does set the namespace when inserting elements. The tr element being inserted should also be
+     * in XHTML namespace.
      * </p>
      * 
      * @see https://bitbucket.org/palladian/palladian/issue/29/tr-fix-for-neko-html
+     * @see https://sourceforge.net/tracker/?func=detail&aid=3151253&group_id=195122&atid=952178
      * @throws FileNotFoundException
      * @throws ParserException
      */
     @Test
-    @Ignore(value = "Still needs to be fixed")
     public void testNekoTrNamespace() throws FileNotFoundException, ParserException {
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTrNamespaceTest.html"));
-        Node node = XPathHelper.getNode(document, "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]");
+        Node node = XPathHelper.getXhtmlNode(document, "//div[1]/table[3]/tbody[1]/tr[1]/td[2]/blockquote[2]");
         assertNotNull(node);
-        
-        node = XPathHelper.getNode(document, "//xhtml:div[1]/xhtml:table[3]/tr[1]/xhtml:td[2]/xhtml:blockquote[2]");
+
+        node = XPathHelper.getNode(document,
+                "//xhtml:div[1]/xhtml:table[3]/xhtml:tbody[1]/tr[1]/xhtml:td[2]/xhtml:blockquote[2]");
         assertNull(node);
     }
+
+    /**
+     * <p>
+     * Test parsing a file which contains XHTML, MathML and SVG parts.
+     * </p>
+     * 
+     * @throws FileNotFoundException
+     * @throws ParserException
+     */
+    @Test
+    public void testParseMixedNamespaces() throws FileNotFoundException, ParserException {
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/xhtml-mathml-svg.xhtml"));
+        assertEquals(4, XPathHelper.getXhtmlNodes(document, "/html/body/ul[1]/li").size());
+    }
+
 }

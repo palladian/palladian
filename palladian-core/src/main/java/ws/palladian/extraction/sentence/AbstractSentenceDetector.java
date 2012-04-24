@@ -4,8 +4,10 @@
 package ws.palladian.extraction.sentence;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.AbstractPipelineProcessor;
@@ -84,26 +86,12 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
     private Annotation[] sentences;
 
     /**
-     * <p>
-     * The name of the view the algorithm currently works on. This needs to be available to subclasses to create valid
-     * annotations.
-     * </p>
+     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
      * 
-     * @see #detect(String)
-     * @see #processDocument(PipelineDocument)
+     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
      */
-    private String currentViewName;
-
-    /**
-     * <p>
-     * Creates a new completely intialized sentence detector working on the provided input views if used as
-     * {@code PipelineProcessor}.
-     * </p>
-     * 
-     * @param inputViewNames The set of input view names for which sentences are detected.
-     */
-    public AbstractSentenceDetector(String[] inputViewNames) {
-        super(inputViewNames);
+    public AbstractSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
+        super(documentToInputMapping);
     }
 
     /**
@@ -178,41 +166,12 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
 
     @Override
     public final void processDocument(PipelineDocument document) {
-        for (String inputViewName : getInputViewNames()) {
-            setCurrentViewName(inputViewName);
+        detect(document.getOriginalContent());
+        Annotation[] sentences = getSentences();
+        List<Annotation> sentencesList = Arrays.asList(sentences);
+        AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);
 
-            detect(document.getView(inputViewName));
-            Annotation[] sentences = getSentences();
-            List<Annotation> sentencesList = Arrays.asList(sentences);
-            AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);
-
-            FeatureVector featureVector = document.getFeatureVector();
-            featureVector.add(sentencesFeature);
-        }
+        FeatureVector featureVector = document.getFeatureVector();
+        featureVector.add(sentencesFeature);
     }
-
-    /**
-     * <p>
-     * Provides the name of the currently processed view from the input {@code PipelineDocument}. This is necessary so
-     * subclasses are able to create {@code Annotation}s for this view.
-     * </p>
-     * 
-     * @return The name of the currently processed view.
-     */
-    protected final String getCurrentViewName() {
-        return this.currentViewName;
-    }
-
-    /**
-     * <p>
-     * Resets and overwrites the name of the currently processed view. This should be called by
-     * {@link #processDocument(PipelineDocument)} each time the current view changes.
-     * </p>
-     * 
-     * @param currentViewName The name of the currently processed view.
-     */
-    private void setCurrentViewName(String currentViewName) {
-        this.currentViewName = currentViewName;
-    }
-
 }

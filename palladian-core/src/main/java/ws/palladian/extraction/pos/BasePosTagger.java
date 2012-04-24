@@ -3,6 +3,8 @@ package ws.palladian.extraction.pos;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotation;
@@ -36,7 +38,7 @@ import ws.palladian.model.features.NominalFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
+public abstract class BasePosTagger extends AbstractPipelineProcessor implements PosTagger {
 
     private static final long serialVersionUID = 1L;
 
@@ -69,8 +71,12 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
     @Override
     public TagAnnotations tag(String text) {
         PipelineDocument document = new PipelineDocument(text);
-        getTokenizer().process(document);
-        process(document);
+        try {
+            getTokenizer().process(document);
+            process(document);
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalArgumentException(e);
+        }
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
                 TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         TagAnnotations ret = new TagAnnotations();
@@ -101,7 +107,7 @@ public abstract class BasePosTagger implements PosTagger, PipelineProcessor {
     // ////////////////////////////////////////////
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

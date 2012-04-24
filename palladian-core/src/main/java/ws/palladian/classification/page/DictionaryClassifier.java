@@ -17,6 +17,7 @@ import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.WordCorrelation;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
@@ -203,9 +204,9 @@ public class DictionaryClassifier extends TextClassifier {
 
         DictionaryClassifier classifier;
 
-        classifier = (DictionaryClassifier) FileHelper.deserialize(classifierPath);
+        classifier = (DictionaryClassifier)FileHelper.deserialize(classifierPath);
         if (classifier == null) {
-        	throw new ClassifierNotFoundException("No classifier was found at path: " + classifierPath);
+            throw new ClassifierNotFoundException("No classifier was found at path: " + classifierPath);
         }
         classifier.reset();
 
@@ -259,7 +260,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         if (dictionary == null) {
             String modelFilePath = getDictionaryPath() + getDictionaryName() + ".gz";
-            dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
+            dictionary = (Dictionary)FileHelper.deserialize(modelFilePath);
 
             dictionary.setIndexPath(FileHelper.getFilePath(modelFilePath));
 
@@ -480,7 +481,6 @@ public class DictionaryClassifier extends TextClassifier {
                                 * categoryEntry.getRelevance());
                         // c.multAbsRel(categoryEntry.getRelevance());
 
-
                         // if (weightedTerm.getKey().getText().equalsIgnoreCase("the")) {
                         // System.out.println("the");
                         // System.out.println("appears " + categoryEntry.getAbsoluteRelevance() + " times in "
@@ -656,13 +656,23 @@ public class DictionaryClassifier extends TextClassifier {
 
     @Override
     public TextInstance preprocessDocument(String text, TextInstance classificationDocument) {
-        PipelineDocument processedDocument = processingPipeline.process(new PipelineDocument(text));
+        PipelineDocument processedDocument;
+        try {
+            processedDocument = processingPipeline.process(new PipelineDocument(text));
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalArgumentException(e);
+        }
         return preprocessor.preProcessDocument(processedDocument.getModifiedContent(), classificationDocument);
     }
 
     @Override
     public TextInstance preprocessDocument(String text) {
-        PipelineDocument processedDocument = processingPipeline.process(new PipelineDocument(text));
+        PipelineDocument processedDocument;
+        try {
+            processedDocument = processingPipeline.process(new PipelineDocument(text));
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalArgumentException(e);
+        }
         return preprocessor.preProcessDocument(processedDocument.getModifiedContent());
     }
 
@@ -713,22 +723,26 @@ public class DictionaryClassifier extends TextClassifier {
         builder.append(getClassificationTypeSetting());
         return builder.toString();
     }
-    
+
     /**
-     * <p>For quick thread-safe classification use this. The DictionaryClassifier is thread safe by itself but this is faster since copies of classifiers are created which all use the same dictionary (read-only).</p>
+     * <p>
+     * For quick thread-safe classification use this. The DictionaryClassifier is thread safe by itself but this is
+     * faster since copies of classifiers are created which all use the same dictionary (read-only).
+     * </p>
+     * 
      * @param classifier The classifier to use (will be copied).
      * @param text The text to classify.
      * @return The classified text instance.
      */
     public static TextInstance classify(DictionaryClassifier classifier, String text) {
-        
+
         // TODO: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
         DictionaryClassifier copy = new DictionaryClassifier();
         copy.setDictionary(classifier.getDictionary());
         copy.setCategories(classifier.getCategories());
         copy.setClassificationTypeSetting(classifier.getClassificationTypeSetting());
         return copy.classify(text);
-        
+
     }
 
     public void threadTest() {
@@ -740,26 +754,27 @@ public class DictionaryClassifier extends TextClassifier {
         Cache.getInstance().putDataObject("classifier", classifier);
 
         int totalThreads = 200;
-        
+
         final DictionaryClassifierPool dc2Pool = new DictionaryClassifierPool(classifier, totalThreads);
-        
+
         final List<Long> longs = new ArrayList<Long>();
-        
+
         for (int i = 0; i < totalThreads; i++) {
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     StopWatch sw2 = new StopWatch();
-//                    TextInstance classify = classifier.classify(LoremIpsumGenerator.getRandomText(100));
-//                    TextInstance classify = DictionaryClassifier.classify(classifier,LoremIpsumGenerator.getRandomText(100));
-//                    DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+                    // TextInstance classify = classifier.classify(LoremIpsumGenerator.getRandomText(100));
+                    // TextInstance classify =
+                    // DictionaryClassifier.classify(classifier,LoremIpsumGenerator.getRandomText(100));
+                    // DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
                     DictionaryClassifier dc2 = dc2Pool.get();
-//                    System.out.println(dc2.getName());
+                    // System.out.println(dc2.getName());
                     TextInstance classify = dc2.classify(LoremIpsumGenerator.getRandomText(100));
                     dc2Pool.release(dc2);
-//                    TextInstance classify = dc2Pool.classify(LoremIpsumGenerator.getRandomText(100));
-                    System.out.println(sw2.getElapsedTimeString()+ " in current thread");
+                    // TextInstance classify = dc2Pool.classify(LoremIpsumGenerator.getRandomText(100));
+                    System.out.println(sw2.getElapsedTimeString() + " in current thread");
                     longs.add(sw2.getElapsedTime());
                 }
             }).start();
@@ -771,16 +786,16 @@ public class DictionaryClassifier extends TextClassifier {
         for (Long l : longs) {
             totalTime += l;
         }
-        
-        System.out.println("avg. time per thread: " + totalTime / (double) totalThreads);
+
+        System.out.println("avg. time per thread: " + totalTime / (double)totalThreads);
 
         // thread safe:
-        // synchronized:    avg. time per thread: 957.595, 1073.045, 1098.385
-        // static:          avg. time per thread: 80.75, 450.79, 272.485, 196.635, 51.01, 398.265
-        // pooled:          avg. time per thread: 1126.855, 853.05, 646.7, 879.77
+        // synchronized: avg. time per thread: 957.595, 1073.045, 1098.385
+        // static: avg. time per thread: 80.75, 450.79, 272.485, 196.635, 51.01, 398.265
+        // pooled: avg. time per thread: 1126.855, 853.05, 646.7, 879.77
         // pooled with getting and releasing: 1844.025, 1086.12, 935.965, 762.525, 968.975
     }
-    
+
     public static void main(String[] args) {
         DictionaryClassifier dc2 = new DictionaryClassifier();
         dc2.threadTest();

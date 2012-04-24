@@ -9,17 +9,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.IllinoisLbjNer;
 import ws.palladian.extraction.entity.tagger.JulieNer;
 import ws.palladian.extraction.entity.tagger.LingPipeNer;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
-import ws.palladian.extraction.entity.tagger.StanfordNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.extraction.entity.tagger.StanfordNer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 
@@ -107,19 +103,19 @@ public class NERTest {
         annotations.removeNestedAnnotations();
         annotations.sort();
 
-//        System.out.println(annotations.size());
-//        System.out.println(annotations.get(0));
-//        System.out.println(annotations.get(500));
-//        System.out.println(annotations.get(annotations.size() - 1));
+        // System.out.println(annotations.size());
+        // System.out.println(annotations.get(0));
+        // System.out.println(annotations.get(500));
+        // System.out.println(annotations.get(annotations.size() - 1));
 
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
         
-        assertEquals(2218, annotations.size());
+        assertEquals(2241, annotations.size());
         assertEquals(21, annotations.get(0).getOffset());
         assertEquals(14, annotations.get(0).getLength());
 
-        assertEquals(15264, annotations.get(500).getOffset());
-        assertEquals(7, annotations.get(500).getLength());
+        assertEquals(15212, annotations.get(500).getOffset());
+        assertEquals(8, annotations.get(500).getLength());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getOffset());
         assertEquals(5, annotations.get(annotations.size() - 1).getLength());

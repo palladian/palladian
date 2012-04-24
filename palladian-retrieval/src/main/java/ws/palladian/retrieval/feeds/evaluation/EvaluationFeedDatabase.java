@@ -280,8 +280,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         if (simulatedWindow == null) {
 
             simulatedWindow = runQuery(new FeedEvaluationItemRowConverter(),
-                    GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_RANGE_LIMIT, feedId, correctedPublishTime, 
-                    correctedPublishTimeLowerBound, window); 
+                    GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_RANGE_LIMIT, feedId, correctedPublishTime,
+                    correctedPublishTimeLowerBound, window);
 
             putSimulatedWindowToCache(feedId, simulatedWindow);
         } else {
@@ -373,7 +373,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         success = runUpdate(baseSQL) != -1 ? true : false;
 
         final String delaysSQL = "CREATE TABLE `"
-                + evaluationTableName + DELAY_POSTFIX 
+                + evaluationTableName + DELAY_POSTFIX
                 + "` ("
                 + "`feedId` INT(10) UNSIGNED NOT NULL,"
                 + "`singleDelay` DOUBLE NOT NULL COMMENT 'Delay to a single item in seconds.'"
@@ -499,7 +499,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         String outputTableName = sourceTableName + "_" + MODE_FEEDS;
 
         // estimate totalMisses and recall and insert into table
-        StringBuilder sqlBuilder = new StringBuilder(); 
+        StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("INSERT INTO `");
         sqlBuilder.append(outputTableName);
         sqlBuilder.append("` (feedId, totalMisses)");
@@ -581,8 +581,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param sourceTableName
      * @return <code>true</code> if table has been created and indexed, <code>false</code> on any error.
      */
-    // FIXME: set back to private when #RecallBugFixer is done.
-    public boolean createInitialItemsTempTable(String sourceTableName) {
+    private boolean createInitialItemsTempTable(String sourceTableName) {
         boolean success = true;
 
         // create temptable to count initial items per feed
@@ -632,8 +631,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
      *         error.
      */
-    // FIXME: set back to private when #RecallBugFixer is done.
-    public boolean setRecallModeFeeds(String sourceTableName) {
+    private boolean setRecallModeFeeds(String sourceTableName) {
         LOGGER.info("Calculating recall in mode feeds.");
 
         String feedsTableName = sourceTableName + "_" + MODE_FEEDS;
@@ -678,8 +676,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
      *         error.
      */
-    // FIXME: set back to private when #RecallBugFixer is done.
-    public boolean setRecallModeItems(String sourceTableName) {
+    private boolean setRecallModeItems(String sourceTableName) {
 
         LOGGER.info("Calculating avgDelay in mode items.");
 
@@ -1046,8 +1043,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    // FIXME: set back to private when #PPIBugFixer is done.
-    public boolean setPPIModeFeeds(String sourceTableName) {
+    private boolean setPPIModeFeeds(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode feeds.");
 
@@ -1085,8 +1081,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result tables have been filled with results, <code>false</code> on any
      *         error.
      */
-    // FIXME: set back to private when #PPIBugFixer is done.
-    public boolean setPPIModeItems(String sourceTableName) {
+    private boolean setPPIModeItems(String sourceTableName) {
 
         LOGGER.info("Calculating PPI in mode items.");
 
@@ -1119,8 +1114,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param baseTableName The name of the table that contains simulated poll data.
      * @return <code>true</code> if table with average values has been updated, <code>false</code> on any error.
      */
-    // FIXME: set back to private when #PPIBugFixer is done.
-    public boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
+    private boolean createPerStrategyAveragesModeFeeds(String baseTableName) {
 
         LOGGER.info("Calculating global average for PPI, avgDelay recall and sum total misses over all feeds.");
         boolean success = true;
@@ -1187,7 +1181,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
         result = result && setAvgDelayModeFeeds(baseTableName);
         result = result && setPPIModeFeeds(baseTableName);
 
-        // FIXME: this is deactivated since it takes years to compute...
+        // this is deactivated since it takes years to compute...
         // adding an index to table _delays dosn't solve the problem
         // result = result && setMedianDelayPerFeed(baseTableName);
 
@@ -1698,19 +1692,6 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             LOGGER.debug(sql);
         }
         return runUpdate(sql);
-    }
-
-    // FIXME: remove when #PPIBugFixer is done.
-    public boolean removeEvaluationSummaryFeeds(String baseTableName) {
-        String outputTableName = baseTableName + AVG_POSTFIX;
-
-        String sqlBase = "DELETE FROM `###TABLE_NAME###` WHERE MODE LIKE '%feeds%'";
-        String sql = replaceTableName(sqlBase, outputTableName);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sql);
-        }
-        return runUpdate(sql) != -1 ? true : false;
-
     }
 
     public static void main(String[] args) {

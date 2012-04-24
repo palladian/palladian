@@ -54,7 +54,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     private Feed feed = null;
 
     /**
-     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
+     * The feed checker calling this task. NOTE: This is a workaround. Can be fixed by externalizing update
      * strategies to a true strategy pattern.
      */
     private final FeedReader feedReader;
