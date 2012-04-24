@@ -3,6 +3,7 @@ package ws.palladian.extraction.token;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.AnnotationFeature;
@@ -11,14 +12,14 @@ import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>
- * A {@link TokenizerInterface} implementation based on regular expressions. Tokens are matched against the specified regular
- * expressions.
+ * A {@link TokenizerInterface} implementation based on regular expressions. Tokens are matched against the specified
+ * regular expressions.
  * </p>
  * 
  * @author Philipp Katz
  * 
  */
-public final class RegExTokenizer implements TokenizerInterface {
+public final class RegExTokenizer extends AbstractPipelineProcessor implements TokenizerInterface {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,7 +29,7 @@ public final class RegExTokenizer implements TokenizerInterface {
                     Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) {
         String text = document.getOriginalContent();
         Matcher matcher = TOKENIZE_REGEXP.matcher(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE);
