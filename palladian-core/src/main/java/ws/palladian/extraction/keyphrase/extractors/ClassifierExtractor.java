@@ -39,6 +39,7 @@ import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
+import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
@@ -54,6 +55,9 @@ import ws.palladian.model.features.NumericFeature;
 
 public class ClassifierExtractor extends KeyphraseExtractor {
 
+    /** The path to the model file for the LingPipe POS tagger. */
+    private static final File LING_PIPE_POS_MODEL = new File("/Users/pk/Dropbox/Uni/Models/pos-en-general-brown.HiddenMarkovModel");
+    
     private final ProcessingPipeline pipeline1;
     private final ProcessingPipeline pipeline2;
     private final TermCorpus termCorpus;
@@ -65,13 +69,15 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     private int trainCount;
     private final StemmerAnnotator stemmer;
 
-    private static final int TRAIN_DOC_LIMIT = 20;
-    // private static final int TRAIN_DOC_LIMIT = 50;
+    // private static final int TRAIN_DOC_LIMIT = 20;
+    private static final int TRAIN_DOC_LIMIT = 50;
 
     private static final FeatureDescriptor<NumericFeature> PRIOR = FeatureDescriptorBuilder.build("keyphraseness",
             NumericFeature.class);
-    private static final FeatureDescriptor<NumericFeature> COOCCURRENCE = FeatureDescriptorBuilder.build(
-            "cooccurrence", NumericFeature.class);
+    private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_MULT = FeatureDescriptorBuilder.build(
+            "cooccurrenceMultiplied", NumericFeature.class);
+    // private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_ADD = FeatureDescriptorBuilder.build(
+    // "cooccurrenceSummed", NumericFeature.class);
     private static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
             NominalFeature.class);
 
@@ -82,14 +88,42 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         classifier = createClassifier();
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
-        
+
         stemmer = new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY);
 
         pipeline1 = new PerformanceCheckProcessingPipeline();
         pipeline1.add(new RegExTokenizer());
+        pipeline1.add(new LingPipePosTagger(LING_PIPE_POS_MODEL));
+        
+        // abbreviate the POS tags, e.g. NNS = N
+        pipeline1.add(new PipelineProcessor() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void process(PipelineDocument document) throws DocumentUnprocessableException {
+                List<Annotation> annotations = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR).getValue();
+                for (Annotation annotation : annotations) {
+                    FeatureVector featureVector = annotation.getFeatureVector();
+                    NominalFeature posFeature = featureVector.get(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
+                    String abbreviatedPosTag = posFeature.getValue().substring(0, 1);
+                    featureVector.add(new NominalFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR, abbreviatedPosTag));
+                }
+            }
+        });
         pipeline1.add(new StopTokenRemover(Language.ENGLISH));
         pipeline1.add(stemmer);
         // pipeline1.add(new AdditionalFeatureExtractor());
+        // further features to consider:
+        // startsUppercase
+        // completeUppercase
+        // containsNumbers
+        // containsSpecialCharacters
+        // isNumber
+        // caseSignature
+        // previousStopword, nextStopword, ...
+        // NER
+        // isInBrackets
+        // isInQuotes
+        // positionInSentence (begin|middle|end)
         pipeline1.add(new LengthTokenRemover(4));
         pipeline1.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         pipeline1.add(new NGramCreator2(3));
@@ -118,7 +152,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 }
             }
         });
-        
+
         // co-occurrence annotation
         pipeline2.add(new PipelineProcessor() {
             private static final long serialVersionUID = 1L;
@@ -131,8 +165,9 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 // pre initialize the co-occurrence feature
                 for (Annotation annotation : annotations) {
                     FeatureVector featureVector = annotation.getFeatureVector();
-                    if (featureVector.get(COOCCURRENCE) == null) {
-                        featureVector.add(new NumericFeature(COOCCURRENCE, 1.));
+                    if (featureVector.get(COOCCURRENCE_MULT) == null) {
+                        featureVector.add(new NumericFeature(COOCCURRENCE_MULT, 1.));
+                        // featureVector.add(new NumericFeature(COOCCURRENCE_ADD, 0.));
                     }
                 }
                 for (int i = 0; i < annotations.size(); i++) {
@@ -147,8 +182,10 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                         }
                         double prob = cooccurrenceMatrix.getConditionalProbabilityLaplace(annotation1value,
                                 annotation2Value);
-                        annotation1fv.add(new NumericFeature(COOCCURRENCE, annotation1fv.get(COOCCURRENCE).getValue()
-                                * prob));
+                        annotation1fv.add(new NumericFeature(COOCCURRENCE_MULT, annotation1fv.get(COOCCURRENCE_MULT)
+                                .getValue() * prob));
+                        // annotation1fv.add(new NumericFeature(COOCCURRENCE_ADD, annotation1fv.get(COOCCURRENCE_ADD)
+                        // .getValue() + Math.log(prob)));
                     }
                 }
             }
@@ -250,6 +287,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         this.cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
         super.reset();
+        System.out.println("reset the classifier");
     }
 
     private Predictor<String> createClassifier() {
@@ -298,28 +336,27 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     }
 
     private void markCandidates(AnnotationFeature annotationFeature, Set<String> keywords) {
-        Set<String> temp = new HashSet<String>();
+        Set<String> modifiedKeyowrds = new HashSet<String>();
         // try to match multiple different variants
-        for (String k : keywords) {
-            temp.add(k.toLowerCase().trim());
-            temp.add(k.toLowerCase().trim().replace("\\s", ""));
-            temp.add(stem(k.toLowerCase()).trim());
-            temp.add(stem(k.toLowerCase()).trim().replace("\\s", ""));
+        for (String keyword : keywords) {
+            modifiedKeyowrds.add(keyword.toLowerCase().trim());
+            modifiedKeyowrds.add(keyword.toLowerCase().trim().replace("\\s", ""));
+            modifiedKeyowrds.add(stem(keyword.toLowerCase()).trim());
+            modifiedKeyowrds.add(stem(keyword.toLowerCase()).trim().replace("\\s", ""));
         }
-        keywords = temp;
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
             String unstemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
 
-            boolean isKeyword = keywords.contains(stemmedValue);
-            isKeyword |= keywords.contains(stemmedValue.toLowerCase());
-            isKeyword |= keywords.contains(stemmedValue.replace(" ", ""));
-            isKeyword |= keywords.contains(stemmedValue.toLowerCase().replace(" ", ""));
-            isKeyword |= keywords.contains(unstemmedValue);
-            isKeyword |= keywords.contains(unstemmedValue.toLowerCase());
-            isKeyword |= keywords.contains(unstemmedValue.replace(" ", ""));
-            isKeyword |= keywords.contains(unstemmedValue.toLowerCase().replace(" ", ""));
+            boolean isKeyword = modifiedKeyowrds.contains(stemmedValue);
+            isKeyword |= modifiedKeyowrds.contains(stemmedValue.toLowerCase());
+            isKeyword |= modifiedKeyowrds.contains(stemmedValue.replace(" ", ""));
+            isKeyword |= modifiedKeyowrds.contains(stemmedValue.toLowerCase().replace(" ", ""));
+            isKeyword |= modifiedKeyowrds.contains(unstemmedValue);
+            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.toLowerCase());
+            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.replace(" ", ""));
+            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.toLowerCase().replace(" ", ""));
             NominalFeature isKeywordFeature = new NominalFeature(IS_KEYWORD, String.valueOf(isKeyword));
             annotation.getFeatureVector().add(isKeywordFeature);
         }

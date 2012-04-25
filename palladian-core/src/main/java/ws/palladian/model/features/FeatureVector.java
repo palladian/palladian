@@ -36,7 +36,8 @@ public class FeatureVector {
 
     /**
      * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector}.
+     * Adds a new {@code Feature} to this {@code FeatureVector}. If a feature with this identifier already exists, it
+     * will be replaced by the supplied one.
      * </p>
      * 
      * @param identifier
@@ -52,7 +53,8 @@ public class FeatureVector {
 
     /**
      * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector}.
+     * Adds a new {@code Feature} to this {@code FeatureVector}. If a feature with this identifier already exists, it
+     * will be replaced by the supplied one.
      * </p>
      * 
      * @param newFeature

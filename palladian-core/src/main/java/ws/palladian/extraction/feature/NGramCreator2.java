@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -98,12 +99,16 @@ public class NGramCreator2 implements PipelineProcessor {
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
             AnnotationGroup gramToken = new AnnotationGroup(document);
+            // FIXME those extra processing steps should go to their own NGramPostprocessorAnnotator
             List<String> unstems = new ArrayList<String>();
+            List<String> posTags = new ArrayList<String>();
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
                 unstems.add(tokensArray[j].getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
+                posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
             }
             gramToken.getFeatureVector().add(new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
+            gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR, StringUtils.join(posTags, "")));
             if (isConsecutive(gramToken)) {
                 gramTokens.add(gramToken);
             }
