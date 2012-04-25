@@ -10,8 +10,10 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.NumericFeature;
 
-public class BayesClassifierTest {
+public class NaiveBayesClassifierTest {
 
     @Test
     public void testBayesClassifierNominal() throws FileNotFoundException {
@@ -117,6 +119,76 @@ public class BayesClassifierTest {
 
         assertEquals(0.944, MathHelper.round(newInstance.getMainCategoryEntry().getRelevance(), 3), 0);
         assertEquals("Case", newInstance.getMainCategoryEntry().getCategory().getName());
+    }
+    /**
+     * TODO duplicated code of {@link #testBayesClassifierNumeric()} with new API. Remove later.
+     */
+    @Test
+    public void testBayesClassifierNumericNewApi() {
+        
+        Predictor<String> bc = new NaiveBayesClassifier();
+        List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
+        
+        Instance2<String> instance = new Instance2<String>();
+        FeatureVector featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 3.0));
+        instance.featureVector = featureVector;
+        instance.target = "Case";
+        instances.add(instance);
+        
+        instance = new Instance2<String>();
+        featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 6.0));
+        instance.featureVector = featureVector;
+        instance.target = "Case";
+        instances.add(instance);
+        
+        instance = new Instance2<String>();
+        featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 20.));
+        instance.featureVector = featureVector;
+        instance.target = "Case";
+        instances.add(instance);
+        
+        instance = new Instance2<String>();
+        featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 18.));
+        instance.featureVector = featureVector;
+        instance.target = "Phone";
+        instances.add(instance);
+        
+        instance = new Instance2<String>();
+        featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 66.));
+        instance.featureVector = featureVector;
+        instance.target = "Phone";
+        instances.add(instance);
+        
+        instance = new Instance2<String>();
+        featureVector = new FeatureVector();
+        featureVector.add(new NumericFeature("f", 290.));
+        instance.featureVector = featureVector;
+        instance.target = "Phone";
+        instances.add(instance);
+        
+        bc.learn(instances);
+        
+        // test saving and loading
+        //bc.setName("testBayesClassifier");
+        //bc.save("data/temp/");
+        //NaiveBayesClassifier loadedBC = NaiveBayesClassifier.load("data/temp/testBayesClassifier.gz");
+        
+        // create an instance to classify
+        Instance2<String> classificationInstance = new Instance2<String>();
+        FeatureVector classificationFeatureVector = new FeatureVector();
+        classificationFeatureVector.add(new NumericFeature("f", 16.));
+        classificationInstance.featureVector = classificationFeatureVector;
+        CategoryEntries prediction = bc.predict(classificationFeatureVector);
+        
+        //System.out.println(prediction.getMostLikelyCategoryEntry());
+        
+        assertEquals(0.944, MathHelper.round(prediction.getMostLikelyCategoryEntry().getRelevance(), 3), 0);
+        assertEquals("Case", prediction.getMostLikelyCategoryEntry().getCategory().getName());
     }
 
 }

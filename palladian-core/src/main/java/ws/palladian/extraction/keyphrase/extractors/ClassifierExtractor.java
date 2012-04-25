@@ -13,13 +13,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import weka.classifiers.meta.Bagging;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance2;
-import ws.palladian.classification.NaiveBayesClassifier;
 import ws.palladian.classification.Predictor;
-import ws.palladian.classification.WordCorrelation;
-import ws.palladian.classification.WordCorrelationMatrix;
+import ws.palladian.classification.WekaPredictor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
@@ -39,6 +38,7 @@ import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
+import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
@@ -53,37 +53,47 @@ import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
 
 public class ClassifierExtractor extends KeyphraseExtractor {
-    
+
     private final ProcessingPipeline pipeline1;
     private final ProcessingPipeline pipeline2;
     private final TermCorpus termCorpus;
     private final TermCorpus assignedTermCorpus;
     private final Map<PipelineDocument, Set<String>> trainDocuments;
+
     private Predictor<String> classifier;
-    private WordCorrelationMatrix correlationMatrix;
+    private CooccurrenceMatrix<String> cooccurrenceMatrix;
     private int trainCount;
     private final StemmerAnnotator stemmer;
-    
+
     private static final int TRAIN_DOC_LIMIT = 20;
-    
-    private static final FeatureDescriptor<NumericFeature> PRIOR = FeatureDescriptorBuilder.build("keyphraseness", NumericFeature.class);
-    private static final FeatureDescriptor<NumericFeature> COR1 = FeatureDescriptorBuilder.build("cor1", NumericFeature.class);
-    private static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword", NominalFeature.class);
-    
+    // private static final int TRAIN_DOC_LIMIT = 50;
+
+    private static final FeatureDescriptor<NumericFeature> PRIOR = FeatureDescriptorBuilder.build("keyphraseness",
+            NumericFeature.class);
+    private static final FeatureDescriptor<NumericFeature> COOCCURRENCE = FeatureDescriptorBuilder.build(
+            "cooccurrence", NumericFeature.class);
+    private static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
+            NominalFeature.class);
+
     public ClassifierExtractor() {
         termCorpus = new TermCorpus();
         assignedTermCorpus = new TermCorpus();
+        trainDocuments = new HashMap<PipelineDocument, Set<String>>();
+        classifier = createClassifier();
+        cooccurrenceMatrix = new CooccurrenceMatrix<String>();
+        trainCount = 0;
+        
         stemmer = new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY);
 
         pipeline1 = new PerformanceCheckProcessingPipeline();
         pipeline1.add(new RegExTokenizer());
         pipeline1.add(new StopTokenRemover(Language.ENGLISH));
         pipeline1.add(stemmer);
-        //pipeline1.add(new AdditionalFeatureExtractor());
+        // pipeline1.add(new AdditionalFeatureExtractor());
         pipeline1.add(new LengthTokenRemover(4));
         pipeline1.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         pipeline1.add(new NGramCreator2(3));
-        
+
         pipeline1.add(new TokenMetricsCalculator());
         pipeline1.add(new PhrasenessAnnotator());
         pipeline1.add(new DuplicateTokenRemover());
@@ -91,63 +101,65 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         pipeline2 = new ProcessingPipeline();
         pipeline2.add(new IdfAnnotator(termCorpus));
         pipeline2.add(new TfIdfAnnotator());
-        
+
         // keyphraseness annotation; i.e. the "prior probability" of a keyphrase occurrence in the training corpus
         pipeline2.add(new PipelineProcessor() {
             private static final long serialVersionUID = 1L;
+
             @Override
             public void process(PipelineDocument document) {
                 FeatureVector featureVector = document.getFeatureVector();
                 AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 for (Annotation annotation : annotations) {
-                    double prior = (double)assignedTermCorpus.getCount(annotation.getValue())/assignedTermCorpus.getNumDocs();
+                    double prior = (double)assignedTermCorpus.getCount(annotation.getValue())
+                            / assignedTermCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature(PRIOR, prior));
                 }
             }
         });
+        
+        // co-occurrence annotation
         pipeline2.add(new PipelineProcessor() {
             private static final long serialVersionUID = 1L;
+
             @Override
             public void process(PipelineDocument document) {
-                AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                AnnotationFeature annotationFeature = document.getFeatureVector().get(
+                        TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
-                // avoid nulls
-                for (int i = 0; i < annotations.size(); i++) {
-                    FeatureVector fv = annotations.get(i).getFeatureVector();
-                    if (fv.get(COR1)==null){
-                        fv.add(new NumericFeature(COR1, 0.));
+                // pre initialize the co-occurrence feature
+                for (Annotation annotation : annotations) {
+                    FeatureVector featureVector = annotation.getFeatureVector();
+                    if (featureVector.get(COOCCURRENCE) == null) {
+                        featureVector.add(new NumericFeature(COOCCURRENCE, 1.));
                     }
                 }
                 for (int i = 0; i < annotations.size(); i++) {
-                    for (int j = i; j < annotations.size(); j++) {
-                        Annotation a1 = annotations.get(i);
-                        Annotation a2 = annotations.get(j);
-                        WordCorrelation correlation = correlationMatrix.getCorrelation(a1.getValue(), a2.getValue());
-                        if (correlation == null) {
+                    Annotation annotation1 = annotations.get(i);
+                    FeatureVector annotation1fv = annotation1.getFeatureVector();
+                    String annotation1value = annotation1.getValue();
+                    for (int j = 0; j < annotations.size(); j++) {
+                        Annotation annotation2 = annotations.get(j);
+                        String annotation2Value = annotation2.getValue();
+                        if (annotation1value.equals(annotation2Value)) {
                             continue;
                         }
-                        FeatureVector a1Fv = a1.getFeatureVector();
-                        FeatureVector a2Fv = a2.getFeatureVector();
-                        double relCor = correlation.getRelativeCorrelation();
-                        a1Fv.add(new NumericFeature(COR1, a1Fv.get(COR1).getValue() + relCor));
-                        a2Fv.add(new NumericFeature(COR1, a2Fv.get(COR1).getValue() + relCor));
+                        double prob = cooccurrenceMatrix.getConditionalProbabilityLaplace(annotation1value,
+                                annotation2Value);
+                        annotation1fv.add(new NumericFeature(COOCCURRENCE, annotation1fv.get(COOCCURRENCE).getValue()
+                                * prob));
                     }
                 }
             }
         });
-        trainDocuments = new HashMap<PipelineDocument,Set<String>>();
-        classifier = createClassifier();
-        correlationMatrix = new WordCorrelationMatrix();
-        trainCount = 0;
     }
 
     @Override
     public boolean needsTraining() {
         return true;
     }
-    
-    
+
     @Override
     public void train(String inputText, Set<String> keyphrases) {
         PipelineDocument document = new PipelineDocument(inputText);
@@ -169,15 +181,14 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             trainDocuments.put(document, keyphrases);
         }
         trainCount++;
-        correlationMatrix.updateGroup(keyphrases);
+        cooccurrenceMatrix.addAll(keyphrases);
     }
-    
+
     @Override
     public void endTraining() {
         System.out.println(pipeline1.toString());
         System.out.println("finished training, # train docs: " + trainDocuments.size());
         System.out.println("calc. wcm ...");
-        correlationMatrix.makeRelativeScores();
         System.out.println("finished wcm.");
         List<Annotation> annotations = new ArrayList<Annotation>();
         Iterator<Entry<PipelineDocument, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
@@ -190,15 +201,16 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             } catch (DocumentUnprocessableException e) {
                 throw new IllegalStateException(e);
             }
-            AnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+            AnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
+                    TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
             markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature.getValue());
             trainDocIterator.remove();
         }
         System.out.println("# annotations: " + annotations.size());
         // writeData(annotations, new File("data.csv"));
-        int posSamples=0;
-        int negSamples=0;
+        int posSamples = 0;
+        int negSamples = 0;
         List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
@@ -228,21 +240,26 @@ public class ClassifierExtractor extends KeyphraseExtractor {
 
     @Override
     public void reset() {
+        //
+        // make sure to reset/re-initialize all instance variables here, to allow a clean new run.
+        //
         this.trainDocuments.clear();
         this.termCorpus.reset();
-        this.classifier=createClassifier();
+        this.assignedTermCorpus.reset();
+        this.classifier = createClassifier();
+        this.cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
         super.reset();
     }
 
     private Predictor<String> createClassifier() {
-        //return new WekaPredictor(new NaiveBayes());
-        //return new WekaPredictor(new Bagging());
-        //return new DecisionTreeClassifier();
-        return new NaiveBayesClassifier();
+        // return new WekaPredictor(new NaiveBayes());
+        return new WekaPredictor(new Bagging());
+        // return new DecisionTreeClassifier();
+        // return new NaiveBayesClassifier();
     }
 
-    private void writeData(List<Annotation> annotations, File outputCsvFile) {
+    public static void writeData(List<Annotation> annotations, File outputCsvFile) {
         System.out.println("writing data to " + outputCsvFile);
         if (outputCsvFile.exists()) {
             System.out.println("output file exists ... deleting.");
@@ -259,7 +276,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         }
         String headerLine = StringUtils.join(featureNames, ";");
         FileHelper.appendFile(outputCsvFile.getAbsolutePath(), headerLine + "\n");
-        
+
         // get values
         int progress = 0;
         for (Annotation annotation : annotations) {
@@ -294,11 +311,11 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         for (Annotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
             String unstemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
-            
+
             boolean isKeyword = keywords.contains(stemmedValue);
             isKeyword |= keywords.contains(stemmedValue.toLowerCase());
             isKeyword |= keywords.contains(stemmedValue.replace(" ", ""));
-            isKeyword |= keywords.contains(stemmedValue.toLowerCase().replace(" ",""));
+            isKeyword |= keywords.contains(stemmedValue.toLowerCase().replace(" ", ""));
             isKeyword |= keywords.contains(unstemmedValue);
             isKeyword |= keywords.contains(unstemmedValue.toLowerCase());
             isKeyword |= keywords.contains(unstemmedValue.replace(" ", ""));
@@ -307,7 +324,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             annotation.getFeatureVector().add(isKeywordFeature);
         }
     }
-    
+
     private String stem(String string) {
         List<String> stems = new ArrayList<String>();
         for (String s : string.split("\\s")) {
@@ -325,7 +342,8 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (Annotation annotation : annotations) {
