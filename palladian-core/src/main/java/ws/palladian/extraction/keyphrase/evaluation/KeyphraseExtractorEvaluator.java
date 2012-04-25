@@ -142,8 +142,8 @@ public class KeyphraseExtractorEvaluator {
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
         evaluator.addExtractor(keyphraseExtractor);
          Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"), "#");
-       // Dataset2 dataset = DatasetHelper.loadDataset(new File(
-       //         "/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"), "#");
+        //Dataset2 dataset = DatasetHelper.loadDataset(new File(
+        //        "/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"), "#");
         evaluator.evaluate(keyphraseExtractor, dataset, 2);
     }
 

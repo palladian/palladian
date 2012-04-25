@@ -12,6 +12,11 @@ import ws.palladian.helper.Cache;
 import ws.palladian.model.features.Annotation;
 
 /**
+ * <p>
+ * <a href="http://opennlp.apache.org/">Apache OpenNLP</a> based POS tagger.
+ * </p>
+ * 
+ * @see <a href="http://opennlp.sourceforge.net/models-1.5/">Download</a> page for models.
  * @author Martin Wunderwald
  * @author Philipp Katz
  */
@@ -31,7 +36,7 @@ public final class OpenNlpPosTagger extends BasePosTagger {
 
     private POSTagger loadModel(File modelFile) {
         String modelPath = modelFile.getAbsolutePath();
-        POSTagger model = (POSTagger) Cache.getInstance().getDataObject(modelPath);
+        POSTagger model = (POSTagger)Cache.getInstance().getDataObject(modelPath);
         if (model == null) {
             try {
                 model = new POSTaggerME(new POSModel(new FileInputStream(modelFile)));
@@ -43,7 +48,6 @@ public final class OpenNlpPosTagger extends BasePosTagger {
         }
         return model;
     }
-
 
     @Override
     public void tag(List<Annotation> annotations) {
