@@ -3,7 +3,6 @@ package ws.palladian.classification;
 import java.util.List;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.meta.Bagging;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;

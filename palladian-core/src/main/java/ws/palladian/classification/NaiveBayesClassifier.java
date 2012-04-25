@@ -13,10 +13,8 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
-import ws.palladian.model.features.ClassificationFeatureVector;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NumericFeature;
 
 /**
  * <p>
@@ -73,14 +71,14 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
     public final CategoryEntries classify(FeatureVector fv) {
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
         
-        UniversalInstance universalInstance = createUv(fv, instances);
+        UniversalInstance universalInstance = createUniversalInstnace(fv, instances);
         
         classify(universalInstance);
         
         return universalInstance.getAssignedCategoryEntries();
     }
 
-    private UniversalInstance createUv(FeatureVector fv, Instances<UniversalInstance> instances) {
+    private UniversalInstance createUniversalInstnace(FeatureVector fv, Instances<UniversalInstance> instances) {
         UniversalInstance universalInstance = new UniversalInstance(instances);
         
         //Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
@@ -420,16 +418,13 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
     @Override
     public void learn(List<Instance2<String>> instances) {
         Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
-        for (Instance2<String> i : instances) {
-            UniversalInstance uv = createUv(i.featureVector, trainingInstances);
-            trainingInstances.add(uv);
-            uv.setInstanceCategory(i.target);
+        for (Instance2<String> instance : instances) {
+            UniversalInstance universalInstance = createUniversalInstnace(instance.featureVector, trainingInstances);
+            trainingInstances.add(universalInstance);
+            universalInstance.setInstanceCategory(instance.target);
         }
-        System.out.println("addingTi");
         addTrainingInstances(trainingInstances);
-        System.out.println("training");
         train();
-        // FIXME        
     }
 
     @Override
