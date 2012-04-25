@@ -84,9 +84,9 @@ public class KeyphraseExtractorEvaluator {
                 for (String real : stemmedRealKeyphrases) {
 
                     boolean correct = real.equalsIgnoreCase(assigned.getValue());
-                    correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
-                    correct = correct || real.equalsIgnoreCase(stem(assigned.getValue()));
-                    correct = correct || real.equalsIgnoreCase(stem(assigned.getValue().replace(" ", "")));
+                    correct |= real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
+                    correct |= real.equalsIgnoreCase(stem(assigned.getValue()));
+                    correct |= real.equalsIgnoreCase(stem(assigned.getValue().replace(" ", "")));
                     if (correct) {
                         correctCount++;
                         break; // inner loop

@@ -1,8 +1,5 @@
 package ws.palladian.model.features;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ws.palladian.extraction.PipelineDocument;
 
 /**
@@ -105,12 +102,13 @@ public final class PositionAnnotation extends Annotation {
         // as the original String from the document might never get GC'ed, as long
         // as we keep its Tokens in memory
         // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-//        this(document, viewName, startPosition, endPosition, index, new String(document.getOriginalContent().substring(
-//                startPosition, endPosition)));
-        // XXX
+        // this(document, viewName, startPosition, endPosition, index, new String(document.getOriginalContent().substring(startPosition, endPosition)));
+        
+        // after further consideration, I think this does not make sense; an Annotation is conceptually inherently tied
+        // to its document, so we point to the document's string. If there should be a use case of keeping position
+        // annotations without the document, we might think about some "detach" method here, but currently I don't see
+        // the need.
         this(document, viewName, startPosition, endPosition, index, document.getOriginalContent().substring(startPosition, endPosition));
-        // TODO would it make sense to use String#intern() here?
-//        this(document, viewName, startPosition, endPosition, index, document.getOriginalContent().substring(startPosition, endPosition).intern());
     }
 
     /**

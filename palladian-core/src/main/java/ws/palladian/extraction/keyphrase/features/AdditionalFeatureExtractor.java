@@ -2,6 +2,8 @@ package ws.palladian.extraction.keyphrase.features;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.feature.StopTokenRemover;
@@ -19,7 +21,7 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
 
     private static final long serialVersionUID = 1L;
     
-    private final StopTokenRemover stopwords = new StopTokenRemover(Language.ENGLISH);
+    private final StopTokenRemover stopwords;
     
     final FeatureDescriptor<NominalFeature> STARTS_UPPERCASE = FeatureDescriptorBuilder.build("startsUppercase", NominalFeature.class);
     final FeatureDescriptor<NominalFeature> COMPLETE_UPPERCASE = FeatureDescriptorBuilder.build("completelyUppercase", NominalFeature.class);
@@ -37,26 +39,29 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
     final FeatureDescriptor<NominalFeature> PREV_CASE_SIGNATURE = FeatureDescriptorBuilder.build("prevCaseSignature", NominalFeature.class);
     final FeatureDescriptor<NominalFeature> NEXT_CASE_SIGNATURE = FeatureDescriptorBuilder.build("nextCaseSignature", NominalFeature.class);
     
+    public AdditionalFeatureExtractor(Language language) {
+        this.stopwords =  new StopTokenRemover(Language.ENGLISH);
+    }    
+    
     
 
     @Override
     public void process(PipelineDocument document) {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
             Annotation annotation = annotations.get(i);
+            FeatureVector featureVector = annotation.getFeatureVector();
             String value = annotation.getValue();
             
             Boolean startsUppercase = Character.isUpperCase(value.charAt(0));
-            Boolean completeUppercase = isCompletelyUppercase(value);
+            Boolean completeUppercase = StringUtils.isAllUpperCase(value);
             Boolean containsNumbers = containsNumber(value);
-            Boolean isNumber = isNumber(value);
-            FeatureVector annotationFv = annotation.getFeatureVector();
-            annotationFv.add(new NominalFeature(STARTS_UPPERCASE, startsUppercase.toString()));
-            annotationFv.add(new NominalFeature(COMPLETE_UPPERCASE, completeUppercase.toString()));
-            annotationFv.add(new NominalFeature(CONTAINS_NUMBERS, containsNumbers.toString()));
-            annotationFv.add(new NominalFeature(IS_NUMBER, isNumber.toString()));
+            Boolean isNumber = StringUtils.isNumeric(value);
+            featureVector.add(new NominalFeature(STARTS_UPPERCASE, startsUppercase.toString()));
+            featureVector.add(new NominalFeature(COMPLETE_UPPERCASE, completeUppercase.toString()));
+            featureVector.add(new NominalFeature(CONTAINS_NUMBERS, containsNumbers.toString()));
+            featureVector.add(new NominalFeature(IS_NUMBER, isNumber.toString()));
             
             // previous token
             Boolean previousStopword = false;
@@ -77,31 +82,20 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
                 nextStartsUppercase = Character.isUpperCase(nextToken.charAt(0));
                 nextCaseSignature = StringHelper.getCaseSignature(nextToken);
             }
-            annotationFv.add(new NominalFeature(PREVIOUS_STOPWORD, previousStopword.toString()));
-            annotationFv.add(new NominalFeature(NEXT_STOPWORD, nextStopword.toString()));
-            annotationFv.add(new NominalFeature(PREVIOUS_STARTS_UPPERCASE, previousStartsUppercase.toString()));
-            annotationFv.add(new NominalFeature(NEXT_STARTS_UPPERCASE, nextStartsUppercase.toString()));
+            featureVector.add(new NominalFeature(PREVIOUS_STOPWORD, previousStopword.toString()));
+            featureVector.add(new NominalFeature(NEXT_STOPWORD, nextStopword.toString()));
+            featureVector.add(new NominalFeature(PREVIOUS_STARTS_UPPERCASE, previousStartsUppercase.toString()));
+            featureVector.add(new NominalFeature(NEXT_STARTS_UPPERCASE, nextStartsUppercase.toString()));
             
             String caseSignature = StringHelper.getCaseSignature(value);
-            annotationFv.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
-            annotationFv.add(new NominalFeature(PREV_CASE_SIGNATURE, previousCaseSignature));
-            annotationFv.add(new NominalFeature(NEXT_CASE_SIGNATURE, nextCaseSignature));
+            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
+            featureVector.add(new NominalFeature(PREV_CASE_SIGNATURE, previousCaseSignature));
+            featureVector.add(new NominalFeature(NEXT_CASE_SIGNATURE, nextCaseSignature));
         }
-//        for (Annotation annotation : annotations) {
-//        }
     }
 
-    private boolean isStopword(String value) {
-        return stopwords.isStopword(value.toLowerCase());
-    }
-
-    public static boolean isCompletelyUppercase(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if (!Character.isUpperCase(string.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isStopword(String string) {
+        return stopwords.isStopword(string.toLowerCase());
     }
     public static boolean containsNumber(String string) {
         for (int i = 0; i < string.length(); i++) {
@@ -111,13 +105,4 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
         }
         return false;
     }
-    public static boolean isNumber(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if (!Character.isDigit(string.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }

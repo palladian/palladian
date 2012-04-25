@@ -2,7 +2,9 @@ package ws.palladian.extraction.keyphrase.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,31 +31,24 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 
 /**
- * <p>This class converts various datasets to our Palladian internal format.</p>
+ * <p>This class converts various datasets to the Palladian internal dataset format.</p>
  * 
  * @author Philipp Katz
  * 
  */
-public class DatasetWriter {
+public class DatasetConverter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetWriter.class);
-
-    public static void main(String[] args) throws Exception {
-
-        createCiteULike(
-               new File("/Users/pk/Desktop/citeulike180/taggers"),
-                new File("/Users/pk/Desktop/citeulike180index.txt"));
-        // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
-        
-        
-        
-        // createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
-        // createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
-
-    }
+    private static final Logger LOGGER = Logger.getLogger(DatasetConverter.class);
+    
+    /** The new line character used when writing files. */
+    private static final char NEWLINE = '\n';
+    
+    /** The character for separating file name and individual key phrases. */
+    private static final char SEPARATOR = '#';
 
     public static void createCiteULike(File taggerDirectory, File indexOutput) throws IOException {
         Factory<Bag<String>> factory = new Factory<Bag<String>>() {
@@ -62,13 +57,13 @@ public class DatasetWriter {
                 return new HashBag<String>();
             }
         };
-        Map<String, Bag<String>> filenameTags = LazyMap.decorate(new TreeMap<String, Bag<String>>(), factory);
+        Map<String, Bag<String>> filenameKeyphrases = LazyMap.decorate(new TreeMap<String, Bag<String>>(), factory);
 
         Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
         for (File tagFile : tagFiles) {
             List<String> tags = FileUtils.readLines(tagFile);
             String filename = tagFile.getName().replace(".tags", ".txt");
-            Bag<String> documentTags = filenameTags.get(filename);
+            Bag<String> documentTags = filenameKeyphrases.get(filename);
             for (String tag : tags) {
                 if (tag.length() > 0) {
                     // some .tag files in the dataset contain junk,
@@ -85,12 +80,36 @@ public class DatasetWriter {
         // write index file
         StringBuilder builder = new StringBuilder();
 
-        for (Entry<String, Bag<String>> entry : filenameTags.entrySet()) {
-            builder.append(entry.getKey()).append("#");
-            builder.append(StringUtils.join(entry.getValue().uniqueSet(), "#"));
-            builder.append("\n");
+        for (Entry<String, Bag<String>> entry : filenameKeyphrases.entrySet()) {
+            builder.append(entry.getKey()).append(SEPARATOR);
+            builder.append(StringUtils.join(entry.getValue().uniqueSet(), SEPARATOR));
+            builder.append(NEWLINE);
         }
         FileUtils.write(indexOutput, builder);
+    }
+    
+    public static void createSemEval2010(File keyphraseFileInput, File indexFileOutput) throws IOException {
+        final Map<String,Set<String>> filenameKeyphrases = new HashMap<String,Set<String>>();
+        FileHelper.performActionOnEveryLine(keyphraseFileInput.getAbsolutePath(), new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                Set<String> keyphrases = new HashSet<String>();
+                String[] split = line.split(" : ");
+                    String[] split2 = split[1].split(",");
+                    for (String s : split2) {
+                        keyphrases.addAll(Arrays.asList(s.split("\\+")));
+                    }
+                String filename = split[0].concat(".txt.final");
+                filenameKeyphrases.put(filename,keyphrases);
+            }
+        });
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Entry<String, Set<String>> entry : filenameKeyphrases.entrySet()) {
+            stringBuilder.append(entry.getKey()).append(SEPARATOR);
+            stringBuilder.append(StringUtils.join(entry.getValue(), SEPARATOR));
+            stringBuilder.append(NEWLINE);
+        }
+        FileUtils.write(indexFileOutput, stringBuilder);
     }
 
     public static void createFAO(String pathToRawFiles, String resultFile) {
@@ -104,9 +123,9 @@ public class DatasetWriter {
             List<String> keywords = FileHelper.readFileToArray(pathToRawFiles + "/" + keyFile);
 
             sb.append(keyFile.replace(".key", ".txt"));
-            sb.append("#");
-            sb.append(StringUtils.join(keywords, "#"));
-            sb.append("\n");
+            sb.append(SEPARATOR);
+            sb.append(StringUtils.join(keywords, SEPARATOR));
+            sb.append(NEWLINE);
 
         }
 
@@ -214,7 +233,7 @@ public class DatasetWriter {
                     StringBuilder lineToWrite = new StringBuilder();
                     lineToWrite.append(pathToSubdirectory.replace(".html", ".txt")).append(SEPARATOR_CHARACTER);
                     lineToWrite.append(StringUtils.join(tags, SEPARATOR_CHARACTER));
-                    lineToWrite.append("\n");
+                    lineToWrite.append(NEWLINE);
 
                     FileHelper.appendFile(pathToIndexFile, lineToWrite);
 
@@ -258,6 +277,19 @@ public class DatasetWriter {
 
         LOGGER.info("done. wrote " + acceptCounter + " lines to " + pathToIndexFile);
 
+    }
+    
+    public static void main(String[] args) throws Exception {
+
+        createCiteULike(
+               new File("/Users/pk/Desktop/citeulike180/taggers"),
+                new File("/Users/pk/Desktop/citeulike180index.txt"));
+        
+        createSemEval2010(new File("/Users/pk/Desktop/SemEval2010/train/train.combined.final"), new File("/Users/pk/Desktop/semEvalTrainCombinedIndex.txt"));
+
+        // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
+        // createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
+        // createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
     }
 
 }

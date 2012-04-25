@@ -3,8 +3,9 @@ package ws.palladian.extraction.keyphrase.extractors;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,97 +14,119 @@ import quickdt.Instance;
 import quickdt.Leaf;
 import quickdt.Node;
 import quickdt.TreeBuilder;
+import ws.palladian.classification.Category;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Instance2;
+import ws.palladian.classification.Predictor;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
 
-import com.google.common.collect.Sets;
+/**
+ * <p>
+ * A Decision Tree classifier based on <a href="https://github.com/sanity/quickdt">quickdt</a>.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public final class DecisionTreeClassifier implements Predictor<String> {
 
-public class DecisionTreeClassifier {
-    
-    private final String classColumn;
-    final Set<Instance> instances = Sets.newHashSet();
+    private final int maxDepth;
+
+    private final double minProbability;
+
+    private final Set<Instance> trainingInstances;
+
     private Node tree;
 
-    public DecisionTreeClassifier(String classColumn) {
-        this.classColumn = classColumn;
-    }
-    
-    public void train(FeatureVector fv) {
-        Feature<?>[] fvValueArray = fv.toArray();
-        List<Serializable> atts = getAtts(fvValueArray);
-        Serializable cls = (Serializable)fv.get(classColumn).getValue();
-        if (cls == null) {
-            throw new IllegalStateException("class is mssing");
-        }
-        Serializable[] a = atts.toArray(new Serializable[0]);
-        Instance instance = Attributes.create(a).classification(cls);
-        instances.add(instance);
+    /**
+     * <p>
+     * Create a new DecisionTreeClassifier with the specified maximum depth and the minimum probability.
+     * </p>
+     * 
+     * @param maxDepth The maximum depth for the created decision tree.
+     * @param minProbability The minimum probability in the created decision tree.
+     */
+    public DecisionTreeClassifier(int maxDepth, double minProbability) {
+        this.maxDepth = maxDepth;
+        this.minProbability = minProbability;
+        this.trainingInstances = new HashSet<Instance>();
     }
 
-    private List<Serializable> getAtts(Feature<?>[] fvValueArray) {
-        List<Serializable> atts = new ArrayList<Serializable>();
-        for (Feature<?> feature : fvValueArray) {
-            String fName = feature.getName();
-            Serializable fValue = (Serializable)feature.getValue();
-            if (fName.equals(classColumn)) {
-                continue;
-            }
-            atts.add(fName);
-            atts.add(fValue);
+    /**
+     * <p>
+     * Create a new DecisionTreeClassifier with unlimited ({@link Integer#MAX_VALUE}) size and minimum probability of 1.
+     * </p>
+     */
+    public DecisionTreeClassifier() {
+        this(Integer.MAX_VALUE, 1);
+    }
+
+    @Override
+    public void learn(List<Instance2<String>> instances) {
+        for (Instance2<String> instance2 : instances) {
+            addTrainingInstance(instance2);
         }
-        return atts;
+        build();
     }
-    
-    public void build() {
-        tree = new TreeBuilder().buildTree(instances);
+
+    private void addTrainingInstance(Instance2<String> instance) {
+        Serializable[] input = getInput(instance.featureVector);
+        trainingInstances.add(Attributes.create(input).classification(instance.target));
     }
-    
-    public void build2() {
-        tree = new TreeBuilder().buildTree(instances, 20, 1);
-    }
-    
-    
-    public Serializable classify(FeatureVector fv) {
-        if (tree == null) {
-            throw new IllegalStateException();
+
+    private Serializable[] getInput(FeatureVector featureVector) {
+        List<Serializable> inputs = new ArrayList<Serializable>();
+        for (Feature<?> feature : featureVector.toArray()) {
+            String featureName = feature.getName();
+            Serializable featureValue = (Serializable)feature.getValue();
+            inputs.add(featureName);
+            inputs.add(featureValue);
         }
-        List<Serializable> atts = getAtts(fv.toArray());
-        Attributes attributes = Attributes.create(atts.toArray(new Serializable[0]));
-        
-        return tree.getLeaf(attributes).classification;
+        return inputs.toArray(new Serializable[inputs.size()]);
     }
-    
+
+    private void build() {
+        tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
+    }
+
+    @Override
+    public CategoryEntries predict(FeatureVector featureVector) {
+        Leaf leaf = tree.getLeaf(Attributes.create(getInput(featureVector)));
+        CategoryEntries categoryEntries = new CategoryEntries();
+        Category category = new Category((String)leaf.classification);
+        CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, category, leaf.probability);
+        categoryEntries.add(categoryEntry);
+        return categoryEntries;
+    }
+
     @Override
     public String toString() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);
         tree.dump(printStream);
-        try {
-            return out.toString("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
+        return out.toString();
     }
-    
+
     public static void main(String[] args) {
-        FeatureVector fv1 = new FeatureVector();
-        fv1.add(new NumericFeature("height", 55.));
-        fv1.add(new NumericFeature("weight", 168.));
-        fv1.add(new NominalFeature("gender", "male"));
-        fv1.add(new NominalFeature("class", "overweight"));
-        DecisionTreeClassifier dtCl = new DecisionTreeClassifier("class");
-        dtCl.train(fv1);
-        dtCl.build();
-        
-        FeatureVector fv2 = new FeatureVector();
-        // "height", 62, "weight", 201, "gender", "female"
-        fv2.add(new NumericFeature("height", 62.));
-        fv2.add(new NumericFeature("weight", 168.));
-        fv2.add(new NominalFeature("gender", "female"));
-        Serializable ret = dtCl.classify(fv2);
-        System.out.println(ret);
+        Instance2<String> instance = new Instance2<String>();
+        FeatureVector featureVector1 = new FeatureVector();
+        featureVector1.add(new NumericFeature("height", 55.));
+        featureVector1.add(new NumericFeature("weight", 168.));
+        featureVector1.add(new NominalFeature("gender", "male"));
+        instance.featureVector = featureVector1;
+        instance.target = "overweight";
+        DecisionTreeClassifier classifier = new DecisionTreeClassifier();
+        classifier.learn(Collections.singletonList(instance));
+
+        FeatureVector featureVector2 = new FeatureVector();
+        featureVector2.add(new NumericFeature("height", 62.));
+        featureVector2.add(new NumericFeature("weight", 168.));
+        featureVector2.add(new NominalFeature("gender", "female"));
+        CategoryEntries prediction = classifier.predict(featureVector2);
+        System.out.println(prediction);
     }
 
 }
