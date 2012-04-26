@@ -48,7 +48,7 @@ public class TagTheNetLangDetect extends LanguageClassifier {
         Map<String, String> headers = new MapBuilder<String, String>().add("Content-Type",
                 "application/x-www-form-urlencoded; charset=UTF-8");
 
-        Map<String, String> content = new MapBuilder<String, String>().add("text", text).add("view", "json");
+        Map<String, String> content = MapBuilder.createAdd("text", text).add("view", "json");
 
         try {
             HttpResult httpResult = httpRetriever.httpPost("http://tagthe.net/api", headers, content);
