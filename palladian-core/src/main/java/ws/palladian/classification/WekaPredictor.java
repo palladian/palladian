@@ -89,12 +89,11 @@ public class WekaPredictor implements Predictor<String> {
     private FastVector getValues(String name, List<Instance2<String>> instances) {
         Set<String> nominalValues = new HashSet<String>();
         for (Instance2<String> instance : instances) {
-            // FIXME
+            @SuppressWarnings("deprecation")
             Feature<?> feature2 = instance.featureVector.get(name);
             if (feature2 == null) {
                 continue;
             }
-            @SuppressWarnings("deprecation")
             NominalFeature feature = (NominalFeature)feature2;
             nominalValues.add(feature.getValue());
         }
@@ -111,7 +110,6 @@ public class WekaPredictor implements Predictor<String> {
         Instance instance = makeWekaInstance(featureVector, vector, null);
         instance.setDataset(trainInstances);
         try {
-            
             double[] distributionForInstance = classifier.distributionForInstance(instance);
             ret.add(new CategoryEntry(ret, new Category("true"), distributionForInstance[0]));
             ret.add(new CategoryEntry(ret, new Category("false"), distributionForInstance[1]));
