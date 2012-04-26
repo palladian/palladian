@@ -37,6 +37,7 @@ import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.pos.LingPipePosTagger;
@@ -55,8 +56,12 @@ import ws.palladian.model.features.NumericFeature;
 
 public class ClassifierExtractor extends KeyphraseExtractor {
 
+
     /** The path to the model file for the LingPipe POS tagger. */
     private static final File LING_PIPE_POS_MODEL = new File("/Users/pk/Dropbox/Uni/Models/pos-en-general-brown.HiddenMarkovModel");
+    
+    /** The CSV file with classification data, i.e. all Annotations + their Feature Vector. */
+    private static final File CLASSIFICATION_DATA = new File("data/temp/classifierKeyphraseExtractor.csv");
     
     private final ProcessingPipeline pipeline1;
     private final ProcessingPipeline pipeline2;
@@ -69,15 +74,15 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     private int trainCount;
     private final StemmerAnnotator stemmer;
 
-    // private static final int TRAIN_DOC_LIMIT = 20;
-    private static final int TRAIN_DOC_LIMIT = 50;
+    private static final int TRAIN_DOC_LIMIT = 20;
+//    private static final int TRAIN_DOC_LIMIT = 50;
 
     private static final FeatureDescriptor<NumericFeature> PRIOR = FeatureDescriptorBuilder.build("keyphraseness",
             NumericFeature.class);
-    private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_MULT = FeatureDescriptorBuilder.build(
-            "cooccurrenceMultiplied", NumericFeature.class);
-    // private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_ADD = FeatureDescriptorBuilder.build(
-    // "cooccurrenceSummed", NumericFeature.class);
+    private static final FeatureDescriptor<NumericFeature> COOCURRENCE_SCALED = FeatureDescriptorBuilder.build(
+            "scaledCooccurrence", NumericFeature.class);
+    private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_MAX = FeatureDescriptorBuilder.build(
+            "maxCooccurrence", NumericFeature.class);
     private static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
             NominalFeature.class);
 
@@ -93,7 +98,8 @@ public class ClassifierExtractor extends KeyphraseExtractor {
 
         pipeline1 = new PerformanceCheckProcessingPipeline();
         pipeline1.add(new RegExTokenizer());
-        pipeline1.add(new LingPipePosTagger(LING_PIPE_POS_MODEL));
+        
+        /* pipeline1.add(new LingPipePosTagger(LING_PIPE_POS_MODEL));
         
         // abbreviate the POS tags, e.g. NNS = N
         pipeline1.add(new PipelineProcessor() {
@@ -108,10 +114,9 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                     featureVector.add(new NominalFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR, abbreviatedPosTag));
                 }
             }
-        });
+        }); */
         pipeline1.add(new StopTokenRemover(Language.ENGLISH));
         pipeline1.add(stemmer);
-        // pipeline1.add(new AdditionalFeatureExtractor());
         // further features to consider:
         // startsUppercase
         // completeUppercase
@@ -127,6 +132,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         pipeline1.add(new LengthTokenRemover(4));
         pipeline1.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         pipeline1.add(new NGramCreator2(3));
+        pipeline1.add(new AdditionalFeatureExtractor());
 
         pipeline1.add(new TokenMetricsCalculator());
         pipeline1.add(new PhrasenessAnnotator());
@@ -165,28 +171,43 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 // pre initialize the co-occurrence feature
                 for (Annotation annotation : annotations) {
                     FeatureVector featureVector = annotation.getFeatureVector();
-                    if (featureVector.get(COOCCURRENCE_MULT) == null) {
-                        featureVector.add(new NumericFeature(COOCCURRENCE_MULT, 1.));
-                        // featureVector.add(new NumericFeature(COOCCURRENCE_ADD, 0.));
+                    if (featureVector.get(COOCCURRENCE_MAX) == null) {
+                        featureVector.add(new NumericFeature(COOCCURRENCE_MAX, 0.));
                     }
                 }
+                
+                Map<String, Double> summedCooccurrences = new HashMap<String,Double>();
+                double maxCooccurrence = Integer.MIN_VALUE;
+
                 for (int i = 0; i < annotations.size(); i++) {
                     Annotation annotation1 = annotations.get(i);
                     FeatureVector annotation1fv = annotation1.getFeatureVector();
-                    String annotation1value = annotation1.getValue();
+                    String value1 = annotation1.getValue();
+
+                    double annotation1sum = 0;
+
                     for (int j = 0; j < annotations.size(); j++) {
                         Annotation annotation2 = annotations.get(j);
-                        String annotation2Value = annotation2.getValue();
-                        if (annotation1value.equals(annotation2Value)) {
+                        String value2 = annotation2.getValue();
+                        if (value1.equals(value2)) {
                             continue;
                         }
-                        double prob = cooccurrenceMatrix.getConditionalProbabilityLaplace(annotation1value,
-                                annotation2Value);
-                        annotation1fv.add(new NumericFeature(COOCCURRENCE_MULT, annotation1fv.get(COOCCURRENCE_MULT)
-                                .getValue() * prob));
-                        // annotation1fv.add(new NumericFeature(COOCCURRENCE_ADD, annotation1fv.get(COOCCURRENCE_ADD)
-                        // .getValue() + Math.log(prob)));
+                        double condProb = cooccurrenceMatrix.getConditionalProbability(value1, value2);
+
+                        // double condProbLap = cooccurrenceMatrix.getConditionalProbabilityLaplace(value1, value2);
+                        annotation1fv.add(new NumericFeature(COOCCURRENCE_MAX, Math.max(
+                                annotation1fv.get(COOCCURRENCE_MAX).getValue(), condProb)));
+                        annotation1sum += condProb;
                     }
+                    summedCooccurrences.put(value1, annotation1sum);
+                    maxCooccurrence = Math.max(annotation1sum, maxCooccurrence);
+                    annotation1sum = 0;
+                }
+                
+                for (Annotation annotation : annotations) {
+                    String annotationValue = annotation.getValue();
+                    double scaledCoocurrence = summedCooccurrences.get(annotationValue) / maxCooccurrence;
+                    annotation.getFeatureVector().add(new NumericFeature(COOCURRENCE_SCALED, scaledCoocurrence));
                 }
             }
         });
@@ -245,7 +266,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             trainDocIterator.remove();
         }
         System.out.println("# annotations: " + annotations.size());
-        // writeData(annotations, new File("data.csv"));
+        writeData(annotations, CLASSIFICATION_DATA);
         int posSamples = 0;
         int negSamples = 0;
         List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
@@ -262,9 +283,10 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             instance.featureVector = featureVector;
             instances.add(instance);
         }
-        System.out.println("positive Samples: " + posSamples);
-        System.out.println("negative Samples: " + negSamples);
-        System.out.println("... building classifier.");
+        System.out.println("negative samples: " + negSamples);
+        System.out.println("positive samples: " + posSamples);
+        System.out.println("positive sample rate: " + (double) posSamples / (negSamples+posSamples));
+        System.out.println("building classifier ...");
         classifier.learn(instances);
         System.out.println(classifier.toString());
         System.out.println("... finished building classifier.");

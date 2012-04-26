@@ -101,14 +101,14 @@ public class NGramCreator2 implements PipelineProcessor {
             AnnotationGroup gramToken = new AnnotationGroup(document);
             // FIXME those extra processing steps should go to their own NGramPostprocessorAnnotator
             List<String> unstems = new ArrayList<String>();
-            List<String> posTags = new ArrayList<String>();
+//            List<String> posTags = new ArrayList<String>();
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
                 unstems.add(tokensArray[j].getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
-                posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
+//                posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
             }
             gramToken.getFeatureVector().add(new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
-            gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR, StringUtils.join(posTags, "")));
+//            gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR, StringUtils.join(posTags, "")));
             if (isConsecutive(gramToken)) {
                 gramTokens.add(gramToken);
             }
