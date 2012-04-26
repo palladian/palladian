@@ -11,7 +11,7 @@ import java.util.Set;
  * method calls, so that {@link Map}s can be created in initialized like so:
  * 
  * <pre>
- * Map&lt;String, Integer&gt; map = new MapBuilder&lt;String, Integer&gt;().add(&quot;key1&quot;, 1).add(&quot;key&quot;, 2);
+ * Map&lt;String, Integer&gt; map = MapBuilder.createAdd(&quot;key1&quot;, 1).add(&quot;key&quot;, 2);
  * </pre>
  * 
  * </p>
@@ -27,7 +27,8 @@ public final class MapBuilder<K, V> implements Map<K, V> {
 
     /**
      * <p>
-     * Create a new {@link MapBuilder} initialized with a {@link HashMap}.
+     * Create a new {@link MapBuilder} initialized with a {@link HashMap}. For more convenience, prefer using the static
+     * {@link #createAdd(Object, Object)} factory method.
      * </p>
      */
     public MapBuilder() {
@@ -43,6 +44,20 @@ public final class MapBuilder<K, V> implements Map<K, V> {
      */
     public MapBuilder(Map<K, V> map) {
         this.map = map;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link MapBuilder} initialized with a {@link HashMap} and add the supplied key-value pair. This is
+     * syntactic sugar which saves invoking the constructor, thereby providing type inference.
+     * </p>
+     * 
+     * @param key
+     * @param value
+     * @return
+     */
+    public static <K, V> MapBuilder<K, V> createAdd(K key, V value) {
+        return new MapBuilder<K, V>().add(key, value);
     }
 
     /**
