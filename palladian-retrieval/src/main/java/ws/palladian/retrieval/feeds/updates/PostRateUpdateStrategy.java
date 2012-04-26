@@ -13,6 +13,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
+import ws.palladian.retrieval.feeds.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -163,7 +164,7 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
             currentMinute = (currentMinute + 1) % 1440;
         }
 
-        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
         } else {
             feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
