@@ -102,11 +102,8 @@ public class Feed {
      */
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
 
-    public static final int MIN_DELAY = 0;
-    public static final int MAX_COVERAGE = 1;
-
     /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
-    private int updateMode = Feed.MIN_DELAY;
+    private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
 
     /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
     private String newestItemHash = null;
@@ -1027,7 +1024,7 @@ public class Feed {
         result = prime * result + unparsableCount;
         result = prime * result + unreachableCount;
         result = prime * result + updateInterval;
-        result = prime * result + updateMode;
+        result = prime * result + ((updateMode == null) ? 0 : updateMode.hashCode());
         result = prime * result + ((variableWindowSize == null) ? 0 : variableWindowSize.hashCode());
         result = prime * result + ((windowSize == null) ? 0 : windowSize.hashCode());
         return result;
@@ -1240,11 +1237,11 @@ public class Feed {
         return benchmarkLastLookupTime;
     }
 
-    public void setUpdateMode(int updateMode) {
+    public void setUpdateMode(FeedUpdateMode updateMode) {
         this.updateMode = updateMode;
     }
 
-    public int getUpdateMode() {
+    public FeedUpdateMode getUpdateMode() {
         return updateMode;
     }
 
