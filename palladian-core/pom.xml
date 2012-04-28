@@ -9,6 +9,18 @@
 	<artifactId>palladian-core</artifactId>
 	<name>Palladian: Core</name>
 	<description>Core Palladian functionality</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<configLocation>${project.parent.basedir}/dev/checkstyle_config.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
@@ -41,16 +53,10 @@
 			<groupId>com.sun.media</groupId>
 			<artifactId>jai-codec</artifactId>
 		</dependency>
-		<!-- dependency>
-			<groupId>tud.iir.external</groupId>
-			<artifactId>opennlp</artifactId>
-			<classifier>incubating</classifier>
-		</dependency -->
-		<!-- dependency>
-			<groupId>tud.iir.external</groupId>
-			<artifactId>maxent</artifactId>
-			<classifier>incubating</classifier>
-		</dependency -->
+		<!-- dependency> <groupId>tud.iir.external</groupId> <artifactId>opennlp</artifactId> 
+			<classifier>incubating</classifier> </dependency -->
+		<!-- dependency> <groupId>tud.iir.external</groupId> <artifactId>maxent</artifactId> 
+			<classifier>incubating</classifier> </dependency -->
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-maxent</artifactId>

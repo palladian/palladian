@@ -17,37 +17,21 @@ import org.xml.sax.SAXNotSupportedException;
  * Wrapper for CyberNeko HTML Parser.
  * </p>
  * 
- * @see http://nekohtml.sourceforge.net/
+ * @see <a href="CyberNeko HTML Parser">http://nekohtml.sourceforge.net/</a>
  * @author Philipp Katz
  */
-public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser {
+public final class NekoHtmlParser extends BaseDocumentParser implements DocumentParser {
 
     @Override
     public Document parse(InputSource inputSource) throws ParserException {
 
-        // DOMParser parser = new DOMParser();
-        // http://nekohtml.sourceforge.net/faq.html#uppercase
         DOMParser parser = new DOMParser(new HTMLConfiguration());
 
         try {
 
             parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
 
-            // experimental fix for http://redmine.effingo.de/issues/5
-            // also see: tud.iir.web.CrawlerTest.testNekoWorkarounds()
-            // Philipp, 2010-11-10
-            //
-            // FIXME 2011-01-06; this seems to cause this problem:
-            // http://sourceforge.net/tracker/?func=detail&aid=3109537&group_id=195122&atid=952178
-            // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
-            // supposedly breaking other stuff :(
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-
-            // NekoTbodyFix tbodyFix = new NekoTbodyFix();
-            // end fix.
-
-            // XMLDocumentFilter[] filters = new XMLDocumentFilter[] { tbodyFix, new PreflightFilter() };
-            // parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
 
             // fix for issue where inserted elements did not get the correct namespace
             // implemented in HTMLTagBalancerFixed for now. For more information see
@@ -71,7 +55,7 @@ public class NekoHtmlParser extends BaseDocumentParser implements DocumentParser
         } catch (IOException e) {
             throw new ParserException(e);
         } catch (Throwable t) {
-            // dirty workaround, as NekoHTML produces many kind of unexpected exceptions
+            // NekoHTML produces many kind of unexpected exceptions, we can catch them here.
             throw new ParserException(t);
         }
 

@@ -219,7 +219,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
             Map<String, Object> additionalData = getAdditionalData(syndEntry);
             item.setAdditionalData(additionalData);
-            item.setWindowSize(syndEntries.size());
             
             feed.addItem(item);
         }
