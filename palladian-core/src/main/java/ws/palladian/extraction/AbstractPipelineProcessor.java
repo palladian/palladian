@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @version 2.0
  */
 public abstract class AbstractPipelineProcessor implements PipelineProcessor {
+    // TODO can we replace the IllegalStateException by DocumentUnprocessableException here?
     /**
      * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -96,9 +97,9 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     @Override
     public final void process(PipelineDocument document) throws DocumentUnprocessableException {
-        if (document == null)
+        if (document == null) {
             throw new IllegalArgumentException("Document may not be null");
-
+        }
         allInputViewsAvailable(document);
         applyMapping(document);
         processDocument(document);
@@ -179,5 +180,10 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
                         + "\nProvided views: " + document.getProvidedViewNames());
             }
         }
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

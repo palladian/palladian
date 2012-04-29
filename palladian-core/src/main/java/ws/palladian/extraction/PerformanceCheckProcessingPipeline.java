@@ -20,23 +20,17 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
     private static final long serialVersionUID = 1L;
 
-    /** cumulates all processing times for each single component. */
+    /** Store cumulated processing times for each single PipelineProcessor. */
     private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
 
     @Override
-    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException{
-
+    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException {
         for (PipelineProcessor processor : getPipelineProcessors()) {
-
-            StopWatch sw = new StopWatch();
+            StopWatch stopWatch = new StopWatch();
             processor.process(document);
-            long elapsedTime = sw.getElapsedTime();
-
-            addProcessingTime(processor, elapsedTime);
+            addProcessingTime(processor, stopWatch.getElapsedTime());
         }
-
         return document;
-
     }
 
     /**
@@ -54,19 +48,26 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
         cumulatedTimes.put(processorName, cumulatedTime);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("performance overview:").append("\n");
+    /**
+     * <p>
+     * Retrieve a report with performance statistics for each involved {@link PipelineProcessor} in this
+     * {@link PerformanceCheckProcessingPipeline}.
+     * </p>
+     * 
+     * @return
+     */
+    public String getStats() {
+        StringBuilder stats = new StringBuilder();
+        stats.append("performance overview:").append("\n");
         Set<Entry<String, Long>> entrySet = cumulatedTimes.entrySet();
         long totalTime = 0;
         for (Entry<String, Long> entry : entrySet) {
-            sb.append(entry.getKey()).append(" : ");
-            sb.append(entry.getValue()).append("\n");
+            stats.append(entry.getKey()).append(" : ");
+            stats.append(entry.getValue()).append("\n");
             totalTime += entry.getValue();
         }
-        sb.append("total time : ").append(totalTime);
-        return sb.toString();
+        stats.append("total time : ").append(totalTime);
+        return stats.toString();
     }
 
 }

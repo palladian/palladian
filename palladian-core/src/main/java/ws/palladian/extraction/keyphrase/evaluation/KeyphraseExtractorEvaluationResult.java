@@ -1,107 +1,65 @@
-/**
- * 
- */
 package ws.palladian.extraction.keyphrase.evaluation;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import ws.palladian.helper.StopWatch;
-
 /**
- * Keeps results concerning the Tagger evaluation for specific {@link ControlledTaggerEvaluationSettings} like
- * Pr/Rc/F1, etc.
+ * <p>
+ * Keeps results concerning the keyphrase extraction evaluation like precision, recall, f1.
+ * </p>
  * 
  * @author Philipp Katz
- * 
  */
 public class KeyphraseExtractorEvaluationResult {
 
-    private int taggedEntryCount;
+    // private static final char NEWLINE = '\n';
+    private static final NumberFormat NUMBER_FORMAT = new DecimalFormat("0.0000");
+
+    private int itemCount;
     private double precisionSum;
     private double recallSum;
-    private double tagSum;
+    private int keyphraseCount;
 
-    private StopWatch trainStop;
-    private StopWatch testStop;
-
-    private NumberFormat format = new DecimalFormat("0.0000");
-
-    public void addTestResult(double precision, double recall, int assignedTags) {
+    public void addTestResult(double precision, double recall, int assignedKeyphrases) {
         precisionSum += precision;
         recallSum += recall;
-        tagSum += assignedTags;
-        taggedEntryCount++;
+        keyphraseCount += assignedKeyphrases;
+        itemCount++;
     }
 
     public double getAvgPrecision() {
-        return precisionSum / taggedEntryCount;
+        return precisionSum / itemCount;
     }
 
     public double getAvgRecall() {
-        return recallSum / taggedEntryCount;
+        return recallSum / itemCount;
     }
 
     public double getAvgFOne() {
         return 2 * getAvgPrecision() * getAvgRecall() / (getAvgPrecision() + getAvgRecall());
     }
 
-    public double getAvgTagCount() {
-        return tagSum / taggedEntryCount;
+    public double getAvgKeyphraseCount() {
+        return (double)keyphraseCount / itemCount;
     }
 
-    public int getTaggedEntryCount() {
-        return taggedEntryCount;
-    }
-
-    public void startTraining() {
-        trainStop = new StopWatch();
-    }
-
-    public void stopTraining() {
-        trainStop.stop();
-    }
-
-    public void startTesting() {
-        testStop = new StopWatch();
-    }
-
-    public void stopTesting() {
-        testStop.stop();
-    }
-
-    public StopWatch getTestStop() {
-        return testStop;
-    }
-
-    public StopWatch getTrainStop() {
-        return trainStop;
+    public int getItemCount() {
+        return itemCount;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("KeyphraseExtractorEvaluationResult:");
-        sb.append("taggedEntries:").append(taggedEntryCount);
-        if (trainStop != null) sb.append(",timeForTraining:").append(trainStop.getElapsedTimeString());
-        if (testStop != null) sb.append(",timeForTesting:").append(testStop.getElapsedTimeString());
-        sb.append(",averageTagCount:").append(getAvgTagCount());
-        sb.append(",averagePr:").append(getAvgPrecision());
-        sb.append(",averageRc:").append(getAvgRecall());
-        sb.append(",averageF1:").append(getAvgFOne());
+        sb.append("average precision: ").append(format(getAvgPrecision())).append(" ");
+        sb.append("average recall: ").append(format(getAvgRecall())).append(" ");
+        sb.append("average f1: ").append(format(getAvgFOne())).append(" ");
+        sb.append("average assigned count: ").append(format(getAvgKeyphraseCount())).append(" ");
+        sb.append("processed items: ").append(getItemCount());
         return sb.toString();
     }
 
-    public void printStatistics() {
-
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("average pr: " + format.format(getAvgPrecision()) + " rc: " + format.format(getAvgRecall())
-                + " f1: " + format.format(getAvgFOne()));
-        System.out.println("average # assigned tags: " + format.format(getAvgTagCount()));
-        System.out.println("tagged entries: " + getTaggedEntryCount());
-
-        if (getTrainStop() != null) System.out.println("time for training " + getTrainStop().getElapsedTimeString());
-        if (getTestStop() != null) System.out.println("time for testing " + getTestStop().getElapsedTimeString());
-
+    private static final String format(double value) {
+        return NUMBER_FORMAT.format(value);
     }
+
 }

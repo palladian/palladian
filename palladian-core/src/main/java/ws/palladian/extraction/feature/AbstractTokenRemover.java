@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -36,11 +37,11 @@ public abstract class AbstractTokenRemover implements PipelineProcessor {
     protected abstract boolean remove(Annotation annotation);
 
     @Override
-    public final void process(PipelineDocument document) {
+    public final void process(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("Required feature \"" + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+            throw new DocumentUnprocessableException("Required feature \"" + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
                     + "\" is missing");
         }
         List<Annotation> annotations = annotationFeature.getValue();

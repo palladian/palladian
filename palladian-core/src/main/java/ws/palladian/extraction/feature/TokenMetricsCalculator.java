@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -28,7 +30,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class TokenMetricsCalculator implements PipelineProcessor {
+public final class TokenMetricsCalculator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,12 +50,12 @@ public final class TokenMetricsCalculator implements PipelineProcessor {
             "ws.palladian.features.tokens.length.word", NumericFeature.class);
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
                 TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
-                    + " is missing.");
+            throw new DocumentUnprocessableException("The required feature "
+                    + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         Bag<String> occurrences = new HashBag<String>();
@@ -65,7 +67,7 @@ public final class TokenMetricsCalculator implements PipelineProcessor {
             occurrences.add(value);
             int tokenPosition = annotation.getIndex();
             if (tokenPosition == -1) {
-                throw new IllegalStateException(
+                throw new DocumentUnprocessableException(
                         "Token index is missing, looks like the used Tokenizer implementation needs to be updated for supplying indices.");
             }
             Integer firstOccurrence = firstOccurrences.get(value);

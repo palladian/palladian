@@ -8,6 +8,7 @@ import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
 import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -127,11 +128,11 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
+            throw new DocumentUnprocessableException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
                     + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
@@ -162,6 +163,20 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
         stemmer.setCurrent(word);
         stemmer.stem();
         return stemmer.getCurrent();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StemmerAnnotator [mode=");
+        builder.append(mode);
+        builder.append(", stemmer=");
+        builder.append(stemmer.getClass().getSimpleName());
+        builder.append("]");
+        return builder.toString();
     }
 
 }

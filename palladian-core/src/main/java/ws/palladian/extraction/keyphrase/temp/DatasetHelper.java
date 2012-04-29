@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -15,6 +17,8 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class DatasetHelper {
+    
+    private static final String DEFAULT_SEPARATOR = "#";
 
     private DatasetHelper() {
         // prevent instantiation.
@@ -24,7 +28,11 @@ public final class DatasetHelper {
         if (!filePath.exists() || !filePath.isFile()) {
             throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file.");
         }
-        final Dataset2 ret = new Dataset2();
+        if (StringUtils.isEmpty(separator)) {
+            throw new IllegalArgumentException("Separator must not be null or empty.");
+        }
+        
+        final Dataset2 ret = new Dataset2(filePath);
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -40,6 +48,10 @@ public final class DatasetHelper {
             }
         });
         return ret;
+    }
+    
+    public static Dataset2 loadDataset(File filePath) {
+        return loadDataset(filePath, DEFAULT_SEPARATOR);
     }
 
     /**

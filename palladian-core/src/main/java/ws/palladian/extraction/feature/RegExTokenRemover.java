@@ -6,8 +6,8 @@ import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
- * A {@link AbstractTokenRemover} which removes those tokens which match for the supplied RegEx. E.g. initializing this class
- * with a {@link Pattern} <i>[^A-Za-z0-9]+</i> will remove all token {@link Annotation}s which do not exclusively
+ * A {@link AbstractTokenRemover} which removes those tokens which match for the supplied RegEx. E.g. initializing this
+ * class with a {@link Pattern} <i>[^A-Za-z0-9]+</i> will remove all token {@link Annotation}s which do not exclusively
  * consist of alphanumeric characters.
  * </p>
  * 
@@ -16,7 +16,7 @@ import ws.palladian.model.features.Annotation;
 public class RegExTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final Pattern pattern;
 
     /**
@@ -44,6 +44,19 @@ public class RegExTokenRemover extends AbstractTokenRemover {
     @Override
     protected boolean remove(Annotation annotation) {
         return pattern.matcher(annotation.getValue()).matches();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegExTokenRemover [pattern=");
+        builder.append(pattern);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

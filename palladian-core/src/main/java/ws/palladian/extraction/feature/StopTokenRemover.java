@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
+
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.constants.Language;
@@ -77,7 +79,11 @@ public final class StopTokenRemover extends AbstractTokenRemover {
         if (is == null) {
             throw new IllegalStateException("Resource \"" + resourcePath + "\" not found.");
         }
-        return loadStopwords(new InputStreamReader(is));
+        try {
+            return loadStopwords(new InputStreamReader(is));
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     private Set<String> loadStopwords(Reader reader) {
@@ -110,6 +116,19 @@ public final class StopTokenRemover extends AbstractTokenRemover {
     @Override
     protected boolean remove(Annotation annotation) {
         return isStopword(annotation.getValue());
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StopTokenRemover [#stopwords=");
+        builder.append(stopwords.size());
+        builder.append("]");
+        return builder.toString();
     }
 
 }

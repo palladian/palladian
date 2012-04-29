@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -12,38 +13,34 @@ import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
 public class TermCorpusBuilder implements PipelineProcessor {
-    
+
     private static final long serialVersionUID = 1L;
     private final TermCorpus termCorpus;
-    
+
     public TermCorpusBuilder() {
         this(new TermCorpus());
     }
-    
+
     public TermCorpusBuilder(TermCorpus termCorpus) {
         this.termCorpus = termCorpus;
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void process(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
+        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new RuntimeException("required feature is missing");
+            throw new DocumentUnprocessableException("The required feature \""
+                    + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing");
         }
         List<Annotation> annotations = annotationFeature.getValue();
-        
         Set<String> tokenValues = new HashSet<String>();
-
         for (Annotation annotation : annotations) {
-            String tokenValue = annotation.getValue().toLowerCase();
-            tokenValues.add(tokenValue);
+            tokenValues.add(annotation.getValue().toLowerCase());
         }
-
         termCorpus.addTermsFromDocument(tokenValues);
-        
     }
-    
+
     public TermCorpus getTermCorpus() {
         return termCorpus;
     }
