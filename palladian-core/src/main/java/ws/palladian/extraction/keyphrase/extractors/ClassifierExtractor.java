@@ -40,7 +40,6 @@ import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
-import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -271,7 +270,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             trainDocIterator.remove();
         }
         System.out.println("# annotations: " + annotations.size());
-        System.out.println("% train coverage: " + (double) totallyMarked / totalKeyphrases);
+        System.out.println("% sample coverage: " + (double) totallyMarked / totalKeyphrases);
         // writeData(annotations, CLASSIFICATION_DATA);
         int posSamples = 0;
         int negSamples = 0;
@@ -363,29 +362,52 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         System.out.println("wrote data to " + outputCsvFile);
     }
 
+    /**
+     * <p>
+     * Takes a list of candidates in form of {@link Annotation}s and a list of "real" keyphrases and tries to match
+     * those keyphrases in the supplied annotations. Use fuzzy/multiple variant matching for high recall (i.e. match as
+     * many annotations as possible).
+     * </p>
+     * 
+     * @param annotationFeature
+     * @param keywords
+     * @return
+     */
     private int markCandidates(AnnotationFeature annotationFeature, Set<String> keywords) {
-        Set<String> modifiedKeyowrds = new HashSet<String>();
+        Set<String> modifiedKeywords = new HashSet<String>();
         int marked = 0;
         // try to match multiple different variants
         for (String keyword : keywords) {
-            modifiedKeyowrds.add(keyword.toLowerCase().trim());
-            modifiedKeyowrds.add(keyword.toLowerCase().trim().replace("\\s", ""));
-            modifiedKeyowrds.add(stem(keyword.toLowerCase()).trim());
-            modifiedKeyowrds.add(stem(keyword.toLowerCase()).trim().replace("\\s", ""));
+            modifiedKeywords.add(keyword.toLowerCase().trim());
+            modifiedKeywords.add(keyword.toLowerCase().trim().replace("\\s", ""));
+            modifiedKeywords.add(stem(keyword.toLowerCase()).trim());
+            modifiedKeywords.add(stem(keyword.toLowerCase()).trim().replace("\\s", ""));
+            modifiedKeywords.add(canonicalize(keyword.toLowerCase().trim()));
+            modifiedKeywords.add(canonicalize(keyword.toLowerCase().trim().replace("\\s", "")));
+            modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim()));
+            modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim().replace("\\s", "")));
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
             String unstemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
 
-            boolean isKeyword = modifiedKeyowrds.contains(stemmedValue);
-            isKeyword |= modifiedKeyowrds.contains(stemmedValue.toLowerCase());
-            isKeyword |= modifiedKeyowrds.contains(stemmedValue.replace(" ", ""));
-            isKeyword |= modifiedKeyowrds.contains(stemmedValue.toLowerCase().replace(" ", ""));
-            isKeyword |= modifiedKeyowrds.contains(unstemmedValue);
-            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.toLowerCase());
-            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.replace(" ", ""));
-            isKeyword |= modifiedKeyowrds.contains(unstemmedValue.toLowerCase().replace(" ", ""));
+            boolean isKeyword = modifiedKeywords.contains(stemmedValue);
+            isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase());
+            isKeyword |= modifiedKeywords.contains(stemmedValue.replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase().replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(unstemmedValue);
+            isKeyword |= modifiedKeywords.contains(unstemmedValue.toLowerCase());
+            isKeyword |= modifiedKeywords.contains(unstemmedValue.replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(unstemmedValue.toLowerCase().replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.toLowerCase()));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.replace(" ", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.toLowerCase().replace(" ", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.toLowerCase()));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.replace(" ", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.toLowerCase().replace(" ", "")));
             NominalFeature isKeywordFeature = new NominalFeature(IS_KEYWORD, String.valueOf(isKeyword));
             annotation.getFeatureVector().add(isKeywordFeature);
             if (isKeyword) {
@@ -393,6 +415,24 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             }
         }
         return marked;
+    }
+    
+    /**
+     * <p>
+     * Re-orders all tokens alphabetically, i.e.
+     * <code>the quick brown fox<code> will be transformed to <code>brown fox quick the<code>.
+     * </p>
+     * 
+     * @param string
+     * @return
+     */
+    private static String canonicalize(String string) {
+        List<String> result = CollectionHelper.newArrayList();
+        for (String s : string.split("\\s")) {
+            result.add(s);
+        }
+        Collections.sort(result);
+        return StringUtils.join(result, " ");
     }
 
     private String stem(String string) {
