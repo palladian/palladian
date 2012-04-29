@@ -101,7 +101,7 @@ public class FeedImporter {
                     feed = feedParser.getFeed(cleanedURL);
 
                     // classify the feed's activity pattern
-                    int activityPattern = FeedClassifier.classify(feed);
+                    FeedActivityPattern activityPattern = FeedClassifier.classify(feed);
                     feed.setActivityPattern(activityPattern);
                     infoMsg.append(" (activityPattern:").append(activityPattern).append(")");
 

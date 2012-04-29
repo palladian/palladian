@@ -8,6 +8,7 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -87,7 +88,7 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
         }
 
         // set the (new) check interval to feed
-        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedUpdateInterval(fixedCheckInterval));
         }
     }

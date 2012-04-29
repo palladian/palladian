@@ -11,21 +11,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
-
 /**
  * <p>
- * A scheduler task handles the distribution of feeds to worker threads that read these feeds. It has an integrated
- * monitoring component that logs and sends error notifications via email.
+ * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
  * </p>
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 class SchedulerTask extends TimerTask {
 
@@ -73,7 +71,7 @@ class SchedulerTask extends TimerTask {
      * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the
      * future.
      */
-    private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = 10 * DateHelper.MINUTE_MS;
+    private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = TimeUnit.MINUTES.toMillis(10);
 
 
     // //////////// Monitoring constants \\\\\\\\\\\\\\\\\
@@ -82,15 +80,6 @@ class SchedulerTask extends TimerTask {
     private Long lastWakeUpTime = null;
 
     private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
-
-    /** 2 percent of the feeds processed per interval are allowed to be unreachable */
-    private static final int MAX_UNREACHABLE_PERCENTAGE_DEFAULT = 2;
-
-    /** 2 percent of the feeds processed per interval are allowed to be unparsable. */
-    private static final int MAX_UNPARSABLE_PERCENTAGE_DEFAULT = 2;
-
-    /** 10 percent of the feeds processed per interval are allowed to be slow. */
-    private static final int MAX_SLOW_PERCENTAGE_DEFAULT = 10;
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
@@ -113,8 +102,6 @@ class SchedulerTask extends TimerTask {
     @Override
     public void run() {
         LOGGER.debug("wake up to check feeds");
-        int newlyScheduledFeedsCount = 0;
-        int alreadyScheduledFeedCount = 0;
 
         // schedule all feeds
         for (Feed feed : getFeeds()) {
@@ -122,11 +109,8 @@ class SchedulerTask extends TimerTask {
             // remove completed FeedTasks
             removeFeedTaskIfDone(feed.getId());
             if (needsLookup(feed)) {
-                if (scheduledTasks.containsKey(feed.getId())) {
-                    alreadyScheduledFeedCount++;
-                } else {
+                if (!scheduledTasks.containsKey(feed.getId())) {
                     scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedReader)));
-                    newlyScheduledFeedsCount++;
                 }
             }
         }
@@ -173,11 +157,10 @@ class SchedulerTask extends TimerTask {
                 + "\nNow: "
                 + now
                 + "\nUpdateInterval: "
-                + feed.getUpdateInterval()
-                * DateHelper.MINUTE_MS
+                + TimeUnit.MINUTES.toMillis(feed.getUpdateInterval())
                 + (feed.getLastPollTime() != null ? "\nnow - lastPollTime: " + (now - feed.getLastPollTime().getTime())
                         + "\nUpdate Interval Exceeded "
-                        + (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
+                        + (now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval()))
                         : ""));
 
         // check whether the feed needs to be blocked
@@ -209,7 +192,7 @@ class SchedulerTask extends TimerTask {
                 && (feed.getUnparsableCount() <= MAX_IMMEDIATE_RETRIES);
         boolean notYetPolled = (feed.getLastPollTime() == null);
         boolean regularSchedule = !notYetPolled
-                && (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS);
+                && (now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval()));
 
         Boolean ret = !isBlocked && (immediateRetry || notYetPolled || regularSchedule);
         if (ret == true) {
@@ -232,11 +215,9 @@ class SchedulerTask extends TimerTask {
             try {
                 feedResults.add(future.get());
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error(e);
             } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.error(e);
             }
         }
     }

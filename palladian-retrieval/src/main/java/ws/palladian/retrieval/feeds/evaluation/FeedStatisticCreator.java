@@ -29,7 +29,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedClassifier;
+import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
@@ -150,20 +150,21 @@ public class FeedStatisticCreator {
         dbm.runQuery(callback, query);
 
         // create statistics by activity pattern
-        Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
+        // Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
+        FeedActivityPattern[] activityPatterns = FeedActivityPattern.values();
 
-        for (Integer activityPatternID : activityPatternIDs) {
+        for (FeedActivityPattern activityPattern : activityPatterns) {
 
-            if (activityPatternID < 5 || activityPatternID == FeedClassifier.CLASS_ON_THE_FLY) {
+            if (activityPattern.getIdentifier() < 5 || activityPattern == FeedActivityPattern.CLASS_ON_THE_FLY) {
                 continue;
             }
 
-            csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
+            csv.append("\"================= Performance for ").append(activityPattern.getClassName())
                     .append(" (").append(avgStyleExplanation)
                     .append(", only feeds matching the feed activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
-                    + activityPatternID);
+                    + activityPattern);
 
             dbm.runQuery(callback, queryAP);
         }
@@ -370,20 +371,20 @@ public class FeedStatisticCreator {
         // trafficPerNewItemCG).append("\n\n");
 
         // create statistics by activity pattern
-        Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
+        FeedActivityPattern[] activityPatterns = FeedActivityPattern.values();
 
-        for (Integer activityPatternID : activityPatternIDs) {
+        for (FeedActivityPattern activityPattern : activityPatterns) {
 
-            if (activityPatternID < 5 || activityPatternID == FeedClassifier.CLASS_ON_THE_FLY) {
+            if (activityPattern.getIdentifier() < 5 || activityPattern == FeedActivityPattern.CLASS_ON_THE_FLY) {
                 continue;
             }
 
-            csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
+            csv.append("\"================= Performance for ").append(activityPattern.getClassName())
                     .append(" (").append(avgStyleExplanation)
                     .append(", only feeds matching the activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("timeliness IS NOT NULL", "timeliness IS NOT NULL AND activityPattern = "
-                    + activityPatternID);
+                    + activityPattern.getIdentifier());
 
             dbm.runQuery(callback, queryAP);
 
@@ -393,12 +394,12 @@ public class FeedStatisticCreator {
                                     .longValue())).append("\n");
 
             String queryAAP = queryA.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
-                    + activityPatternID);
+                    + activityPattern.getIdentifier());
 
             dbm.runQuery(callback2, queryAAP);
 
             String queryBAP = queryB.replaceAll("newWindowItems > 0", "newWindowItems > 0 AND activityPattern = "
-                    + activityPatternID);
+                    + activityPattern.getIdentifier());
 
             dbm.runQuery(callback3, queryBAP);
         }
