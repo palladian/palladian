@@ -451,7 +451,7 @@ public final class FeedReader {
         FeedReader fch = new FeedReader(new CollectionFeedSource());
         fch.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
-        feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
+        feed.setActivityPattern(FeedActivityPattern.CLASS_SLICED);
 
         // FeedParser feedParser = new RomeFeedParser();
         // feedRetriever.updateFeed(feed);
