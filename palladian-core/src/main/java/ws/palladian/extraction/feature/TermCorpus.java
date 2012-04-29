@@ -1,63 +1,111 @@
 package ws.palladian.extraction.feature;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.log4j.Logger;
+import org.apache.commons.io.IOUtils;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
+/**
+ * <p>
+ * A corpus with terms from documents. Used typically for IDF calculations.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class TermCorpus {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(TermCorpus.class);
     private static final String SEPARATOR = "#";
 
     private int numDocs;
     private final Bag<String> terms;
 
+    /**
+     * <p>
+     * Create a new, empty {@link TermCorpus}.
+     * </p>
+     */
     public TermCorpus() {
         this(new HashBag<String>(), 0);
     }
-    
+
+    /**
+     * <p>
+     * Create a new {@link TermCorpus} with the specified terms and number of documents.
+     * </p>
+     * 
+     * @param terms The terms to add.
+     * @param numDocs The number of documents this corpus contains.
+     */
     public TermCorpus(Bag<String> terms, int numDocs) {
         this.numDocs = numDocs;
         this.terms = terms;
     }
 
+    /**
+     * <p>
+     * Add the terms from the specified document and increment the number of documents counter.
+     * </p>
+     * 
+     * @param terms The terms to add.
+     */
     public void addTermsFromDocument(Set<String> terms) {
         this.terms.addAll(terms);
         numDocs++;
     }
 
+    /**
+     * <p>
+     * Get the number of documents containing the specified term.
+     * </p>
+     * 
+     * @param term The term for which to retrieve the number of containing documents.
+     * @return The number of documents containing the specified term.
+     */
     public int getCount(String term) {
-        return this.terms.getCount(term);
+        return terms.getCount(term);
     }
 
-    public double getDf(String term) {
-        int termCount = getCount(term);
+    /**
+     * <p>
+     * Get the inverse document frequency for the specified term. To avoid division by zero, the number of documents
+     * containing the specified term is incremented by one.
+     * </p>
+     * 
+     * @param term The term for which to retrieve the inverse document frequency.
+     * @return The inverse document frequency for the specified term.
+     */
+    public double getIdf(String term) {
         // add 1; prevent division by zero
-        double documentFrequency = Math.log10((double) getNumDocs() / (termCount + 1));
-        return documentFrequency;
+        return Math.log10((double)getNumDocs() / (getCount(term) + 1));
     }
 
+    /**
+     * <p>
+     * Get the number of documents in this corpus.
+     * </p>
+     * 
+     * @return The number of documents in this corpus.
+     */
     public int getNumDocs() {
         return numDocs;
     }
 
     private void setDf(String term, int df) {
-        this.terms.remove(term, this.terms.getCount(term));
-        this.terms.add(term, df);
+        terms.remove(term, terms.getCount(term));
+        terms.add(term, df);
     }
 
-    public void load(String fileName) {
+    public void load(String fileName) throws IOException {
         FileHelper.performActionOnEveryLine(fileName, new LineAction() {
             @Override
             public void performAction(String text, int number) {
@@ -79,51 +127,43 @@ public class TermCorpus {
         });
     }
 
-    public void save(String fileName) {
+    public void save(File file) throws IOException {
         OutputStream outputStream = null;
         PrintWriter printWriter = null;
-
         try {
-            outputStream = /* new GZIPOutputStream( */new FileOutputStream(fileName)/* ) */;
+            outputStream = new GZIPOutputStream(new FileOutputStream(file));
             printWriter = new PrintWriter(outputStream);
-
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
-
-            for (String term : this.terms.uniqueSet()) {
-                int count = this.terms.getCount(term);
+            for (String term : terms.uniqueSet()) {
+                int count = terms.getCount(term);
                 String line = term + SEPARATOR + count;
                 printWriter.println(line);
             }
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
         } finally {
-            FileHelper.close(outputStream, printWriter);
+            IOUtils.closeQuietly(printWriter);
+            IOUtils.closeQuietly(outputStream);
         }
     }
-    
+
+    /**
+     * <p>
+     * Reset this {@link TermCorpus}, i.e. clear all terms and reset the number of documents to zero.
+     * </p>
+     */
     public void reset() {
-        this.numDocs = 0;
-        this.terms.clear();
+        numDocs = 0;
+        terms.clear();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ApacheTermCorpus");
+        sb.append("TermCorpus");
         sb.append(" numDocs=").append(getNumDocs());
         sb.append(" numUniqueTerms=").append(terms.uniqueSet().size());
         sb.append(" numTerms=").append(terms.size());
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        TermCorpus termCorpus = new TermCorpus();
-        termCorpus.load("/Users/pk/Desktop/corpus.txt");
-        System.out.println(termCorpus);
     }
 
 }

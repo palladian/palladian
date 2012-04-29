@@ -31,7 +31,6 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureVector;
 
 public final class TfidfExtractor extends KeyphraseExtractor {
     
@@ -77,7 +76,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         List<Annotation> annotations = feature.getValue();
         Set<String> terms = new HashSet<String>();
         for (Annotation annotation : annotations) {
-            FeatureVector featureVector = annotation.getFeatureVector();
+            // FeatureVector featureVector = annotation.getFeatureVector();
             //String value = featureVector.get(StemmerAnnotator.STEM).getValue();
             String value = annotation.getValue();
             terms.add(value);

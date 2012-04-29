@@ -107,11 +107,11 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
     // ////////////////////////////////////////////
 
     @Override
-    protected void processDocument(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException(
+            throw new DocumentUnprocessableException(
                     "Document content is not tokenized. Please use a tokenizer before using a POS tagger.");
         }
         tag(annotationFeature.getValue());

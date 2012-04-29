@@ -2,8 +2,9 @@ package ws.palladian.extraction.keyphrase.features;
 
 import java.util.List;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.Annotation;
@@ -36,7 +37,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public class PhrasenessAnnotator implements PipelineProcessor {
+public final class PhrasenessAnnotator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -71,7 +72,7 @@ public class PhrasenessAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
@@ -94,7 +95,7 @@ public class PhrasenessAnnotator implements PipelineProcessor {
         }
     }
 
-    private double getCount(List<Annotation> annotations) {
+    private double getCount(List<Annotation> annotations) throws DocumentUnprocessableException {
         double count = 0;
         for (Annotation annotation : annotations) {
             count += getCount(annotation);
@@ -102,12 +103,26 @@ public class PhrasenessAnnotator implements PipelineProcessor {
         return count;
     }
 
-    private double getCount(Annotation annotation) {
+    private double getCount(Annotation annotation) throws DocumentUnprocessableException {
         NumericFeature countFeature = annotation.getFeatureVector().get(TokenMetricsCalculator.COUNT);
         if (countFeature == null) {
-            throw new IllegalStateException("Expected feature \"" + TokenMetricsCalculator.COUNT + "\" is missing.");
+            throw new DocumentUnprocessableException("Expected feature \"" + TokenMetricsCalculator.COUNT
+                    + "\" is missing.");
         }
         return countFeature.getValue();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PhrasenessAnnotator [singleWordTermFactor=");
+        builder.append(singleWordTermFactor);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

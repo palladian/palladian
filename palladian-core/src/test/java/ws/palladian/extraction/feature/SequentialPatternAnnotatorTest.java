@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -27,7 +26,6 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
 
 // TODO since the LSP algorithm is so slow this test should not run regularly.
 /**
@@ -96,18 +94,17 @@ public class SequentialPatternAnnotatorTest {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
         processingPipeline.add(new PalladianSentenceDetector());
         processingPipeline.add(new RegExTokenizer());
-        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper
-                .getResourceFile("/model/en-pos-maxent.bin")));
+        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
         processingPipeline.add(new SequentialPatternAnnotator(keywords, 4));
 
         PipelineDocument document = new PipelineDocument(inputText);
 
         processingPipeline.process(document);
 
-        for (Annotation annotation : ((AnnotationFeature)document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE)).getValue()) {
-            SequentialPattern lsp = (SequentialPattern)annotation.getFeatureVector()
-                    .get(SequentialPatternAnnotator.PROVIDED_FEATURE).getValue();
+        for (Annotation annotation : document.getFeatureVector()
+                .get(AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR).getValue()) {
+            SequentialPattern lsp = annotation.getFeatureVector()
+                    .get(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
             Assert.assertThat(lsp, Matchers.isIn(expectedPatterns));
         }
     }

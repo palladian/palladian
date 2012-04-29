@@ -1,39 +1,68 @@
 package ws.palladian.helper.collection;
 
-import java.util.Iterator;
-
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
+import org.apache.commons.lang3.Validate;
 
-public class BagHelper {
-    
+/**
+ * <p>
+ * Helper methods for {@link Bag}s.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public final class BagHelper {
+
+    private BagHelper() {
+        // prevent instantiation.
+    }
+
+    /**
+     * <p>
+     * Get the item from the bag which has the highest count. If multiple items with this count exist, only one is
+     * returned.
+     * </p>
+     * 
+     * @param bag The bag, not <code>null</code>.
+     * @return The item from the bag with the highest count or if no such item exists, <code>null</code>.
+     */
     public static <T> T getHighest(Bag<T> bag) {
+        Validate.notNull(bag, "bag must not be null");
         int highest = 0;
         T result = null;
-        Iterator<T> iterator = bag.uniqueSet().iterator();
-        while (iterator.hasNext()) {
-            T temp = iterator.next();
-            int current = bag.getCount(temp);
+        for (T item : bag.uniqueSet()) {
+            int current = bag.getCount(item);
             if (current > highest) {
-                result = temp;
+                result = item;
                 highest = current;
             }
         }
         return result;
     }
-    
-    public static <T> Bag<T> getHighest(Bag<T> bag, int items) {
+
+    /**
+     * <p>
+     * Get the number specified number of items with the highest count from the bag.
+     * </p>
+     * 
+     * @param bag
+     * @param numItems The number of items to return.
+     * @return A bag with the top number of items by count.
+     */
+    public static <T> Bag<T> getHighest(Bag<T> bag, int numItems) {
+        Validate.notNull(bag, "bag must not be null");
+        Validate.validState(numItems > 0, "numItems must be greater than 0");
         Bag<T> temp = new HashBag<T>(bag);
-        Bag<T> ret = new HashBag<T>();
-        for (int i = 0; i < items; i++) {
+        Bag<T> result = new HashBag<T>();
+        for (int i = 0; i < numItems; i++) {
             T highest = getHighest(temp);
             if (highest == null) {
                 break;
             }
-            ret.add(highest, temp.getCount(highest));
+            result.add(highest, temp.getCount(highest));
             temp.remove(highest);
         }
-        return ret;
+        return result;
     }
 
 }

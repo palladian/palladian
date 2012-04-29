@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -68,11 +68,11 @@ public class NGramCreator2 implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void process(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+            throw new DocumentUnprocessableException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
                     + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
@@ -137,6 +137,20 @@ public class NGramCreator2 implements PipelineProcessor {
             index = currentIndex;
         }
         return ret;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("NGramCreator2 [minLength=");
+        builder.append(minLength);
+        builder.append(", maxLength=");
+        builder.append(maxLength);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

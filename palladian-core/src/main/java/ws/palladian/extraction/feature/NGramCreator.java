@@ -3,6 +3,7 @@ package ws.palladian.extraction.feature;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -64,11 +65,11 @@ public class NGramCreator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void process(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+            throw new DocumentUnprocessableException("The required feature " + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
                     + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();

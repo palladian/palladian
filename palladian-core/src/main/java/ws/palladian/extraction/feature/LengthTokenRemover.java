@@ -52,4 +52,19 @@ public final class LengthTokenRemover extends AbstractTokenRemover {
         return length < minLength || length > maxLength;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("LengthTokenRemover [minLength=");
+        builder.append(minLength);
+        builder.append(", maxLength=");
+        builder.append(maxLength);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

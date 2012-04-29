@@ -43,6 +43,7 @@ import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.model.features.Annotation;
@@ -74,8 +75,10 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     private int trainCount;
     private final StemmerAnnotator stemmer;
 
+    private static final double COOCURRENCE_REWEIGHTING_FACTOR = 0.5;
+
     private static final int TRAIN_DOC_LIMIT = 20;
-//    private static final int TRAIN_DOC_LIMIT = 50;
+//    private static final int TRAIN_DOC_LIMIT = 35;
 
     private static final FeatureDescriptor<NumericFeature> PRIOR = FeatureDescriptorBuilder.build("keyphraseness",
             NumericFeature.class);
@@ -307,7 +310,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         this.assignedTermCorpus.reset();
         this.classifier = createClassifier();
         this.cooccurrenceMatrix = new CooccurrenceMatrix<String>();
-        trainCount = 0;
+        this.trainCount = 0;
         super.reset();
         System.out.println("reset the classifier");
     }
@@ -357,8 +360,9 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         System.out.println("wrote data to " + outputCsvFile);
     }
 
-    private void markCandidates(AnnotationFeature annotationFeature, Set<String> keywords) {
+    private int markCandidates(AnnotationFeature annotationFeature, Set<String> keywords) {
         Set<String> modifiedKeyowrds = new HashSet<String>();
+        int marked = 0;
         // try to match multiple different variants
         for (String keyword : keywords) {
             modifiedKeyowrds.add(keyword.toLowerCase().trim());
@@ -381,7 +385,11 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             isKeyword |= modifiedKeyowrds.contains(unstemmedValue.toLowerCase().replace(" ", ""));
             NominalFeature isKeywordFeature = new NominalFeature(IS_KEYWORD, String.valueOf(isKeyword));
             annotation.getFeatureVector().add(isKeywordFeature);
+            if (isKeyword) {
+                marked++;
+            }
         }
+        return marked;
     }
 
     private String stem(String string) {
@@ -414,6 +422,8 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
             }
         }
+        reRankCooccurrences(keywords);
+        reRankOverlaps(keywords);
         Collections.sort(keywords);
         if (keywords.size() > getKeyphraseCount()) {
             keywords.subList(getKeyphraseCount(), keywords.size()).clear();
@@ -421,9 +431,59 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         return keywords;
     }
 
+    
+    /**
+     * <p>
+     * Re-calculate the weight of the list of {@link Keyphrase}s, based on their overlap. Reduce the weights of those
+     * candidates which are contained in another candiate. E.g. list contains <code>web</code> with weight
+     * <code>0.5</code> and <code>web browser</code> with weight <code>0.7</code>, then weight of <code>web</code> if
+     * re-calcualted to <code>0.7 - 0.5 = 0.2</code>.
+     * </p>
+     * 
+     * @param keywords
+     */
+    private void reRankOverlaps(List<Keyphrase> keywords) {
+        for (Keyphrase k1 : keywords) {
+            for (Keyphrase k2 : keywords) {
+                if (k1.getValue().equals(k2.getValue())) {
+                    continue;
+                }
+                if (k1.getValue().contains(k2.getValue())) {
+                     k2.setWeight(k2.getWeight() - k1.getWeight());
+                }
+            }
+        }
+    }
+    
+    private void reRankCooccurrences(List<Keyphrase> keywords) {
+        for (Keyphrase k1 : keywords) {
+            double oldWeight = k1.getWeight();
+            double summedConditionalProbs = 0;
+            for (Keyphrase k2 : keywords) {
+                if (k1.getValue().equals(k2.getValue())) {
+                    continue;
+                }
+                summedConditionalProbs += cooccurrenceMatrix.getConditionalProbabilityLaplace(k1.getValue(), k2.getValue());
+            }
+            double newWeight = oldWeight + COOCURRENCE_REWEIGHTING_FACTOR * summedConditionalProbs * oldWeight;
+            k1.setWeight(newWeight);
+        }
+    }
+
     @Override
     public String getExtractorName() {
         return "ClassifierExtractor";
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder description = new StringBuilder();
+        description.append("ClassifierExtractor");
+        description.append(" Pipeline1=").append(pipeline1);
+        description.append(" Pipeline2=").append(pipeline2);
+        description.append(" #trainDocuments=").append(TRAIN_DOC_LIMIT);
+        description.append(" coocurrenceReWeightingFactor=").append(COOCURRENCE_REWEIGHTING_FACTOR);
+        return description.toString();
     }
 
 }

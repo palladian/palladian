@@ -40,6 +40,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * </p>
      */
     private static final long serialVersionUID = 4827188441005628492L;
+    
+    private final SentenceChunker sentenceChunker;
 
     /**
      * <p>
@@ -52,11 +54,9 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      */
     public LingPipeSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
         super(documentToInputMapping);
-        final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
-
-        final SentenceChunker sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
-        setModel(sentenceChunker);
+        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
+        sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
     }
 
     /**
@@ -68,16 +68,14 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      */
     public LingPipeSentenceDetector() {
         super();
-        final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
-
-        final SentenceChunker sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
-        setModel(sentenceChunker);
+        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
+        sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
     }
 
     @Override
     public LingPipeSentenceDetector detect(String text) {
-        Chunking chunking = ((SentenceChunker)getModel()).chunk(text);
+        Chunking chunking = sentenceChunker.chunk(text);
         Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
         PipelineDocument document = new PipelineDocument(text);
         int ite = 0;

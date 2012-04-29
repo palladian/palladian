@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * An unordered tuple of items, so that UnorderedPair(Apple, Banana) == UnorderedPair(Banana, Apple). Useful for word
@@ -10,11 +12,13 @@ package ws.palladian.helper.collection;
  * 
  * @author Philipp Katz
  */
-public class UnorderedPair<T> {
+public class UnorderedPair<T> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final T left;
     private final T right;
-    
+
     public static <T> UnorderedPair<T> of(T left, T right) {
         return new UnorderedPair<T>(left, right);
     }

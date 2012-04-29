@@ -39,7 +39,7 @@ public class WekaPredictor implements Predictor<String> {
             try {
                 classifier.buildClassifier(trainInstances);
             } catch (Exception e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException("An exception occurred while building the classifier: " + e.getMessage(), e);
             }
         }
     }
@@ -63,7 +63,6 @@ public class WekaPredictor implements Predictor<String> {
         if (target != null) {
             wekaInstance.setValue((Attribute)featureVector.elementAt(i), target);
         }
-        
         return wekaInstance;
     }
     
@@ -114,7 +113,7 @@ public class WekaPredictor implements Predictor<String> {
             ret.add(new CategoryEntry(ret, new Category("true"), distributionForInstance[0]));
             ret.add(new CategoryEntry(ret, new Category("false"), distributionForInstance[1]));
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
         }
         return ret;
     }

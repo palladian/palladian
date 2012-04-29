@@ -1,24 +1,19 @@
-/**
- *
- */
 package ws.palladian.extraction.sentence;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.Span;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.PositionAnnotation;
 
@@ -30,6 +25,7 @@ import ws.palladian.model.features.PositionAnnotation;
  * 
  * @author Martin Wunderwald
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
 
@@ -39,10 +35,9 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
      * </p>
      */
     private static final long serialVersionUID = -673731236797308512L;
-    /**
-     * Logger for this class.
-     */
-    private static final Logger LOGGER = Logger.getLogger(OpenNlpSentenceDetector.class);
+
+    /** The sentence detector object. */
+    private final SentenceDetectorME model;
 
     /**
      * <p>
@@ -52,49 +47,33 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
      * @param modelFilePath A path on the local file system to a model file as expected by an <a
      *            href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP</a> sentence detector.
      */
-    public OpenNlpSentenceDetector(String modelFilePath) {
+    public OpenNlpSentenceDetector(File modelFile) {
         super();
+        Validate.notNull(modelFile, "The model file must not be null.");
+        this.model = loadModel(modelFile);
+    }
 
-        SentenceModel sentenceModel = null;
-        InputStream modelIn = null;
-        SentenceDetectorME sdetector = null;
-
-        if (Cache.getInstance().containsDataObject(modelFilePath)) {
-
-            sdetector = (SentenceDetectorME)Cache.getInstance().getDataObject(modelFilePath);
-
-        } else {
-
-            final StopWatch stopWatch = new StopWatch();
-
+    private final SentenceDetectorME loadModel(File modelFile) {
+        SentenceDetectorME sdetector = (SentenceDetectorME)Cache.getInstance().getDataObject(modelFile.getAbsolutePath());
+        if (sdetector == null) {
+            InputStream modelIn = null;
             try {
-
-                modelIn = new FileInputStream(modelFilePath);
-
-                sentenceModel = new SentenceModel(modelIn);
-
-                sdetector = new SentenceDetectorME(sentenceModel);
-                Cache.getInstance().putDataObject(modelFilePath, sdetector);
-                LOGGER.info("Reading OpenNLP Sentence Detector from file " + modelFilePath + " in "
-                        + stopWatch.getElapsedTimeString());
-
-            } catch (final InvalidFormatException e) {
-                LOGGER.error(e);
-            } catch (final FileNotFoundException e) {
-                LOGGER.error(e);
-            } catch (final IOException e) {
-                LOGGER.error(e);
+                modelIn = new FileInputStream(modelFile);
+                sdetector = new SentenceDetectorME(new SentenceModel(modelIn));
+                Cache.getInstance().putDataObject(modelFile.getAbsolutePath(), sdetector);
+            } catch (IOException e) {
+                throw new IllegalStateException("Error initializing OpenNLP Sentence Detector from \""
+                        + modelFile.getAbsolutePath() + "\": " + e.getMessage());
             } finally {
-                FileHelper.close(modelIn);
+                IOUtils.closeQuietly(modelIn);
             }
         }
-
-        setModel(sdetector);
+        return sdetector;
     }
 
     @Override
     public OpenNlpSentenceDetector detect(String text) {
-        Span[] sentenceBoundaries = ((SentenceDetectorME)getModel()).sentPosDetect(text);
+        Span[] sentenceBoundaries = model.sentPosDetect(text);
         Annotation[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
         PipelineDocument document = new PipelineDocument(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {

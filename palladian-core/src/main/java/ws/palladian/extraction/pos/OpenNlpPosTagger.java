@@ -3,7 +3,11 @@ package ws.palladian.extraction.pos;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
@@ -31,19 +35,25 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     private final POSTagger tagger;
 
     public OpenNlpPosTagger(File modelFile) {
+        super();
+        Validate.notNull(modelFile, "The model file must not be null.");
         this.tagger = loadModel(modelFile);
     }
 
-    private POSTagger loadModel(File modelFile) {
+    private final POSTagger loadModel(File modelFile) {
         String modelPath = modelFile.getAbsolutePath();
         POSTagger model = (POSTagger)Cache.getInstance().getDataObject(modelPath);
         if (model == null) {
+            InputStream inputStream = null;
             try {
-                model = new POSTaggerME(new POSModel(new FileInputStream(modelFile)));
+                inputStream = new FileInputStream(modelFile);
+                model = new POSTaggerME(new POSModel(inputStream));
                 Cache.getInstance().putDataObject(modelPath, model);
             } catch (IOException e) {
                 throw new IllegalStateException("Error initializing OpenNLP POS Tagger from \"" + modelPath + "\": "
                         + e.getMessage());
+            } finally {
+                IOUtils.closeQuietly(inputStream);
             }
         }
         return model;

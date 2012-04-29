@@ -9,6 +9,13 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.model.features.Annotation;
 
+/**
+ * <p>
+ * Remove tokens based on a vocabulary list, i.e. remove those tokens which are not in the supplied vocabulary.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public final class TokenFilter extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
@@ -31,6 +38,19 @@ public final class TokenFilter extends AbstractTokenRemover {
     @Override
     protected boolean remove(Annotation annotation) {
         return !vocabulary.contains(annotation.getValue());
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TokenFilter [#vocabulary=");
+        builder.append(vocabulary.size());
+        builder.append("]");
+        return builder.toString();
     }
 
 }
