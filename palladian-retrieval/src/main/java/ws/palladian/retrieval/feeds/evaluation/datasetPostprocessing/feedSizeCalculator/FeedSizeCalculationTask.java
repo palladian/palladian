@@ -20,6 +20,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedClassifier;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
@@ -112,7 +113,7 @@ public class FeedSizeCalculationTask implements Callable<FeedTaskResult> {
                     // use header size
                     feedPoll.setResponseSize(feed.getMetaInformation().getCgHeaderSize());
                 } else if (feedPoll.getNumberNewItems() != null
-                        && (feedPoll.getNumberNewItems() > 0 || feed.getActivityPattern() == FeedClassifier.CLASS_EMPTY)) {
+                        && (feedPoll.getNumberNewItems() > 0 || feed.getActivityPattern() == FeedActivityPattern.CLASS_EMPTY)) {
                     // get size from gz file
                     int currentResponseSize = getResponseSizeFromGZ(feedPoll.getPollTimestamp());
                     feedPoll.setResponseSize(currentResponseSize);
@@ -181,7 +182,7 @@ public class FeedSizeCalculationTask implements Callable<FeedTaskResult> {
             }
         }
 
-        if (allFiles.length == 0 && feed.getActivityPattern() == FeedClassifier.CLASS_EMPTY) {
+        if (allFiles.length == 0 && feed.getActivityPattern() == FeedActivityPattern.CLASS_EMPTY) {
             responseSize = (int) feed.getMetaInformation().getByteSize();
         }
 

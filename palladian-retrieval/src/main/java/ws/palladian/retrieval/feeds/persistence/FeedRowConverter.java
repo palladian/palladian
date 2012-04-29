@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.FeedActivityPattern;
 
 public class FeedRowConverter implements RowConverter<Feed> {
 
@@ -34,7 +35,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
         feed.setLastFeedTaskResult(resultSet.getString("lastResult"));
-        feed.setActivityPattern(SqlHelper.getInteger(resultSet, "activityPattern"));
+        feed.setActivityPattern(FeedActivityPattern.fromIdentifier(resultSet.getInt("activityPattern")));
         feed.getMetaInformation().setFeedFormat(resultSet.getString("feedFormat"));
         feed.getMetaInformation().setByteSize(resultSet.getLong("feedSize"));
         feed.getMetaInformation().setSiteUrl(resultSet.getString("siteUrl"));
@@ -51,7 +52,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.getMetaInformation().setHasPublished(SqlHelper.getBoolean(resultSet, "hasPublished"));
         feed.getMetaInformation().setSupportsPubSubHubBub(SqlHelper.getBoolean(resultSet, "supportsPubSubHubBub"));
         feed.getMetaInformation().setCgHeaderSize(SqlHelper.getInteger(resultSet, "httpHeaderSize"));
-        
+
         return feed;
 
     }

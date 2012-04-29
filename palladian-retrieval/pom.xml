@@ -9,6 +9,18 @@
 	<artifactId>palladian-retrieval</artifactId>
 	<name>Palladian: Retrieval</name>
 	<description>Palladian Retrieval Functionality</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<configLocation>${project.parent.basedir}/dev/checkstyle_config.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>

@@ -9,6 +9,7 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -235,7 +236,7 @@ public class MavUpdateStrategy extends UpdateStrategy {
         // }
         // /////////////////////
 
-        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
         } else {
             feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
@@ -243,7 +244,7 @@ public class MavUpdateStrategy extends UpdateStrategy {
 
         // in case only one entry has been found use default check time
         if (entries.size() <= 1) {
-            if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+            if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
                 feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME / 2));
             } else {
                 feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
