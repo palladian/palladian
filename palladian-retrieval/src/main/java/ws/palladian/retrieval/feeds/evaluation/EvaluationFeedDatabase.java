@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.IntervalBoundsEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
@@ -1295,13 +1296,13 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param tableName The name of the table to add the information to.
      * @param useQueue If set to <code>true</code>, do not add poll now but put to a queue for batch insert.
      */
-    public void addPollData(PollData pollData, int feedId, int activityPattern, String tableName, boolean useQueue) {
+    public void addPollData(PollData pollData, int feedId, FeedActivityPattern activityPattern, String tableName, boolean useQueue) {
 
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(feedId);
         parameters.add(pollData.getNumberOfPoll());
         parameters.add(pollData.getNumberOfPollWithNewItem());
-        parameters.add(activityPattern);
+        parameters.add(activityPattern.getIdentifier());
         parameters.add(pollData.getDownloadSize());
         parameters.add(pollData.getPollSQLTimestamp());
         parameters.add(pollData.getCheckInterval());
