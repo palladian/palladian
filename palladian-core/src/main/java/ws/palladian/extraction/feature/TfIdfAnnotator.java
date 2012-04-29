@@ -2,6 +2,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -23,7 +24,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public class TfIdfAnnotator implements PipelineProcessor {
+public class TfIdfAnnotator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,7 +32,7 @@ public class TfIdfAnnotator implements PipelineProcessor {
             "ws.palladian.preprocessing.tokens.tfidf", NumericFeature.class);
 
     @Override
-    public void process(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

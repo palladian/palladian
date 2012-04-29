@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.extraction.AbstractPipelineProcessor;
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.nlp.StringHelper;
@@ -16,7 +17,7 @@ import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 
-public class AdditionalFeatureExtractor implements PipelineProcessor {
+public class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
     
@@ -26,6 +27,7 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
     final FeatureDescriptor<NominalFeature> COMPLETE_UPPERCASE = FeatureDescriptorBuilder.build("completelyUppercase", NominalFeature.class);
     final FeatureDescriptor<NominalFeature> CONTAINS_NUMBERS = FeatureDescriptorBuilder.build("containsNumbers", NominalFeature.class);
     final FeatureDescriptor<NominalFeature> IS_NUMBER = FeatureDescriptorBuilder.build("isNumber", NominalFeature.class);
+    final FeatureDescriptor<NominalFeature> CONTAINS_PUNCTUATION = FeatureDescriptorBuilder.build("containsPunctuation", NominalFeature.class);
     
     // context features
 //    final FeatureDescriptor<NominalFeature> PREVIOUS_STOPWORD = FeatureDescriptorBuilder.build("previousStop", NominalFeature.class);
@@ -47,7 +49,7 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
     
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
@@ -60,10 +62,12 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
             Boolean completeUppercase = StringUtils.isAllUpperCase(value);
             Boolean containsNumbers = containsNumber(value);
             Boolean isNumber = StringUtils.isNumeric(value);
+            Boolean containsPunctuation = containsPunctuation(value);
             featureVector.add(new NominalFeature(STARTS_UPPERCASE, startsUppercase.toString()));
             featureVector.add(new NominalFeature(COMPLETE_UPPERCASE, completeUppercase.toString()));
             featureVector.add(new NominalFeature(CONTAINS_NUMBERS, containsNumbers.toString()));
             featureVector.add(new NominalFeature(IS_NUMBER, isNumber.toString()));
+            featureVector.add(new NominalFeature(CONTAINS_PUNCTUATION, containsPunctuation.toString()));
             
             // previous token
 //            Boolean previousStopword = false;
@@ -107,4 +111,25 @@ public class AdditionalFeatureExtractor implements PipelineProcessor {
         }
         return false;
     }
+    public static boolean containsPunctuation(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            char currentChar = string.charAt(i);
+            boolean punctuation = currentChar == '.';
+            punctuation |= currentChar == ':';
+            punctuation |= currentChar == ',';
+            punctuation |= currentChar == ';';
+            punctuation |= currentChar == '?';
+            punctuation |= currentChar == '!';
+            if (punctuation) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public static void main(String[] args) {
+        System.out.println(containsPunctuation("yes!"));
+        System.out.println(containsPunctuation("http:"));
+        System.out.println(containsPunctuation("test"));
+    }
+
 }

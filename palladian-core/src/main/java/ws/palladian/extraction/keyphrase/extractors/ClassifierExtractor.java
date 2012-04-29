@@ -132,6 +132,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         // isInBrackets
         // isInQuotes
         // positionInSentence (begin|middle|end)
+        // gerund (-ing?)
         pipeline1.add(new LengthTokenRemover(4));
         pipeline1.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         pipeline1.add(new NGramCreator2(3));
@@ -249,10 +250,10 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     public void endTraining() {
         System.out.println(pipeline1.toString());
         System.out.println("finished training, # train docs: " + trainDocuments.size());
-        System.out.println("calc. wcm ...");
-        System.out.println("finished wcm.");
         List<Annotation> annotations = new ArrayList<Annotation>();
         Iterator<Entry<PipelineDocument, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
+        int totalKeyphrases = 0;
+        int totallyMarked = 0;
         while (trainDocIterator.hasNext()) {
             Entry<PipelineDocument, Set<String>> currentEntry = trainDocIterator.next();
             PipelineDocument currentDoc = currentEntry.getKey();
@@ -264,12 +265,14 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             }
             AnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
                     TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
-            markCandidates(annotationFeature, keywords);
+            totalKeyphrases += keywords.size();
+            totallyMarked += markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature.getValue());
             trainDocIterator.remove();
         }
         System.out.println("# annotations: " + annotations.size());
-        writeData(annotations, CLASSIFICATION_DATA);
+        System.out.println("% train coverage: " + (double) totallyMarked / totalKeyphrases);
+        // writeData(annotations, CLASSIFICATION_DATA);
         int posSamples = 0;
         int negSamples = 0;
         List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
@@ -286,9 +289,9 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             instance.featureVector = featureVector;
             instances.add(instance);
         }
-        System.out.println("negative samples: " + negSamples);
-        System.out.println("positive samples: " + posSamples);
-        System.out.println("positive sample rate: " + (double) posSamples / (negSamples+posSamples));
+        System.out.println("# negative samples: " + negSamples);
+        System.out.println("# positive samples: " + posSamples);
+        System.out.println("% positive sample rate: " + (double) posSamples / (negSamples+posSamples));
         System.out.println("building classifier ...");
         classifier.learn(instances);
         System.out.println(classifier.toString());
@@ -423,7 +426,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             }
         }
         reRankCooccurrences(keywords);
-        reRankOverlaps(keywords);
+        //reRankOverlaps(keywords);
         Collections.sort(keywords);
         if (keywords.size() > getKeyphraseCount()) {
             keywords.subList(getKeyphraseCount(), keywords.size()).clear();
