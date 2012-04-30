@@ -114,7 +114,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
-        parameters.add(feed.getActivityPattern());
+        parameters.add(feed.getActivityPattern().getIdentifier());
         parameters.add(feed.getLastPollTimeSQLTimestamp());
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(feed.getHttpLastModifiedSQLTimestamp());
@@ -337,7 +337,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             parameters.add(null);
         }
         parameters.add(feed.getLastPollTime());
-        parameters.add(feed.getActivityPattern());
+        parameters.add(feed.getActivityPattern().getIdentifier());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
