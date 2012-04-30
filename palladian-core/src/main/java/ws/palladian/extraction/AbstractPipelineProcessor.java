@@ -111,8 +111,9 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * </p>
      * 
      * @param document The document to apply the mapping to.
+     * @throws DocumentUnprocessableException In case the document does not provide the necessary input or output views.
      */
-    private void applyMapping(PipelineDocument document) {
+    private void applyMapping(PipelineDocument document) throws DocumentUnprocessableException {
         for (Pair<String, String> mapping : documentToInputMapping) {
             // Ignore the mapping from modified content to original content if modified content is not available
             // This is necessary to handle the case of the initial component in a pipeline where no modifiedContent
@@ -126,8 +127,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
             if (document.providesView(mapping.getKey()) && document.providesView(mapping.getValue())) {
                 document.putView(mapping.getValue(), document.getView(mapping.getKey()));
             } else {
-                throw new IllegalArgumentException(
-                        "Document is not processable since it either does not proviede all necessary input or not all necessary output views.\n\tInputViews: "
+                throw new DocumentUnprocessableException(
+                        "Document is not processable since it either does not provide all necessary input or not all necessary output views.\n\tInputViews: "
                                 + getInputViewNames() + "\n\tOutputViews:" + getOutputViewNames());
             }
         }
@@ -148,15 +149,16 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     /**
      * <p>
      * Checks whether all output views where created in a {@code PipelineDocument} and throws an
-     * {@code IllegalStateException} if not.
+     * {@code DocumentUnprocessableException} if not.
      * </p>
      * 
      * @param document The {@code PipelineDocument} to check.
+     * @throws DocumentUnprocessableException In case the document does not provide the required output view.
      */
-    private void allOutputViewsAvailable(PipelineDocument document) {
+    private void allOutputViewsAvailable(PipelineDocument document) throws DocumentUnprocessableException {
         for (String outputViewName : getOutputViewNames()) {
             if (!document.providesView(outputViewName)) {
-                throw new IllegalStateException("Input document: " + document
+                throw new DocumentUnprocessableException("Input document: " + document
                         + " does not provide required output.\nRequired views: " + getOutputViewNames()
                         + "\nProvided views: " + document.getProvidedViewNames());
             }
@@ -166,18 +168,24 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     /**
      * <p>
      * Checks whether all input views where provided with a {@code PipelineDocument} and throws an
-     * {@code IllegalStateException} if not.
+     * {@code DocumentUnprocessableException} if not.
      * </p>
      * 
      * @param document The {@code PipelineDocument} to check.
+     * @throws DocumentUnprocessableException In case the document does not provide the required input view.
      */
-    private void allInputViewsAvailable(PipelineDocument document) {
+    private void allInputViewsAvailable(PipelineDocument document) throws DocumentUnprocessableException {
         for (String inputViewName : getInputViewNames()) {
             if (!document.providesView(inputViewName)) {
-                throw new IllegalStateException("Input document: " + document
+                throw new DocumentUnprocessableException("Input document: " + document
                         + " does not provide required input.\nRequired views: " + getInputViewNames()
                         + "\nProvided views: " + document.getProvidedViewNames());
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }
