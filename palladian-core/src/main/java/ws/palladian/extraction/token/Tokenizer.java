@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -311,6 +312,18 @@ public class Tokenizer {
             urlMapping.put(replacement, annotation.getEntity());
             uCount++;
         }
+        
+        // recognize URLs so we don't break them
+        DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
+        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        int dCount = 1;
+        Map<String, String> dateMapping = new HashMap<String, String>();
+        for (Annotation annotation : taggedDates) {
+            String replacement = "DATE" + dCount;
+            inputText = inputText.replace(annotation.getEntity(), replacement);
+            dateMapping.put(replacement, annotation.getEntity());
+            dCount++;
+        }
 
         List<String> sentences = new ArrayList<String>();
 
@@ -360,8 +373,19 @@ public class Tokenizer {
             }
             sentencesReplacedUrls.add(sentence);
         }
+        
+        // replace dates back
+        List<String> sentencesReplacedDates = new ArrayList<String>();
+        for (String sentence : sentencesReplacedUrls) {
+            for (Entry<String, String> entry : dateMapping.entrySet()) {
+                sentence = sentence.replace(entry.getKey(), entry.getValue());
+            }
+            if (!sentence.isEmpty()) {
+                sentencesReplacedDates.add(sentence);
+            }
+        }
 
-        return sentencesReplacedUrls;
+        return sentencesReplacedDates;
     }
 
     public static List<String> getSentences(String inputText) {
