@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -155,7 +154,7 @@ public class Feed {
     private Boolean oneFullDayOfItemsSeen = null;
 
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
-    private int activityPattern = FeedClassifier.CLASS_UNKNOWN;
+    private FeedActivityPattern activityPattern = FeedActivityPattern.CLASS_UNKNOWN;
 
     /** The ETag that was send with the last request. This saves bandwidth for feeds that support ETags. */
     private String lastETag = null;
@@ -327,21 +326,6 @@ public class Feed {
     public List<FeedItem> getItems() {
         return items;
     }
-
-    // /**
-    // * Get the item's timestamps and store them locally. Already stored timestamps are reseted. In case an item has no
-    // * timestamp or its timestamp is in the future, the poll timestamp is used instead.
-    // *
-    // * @param items
-    // */
-    // private void setCorrectedItemTimestamps(List<FeedItem> items) {
-    // ArrayList<Date> timestamps = new ArrayList<Date>();
-    //
-    // for (FeedItem entry : items) {
-    // timestamps.add(getCorrectedTimestamp(entry));
-    // }
-    // this.itemTimestamps = timestamps;
-    // }
 
     /**
      * TODO remove param logWarnings, put to config file and set to true by default?
@@ -816,12 +800,10 @@ public class Feed {
         return oneFullDayOfItemsSeen;
     }
 
-    public void setActivityPattern(Integer activityPattern) {
-        if (activityPattern != null
-                && Arrays.asList(FeedClassifier.getActivityPatternIDs()).contains(activityPattern)) {
+    public void setActivityPattern(FeedActivityPattern activityPattern) {
+        if (activityPattern != null) {
             this.activityPattern = activityPattern;
         }
-
     }
 
     /**
@@ -829,9 +811,9 @@ public class Feed {
      * {@link FeedClassifier#CLASS_CHUNKED}, {@link FeedClassifier#CLASS_SLICED} , {@link FeedClassifier#CLASS_ZOMBIE},
      * {@link FeedClassifier#CLASS_UNKNOWN} or {@link FeedClassifier#CLASS_ON_THE_FLY}
      * 
-     * @return The classID of the pattern. You can get the name using {@link FeedClassifier#getClassName()}
+     * @return The {@link FeedActivityPattern}. You can get the name using {@link FeedClassifier#getClassName()}
      */
-    public int getActivityPattern() {
+    public FeedActivityPattern getActivityPattern() {
         return activityPattern;
     }
 
@@ -993,10 +975,10 @@ public class Feed {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + activityPattern;
+        result = prime * result + ((activityPattern == null) ? 0 : activityPattern.hashCode());
         result = prime * result + ((additionalData == null) ? 0 : additionalData.hashCode());
-        result = prime * result + (int) (benchmarkLastLookupTime ^ (benchmarkLastLookupTime >>> 32));
-        result = prime * result + (int) (benchmarkLookupTime ^ (benchmarkLookupTime >>> 32));
+        result = prime * result + (int)(benchmarkLastLookupTime ^ (benchmarkLastLookupTime >>> 32));
+        result = prime * result + (int)(benchmarkLookupTime ^ (benchmarkLookupTime >>> 32));
         result = prime * result + (blocked ? 1231 : 1237);
         result = prime * result + checks;
         result = prime * result + ((feedMetaInfo == null) ? 0 : feedMetaInfo.hashCode());
@@ -1019,8 +1001,8 @@ public class Feed {
         result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
         long temp;
         temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + (int) (totalProcessingTimeMS ^ (totalProcessingTimeMS >>> 32));
+        result = prime * result + (int)(temp ^ (temp >>> 32));
+        result = prime * result + (int)(totalProcessingTimeMS ^ (totalProcessingTimeMS >>> 32));
         result = prime * result + unparsableCount;
         result = prime * result + unreachableCount;
         result = prime * result + updateInterval;
@@ -1042,7 +1024,7 @@ public class Feed {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Feed other = (Feed) obj;
+        Feed other = (Feed)obj;
         if (activityPattern != other.activityPattern)
             return false;
         if (additionalData == null) {
@@ -1475,7 +1457,6 @@ public class Feed {
         return additionalData;
     }
 
-
     public Object getAdditionalData(String key) {
         if (additionalData == null) {
             return null;
@@ -1552,7 +1533,6 @@ public class Feed {
     public final void setHttpDateLastPoll(Date httpDateLastPoll) {
         this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
     }
-
 
     public static void main(String[] args) {
 
