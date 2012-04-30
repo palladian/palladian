@@ -3,6 +3,7 @@ package ws.palladian.extraction.keyphrase.extractors;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -123,7 +124,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         try {
             pipeline1.add(new StopTokenRemover(ResourceHelper.getResourceFile("/stopwords_en_small.txt")));
         } catch (FileNotFoundException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(e);
         }
         pipeline1.add(stemmer);
         // further features to consider:
@@ -162,7 +163,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 for (Annotation annotation : annotations) {
-                    double prior = (double)assignedTermCorpus.getCount(annotation.getValue())
+                    double prior = (double)assignedTermCorpus.getCount(canonicalize(annotation.getValue()))
                             / assignedTermCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature(PRIOR, prior));
                 }
@@ -243,13 +244,13 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             terms.add(annotation.getValue());
         }
         termCorpus.addTermsFromDocument(terms);
-        assignedTermCorpus.addTermsFromDocument(keyphrases);
+        assignedTermCorpus.addTermsFromDocument(new HashSet<String>(canonicalize(stem(keyphrases))));
         // only keep the first n documents because of memory issues for now
         if (trainCount <= TRAIN_DOC_LIMIT) {
             trainDocuments.put(document, keyphrases);
         }
         trainCount++;
-        cooccurrenceMatrix.addAll(keyphrases);
+        cooccurrenceMatrix.addAll(canonicalize(stem(keyphrases)));
     }
 
     @Override
@@ -441,6 +442,14 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         Collections.sort(result);
         return StringUtils.join(result, " ");
     }
+    
+    private static List<String> canonicalize(Collection<String> strings) {
+        List<String> result = CollectionHelper.newArrayList();
+        for (String s : strings) {
+            result.add(canonicalize(s));
+        }
+        return result;
+    }
 
     private String stem(String string) {
         List<String> stems = new ArrayList<String>();
@@ -448,6 +457,14 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             stems.add(stemmer.stem(s));
         }
         return StringUtils.join(stems, " ");
+    }
+    
+    private Set<String> stem(Set<String> strings) {
+        Set<String> stems = CollectionHelper.newHashSet();
+        for (String string : strings) {
+            stems.add(stem(string));
+        }
+        return stems;
     }
 
     @Override
@@ -509,11 +526,13 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         for (Keyphrase k1 : keywords) {
             double oldWeight = k1.getWeight();
             double summedConditionalProbs = 0;
+            String value1 = canonicalize(k1.getValue());
             for (Keyphrase k2 : keywords) {
-                if (k1.getValue().equals(k2.getValue())) {
+                String value2 = canonicalize(k2.getValue());
+                if (value1.equals(value2)) {
                     continue;
                 }
-                summedConditionalProbs += cooccurrenceMatrix.getConditionalProbabilityLaplace(k1.getValue(), k2.getValue());
+                summedConditionalProbs += cooccurrenceMatrix.getConditionalProbabilityLaplace(value1, value2);
             }
             double newWeight = oldWeight + COOCURRENCE_REWEIGHTING_FACTOR * summedConditionalProbs * oldWeight;
             k1.setWeight(newWeight);
