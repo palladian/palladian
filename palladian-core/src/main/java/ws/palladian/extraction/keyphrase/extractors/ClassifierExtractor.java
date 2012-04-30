@@ -1,6 +1,7 @@
 package ws.palladian.extraction.keyphrase.extractors;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
@@ -85,7 +87,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             "scaledCooccurrence", NumericFeature.class);
     private static final FeatureDescriptor<NumericFeature> COOCCURRENCE_MAX = FeatureDescriptorBuilder.build(
             "maxCooccurrence", NumericFeature.class);
-    private static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
+    static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
             NominalFeature.class);
 
     public ClassifierExtractor() {
@@ -117,7 +119,12 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 }
             }
         }); */
-        pipeline1.add(new StopTokenRemover(Language.ENGLISH));
+        // pipeline1.add(new StopTokenRemover(Language.ENGLISH));
+        try {
+            pipeline1.add(new StopTokenRemover(ResourceHelper.getResourceFile("/stopwords_en_small.txt")));
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException();
+        }
         pipeline1.add(stemmer);
         // further features to consider:
         // startsUppercase
