@@ -15,7 +15,9 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.ClassifierExtractor;
+import ws.palladian.extraction.keyphrase.extractors.MauiKeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
+import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.extractors.SimExtractor;
 import ws.palladian.extraction.keyphrase.extractors.TfidfExtractor;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
@@ -23,39 +25,59 @@ import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
 
 public class KeyphraseExtractorEvaluator {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractorEvaluator.class);
 
     /** The keyphrase extractors to evaluate. */
     private final List<KeyphraseExtractor> extractors;
-    
-    private final Dataset2 dataset;
-    
-    private final int numFolds;
 
     /** The stemmer is needed to compare the assigned tags to the existing ones. */
     private final SnowballStemmer stemmer;
 
-    public KeyphraseExtractorEvaluator(Dataset2 dataset, int numFolds) {
+    public KeyphraseExtractorEvaluator() {
         this.extractors = new ArrayList<KeyphraseExtractor>();
-        this.dataset = dataset;
-        this.numFolds = numFolds;
         this.stemmer = new englishStemmer();
     }
 
     public void addExtractor(KeyphraseExtractor extractor) {
         extractors.add(extractor);
     }
-    
-    public void evaluate() {
+
+    /**
+     * <p>
+     * Evaluate with one dataset using cross validation.
+     * </p>
+     * 
+     * @param dataset The dataset used for cross validation.
+     * @param numFolds The number of folds to perform.
+     */
+    public void evaluate(Dataset2 dataset, int numFolds) {
         LOGGER.info("dataset " + dataset);
         for (KeyphraseExtractor extractor : extractors) {
-            evaluate(extractor);
+            evaluate(extractor, dataset, numFolds);
         }
     }
 
-    private void evaluate(KeyphraseExtractor extractor) {
+    /**
+     * <p>
+     * Evaluate with a train and a test dataset.
+     * </p>
+     * 
+     * @param trainDataset The dataset used for training.
+     * @param testDataset The dataset used for testing.
+     */
+    public void evaluate(Dataset2 trainDataset, Dataset2 testDataset) {
+        for (KeyphraseExtractor extractor : extractors) {
+            LOGGER.info("evaluating " + extractor.toString());
+            KeyphraseExtractorEvaluationResult result = new KeyphraseExtractorEvaluationResult();
+            extractor.train(trainDataset);
+            test(extractor, testDataset, result);
+            LOGGER.info(result.toString());
+        }
+    }
+
+    private void evaluate(KeyphraseExtractor extractor, Dataset2 dataset, int numFolds) {
         LOGGER.info("evaluating " + extractor.toString());
         Iterator<Dataset2[]> cvIterator = DatasetHelper.crossValidate(dataset, numFolds);
         int i = 1;
@@ -69,13 +91,12 @@ public class KeyphraseExtractorEvaluator {
             test(extractor, test, result);
         }
         LOGGER.info(result.toString());
-        //result.printStatistics();
     }
 
-    private void test(KeyphraseExtractor extractor, Dataset2 dataset, KeyphraseExtractorEvaluationResult result) {
+    private void test(KeyphraseExtractor extractor, Dataset2 testDataset, KeyphraseExtractorEvaluationResult result) {
         extractor.startExtraction();
 
-        for (DatasetItem item : dataset) {
+        for (DatasetItem item : testDataset) {
 
             // the manually assigned keyphrases
             Set<String> realKeyphrases = new HashSet<String>();
@@ -155,17 +176,18 @@ public class KeyphraseExtractorEvaluator {
     }
 
     public static void main(String[] args) {
-        // KeyphraseExtractor keyphraseExtractor = new YahooTermExtraction();
-        // KeyphraseExtractor keyphraseExtractor = new SimExtractor();
-        // KeyphraseExtractor keyphraseExtractor = new MauiKeyphraseExtractor();
-        // KeyphraseExtractor keyphraseExtractor = new TfidfExtractor();
-//         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
-        Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
-        KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator(dataset, 2);
-        evaluator.addExtractor(new ClassifierExtractor());
+         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
+        Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
+        Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
+        KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
+//        evaluator.addExtractor(new ClassifierExtractor());
 //        evaluator.addExtractor(new TfidfExtractor());
 //        evaluator.addExtractor(new SimExtractor());
-        evaluator.evaluate();
+//        evaluator.addExtractor(new RuleBasedExtractor());
+        evaluator.addExtractor(new MauiKeyphraseExtractor());
+        evaluator.addExtractor(new RuleBasedExtractor());
+        evaluator.evaluate(trainDataset, testDataset);
+//        evaluator.evaluate(dataset, 5);
     }
 
 }

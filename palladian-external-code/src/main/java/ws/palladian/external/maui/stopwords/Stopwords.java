@@ -29,8 +29,9 @@ public /*abstract*/ class Stopwords implements Serializable {
     private void loadFromFile(String filePath) {
         InputStream is = Stopwords.class.getResourceAsStream(filePath);
         if (is == null) {
-            System.err.println(filePath + " not found.");
-            return;
+            //System.err.println(filePath + " not found.");
+            //return;
+            throw new IllegalStateException(filePath + " not found.");
         }
         
         BufferedReader br = new BufferedReader(new InputStreamReader(is));

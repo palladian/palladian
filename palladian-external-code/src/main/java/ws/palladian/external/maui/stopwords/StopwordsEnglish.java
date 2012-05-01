@@ -19,7 +19,8 @@ public class StopwordsEnglish extends Stopwords {
 //	private static HashSet<String> m_Stopwords = null;
 	
 	public StopwordsEnglish(String filePath) {
-		super("stopwords_en.txt");
+	    super(filePath);
+//		super("stopwords_en.txt");
 //		if (m_Stopwords == null) {
 //			m_Stopwords = new HashSet<String>();
 //			File txt = new File(filePath);	
