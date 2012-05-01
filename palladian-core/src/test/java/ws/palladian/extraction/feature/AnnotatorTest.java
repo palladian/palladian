@@ -15,11 +15,11 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 
-public class StemmerAnnotatorTest {
+public class AnnotatorTest {
 
     private final PipelineDocument document = new PipelineDocument("Let's try to stem some tokens in English language.");
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = DocumentUnprocessableException.class)
     public void testMissingTokenAnnotations() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new StemmerAnnotator(Language.ENGLISH));
