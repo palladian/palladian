@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.model.features.Feature;
@@ -16,6 +17,25 @@ import ws.palladian.model.features.NumericFeature;
 
 public class FeatureVectorTest {
 
+    private FeatureVector featureVector;
+    private NominalFeature f1;
+    private Feature<String> f2;
+    private NumericFeature f3;
+    private Feature<Double> f4;
+
+    @Before
+    public void setUp() {
+        featureVector = new FeatureVector();
+        f1 = new NominalFeature("nominalFeature1", "test");
+        f2 = new Feature<String>("nominalFeature3", "test");
+        f3 = new NumericFeature("numericFeature1", 2.);
+        f4 = new Feature<Double>("numericFeature2", 3.);
+        featureVector.add(f1);
+        featureVector.add(f2);
+        featureVector.add(f3);
+        featureVector.add(f4);
+    }
+    
     @Test
     public void testRetrieveFeaturesByDescriptor() {
         FeatureVector featureVector = new FeatureVector();
@@ -33,15 +53,6 @@ public class FeatureVectorTest {
     
     @Test
     public void testRetrieveFeaturesByType() {
-        FeatureVector featureVector = new FeatureVector();
-        NominalFeature f1 = new NominalFeature("nominalFeature1", "test");
-        Feature<String> f2 = new Feature<String>("nominalFeature3", "test");
-        NumericFeature f3 = new NumericFeature("numericFeature1", 2.);
-        Feature<Double> f4 = new Feature<Double>("numericFeature2", 3.);
-        featureVector.add(f1);
-        featureVector.add(f2);
-        featureVector.add(f3);
-        featureVector.add(f4);
         assertEquals(4, featureVector.size());
         List<Feature<String>> stringFeatures = featureVector.getAll(String.class);
         assertEquals(2, stringFeatures.size());
@@ -51,6 +62,12 @@ public class FeatureVectorTest {
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
+    }
+    
+    @Test
+    public void testCopyFeatureVector() {
+        FeatureVector newFeatureVector = new FeatureVector(featureVector);
+        assertEquals(4, newFeatureVector.size());
     }
 
 }

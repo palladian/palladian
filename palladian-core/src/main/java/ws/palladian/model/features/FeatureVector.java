@@ -1,6 +1,7 @@
 package ws.palladian.model.features;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -15,7 +16,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class FeatureVector {
+public class FeatureVector implements Iterable<Feature<?>> {
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -32,6 +33,16 @@ public class FeatureVector {
      */
     public FeatureVector() {
         features = new TreeMap<String, Feature<?>>();
+    }
+
+    /**
+     * <p>
+     * Creates a new {@link FeatureVector} from the provided FeatureVector, i.e. a copy with all {@link Feature}s.
+     * 
+     * @param featureVector The feature vector which Features to copy.
+     */
+    public FeatureVector(FeatureVector featureVector) {
+        features = new TreeMap<String, Feature<?>>(featureVector.features);
     }
 
     /**
@@ -139,7 +150,7 @@ public class FeatureVector {
      * @return The size of this {@code FeatureVector}.
      */
     public int size() {
-        return this.features.size();
+        return features.size();
     }
 
     /**
@@ -153,7 +164,7 @@ public class FeatureVector {
      *         specified identifier to remove.
      */
     public boolean remove(String identifier) {
-        return this.features.remove(identifier) != null;
+        return features.remove(identifier) != null;
     }
 
     /**
@@ -167,7 +178,11 @@ public class FeatureVector {
      *         specified identifier to remove.
      */
     public boolean remove(FeatureDescriptor<?> featureDescriptor) {
-        return this.features.remove(featureDescriptor.getIdentifier()) != null;
+        return features.remove(featureDescriptor.getIdentifier()) != null;
     }
 
+    @Override
+    public Iterator<Feature<?>> iterator() {
+        return features.values().iterator();
+    }
 }
