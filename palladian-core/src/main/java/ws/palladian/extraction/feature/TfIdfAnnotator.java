@@ -24,7 +24,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public class TfIdfAnnotator extends AbstractPipelineProcessor {
+public final class TfIdfAnnotator extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
