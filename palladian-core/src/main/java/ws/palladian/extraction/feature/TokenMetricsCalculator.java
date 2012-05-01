@@ -25,7 +25,7 @@ import ws.palladian.model.features.NumericFeature;
  * occurrence, spread across the document, the number of characters and words for each token, the count token, the
  * frequency of each token. Token frequencies are calculated based on a <i>normalized term frequency</i>, as described
  * in "Information Retrieval", Grossman, Frieder, p. 32. This means, that the frequencies are normalized by the maximum
- * term frequency which appears in the considered document.
+ * term frequency which appears in the considered document. The calculation is performed <b>case insensitively</b>.
  * </p>
  * 
  * @author Philipp Katz
@@ -63,7 +63,8 @@ public final class TokenMetricsCalculator extends AbstractPipelineProcessor {
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
         int lastPosition = 0;
         for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
+            // changed to lower case, 2012-05-01
+            String value = annotation.getValue().toLowerCase();
             occurrences.add(value);
             int tokenPosition = annotation.getIndex();
             if (tokenPosition == -1) {
@@ -92,7 +93,8 @@ public final class TokenMetricsCalculator extends AbstractPipelineProcessor {
         }
 
         for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
+            // changed to lower case, 2012-05-01
+            String value = annotation.getValue().toLowerCase();
             double first = (double)firstOccurrences.get(value) / lastPosition;
             double last = (double)lastOccurrences.get(value) / lastPosition;
             double count = occurrences.getCount(value);

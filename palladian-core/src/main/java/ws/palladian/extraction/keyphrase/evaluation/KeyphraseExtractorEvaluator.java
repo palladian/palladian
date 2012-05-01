@@ -159,8 +159,8 @@ public class KeyphraseExtractorEvaluator {
         // KeyphraseExtractor keyphraseExtractor = new SimExtractor();
         // KeyphraseExtractor keyphraseExtractor = new MauiKeyphraseExtractor();
         // KeyphraseExtractor keyphraseExtractor = new TfidfExtractor();
-         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
-//        Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
+//         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
+        Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator(dataset, 2);
         evaluator.addExtractor(new ClassifierExtractor());
 //        evaluator.addExtractor(new TfidfExtractor());

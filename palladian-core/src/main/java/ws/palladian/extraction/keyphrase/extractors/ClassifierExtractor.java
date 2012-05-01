@@ -77,8 +77,10 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     private int trainCount;
     private final StemmerAnnotator stemmer;
 
-    private static final double COOCURRENCE_REWEIGHTING_FACTOR = 0.5;
+    private static final double COOCURRENCE_REWEIGHTING_FACTOR = 0.75;
 
+    //usually 20, for testing 5.
+//    private static final int TRAIN_DOC_LIMIT = 5;
     private static final int TRAIN_DOC_LIMIT = 20;
 //    private static final int TRAIN_DOC_LIMIT = 35;
 
@@ -163,7 +165,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 for (Annotation annotation : annotations) {
-                    double prior = (double)assignedTermCorpus.getCount(canonicalize(annotation.getValue()))
+                    double prior = (double)assignedTermCorpus.getCount(annotation.getValue())
                             / assignedTermCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature(PRIOR, prior));
                 }
@@ -287,13 +289,13 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             FeatureVector featureVector = annotation.getFeatureVector();
             Instance2<String> instance = new Instance2<String>();
             instance.target = featureVector.get(IS_KEYWORD).getValue();
-            pruneFeatureVector(featureVector);
+            FeatureVector cleanedFv = cleanFeatureVector(featureVector);
             if ("true".equals(instance.target)) {
                 posSamples++;
             } else {
                 negSamples++;
             }
-            instance.featureVector = featureVector;
+            instance.featureVector = cleanedFv;
             instances.add(instance);
         }
         System.out.println("# negative samples: " + negSamples);
@@ -305,9 +307,11 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         System.out.println("... finished building classifier.");
     }
 
-    private void pruneFeatureVector(FeatureVector featureVector) {
-        featureVector.remove(IS_KEYWORD);
-        featureVector.remove(StemmerAnnotator.UNSTEM);
+    private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
+        FeatureVector result = new FeatureVector(featureVector);
+        result.remove(IS_KEYWORD);
+        result.remove(StemmerAnnotator.UNSTEM);
+        return result;
     }
 
     @Override
@@ -387,13 +391,13 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         // try to match multiple different variants
         for (String keyword : keywords) {
             modifiedKeywords.add(keyword.toLowerCase().trim());
-            modifiedKeywords.add(keyword.toLowerCase().trim().replace("\\s", ""));
+            modifiedKeywords.add(keyword.toLowerCase().trim().replaceAll("\\s", ""));
             modifiedKeywords.add(stem(keyword.toLowerCase()).trim());
-            modifiedKeywords.add(stem(keyword.toLowerCase()).trim().replace("\\s", ""));
+            modifiedKeywords.add(stem(keyword.toLowerCase()).trim().replaceAll("\\s", ""));
             modifiedKeywords.add(canonicalize(keyword.toLowerCase().trim()));
-            modifiedKeywords.add(canonicalize(keyword.toLowerCase().trim().replace("\\s", "")));
+            modifiedKeywords.add(canonicalize(keyword.toLowerCase().trim().replaceAll("\\s", "")));
             modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim()));
-            modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim().replace("\\s", "")));
+            modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim().replaceAll("\\s", "")));
         }
         List<Annotation> annotations = annotationFeature.getValue();
         for (Annotation annotation : annotations) {
@@ -402,20 +406,20 @@ public class ClassifierExtractor extends KeyphraseExtractor {
 
             boolean isKeyword = modifiedKeywords.contains(stemmedValue);
             isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase());
-            isKeyword |= modifiedKeywords.contains(stemmedValue.replace(" ", ""));
-            isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase().replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(stemmedValue.replaceAll("\\s", ""));
+            isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase().replaceAll("\\s", ""));
             isKeyword |= modifiedKeywords.contains(unstemmedValue);
             isKeyword |= modifiedKeywords.contains(unstemmedValue.toLowerCase());
-            isKeyword |= modifiedKeywords.contains(unstemmedValue.replace(" ", ""));
-            isKeyword |= modifiedKeywords.contains(unstemmedValue.toLowerCase().replace(" ", ""));
+            isKeyword |= modifiedKeywords.contains(unstemmedValue.replaceAll("\\s", ""));
+            isKeyword |= modifiedKeywords.contains(unstemmedValue.toLowerCase().replaceAll("\\s", ""));
             isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue));
             isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.toLowerCase()));
-            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.replace(" ", "")));
-            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.toLowerCase().replace(" ", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.replaceAll("\\s", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(stemmedValue.toLowerCase().replaceAll("\\s", "")));
             isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue));
             isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.toLowerCase()));
-            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.replace(" ", "")));
-            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.toLowerCase().replace(" ", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.replaceAll("\\s", "")));
+            isKeyword |= modifiedKeywords.contains(canonicalize(unstemmedValue.toLowerCase().replaceAll("\\s", "")));
             NominalFeature isKeywordFeature = new NominalFeature(IS_KEYWORD, String.valueOf(isKeyword));
             annotation.getFeatureVector().add(isKeywordFeature);
             if (isKeyword) {
@@ -482,14 +486,14 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            pruneFeatureVector(featureVector);
-            CategoryEntries predictionResult = classifier.predict(featureVector);
+            FeatureVector cleanFv = cleanFeatureVector(featureVector);
+            CategoryEntries predictionResult = classifier.predict(cleanFv);
             CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
             if (trueCategory != null) {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
             }
         }
-        reRankCooccurrences(keywords);
+        //reRankCooccurrences(keywords);
         //reRankOverlaps(keywords);
         Collections.sort(keywords);
         if (keywords.size() > getKeyphraseCount()) {
@@ -526,9 +530,9 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         for (Keyphrase k1 : keywords) {
             double oldWeight = k1.getWeight();
             double summedConditionalProbs = 0;
-            String value1 = canonicalize(k1.getValue());
+            String value1 = k1.getValue();
             for (Keyphrase k2 : keywords) {
-                String value2 = canonicalize(k2.getValue());
+                String value2 = k2.getValue();
                 if (value1.equals(value2)) {
                     continue;
                 }

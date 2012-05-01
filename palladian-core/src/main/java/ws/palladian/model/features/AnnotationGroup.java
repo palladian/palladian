@@ -20,7 +20,7 @@ public final class AnnotationGroup extends Annotation {
      * Separator, when a String representation of the contained {@link Annotation}s is requested.
      * </p>
      */
-    private static final String TOKEN_SEPARATOR = " ";
+    private static final char TOKEN_SEPARATOR = ' ';
 
     /**
      * <p>

@@ -16,6 +16,8 @@ import ws.palladian.extraction.PipelineProcessor;
  */
 public final class AnnotationFeature extends Feature<List<Annotation>> {
 
+    private static final char NEWLINE = '\n';
+
     /**
      * <p>
      * Create a new {@link AnnotationFeature}.
@@ -71,9 +73,11 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
     }
 
     /**
+     * <p>
      * Add an {@link Annotation} to this Feature.
+     * </p>
      * 
-     * @param annotation
+     * @param annotation The Annotation to add.
      */
     public void add(Annotation annotation) {
         getValue().add(annotation);
@@ -81,12 +85,12 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
 
     /**
      * <p>
-     * Gives all {@link Annotation}s within the specified range.
+     * Retrieve all {@link Annotation}s within the specified range.
      * </p>
      * 
-     * @param startPosition
-     * @param endPosition
-     * @return
+     * @param startPosition The start position from where to retrieve Annotations (inclusive).
+     * @param endPosition The end position until where to retrieve Annotations (inclusive).
+     * @return All Annotations within the specified range, or empty List.
      */
     public List<Annotation> getAnnotations(int startPosition, int endPosition) {
         List<Annotation> result = new ArrayList<Annotation>();
@@ -99,7 +103,9 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
     }
 
     /**
-     * Return a human-readable list of all contained {@link Annotation}s.
+     * <p>
+     * Get a human-readable list of all contained {@link Annotation}s, separated by new lines.
+     * </p>
      * 
      * @return
      */
@@ -107,7 +113,7 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
         StringBuilder sb = new StringBuilder();
         List<Annotation> annotations = getValue();
         for (Annotation annotation : annotations) {
-            sb.append(annotation).append("\n");
+            sb.append(annotation).append(NEWLINE);
         }
         return sb.toString();
     }
