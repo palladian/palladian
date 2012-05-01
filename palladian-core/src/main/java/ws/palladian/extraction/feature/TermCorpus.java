@@ -22,7 +22,7 @@ import ws.palladian.helper.io.LineAction;
  * 
  * @author Philipp Katz
  */
-public class TermCorpus {
+public final class TermCorpus {
 
     private static final String SEPARATOR = "#";
 
@@ -77,6 +77,20 @@ public class TermCorpus {
 
     /**
      * <p>
+     * Get the document frequency for the specified term, i.e. the number of documents containing the term at least
+     * once. To avoid returning zero values, the number of documents containing the specified term is incremented by
+     * one.
+     * </p>
+     * 
+     * @param term The term for which to retrieve the document frequency.
+     * @return The document frequenc for the specified term.
+     */
+    public double getDf(String term) {
+        return Math.log10((double)(getCount(term) + 1) / getNumDocs());
+    }
+
+    /**
+     * <p>
      * Get the inverse document frequency for the specified term. To avoid division by zero, the number of documents
      * containing the specified term is incremented by one.
      * </p>
@@ -98,6 +112,28 @@ public class TermCorpus {
      */
     public int getNumDocs() {
         return numDocs;
+    }
+
+    /**
+     * <p>
+     * Get the number of total terms in this corpus, i.e. also count duplicates.
+     * </p>
+     * 
+     * @return The total number of terms in this corpus.
+     */
+    public int getNumTerms() {
+        return terms.size();
+    }
+
+    /**
+     * <p>
+     * Get the number of unique terms in this corpus, i.e. count the same terms only once.
+     * </p>
+     * 
+     * @return The number of unique terms in this corpus.
+     */
+    public int getNumUniqueTerms() {
+        return terms.uniqueSet().size();
     }
 
     private void setDf(String term, int df) {

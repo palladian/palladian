@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-
 /**
  * @author Philipp Katz
  */
@@ -35,6 +34,9 @@ public class CooccurrenceMatrixTest {
         assertEquals(3. / 9, cooccurrenceMatrix.getConditionalProbabilityLaplace("zucchini", "recipe"), 0);
         assertEquals(1. / 9, cooccurrenceMatrix.getConditionalProbabilityLaplace("orange", "recipe"), 0);
         assertEquals(1. / 7, cooccurrenceMatrix.getConditionalProbabilityLaplace("recipe", "orange"), 0);
+
+        assertEquals("recipe", cooccurrenceMatrix.getHighest("zucchini").getLeft());
+        assertEquals(3, cooccurrenceMatrix.getHighest("zucchini", 10).size());
     }
 
 }

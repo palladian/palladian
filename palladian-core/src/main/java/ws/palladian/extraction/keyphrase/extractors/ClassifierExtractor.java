@@ -258,7 +258,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
     @Override
     public void endTraining() {
         System.out.println(pipeline1.toString());
-        System.out.println("finished training, # train docs: " + trainDocuments.size());
+        System.out.println("finished building corpus, # train docs: " + trainDocuments.size());
         List<Annotation> annotations = new ArrayList<Annotation>();
         Iterator<Entry<PipelineDocument, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
         int totalKeyphrases = 0;
@@ -278,6 +278,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             totallyMarked += markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature.getValue());
             trainDocIterator.remove();
+            System.out.println(trainDocuments.size());
         }
         System.out.println("# annotations: " + annotations.size());
         System.out.println("% sample coverage: " + (double) totallyMarked / totalKeyphrases);
@@ -493,7 +494,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
             }
         }
-        //reRankCooccurrences(keywords);
+        reRankCooccurrences(keywords);
         //reRankOverlaps(keywords);
         Collections.sort(keywords);
         if (keywords.size() > getKeyphraseCount()) {
@@ -536,7 +537,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 if (value1.equals(value2)) {
                     continue;
                 }
-                summedConditionalProbs += cooccurrenceMatrix.getConditionalProbabilityLaplace(value1, value2);
+                summedConditionalProbs += cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1);
             }
             double newWeight = oldWeight + COOCURRENCE_REWEIGHTING_FACTOR * summedConditionalProbs * oldWeight;
             k1.setWeight(newWeight);
