@@ -13,7 +13,7 @@ import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -36,7 +36,7 @@ public class OpenNlpPosTaggerTest {
         processingPipeline.process(document);
 
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(10, annotations.size());

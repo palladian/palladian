@@ -43,7 +43,7 @@ import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -162,7 +162,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             @Override
             public void process(PipelineDocument document) {
                 FeatureVector featureVector = document.getFeatureVector();
-                AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 for (Annotation annotation : annotations) {
                     double prior = (double)assignedTermCorpus.getCount(annotation.getValue())
@@ -179,7 +179,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             @Override
             public void process(PipelineDocument document) {
                 AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                        TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                        BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
                 List<Annotation> annotations = annotationFeature.getValue();
                 // pre initialize the co-occurrence feature
                 for (Annotation annotation : annotations) {
@@ -239,7 +239,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature feature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = feature.getValue();
         Set<String> terms = new HashSet<String>();
         for (Annotation annotation : annotations) {
@@ -273,7 +273,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
                 throw new IllegalStateException(e);
             }
             AnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
-                    TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                    BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
             totalKeyphrases += keywords.size();
             totallyMarked += markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature.getValue());
@@ -482,7 +482,7 @@ public class ClassifierExtractor extends KeyphraseExtractor {
             throw new IllegalStateException();
         }
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (Annotation annotation : annotations) {

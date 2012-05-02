@@ -6,7 +6,7 @@ import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
@@ -34,9 +34,9 @@ public final class TfIdfAnnotator extends AbstractPipelineProcessor {
     @Override
     public void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE
+            throw new DocumentUnprocessableException("The required feature \"" + BaseTokenizer.PROVIDED_FEATURE
                     + "\" is missing.");
         }
         List<Annotation> annotationList = annotationFeature.getValue();

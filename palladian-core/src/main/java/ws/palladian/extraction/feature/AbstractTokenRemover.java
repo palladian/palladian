@@ -7,7 +7,7 @@ import java.util.List;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
@@ -15,7 +15,7 @@ import ws.palladian.model.features.FeatureVector;
 /**
  * <p>
  * Base class for token remover implementations. The {@link AbstractTokenRemover} operates on the
- * {@link AnnotationFeature} provided by {@link TokenizerInterface}s. Subclasses implement {@link #remove(Annotation)}
+ * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement {@link #remove(Annotation)}
  * to determine, whether to remove an {@link Annotation}.
  * </p>
  * 
@@ -39,9 +39,9 @@ public abstract class AbstractTokenRemover implements PipelineProcessor {
     @Override
     public final void process(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("Required feature \"" + TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR
+            throw new DocumentUnprocessableException("Required feature \"" + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
                     + "\" is missing");
         }
         List<Annotation> annotations = annotationFeature.getValue();

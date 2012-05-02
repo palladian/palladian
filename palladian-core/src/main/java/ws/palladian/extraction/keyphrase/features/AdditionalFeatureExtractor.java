@@ -8,7 +8,7 @@ import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -50,7 +50,7 @@ public class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
 
     @Override
     protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
             Annotation annotation = annotations.get(i);
@@ -93,8 +93,8 @@ public class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
 //            featureVector.add(new NominalFeature(PREVIOUS_STARTS_UPPERCASE, previousStartsUppercase.toString()));
 //            featureVector.add(new NominalFeature(NEXT_STARTS_UPPERCASE, nextStartsUppercase.toString()));
             
-            String caseSignature = StringHelper.getCaseSignature(value);
-            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
+//            String caseSignature = StringHelper.getCaseSignature(value);
+//            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
 //            featureVector.add(new NominalFeature(PREV_CASE_SIGNATURE, previousCaseSignature));
 //            featureVector.add(new NominalFeature(NEXT_CASE_SIGNATURE, nextCaseSignature));
         }

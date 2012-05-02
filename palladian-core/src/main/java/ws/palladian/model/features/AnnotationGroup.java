@@ -177,7 +177,7 @@ public final class AnnotationGroup extends Annotation {
             if (other.getDocument() != null) {
                 return false;
             }
-        } else if (getDocument().equals(other.getDocument())) {
+        } else if (!getDocument().equals(other.getDocument())) {
             return false;
         }
         return true;

@@ -11,7 +11,7 @@ import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -23,8 +23,8 @@ import ws.palladian.model.features.NominalFeature;
 /**
  * <p>
  * A {@link PipelineProcessor} for stemming a pre-tokenized text. This means, the documents to be processed by this
- * class must be processed by a {@link TokenizerInterface} in advance, supplying
- * {@link TokenizerInterface#PROVIDED_FEATURE} annotations. The stemmer is based on the <a
+ * class must be processed by a {@link BaseTokenizer} in advance, supplying
+ * {@link BaseTokenizer#PROVIDED_FEATURE} annotations. The stemmer is based on the <a
  * href="http://snowball.tartarus.org/">Snowball</a> algorithm.
  * </p>
  * 
@@ -130,9 +130,9 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
     @Override
     protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
+            throw new DocumentUnprocessableException("The required feature " + BaseTokenizer.PROVIDED_FEATURE
                     + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();

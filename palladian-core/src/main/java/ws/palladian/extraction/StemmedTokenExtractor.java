@@ -10,7 +10,7 @@ import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
@@ -62,7 +62,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature feature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Map<String, Double> result = new HashMap<String, Double>();
         for (Annotation annotation : feature.getValue()) {
             // String value = annotation.getValue();
