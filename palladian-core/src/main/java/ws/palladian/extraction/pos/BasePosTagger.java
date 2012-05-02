@@ -10,7 +10,7 @@ import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
@@ -24,11 +24,11 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * <ol>
  * <li>{@link PosTagger}, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as
- * String. In this case, the text is tokenized using a default {@link TokenizerInterface} implementation specific for
+ * String. In this case, the text is tokenized using a default {@link BaseTokenizer} implementation specific for
  * the respective POS tagger. Subclasses may override {@link #getTokenizer()} if they require a specific tokenizer.</li>
  * 
  * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
- * means, that the input document must be tokenized in advance, using one of the available {@link TokenizerInterface}
+ * means, that the input document must be tokenized in advance, using one of the available {@link BaseTokenizer}
  * implementations. In this mode, the POS tags are appended to the token's {@link FeatureVector}s and can be retrieved
  * later using the {@link #PROVIDED_FEATURE_DESCRIPTOR}.</li>
  * </ol>
@@ -59,10 +59,10 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
 
     /**
      * <p>
-     * The default {@link TokenizerInterface} used if not overridden.
+     * The default {@link BaseTokenizer} used if not overridden.
      * </p>
      */
-    private static final TokenizerInterface DEFAULT_TOKENIZER = new RegExTokenizer();
+    private static final BaseTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
 
     // ////////////////////////////////////////////
     // PosTagger API
@@ -78,7 +78,7 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
             throw new IllegalArgumentException(e);
         }
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
         for (Annotation annotation : annotationFeature.getValue()) {
@@ -91,14 +91,14 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
 
     /**
      * <p>
-     * Return the {@link TokenizerInterface} which this {@link PosTagger} uses when tagging String using
+     * Return the {@link BaseTokenizer} which this {@link PosTagger} uses when tagging String using
      * {@link #tag(String)}. Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if
-     * a specific {@link TokenizerInterface} is required.
+     * a specific {@link BaseTokenizer} is required.
      * </p>
      * 
-     * @return The {@link TokenizerInterface} to use.
+     * @return The {@link BaseTokenizer} to use.
      */
-    protected TokenizerInterface getTokenizer() {
+    protected BaseTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
     }
 
@@ -109,7 +109,7 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
     @Override
     protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException(
                     "Document content is not tokenized. Please use a tokenizer before using a POS tagger.");

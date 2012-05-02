@@ -13,7 +13,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -22,8 +22,8 @@ import ws.palladian.model.features.Annotation;
 /**
  * <p>
  * A {@link PipelineProcessor} for removing stop words from a pre-tokenized text. This means, the documents to be
- * processed by this class must be processed by a {@link TokenizerInterface} in advance, supplying
- * {@link TokenizerInterface#PROVIDED_FEATURE} annotations. Stop words are determined case-insensitively.
+ * processed by this class must be processed by a {@link BaseTokenizer} in advance, supplying
+ * {@link BaseTokenizer#PROVIDED_FEATURE} annotations. Stop words are determined case-insensitively.
  * </p>
  * 
  * @author Philipp Katz

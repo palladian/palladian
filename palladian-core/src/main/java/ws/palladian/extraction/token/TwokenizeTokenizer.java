@@ -2,6 +2,7 @@ package ws.palladian.extraction.token;
 
 import java.util.List;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.PositionAnnotation;
@@ -16,12 +17,12 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
  * 
  * @author Philipp Katz
  */
-public final class TwokenizeTokenizer implements TokenizerInterface {
+public final class TwokenizeTokenizer extends BaseTokenizer {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         String text = document.getOriginalContent();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);

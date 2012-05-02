@@ -10,7 +10,7 @@ import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -34,7 +34,7 @@ public class AnnotatorTest {
         pipeline.process(document);
 
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(12, annotations.size());
@@ -52,7 +52,7 @@ public class AnnotatorTest {
         pipeline.process(document);
 
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(7, annotations.size());
@@ -66,7 +66,7 @@ public class AnnotatorTest {
         pipeline.process(document);
 
         AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(9, annotations.size());

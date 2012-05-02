@@ -19,7 +19,7 @@ import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.SequentialPatternFeature;
 import ws.palladian.model.features.Annotation;
@@ -86,7 +86,7 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
 
     @Override
     public void process(PipelineDocument document) {
-        AnnotationFeature posFeature = document.getFeatureVector().get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature posFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         AnnotationFeature sentencesFeature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> posTags = posFeature.getValue();

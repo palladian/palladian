@@ -11,7 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.token.LingPipeTokenizer;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -201,7 +201,7 @@ public final class LingPipePosTagger extends BasePosTagger {
     }
 
     @Override
-    protected TokenizerInterface getTokenizer() {
+    protected BaseTokenizer getTokenizer() {
         return TOKENIZER;
     }
 

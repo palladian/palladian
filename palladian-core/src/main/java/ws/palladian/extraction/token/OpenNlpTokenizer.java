@@ -12,6 +12,7 @@ import opennlp.tools.util.Span;
 
 import org.apache.commons.io.IOUtils;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -20,7 +21,7 @@ import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>
- * A {@link TokenizerInterface} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP provides
+ * A {@link BaseTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP provides
  * several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a trained
  * model. For more information, see the documentation <a
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
@@ -29,7 +30,7 @@ import ws.palladian.model.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class OpenNlpTokenizer implements TokenizerInterface {
+public final class OpenNlpTokenizer extends BaseTokenizer {
 
     private static final long serialVersionUID = 1L;
 
@@ -85,9 +86,9 @@ public final class OpenNlpTokenizer implements TokenizerInterface {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         String content = document.getOriginalContent();
-        AnnotationFeature annotationFeature = new AnnotationFeature(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Span[] spans = tokenizer.tokenizePos(content);
         int index = 0;
         for (Span span : spans) {
