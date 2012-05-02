@@ -15,8 +15,9 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.extractors.ClassifierExtractor;
+import ws.palladian.extraction.keyphrase.extractors.MachineLearningBasedExtractor;
 import ws.palladian.extraction.keyphrase.extractors.MauiKeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.extractors.SimExtractor;
 import ws.palladian.extraction.keyphrase.extractors.TfidfExtractor;
@@ -180,12 +181,12 @@ public class KeyphraseExtractorEvaluator {
         Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
         Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
-//        evaluator.addExtractor(new ClassifierExtractor());
 //        evaluator.addExtractor(new TfidfExtractor());
 //        evaluator.addExtractor(new SimExtractor());
+//        evaluator.addExtractor(new MauiKeyphraseExtractor());
 //        evaluator.addExtractor(new RuleBasedExtractor());
-        evaluator.addExtractor(new MauiKeyphraseExtractor());
-        evaluator.addExtractor(new RuleBasedExtractor());
+        evaluator.addExtractor(new MachineLearningBasedExtractor());
+//        evaluator.addExtractor(new ClassifierExtractor());
         evaluator.evaluate(trainDataset, testDataset);
 //        evaluator.evaluate(dataset, 5);
     }
