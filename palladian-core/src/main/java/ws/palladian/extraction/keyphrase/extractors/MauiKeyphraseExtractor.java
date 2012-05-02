@@ -56,7 +56,7 @@ import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
  * @see <a href="http://code.google.com/p/maui-indexer/">Maui - Multi-purpose automatic topic indexing</a>
  * @author Philipp Katz
  */
-public class MauiKeyphraseExtractor extends KeyphraseExtractor {
+public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MauiKeyphraseExtractor.class);
@@ -99,7 +99,8 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     private int numTrainDocs = 0;
 
     /** The maximum number of documents to use for training. Used to avoid out of memory errors. */
-    private static final int TRAIN_DOCUMENTS_LIMIT = 100;
+    // private static final int TRAIN_DOCUMENTS_LIMIT = 100;
+    private static final int TRAIN_DOCUMENTS_LIMIT = Integer.MAX_VALUE;
 
     public MauiKeyphraseExtractor() {
         reset();
