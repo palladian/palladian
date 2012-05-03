@@ -86,6 +86,7 @@ public class ExtractedDateHelperTest {
         assertEquals(1915, ExtractedDateHelper.normalizeYear("'15"));
         assertEquals(1915, ExtractedDateHelper.normalizeYear("15"));
         assertEquals(1915, ExtractedDateHelper.normalizeYear("1915"));
+        assertEquals(2012, ExtractedDateHelper.normalizeYear("2012\n1"));
 
     }
 
