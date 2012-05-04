@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
@@ -44,6 +45,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
      * @param language
      */
     public StopTokenRemover(Language language) {
+        Validate.notNull(language, "languae must not be null");
         switch (language) {
             case ENGLISH:
                 stopwords = loadStopwordsResource("/stopwords_en.txt");
@@ -67,6 +69,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
      * @throws IllegalArgumentException If the supplied file cannot be found.
      */
     public StopTokenRemover(File file) {
+        Validate.notNull(file, "file must not be null");
         try {
             stopwords = loadStopwords(new FileReader(file));
         } catch (FileNotFoundException e) {

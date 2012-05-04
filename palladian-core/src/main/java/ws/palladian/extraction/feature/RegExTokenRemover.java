@@ -2,6 +2,8 @@ package ws.palladian.extraction.feature;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.model.features.Annotation;
 
 /**
@@ -17,6 +19,7 @@ public class RegExTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 
+    /** The {@link Pattern} used to determine whether to remove an {@link Annotation}. */
     private final Pattern pattern;
 
     /**
@@ -27,6 +30,7 @@ public class RegExTokenRemover extends AbstractTokenRemover {
      * @param pattern The {@link Pattern} to use for removing tokens.
      */
     public RegExTokenRemover(Pattern pattern) {
+        Validate.notNull(pattern, "pattern must not be null");
         this.pattern = pattern;
     }
 
@@ -38,7 +42,8 @@ public class RegExTokenRemover extends AbstractTokenRemover {
      * @param pattern The pattern to use for removing tokens.
      */
     public RegExTokenRemover(String pattern) {
-        this(Pattern.compile(pattern));
+        Validate.notEmpty(pattern, "pattern must not be null or empty");
+        this.pattern = Pattern.compile(pattern);
     }
 
     @Override
