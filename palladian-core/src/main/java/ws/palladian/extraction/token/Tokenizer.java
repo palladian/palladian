@@ -26,14 +26,24 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * 
+ * @author Philipp Katz
  */
-public class Tokenizer {
+public final class Tokenizer {
 
-    public static final String SPLIT_REGEXP = "([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)";
+    /** The RegExp used for tokenization. */
+    public static final String SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
+    
+    /** The compiled pattern used for tokenization, using {@link Tokenizer#SPLIT_REGEX}. */
+    public static final Pattern SPLIT_PATTERN = Pattern.compile(SPLIT_REGEX, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+    private Tokenizer() {
+        // prevent instantiation.
+    }
 
     /**
+     * <p>
      * Tokenize a given string.
+     * </p>
      * 
      * @param inputString The string to be tokenized.
      * @return A list of tokens.
@@ -42,9 +52,7 @@ public class Tokenizer {
 
         List<String> tokens = new ArrayList<String>();
 
-        Pattern pattern = Pattern.compile(SPLIT_REGEXP, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
-        Matcher matcher = pattern.matcher(inputString);
+        Matcher matcher = SPLIT_PATTERN.matcher(inputString);
         while (matcher.find()) {
             tokens.add(matcher.group(0));
         }
@@ -370,10 +378,10 @@ public class Tokenizer {
 
     /**
      * <p>
-     * iven a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
-     * "Although, many of them". consider !,?,. and : as end of sentence TODO control character after delimiter makes it
-     * end of sentence.
+     * Given a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
+     * "Although, many of them". consider !,?,. and : as end of sentence.
      * </p>
+     * TODO control character after delimiter makes it end of sentence.
      * 
      * @param inputString the input string
      * @return The phrase from the beginning of the sentence.
@@ -440,9 +448,10 @@ public class Tokenizer {
     }
 
     /**
+     * <p>
      * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" =>
-     * "Although, many of them (30.2%) are good."
-     * consider !,?, and . as end of sentence
+     * "Although, many of them (30.2%) are good.". Consider !,?, and . as end of sentence.
+     * </p>
      * 
      * @param string The string.
      * @return The phrase to the end of the sentence.
