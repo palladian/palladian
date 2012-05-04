@@ -46,7 +46,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
@@ -58,7 +57,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             NominalFeature.class);
     
     // private final int TRAIN_DOC_LIMIT = Integer.MAX_VALUE;
-    private final int TRAIN_DOC_LIMIT = 50;
+//    private final int TRAIN_DOC_LIMIT = 50;
+    private final int TRAIN_DOC_LIMIT = 100;
+//    private final int TRAIN_DOC_LIMIT = 150;
     private final ProcessingPipeline corpusGenerationPipeline;
     private final ProcessingPipeline candidateGenerationPipeline;
     private final TermCorpus termCorpus;
@@ -125,6 +126,12 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return true;
+    }
+    
+    @Override
+    public void startTraining() {
+        System.out.println("Building corpus ...");
+        super.startTraining();
     }
 
     @Override
@@ -338,51 +345,10 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
             }
         }
-        //reRankCooccurrences(keywords);
+        reRankCooccurrences(keywords);
         //reRankOverlaps(keywords);
-        //synthetesize(keywords);
+        synthetesize(keywords);
         Collections.sort(keywords);
-        if (keywords.size() > getKeyphraseCount()) {
-            keywords.subList(getKeyphraseCount(), keywords.size()).clear();
-        }
-        return keywords;
-    }
-
-    private List<Keyphrase> extract(PipelineDocument document) {
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
-        List<Keyphrase> keywords = new ArrayList<Keyphrase>();
-        for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
-            FeatureVector annotationFeatureVector = annotation.getFeatureVector();
-            double frequency = annotationFeatureVector.get(TokenMetricsCalculator.FREQUENCY).getValue();
-            double phraseness = annotationFeatureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
-            double prior = (double)(keyphraseCorpus.getCount(value) + 1) / keyphraseCorpus.getNumTerms();
-            double posPenalty = annotationFeatureVector.get(TokenMetricsCalculator.FIRST).getValue() > 0.1 ? 0 : 1;
-            double spreadPenalty = annotationFeatureVector.get(TokenMetricsCalculator.SPREAD).getValue() < 0.25 ? 0 : 1;
-            double termLength = value.split(" ").length;
-            double idf;
-            if (annotation instanceof AnnotationGroup) {
-                idf = Math.log10(termCorpus.getNumDocs());
-            } else {
-                idf = annotationFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
-            }
-            double score = frequency * idf * phraseness * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2); // * cooccurrenceSum;
-            keywords.add(new Keyphrase(value, score));
-
-        }
-        
-        // improves f1 on citeulike180, degrades on semeval
-        // synthetesize(keywords);
-        
-        // improves f1 on semeval
-        // reRankOverlaps(keywords);
-        
-        // improves f1 on semeval
-        // reRankCooccurrences(keywords);
-        Collections.sort(keywords);
-        
-        
         if (keywords.size() > getKeyphraseCount()) {
             keywords.subList(getKeyphraseCount(), keywords.size()).clear();
         }

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -23,13 +22,9 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.log4j.Logger;
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -40,15 +35,12 @@ import ws.palladian.helper.io.LineAction;
  * 
  */
 public class DatasetConverter {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetConverter.class);
     
     /** The new line character used when writing files. */
-    private static final char NEWLINE = '\n';
+    static final char NEWLINE = '\n';
     
     /** The character for separating file name and individual key phrases. */
-    private static final char SEPARATOR = '#';
+    static final char SEPARATOR = '#';
 
     public static void createCiteULike(File taggerDirectory, File indexOutput) throws IOException {
         Factory<Bag<String>> factory = new Factory<Bag<String>>() {
@@ -133,159 +125,29 @@ public class DatasetConverter {
 
     }
 
-    public static void createDeliciousT140(final String pathToDatasetDirectory, final String pathToResultDirectory) {
-
-        // filter settings
-        final int MINIMUM_USERS = 50;
-        final float MINIMUM_USER_TAG_RATIO = 0.05f;
-        final String SEPARATOR_CHARACTER = " ";
-        final Pattern TAG_MATCH_PATTERN = Pattern.compile("[a-z0-9\\-\\.\\+\\#]+"); // we are not interested in tags with foreign characters
-
-
-        final String pathToIndexFile = pathToResultDirectory + "/deliciousT140index.txt"; // index file to create
-        final String pathToDocsSubdirectory = pathToResultDirectory + "/docs/"; // subdirectory where to place the txt files
-
-        // clean up in advance ...
-        if (FileHelper.fileExists(pathToIndexFile)) {
-            FileHelper.delete(pathToIndexFile);
-        }
-        if (FileHelper.directoryExists(pathToDocsSubdirectory)) {
-            FileHelper.delete(pathToDocsSubdirectory);
-        }
-
-        final MutableInt parseCounter = new MutableInt();
-        final MutableInt acceptCounter = new MutableInt();
-        
+    public static void createDeliciousT140(final File pathToTaginfoXml, final File indexFileOutput) {
         try {
-
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-            DefaultHandler handler = new DefaultHandler() {
-
-                private StringBuffer textBuffer = new StringBuffer();
-                private boolean catchText = false;
-
-                // data we are interested in
-                private String filename;
-                private String filetype;
-                private int users;
-                private Set<String> tags = new HashSet<String>();
-                private String currentTag;
-                private int currentWeight;
-
-                @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes)
-                        throws SAXException {
-                    if (qName.equals("filename") || qName.equals("filetype") || qName.equals("users")
-                            || qName.equals("name") || qName.equals("weight")) {
-                        catchText = true;
-                    }
-                }
-
-                @Override
-                public void endElement(String uri, String localName, String qName) throws SAXException {
-                    catchText = false;
-                    if (qName.equals("filename")) {
-                        filename = getText();
-                    } else if (qName.equals("filetype")) {
-                        filetype = getText();
-                    } else if (qName.equals("users")) {
-                        users = Integer.parseInt(getText());
-                    } else if (qName.equals("name")) {
-                        currentTag = getText();
-                    } else if (qName.equals("weight")) {
-                        currentWeight = Integer.parseInt(getText());
-                    } else if (qName.equals("tag")) {
-                        boolean accept = (float) currentWeight / users >= MINIMUM_USER_TAG_RATIO;
-                        accept = accept && TAG_MATCH_PATTERN.matcher(currentTag).matches();
-                        if (accept) {
-                            tags.add(currentTag);
-                        }
-                    } else if (qName.equals("document")) {
-                        writeEntry();
-                        tags.clear();
-                        parseCounter.increment();
-                    }
-                }
-
-                private void writeEntry() throws SAXException {
-
-                    String pathToSubdirectory = filename.substring(0, 2) + "/" + filename;
-                    String pathToHtmlFile = pathToDatasetDirectory + "/fdocuments/" + pathToSubdirectory;
-
-                    boolean accept = filetype.equals("html");
-                    accept = accept && users >= MINIMUM_USERS;
-                    accept = accept && !tags.isEmpty();
-                    accept = accept && !(new File(pathToHtmlFile).length() > 60000);
-
-                    if (!accept) {
-                        return;
-                    }
-
-                    // parse the HTML file
-                    String content = FileHelper.readFileToString(pathToHtmlFile);
-                    String cleanContent = HtmlHelper.documentToReadableText(content, false);
-                    
-                    if (cleanContent.length() < 100) {
-                        return;
-                    }
-                    
-                    // //////////// write line to the index file ///////////////////
-                    StringBuilder lineToWrite = new StringBuilder();
-                    lineToWrite.append(pathToSubdirectory.replace(".html", ".txt")).append(SEPARATOR_CHARACTER);
-                    lineToWrite.append(StringUtils.join(tags, SEPARATOR_CHARACTER));
-                    lineToWrite.append(NEWLINE);
-
-                    FileHelper.appendFile(pathToIndexFile, lineToWrite);
-
-                    // //////////// create .txt files from HTML pages ///////////////
-                    FileHelper.writeToFile(pathToDocsSubdirectory + pathToSubdirectory.replace(".html", ".txt"), cleanContent);
-                    
-                    acceptCounter.increment();
-                    
-                    if (acceptCounter.intValue() % 1000 == 0) {
-                        LOGGER.info("wrote " + acceptCounter + " entries; parsed " + parseCounter + " entries.");
-                    }
-
-                }
-
-                @Override
-                public void characters(char[] ch, int start, int length) throws SAXException {
-                    if (catchText) {
-                        textBuffer.append(ch, start, length);
-                    }
-                }
-
-                // Get the text, clear Buffer.
-                private String getText() {
-                    try {
-                        return textBuffer.toString();
-                    } finally {
-                        textBuffer = new StringBuffer();
-                    }
-                }
-            };
-
-            parser.parse(pathToDatasetDirectory + "/taginfo.xml", handler);
-
+            DefaultHandler handler = new DeliciousT140Handler(indexFileOutput, 50, 0.05f);
+            parser.parse(pathToTaginfoXml, handler);
         } catch (ParserConfigurationException e) {
-            LOGGER.error(e);
+            throw new IllegalStateException(e);
         } catch (SAXException e) {
-            LOGGER.error(e);
+            throw new IllegalStateException(e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            throw new IllegalStateException(e);
         }
-
-        LOGGER.info("done. wrote " + acceptCounter + " lines to " + pathToIndexFile);
-
     }
     
     public static void main(String[] args) throws Exception {
-
-        createCiteULike(
-               new File("/Users/pk/Desktop/citeulike180/taggers"),
-                new File("/Users/pk/Desktop/citeulike180index.txt"));
         
-        createSemEval2010(new File("/Users/pk/Desktop/SemEval2010/train/train.combined.final"), new File("/Users/pk/Desktop/semEvalTrainCombinedIndex.txt"));
+        createDeliciousT140(new File("/Users/pk/Desktop/delicioust140/taginfo.xml"), new File("/Users/pk/Desktop/delicioust140index.txt"));
+
+        //createCiteULike(
+        //       new File("/Users/pk/Desktop/citeulike180/taggers"),
+        //        new File("/Users/pk/Desktop/citeulike180index.txt"));
+        
+        // createSemEval2010(new File("/Users/pk/Desktop/SemEval2010/train/train.combined.final"), new File("/Users/pk/Desktop/semEvalTrainCombinedIndex.txt"));
 
         // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
         // createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");

@@ -9,21 +9,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.ClassifierExtractor;
 import ws.palladian.extraction.keyphrase.extractors.MachineLearningBasedExtractor;
-import ws.palladian.extraction.keyphrase.extractors.MauiKeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
-import ws.palladian.extraction.keyphrase.extractors.SimExtractor;
-import ws.palladian.extraction.keyphrase.extractors.TfidfExtractor;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
+import ws.palladian.helper.html.HtmlHelper;
 
 public class KeyphraseExtractorEvaluator {
 
@@ -112,6 +109,10 @@ public class KeyphraseExtractorEvaluator {
             String text;
             try {
                 text = FileUtils.readFileToString(item.getFile());
+                if (item.getFile().getName().endsWith(".html")) {
+                    text = HtmlHelper.stripHtmlTags(text);
+                    text = StringEscapeUtils.unescapeHtml(text);
+                }
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -180,6 +181,9 @@ public class KeyphraseExtractorEvaluator {
          Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
         Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
         Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
+//        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/split_aa.txt"));
+//        Dataset2 delicious2 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/split_ab.txt"));
+        Dataset2 deliciousComplete = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/delicioust140index_shuf.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
 //        evaluator.addExtractor(new TfidfExtractor());
 //        evaluator.addExtractor(new SimExtractor());
@@ -187,8 +191,10 @@ public class KeyphraseExtractorEvaluator {
 //        evaluator.addExtractor(new RuleBasedExtractor());
         evaluator.addExtractor(new MachineLearningBasedExtractor());
 //        evaluator.addExtractor(new ClassifierExtractor());
-        evaluator.evaluate(trainDataset, testDataset);
-//        evaluator.evaluate(dataset, 5);
+//        evaluator.addExtractor(new SimExtractor2());
+//        evaluator.evaluate(trainDataset, testDataset);
+//        evaluator.evaluate(delicious1, delicious2);
+        evaluator.evaluate(deliciousComplete, 2);
     }
 
 }
