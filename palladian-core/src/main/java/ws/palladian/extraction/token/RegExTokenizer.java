@@ -1,7 +1,6 @@
 package ws.palladian.extraction.token;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.Annotation;
@@ -22,15 +21,10 @@ public final class RegExTokenizer extends BaseTokenizer {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Pattern TOKENIZE_REGEXP = Pattern
-            .compile(
-                    "([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
-                    Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
     @Override
     protected void processDocument(PipelineDocument document) {
         String text = document.getOriginalContent();
-        Matcher matcher = TOKENIZE_REGEXP.matcher(text);
+        Matcher matcher = Tokenizer.SPLIT_PATTERN.matcher(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
         int index = 0;
         while (matcher.find()) {
