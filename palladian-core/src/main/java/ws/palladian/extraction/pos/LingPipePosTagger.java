@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.token.LingPipeTokenizer;
@@ -58,6 +59,7 @@ public final class LingPipePosTagger extends BasePosTagger {
      * @param modelFile
      */
     public LingPipePosTagger(File modelFile) {
+        Validate.notNull(modelFile, "modelFile must not be null");
         this.model = loadModel(modelFile);
     }
 

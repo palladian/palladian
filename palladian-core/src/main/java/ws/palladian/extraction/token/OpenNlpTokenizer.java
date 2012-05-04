@@ -11,6 +11,7 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
@@ -56,6 +57,7 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
      * @param tokenizer
      */
     public OpenNlpTokenizer(opennlp.tools.tokenize.Tokenizer tokenizer) {
+        Validate.notNull(tokenizer, "tokenizer must not be null");
         this.tokenizer = tokenizer;
     }
 
@@ -68,9 +70,7 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
      * @param modelFile Path to the model file, must not be <code>null</code>.
      */
     public OpenNlpTokenizer(File modelFile) {
-        if (modelFile == null) {
-            throw new IllegalArgumentException("The model file must not be null.");
-        }
+        Validate.notNull(modelFile, "modelFile must not be null");
         InputStream modelIn = null;
         TokenizerModel model = null;
         try {

@@ -2,6 +2,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
@@ -87,6 +88,8 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
      * @param mode
      */
     public StemmerAnnotator(SnowballStemmer stemmer, Mode mode) {
+        Validate.notNull(stemmer, "stemmer must not be null");
+        Validate.notNull(mode, "mode must not be null");
         this.stemmer = stemmer;
         this.mode = mode;
     }
@@ -113,6 +116,8 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
      */
     public StemmerAnnotator(Language language, Mode mode) {
         // TODO support all available languages by SnowballStemmer
+        Validate.notNull(language, "language must not be null");
+        Validate.notNull(mode, "mode must not be null");
         switch (language) {
             case ENGLISH:
                 this.stemmer = new englishStemmer();
