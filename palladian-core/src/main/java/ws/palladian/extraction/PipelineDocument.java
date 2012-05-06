@@ -21,7 +21,7 @@ import ws.palladian.model.features.FeatureVector;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public class PipelineDocument {
+public class PipelineDocument<T> {
 
     /**
      * <p>
@@ -37,7 +37,7 @@ public class PipelineDocument {
      * original content but might be changed to represent a cleaned or extended representation.
      * </p>
      */
-    private final Map<String, String> views;
+    private final Map<String, T> views;
 
     /**
      * <p>
@@ -47,9 +47,9 @@ public class PipelineDocument {
      * 
      * @param originalContent The content of this {@code PipelineDocument}.
      */
-    public PipelineDocument(String originalContent) {
+    public PipelineDocument(T originalContent) {
         super();
-        this.views = new HashMap<String, String>();
+        this.views = new HashMap<String, T>();
         this.views.put("originalContent", originalContent);
         this.views.put("modifiedContent", originalContent);
         this.featureVector = new FeatureVector();
@@ -85,7 +85,7 @@ public class PipelineDocument {
      * 
      * @return The unmodified original content representing the document.
      */
-    public String getOriginalContent() {
+    public T getOriginalContent() {
         return this.views.get("originalContent");
     }
 
@@ -96,7 +96,7 @@ public class PipelineDocument {
      * 
      * @param originalContent The new unmodified original content representing the document.
      */
-    public void setOriginalContent(String originalContent) {
+    public void setOriginalContent(T originalContent) {
         this.views.put("originalContent", originalContent);
     }
 
@@ -108,7 +108,7 @@ public class PipelineDocument {
      * 
      * @return The modified content of the document or {@code null} if no modified content is available yet.
      */
-    public String getModifiedContent() {
+    public T getModifiedContent() {
         return this.views.get("modifiedContent");
     }
 
@@ -119,7 +119,7 @@ public class PipelineDocument {
      * 
      * @param modifiedContent The content of this document modified by some {@link PipelineProcessor}.
      */
-    public void setModifiedContent(String modifiedContent) {
+    public void setModifiedContent(T modifiedContent) {
         this.views.put("modifiedContent", modifiedContent);
     }
 
@@ -144,7 +144,7 @@ public class PipelineDocument {
      * @param viewName The name of the view.
      * @param content The text content as the new view of the document.
      */
-    public void putView(String viewName, String content) {
+    public void putView(String viewName, T content) {
         this.views.put(viewName, content);
     }
 
@@ -156,7 +156,7 @@ public class PipelineDocument {
      * @param viewName The name of the view, providing the requested content.
      * @return The views content or {@code null} if there is no such view available.
      */
-    public String getView(String viewName) {
+    public T getView(String viewName) {
         return this.views.get(viewName);
     }
 
