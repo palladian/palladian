@@ -31,10 +31,13 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Philipp Katz
  * @author Martin Gregor
  */
-public class StringHelper {
+public final class StringHelper {
 
     /** The Constant BRACKETS. A list of bracket types. */
     private static final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
+
+    /** Constant for punctuation characters, i.e. [.,:;?!]. */
+    private static final char[] PUNCTUATION = { '.' ,',', ':', ';' , '?' , '!' };
 
     /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
     private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
@@ -443,22 +446,61 @@ public class StringHelper {
      * @return True, if the word is contained, false if not.
      */
     public static boolean containsWord(String word, String searchString) {
-        String allowedNeighbors = "[\\s,.;-]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
-                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+//        String allowedNeighbors = "[\\s,.;-]";
+//        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
+//                + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
+//
+//        Pattern pat = null;
+//        try {
+//            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+//        } catch (PatternSyntaxException e) {
+//            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+//            return false;
+//        }
+//        Matcher m = pat.matcher(searchString);
+//        if (m.find()) {
+//            return true;
+//        }
+//
+//        return false;
+        
+        // more robust implementation than using RegEx:
 
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+        int index = searchString.toLowerCase().indexOf(word.toLowerCase());
+        if (index == -1) {
             return false;
         }
-        Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
+        boolean leftBorder;
+        if (index == 0) {
+            leftBorder = true;
+        } else {
+            char prevChar = searchString.charAt(index - 1);
+            leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-';
         }
+        boolean rightBorder;
+        if (index + word.length() == searchString.length()) {
+            rightBorder = true;
+        } else {
+            char nextChar = searchString.charAt(index + word.length());
+            rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-';
+        }
+        return leftBorder && rightBorder;
+    }
 
+    /**
+     * <p>
+     * Determine, whether the supplied char is a punctuation character (i.e. one of [.,:;?!]).
+     * </p>
+     * 
+     * @param c The character to check.
+     * @return <code>true</code> if punctuation character, <code>false</code> otherwise.
+     */
+    public static boolean isPunctuation(char c) {
+        for (char check : PUNCTUATION) {
+            if (check == c) {
+                return true;
+            }
+        }
         return false;
     }
 
