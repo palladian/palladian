@@ -19,37 +19,41 @@ import ws.palladian.extraction.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public class LowerCaser extends AbstractPipelineProcessor {
+public class LowerCaser extends AbstractPipelineProcessor<String> {
 
-    /**
-     * <p>
-     * Used to serialize objects of this class. Should only change of the set of attributes of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -5655408816402154527L;
+	/**
+	 * <p>
+	 * Used to serialize objects of this class. Should only change of the set of
+	 * attributes of this class changes.
+	 * </p>
+	 */
+	private static final long serialVersionUID = -5655408816402154527L;
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     */
-    public LowerCaser() {
-        super();
-    }
+	/**
+	 * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
+	 */
+	public LowerCaser() {
+		super();
+	}
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     * 
-     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     */
-    public LowerCaser(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
+	 * 
+	 * @param documentToInputMapping
+	 *            {@see 
+	 *            AbstractPipelineProcessor#AbstractPipelineProcessor(Collection
+	 *            )}
+	 */
+	public LowerCaser(Collection<Pair<String, String>> documentToInputMapping) {
+		super(documentToInputMapping);
+		// TODO Auto-generated constructor stub
+	}
 
-    @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
-        String modifiedText = text.toLowerCase();
-        document.setModifiedContent(modifiedText);
-    }
+	@Override
+	protected void processDocument(PipelineDocument<String> document) {
+		String text = document.getOriginalContent();
+		String modifiedText = text.toLowerCase();
+		document.setModifiedContent(modifiedText);
+	}
 
 }

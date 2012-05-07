@@ -12,35 +12,38 @@ import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>
- * A {@link TokenizerInterface} implementation based on regular expressions. Tokens are matched against the specified
- * regular expressions.
+ * A {@link TokenizerInterface} implementation based on regular expressions.
+ * Tokens are matched against the specified regular expressions.
  * </p>
  * 
  * @author Philipp Katz
  * 
  */
-public final class RegExTokenizer extends AbstractPipelineProcessor implements TokenizerInterface {
+public final class RegExTokenizer extends AbstractPipelineProcessor<String>
+		implements TokenizerInterface {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private static final Pattern TOKENIZE_REGEXP = Pattern
-            .compile(
-                    "([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
-                    Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+	private static final Pattern TOKENIZE_REGEXP = Pattern
+			.compile(
+					"([A-Z]\\.)+|([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
+					Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
-    @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
-        Matcher matcher = TOKENIZE_REGEXP.matcher(text);
-        AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE);
-        while (matcher.find()) {
-            int startPosition = matcher.start();
-            int endPosition = matcher.end();
-            Annotation annotation = new PositionAnnotation(document, startPosition, endPosition);
-            annotationFeature.add(annotation);
-        }
-        FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(annotationFeature);
-    }
+	@Override
+	protected void processDocument(PipelineDocument<String> document) {
+		String text = document.getOriginalContent();
+		Matcher matcher = TOKENIZE_REGEXP.matcher(text);
+		AnnotationFeature annotationFeature = new AnnotationFeature(
+				PROVIDED_FEATURE);
+		while (matcher.find()) {
+			int startPosition = matcher.start();
+			int endPosition = matcher.end();
+			Annotation annotation = new PositionAnnotation(document,
+					startPosition, endPosition);
+			annotationFeature.add(annotation);
+		}
+		FeatureVector featureVector = document.getFeatureVector();
+		featureVector.add(annotationFeature);
+	}
 
 }
