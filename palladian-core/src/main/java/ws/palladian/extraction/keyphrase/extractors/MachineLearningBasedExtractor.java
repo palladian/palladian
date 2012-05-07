@@ -23,6 +23,7 @@ import ws.palladian.classification.WekaPredictor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.IdfAnnotator;
@@ -50,6 +51,7 @@ import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
+import ws.palladian.model.features.NumericFeature;
 
 public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     
@@ -102,18 +104,18 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new TfIdfAnnotator());
         candidateGenerationPipeline.add(new PhrasenessAnnotator());
         candidateGenerationPipeline.add(new AdditionalFeatureExtractor());
-//        candidateGenerationPipeline.add(new PipelineProcessor() {
-//            
-//            @Override
-//            public void process(PipelineDocument document) throws DocumentUnprocessableException {
-//                List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
-//                for (Annotation annotation : tokenAnnotations) {
-//                    double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumDocs();
-//                    //double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumTerms();
-//                    annotation.getFeatureVector().add(new NumericFeature("prior", prior));
-//                }
-//            }
-//        });
+        candidateGenerationPipeline.add(new PipelineProcessor() {
+            
+            @Override
+            public void process(PipelineDocument document) throws DocumentUnprocessableException {
+                List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+                for (Annotation annotation : tokenAnnotations) {
+                    double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumDocs();
+                    //double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumTerms();
+                    annotation.getFeatureVector().add(new NumericFeature("prior", prior));
+                }
+            }
+        });
     }
 
     private Predictor<String> createClassifier() {
@@ -358,8 +360,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private int synthetesize(List<Keyphrase> keywords) {
         Collections.sort(keywords);
         Set<String> keyValues = new HashSet<String>();
-        for (String string : keyValues) {
-            keyValues.add(string);
+        for (Keyphrase string : keywords) {
+            keyValues.add(string.getValue());
         }
         Map<String,Keyphrase> synthetesized = CollectionHelper.newHashMap();
         int subSize = (int) Math.sqrt(keywords.size());

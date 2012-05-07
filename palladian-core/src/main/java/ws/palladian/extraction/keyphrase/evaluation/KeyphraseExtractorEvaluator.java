@@ -118,6 +118,17 @@ public class KeyphraseExtractorEvaluator {
             }
 
             List<Keyphrase> assignedKeyphrases = extractor.extract(text);
+            
+            // FIXME deduplicate
+            Set<String> deduplicate = new HashSet<String>();
+            Iterator<Keyphrase> iterator = assignedKeyphrases.iterator();
+            while (iterator.hasNext()) {
+                Keyphrase current = iterator.next();
+                if (!deduplicate.add(current.getValue())) {
+                    iterator.remove();
+                }
+            }
+            
             int correctCount = 0;
             int assignedCount = assignedKeyphrases.size();
 
@@ -181,9 +192,9 @@ public class KeyphraseExtractorEvaluator {
          Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
         Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
         Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
-//        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/split_aa.txt"));
-//        Dataset2 delicious2 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/split_ab.txt"));
-        Dataset2 deliciousComplete = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/delicioust140index_shuf.txt"));
+        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_aa.txt"));
+        Dataset2 delicious2 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_ab.txt"));
+//        Dataset2 deliciousComplete = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/delicioust140index_shuf.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
 //        evaluator.addExtractor(new TfidfExtractor());
 //        evaluator.addExtractor(new SimExtractor());
@@ -193,8 +204,8 @@ public class KeyphraseExtractorEvaluator {
 //        evaluator.addExtractor(new ClassifierExtractor());
 //        evaluator.addExtractor(new SimExtractor2());
 //        evaluator.evaluate(trainDataset, testDataset);
-//        evaluator.evaluate(delicious1, delicious2);
-        evaluator.evaluate(deliciousComplete, 2);
+        evaluator.evaluate(delicious1, delicious2);
+//        evaluator.evaluate(deliciousComplete, 2);
     }
 
 }
