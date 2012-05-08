@@ -171,10 +171,13 @@ public class XPathHelper {
      * @return The child nodes, or an empty List if no matching child nodes.
      */
     public static List<Node> getChildNodes(Node node, String xPath) {
+       return getChildNodes(node, xPath, null); 
+    }
+    public static List<Node> getChildNodes(Node node, String xPath, Map<String, String> namespaces) {
         notNull(node, xPath);
 
         List<Node> childNodesMatch = new ArrayList<Node>();
-        List<Node> childNodes = getNodes(node, xPath);
+        List<Node> childNodes = getNodes(node, xPath, namespaces);
 
         for (Node cn : childNodes) {
             if (isChildOf(cn, node)) {
