@@ -87,7 +87,7 @@ public final class XPathHelper {
             nodes = xpathObj.selectNodes(node);
 
         } catch (JaxenException e) {
-            LOGGER.error(xPath + ", " + e.getMessage());
+            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
         }
 
         return nodes;
@@ -123,7 +123,7 @@ public final class XPathHelper {
      */
     public static Node getNode(Node node, String xPath, Map<String, String> namespaces) {
         Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
         Node targetNode = null;
         List<Node> nodeList = getNodes(node, xPath, namespaces);
         if (nodeList.iterator().hasNext()) {
@@ -367,7 +367,7 @@ public final class XPathHelper {
      */
     public static List<Node> getXhtmlNodes(Document document, String xPath) {
         Validate.notNull(document, "document must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
 
     }
@@ -385,7 +385,7 @@ public final class XPathHelper {
      */
     public static Node getXhtmlNode(Document document, String xPath) {
         Validate.notNull(document, "document must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
 
@@ -402,7 +402,7 @@ public final class XPathHelper {
      */
     public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
         return getChildNodes(node, addXhtmlNsToXPath(xPath));
 
     }
@@ -420,7 +420,7 @@ public final class XPathHelper {
      */
     public static Node getXhtmlChildNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodes = getXhtmlChildNodes(node, xPath);
         Node childNode = null;
