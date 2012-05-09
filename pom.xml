@@ -448,8 +448,7 @@
 		</repository>
 		<repository>
 			<id>weka</id>
-			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/
-			</url>
+			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
 		</repository>
 		<repository>
 			<id>Maven HUB</id>

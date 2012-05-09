@@ -1,37 +1,30 @@
 package ws.palladian.extraction.feature;
 
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 
 /**
  * <p>
  * A {@link PipelineProcessor} for stemming a pre-tokenized text. This means, the documents to be processed by this
- * class must be processed by a {@link BaseTokenizer} in advance, supplying
- * {@link BaseTokenizer#PROVIDED_FEATURE} annotations. The stemmer is based on the <a
- * href="http://snowball.tartarus.org/">Snowball</a> algorithm.
+ * class must be processed by a {@link BaseTokenizer} in advance, supplying {@link BaseTokenizer#PROVIDED_FEATURE}
+ * annotations. The stemmer is based on the <a href="http://snowball.tartarus.org/">Snowball</a> algorithm.
  * </p>
  * 
  * @author Philipp Katz
  */
-public final class StemmerAnnotator extends AbstractPipelineProcessor {
+public final class StemmerAnnotator extends AbstractTokenProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,7 +33,7 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
      * The mode in which this {@link StemmerAnnotator} operates.
      * </p>
      */
-    // TODO re-think whether we really need this feature, as it bloats the API. 
+    // TODO re-think whether we really need this feature, as it bloats the API.
     public static enum Mode {
         /**
          * <p>
@@ -133,26 +126,17 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature " + BaseTokenizer.PROVIDED_FEATURE
-                    + " is missing.");
-        }
-        List<Annotation> annotations = annotationFeature.getValue();
-        for (Annotation annotation : annotations) {
-            String unstem = annotation.getValue();
-            String stem = stem(unstem);
-            switch (mode) {
-                case ANNOTATE:
-                    annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
-                    break;
-                case MODIFY:
-                    annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
-                    annotation.setValue(stem);
-                    break;
-            }
+    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+        String unstem = annotation.getValue();
+        String stem = stem(unstem);
+        switch (mode) {
+            case ANNOTATE:
+                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
+                break;
+            case MODIFY:
+                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
+                annotation.setValue(stem);
+                break;
         }
     }
 
@@ -170,7 +154,8 @@ public final class StemmerAnnotator extends AbstractPipelineProcessor {
         return stemmer.getCurrent();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 
 import scala.actors.threadpool.Arrays;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
-import ws.palladian.helper.html.HtmlHelper;
 
 public abstract class KeyphraseExtractor {
 
@@ -32,10 +30,10 @@ public abstract class KeyphraseExtractor {
                 // in case we have HTML files, strip HTML tags and unescape. Added to allow easy processing of HTML
                 // files, would be better to let the extractors decide how to work with the supplied data though, e.g.
                 // special HTML feature extraction in the future.
-                if (item.getFile().getName().endsWith(".html")) {
-                    text = HtmlHelper.stripHtmlTags(text);
-                    text = StringEscapeUtils.unescapeHtml(text);
-                }
+//                if (item.getFile().getName().endsWith(".html")) {
+//                    text = HtmlHelper.stripHtmlTags(text);
+//                    text = StringEscapeUtils.unescapeHtml(text);
+//                }
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }

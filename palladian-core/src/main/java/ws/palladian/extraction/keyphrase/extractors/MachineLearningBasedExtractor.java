@@ -25,7 +25,9 @@ import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
+import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.NGramCreator2;
@@ -47,6 +49,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
@@ -81,6 +84,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         classifier = createClassifier();
 
         corpusGenerationPipeline = new PerformanceCheckProcessingPipeline();
+        corpusGenerationPipeline.add(new HtmlCleaner());
         corpusGenerationPipeline.add(new RegExTokenizer());
         corpusGenerationPipeline.add(new StopTokenRemover(Language.ENGLISH));
         corpusGenerationPipeline.add(new LengthTokenRemover(4));
@@ -89,9 +93,11 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         corpusGenerationPipeline.add(stemmer);
         corpusGenerationPipeline.add(new DuplicateTokenRemover());
 
+
         // extractionPipeline has the same steps as trainingPipeline,
         // plus idf and tf-idf annotation
         candidateGenerationPipeline = new ProcessingPipeline();
+        candidateGenerationPipeline.add(new HtmlCleaner());
         candidateGenerationPipeline.add(new RegExTokenizer());
         candidateGenerationPipeline.add(new StopTokenRemover(Language.ENGLISH));
         candidateGenerationPipeline.add(new LengthTokenRemover(4));
@@ -99,7 +105,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(stemmer);
         candidateGenerationPipeline.add(new NGramCreator2(3));
         candidateGenerationPipeline.add(new TokenMetricsCalculator());
-        candidateGenerationPipeline.add(new DuplicateTokenRemover());
+        candidateGenerationPipeline.add(new DuplicateTokenConsolidator());
         candidateGenerationPipeline.add(new IdfAnnotator(termCorpus));
         candidateGenerationPipeline.add(new TfIdfAnnotator());
         candidateGenerationPipeline.add(new PhrasenessAnnotator());
@@ -111,11 +117,11 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
                 List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
                 for (Annotation annotation : tokenAnnotations) {
                     double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumDocs();
-                    //double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumTerms();
                     annotation.getFeatureVector().add(new NumericFeature("prior", prior));
                 }
             }
         });
+
     }
 
     private Predictor<String> createClassifier() {
@@ -209,11 +215,18 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println(classifier.toString());
         System.out.println("... finished building classifier.");
     }
-    
+
+    /**
+     * Remove those {@link Feature}s which are not to be processed by the {@link Predictor}.
+     * @param featureVector
+     * @return
+     */
     private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
         FeatureVector result = new FeatureVector(featureVector);
         result.remove(IS_KEYWORD);
         result.remove(StemmerAnnotator.UNSTEM);
+        result.remove(DuplicateTokenConsolidator.DUPLICATES);
+        result.remove(AdditionalFeatureExtractor.CASE_SIGNATURE);
         return result;
     }
 
@@ -432,7 +445,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
                 if (value1.equals(value2)) {
                     continue;
                 }
-                double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1) * 10;
+                double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1);
+                // double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1) * 5;
+                // double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1) * 20;
                 double newWeight = k1.getWeight() + k2.getWeight() * condProb;
                 k1.setWeight(newWeight);
             }

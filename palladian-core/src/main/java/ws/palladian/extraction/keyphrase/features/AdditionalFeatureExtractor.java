@@ -1,14 +1,20 @@
 package ws.palladian.extraction.keyphrase.features;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
+import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.BagHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -16,33 +22,44 @@ import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
+import ws.palladian.model.features.NumericFeature;
 
-public class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
+/**
+ * <p>
+ * Annotator for various keyphrase extraction specific features. Requires documents to be processed by a
+ * {@link BaseTokenizer}, a {@link StemmerAnnotator} and a {@link DuplicateTokenConsolidator} or
+ * {@link DuplicateTokenRemover} first.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public final class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
     
-//    private final StopTokenRemover stopwords;
+    /** Denotes the percentage a term instance starts with an upper case letter. */
+    public static final FeatureDescriptor<NumericFeature> STARTS_UPPERCASE_PERCENTAGE = FeatureDescriptorBuilder.build("startsUppercase", NumericFeature.class);
+    /** Denotes the percentage a term instance occurs completely upper cased. */
+    public static final FeatureDescriptor<NumericFeature> COMPLETE_UPPERCASE = FeatureDescriptorBuilder.build("completelyUppercase", NumericFeature.class);
+    /** Denotes the percentage of digits in a term. */
+    public static final FeatureDescriptor<NumericFeature> NUMBER_PERCENTAGE = FeatureDescriptorBuilder.build("containsNumbers", NumericFeature.class);
+    /** Denotes whether the term is a number. */
+    public static final FeatureDescriptor<NominalFeature> IS_NUMBER = FeatureDescriptorBuilder.build("isNumber", NominalFeature.class);
+    /** Denotes the percentage of punctuation characters in the term. */
+    public static final FeatureDescriptor<NumericFeature> PUNCTUATION_PERCENTAGE = FeatureDescriptorBuilder.build("containsPunctuation", NumericFeature.class);
+    /** Denotes the percentage of unique characters in the term. */
+    public static final FeatureDescriptor<NumericFeature> UNIQUE_CHARACTER_PERCENTAGE = FeatureDescriptorBuilder.build("uniqueCharacterPercentage", NumericFeature.class);
+    /** Denotes the case signature of the must common variant of this term. */
+    public static final FeatureDescriptor<NominalFeature> CASE_SIGNATURE = FeatureDescriptorBuilder.build("caseSignature", NominalFeature.class);
     
-    final FeatureDescriptor<NominalFeature> STARTS_UPPERCASE = FeatureDescriptorBuilder.build("startsUppercase", NominalFeature.class);
-    final FeatureDescriptor<NominalFeature> COMPLETE_UPPERCASE = FeatureDescriptorBuilder.build("completelyUppercase", NominalFeature.class);
-    final FeatureDescriptor<NominalFeature> CONTAINS_NUMBERS = FeatureDescriptorBuilder.build("containsNumbers", NominalFeature.class);
-    final FeatureDescriptor<NominalFeature> IS_NUMBER = FeatureDescriptorBuilder.build("isNumber", NominalFeature.class);
-    final FeatureDescriptor<NominalFeature> CONTAINS_PUNCTUATION = FeatureDescriptorBuilder.build("containsPunctuation", NominalFeature.class);
-    
-    // context features
-//    final FeatureDescriptor<NominalFeature> PREVIOUS_STOPWORD = FeatureDescriptorBuilder.build("previousStop", NominalFeature.class);
-//    final FeatureDescriptor<NominalFeature> NEXT_STOPWORD = FeatureDescriptorBuilder.build("nextStop", NominalFeature.class);
-//    final FeatureDescriptor<NominalFeature> PREVIOUS_STARTS_UPPERCASE = FeatureDescriptorBuilder.build("previousStartsUppercase", NominalFeature.class);
-//    final FeatureDescriptor<NominalFeature> NEXT_STARTS_UPPERCASE = FeatureDescriptorBuilder.build("nextStartsUppercase", NominalFeature.class);
-    
-    // 
-    final FeatureDescriptor<NominalFeature> CASE_SIGNATURE = FeatureDescriptorBuilder.build("caseSignature", NominalFeature.class);
-//    final FeatureDescriptor<NominalFeature> PREV_CASE_SIGNATURE = FeatureDescriptorBuilder.build("prevCaseSignature", NominalFeature.class);
-//    final FeatureDescriptor<NominalFeature> NEXT_CASE_SIGNATURE = FeatureDescriptorBuilder.build("nextCaseSignature", NominalFeature.class);
-    
-//    public AdditionalFeatureExtractor(Language language) {
-//        this.stopwords =  new StopTokenRemover(Language.ENGLISH);
-//    }    
+    // further features to consider:
+    // containsSpecialCharacters
+    // previousStopword, nextStopword, ...
+    // NER
+    // isInBrackets
+    // isInQuotes
+    // positionInSentence (begin|middle|end)
+    // gerund (-ing?)
     
     public AdditionalFeatureExtractor() {
     }
@@ -54,82 +71,116 @@ public class AdditionalFeatureExtractor extends AbstractPipelineProcessor {
         List<Annotation> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
             Annotation annotation = annotations.get(i);
+            String unstemValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
+            if (unstemValue == null) {
+                throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
+                        + "\" is missing for Annotation \"" + annotation.getValue() + "\"");
+            }
+            
+            double startsUppercase = getStartsUppercase(annotation);
+            double completeUppercase = getCompleteUppercase(annotation);
+            double numberCount = getDigitPercentage(unstemValue);
+            String caseSignature = getCaseSignature(annotation);
+            String isNumber = String.valueOf(getIsNumber(unstemValue));
+            double punctuationPercentage = getPunctuationPercentage(unstemValue);
+            double uniqueCharacterPercentage = getUniqueCharacterPercentage(unstemValue);
+            
             FeatureVector featureVector = annotation.getFeatureVector();
-            //String value = annotation.getValue();
-            String value = featureVector.get(StemmerAnnotator.UNSTEM).getValue();
-            
-            Boolean startsUppercase = Character.isUpperCase(value.charAt(0));
-            Boolean completeUppercase = StringUtils.isAllUpperCase(value);
-            Boolean containsNumbers = containsNumber(value);
-            Boolean isNumber = StringUtils.isNumeric(value);
-            Boolean containsPunctuation = containsPunctuation(value);
-            featureVector.add(new NominalFeature(STARTS_UPPERCASE, startsUppercase.toString()));
-            featureVector.add(new NominalFeature(COMPLETE_UPPERCASE, completeUppercase.toString()));
-            featureVector.add(new NominalFeature(CONTAINS_NUMBERS, containsNumbers.toString()));
-            featureVector.add(new NominalFeature(IS_NUMBER, isNumber.toString()));
-            featureVector.add(new NominalFeature(CONTAINS_PUNCTUATION, containsPunctuation.toString()));
-            
-            // previous token
-//            Boolean previousStopword = false;
-//            Boolean previousStartsUppercase = false;
-//            String previousCaseSignature = "";
-//            if (i > 0) {
-//                String previousToken = annotations.get(i - 1).getValue();
-//                previousStopword = isStopword(previousToken);
-//                previousStartsUppercase = Character.isUpperCase(previousToken.charAt(0));
-//                previousCaseSignature = StringHelper.getCaseSignature(previousToken);
-//            }
-//            Boolean nextStopword = false;
-//            Boolean nextStartsUppercase = false;
-//            String nextCaseSignature = "";
-//            if (i < annotations.size() - 1) {
-//                String nextToken = annotations.get(i + 1).getValue();
-//                nextStopword = isStopword(nextToken);
-//                nextStartsUppercase = Character.isUpperCase(nextToken.charAt(0));
-//                nextCaseSignature = StringHelper.getCaseSignature(nextToken);
-//            }
-//            featureVector.add(new NominalFeature(PREVIOUS_STOPWORD, previousStopword.toString()));
-//            featureVector.add(new NominalFeature(NEXT_STOPWORD, nextStopword.toString()));
-//            featureVector.add(new NominalFeature(PREVIOUS_STARTS_UPPERCASE, previousStartsUppercase.toString()));
-//            featureVector.add(new NominalFeature(NEXT_STARTS_UPPERCASE, nextStartsUppercase.toString()));
-            
-//            String caseSignature = StringHelper.getCaseSignature(value);
-//            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
-//            featureVector.add(new NominalFeature(PREV_CASE_SIGNATURE, previousCaseSignature));
-//            featureVector.add(new NominalFeature(NEXT_CASE_SIGNATURE, nextCaseSignature));
+            featureVector.add(new NumericFeature(STARTS_UPPERCASE_PERCENTAGE, startsUppercase));
+            featureVector.add(new NumericFeature(COMPLETE_UPPERCASE, completeUppercase));
+            featureVector.add(new NumericFeature(NUMBER_PERCENTAGE, numberCount));
+            featureVector.add(new NominalFeature(IS_NUMBER, isNumber));
+            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, punctuationPercentage));
+            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, uniqueCharacterPercentage));
+            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
         }
     }
 
-//    private boolean isStopword(String string) {
-//        return stopwords.isStopword(string.toLowerCase());
-//    }
-    public static boolean containsNumber(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            if (Character.isDigit(string.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
+static double getUniqueCharacterPercentage(String value) {
+    Bag<Character> characters = new HashBag<Character>();
+    for (int i = 0; i < value.length(); i++) {
+        char c = value.charAt(i);
+        characters.add(c);
     }
-    public static boolean containsPunctuation(String string) {
-        for (int i = 0; i < string.length(); i++) {
-            char currentChar = string.charAt(i);
-            boolean punctuation = currentChar == '.';
-            punctuation |= currentChar == ':';
-            punctuation |= currentChar == ',';
-            punctuation |= currentChar == ';';
-            punctuation |= currentChar == '?';
-            punctuation |= currentChar == '!';
-            if (punctuation) {
-                return true;
-            }
-        }
-        return false;
+    if (characters.uniqueSet().size() == 1){
+        return 0;
     }
-    public static void main(String[] args) {
-        System.out.println(containsPunctuation("yes!"));
-        System.out.println(containsPunctuation("http:"));
-        System.out.println(containsPunctuation("test"));
+    return (double) (characters.uniqueSet().size()) / value.length();
+    }
+
+
+static double getPunctuationPercentage(String value) {
+    double punctuationCount = 0;
+    for (int i = 0; i < value.length(); i++) {
+        char c = value.charAt(i);
+        if (StringHelper.isPunctuation(c)) {
+            punctuationCount++;
+        }
+    }
+    return punctuationCount / value.length();
+    }
+
+
+private boolean getIsNumber(String value) {
+    return StringHelper.isNumber(value);
+    }
+
+
+static double getDigitPercentage(String value) {
+    double digitCount = 0;
+    for (int i = 0; i < value.length(); i++) {
+        char c = value.charAt(i);
+        if (Character.isDigit(c)) {
+            digitCount++;
+        }
+    }
+    return digitCount / value.length();
+    }
+
+
+private double getCompleteUppercase(Annotation annotation) {
+    List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    allAnnotations.add(annotation);
+    allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
+    
+    double completeUppercaseCount = 0;
+    for (Annotation current : allAnnotations) {
+        if (StringUtils.isAllUpperCase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
+            completeUppercaseCount++;
+        }
+    }
+    // FIXME return completeUppercaseCount / allAnnotations.size();
+    return completeUppercaseCount / allAnnotations.size() > 0.5 ? 1 : 0;
+    }
+
+
+private String getCaseSignature(Annotation annotation) {
+    List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    allAnnotations.add(annotation);
+    allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
+    
+    Bag<String> signatures = new HashBag<String>();
+    for (Annotation current : allAnnotations) {
+        String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
+        signatures.add(caseSignature);
+    }
+    return BagHelper.getHighest(signatures);
+    }
+
+
+private double getStartsUppercase(Annotation annotation) {
+    List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    allAnnotations.add(annotation);
+    allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
+    
+    double uppercaseCount = 0;
+    for (Annotation current : allAnnotations) {
+        if (StringHelper.startsUppercase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
+            uppercaseCount++;
+        }
+    }
+    // FIXME return uppercaseCount / allAnnotations.size();
+    return uppercaseCount / allAnnotations.size() > 0.5 ? 1 : 0;
     }
 
 }
