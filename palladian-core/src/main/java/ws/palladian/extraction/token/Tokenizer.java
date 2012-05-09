@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -319,6 +320,18 @@ public final class Tokenizer {
             urlMapping.put(replacement, annotation.getEntity());
             uCount++;
         }
+        
+        // recognize URLs so we don't break them
+        DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
+        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        int dCount = 1;
+        Map<String, String> dateMapping = new HashMap<String, String>();
+        for (Annotation annotation : taggedDates) {
+            String replacement = "DATE" + dCount;
+            inputText = inputText.replace(annotation.getEntity(), replacement);
+            dateMapping.put(replacement, annotation.getEntity());
+            dCount++;
+        }
 
         List<String> sentences = new ArrayList<String>();
 
@@ -368,8 +381,19 @@ public final class Tokenizer {
             }
             sentencesReplacedUrls.add(sentence);
         }
+        
+        // replace dates back
+        List<String> sentencesReplacedDates = new ArrayList<String>();
+        for (String sentence : sentencesReplacedUrls) {
+            for (Entry<String, String> entry : dateMapping.entrySet()) {
+                sentence = sentence.replace(entry.getKey(), entry.getValue());
+            }
+            if (!sentence.isEmpty()) {
+                sentencesReplacedDates.add(sentence);
+            }
+        }
 
-        return sentencesReplacedUrls;
+        return sentencesReplacedDates;
     }
 
     public static List<String> getSentences(String inputText) {
@@ -408,6 +432,10 @@ public final class Tokenizer {
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
                         && string.charAt(startIndex + 1) == ' ';
+            }
+            // break after period
+            if (!pointIsSentenceDelimiter && string.charAt(startIndex + 1) == '\n') {
+                pointIsSentenceDelimiter = true;
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -467,22 +495,27 @@ public final class Tokenizer {
         boolean pointIsSentenceDelimiter = false;
         while (!pointIsSentenceDelimiter && endIndex > -1) {
 
-            // before point
+            // before period
             if (endIndex > 0) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex - 1));
             }
-            // one digit after point
+            // one digit after period
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
                         && Character.isUpperCase(string.charAt(endIndex + 1))
                         || StringHelper.isBracket(string.charAt(endIndex + 1));
             }
-            // two digits after point
+            // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2))
                         && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
                                 .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
             }
+            // break after period
+            if (!pointIsSentenceDelimiter && (string.length() == (endIndex + 1) || string.charAt(endIndex + 1) == '\n')) {
+                pointIsSentenceDelimiter = true;
+            }
+
             if (pointIsSentenceDelimiter) {
                 break;
             }
@@ -523,8 +556,13 @@ public final class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println(Tokenizer.tokenize("schön"));
-        System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
+        System.out
+                .println(Tokenizer
+                        .getSentence(
+                                "Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.",
+                                5));
+        // System.out.println(Tokenizer.tokenize("schön"));
+        // System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
         System.exit(0);
 
         System.out.println(getSentences("the quick brown fox"));

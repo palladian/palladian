@@ -110,6 +110,9 @@ public class ExtractedDateHelper {
         if (index != -1) {
             cleardString = cleardString.substring(0, index);
         }
+        
+        // remove everything after a break
+        cleardString = cleardString.replaceAll("\n.*","");
 
         return cleardString;
     }
