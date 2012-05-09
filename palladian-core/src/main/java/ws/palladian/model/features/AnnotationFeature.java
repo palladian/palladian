@@ -117,5 +117,18 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
         }
         return sb.toString();
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        List<Annotation> annotations = getValue();
+        for (int i = 0; i < annotations.size(); i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(annotations.get(i).getValue());
+        }
+        return sb.toString();
+    }
 
 }

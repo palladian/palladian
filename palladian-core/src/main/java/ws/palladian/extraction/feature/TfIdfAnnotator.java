@@ -1,14 +1,9 @@
 package ws.palladian.extraction.feature;
 
-import java.util.List;
-
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
@@ -24,7 +19,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class TfIdfAnnotator extends AbstractPipelineProcessor {
+public final class TfIdfAnnotator extends AbstractTokenProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,30 +27,21 @@ public final class TfIdfAnnotator extends AbstractPipelineProcessor {
             "ws.palladian.preprocessing.tokens.tfidf", NumericFeature.class);
 
     @Override
-    public void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \"" + BaseTokenizer.PROVIDED_FEATURE
+    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+        FeatureVector tokenFeatureVector = annotation.getFeatureVector();
+        NumericFeature tfFeature = tokenFeatureVector.get(TokenMetricsCalculator.FREQUENCY);
+        if (tfFeature == null) {
+            throw new DocumentUnprocessableException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
                     + "\" is missing.");
         }
-        List<Annotation> annotationList = annotationFeature.getValue();
-        for (Annotation annotation : annotationList) {
-            FeatureVector tokenFeatureVector = annotation.getFeatureVector();
-            NumericFeature tfFeature = tokenFeatureVector.get(TokenMetricsCalculator.FREQUENCY);
-            if (tfFeature == null) {
-                throw new DocumentUnprocessableException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
-                        + "\" is missing.");
-            }
-            NumericFeature idfFeature = tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
-            if (idfFeature == null) {
-                throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR
-                        + "\" is missing.");
-            }
-            double tf = tfFeature.getValue();
-            double idf = idfFeature.getValue();
-            tokenFeatureVector.add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf));
+        NumericFeature idfFeature = tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+        if (idfFeature == null) {
+            throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR
+                    + "\" is missing.");
         }
+        double tf = tfFeature.getValue();
+        double idf = idfFeature.getValue();
+        tokenFeatureVector.add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf));
     }
 
 }

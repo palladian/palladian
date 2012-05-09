@@ -1,19 +1,13 @@
 package ws.palladian.extraction.feature;
 
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
-import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
 /**
@@ -26,7 +20,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class IdfAnnotator extends AbstractPipelineProcessor {
+public final class IdfAnnotator extends AbstractTokenProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,18 +37,9 @@ public final class IdfAnnotator extends AbstractPipelineProcessor {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \""
-                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " \" is missing.");
-        }
-        List<Annotation> tokenList = annotationFeature.getValue();
-        for (Annotation annotation : tokenList) {
-            double idf = termCorpus.getIdf(annotation.getValue().toLowerCase());
-            annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, idf));
-        }
+    protected void processToken(Annotation annotation) {
+        double idf = termCorpus.getIdf(annotation.getValue().toLowerCase());
+        annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, idf));
     }
 
 }

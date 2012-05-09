@@ -15,9 +15,11 @@ import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
+import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.NGramCreator;
+import ws.palladian.extraction.feature.NGramCreator2;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
@@ -27,6 +29,7 @@ import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
 import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -36,7 +39,6 @@ import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.FeatureVector;
-
 public final class RuleBasedExtractor extends KeyphraseExtractor {
     
     private final ProcessingPipeline trainingPipeline;
@@ -52,6 +54,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
 
         trainingPipeline = new PerformanceCheckProcessingPipeline();
+        trainingPipeline.add(new HtmlCleaner());
         trainingPipeline.add(new RegExTokenizer());
         trainingPipeline.add(new StopTokenRemover(Language.ENGLISH));
         trainingPipeline.add(new LengthTokenRemover(4));
@@ -63,17 +66,19 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         // extractionPipeline has the same steps as trainingPipeline,
         // plus idf and tf-idf annotation
         extractionPipeline = new ProcessingPipeline();
+        extractionPipeline.add(new HtmlCleaner());
         extractionPipeline.add(new RegExTokenizer());
         extractionPipeline.add(new StopTokenRemover(Language.ENGLISH));
         extractionPipeline.add(new LengthTokenRemover(4));
         extractionPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         extractionPipeline.add(stemmer);
-        extractionPipeline.add(new NGramCreator(3));
+        extractionPipeline.add(new NGramCreator2(3));
         extractionPipeline.add(new TokenMetricsCalculator());
         extractionPipeline.add(new DuplicateTokenRemover());
         extractionPipeline.add(new IdfAnnotator(termCorpus));
         extractionPipeline.add(new TfIdfAnnotator());
         extractionPipeline.add(new PhrasenessAnnotator());
+        extractionPipeline.add(new AdditionalFeatureExtractor());
     }
 
     @Override
@@ -156,7 +161,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
             } else {
                 idf = annotationFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
             }
-            double score = frequency * idf * phraseness * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2); // * cooccurrenceSum;
+            double score = frequency * idf * phraseness * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2);
             keywords.add(new Keyphrase(value, score));
 
         }

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
@@ -17,10 +16,10 @@ import org.tartarus.snowball.ext.englishStemmer;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.extractors.MachineLearningBasedExtractor;
+import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
-import ws.palladian.helper.html.HtmlHelper;
 
 public class KeyphraseExtractorEvaluator {
 
@@ -93,7 +92,8 @@ public class KeyphraseExtractorEvaluator {
 
     private void test(KeyphraseExtractor extractor, Dataset2 testDataset, KeyphraseExtractorEvaluationResult result) {
         extractor.startExtraction();
-
+        
+        int count = 0;
         for (DatasetItem item : testDataset) {
 
             // the manually assigned keyphrases
@@ -109,10 +109,10 @@ public class KeyphraseExtractorEvaluator {
             String text;
             try {
                 text = FileUtils.readFileToString(item.getFile());
-                if (item.getFile().getName().endsWith(".html")) {
-                    text = HtmlHelper.stripHtmlTags(text);
-                    text = StringEscapeUtils.unescapeHtml(text);
-                }
+//                if (item.getFile().getName().endsWith(".html")) {
+//                    text = HtmlHelper.stripHtmlTags(text);
+//                    text = StringEscapeUtils.unescapeHtml(text);
+//                }
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -153,6 +153,7 @@ public class KeyphraseExtractorEvaluator {
             }
             float recall = (float)correctCount / realCount;
 
+            LOGGER.debug("item " + count + "/" + testDataset.size());
             LOGGER.debug("real keyphrases: " + realKeyphrases);
             LOGGER.debug("assigned keyphrases: " + assignedKeyphrases);
             LOGGER.debug("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
@@ -160,6 +161,7 @@ public class KeyphraseExtractorEvaluator {
             LOGGER.debug("----------------------------------------------------------");
 
             result.addTestResult(precision, recall, assignedCount);
+            count++;
         }
 
         extractor.reset();
@@ -193,16 +195,15 @@ public class KeyphraseExtractorEvaluator {
         Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
         Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
         Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_aa.txt"));
+//        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/big_train.txt"));
         Dataset2 delicious2 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_ab.txt"));
 //        Dataset2 deliciousComplete = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/delicioust140index_shuf.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
 //        evaluator.addExtractor(new TfidfExtractor());
 //        evaluator.addExtractor(new SimExtractor());
 //        evaluator.addExtractor(new MauiKeyphraseExtractor());
-//        evaluator.addExtractor(new RuleBasedExtractor());
+        evaluator.addExtractor(new RuleBasedExtractor());
         evaluator.addExtractor(new MachineLearningBasedExtractor());
-//        evaluator.addExtractor(new ClassifierExtractor());
-//        evaluator.addExtractor(new SimExtractor2());
 //        evaluator.evaluate(trainDataset, testDataset);
         evaluator.evaluate(delicious1, delicious2);
 //        evaluator.evaluate(deliciousComplete, 2);

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -14,13 +16,29 @@ import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
 
-public class WekaPredictor implements Predictor<String> {
-    
+/**
+ * <p>
+ * Predictor implementation using Weka.
+ * </p>
+ * 
+ * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
+ * @author Philipp Katz
+ */
+public final class WekaPredictor implements Predictor<String> {
+
     private final Classifier classifier;
     private FastVector featureVector;
     private Instances trainInstances;
-    
+
+    /**
+     * <p>
+     * Create a new {@link WekaPredictor} with the specified Weka {@link Classifier} implementation.
+     * </p>
+     * 
+     * @param classifier The classifier to use, not <code>null</code>.
+     */
     public WekaPredictor(Classifier classifier) {
+        Validate.notNull(classifier, "classifier must not be null.");
         this.classifier = classifier;
     }
 
@@ -31,7 +49,7 @@ public class WekaPredictor implements Predictor<String> {
             trainInstances = new Instances("rel", featureVector, instances.size());
             // last is classindex
             trainInstances.setClassIndex(instances.get(0).featureVector.size());
-            
+
             for (Instance2<String> instance2 : instances) {
                 Instance wekaInstance = makeWekaInstance(featureVector, instance2.featureVector, instance2.target);
                 trainInstances.add(wekaInstance);
@@ -39,7 +57,8 @@ public class WekaPredictor implements Predictor<String> {
             try {
                 classifier.buildClassifier(trainInstances);
             } catch (Exception e) {
-                throw new IllegalStateException("An exception occurred while building the classifier: " + e.getMessage(), e);
+                throw new IllegalStateException("An exception occurred while building the classifier: "
+                        + e.getMessage(), e);
             }
         }
     }
@@ -47,7 +66,7 @@ public class WekaPredictor implements Predictor<String> {
     private Instance makeWekaInstance(FastVector featureVector, FeatureVector fv, String target) {
         Instance wekaInstance = new Instance(fv.size() + 1);
         int i = 0;
-        
+
         for (Feature<?> f : fv.toArray()) {
             if (f instanceof NumericFeature) {
                 wekaInstance.setValue((Attribute)featureVector.elementAt(i), ((NumericFeature)f).getValue());
@@ -65,7 +84,7 @@ public class WekaPredictor implements Predictor<String> {
         }
         return wekaInstance;
     }
-    
+
     private FastVector declareFeatureVector(List<Instance2<String>> instances) {
         FeatureVector featureVector = instances.get(0).featureVector;
         FastVector ret = new FastVector(featureVector.size() + 1);
@@ -74,14 +93,16 @@ public class WekaPredictor implements Predictor<String> {
                 // if it's a nominal feature, we must determine possible attributes (call this "domain").
                 FastVector fvNominalValues = getValues(feature.getName(), instances);
                 ret.addElement(new Attribute(feature.getName(), fvNominalValues));
-            } else {
+            } else if (feature instanceof NumericFeature) {
                 ret.addElement(new Attribute(feature.getName()));
+            } else {
+                // skip.
             }
         }
         FastVector fvClassValue = new FastVector(2);
         fvClassValue.addElement("true");
         fvClassValue.addElement("false");
-        ret.addElement(new Attribute("class",fvClassValue));
+        ret.addElement(new Attribute("class", fvClassValue));
         return ret;
     }
 
@@ -117,7 +138,7 @@ public class WekaPredictor implements Predictor<String> {
         }
         return ret;
     }
-    
+
     @Override
     public String toString() {
         return classifier.toString();
