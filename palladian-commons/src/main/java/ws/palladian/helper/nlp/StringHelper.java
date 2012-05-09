@@ -445,6 +445,9 @@ public class StringHelper {
      */
     public static boolean containsWord(String word, String searchString) {
         String allowedNeighbors = "[\\s,.;-?!()]";
+
+        word = escapeForRegularExpression(word);
+
         String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
 
@@ -488,6 +491,8 @@ public class StringHelper {
 
     public static String replaceWord(String word, String replacement, String searchString) {
         String allowedNeighbors = "[\\s,.;\\-´\"']";
+
+        word = escapeForRegularExpression(word);
 
         String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
                 + allowedNeighbors + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
@@ -590,7 +595,7 @@ public class StringHelper {
         } catch (Exception e) {
             Logger.getRootLogger().error(string + ", " + e.getMessage());
         }
-        return string;
+        return string.trim();
     }
 
     /**

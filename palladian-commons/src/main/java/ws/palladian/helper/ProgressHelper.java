@@ -2,6 +2,7 @@ package ws.palladian.helper;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -14,22 +15,37 @@ import ws.palladian.helper.math.MathHelper;
  */
 public class ProgressHelper {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ProgressHelper.class);
-
     public static String showProgress(long counter, long totalCount, int showEveryPercent) {
-
-        return showProgress(counter, totalCount, showEveryPercent, null);
-
+        return showProgress(counter, totalCount, showEveryPercent, null, null);
     }
 
     public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger) {
+        return showProgress(counter, totalCount, showEveryPercent, logger, null);
+    }
+
+    public static String showProgress(long counter, long totalCount, int showEveryPercent, StopWatch stopWatch) {
+        return showProgress(counter, totalCount, showEveryPercent, null, stopWatch);
+    }
+
+    public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger,
+            StopWatch stopWatch) {
 
         String processString = "";
         try {
             if (counter % (showEveryPercent * totalCount / 100) == 0) {
-                processString = MathHelper.round(100 * counter / (double)totalCount, 2) + "% ("
-                        + (totalCount - counter) + " items remaining)";
+                double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
+                processString = percent + "% ("
+                        + (totalCount - counter) + " items remaining";
+
+                if (stopWatch != null) {
+                    long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime());
+                    processString += ", iteration time: " + stopWatch.getElapsedTimeString()
+                            + ", est. time remaining: " + DateHelper.getRuntime(0, msRemaining) + ")";
+                    stopWatch.start();
+                } else {
+                    processString += ")";
+                }
+
                 if (logger != null) {
                     logger.info(processString);
                 } else {

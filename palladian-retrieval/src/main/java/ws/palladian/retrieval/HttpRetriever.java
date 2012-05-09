@@ -36,6 +36,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -748,6 +750,10 @@ public class HttpRetriever {
 
     public void setConnectionTimeout(long connectionTimeout) {
         HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
+    }
+
+    public void setCredentials(AuthScope scope, Credentials defaultcreds) {
+        httpClient.getCredentialsProvider().setCredentials(scope, defaultcreds);
     }
 
     public long getConnectionTimeout() {
