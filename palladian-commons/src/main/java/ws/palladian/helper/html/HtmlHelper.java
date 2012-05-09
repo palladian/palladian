@@ -759,22 +759,24 @@ public class HtmlHelper {
         return result;
     }
 
-//    public static String xmlToString(Node node) {
-//        try {
-//            Source source = new DOMSource(node);
-//            StringWriter stringWriter = new StringWriter();
-//            Result result = new StreamResult(stringWriter);
-//            TransformerFactory factory = TransformerFactory.newInstance();
-//            Transformer transformer = factory.newTransformer();
-//            transformer.transform(source, result);
-//            return stringWriter.getBuffer().toString();
-//        } catch (TransformerConfigurationException e) {
-//            e.printStackTrace();
-//        } catch (TransformerException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+    // TODO was commented, but it is currently used by Palladian-KNIME
+    // -- Philipp, 2012-05-04
+    public static String xmlToString(Node node) {
+        try {
+            Source source = new DOMSource(node);
+            StringWriter stringWriter = new StringWriter();
+            Result result = new StreamResult(stringWriter);
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer();
+            transformer.transform(source, result);
+            return stringWriter.getBuffer().toString();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * <p>

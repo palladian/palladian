@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.SearcherException;
@@ -76,12 +76,21 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
      */
     public static void main(String[] args) throws SearcherException {
         List<WebSearcher<WebResult>> searchers = new ArrayList<WebSearcher<WebResult>>();
-        searchers.add(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()));
-        searchers.add(new ScroogleSearcher());
-        searchers.add(new GoogleSearcher());
+        // searchers.add(new YandexSearcher(
+        // "http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22")); // 2.2
+        // searchers.add(new HakiaSearcher(ConfigHolder.getInstance().getConfig())); // 6s
+        // searchers.add(new DuckDuckGoSearcher()); // 3.1s
+        // searchers.add(new BingSearcher(ConfigHolder.getInstance().getConfig())); // 4.4s
+        // searchers.add(new ScroogleSearcher()); // 6.5s
+        // searchers.add(new BlekkoSearcher(ConfigHolder.getInstance().getConfig())); // 11.2s
+        searchers.add(new GoogleSearcher()); // 2.7s
 
+        StopWatch stopWatch = new StopWatch();
         CascadingSearcher cs = new CascadingSearcher(searchers);
-        List<WebResult> results = cs.search("the population of germany", 11);
-        CollectionHelper.print(results);
+        for (int i = 0; i < 1; i++) {
+            List<WebResult> results = cs.search("\"Sony Ericsson T230i\" \"talk time\"", 10);
+            CollectionHelper.print(results);
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
     }
 }

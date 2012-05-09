@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 
@@ -20,6 +22,8 @@ import ws.palladian.helper.date.ExtractedDateHelper;
  */
 public class ExtractedDate implements AbstractDate {
 
+    private static final Logger LOGGER = Logger.getLogger(ExtractedDate.class);
+    
     private DateType dateType = DateType.ExtractedDate;
 
     /**
@@ -132,9 +136,9 @@ public class ExtractedDate implements AbstractDate {
             setDateValues(dateString.split("/"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
             dateParts = dateString.split("/");
-            year = ExtractedDateHelper.normalizeYear(dateParts[0]);
             int tempMonth = 0;
             try {
+                year = ExtractedDateHelper.normalizeYear(dateParts[0]);
                 day = Integer.parseInt(dateParts[dateParts.length - 1]);
                 tempMonth = -1;
             } catch (NumberFormatException exeption) {
@@ -659,7 +663,11 @@ public class ExtractedDate implements AbstractDate {
      */
     private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
         if (yearPos != -1) {
-            this.year = ExtractedDateHelper.normalizeYear(dateParts[yearPos]);
+            try {
+                this.year = ExtractedDateHelper.normalizeYear(dateParts[yearPos]);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
         }
         if (monthPos != -1) {
             dateParts[monthPos] = dateParts[monthPos].replaceAll(" ", "");

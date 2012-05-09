@@ -47,9 +47,9 @@ public final class XPathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(XPathHelper.class);
-    
+
     private XPathHelper() {
-        // utility class, prevent instantiation. 
+        // utility class, prevent instantiation.
     }
 
     /**
@@ -202,9 +202,25 @@ public final class XPathHelper {
     public static List<Node> getChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
+        return getChildNodes(node, xPath, null);
+    }
+
+    /**
+     * <p>
+     * Get the child {@link Node}s of a given node that are addressed by the given XPath.
+     * </p>
+     * 
+     * @param node The parent node of the children, not <code>null</code>
+     * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
+     * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
+     * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     */
+    public static List<Node> getChildNodes(Node node, String xPath, Map<String, String> namespaces) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodesMatch = new ArrayList<Node>();
-        List<Node> childNodes = getNodes(node, xPath);
+        List<Node> childNodes = getNodes(node, xPath, namespaces);
 
         for (Node cn : childNodes) {
             if (isChildOf(cn, node)) {

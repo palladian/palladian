@@ -156,7 +156,9 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                 }
                 
                 // check whether we need to negate the sentiment
-                if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht")) {
+                if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht")
+                        || lastToken.equalsIgnoreCase("ohne") || lastToken.equalsIgnoreCase("kein")
+                        || lastToken.equalsIgnoreCase("keine")) {
                     emphasizeWeight *= -1;
                 }
                 
