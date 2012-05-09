@@ -73,6 +73,7 @@ public class ImageHandler {
         try {
             if (url.indexOf("http:") > -1) {
                 URL urlLocation = new URL(url);
+                // FIXME load url over HttpRetriever
                 bufferedImage = ImageIO.read(urlLocation);
             } else {
                 bufferedImage = ImageIO.read(new File(url));
@@ -576,7 +577,7 @@ public class ImageHandler {
             }
 
             // save image
-            LOGGER.info("write " + savePath + " with " + fileExtension);
+            LOGGER.debug("write " + savePath + " with " + fileExtension);
             FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 

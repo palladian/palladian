@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -40,9 +39,7 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
         return "YouTube";
     }
 
-    @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
-
+    private String getRequestUrl(String query, int resultCount, Language language) {
         String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.urlEncode(query);
         url += "&orderby=relevance";
         url += "&start-index=1";
@@ -53,9 +50,18 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
             url += "&key=" + apiKey;
         }
 
+        return url;
+    }
+
+    @Override
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+
+        String url = getRequestUrl(query, resultCount, language);
+
         DocumentRetriever retriever = new DocumentRetriever();
 
         JSONObject root = retriever.getJsonObject(url);
+        TOTAL_REQUEST_COUNT.incrementAndGet();
         JSONObject feed;
         JSONArray entries = new JSONArray();
         try {
@@ -98,9 +104,29 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
         return webResults;
     }
 
+    @Override
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
+        int hitCount = 0;
+        try {
+            String url = getRequestUrl(query, 1, language);
+
+            DocumentRetriever retriever = new DocumentRetriever();
+            JSONObject root = retriever.getJsonObject(url);
+            TOTAL_REQUEST_COUNT.incrementAndGet();
+
+            hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getInt("$t");
+
+        } catch (JSONException e) {
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
+        }
+        return hitCount;
+    }
+
     public static void main(String[] args) throws SearcherException {
         YouTubeSearcher yts = new YouTubeSearcher("");
-        List<WebResult> results = yts.search("Cinefreaks Crosstrailer", 4);
-        CollectionHelper.print(results);
+        // List<WebResult> results = yts.search("\"htc evo 4g\"", 4);
+        System.out.println(yts.getTotalResultCount("\"htc evo 4g\""));
+        // CollectionHelper.print(results);
     }
 }
