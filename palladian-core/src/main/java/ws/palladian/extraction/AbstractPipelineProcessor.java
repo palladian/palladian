@@ -3,7 +3,6 @@
  */
 package ws.palladian.extraction;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,6 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @version 2.0
  */
 public abstract class AbstractPipelineProcessor implements PipelineProcessor {
+    // TODO can we replace the IllegalStateException by DocumentUnprocessableException here?
     /**
      * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -47,7 +47,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     public AbstractPipelineProcessor() {
         super();
         this.documentToInputMapping = new HashSet<Pair<String, String>>();
-        this.documentToInputMapping.add(new ImmutablePair<String, String>("modifiedContent", "originalContent"));
+        this.documentToInputMapping.add(new ImmutablePair<String, String>(MODIFIED_CONTENT_VIEW_NAME,
+                ORIGINAL_CONTENT_VIEW_NAME));
     }
 
     /**
@@ -76,7 +77,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * @return The set of input view names required to be present in each processed {@code PipelineDocument}.
      */
     public List<String> getInputViewNames() {
-        return Collections.unmodifiableList(Arrays.asList(new String[] {"originalContent"}));
+        return Collections.singletonList(ORIGINAL_CONTENT_VIEW_NAME);
     }
 
     /**
@@ -91,14 +92,14 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      *         {@code PipelineDocument}s.
      */
     public List<String> getOutputViewNames() {
-        return Collections.unmodifiableList(Arrays.asList(new String[] {"modifiedContent"}));
+        return Collections.singletonList(MODIFIED_CONTENT_VIEW_NAME);
     }
 
     @Override
     public final void process(PipelineDocument document) throws DocumentUnprocessableException {
-        if (document == null)
+        if (document == null) {
             throw new IllegalArgumentException("Document may not be null");
-
+        }
         allInputViewsAvailable(document);
         applyMapping(document);
         processDocument(document);
@@ -118,7 +119,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
             // Ignore the mapping from modified content to original content if modified content is not available
             // This is necessary to handle the case of the initial component in a pipeline where no modifiedContent
             // exists yet as well as the case of simple annotators that do not modify the content.
-            if (mapping.getKey().equals("modifiedContent") && mapping.getValue().equals("originalContent")) {
+            if (mapping.getKey().equals(MODIFIED_CONTENT_VIEW_NAME)
+                    && mapping.getValue().equals(ORIGINAL_CONTENT_VIEW_NAME)) {
                 if (!document.providesView(mapping.getKey())) {
                     return;
                 }

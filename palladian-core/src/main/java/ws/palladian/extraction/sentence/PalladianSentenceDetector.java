@@ -3,9 +3,9 @@ package ws.palladian.extraction.sentence;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.PositionAnnotation;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.PositionAnnotation;
 
 public class PalladianSentenceDetector extends AbstractSentenceDetector {
 
