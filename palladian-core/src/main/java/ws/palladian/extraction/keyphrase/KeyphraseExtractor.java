@@ -1,62 +1,45 @@
 package ws.palladian.extraction.keyphrase;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.io.FileUtils;
 
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
+import scala.actors.threadpool.Arrays;
+import ws.palladian.extraction.keyphrase.temp.Dataset2;
+import ws.palladian.extraction.keyphrase.temp.DatasetItem;
 
 public abstract class KeyphraseExtractor {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
-
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
-
-    public final void train(final Dataset dataset) {
-
-        LOGGER.info("training");
-
+    
+    @SuppressWarnings("unchecked")
+    public final void train(Dataset2 dataset) {
         startTraining();
-
-        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String[] split = line.split(dataset.getSeparationString());
-
-                if (split.length < 2) {
-                    return;
-                }
-
-                String inputText = split[0];
-                if (dataset.isFirstFieldLink()) {
-                    inputText = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
-                }
-
-                // the manually assigned keyphrases
-                Set<String> keyphrases = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    keyphrases.add(split[i]);
-                }
-
-                train(inputText, keyphrases, lineNumber);
-                
-                if (lineNumber % 10 == 0) {
-                    LOGGER.info(lineNumber);
-                }
-
+        int i = 0;
+        for (DatasetItem item : dataset) {
+            i++;
+            System.out.println(i + "/" + dataset.size() + ":" + item.getFile().getAbsolutePath());
+            String[] categories = item.getCategories();
+            String text;
+            try {
+                text = FileUtils.readFileToString(item.getFile());
+                // in case we have HTML files, strip HTML tags and unescape. Added to allow easy processing of HTML
+                // files, would be better to let the extractors decide how to work with the supplied data though, e.g.
+                // special HTML feature extraction in the future.
+//                if (item.getFile().getName().endsWith(".html")) {
+//                    text = HtmlHelper.stripHtmlTags(text);
+//                    text = StringEscapeUtils.unescapeHtml(text);
+//                }
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
             }
-        });
-
+            train(text, new HashSet<String>(Arrays.asList(categories)));
+        }
         endTraining();
-
     }
 
     /**
@@ -73,7 +56,7 @@ public abstract class KeyphraseExtractor {
      * @param keyphrases
      * @param index
      */
-    public void train(String inputText, Set<String> keyphrases, int index) {
+    public void train(String inputText, Set<String> keyphrases) {
         // override if this extractor needs training
     }
 
@@ -117,5 +100,10 @@ public abstract class KeyphraseExtractor {
     }
     
     public abstract String getExtractorName();
+
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

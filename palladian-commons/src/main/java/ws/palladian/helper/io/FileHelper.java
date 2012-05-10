@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -1640,7 +1641,9 @@ public class FileHelper {
      * Close all given closeables.
      * 
      * @param closeables All objects which are closeable.
+     * @deprecated Use {@link IOUtils#closeQuietly(Closeable)} instead.
      */
+    @Deprecated
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
