@@ -10,23 +10,27 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
  * A {@link PipelineProcessor} for removing stop words from a pre-tokenized text. This means, the documents to be
- * processed by this class must be processed by a {@link TokenizerInterface} in advance, supplying
- * {@link TokenizerInterface#PROVIDED_FEATURE} annotations. Stop words are determined case-insensitively.
+ * processed by this class must be processed by a {@link BaseTokenizer} in advance, supplying
+ * {@link BaseTokenizer#PROVIDED_FEATURE} annotations. Stop words are determined case-insensitively.
  * </p>
  * 
  * @author Philipp Katz
  * 
  */
-public class StopTokenRemover extends TokenRemover {
+public final class StopTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,6 +45,7 @@ public class StopTokenRemover extends TokenRemover {
      * @param language
      */
     public StopTokenRemover(Language language) {
+        Validate.notNull(language, "languae must not be null");
         switch (language) {
             case ENGLISH:
                 stopwords = loadStopwordsResource("/stopwords_en.txt");
@@ -64,6 +69,7 @@ public class StopTokenRemover extends TokenRemover {
      * @throws IllegalArgumentException If the supplied file cannot be found.
      */
     public StopTokenRemover(File file) {
+        Validate.notNull(file, "file must not be null");
         try {
             stopwords = loadStopwords(new FileReader(file));
         } catch (FileNotFoundException e) {
@@ -76,7 +82,11 @@ public class StopTokenRemover extends TokenRemover {
         if (is == null) {
             throw new IllegalStateException("Resource \"" + resourcePath + "\" not found.");
         }
-        return loadStopwords(new InputStreamReader(is));
+        try {
+            return loadStopwords(new InputStreamReader(is));
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     private Set<String> loadStopwords(Reader reader) {
@@ -109,6 +119,19 @@ public class StopTokenRemover extends TokenRemover {
     @Override
     protected boolean remove(Annotation annotation) {
         return isStopword(annotation.getValue());
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StopTokenRemover [#stopwords=");
+        builder.append(stopwords.size());
+        builder.append("]");
+        return builder.toString();
     }
 
 }

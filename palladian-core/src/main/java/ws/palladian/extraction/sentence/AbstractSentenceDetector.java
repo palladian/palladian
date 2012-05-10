@@ -8,16 +8,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
 
 /**
  * <p>
@@ -47,22 +45,17 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Martin Wunderwald
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Used for serializing and deserializing this object. Do change this value if the objects attriutes change and thus
+     * Used for serializing and deserializing this object. Do change this value if the objects attributes change and thus
      * old serialized version are no longer compatible.
      * </p>
      */
     private static final long serialVersionUID = -8764960870080954781L;
-
-    /** the logger for this class */
-    protected static final Logger LOGGER = Logger.getLogger(AbstractSentenceDetector.class);
-
-    /** base model path */
-    protected static final String MODEL_PATH = "data/models/";
 
     /**
      * <p>
@@ -78,9 +71,6 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
      */
     public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
             .build(PROVIDED_FEATURE, AnnotationFeature.class);
-
-    /** holds the model. **/
-    private Object model;
 
     /** holds the sentences. **/
     private Annotation[] sentences;
@@ -118,19 +108,6 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
 
     /**
      * <p>
-     * Provides the trained model used to chunk a text into sentences. This is usually created from a text where
-     * existing sentences are annotated. For further information look up literature about machine learning and natural
-     * language processing.
-     * </p>
-     * 
-     * @return The model currently used for chunking sentences.
-     */
-    protected final Object getModel() {
-        return model;
-    }
-
-    /**
-     * <p>
      * Provides the sentences extracted by the previous call to {@link #detect(String)} or
      * {@link #detect(String, String)}.
      * </p>
@@ -139,17 +116,6 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
      */
     public final Annotation[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
-    }
-
-    /**
-     * <p>
-     * Resets and overwrites the model used by this sentence detector.
-     * </p>
-     * 
-     * @param model The new model for this sentence detector.
-     */
-    protected final void setModel(Object model) {
-        this.model = model;
     }
 
     /**
@@ -170,8 +136,6 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
         Annotation[] sentences = getSentences();
         List<Annotation> sentencesList = Arrays.asList(sentences);
         AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);
-
-        FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(sentencesFeature);
+        document.getFeatureVector().add(sentencesFeature);
     }
 }

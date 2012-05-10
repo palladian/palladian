@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.collections15.IteratorUtils;
+
 /**
  * <p>
  * The CompositeIterator allows to concatenate multiple Iterators and to iterate them in one go. Modifications via
@@ -13,7 +15,9 @@ import java.util.NoSuchElementException;
  * 
  * @author Philipp Katz
  * @param <T>
+ * @deprecated Use {@link IteratorUtils#chainedIterator(java.util.Collection)} instead.
  */
+@Deprecated
 public final class CompositeIterator<T> implements Iterator<T> {
 
     private final List<Iterator<T>> iterators;

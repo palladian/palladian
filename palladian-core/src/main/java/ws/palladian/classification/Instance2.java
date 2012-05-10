@@ -1,10 +1,10 @@
 package ws.palladian.classification;
 
-import ws.palladian.model.features.ClassificationFeatureVector;
+import ws.palladian.model.features.FeatureVector;
 
 public class Instance2<T> {
 
-    public ClassificationFeatureVector featureVector;
+    public FeatureVector featureVector;
     public T target;
     
 }

@@ -35,7 +35,6 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.external.maui.filters.MauiFilter;
 import ws.palladian.external.maui.main.MauiModelBuilder;
 import ws.palladian.external.maui.main.MauiTopicExtractor;
@@ -45,25 +44,19 @@ import ws.palladian.external.maui.stopwords.Stopwords;
 import ws.palladian.external.maui.vocab.Vocabulary;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.helper.StopWatch;
 
 /**
+ * <p>
  * Maui based keyphrase extractor. This class merges code from {@link MauiModelBuilder} and {@link MauiTopicExtractor}
  * and mapping it to our common interface.
+ * </p>
  * 
  * TODO removed Wikipedia stuff for now, to fix build problems on Hudson.
- * TODO memory leak in Weka? http://comments.gmane.org/gmane.comp.ai.weka/22860
- * TODO there is a f**** memory leak some where, updating to newest Weka doesnt help. Wasted hours until now: 4.
- * at first glance, the problem seems to be caused by weka:
- * 3.5.5 and 3.5.7 --> good
- * 3.6.2 --> evil
  * 
- * http://code.google.com/p/maui-indexer/
- * 
+ * @see <a href="http://code.google.com/p/maui-indexer/">Maui - Multi-purpose automatic topic indexing</a>
  * @author Philipp Katz
- * 
  */
-public class MauiKeyphraseExtractor extends KeyphraseExtractor {
+public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MauiKeyphraseExtractor.class);
@@ -81,7 +74,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     private String vocabularyDirectory = "data/vocabularies";
 
     /** List of stopwords to be used */
-    private Stopwords stopwords = new Stopwords("stopwords_en.txt");
+    private Stopwords stopwords = new Stopwords("/maui/stopwords/stopwords_en.txt");
 
     private Vocabulary vocabulary = null;
 
@@ -102,52 +95,48 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     /** Format of the vocabulary {skos,text} */
     private String vocabularyFormat = null;
 
+    /** Number of documents which have been used for training. */
+    private int numTrainDocs = 0;
+
+    /** The maximum number of documents to use for training. Used to avoid out of memory errors. */
+    // private static final int TRAIN_DOCUMENTS_LIMIT = 100;
+    private static final int TRAIN_DOCUMENTS_LIMIT = Integer.MAX_VALUE;
+
     public MauiKeyphraseExtractor() {
+        reset();
+    }
 
+    @Override
+    public void reset() {
         FastVector atts = new FastVector(3);
-        atts.addElement(new Attribute("filename", (FastVector) null));
-        atts.addElement(new Attribute("document", (FastVector) null));
-        atts.addElement(new Attribute("keyphrases", (FastVector) null));
+        atts.addElement(new Attribute("filename", (FastVector)null));
+        atts.addElement(new Attribute("document", (FastVector)null));
+        atts.addElement(new Attribute("keyphrases", (FastVector)null));
         data = new Instances("keyphrase_training_data", atts, 0);
-
-        // XXX
         mauiFilter = new MauiFilter();
-
         setBasicWikipediaFeatures(false);
         setAllWikipediaFeatures(false);
-
+        numTrainDocs = 0;
     }
 
     @Override
     public void startTraining() {
-
-        LOGGER.trace(">startTraining");
-
-        //        mauiFilter = new MauiFilter();
-
         mauiFilter.setDebug(debugMode);
         mauiFilter.setVocabularyName(vocabularyName);
         mauiFilter.setVocabularyFormat(vocabularyFormat);
-
         try {
             mauiFilter.setInputFormat(data);
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
-        LOGGER.trace("<startTraining");
-
     }
 
     @Override
-    public void train(String inputText, Set<String> keyphrases, int index) {
-
-        // XXX
-        if (index > 1500){
+    public void train(String inputText, Set<String> keyphrases) {
+        if (numTrainDocs == TRAIN_DOCUMENTS_LIMIT) {
+            LOGGER.info("Train limit reached");
             return;
         }
-
-        LOGGER.trace(">train " + index + " " + keyphrases);
 
         double[] newInst = new double[3];
 
@@ -156,38 +145,30 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         newInst[2] = data.attribute(2).addStringValue(StringUtils.join(keyphrases, "\n"));
 
         data.add(new Instance(1.0, newInst));
-
         try {
             mauiFilter.input(data.instance(0));
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
         data = data.stringFreeStructure();
-
-        LOGGER.trace("<train");
-
+        numTrainDocs++;
     }
 
     @Override
     public void endTraining() {
-
         try {
             mauiFilter.batchFinished();
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
         while ((mauiFilter.output()) != null) {
             // noop
         }
-
         try {
             saveModel();
         } catch (Exception e) {
             LOGGER.error(e);
         }
-
     }
 
     @Override
@@ -204,32 +185,24 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
      * Saves the extraction model to the file.
      */
     private void saveModel() throws Exception {
-        LOGGER.trace(">saveModel");
-        StopWatch sw = new StopWatch();
-
         BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(modelName));
         ObjectOutputStream out = new ObjectOutputStream(bufferedOut);
         out.writeObject(mauiFilter);
         out.flush();
         out.close();
-
-        LOGGER.info("saved model in " + sw.getElapsedTimeString());
-        LOGGER.trace("<saveModel");
     }
 
     /**
      * Loads the extraction model from the file.
      */
     private void loadModel() {
-        LOGGER.trace(">loadModel");
-        StopWatch sw = new StopWatch();
         // mauiFilter = null;
 
         try {
 
             BufferedInputStream inStream = new BufferedInputStream(new FileInputStream(modelName));
             ObjectInputStream in = new ObjectInputStream(inStream);
-            mauiFilter = (MauiFilter) in.readObject();
+            mauiFilter = (MauiFilter)in.readObject();
 
             // If TFxIDF values are to be computed from the test corpus
             if (buildGlobalDictionary == true) {
@@ -244,9 +217,6 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         } catch (ClassNotFoundException e) {
             LOGGER.error(e);
         }
-
-        LOGGER.info("loaded model in " + sw.getElapsedTimeString());
-        LOGGER.trace("<loadModel");
     }
 
     @Override
@@ -256,8 +226,6 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-
-        LOGGER.trace(">extract");
 
         List<Keyphrase> result = new ArrayList<Keyphrase>();
 
@@ -282,7 +250,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         // Iterating over all extracted keyphrases (inst)
         while ((inst = mauiFilter.output()) != null) {
 
-            int index = (int) inst.value(mauiFilter.getRankIndex()) - 1;
+            int index = (int)inst.value(mauiFilter.getRankIndex()) - 1;
             if (index < topicsPerDocument) {
                 topRankedInstances[index] = inst;
             }
@@ -296,21 +264,15 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
                 String text = topRankedInstances[i].stringValue(mauiFilter.getOutputFormIndex());
                 double probability = topRankedInstances[i].value(mauiFilter.getProbabilityIndex());
 
-                LOGGER.debug(text + " " + probability);
                 result.add(new Keyphrase(text, probability));
             }
         }
 
-        // XXX
         try {
             mauiFilter.batchFinished();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         }
-
-
-        LOGGER.trace("<extract");
         return result;
     }
 
@@ -533,25 +495,25 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         mauiFilter.setVocabularyFormat(vocabularyFormat);
     }
 
-    //    /**
-    //     * @param wikipedia
-    //     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
-    //     */
-    //    public void setWikipedia(Wikipedia wikipedia) {
-    //        mauiFilter.setWikipedia(wikipedia);
-    //    }
+    // /**
+    // * @param wikipedia
+    // * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
+    // */
+    // public void setWikipedia(Wikipedia wikipedia) {
+    // mauiFilter.setWikipedia(wikipedia);
+    // }
 
-    //    /**
-    //     * @param wikipediaServer
-    //     * @param wikipediaDatabase
-    //     * @param cacheData
-    //     * @param wikipediaDataDirectory
-    //     * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
-    //     */
-    //    public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
-    //            String wikipediaDataDirectory) {
-    //        mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
-    //    }
+    // /**
+    // * @param wikipediaServer
+    // * @param wikipediaDatabase
+    // * @param cacheData
+    // * @param wikipediaDataDirectory
+    // * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
+    // */
+    // public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
+    // String wikipediaDataDirectory) {
+    // mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
+    // }
 
     /**
      * Build global dictionaries from the test set.
@@ -591,31 +553,6 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             // e.printStackTrace();
             LOGGER.error("Failed to load thesaurus!", e);
         }
-
-    }
-
-    public static void main(String[] args) {
-
-        MauiKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
-        // System.exit(0);
-
-
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("/home/pk/Desktop/Maui_Small/dataset.txt");
-        trainingDataset.setSeparationString("#");
-        trainingDataset.setFirstFieldLink(true);
-
-        extractor.train(trainingDataset);
-
-        System.exit(0);
-
-
-        extractor.setKeyphraseCount(20);
-
-        extractor.startExtraction();
-        List<Keyphrase> extract = extractor
-        .extract("Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.");
-        System.out.println(extract);
 
     }
 

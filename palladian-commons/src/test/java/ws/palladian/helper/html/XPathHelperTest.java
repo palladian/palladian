@@ -19,15 +19,18 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.helper.io.ResourceHelper;
 
+/**
+ * <p>
+ * Test cases for {@link XPathHelper}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ * @author David Urbansky
+ */
 public class XPathHelperTest {
-
-    // private Parser htmlParser = ParserFactory.makeParser();
-//    private DocumentParser xmlParser = ParserFactory.createXmlParser();
 
     @Test
     public void testAddNamespaceToXPath() {
-
-        // test add XMLNS
         assertEquals(XPathHelper.addXhtmlNsToXPath("//TABLE/TR/TD/A[4]"), "//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
         assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR/TD/A[4]"), "/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
         assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A"), "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A");
@@ -68,26 +71,19 @@ public class XPathHelperTest {
 
     @Test
     public void testNamespace() throws ParserConfigurationException, SAXException, IOException {
-//        Document doc = parse(ResourceHelper.getResourceFile("/feeds/atomSample1.xml"));
-//
-//        Map<String, String> mapping = new HashMap<String, String>();
-//        mapping.put("atom", "http://www.w3.org/2005/Atom");
-//        List<Node> nodes = XPathHelper.getNodes(doc, "//atom:author", mapping);
-//        assertEquals(2, nodes.size());
         Document doc = parse(ResourceHelper.getResourceFile("/multipleNamespaces.xml"));
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("h", "http://www.w3.org/TR/html4/");
         mapping.put("f", "http://www.w3schools.com/furniture");
-        
+
         List<Node> nodes = XPathHelper.getNodes(doc, "//h:td", mapping);
         assertEquals(2, nodes.size());
-        
+
         nodes = XPathHelper.getNodes(doc, "/root/f:table/f:name", mapping);
         assertEquals(1, nodes.size());
-        
+
     }
-    
-    
+
     private final Document parse(File file) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);

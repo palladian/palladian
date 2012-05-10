@@ -3,6 +3,8 @@ package de.philippkatz.helper;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.collections15.IteratorUtils;
+
 /**
  * <p>
  * The SingleIterator contains just one item.
@@ -11,7 +13,9 @@ import java.util.NoSuchElementException;
  * @author Philipp Katz
  * 
  * @param <T>
+ * @deprecated Use {@link IteratorUtils#singletonIterator(Object)} instead.
  */
+@Deprecated
 public class SingleIterator<T> implements Iterator<T> {
 
     private T item;
