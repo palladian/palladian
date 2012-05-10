@@ -7,10 +7,10 @@ import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.PositionAnnotation;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
+import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>

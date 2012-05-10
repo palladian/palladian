@@ -50,8 +50,8 @@ public class PipelineDocument {
     public PipelineDocument(String originalContent) {
         super();
         this.views = new HashMap<String, String>();
-        this.views.put("originalContent", originalContent);
-        this.views.put("modifiedContent", originalContent);
+        this.views.put(PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME, originalContent);
+        this.views.put(PipelineProcessor.MODIFIED_CONTENT_VIEW_NAME, originalContent);
         this.featureVector = new FeatureVector();
     }
 
@@ -86,7 +86,7 @@ public class PipelineDocument {
      * @return The unmodified original content representing the document.
      */
     public String getOriginalContent() {
-        return this.views.get("originalContent");
+        return this.views.get(PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME);
     }
 
     /**
@@ -97,7 +97,7 @@ public class PipelineDocument {
      * @param originalContent The new unmodified original content representing the document.
      */
     public void setOriginalContent(String originalContent) {
-        this.views.put("originalContent", originalContent);
+        this.views.put(PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME, originalContent);
     }
 
     /**
@@ -109,7 +109,7 @@ public class PipelineDocument {
      * @return The modified content of the document or {@code null} if no modified content is available yet.
      */
     public String getModifiedContent() {
-        return this.views.get("modifiedContent");
+        return this.views.get(PipelineProcessor.MODIFIED_CONTENT_VIEW_NAME);
     }
 
     /**
@@ -120,18 +120,25 @@ public class PipelineDocument {
      * @param modifiedContent The content of this document modified by some {@link PipelineProcessor}.
      */
     public void setModifiedContent(String modifiedContent) {
-        this.views.put("modifiedContent", modifiedContent);
+        this.views.put(PipelineProcessor.MODIFIED_CONTENT_VIEW_NAME, modifiedContent);
     }
 
     @Override
     public String toString() {
+//        StringBuilder builder = new StringBuilder();
+//        builder.append("PipelineDocument [featureVector=");
+//        builder.append(featureVector);
+//        builder.append(", originalContent=");
+//        builder.append(getOriginalContent());
+//        builder.append(", modifiedContent=");
+//        builder.append(getModifiedContent());
+//        builder.append("]");
+//        return builder.toString();
         StringBuilder builder = new StringBuilder();
-        builder.append("PipelineDocument [featureVector=");
+        builder.append("PipelineDocument [views=");
+        builder.append(views);
+        builder.append(", featureVector=");
         builder.append(featureVector);
-        builder.append(", originalContent=");
-        builder.append(getOriginalContent());
-        builder.append(", modifiedContent=");
-        builder.append(getModifiedContent());
         builder.append("]");
         return builder.toString();
     }
@@ -182,4 +189,46 @@ public class PipelineDocument {
     public Set<String> getProvidedViewNames() {
         return Collections.unmodifiableSet(this.views.keySet());
     }
+    
+    // FIXME for hashCode/equals to work properly, FeatureVector must also implement hashCode/equals,
+    // but currently, the FeatureVector implementation's field is set to transient. Why? See issue #48
+    // https://bitbucket.org/palladian/palladian/issue/48/transient-field-in-featurevector
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((featureVector == null) ? 0 : featureVector.hashCode());
+        result = prime * result + ((views == null) ? 0 : views.hashCode());
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PipelineDocument other = (PipelineDocument)obj;
+        if (featureVector == null) {
+            if (other.featureVector != null)
+                return false;
+        } else if (!featureVector.equals(other.featureVector))
+            return false;
+        if (views == null) {
+            if (other.views != null)
+                return false;
+        } else if (!views.equals(other.views))
+            return false;
+        return true;
+    }
+    
 }

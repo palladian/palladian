@@ -21,15 +21,10 @@ package ws.palladian.external.maui.filters;
 import gnu.trove.TIntHashSet;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.Math;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,28 +35,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.wikipedia.miner.model.Anchor;
+import org.wikipedia.miner.model.Anchor.Sense;
 import org.wikipedia.miner.model.Article;
 import org.wikipedia.miner.model.Wikipedia;
-import org.wikipedia.miner.model.Anchor.Sense;
 import org.wikipedia.miner.util.ProgressNotifier;
 import org.wikipedia.miner.util.SortedVector;
 import org.wikipedia.miner.util.text.CaseFolder;
 import org.wikipedia.miner.util.text.TextProcessor;
 
+import weka.classifiers.Classifier;
+import weka.classifiers.meta.Bagging;
 import weka.core.Attribute;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
-import weka.core.Capabilities.Capability;
 import weka.filters.Filter;
-import weka.filters.supervised.attribute.Discretize;
-import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayesSimple;
-import weka.classifiers.meta.Bagging;
-import weka.classifiers.meta.FilteredClassifier;
-import weka.classifiers.meta.RegressionByDiscretization;
 import ws.palladian.external.maui.stemmers.PorterStemmer;
 import ws.palladian.external.maui.stemmers.Stemmer;
 import ws.palladian.external.maui.stopwords.Stopwords;
@@ -227,7 +218,7 @@ public class MauiFilter extends Filter {
 	private Stemmer stemmer = new PorterStemmer();
 
 	/** List of stop words to be used */
-	private Stopwords stopwords = new StopwordsEnglish("data/stopwords/stopwords_en.txt");
+	private Stopwords stopwords = new StopwordsEnglish("/maui/stopwords/stopwords_en.txt");
 
 	/** Default language to be used */
 	private String documentLanguage = "en";

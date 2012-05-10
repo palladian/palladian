@@ -1,10 +1,12 @@
 package ws.palladian.helper.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -86,32 +88,6 @@ public final class CollectionHelper {
         return sortByValue(map, CollectionHelper.ASCENDING);
     }
 
-    // /**
-    // * Sort a {@link HashMap} by value.
-    // *
-    // * @param <K> Type of the keys.
-    // * @param <V> Type of the values.
-    // * @param entrySet The entry set.
-    // * @return A sorted map, in ascending order.
-    // */
-    // public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Set<Map.Entry<K, V>> entrySet) {
-    // return CollectionHelper.sortByValue(entrySet, CollectionHelper.ASCENDING);
-    // }
-
-    // /**
-    // * Sort a {@link HashMap} by value.
-    // *
-    // * @param <K> Type of the keys.
-    // * @param <V> Type of the values.
-    // * @param entrySet The entry set.
-    // * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
-    // * @return A sorted map.
-    // */
-    // public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Set<Map.Entry<K, V>> entrySet,
-    // boolean ascending) {
-    //
-    // }
-
     /**
      * <p>
      * Sort a {@link HashMap} by length of the key string.
@@ -165,22 +141,6 @@ public final class CollectionHelper {
         return null;
     }
 
-    // /**
-    // * <p>
-    // * Get a human readable, line separated output of an Array.
-    // * </p>
-    // *
-    // * @param array
-    // * @return
-    // */
-    // public static String getPrint(Object[] array) {
-    // Set<Object> set = new HashSet<Object>();
-    // for (Object o : array) {
-    // set.add(o);
-    // }
-    // return getPrint(set);
-    // }
-
     /**
      * <p>
      * Print a human readable, line separated output of an Array.
@@ -222,27 +182,6 @@ public final class CollectionHelper {
         System.out.println("#Entries: " + map.entrySet().size());
     }
 
-    // /**
-    // * <p>
-    // * Check whether an Array contains an entry.
-    // * </p>
-    // *
-    // * @param array The array.
-    // * @param entry The entry that is checked against the array.
-    // * @return True, if the entry is contained in the array, false otherwise.
-    // * @deprecated Use {@link Arrays#asList(Object...)} and {@link List#contains(Object)} instead:
-    // <code>Arrays.asList(array).contains(entry);</code>
-    // */
-    // @Deprecated
-    // public static <T> boolean contains(T[] array, T entry) {
-    // for (T s : array) {
-    // if (s.equals(entry)) {
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
-
     /**
      * <p>
      * Get a human readable, line separated output of a {@link Collection}.
@@ -273,61 +212,6 @@ public final class CollectionHelper {
         System.out.println(getPrint(collection));
     }
 
-    // /**
-    // * Convert a string array to a Set, skip empty strings.
-    // *
-    // * @param array
-    // * @return
-    // */
-    // public static HashSet<String> toHashSet(String[] array) {
-    // HashSet<String> set = new HashSet<String>();
-    // for (String s : array) {
-    // if (s.length() > 0) {
-    // set.add(s);
-    // }
-    // }
-    // return set;
-    // }
-
-    // /**
-    // * <p>
-    // * Converts a {@link List} to a {@link TreeSet}.
-    // * </p>
-    // *
-    // * @param <T>
-    // * @param list
-    // * @return
-    // */
-    // public static <T> TreeSet<T> toTreeSet(List<T> list) {
-    // TreeSet<T> set = new TreeSet<T>();
-    // for (T item : list) {
-    // set.add(item);
-    // }
-    // return set;
-    // }
-
-    // /**
-    // * Removes null objects out of an array.
-    // *
-    // * @param <T>
-    // * @param array
-    // * @return
-    // * @deprecated Use {@link List#removeAll(Collection)} with {@link Collections#singletonList(Object)} initalized to
-    // * <code>null</code> instead: <code>list.removeAll(Collections.singletonList(null));</code>
-    // */
-    // @Deprecated
-    // public static <T> ArrayList<T> removeNullElements(ArrayList<T> array) {
-    // ArrayList<T> returnArray = new ArrayList<T>();
-    // Iterator<T> iterator = array.iterator();
-    // while (iterator.hasNext()) {
-    // T element = iterator.next();
-    // if (element != null) {
-    // returnArray.add(element);
-    // }
-    // }
-    // return returnArray;
-    // }
-
     /**
      * <p>
      * Concatenate two String arrays.
@@ -341,56 +225,43 @@ public final class CollectionHelper {
         String[] helpArray = new String[array1.length + array2.length];
         System.arraycopy(array1, 0, helpArray, 0, array1.length);
         System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
-
         return helpArray;
     }
 
-    // /**
-    // * Returns a ArrayList of keys of map.
-    // * @param <K>
-    // * @param <V>
-    // * @param map
-    // * @return
-    // */
-    // public static <K,V> ArrayList<K> toArrayList(Map<K, V> map){
-    // ArrayList<K> returnList = new ArrayList<K>();
-    // for(Entry<K, V> e : map.entrySet()){
-    // returnList.add(e.getKey());
-    // }
-    // return returnList;
-    // }
+    /**
+     * <p>
+     * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
+     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
+     * </p>
+     * 
+     * @return
+     */
+    public static <K, V> HashMap<K, V> newHashMap() {
+        return new HashMap<K, V>();
+    }
 
-    // /**
-    // * <p>
-    // * Intersect two sets and return a new set with the elements that both sets had in common.
-    // * </p>
-    // *
-    // * @param set1 The first set.
-    // * @param set2 The second set.
-    // * @return The intersection between the sets.
-    // * @deprecated Use {@link CollectionUtils#intersection(Collection, Collection)}
-    // */
-    // @Deprecated
-    // public static <T> Set<T> intersect(Set<T> set1, Set<T> set2) {
-    // Set<T> intersection = new HashSet<T>(set1);
-    // intersection.retainAll(new HashSet<T>(set2));
-    // return intersection;
-    // }
+    /**
+     * <p>
+     * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
+     * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
+     * </p>
+     * 
+     * @return
+     */
+    public static <E> ArrayList<E> newArrayList() {
+        return new ArrayList<E>();
+    }
 
-    // /**
-    // * <p>
-    // * Unite two sets and return a new set with the elements from both sets.
-    // * </p>
-    // *
-    // * @param set1 The first set.
-    // * @param set2 The second set.
-    // * @return The union of the sets.
-    // * @deprecated Use {@link CollectionUtils#union(Collection, Collection)}
-    // */
-    // @Deprecated
-    // public static <T> Set<T> union(Set<T> set1, Set<T> set2) {
-    // Set<T> union = new HashSet<T>(set1);
-    // union.addAll(new HashSet<T>(set2));
-    // return union;
-    // }
+    /**
+     * <p>
+     * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
+     * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
+     * </p>
+     * 
+     * @return
+     */
+    public static <E> HashSet<E> newHashSet() {
+        return new HashSet<E>();
+    }
+
 }

@@ -75,7 +75,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ws.palladian</groupId>
-			<artifactId>PalladianExternalCode</artifactId>
+			<artifactId>palladian-external-code</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>trove</artifactId>
@@ -86,6 +86,7 @@
 					<groupId>icu4j</groupId>
 				</exclusion>
 			</exclusions>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -132,15 +133,27 @@
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queries</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-memory</artifactId>
+		</dependency>
 		<!-- following dependencies are necessary for ark-tweet-nlp -->
 		<dependency>
 			<groupId>edu.cmu.cs.lti.ark.tweetnlp</groupId>
 			<artifactId>ark-tweet-nlp</artifactId>
 			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
