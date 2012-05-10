@@ -2,17 +2,13 @@ package ws.palladian.extraction.keyphrase.features;
 
 import java.util.List;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.feature.AbstractTokenProcessor;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
-import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.AnnotationGroup;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
 /**
@@ -37,7 +33,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class PhrasenessAnnotator extends AbstractPipelineProcessor {
+public final class PhrasenessAnnotator extends AbstractTokenProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -72,27 +68,21 @@ public final class PhrasenessAnnotator extends AbstractPipelineProcessor {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+        NumericFeature generalizedDiceFeature;
+        double phraseCount = getCount(annotation);
 
-        for (Annotation annotation : annotations) {
-            NumericFeature generalizedDiceFeature;
-            double phraseCount = getCount(annotation);
-
-            if (annotation instanceof AnnotationGroup) {
-                AnnotationGroup group = (AnnotationGroup)annotation;
-                int numberOfTerms = group.getAnnotations().size();
-                double wordCount = getCount(group.getAnnotations());
-                double generalizedDice = (numberOfTerms * Math.log10(phraseCount) * phraseCount) / wordCount;
-                generalizedDiceFeature = new NumericFeature(GENERALIZED_DICE, generalizedDice);
-            } else {
-                double generalizedDice = Math.log10(phraseCount);
-                generalizedDiceFeature = new NumericFeature(GENERALIZED_DICE, singleWordTermFactor * generalizedDice);
-            }
-            annotation.getFeatureVector().add(generalizedDiceFeature);
+        if (annotation instanceof AnnotationGroup) {
+            AnnotationGroup group = (AnnotationGroup)annotation;
+            int numberOfTerms = group.getAnnotations().size();
+            double wordCount = getCount(group.getAnnotations());
+            double generalizedDice = (numberOfTerms * Math.log10(phraseCount) * phraseCount) / wordCount;
+            generalizedDiceFeature = new NumericFeature(GENERALIZED_DICE, generalizedDice);
+        } else {
+            double generalizedDice = Math.log10(phraseCount);
+            generalizedDiceFeature = new NumericFeature(GENERALIZED_DICE, singleWordTermFactor * generalizedDice);
         }
+        annotation.getFeatureVector().add(generalizedDiceFeature);
     }
 
     private double getCount(List<Annotation> annotations) throws DocumentUnprocessableException {
