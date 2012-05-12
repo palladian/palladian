@@ -634,7 +634,7 @@ public class ExtractedDate implements AbstractDate {
      * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
      */
     private void setActualTimeValues(final String time) {
-        if (time.indexOf(':') == -1) {
+        if (time.indexOf(':') == -1 && !time.isEmpty()) {
             this.hour = Integer.parseInt(time);
 
         } else {
