@@ -670,13 +670,15 @@ public class ExtractedDate implements AbstractDate {
             }
         }
         if (monthPos != -1) {
-            dateParts[monthPos] = dateParts[monthPos].replaceAll(" ", "");
+            dateParts[monthPos] = dateParts[monthPos].replace(" ", "");
             try {
                 dateParts[monthPos] = String.valueOf(Integer.parseInt(dateParts[monthPos]));
             } catch (NumberFormatException e) {
                 dateParts[monthPos] = ExtractedDateHelper.getMonthNumber(dateParts[monthPos]);
             }
-            this.month = Integer.parseInt(dateParts[monthPos]);
+            if (dateParts[monthPos] != null) {
+                this.month = Integer.parseInt(dateParts[monthPos]);
+            }
 
         }
         if (dayPos != -1) {
