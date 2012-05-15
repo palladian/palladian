@@ -107,7 +107,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         // String highestCountXPath = xpathset.getHighestCountXPath();
-        shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
+
+        // in case we did not find anything, we take the body content
+        if (shortestMatchingXPath.isEmpty()) {
+            shortestMatchingXPath = "//body";
+        } else {
+            shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
+        }
         shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
         shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
 

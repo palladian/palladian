@@ -6,9 +6,9 @@ import org.junit.Test;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
+import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.Feature;
 
 public class QuestionAnnotatorTest {

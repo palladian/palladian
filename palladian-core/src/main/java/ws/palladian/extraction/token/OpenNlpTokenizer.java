@@ -11,16 +11,18 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.Validate;
 
+import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.feature.AnnotationFeature;
-import ws.palladian.extraction.feature.PositionAnnotation;
+import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
  * <p>
- * A {@link TokenizerInterface} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP provides
+ * A {@link BaseTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP provides
  * several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a trained
  * model. For more information, see the documentation <a
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
@@ -29,7 +31,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class OpenNlpTokenizer implements TokenizerInterface {
+public final class OpenNlpTokenizer extends BaseTokenizer {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +57,7 @@ public final class OpenNlpTokenizer implements TokenizerInterface {
      * @param tokenizer
      */
     public OpenNlpTokenizer(opennlp.tools.tokenize.Tokenizer tokenizer) {
+        Validate.notNull(tokenizer, "tokenizer must not be null");
         this.tokenizer = tokenizer;
     }
 
@@ -67,9 +70,7 @@ public final class OpenNlpTokenizer implements TokenizerInterface {
      * @param modelFile Path to the model file, must not be <code>null</code>.
      */
     public OpenNlpTokenizer(File modelFile) {
-        if (modelFile == null) {
-            throw new IllegalArgumentException("The model file must not be null.");
-        }
+        Validate.notNull(modelFile, "modelFile must not be null");
         InputStream modelIn = null;
         TokenizerModel model = null;
         try {
@@ -85,12 +86,13 @@ public final class OpenNlpTokenizer implements TokenizerInterface {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
         String content = document.getOriginalContent();
-        AnnotationFeature annotationFeature = new AnnotationFeature(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Span[] spans = tokenizer.tokenizePos(content);
+        int index = 0;
         for (Span span : spans) {
-            Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd());
+            Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd(), index++);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

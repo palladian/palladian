@@ -1,240 +1,186 @@
 package ws.palladian.extraction.keyphrase.evaluation;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.TrainingDataSeparation;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.PalladianKeyphraseExtractor;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
+import ws.palladian.extraction.keyphrase.extractors.MachineLearningBasedExtractor;
+import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
+import ws.palladian.extraction.keyphrase.temp.Dataset2;
+import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
+import ws.palladian.extraction.keyphrase.temp.DatasetItem;
 
 public class KeyphraseExtractorEvaluator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractorEvaluator.class);
 
+    /** The keyphrase extractors to evaluate. */
+    private final List<KeyphraseExtractor> extractors;
+
     /** The stemmer is needed to compare the assigned tags to the existing ones. */
-    private SnowballStemmer stemmer = new englishStemmer();
+    private final SnowballStemmer stemmer;
 
-    // private KeyphraseExtractor extractor;
-
-    private List<KeyphraseExtractor> extractors = new ArrayList<KeyphraseExtractor>();
-
-    private static final String TEMP_TRAINING_DATA = "data/temp/KeyphraseExtractorEvaluation_train.txt";
-
-    private static final String TEMP_TESTING_DATA = "data/temp/KeyphraseExtractorEvaluation_test.txt";
-
-    private static final String EVALUATION_RESULT = "data/temp/KeyphraseExtractorEvaluation_result.txt";
-
-    // public KeyphraseExtractorEvaluator(KeyphraseExtractor extractor) {
-    // this.extractor = extractor;
-    // }
+    public KeyphraseExtractorEvaluator() {
+        this.extractors = new ArrayList<KeyphraseExtractor>();
+        this.stemmer = new englishStemmer();
+    }
 
     public void addExtractor(KeyphraseExtractor extractor) {
         extractors.add(extractor);
     }
 
-    public void evaluate(Dataset dataset, int repeats) {
-        for (int i = 0; i < repeats; i++)
-            for (KeyphraseExtractor extractor : extractors) {
-                evaluate(extractor, dataset);
-            }
-    }
-
-    public void evaluate(KeyphraseExtractor extractor, Dataset dataset) {
-        evaluate(extractor, dataset, -1, false);
-    }
-
-    public void evaluate(KeyphraseExtractor extractor, Dataset dataset, int testLimit, boolean useExistingTestData) {
-
-        LOGGER.info("evaluating " + extractor.getExtractorName() + " with " + dataset);
-        StopWatch sw = new StopWatch();
-
-        if (!useExistingTestData) {
-            createTrainTestData(dataset);
+    /**
+     * <p>
+     * Evaluate with one dataset using cross validation.
+     * </p>
+     * 
+     * @param dataset The dataset used for cross validation.
+     * @param numFolds The number of folds to perform.
+     */
+    public void evaluate(Dataset2 dataset, int numFolds) {
+        LOGGER.info("dataset " + dataset);
+        for (KeyphraseExtractor extractor : extractors) {
+            evaluate(extractor, dataset, numFolds);
         }
-
-        // train, if applicable
-        if (extractor.needsTraining()) {
-            Dataset trainingDataset = new Dataset();
-            trainingDataset.setPath(TEMP_TRAINING_DATA);
-            trainingDataset.setRootPath(dataset.getRootPath());
-            trainingDataset.setSeparationString(dataset.getSeparationString());
-            trainingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
-            extractor.train(trainingDataset);
-        }
-
-        // testing set
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath(TEMP_TESTING_DATA);
-        testingDataset.setRootPath(dataset.getRootPath());
-        testingDataset.setSeparationString(dataset.getSeparationString());
-        testingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
-
-        // evaluation
-        ControlledTaggerEvaluationResult result = test(extractor, testingDataset, testLimit);
-
-        // write result file
-        FileHelper.appendFile(EVALUATION_RESULT, result.toString() + "\n");
-
-        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-
     }
 
-    public void createTrainTestData(Dataset dataset) {
-
-        TrainingDataSeparation separation = new TrainingDataSeparation();
-
-        String fileToSeparate = dataset.getPath();
-        int trainingDataPercentage = dataset.getUsePercentTraining();
-        boolean randomlyChooseLines = true;
-        // boolean randomlyChooseLines = false; // XXX
-
-        try {
-            separation.separateFile(fileToSeparate, TEMP_TRAINING_DATA, TEMP_TESTING_DATA, trainingDataPercentage,
-                    randomlyChooseLines);
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
+    /**
+     * <p>
+     * Evaluate with a train and a test dataset.
+     * </p>
+     * 
+     * @param trainDataset The dataset used for training.
+     * @param testDataset The dataset used for testing.
+     */
+    public void evaluate(Dataset2 trainDataset, Dataset2 testDataset) {
+        for (KeyphraseExtractor extractor : extractors) {
+            LOGGER.info("evaluating " + extractor.toString());
+            KeyphraseExtractorEvaluationResult result = new KeyphraseExtractorEvaluationResult();
+            extractor.train(trainDataset);
+            test(extractor, testDataset, result);
+            LOGGER.info(result.toString());
         }
-
     }
 
-    public ControlledTaggerEvaluationResult test(final KeyphraseExtractor extractor, final Dataset dataset,
-            final int limit) {
+    private void evaluate(KeyphraseExtractor extractor, Dataset2 dataset, int numFolds) {
+        LOGGER.info("evaluating " + extractor.toString());
+        Iterator<Dataset2[]> cvIterator = DatasetHelper.crossValidate(dataset, numFolds);
+        int i = 1;
+        KeyphraseExtractorEvaluationResult result = new KeyphraseExtractorEvaluationResult();
+        while (cvIterator.hasNext()) {
+            LOGGER.debug("fold " + i++ + "/" + numFolds);
+            Dataset2[] trainTestSet = cvIterator.next();
+            Dataset2 train = trainTestSet[0];
+            Dataset2 test = trainTestSet[1];
+            extractor.train(train);
+            test(extractor, test, result);
+        }
+        LOGGER.info(result.toString());
+    }
 
-        LOGGER.info("testing ...");
-
-        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
+    private void test(KeyphraseExtractor extractor, Dataset2 testDataset, KeyphraseExtractorEvaluationResult result) {
         extractor.startExtraction();
+        
+        int count = 0;
+        for (DatasetItem item : testDataset) {
 
-        StopWatch sw = new StopWatch();
+            // the manually assigned keyphrases
+            Set<String> realKeyphrases = new HashSet<String>();
+            String[] categoriesArray = item.getCategories();
+            for (int i = 0; i < categoriesArray.length; i++) {
+                realKeyphrases.add(categoriesArray[i].toLowerCase());
+            }
+            int realCount = realKeyphrases.size();
+            Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
+            stemmedRealKeyphrases.addAll(realKeyphrases);
 
-        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+            String text;
+            try {
+                text = FileUtils.readFileToString(item.getFile());
+//                if (item.getFile().getName().endsWith(".html")) {
+//                    text = HtmlHelper.stripHtmlTags(text);
+//                    text = StringEscapeUtils.unescapeHtml(text);
+//                }
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
 
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String[] split = line.split(dataset.getSeparationString());
-
-                if (split.length < 2) {
-                    return;
+            List<Keyphrase> assignedKeyphrases = extractor.extract(text);
+            
+            // FIXME deduplicate
+            Set<String> deduplicate = new HashSet<String>();
+            Iterator<Keyphrase> iterator = assignedKeyphrases.iterator();
+            while (iterator.hasNext()) {
+                Keyphrase current = iterator.next();
+                if (!deduplicate.add(current.getValue())) {
+                    iterator.remove();
                 }
+            }
+            
+            int correctCount = 0;
+            int assignedCount = assignedKeyphrases.size();
 
-                // the manually assigned keyphrases
-                Set<String> realKeyphrases = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    realKeyphrases.add(split[i].toLowerCase());
-                }
-                int realCount = realKeyphrases.size();
-                Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
-                stemmedRealKeyphrases.addAll(realKeyphrases);
+            // determine Pr/Rc values by considering assigned and real keyphrases
+            for (Keyphrase assigned : assignedKeyphrases) {
+                for (String real : stemmedRealKeyphrases) {
 
-                // get the text; either directly from the dataset file or from the provided link,
-                // depending of the Dataset settings
-                String text = split[0];
-                if (dataset.isFirstFieldLink()) {
-                    text = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
-                }
-
-                // automatically extract keyphrases
-                List<Keyphrase> assignedKeyphrases = extractor.extract(text);
-                int correctCount = 0;
-                int assignedCount = assignedKeyphrases.size();
-
-                // determine Pr/Rc values by considering assigned and real keyphrases
-                for (Keyphrase assigned : assignedKeyphrases) {
-                    for (String real : stemmedRealKeyphrases) {
-
-                        boolean correct = real.equalsIgnoreCase(assigned.getValue());
-                        correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
-                        correct = correct || real.equalsIgnoreCase(stem(assigned.getValue()));
-                        correct = correct || real.equalsIgnoreCase(stem(assigned.getValue().replace(" ", "")));
-
-                        if (correct) {
-                            correctCount++;
-                            break; // inner loop
-                        }
+                    boolean correct = real.equalsIgnoreCase(assigned.getValue());
+                    correct |= real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
+                    correct |= real.equalsIgnoreCase(stem(assigned.getValue()));
+                    correct |= real.equalsIgnoreCase(stem(assigned.getValue().replace(" ", "")));
+                    if (correct) {
+                        correctCount++;
+                        break; // inner loop
                     }
                 }
-
-                float precision = (float) correctCount / assignedCount;
-                if (Float.isNaN(precision)) {
-                    precision = 0;
-                }
-                float recall = (float) correctCount / realCount;
-
-                LOGGER.info("real keyphrases: " + realKeyphrases);
-                LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
-                LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
-                LOGGER.info("pr: " + precision + " rc: " + recall);
-                LOGGER.info("----------------------------------------------------------");
-
-                evaluationResult.addTestResult(precision, recall, assignedCount);
-
-                if (evaluationResult.getTaggedEntryCount() == limit) {
-                    breakLineLoop();
-                }
-
             }
-        });
 
-        evaluationResult.printStatistics();
-        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
+            float precision = (float)correctCount / assignedCount;
+            if (Float.isNaN(precision)) {
+                precision = 0;
+            }
+            float recall = (float)correctCount / realCount;
 
-        return evaluationResult;
+            LOGGER.debug("item " + count + "/" + testDataset.size());
+            LOGGER.debug("real keyphrases: " + realKeyphrases);
+            LOGGER.debug("assigned keyphrases: " + assignedKeyphrases);
+            LOGGER.debug("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
+            LOGGER.debug("pr: " + precision + " rc: " + recall);
+            LOGGER.debug("----------------------------------------------------------");
 
+            result.addTestResult(precision, recall, assignedCount);
+            count++;
+        }
+
+        extractor.reset();
     }
 
-    public ControlledTaggerEvaluationResult test(KeyphraseExtractor extractor, Dataset dataset) {
-        return test(extractor, dataset, -1);
-    }
-
-    public ControlledTaggerEvaluationResult test(KeyphraseExtractor extractor, String filePath, final int limit) {
-
-        Dataset dataset = new Dataset();
-        dataset.setFirstFieldLink(false);
-        dataset.setSeparationString("#");
-
-        ControlledTaggerEvaluationResult evaluationResult = test(extractor, dataset, limit);
-
-        return evaluationResult;
-
-    }
-
-    // public ControlledTaggerEvaluationResult test() {
-    // return test(TEMP_TESTING_DATA, -1);
-    // }
-
+    /** Stems each token of a phrase. */
     private String stem(String unstemmed) {
-
-        StringBuilder sb = new StringBuilder();
-
+        StringBuilder result = new StringBuilder();
         // stem each part of the phrase
         String[] parts = unstemmed.toLowerCase().split(" ");
         for (String part : parts) {
             stemmer.setCurrent(part);
             stemmer.stem();
-            sb.append(stemmer.getCurrent());
+            result.append(stemmer.getCurrent());
         }
-
-        return sb.toString();
-
+        return result.toString();
     }
 
+    /** Stems a list of tokens. */
     private Set<String> stem(Set<String> unstemmed) {
         Set<String> result = new HashSet<String>();
         for (String unstemmedTag : unstemmed) {
@@ -245,42 +191,22 @@ public class KeyphraseExtractorEvaluator {
     }
 
     public static void main(String[] args) {
-
-        KeyphraseExtractor keyphraseExtractor;
-        PalladianKeyphraseExtractor palladianKeyphraseExtractor = new PalladianKeyphraseExtractor();
-        // keyphraseExtractor = new AlchemyKeywordExtraction();
-        // keyphraseExtractor = new ControlledTagger();
-        // keyphraseExtractor = new FiveFiltersTermExtraction();
-        // keyphraseExtractor = new YahooTermExtraction();
-        // palladianKeyphraseExtractor.getSettings().setModelPath("data/temp/PalladianWithPOS");
-        
-        keyphraseExtractor = palladianKeyphraseExtractor;
-
+         Dataset2 dataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/citeulike180/citeulike180index.txt"));
+        Dataset2 trainDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTrainCombinedIndex.txt"));
+        Dataset2 testDataset = DatasetHelper.loadDataset(new File("/Users/pk/Dropbox/Uni/Datasets/SemEval2010/semEvalTestCombinedIndex.txt"));
+        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_aa.txt"));
+//        Dataset2 delicious1 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/big_train.txt"));
+        Dataset2 delicious2 = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140/split_ab.txt"));
+//        Dataset2 deliciousComplete = DatasetHelper.loadDataset(new File("/Users/pk/Desktop/delicioust140_documents/delicioust140index_shuf.txt"));
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
-
-        // evaluator.addExtractor(palladianKeyphraseExtractor);
-        // evaluator.addExtractor(controlledTagger);
-
-        Dataset dataset = new Dataset();
-        // dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
-        // dataset.setRootPath("/Users/pk/temp/citeulike180/documents/");
-        // dataset.setPath("/Users/pk/temp/fao780.txt");
-        // dataset.setRootPath("/Users/pk/temp/fao780/");
-
-        // dataset.setSeparationString("#");
-
-        // dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
-        // dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
-        
-        dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
-        dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
-        dataset.setSeparationString(" ");
-        dataset.setFirstFieldLink(true);
-        dataset.setUsePercentTraining(50);
-
-        // evaluator.evaluate(keyphraseExtractor, dataset, -1, true);
-        evaluator.evaluate(keyphraseExtractor, dataset, 1000, true);
-
+//        evaluator.addExtractor(new TfidfExtractor());
+//        evaluator.addExtractor(new SimExtractor());
+//        evaluator.addExtractor(new MauiKeyphraseExtractor());
+        evaluator.addExtractor(new RuleBasedExtractor());
+        evaluator.addExtractor(new MachineLearningBasedExtractor());
+//        evaluator.evaluate(trainDataset, testDataset);
+        evaluator.evaluate(delicious1, delicious2);
+//        evaluator.evaluate(deliciousComplete, 2);
     }
 
 }

@@ -24,7 +24,7 @@ import ws.palladian.retrieval.HttpRetriever;
  * @author Philipp Katz
  *
  */
-public class YahooTermExtraction extends KeyphraseExtractor {
+public final class YahooTermExtraction extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(YahooTermExtraction.class);
@@ -63,27 +63,18 @@ public class YahooTermExtraction extends KeyphraseExtractor {
         }
         
         if (response != null) {
-
-            // parse the JSON response
             try {
-
                 JSONObject json = new JSONObject(response);
                 JSONArray resultArray = json.getJSONObject("query").getJSONObject("results").getJSONArray("Result");
                 for (int i = 0; i < resultArray.length(); i++) {
-
                     String term = resultArray.getString(i);
-                    LOGGER.debug(term);
                     keyphrases.add(new Keyphrase(term));
-
                 }
-
             } catch (JSONException e) {
                 LOGGER.error(e);
             }
         }
-        
         return keyphrases;
-
     }
     
     @Override
