@@ -1,6 +1,7 @@
 package ws.palladian.model.features;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -15,7 +16,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class FeatureVector {
+public class FeatureVector implements Iterable<Feature<?>> {
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -36,7 +37,18 @@ public class FeatureVector {
 
     /**
      * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector}.
+     * Creates a new {@link FeatureVector} from the provided FeatureVector, i.e. a copy with all {@link Feature}s.
+     * 
+     * @param featureVector The feature vector which Features to copy.
+     */
+    public FeatureVector(FeatureVector featureVector) {
+        features = new TreeMap<String, Feature<?>>(featureVector.features);
+    }
+
+    /**
+     * <p>
+     * Adds a new {@code Feature} to this {@code FeatureVector}. If a feature with this identifier already exists, it
+     * will be replaced by the supplied one.
      * </p>
      * 
      * @param identifier
@@ -52,7 +64,8 @@ public class FeatureVector {
 
     /**
      * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector}.
+     * Adds a new {@code Feature} to this {@code FeatureVector}. If a feature with this identifier already exists, it
+     * will be replaced by the supplied one.
      * </p>
      * 
      * @param newFeature
@@ -92,7 +105,7 @@ public class FeatureVector {
         List<Feature<T>> ret = new ArrayList<Feature<T>>();
         for (Feature<?> feature : features.values()) {
             if (type.isInstance(feature.getValue())) {
-                ret.add((Feature<T>) feature);
+                ret.add((Feature<T>)feature);
             }
         }
         return ret;
@@ -125,21 +138,51 @@ public class FeatureVector {
      * 
      * @return The vector as array.
      */
-    public Feature<?>[] toValueArray() {
-        Feature<?>[] ret = new Feature[features.size()];
-        ret = features.values().toArray(ret);
-        return ret;
+    public Feature<?>[] toArray() {
+        return features.values().toArray(new Feature[features.size()]);
     }
 
     /**
      * <p>
-     * Counts the dimensions, i.e. how many entries the vector has.
+     * Get the dimension of this feature vector, i.e. how many {@link Feature}s the vector contains.
      * </p>
      * 
-     * @return The dimensions of this {@code FeatureVector}.
+     * @return The size of this {@code FeatureVector}.
      */
-    public int countDimensions() {
-        return this.features.size();
+    public int size() {
+        return features.size();
     }
 
+    /**
+     * <p>
+     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param identifier
+     *            The {@link FeatureVector} wide unique identifier of the {@link Feature} to remove.
+     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
+     *         specified identifier to remove.
+     */
+    public boolean remove(String identifier) {
+        return features.remove(identifier) != null;
+    }
+
+    /**
+     * <p>
+     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
+     *            {@link Feature} to remove.
+     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
+     *         specified identifier to remove.
+     */
+    public boolean remove(FeatureDescriptor<?> featureDescriptor) {
+        return features.remove(featureDescriptor.getIdentifier()) != null;
+    }
+
+    @Override
+    public Iterator<Feature<?>> iterator() {
+        return features.values().iterator();
+    }
 }

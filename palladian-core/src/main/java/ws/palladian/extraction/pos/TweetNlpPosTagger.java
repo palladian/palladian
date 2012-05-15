@@ -4,9 +4,9 @@ import java.util.List;
 
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.feature.Annotation;
-import ws.palladian.extraction.token.TokenizerInterface;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
+import ws.palladian.model.features.Annotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
 /**
@@ -46,7 +46,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    protected TokenizerInterface getTokenizer() {
+    protected BaseTokenizer getTokenizer() {
         return TOKENIZER;
     }
 

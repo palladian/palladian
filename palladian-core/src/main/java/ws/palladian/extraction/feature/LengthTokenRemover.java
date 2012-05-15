@@ -1,6 +1,7 @@
 package ws.palladian.extraction.feature;
 
 import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import ws.palladian.extraction.PipelineProcessor;
  * @author Philipp Katz
  * 
  */
-public class LengthTokenRemover extends TokenRemover {
+public final class LengthTokenRemover extends AbstractTokenRemover {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,6 +50,21 @@ public class LengthTokenRemover extends TokenRemover {
     protected boolean remove(Annotation annotation) {
         int length = annotation.getValue().length();
         return length < minLength || length > maxLength;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("LengthTokenRemover [minLength=");
+        builder.append(minLength);
+        builder.append(", maxLength=");
+        builder.append(maxLength);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

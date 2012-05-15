@@ -5,6 +5,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.extraction.AbstractPipelineProcessor;
@@ -18,9 +19,9 @@ import ws.palladian.helper.html.HtmlHelper;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 0.1.7
- * 
  */
 public final class HtmlCleaner extends AbstractPipelineProcessor {
 
@@ -51,6 +52,7 @@ public final class HtmlCleaner extends AbstractPipelineProcessor {
     protected void processDocument(PipelineDocument document) {
         String text = document.getOriginalContent();
         String cleanedText = HtmlHelper.stripHtmlTags(text);
+        cleanedText = StringEscapeUtils.unescapeHtml(cleanedText);
         document.setModifiedContent(cleanedText);
     }
 }

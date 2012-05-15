@@ -3,6 +3,8 @@ package de.philippkatz.helper;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.collections15.IteratorUtils;
+
 /**
  * <p>
  * A NullIterator which contains no elements.
@@ -11,7 +13,9 @@ import java.util.NoSuchElementException;
  * @author Philipp Katz
  * 
  * @param <T>
+ * @deprecated Use {@link IteratorUtils#EMPTY_ITERATOR} instead.
  */
+@Deprecated
 public final class NullIterator<T> implements Iterator<T> {
 
     @Override
