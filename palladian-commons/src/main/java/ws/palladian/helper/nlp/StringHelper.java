@@ -1583,6 +1583,10 @@ public final class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
+        if (text == null) {
+            return "";
+        }
+
         Pattern p;
 
         if (caseInsensitive) {
