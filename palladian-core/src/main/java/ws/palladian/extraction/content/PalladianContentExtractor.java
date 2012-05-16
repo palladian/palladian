@@ -163,6 +163,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
 
     public List<WebImage> getImages() {
+        return getImages(resultNode);
+    }
+
+    public List<WebImage> getImages(Node imageParentNode) {
 
         if (imageURLs != null) {
             return imageURLs;
@@ -181,24 +185,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
         // }
 
-        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(resultNode, imgXPath);
+        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(imageParentNode, imgXPath);
         for (Node node : imageNodes) {
             try {
 
                 WebImage webImage = new WebImage();
 
                 NamedNodeMap nnm = node.getAttributes();
-                String imageURL = nnm.getNamedItem("src").getTextContent();
+                String imageUrl = nnm.getNamedItem("src").getTextContent();
 
-                if (!imageURL.startsWith("http")) {
-                    if (imageURL.startsWith("/")) {
-                        imageURL = UrlHelper.getDomain(getDocument().getDocumentURI()) + imageURL;
-                    } else {
-                        imageURL = getDocument().getDocumentURI() + imageURL;
-                    }
+                if (!imageUrl.startsWith("http")) {
+
+                    imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
+                    // if (imageURL.startsWith("/")) {
+                    // imageURL = UrlHelper.getDomain(getDocument().getDocumentURI()) + imageURL;
+                    // } else {
+                    // imageURL = getDocument().getDocumentURI() + imageURL;
+                    // }
                 }
 
-                webImage.setUrl(imageURL);
+                webImage.setUrl(imageUrl);
 
                 if (nnm.getNamedItem("alt") != null) {
                     webImage.setAlt(nnm.getNamedItem("alt").getTextContent());
