@@ -65,8 +65,11 @@ public class GooglePlusLikes extends BaseRankingService implements RankingServic
                 String googleLikes = StringHelper.getSubstringBetween(response, "__SSR = {c: ", " ,").trim();
                 
                 googleLikes = googleLikes.replaceAll("\\..*", "");
-                googlePlusLikes = Integer.valueOf(googleLikes);
                 
+                if (!googleLikes.isEmpty()) {
+                    googlePlusLikes = Integer.valueOf(googleLikes);
+                }
+
                 LOGGER.trace("Google Plus Likes for " + url + " : " + googlePlusLikes);
             }
             
