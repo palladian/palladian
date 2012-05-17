@@ -740,7 +740,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private void postProcessAnnotations(Annotations annotations) {
 
-        LOGGER.info("start post processing annotations");
+        LOGGER.debug("start post processing annotations");
 
         StopWatch stopWatch = new StopWatch();
 
@@ -756,7 +756,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     c++;
                 }
             }
-            LOGGER.info("removed " + c + " purely date annotations in " + stopWatch.getElapsedTimeString());
+            LOGGER.debug("removed " + c + " purely date annotations in " + stopWatch.getElapsedTimeString());
         }
 
         // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
@@ -776,7 +776,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     c++;
                 }
             }
-            LOGGER.info("removed " + c + " partial date annotations in " + stopWatch.getElapsedTimeString());
+            LOGGER.debug("removed " + c + " partial date annotations in " + stopWatch.getElapsedTimeString());
         }
 
         // remove annotations that were found to be incorrectly tagged in the training data
@@ -790,7 +790,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     }
                 }
             }
-            LOGGER.info("removed " + removeAnnotations.size() + " incorrectly tagged entities in training data in "
+            LOGGER.debug("removed " + removeAnnotations.size() + " incorrectly tagged entities in training data in "
                     + stopWatch.getElapsedTimeString());
         }
 
@@ -848,10 +848,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
             }
 
-            LOGGER.info("removed " + c + " words at beginning of sentence in " + stopWatch.getElapsedTimeString());
+            LOGGER.debug("removed " + c + " words at beginning of sentence in " + stopWatch.getElapsedTimeString());
         }
 
-        LOGGER.info("remove " + toRemove.size() + " entities");
+        LOGGER.debug("remove " + toRemove.size() + " entities");
         annotations.removeAll(toRemove);
 
         // switch using pattern information
@@ -873,7 +873,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
 
             }
-            LOGGER.info("changed " + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
+            LOGGER.debug("changed " + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
                     + "% of the entities using patterns in " + stopWatch.getElapsedTimeString());
 
         }
@@ -893,7 +893,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
 
             }
-            LOGGER.info("changed with entity dictionary "
+            LOGGER.debug("changed with entity dictionary "
                     + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
                     + "% of the entities (total entities: " + annotations.size() + ") in "
                     + stopWatch.getElapsedTimeString());
@@ -1003,12 +1003,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
             }
         }
-        LOGGER.info("unwrapped entities in " + stopWatch.getElapsedTimeString());
+        LOGGER.debug("unwrapped entities in " + stopWatch.getElapsedTimeString());
 
-        LOGGER.info("add " + toAdd.size() + " entities");
+        LOGGER.debug("add " + toAdd.size() + " entities");
         annotations.addAll(toAdd);
 
-        LOGGER.info("remove " + toRemove.size() + " entities");
+        LOGGER.debug("remove " + toRemove.size() + " entities");
         annotations.removeAll(toRemove);
     }
 
@@ -1245,7 +1245,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private void analyzeContexts(String trainingFilePath, Annotations trainingAnnotations) {
 
-        LOGGER.info("start analyzing contexts");
+        LOGGER.debug("start analyzing contexts");
 
         Map<String, CountMap> contextMap = new TreeMap<String, CountMap>();
         CountMap leftContextMapCountMap = new CountMap();
@@ -1448,7 +1448,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 dictionary.updateWord(new Term(entity), type, 1);
 
                 if (lineNumber % 1000 == 0) {
-                    LOGGER.info("progress: " + MathHelper.round(100 * lineNumber / (double) totalLines, 2) + "%");
+                    LOGGER.debug("progress: " + MathHelper.round(100 * lineNumber / (double)totalLines, 2) + "%");
                 }
             }
 

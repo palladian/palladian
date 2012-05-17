@@ -639,7 +639,7 @@ public class ExtractedDate implements AbstractDate {
 
         } else {
             final String[] timeParts = time.trim().split(":");
-            if (timeParts.length > 0) {
+            if (timeParts.length > 0 && !timeParts[0].isEmpty()) {
                 this.hour = Integer.parseInt(timeParts[0]);
                 if (timeParts.length > 1) {
                     this.minute = Integer.parseInt(timeParts[1]);
