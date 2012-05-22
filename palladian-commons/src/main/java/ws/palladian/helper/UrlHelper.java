@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -277,8 +278,8 @@ public class UrlHelper {
 
     /**
      * <p>
-     * Returns the canonical URL. This URL is lowercase, with trailing slash and no index.htm* and is the redirected URL
-     * if input URL is redirecting.
+     * Returns the <i>canonical URL</i>. This URL is lowercase, with trailing slash and no index.htm*. The query
+     * parameters are sorted alphabetically in ascending order, fragments (i.e. "anchor" parts) are removed.
      * </p>
      * 
      * @param url
@@ -293,24 +294,24 @@ public class UrlHelper {
 
         try {
 
-            // get redirect url if it exists and continue with this url FIXME resolve redirects somewhere else
-            // HttpRetriever retriever = new HttpRetriever();
-            // String redirectUrl = retriever.getRedirectUrl(url);
-            // if (isValidUrl(redirectUrl))
-            // url = redirectUrl;
-
             URL urlObj = new URL(url);
 
             // get all url parts
             String protocol = urlObj.getProtocol();
             String port = "";
-            if (urlObj.getPort() != -1 && urlObj.getPort() != urlObj.getDefaultPort())
+            if (urlObj.getPort() != -1 && urlObj.getPort() != urlObj.getDefaultPort()) {
                 port = ":" + urlObj.getPort();
+            }
             String host = urlObj.getHost().toLowerCase();
             String path = urlObj.getPath();
-            String query = "";
-            if (urlObj.getQuery() != null)
-                query = "?" + urlObj.getQuery();
+            String[] query = null;
+            if (urlObj.getQuery() != null) {
+                query = urlObj.getQuery().split("&");
+                
+                // sort query parts alphabetically
+                Arrays.sort(query);
+            }
+            
 
             // correct path to eliminate ".." and recreate path accordingly
             String[] parts = path.split("/");
@@ -328,21 +329,25 @@ public class UrlHelper {
                         }
                     }
                 }
-                for (int i = 0; i < parts.length; i++)
-                    if (parts[i].length() > 0)
-                        path += parts[i] + "/";
+                for (String part : parts) {
+                    if (part.length() > 0) {
+                        path += part + "/";
+                    }
+                }
 
                 // delete trailing slash if path ends with a file
-                if (parts[parts.length - 1].contains("."))
+                if (parts[parts.length - 1].contains(".")) {
                     path = path.substring(0, path.length() - 1);
+                }
                 // delete index.* if there is no query
-                if (parts[parts.length - 1].contains("index") && query.isEmpty())
-                    if (query.isEmpty())
+                if (parts[parts.length - 1].contains("index") && query != null) {
                         path = path.replaceAll("index\\..+$", "");
+                }
 
             }
-
-            return protocol + "://" + port + host + path + query;
+            
+            String queryPart = query != null ? "?" + StringUtils.join(query, "&") : "";
+            return protocol + "://" + port + host + path + queryPart;
 
         } catch (MalformedURLException e) {
             LOGGER.trace("could not determine canonical url for" + url);
