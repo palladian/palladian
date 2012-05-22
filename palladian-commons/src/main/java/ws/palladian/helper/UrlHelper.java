@@ -368,8 +368,7 @@ public class UrlHelper {
         try {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
-            return string;
+            throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
     }
 
@@ -385,8 +384,7 @@ public class UrlHelper {
         try {
             return URLEncoder.encode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // this will not happen, as we always use UTF-8 as encoding
-            throw new IllegalStateException("houston, we have a problem");
+            throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
     }
 
