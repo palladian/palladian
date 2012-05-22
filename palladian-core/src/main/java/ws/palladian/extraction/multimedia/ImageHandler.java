@@ -5,8 +5,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.color.CMMException;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.ByteArrayInputStream;
@@ -307,17 +305,21 @@ public class ImageHandler {
             rescaledImage = rescaleImage(bufferedImage, boxWidth, boxHeight);
         }
 
+        int iWidth = rescaledImage.getWidth();
         int iHeight = rescaledImage.getHeight();
 
-        // vertically center the image in the box if the height is greateer than the box height
+        // vertically center the image in the box if the height is greater than the box height
         double yOffset = (iHeight - boxHeight) / 2.0;
 
+        // horizontally center the image in the box if the width is greater than the box width
+        double xOffset = (iWidth - boxWidth) / 2.0;
+
         // nothing to crop
-        if (yOffset < 0) {
+        if (yOffset <= 0 && xOffset <= 0) {
             return rescaledImage;
         }
 
-        return rescaledImage.getSubimage(0, (int)yOffset, boxWidth, boxHeight);
+        return rescaledImage.getSubimage((int)xOffset, (int)yOffset, boxWidth, boxHeight);
     }
 
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
@@ -508,35 +510,6 @@ public class ImageHandler {
         // out.close();
 
         return bufferedImage;
-    }
-
-    /**
-     * @deprecated
-     * @param bufferedImage
-     * @param width
-     * @return
-     */
-    @Deprecated
-    public static BufferedImage rescaleImage_broken(BufferedImage bufferedImage, int width) {
-
-        if (bufferedImage == null) {
-            LOGGER.error("image was null and could not be rescaled");
-            return null;
-        }
-
-        double factor = (double)width / (double)bufferedImage.getWidth();
-        int newHeight = (int)(factor * bufferedImage.getHeight());
-
-        AffineTransform tx = new AffineTransform();
-        tx.scale(factor, factor);
-        AffineTransform tx1 = AffineTransform.getScaleInstance(factor, factor);
-
-        BufferedImage rescaledImage = new BufferedImage(width, newHeight, bufferedImage.getType());
-
-        AffineTransformOp op = new AffineTransformOp(tx1, AffineTransformOp.TYPE_BICUBIC);
-        op.filter(bufferedImage.getRaster(), rescaledImage.getRaster());
-
-        return rescaledImage;
     }
 
     public static void downloadAndSave(String url, String savePath) {

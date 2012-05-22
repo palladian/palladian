@@ -422,6 +422,20 @@ public final class StringHelper {
         return false;
     }
 
+    public static boolean containsWordRegExp(Collection<String> words, String searchString) {
+
+        boolean contained = false;
+
+        for (String word : words) {
+            contained = containsWordRegExp(word, searchString);
+            if (contained) {
+                break;
+            }
+        }
+
+        return contained;
+    }
+
     public static boolean containsWord(Collection<String> words, String searchString) {
 
         boolean contained = false;
@@ -438,6 +452,38 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Check whether a string contains a word given as a regular expression. The word can be surrounded by whitespaces
+     * or punctuation but can not be within another word.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWordRegExp(String word, String searchString) {
+        String allowedNeighbors = "[\\s,.;-?!()\\[\\]]";
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+                + allowedNeighbors + word + "$)|(^" + word + "$)";
+
+        word = escapeForRegularExpression(word);
+
+        Pattern pat = null;
+        try {
+            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        } catch (PatternSyntaxException e) {
+            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            return false;
+        }
+        Matcher m = pat.matcher(searchString);
+        if (m.find()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
      * within another word.
      * </p>
@@ -447,26 +493,6 @@ public final class StringHelper {
      * @return True, if the word is contained, false if not.
      */
     public static boolean containsWord(String word, String searchString) {
-        // String allowedNeighbors = "[\\s,.;-]";
-        // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors
-        // + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
-        //
-        // Pattern pat = null;
-        // try {
-        // pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        // } catch (PatternSyntaxException e) {
-        // Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
-        // return false;
-        // }
-        // Matcher m = pat.matcher(searchString);
-        // if (m.find()) {
-        // return true;
-        // }
-        //
-        // return false;
-
-        // more robust implementation than using RegEx:
-
         int index = searchString.toLowerCase().indexOf(word.toLowerCase());
         if (index == -1) {
             return false;
@@ -488,32 +514,6 @@ public final class StringHelper {
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
         return leftBorder && rightBorder;
-    }
-
-    /**
-     * <p>
-     * Same as {@link containsWord} but much faster.
-     * </p>
-     * 
-     * @param word The word to check for occurrence.
-     * @param searchString The search string.
-     * @return True if it is contained, false otherwise.
-     * @deprecated New implementation of {@link #containsWord(String, String)} should be as fast as this.
-     */
-    @Deprecated
-    public static boolean containsWordCaseSensitive(String word, String searchString) {
-
-        if (searchString.equalsIgnoreCase(word) || searchString.indexOf(" " + word + " ") > -1
-                || searchString.indexOf(word + " ") == 0
-                || searchString.indexOf(" " + word) == searchString.length() - word.length()
-                || searchString.indexOf(" " + word + "!") > -1 || searchString.indexOf(" " + word + "?") > -1
-                || searchString.indexOf(" " + word + ",") > -1 || searchString.indexOf(" " + word + ";") > -1
-                || searchString.indexOf(" " + word + ".") > -1 || searchString.indexOf(" " + word + ")") > -1
-                || searchString.indexOf("(" + word + " ") > -1 || searchString.indexOf("(" + word + ")") > -1) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -1583,6 +1583,10 @@ public final class StringHelper {
     }
 
     public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
+        if (text == null) {
+            return "";
+        }
+
         Pattern p;
 
         if (caseInsensitive) {

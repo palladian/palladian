@@ -46,8 +46,9 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 import ws.palladian.semantics.WordTransformer;
 
 /**
- * The DatasetCreator crawls web pages and marks the given seed entities.
- * The marked up pages are saved in:
+ * <p>
+ * The DatasetCreator crawls web pages and marks the given seed entities. The marked up pages are saved in:
+ * </p>
  * <ol>
  * <li>separate (X)HTML files</li>
  * <li>separate text files (cleansed HTML)</li>
@@ -90,7 +91,9 @@ public class DatasetCreator {
     }
 
     /**
+     * <p>
      * Create a dataset by searching for the seed mentions and storing the complete web pages.
+     * </p>
      * 
      * @param seedFolderPath The path to the folder with the seed entities. Each file must be named with the concept
      *            name (_partX is ignored for markup) and there must be one seed entity per line.

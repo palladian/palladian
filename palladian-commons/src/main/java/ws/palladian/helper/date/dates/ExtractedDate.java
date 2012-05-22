@@ -634,12 +634,12 @@ public class ExtractedDate implements AbstractDate {
      * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
      */
     private void setActualTimeValues(final String time) {
-        if (time.indexOf(':') == -1) {
+        if (time.indexOf(':') == -1 && !time.isEmpty()) {
             this.hour = Integer.parseInt(time);
 
         } else {
             final String[] timeParts = time.trim().split(":");
-            if (timeParts.length > 0) {
+            if (timeParts.length > 0 && !timeParts[0].isEmpty()) {
                 this.hour = Integer.parseInt(timeParts[0]);
                 if (timeParts.length > 1) {
                     this.minute = Integer.parseInt(timeParts[1]);
@@ -670,13 +670,15 @@ public class ExtractedDate implements AbstractDate {
             }
         }
         if (monthPos != -1) {
-            dateParts[monthPos] = dateParts[monthPos].replaceAll(" ", "");
+            dateParts[monthPos] = dateParts[monthPos].replace(" ", "");
             try {
                 dateParts[monthPos] = String.valueOf(Integer.parseInt(dateParts[monthPos]));
             } catch (NumberFormatException e) {
                 dateParts[monthPos] = ExtractedDateHelper.getMonthNumber(dateParts[monthPos]);
             }
-            this.month = Integer.parseInt(dateParts[monthPos]);
+            if (dateParts[monthPos] != null) {
+                this.month = Integer.parseInt(dateParts[monthPos]);
+            }
 
         }
         if (dayPos != -1) {
