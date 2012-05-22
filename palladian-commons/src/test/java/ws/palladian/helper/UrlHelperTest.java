@@ -150,5 +150,18 @@ public class UrlHelperTest {
         assertEquals("http://brbb.freeforums.org/viewforum.php?f=3&", UrlHelper.removeSessionId(
                 "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4", true));
     }
+    
+    @Test
+    public void testGetCanonicalUrl() {
+        assertEquals(
+                "http://sourceforge.net/tracker/?aid=1954302&atid=377408&func=detail&group_id=23067",
+                UrlHelper
+                        .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=1954302&group_id=23067&atid=377408"));
+        assertEquals("http://sourceforge.net/", UrlHelper.getCanonicalUrl("http://sourceforge.net/"));
+        assertEquals(
+                "http://sourceforge.net/tracker/?aid=3492945&atid=377408&func=detail&group_id=23067",
+                UrlHelper
+                        .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=3492945&group_id=23067&atid=377408#artifact_comment_6199621"));
+    }
 
 }
