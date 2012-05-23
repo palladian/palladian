@@ -52,7 +52,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     private static final String SEARCH_URL_PATTERN = "http://xmlsearch.yandex.ru/xmlsearch\\?user=.+&key=.+";
 
     /** Key of the {@link Configuration} item which contains the custom search URL. */
-    private static final String CONFIG_SEARCH_URL = "api.yandex.url";
+    public static final String CONFIG_SEARCH_URL = "api.yandex.url";
 
     /** The API endpoint for accessing the searcher. */
     private final String yandexSearchUrl;
