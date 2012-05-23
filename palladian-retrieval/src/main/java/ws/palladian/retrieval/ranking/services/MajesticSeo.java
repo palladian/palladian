@@ -30,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.majesticseo.com/api_domainstats.php
  * @author Philipp Katz
  */
-public class MajesticSeo extends BaseRankingService implements RankingService {
+public final class MajesticSeo extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MajesticSeo.class);

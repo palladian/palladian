@@ -34,7 +34,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  * @see http://www.bibsonomy.org
  */
-public class BibsonomyBookmarks extends BaseRankingService implements RankingService {
+public final class BibsonomyBookmarks extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BibsonomyBookmarks.class);

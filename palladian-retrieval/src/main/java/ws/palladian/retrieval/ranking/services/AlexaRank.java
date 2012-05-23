@@ -29,7 +29,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  * @see http://www.alexa.com/help/traffic-learn-more
  */
-public class AlexaRank extends BaseRankingService implements RankingService {
+public final class AlexaRank extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(AlexaRank.class);

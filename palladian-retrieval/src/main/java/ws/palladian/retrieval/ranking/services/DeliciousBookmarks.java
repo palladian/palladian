@@ -31,7 +31,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://delicious.com/
  * @see http://delicious.com/help/feeds
  */
-public class DeliciousBookmarks extends BaseRankingService implements RankingService {
+public final class DeliciousBookmarks extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(DeliciousBookmarks.class);

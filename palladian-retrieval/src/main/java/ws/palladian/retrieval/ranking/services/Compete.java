@@ -27,7 +27,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  * @see http://developer.compete.com/
  */
-public class Compete extends BaseRankingService implements RankingService {
+public final class Compete extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Compete.class);

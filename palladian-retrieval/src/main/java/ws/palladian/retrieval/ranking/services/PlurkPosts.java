@@ -32,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Julien Schmehl
  * @see http://www.plurk.com
  */
-public class PlurkPosts extends BaseRankingService implements RankingService {
+public final class PlurkPosts extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(PlurkPosts.class);

@@ -31,7 +31,7 @@ import com.temesoft.google.pr.JenkinsHash;
  * @see http://www.google.com/
  * 
  */
-public class GooglePageRank extends BaseRankingService implements RankingService {
+public final class GooglePageRank extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(GooglePageRank.class);

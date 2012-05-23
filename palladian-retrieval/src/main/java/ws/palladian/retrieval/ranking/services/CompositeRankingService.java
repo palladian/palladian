@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -21,7 +20,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Philipp Katz
  */
-public class CompositeRankingService extends BaseRankingService implements RankingService {
+public final class CompositeRankingService extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CompositeRankingService.class);
@@ -90,18 +89,4 @@ public class CompositeRankingService extends BaseRankingService implements Ranki
         return rankingTypes;
     }
 
-    public static void main(String[] args) {
-        // String url = "http://www.howtouse-photoshop.com/2011/09/28/27-photoshop-video-tutorials/";
-        // String url = "http://edition.cnn.com/2011/12/27/politics/iowa-caucuses-near/";
-//        String url = "http://www.engadget.com/2011/12/26/spire-installer-brings-siri-to-any-jailbroken-ios-5-device/";
-//        String url = "http://www.engadget.com";
-//        String url = "http://www.tagesschau.de";
-//        String url = "http://www.apple.com";
-//        String url = "http://www.google.com";
-        String url = "http://www.searchenginejournal.com/norad-santa-tracker-the-history-of-norad-google-santa-infographic/37726/";
-        Configuration config = ConfigHolder.getInstance().getConfig();
-        CompositeRankingService compositeRankingService = new CompositeRankingService(config);
-        Ranking ranking = compositeRankingService.getRanking(url);
-        System.out.println(ranking);
-    }
 }

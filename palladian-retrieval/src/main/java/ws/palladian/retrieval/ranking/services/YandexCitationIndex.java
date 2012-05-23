@@ -24,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public class YandexCitationIndex extends BaseRankingService implements RankingService {
+public final class YandexCitationIndex extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(YandexCitationIndex.class);

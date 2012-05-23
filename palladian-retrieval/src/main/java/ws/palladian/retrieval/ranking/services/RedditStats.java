@@ -31,7 +31,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.reddit.com/
  * @see http://code.reddit.com/wiki/API
  */
-public class RedditStats extends BaseRankingService implements RankingService {
+public final class RedditStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(RedditStats.class);

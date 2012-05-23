@@ -32,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.friendfeed.com/
  * @see http://friendfeed.com/api/services
  */
-public class FriendfeedAggregatedStats extends BaseRankingService implements RankingService {
+public final class FriendfeedAggregatedStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(FriendfeedAggregatedStats.class);
