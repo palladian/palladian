@@ -28,7 +28,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class YouTubeSearcher extends WebSearcher<WebResult> {
 
     /** Key of the {@link Configuration} item which contains the API key. */
-    private static final String CONFIG_API_KEY = "api.youtube.key";
+    public static final String CONFIG_API_KEY = "api.youtube.key";
 
     /** Counter for total number of requests sent to YouTube. */
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
