@@ -142,7 +142,8 @@ public class UrlHelperTest {
         assertEquals(0, UrlHelper.extractUrls("09.Sep.11").size());
         assertEquals(0, UrlHelper.extractUrls("Environment.CurrentDirectory").size());
         assertEquals(0, UrlHelper.extractUrls("zipProcess.StandardOutput.ReadToEnd()").size());
-
+        
+        assertEquals(0, UrlHelper.extractUrls("check_lang.sh").size());
     }
     
     @Test
