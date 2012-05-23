@@ -28,7 +28,7 @@ import ws.palladian.helper.html.XPathHelper;
  * @author Sandro Reichert
  * @author Julien Schmehl
  */
-public class UrlHelper {
+public final class UrlHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(UrlHelper.class);
@@ -70,17 +70,18 @@ public class UrlHelper {
         if (original != null) {
             String origURL = original.toString();
             Matcher matcher = SESSION_ID_PATTERN.matcher(origURL);
-            String sessionID = null;
+//            String sessionID = null;
             String newURL = null;
-            while (matcher.find()) {
-                sessionID = matcher.group();
-                LOGGER.debug("   sessionID : " + sessionID);
-                newURL = origURL.replaceAll(SESSION_ID_PATTERN.toString(), "");
-            }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Original URL: " + origURL);
-                LOGGER.debug("Cleaned URL : " + newURL);
-            }
+//            while (matcher.find()) {
+//                sessionID = matcher.group();
+//                LOGGER.debug("   sessionID : " + sessionID);
+//                newURL = origURL.replaceAll(SESSION_ID_PATTERN.toString(), "");
+//            }
+//            if (LOGGER.isDebugEnabled()) {
+//                LOGGER.debug("Original URL: " + origURL);
+//                LOGGER.debug("Cleaned URL : " + newURL);
+//            }
+            newURL = matcher.replaceAll("");
             if (newURL != null) {
                 try {
                     replacedURL = new URL(newURL);
@@ -101,16 +102,36 @@ public class UrlHelper {
      * @param silent If <code>true</code>, do not log errors.
      * @return The string representation of the url without the sessionID if it could be found or the original string
      *         else wise. <code>null</code> if original was <code>null</code>.
+     * @deprecated Use {@link #removeSessionId(String)}.
      */
+    @Deprecated
     public static String removeSessionId(String originalUrl, boolean silent) {
+        String replacedURL = originalUrl;
+//        if (originalUrl != null) {
+//            try {
+//                replacedURL = removeSessionId(new URL(originalUrl)).toString();
+//            } catch (Exception e) {
+//                if (!silent) {
+//                    LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
+//                }
+//            }
+//        }
+        try {
+            replacedURL = removeSessionId(originalUrl);
+        } catch (Exception e) {
+            if (!silent) {
+                LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
+            }
+        }
+        return replacedURL;
+    }
+
+    public static String removeSessionId(String originalUrl) {
         String replacedURL = originalUrl;
         if (originalUrl != null) {
             try {
                 replacedURL = removeSessionId(new URL(originalUrl)).toString();
             } catch (Exception e) {
-                if (!silent) {
-                    LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
-                }
             }
         }
         return replacedURL;
