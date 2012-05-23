@@ -25,7 +25,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public class GooglePlusLikes extends BaseRankingService implements RankingService {
+public final class GooglePlusLikes extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(GooglePlusLikes.class);

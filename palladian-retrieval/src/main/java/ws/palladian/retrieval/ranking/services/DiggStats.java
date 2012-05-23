@@ -35,7 +35,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://digg.com/
  * @see http://digg.com/api/docs/overview
  */
-public class DiggStats extends BaseRankingService implements RankingService {
+public final class DiggStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(DiggStats.class);

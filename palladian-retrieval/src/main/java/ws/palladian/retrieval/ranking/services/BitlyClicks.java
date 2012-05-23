@@ -39,7 +39,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://code.google.com/p/bitly-api/wiki/ApiDocumentation
  * @see http://www.konkurrenzanalyse.net/reichenweite-auf-twitter-messen/
  */
-public class BitlyClicks extends BaseRankingService implements RankingService {
+public final class BitlyClicks extends BaseRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(BitlyClicks.class);
