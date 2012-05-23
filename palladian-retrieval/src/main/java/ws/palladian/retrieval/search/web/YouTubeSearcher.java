@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,24 +13,49 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.search.SearcherException;
 
-public class YouTubeSearcher extends WebSearcher<WebResult> {
+/**
+ * <p>
+ * WebSearcher for <a href="http://www.youtube.com/">YouTube</a>.
+ * </p>
+ * 
+ * @author David Urbansky
+ * @author Philipp Katz
+ */
+public final class YouTubeSearcher extends WebSearcher<WebResult> {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(YouTubeSearcher.class);
+    /** Key of the {@link Configuration} item which contains the API key. */
+    private static final String CONFIG_API_KEY = "api.youtube.key";
 
+    /** Counter for total number of requests sent to YouTube. */
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
+    /** The API key. */
     protected final String apiKey;
 
+    /**
+     * <p>
+     * Create a new {@link YouTubeSearcher}.
+     * </p>
+     * 
+     * @param apiKey (Optional) API key for accessing YouTube.
+     */
     public YouTubeSearcher(String apiKey) {
         this.apiKey = apiKey;
     }
 
+    /**
+     * <p>
+     * Create a new {@link YouTubeSearcher}.
+     * </p>
+     * 
+     * @param configuration The configuration which can provide an API key via key {@link #CONFIG_API_KEY}.
+     */
     public YouTubeSearcher(Configuration configuration) {
-        this.apiKey = configuration.getString("api.youtube.key");
+        this.apiKey = configuration.getString(CONFIG_API_KEY);
     }
 
     @Override
@@ -58,35 +82,28 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
 
         String url = getRequestUrl(query, resultCount, language);
 
-        DocumentRetriever retriever = new DocumentRetriever();
-
-        JSONObject root = retriever.getJsonObject(url);
-        TOTAL_REQUEST_COUNT.incrementAndGet();
-        JSONObject feed;
-        JSONArray entries = new JSONArray();
+        HttpResult httpResult;
         try {
-            if (root.has("feed")) {
-                feed = root.getJSONObject("feed");
-                if (feed.has("entry")) {
-                    entries = feed.getJSONArray("entry");
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.warn(e.getMessage() + ", url: " + url);
+            httpResult = retriever.httpGet(url);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                    + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         }
 
         List<WebResult> webResults = new ArrayList<WebResult>();
-        for (int i = 0; i < entries.length(); i++) {
+        try {
+            JSONObject root = new JSONObject(new String(httpResult.getContent()));
+            TOTAL_REQUEST_COUNT.incrementAndGet();
+            JSONObject feed = root.getJSONObject("feed");
+            JSONArray entries = feed.getJSONArray("entry");
 
-            JSONObject entry;
-            try {
-                entry = entries.getJSONObject(i);
+            for (int i = 0; i < entries.length(); i++) {
 
+                JSONObject entry = entries.getJSONObject(i);
                 String published = entry.getJSONObject("published").getString("$t");
                 ExtractedDate date = DateGetterHelper.findDate(published);
 
                 String title = entry.getJSONObject("title").getString("$t");
-
                 String link = entry.getJSONObject("content").getString("src");
 
                 WebResult webResult = new WebResult(link, title, "", date.getNormalizedDate());
@@ -96,11 +113,12 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
                     break;
                 }
 
-            } catch (JSONException e) {
-                LOGGER.error(e.getMessage());
             }
-        }
+        } catch (JSONException e) {
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ": " + e.getMessage(), e);
 
+        }
         return webResults;
     }
 
@@ -108,10 +126,8 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
     public int getTotalResultCount(String query, Language language) throws SearcherException {
         int hitCount = 0;
         try {
-            String url = getRequestUrl(query, 1, language);
-
-            DocumentRetriever retriever = new DocumentRetriever();
-            JSONObject root = retriever.getJsonObject(url);
+            HttpResult httpResult = retriever.httpGet(getRequestUrl(query, 1, language));
+            JSONObject root = new JSONObject(new String(httpResult.getContent()));
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getInt("$t");
@@ -119,14 +135,21 @@ public class YouTubeSearcher extends WebSearcher<WebResult> {
         } catch (JSONException e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                     + "\" with " + getName() + ": " + e.getMessage(), e);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
         }
         return hitCount;
     }
 
-    public static void main(String[] args) throws SearcherException {
-        YouTubeSearcher yts = new YouTubeSearcher("");
-        // List<WebResult> results = yts.search("\"htc evo 4g\"", 4);
-        System.out.println(yts.getTotalResultCount("\"htc evo 4g\""));
-        // CollectionHelper.print(results);
+    /**
+     * <p>
+     * Get the number of HTTP requests sent to YouTube.
+     * </p>
+     * 
+     * @return
+     */
+    public static int getRequestCount() {
+        return TOTAL_REQUEST_COUNT.get();
     }
 }

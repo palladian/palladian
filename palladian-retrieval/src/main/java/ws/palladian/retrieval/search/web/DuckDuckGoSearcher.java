@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -22,59 +20,59 @@ import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
- * Web searcher uses an unofficial Javascript call to get DuckDuckGo search results.
+ * Web searcher uses an unofficial JavaScript call to get <a href="http://duckduckgo.com/">DuckDuckGo</a> search
+ * results.
  * </p>
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DuckDuckGoSearcher.class);
-
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+
+    /** The number of entries which are returned for each page. */
+    private static final int ENTRIES_PER_PAGE = 10;
 
     public DuckDuckGoSearcher() {
         super();
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) {
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         Set<String> urls = new HashSet<String>();
         List<WebResult> result = new ArrayList<WebResult>();
-            
-        try {
 
-            int entriesPerPage = 10;
+        paging: for (int page = 0; page <= 999; page++) {
 
-            paging: for (int page = 0; page <= 999; page++) {
+            String requestUrl = "http://duckduckgo.com/d.js?l=us-en&p=1&s=" + ENTRIES_PER_PAGE * page + "&q="
+                    + UrlHelper.urlEncode(query);
 
-                String requestUrl = "http://duckduckgo.com/d.js?l=us-en&p=1&s="
-                        + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
-                
-                HttpResult httpResult = retriever.httpGet(requestUrl);
-                String content = new String(httpResult.getContent());
-                content = content.replace("if (nrn) nrn('d',", "");
-                content = content.replace("}]);","}])");
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(requestUrl);
+            } catch (HttpException e) {
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                        + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
+            }
+            String content = new String(httpResult.getContent());
+            content = content.replace("if (nrn) nrn('d',", "");
+            content = content.replace("}]);", "}])");
+            TOTAL_REQUEST_COUNT.incrementAndGet();
+
+            try {
                 JSONArray jsonArray = new JSONArray(content);
-                
-                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);
-                    
+
                     if (!urls.add(object.getString("u"))) {
                         continue;
                     }
-                    String summary = object.getString("a");
-                    summary = StringEscapeUtils.unescapeHtml(summary);
-                    summary = HtmlHelper.stripHtmlTags(summary);
-                    
-                    String title = object.getString("t");
-                    title = StringEscapeUtils.unescapeHtml(title);
-                    title = HtmlHelper.stripHtmlTags(title);
-                    
+                    String summary = stripAndUnescape(object.getString("a"));
+                    String title = stripAndUnescape(object.getString("t"));
+
                     WebResult webResult = new WebResult(object.getString("u"), title, summary, getName());
                     result.add(webResult);
 
@@ -82,13 +80,10 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                         break paging;
                     }
                 }
-
+            } catch (JSONException e) {
+                throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
+                        + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
-
-        } catch (HttpException e) {
-            LOGGER.error(e);
-        } catch (JSONException e) {
-            LOGGER.error(e);
         }
 
         return result;
@@ -100,7 +95,9 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
     }
 
     /**
-     * Gets the number of HTTP requests sent to Scroogle.
+     * <p>
+     * Gets the number of HTTP requests sent to DuckDuckGo.
+     * </p>
      * 
      * @return
      */
@@ -108,12 +105,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.get();
     }
 
-    public static void main(String[] args) throws SearcherException  {        
-        DuckDuckGoSearcher ddg = new DuckDuckGoSearcher();
-        List<String> urls = ddg.searchUrls("cinefreaks", 5);
-        CollectionHelper.print(urls);
-        
-        List<WebResult> webResults = ddg.search("cinefreaks", 5);
-        CollectionHelper.print(webResults);
+    private static String stripAndUnescape(String html) {
+        return HtmlHelper.stripHtmlTags(StringEscapeUtils.unescapeHtml4(html));
     }
 }

@@ -9,12 +9,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -50,6 +50,10 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     private static final int MAX_RESULTS_PER_PAGE = 100;
     /** The pattern of a valid search URL, containing user and key parameter. */
     private static final String SEARCH_URL_PATTERN = "http://xmlsearch.yandex.ru/xmlsearch\\?user=.+&key=.+";
+
+    /** Key of the {@link Configuration} item which contains the custom search URL. */
+    private static final String CONFIG_SEARCH_URL = "api.yandex.url";
+
     /** The API endpoint for accessing the searcher. */
     private final String yandexSearchUrl;
     /** The parser used for processing the returned XML data. */
@@ -63,12 +67,27 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
      * refuses to perform searches.
      * </p>
      * 
-     * @param yandexSearchUrl The necessary endpoint URL from yandex, not <code>null</code> or empty.
+     * @param yandexSearchUrl The necessary endpoint URL from Yandex, not <code>null</code> or empty.
      */
     public YandexSearcher(String yandexSearchUrl) {
         checkSearchUrlValidity(yandexSearchUrl);
         this.yandexSearchUrl = yandexSearchUrl;
         this.xmlParser = ParserFactory.createXmlParser();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link YandexSearcher} with the search URL specified in the {@link Configuration} as string via
+     * {@value #CONFIG_SEARCH_URL}, which can be obtained from <a href="http://xml.yandex.ru/">here</a>. The search URL
+     * is account specific and can be obtained from the Yandex web page. Keep in mind, that before searching, you must
+     * activate your IP at the web interface, elsewise Yandex refuses to perform searches.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an individual search URL for accessing Yandex as a
+     *            string via key {@value #CONFIG_SEARCH_URL} in the configuration.
+     */
+    public YandexSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_SEARCH_URL));
     }
 
     /** Constructor only used for unit testing. */
@@ -104,7 +123,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     @Override
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
-        int necessaryPages = (int) Math.ceil((double) resultCount / MAX_RESULTS_PER_PAGE);
+        int necessaryPages = (int)Math.ceil((double)resultCount / MAX_RESULTS_PER_PAGE);
         int pageSize = Math.min(MAX_RESULTS_PER_PAGE, resultCount);
         List<WebResult> results = new ArrayList<WebResult>();
 
@@ -254,19 +273,14 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     }
 
     /**
+     * <p>
      * Gets the number of HTTP requests sent to Yandex.
+     * </p>
      * 
      * @return
      */
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        final String yandexSearchUrl = "http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22";
-        YandexSearcher searcher = new YandexSearcher(yandexSearchUrl);
-        List<WebResult> result = searcher.search("moscow", 200);
-        CollectionHelper.print(result);
     }
 
 }
