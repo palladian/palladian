@@ -148,7 +148,7 @@ public class UrlHelperTest {
     @Test
     public void testRemoveSessionId() {
         assertEquals("http://brbb.freeforums.org/viewforum.php?f=3&", UrlHelper.removeSessionId(
-                "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4", true));
+                "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4"));
     }
     
     @Test
