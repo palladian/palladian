@@ -461,7 +461,6 @@ public class DatasetCreator {
             FileHelper.removeDuplicateLines(filePath, filePath);
 
             LOGGER.debug("saved text file");
-
         }
     }
 
