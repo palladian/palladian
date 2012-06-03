@@ -8,9 +8,9 @@ import ws.palladian.model.features.Annotation;
 
 /**
  * <p>
- * A {@link AbstractTokenRemover} which removes those tokens which match for the supplied RegEx. E.g. initializing this
- * class with a {@link Pattern} <i>[^A-Za-z0-9]+</i> will remove all token {@link Annotation}s which do not exclusively
- * consist of alphanumeric characters.
+ * A {@link AbstractTokenRemover} which removes those tokens which do not match for the supplied RegEx. E.g.
+ * initializing this class with a {@link Pattern} <i>[A-Za-z0-9]+</i> will remove all token {@link Annotation}s which do
+ * not exclusively consist of alphanumeric and number characters.
  * </p>
  * 
  * @author Philipp Katz
@@ -48,7 +48,7 @@ public class RegExTokenRemover extends AbstractTokenRemover {
 
     @Override
     protected boolean remove(Annotation annotation) {
-        return pattern.matcher(annotation.getValue()).matches();
+        return !pattern.matcher(annotation.getValue()).matches();
     }
 
     /*

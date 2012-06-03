@@ -22,8 +22,8 @@ public class RegExTokenRemoverTest {
     public void testRegExTokenRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
-        pipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
-        PipelineDocument document = pipeline.process(new PipelineDocument("test 273 . ; •"));
+        pipeline.add(new RegExTokenRemover("[A-Za-z0-9-]+"));
+        PipelineDocument document = pipeline.process(new PipelineDocument("test 273 t_est ; •"));
         AnnotationFeature annotationFeature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);;
         List<Annotation> annotations = annotationFeature.getValue();
         assertEquals(2, annotations.size());
