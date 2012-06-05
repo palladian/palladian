@@ -3,237 +3,154 @@
  */
 package ws.palladian.extraction;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * <p>
- * Abstract base class for pipeline processors. Handles the mapping between
- * input and output views.
+ * Abstract base class for pipeline processors. Handles the mapping between input and output views.
  * </p>
  * 
  * @author Klemens Muthmann
  * @since 0.0.8
  * @version 2.0
  */
-public abstract class AbstractPipelineProcessor<T> implements
-		PipelineProcessor<T> {
-	/**
-	 * <p>
-	 * Unique identifier to serialize and deserialize objects of this type to
-	 * and from a file.
-	 * </p>
-	 */
-	private static final long serialVersionUID = -7030337967596448903L;
+public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<T> {
+    /**
+     * <p>
+     * Unique identifier to serialize and deserialize objects of this type to and from a file.
+     * </p>
+     */
+    private static final long serialVersionUID = -7030337967596448903L;
 
-	/**
-	 * <p>
-	 * The mapping describing how views from the processed
-	 * {@code PipelineDocument} get mapped to the input views of the component.
-	 * </p>
-	 */
-	private final Collection<Pair<String, String>> documentToInputMapping;
+    private List<Port<?>> inputPorts;
+    private List<Port<?>> outputPorts;
 
-	/**
-	 * <p>
-	 * Creates a new completely initialized {@code PipelineProcessor} working on
-	 * the default views. It maps the default output view ("modifiedContent")
-	 * from the previous component to the default input ("originalContent") of
-	 * this component.
-	 * </p>
-	 */
-	public AbstractPipelineProcessor() {
-		super();
-		this.documentToInputMapping = new HashSet<Pair<String, String>>();
-		this.documentToInputMapping.add(new ImmutablePair<String, String>(
-				"modifiedContent", "originalContent"));
-	}
+    /**
+     * <p>
+     * Creates a new completely initialized {@code PipelineProcessor} working on the default views. It maps the default
+     * output view ("modifiedContent") from the previous component to the default input ("originalContent") of this
+     * component.
+     * </p>
+     */
+    public AbstractPipelineProcessor() {
+        super();
 
-	/**
-	 * <p>
-	 * Creates a new completely initialized {@code PipelineComponent} with a
-	 * mapping from the processed documents views to the input views of the
-	 * component. This Constructor does not add the default mapping from
-	 * "modifiedContent" to "originalContent"!
-	 * </p>
-	 * 
-	 * @param documentToInputMapping
-	 *            The mapping to use from {@code PipelineDocument} views to
-	 *            input views of the component.
-	 */
-	public AbstractPipelineProcessor(
-			Collection<Pair<String, String>> documentToInputMapping) {
-		super();
-		this.documentToInputMapping = new HashSet<Pair<String, String>>(
-				documentToInputMapping);
-	}
+        inputPorts = new ArrayList<Port<?>>();
+        outputPorts = new ArrayList<Port<?>>();
 
-	/**
-	 * <p>
-	 * Provides the name of required input views in each processed
-	 * {@code PipelineDocument}.
-	 * </p>
-	 * <p>
-	 * Overwrite this method if you need other views as the default input view
-	 * (named originalContent).
-	 * </p>
-	 * 
-	 * @return The set of input view names required to be present in each
-	 *         processed {@code PipelineDocument}.
-	 */
-	public List<String> getInputViewNames() {
-		return Collections.unmodifiableList(Arrays
-				.asList(new String[] { "originalContent" }));
-	}
+        inputPorts.add(new Port<String>("defaultInput"));
+        outputPorts.add(new Port<String>("defaultOutput"));
+    }
 
-	/**
-	 * <p>
-	 * Provides the set of created output view names or changed input view
-	 * names.
-	 * </p>
-	 * <p>
-	 * Overwrite this method if you need other views as the default output view
-	 * (named modifiedContent).
-	 * </p>
-	 * 
-	 * @return The set of names either created views or changed input views
-	 *         provided by all processed {@code PipelineDocument}s.
-	 */
-	public List<String> getOutputViewNames() {
-		return Collections.unmodifiableList(Arrays
-				.asList(new String[] { "modifiedContent" }));
-	}
+    public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
+        super();
 
-	@Override
-	public final void process(PipelineDocument<T> document)
-			throws DocumentUnprocessableException {
-		if (document == null)
-			throw new IllegalArgumentException("Document may not be null");
+        this.inputPorts = new ArrayList<Port<?>>(inputPorts);
+        this.outputPorts = new ArrayList<Port<?>>(outputPorts);
+    }
 
-		allInputViewsAvailable(document);
-		applyMapping(document);
-		processDocument(document);
-		allOutputViewsAvailable(document);
-	}
+    @Override
+    public final void process() throws DocumentUnprocessableException {
+        allInputPortsAvailable();
+        processDocument();
+        allOutputPortsAvailable();
+    }
 
-	/**
-	 * <p>
-	 * Applies the mapping from {@link #documentToInputMapping}.
-	 * </p>
-	 * 
-	 * @param document
-	 *            The document to apply the mapping to.
-	 * @throws DocumentUnprocessableException
-	 *             In case the document does not provide the necessary input or
-	 *             output views.
-	 */
-	private void applyMapping(PipelineDocument<T> document)
-			throws DocumentUnprocessableException {
-		for (Pair<String, String> mapping : documentToInputMapping) {
-			// Ignore the mapping from modified content to original content if
-			// modified content is not available
-			// This is necessary to handle the case of the initial component in
-			// a pipeline where no modifiedContent
-			// exists yet as well as the case of simple annotators that do not
-			// modify the content.
-			if (mapping.getKey().equals("modifiedContent")
-					&& mapping.getValue().equals("originalContent")) {
-				if (!document.providesView(mapping.getKey())) {
-					return;
-				}
-			}
+    //
+    // @Override
+    // public final void process(PipelineDocument<T> document) throws DocumentUnprocessableException {
+    // Validate.notNull(document);
+    // Validate.isTrue(inputPorts.size() == 1);
+    // Validate.isTrue(outputPorts.size() == 1);
+    // Validate.isTrue(inputPorts.get(0).getName().equals("defaultInput"));
+    // Validate.isTrue(outputPorts.get(0).getName().equals("defaultOutput"));
+    //
+    // ((Port<T>)inputPorts.get(0)).setPipelineDocument(document);
+    // allInputPortsAvailable();
+    // processDocument();
+    // allOutputPortsAvailable();
+    // }
 
-			if (document.providesView(mapping.getKey())
-					&& document.providesView(mapping.getValue())) {
-				document.putView(mapping.getValue(),
-						document.getView(mapping.getKey()));
-			} else {
-				throw new DocumentUnprocessableException(
-						"Document is not processable since it either does not provide all necessary input or not all necessary output views.\n\tInputViews: "
-								+ getInputViewNames()
-								+ "\n\tOutputViews:"
-								+ getOutputViewNames());
-			}
-		}
-	}
+    /**
+     * <p>
+     * Apply the algorithm implemented by this {@code PipelineProcessor} to a {@code PipelineDocument}. This is the
+     * central method of each {@code PipelineProcessor} providing the core functionality.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException
+     *             If the {@code document} could not be processed by this {@code PipelineProcessor}.
+     */
+    protected abstract void processDocument() throws DocumentUnprocessableException;
 
-	/**
-	 * <p>
-	 * Apply the algorithm implemented by this {@code PipelineProcessor} to a
-	 * {@code PipelineDocument}. This is the central method of each
-	 * {@code PipelineProcessor} providing the core functionality.
-	 * </p>
-	 * 
-	 * @param document
-	 *            The {@code PipelineDocument} to process.
-	 * @throws DocumentUnprocessableException
-	 *             If the {@code document} could not be processed by this
-	 *             {@code PipelineProcessor}.
-	 */
-	protected abstract void processDocument(PipelineDocument<T> document)
-			throws DocumentUnprocessableException;
+    /**
+     * <p>
+     * Checks whether all output views where created in a {@code PipelineDocument} and throws an
+     * {@code DocumentUnprocessableException} if not.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException
+     *             In case the document does not provide the required output
+     *             view.
+     */
+    private void allOutputPortsAvailable() throws DocumentUnprocessableException {
+        for (Port<?> outputPort : getOutputPorts()) {
+            if (outputPort.getPipelineDocument() == null) {
+                throw new DocumentUnprocessableException("Output port: " + outputPort
+                        + " does not provide required output.");
+            }
+        }
+    }
 
-	/**
-	 * <p>
-	 * Checks whether all output views where created in a
-	 * {@code PipelineDocument} and throws an
-	 * {@code DocumentUnprocessableException} if not.
-	 * </p>
-	 * 
-	 * @param document
-	 *            The {@code PipelineDocument} to check.
-	 * @throws DocumentUnprocessableException
-	 *             In case the document does not provide the required output
-	 *             view.
-	 */
-	private void allOutputViewsAvailable(PipelineDocument<T> document)
-			throws DocumentUnprocessableException {
-		for (String outputViewName : getOutputViewNames()) {
-			if (!document.providesView(outputViewName)) {
-				throw new DocumentUnprocessableException(
-						"Input document: "
-								+ document
-								+ " does not provide required output.\nRequired views: "
-								+ getOutputViewNames() + "\nProvided views: "
-								+ document.getProvidedViewNames());
-			}
-		}
-	}
+    /**
+     * <p>
+     * Checks whether all input views where provided with a {@code PipelineDocument} and throws an
+     * {@code DocumentUnprocessableException} if not.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException
+     *             In case the document does not provide the required input
+     *             view.
+     */
+    private void allInputPortsAvailable() throws DocumentUnprocessableException {
+        for (Port<?> inputPort : getInputPorts()) {
+            if (inputPort.getPipelineDocument() == null) {
+                throw new DocumentUnprocessableException("Input port: " + inputPort
+                        + " does not provide required input.");
+            }
+        }
+    }
 
-	/**
-	 * <p>
-	 * Checks whether all input views where provided with a
-	 * {@code PipelineDocument} and throws an
-	 * {@code DocumentUnprocessableException} if not.
-	 * </p>
-	 * 
-	 * @param document
-	 *            The {@code PipelineDocument} to check.
-	 * @throws DocumentUnprocessableException
-	 *             In case the document does not provide the required input
-	 *             view.
-	 */
-	private void allInputViewsAvailable(PipelineDocument<T> document)
-			throws DocumentUnprocessableException {
-		for (String inputViewName : getInputViewNames()) {
-			if (!document.providesView(inputViewName)) {
-				throw new DocumentUnprocessableException("Input document: "
-						+ document
-						+ " does not provide required input.\nRequired views: "
-						+ getInputViewNames() + "\nProvided views: "
-						+ document.getProvidedViewNames());
-			}
-		}
-	}
+    @Override
+    public List<Port<?>> getInputPorts() {
+        return inputPorts;
+    }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+    @Override
+    public List<Port<?>> getOutputPorts() {
+        return outputPorts;
+    }
+
+    @Override
+    public Boolean isExecutable() {
+        for (Port<?> inputPort : getInputPorts()) {
+            if (inputPort.getPipelineDocument() == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    protected PipelineDocument<T> getDefaultInput() {
+        return (PipelineDocument<T>)inputPorts.get(0).getPipelineDocument();
+    }
+
+    protected PipelineDocument<T> getDefaultOutput() {
+        return (PipelineDocument<T>)outputPorts.get(0).getPipelineDocument();
+    }
 }

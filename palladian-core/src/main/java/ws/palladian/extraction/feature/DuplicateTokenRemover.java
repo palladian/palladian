@@ -15,7 +15,7 @@ public class DuplicateTokenRemover implements PipelineProcessor {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void process(PipelineDocument document) {
+    public void process(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
@@ -23,7 +23,7 @@ public class DuplicateTokenRemover implements PipelineProcessor {
         }
         List<Annotation> annotations = annotationFeature.getValue();
         Set<String> tokenValues = new HashSet<String>();
-        
+
         List<Annotation> resultTokens = new ArrayList<Annotation>();
         for (Annotation annotation : annotations) {
             String tokenValue = annotation.getValue().toLowerCase();

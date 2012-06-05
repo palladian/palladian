@@ -25,7 +25,7 @@ public abstract class TokenRemover implements PipelineProcessor {
             throw new RuntimeException("required feature is missing");
         }
         List<Annotation> annotations = annotationFeature.getValue();
-        
+
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
         List<Annotation> resultTokens = new ArrayList<Annotation>();
@@ -36,14 +36,14 @@ public abstract class TokenRemover implements PipelineProcessor {
             }
         }
         annotationFeature.setValue(resultTokens);
-        
-//        for (Iterator<Annotation> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
-//            Annotation token = tokenIterator.next();
-//            String tokenValue = token.getValue();
-//            if (remove(tokenValue)) {
-//                tokenIterator.remove();
-//            }
-//        }
+
+        // for (Iterator<Annotation> tokenIterator = tokens.iterator(); tokenIterator.hasNext();) {
+        // Annotation token = tokenIterator.next();
+        // String tokenValue = token.getValue();
+        // if (remove(tokenValue)) {
+        // tokenIterator.remove();
+        // }
+        // }
     }
 
 }
