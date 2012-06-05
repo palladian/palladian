@@ -2,6 +2,7 @@ package ws.palladian.extraction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -22,6 +23,8 @@ import ws.palladian.helper.StopWatch;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @version 3.0
+ * @since 0.0.8
  */
 public class ProcessingPipeline implements Serializable {
 
@@ -41,7 +44,8 @@ public class ProcessingPipeline implements Serializable {
      * The processors this pipeline will execute as ordered by this list from the first to the last.
      * </p>
      */
-    private List<PipelineProcessor> pipelineProcessors;
+    private List<PipelineProcessor<?>> pipelineProcessors;
+    private List<Transition<?>> transitions;
 
     /**
      * <p>
@@ -50,7 +54,7 @@ public class ProcessingPipeline implements Serializable {
      * </p>
      */
     public ProcessingPipeline() {
-        pipelineProcessors = new ArrayList<PipelineProcessor>();
+        pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
     }
 
     /**
@@ -60,8 +64,26 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void add(PipelineProcessor pipelineProcessor) {
+    public final void add(PipelineProcessor<?> pipelineProcessor) {
+        // Begin Convenience Code
+        if (!pipelineProcessors.isEmpty()) {
+            List<Port<?>> previousOutputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+            if (!previousOutputPorts.isEmpty()) {
+                Port<?> previousOutputPort = previousOutputPorts.get(0);
+
+                Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
+                if ("defaultInput".equals(inputPort.getName()) && "defaultOutput".equals(previousOutputPort.getName())) {
+                    add(new Transition(previousOutputPort, inputPort));
+                }
+            }
+        }
+        // End Convenience Code
+
         pipelineProcessors.add(pipelineProcessor);
+    }
+
+    public final void add(Transition<?> transition) {
+        transitions.add(transition);
     }
 
     /**
@@ -72,7 +94,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @return The list of registered {@code PipelineProcessor}s.
      */
-    public final List<PipelineProcessor> getPipelineProcessors() {
+    public final List<PipelineProcessor<?>> getPipelineProcessors() {
         return pipelineProcessors;
     }
 
@@ -87,19 +109,47 @@ public class ProcessingPipeline implements Serializable {
      *         guaranteed. The returned document contains all features and modified representations created by the
      *         pipeline.
      */
-    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException {
+    // Convenience Method
+    public <T> PipelineDocument<T> process(PipelineDocument<T> document) throws DocumentUnprocessableException {
 
+        ((Port<T>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument(document);
+
+        process();
+
+        return (PipelineDocument<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts().get(0)
+                .getPipelineDocument();
+    }
+
+    public void process() throws DocumentUnprocessableException {
         StopWatch stopWatch = new StopWatch();
+        Collection<PipelineProcessor<?>> executableProcessors = new ArrayList<PipelineProcessor<?>>(pipelineProcessors);
+        Collection<Transition<?>> executableTransitions = new ArrayList<Transition<?>>(transitions);
+        Collection<PipelineProcessor<?>> executedProcessors = new ArrayList<PipelineProcessor<?>>();
+        Collection<Transition<?>> executedTransitions = new ArrayList<Transition<?>>();
 
-        for (PipelineProcessor processor : pipelineProcessors) {
-            StopWatch stopWatch2 = new StopWatch();
-            processor.process(document);
-            LOGGER.debug("processor " + processor + " took " + stopWatch2);
-        }
+        do {
+            executedProcessors.clear();
+            executedTransitions.clear();
+
+            for (PipelineProcessor<?> processor : executableProcessors) {
+                if (processor.isExecutable()) {
+                    StopWatch stopWatch2 = new StopWatch();
+                    processor.process();
+                    LOGGER.debug("processor " + processor + " took " + stopWatch2);
+                    executedProcessors.add(processor);
+                }
+            }
+            for (Transition<?> transition : executableTransitions) {
+                if (transition.canFire()) {
+                    transition.transit();
+                    executedTransitions.add(transition);
+                }
+            }
+            executableProcessors.removeAll(executedProcessors);
+            executableTransitions.removeAll(executedTransitions);
+        } while (!executedProcessors.isEmpty());
 
         LOGGER.debug("pipeline took " + stopWatch);
-
-        return document;
     }
 
     /**
@@ -136,5 +186,14 @@ public class ProcessingPipeline implements Serializable {
         classifier.train(instance);
 
         LOGGER.info(classifier.classify("This is a sample text, whether you believe it or not."));
+
+        // ProcessingPipeline pipeline = new ProcessingPipeline();
+        // PipelineProcessor processor1 = new PipelineProcessor();
+        // PipelineProcessor processor2 = new PipelineProcessor();
+        // PipelineProcessor processor3 = new PipelineProcessor();
+        // pipeline.add(processor1);
+        // pipeline.add(new Transition(processor1.getOutputPorts().get(0), processor2.getInputPorts().get(1)));
+        // pipeline.add(processor2);
+        // pipeline.add(processor3);
     }
 }
