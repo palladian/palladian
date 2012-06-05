@@ -16,6 +16,11 @@ public class WebResult extends SearchResult {
 
     /** The URL of the web result. */
     private final String url;
+    
+    public WebResult(String url, String title) {
+        super(title, null);
+        this.url = url;
+    }
 
     public WebResult(String url, String title, String summary, Date date) {
         super(title, summary, date);
