@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
@@ -34,7 +35,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
@@ -324,7 +324,7 @@ public class FeedDiscovery {
 
                     currentQuery++;
                     float percentage = (float) 100 * currentQuery / totalQueries;
-                    float querySpeed = (float) currentQuery / stopWatch.getElapsedTime() * DateHelper.MINUTE_MS;
+                    float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
                     LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: "
                             + foundSites.size() + "; progress: " + percentage + "%" + "; query speed: " + querySpeed
                             + " queries/min");
@@ -663,7 +663,7 @@ public class FeedDiscovery {
                 if (feeds.size() > 0) {
                     CollectionHelper.print(feeds);
                 } else {
-                    System.out.println("no feeds found");
+                    LOGGER.info("no feeds found");
                 }
             }
 
