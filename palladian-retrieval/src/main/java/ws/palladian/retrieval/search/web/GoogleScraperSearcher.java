@@ -29,7 +29,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class ScroogleSearcher extends WebSearcher<WebResult> {
+public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
@@ -38,7 +38,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     private static final String LINK_XPATH = "//h3[@class='r']/a[@class='l']";
     private static final String INFORMATION_XPATH = "//span[@class='st']";
 
-    public ScroogleSearcher() {
+    public GoogleScraperSearcher() {
         super();
         parser = ParserFactory.createHtmlParser();
     }
@@ -93,7 +93,6 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
                     }
                 }
 
-
             }
 
         } catch (HttpException e) {
@@ -114,7 +113,9 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     }
 
     /**
+     * <p>
      * Gets the number of HTTP requests sent to Scroogle.
+     * </p>
      * 
      * @return
      */
@@ -123,7 +124,7 @@ public final class ScroogleSearcher extends WebSearcher<WebResult> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        ScroogleSearcher scroogleSearcher = new ScroogleSearcher();
+        GoogleScraperSearcher scroogleSearcher = new GoogleScraperSearcher();
         // List<String> urls = scroogleSearcher.searchUrls("capital germany", 11);
         List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);
         CollectionHelper.print(urls);
