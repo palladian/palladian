@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -25,7 +26,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class YouTubeSearcher extends WebSearcher<WebResult> {
+public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
@@ -34,7 +35,7 @@ public final class YouTubeSearcher extends WebSearcher<WebResult> {
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The API key. */
-    protected final String apiKey;
+    private final String apiKey;
 
     /**
      * <p>
@@ -78,7 +79,7 @@ public final class YouTubeSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         String url = getRequestUrl(query, resultCount, language);
 
@@ -90,7 +91,7 @@ public final class YouTubeSearcher extends WebSearcher<WebResult> {
                     + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         }
 
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
         try {
             JSONObject root = new JSONObject(new String(httpResult.getContent()));
             TOTAL_REQUEST_COUNT.incrementAndGet();
@@ -106,7 +107,7 @@ public final class YouTubeSearcher extends WebSearcher<WebResult> {
                 String title = entry.getJSONObject("title").getString("$t");
                 String link = entry.getJSONObject("content").getString("src");
 
-                WebResult webResult = new WebResult(link, title, "", date.getNormalizedDate());
+                WebVideoResult webResult = new WebVideoResult(link, title, date.getNormalizedDate());
                 webResults.add(webResult);
 
                 if (webResults.size() >= resultCount) {
