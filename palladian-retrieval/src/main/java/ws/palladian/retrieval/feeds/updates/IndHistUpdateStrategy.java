@@ -265,12 +265,4 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
 
     }
 
-    public static void main(String[] args) {
-        double a = 0.025;
-        double b = 0.005;
-        double c = a + b;
-        System.out.println(c);
-
-    }
-
 }

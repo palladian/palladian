@@ -463,18 +463,25 @@ public class FileHelper {
     }
 
     /**
-     * Remove identical lines for the given input file and save it to the output file.
+     * <p>Remove identical lines for the given input file and save it to the output file.</p>
      * 
      * @param inputFilePath The input file.
      * @param outputFilePath Where the transformed file should be saved.
      */
     public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
 
+        if (inputFilePath.equalsIgnoreCase(outputFilePath)) {
+            removeDuplicateLines(inputFilePath);
+            return;
+        }
+        
         // remember all seen hashes
         final Set<Integer> seenHashes = new HashSet<Integer>();
 
+        final Writer writer;
+
         try {
-            final Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath),
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath),
                     DEFAULT_ENCODING));
 
             LineAction la = new LineAction() {
@@ -492,15 +499,35 @@ public class FileHelper {
             };
 
             FileHelper.performActionOnEveryLine(inputFilePath, la);
-
-            close(writer);
-
+            
+            IOUtils.closeQuietly(writer);
+            
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (UnsupportedEncodingException e) {
             LOGGER.error(e.getMessage());
+        } 
+
+    }
+    
+    /**
+     * <p>Remove identical lines for the given input file and save it to the same file.</p>
+     * 
+     * @param inputFilePath The input file which is overwritten.
+     */
+    public static void removeDuplicateLines(String inputFilePath) {
+        List<String> lines = readFileToArray(inputFilePath, -1);
+
+        Set<String> lineSet = new HashSet<String>();
+
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            if (lineSet.add(line) || line.length() == 0) {
+                sb.append(line).append(NEWLINE_CHARACTER);
+            }
         }
 
+        writeToFile(inputFilePath, sb);
     }
 
     /**

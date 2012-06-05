@@ -14,7 +14,9 @@ import org.xml.sax.SAXException;
 import com.sun.syndication.io.XmlReader;
 
 /**
- * <p>Parser for XML documents, which provides some additional sanitizing capabilities concerning illegal characters, etc.</p>
+ * <p>
+ * Parser for XML documents, which provides some additional sanitizing capabilities concerning illegal characters, etc.
+ * </p>
  * 
  * @author Philipp Katz
  */
@@ -25,13 +27,11 @@ public class XmlParser extends BaseDocumentParser implements DocumentParser {
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 
         try {
-
             // added by Philipp, 2011-01-28
             docBuilderFactory.setNamespaceAware(true);
 
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             return docBuilder.parse(inputSource);
-
         } catch (ParserConfigurationException e) {
             throw new ParserException(e);
         } catch (IOException e) {
@@ -49,7 +49,6 @@ public class XmlParser extends BaseDocumentParser implements DocumentParser {
     public Document parse(InputStream inputStream) throws ParserException {
 
         try {
-
             // fix to parse XML documents with illegal characters, 2011-02-15
             // see http://java.net/projects/rome/lists/users/archive/2009-04/message/12
             // and http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
@@ -66,5 +65,4 @@ public class XmlParser extends BaseDocumentParser implements DocumentParser {
             throw new ParserException(e);
         }
     }
-
 }
