@@ -7,6 +7,21 @@
 	<name>Palladian: TUD Information Retrieval Toolkit</name>
 	<version>0.1.7-SNAPSHOT</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
+	<developers>
+		<developer>
+			<name>David Urbansky</name>
+			<email>davidurbansky at gmail.com</email>
+		</developer>
+		<developer>
+			<name>Philipp Katz</name>
+			<email>philipp.katz at tu-dresden.de</email>
+		</developer>
+		<developer>
+			<name>Klemens Muthmann</name>
+			<email>klemens.muthmann at gmail.com</email>
+			<url>http://klemensmuthmann.de</url>
+		</developer>
+	</developers>
 	<modules>
 		<module>palladian-commons</module>
 		<module>palladian-core</module>

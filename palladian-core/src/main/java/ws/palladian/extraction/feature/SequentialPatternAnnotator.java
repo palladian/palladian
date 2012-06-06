@@ -15,7 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
@@ -56,7 +55,7 @@ import ws.palladian.model.features.PositionAnnotation;
  * @version 1.0
  * @since 1.0
  */
-public final class SequentialPatternAnnotator implements PipelineProcessor {
+public final class SequentialPatternAnnotator extends AbstractDefaultPipelineProcessor {
     /**
      * 
      */
@@ -75,7 +74,8 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
      * Creates a new LSP annotator with a list of keywords. This annotator is ready to use.
      * </p>
      * 
-     * @param keywords The keywords used by this annotator.
+     * @param keywords
+     *            The keywords used by this annotator.
      */
     public SequentialPatternAnnotator(String[] keywords, Integer maxSequentialPatternSize) {
         super();
@@ -85,7 +85,7 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         AnnotationFeature posFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         AnnotationFeature sentencesFeature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
@@ -151,12 +151,13 @@ public final class SequentialPatternAnnotator implements PipelineProcessor {
      * Creates a list of annotations of the keywords provided to this {@code PipelineProcessor}.
      * </p>
      * 
-     * @param document The {@link PipelineDocument} to process.
+     * @param document
+     *            The {@link PipelineDocument} to process.
      * @return A {@code List} of {@code Annotation}s
      */
-    private List<Annotation> markKeywords(PipelineDocument document) {
+    private List<Annotation> markKeywords(PipelineDocument<String> document) {
         List<Annotation> markedKeywords = new LinkedList<Annotation>();
-        String originalContent = document.getOriginalContent();
+        String originalContent = document.getContent();
         String originalContentLowerCased = originalContent.toLowerCase();
         for (String keyword : keywords) {
             Pattern keywordPattern = Pattern.compile(keyword.toLowerCase());

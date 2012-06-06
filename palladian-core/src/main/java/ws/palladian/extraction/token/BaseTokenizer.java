@@ -20,7 +20,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer extends AbstractPipelineProcessor {
+public abstract class BaseTokenizer extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
@@ -47,7 +47,7 @@ import ws.palladian.model.features.FeatureDescriptorBuilder;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor {
+public abstract class AbstractSentenceDetector extends AbstractDefaultPipelineProcessor {
 
     /**
      * <p>
@@ -76,15 +76,6 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
     private Annotation[] sentences;
 
     /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     * 
-     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     */
-    public AbstractSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-    }
-
-    /**
      * <p>
      * Creates anew completely initialized sentence detector working on the "originalContent" view if used as
      * {@code PipelineProcessor}.
@@ -101,7 +92,8 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
      * {@code new OpenNLPSentenceDetector().detect(...).getSentences();}
      * </p>
      * 
-     * @param text The text to detect sentences on.
+     * @param text
+     *            The text to detect sentences on.
      * @return {@code this} object for convenient chaining of method calls.
      */
     public abstract AbstractSentenceDetector detect(String text);
@@ -131,8 +123,8 @@ public abstract class AbstractSentenceDetector extends AbstractPipelineProcessor
     }
 
     @Override
-    public final void processDocument(PipelineDocument document) {
-        detect(document.getOriginalContent());
+    public final void processDocument(PipelineDocument<String> document) {
+        detect(document.getContent());
         Annotation[] sentences = getSentences();
         List<Annotation> sentencesList = Arrays.asList(sentences);
         AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);

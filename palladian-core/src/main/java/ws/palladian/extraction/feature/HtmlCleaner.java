@@ -3,12 +3,6 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Collection;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -23,7 +17,7 @@ import ws.palladian.helper.html.HtmlHelper;
  * @version 1.0
  * @since 0.1.7
  */
-public final class HtmlCleaner extends AbstractPipelineProcessor {
+public final class HtmlCleaner extends AbstractDefaultPipelineProcessor {
 
     /**
      * <p>
@@ -32,27 +26,11 @@ public final class HtmlCleaner extends AbstractPipelineProcessor {
      */
     private static final long serialVersionUID = -111859833221808261L;
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     */
-    public HtmlCleaner() {
-        super();
-    }
-
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     * 
-     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     */
-    public HtmlCleaner(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-    }
-
     @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
+    public final void processDocument(PipelineDocument<String> document) {
+        String text = document.getContent();
         String cleanedText = HtmlHelper.stripHtmlTags(text);
         cleanedText = StringEscapeUtils.unescapeHtml(cleanedText);
-        document.setModifiedContent(cleanedText);
+        document.setContent(cleanedText);
     }
 }

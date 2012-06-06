@@ -86,8 +86,8 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        String content = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+        String content = document.getContent();
         AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Span[] spans = tokenizer.tokenizePos(content);
         int index = 0;

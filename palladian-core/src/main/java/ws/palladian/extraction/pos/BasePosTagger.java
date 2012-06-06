@@ -3,12 +3,12 @@ package ws.palladian.extraction.pos;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
@@ -38,7 +38,7 @@ import ws.palladian.model.features.NominalFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public abstract class BasePosTagger extends AbstractPipelineProcessor implements PosTagger {
+public abstract class BasePosTagger extends AbstractDefaultPipelineProcessor implements PosTagger {
 
     private static final long serialVersionUID = 1L;
 
@@ -72,8 +72,10 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
     public TagAnnotations tag(String text) {
         PipelineDocument document = new PipelineDocument(text);
         try {
-            getTokenizer().process(document);
-            process(document);
+            BaseTokenizer tokenizer = getTokenizer();
+            tokenizer.getInputPorts().get(0).setPipelineDocument(document);
+            tokenizer.process();
+            processDocument((PipelineDocument<String>)tokenizer.getOutputPorts().get(0).getPipelineDocument());
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
@@ -107,7 +109,7 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
     // ////////////////////////////////////////////
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
@@ -127,7 +129,9 @@ public abstract class BasePosTagger extends AbstractPipelineProcessor implements
      * using the provided convenience method {@link #assignTag(Annotation, String)}.
      * </p>
      * 
-     * @param annotations The list of annotations to process, this is the tokenized text.
+     * @param annotations
+     *            The list of annotations to process, this is the tokenized
+     *            text.
      */
     protected abstract void tag(List<Annotation> annotations);
 

@@ -5,13 +5,17 @@ import java.util.regex.Pattern;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.PositionAnnotation;
 
-public class TextPatternAnnotator implements PipelineProcessor {
+public class TextPatternAnnotator extends AbstractDefaultPipelineProcessor {
+
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = 7064541848435617212L;
 
     public static final String PROVIDED_FEATURE = "TextAnnotatorFeature";
 
@@ -28,8 +32,8 @@ public class TextPatternAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
-        String content = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String content = document.getContent();
         Matcher matcher = pattern.matcher(content);
         AnnotationFeature feature = new AnnotationFeature(PROVIDED_FEATURE);
         while (matcher.find()) {
@@ -43,7 +47,7 @@ public class TextPatternAnnotator implements PipelineProcessor {
 
     public static void main(String[] args) throws DocumentUnprocessableException {
 
-        PipelineDocument document = new PipelineDocument(
+        PipelineDocument<String> document = new PipelineDocument<String>(
                 "the quick brown fox jumps over the lazy dog. philipp@philippkatz.de");
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new TextPatternAnnotator(EMAIL_PATTERN));

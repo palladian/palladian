@@ -2,9 +2,10 @@ package ws.palladian.extraction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 /**
  * <p>
  * A pipeline handling information processing components implemented by {@link PipelineProcessor}s to process
@@ -14,6 +15,8 @@ import java.util.List;
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
+ * @version 3.0
+ * @since 0.0.8
  */
 public class ProcessingPipeline implements Serializable {
 
@@ -25,12 +28,16 @@ public class ProcessingPipeline implements Serializable {
      */
     private static final long serialVersionUID = -6173687204106619909L;
 
+	/** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
+
     /**
      * <p>
      * The processors this pipeline will execute as ordered by this list from the first to the last.
      * </p>
      */
-    private final List<PipelineProcessor> pipelineProcessors;
+    private final List<PipelineProcessor<?>> pipelineProcessors;
+    private final List<Pipe<?>> pipes;
 
     /**
      * <p>
@@ -39,7 +46,8 @@ public class ProcessingPipeline implements Serializable {
      * </p>
      */
     public ProcessingPipeline() {
-        pipelineProcessors = new ArrayList<PipelineProcessor>();
+        pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
+        pipes = new ArrayList<Pipe<?>>();
     }
     
     /**
@@ -64,8 +72,26 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void add(PipelineProcessor pipelineProcessor) {
+    public final void add(PipelineProcessor<?> pipelineProcessor) {
+        // Begin Convenience Code
+        if (!pipelineProcessors.isEmpty()) {
+            List<Port<?>> previousOutputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+            if (!previousOutputPorts.isEmpty()) {
+                Port<?> previousOutputPort = previousOutputPorts.get(0);
+
+                Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
+                if ("defaultInput".equals(inputPort.getName()) && "defaultOutput".equals(previousOutputPort.getName())) {
+                    add(new Pipe(previousOutputPort, inputPort));
+                }
+            }
+        }
+        // End Convenience Code
+
         pipelineProcessors.add(pipelineProcessor);
+    }
+
+    public final void add(Pipe<?> transition) {
+        pipes.add(transition);
     }
 
     /**
@@ -76,7 +102,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @return The list of registered {@code PipelineProcessor}s.
      */
-    public final List<PipelineProcessor> getPipelineProcessors() {
+    public final List<PipelineProcessor<?>> getPipelineProcessors() {
         return Collections.unmodifiableList(pipelineProcessors);
     }
 
@@ -91,11 +117,52 @@ public class ProcessingPipeline implements Serializable {
      *         guaranteed. The returned document contains all features and modified representations created by the
      *         pipeline.
      */
-    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException {
-        for (PipelineProcessor processor : pipelineProcessors) {
-            processor.process(document);
-        }
-        return document;
+    // Convenience Method
+    public <T> PipelineDocument<T> process(PipelineDocument<T> document) throws DocumentUnprocessableException {
+
+        ((Port<T>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument(document);
+
+        process();
+
+        return (PipelineDocument<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts().get(0)
+                .getPipelineDocument();
+    }
+
+    public void process() throws DocumentUnprocessableException {
+        Collection<PipelineProcessor<?>> executableProcessors = new ArrayList<PipelineProcessor<?>>(pipelineProcessors);
+        Collection<Pipe<?>> executablePipes = new ArrayList<Pipe<?>>(pipes);
+        Collection<PipelineProcessor<?>> executedProcessors = new ArrayList<PipelineProcessor<?>>();
+        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>();
+
+        do {
+            executedProcessors.clear();
+            executedPipes.clear();
+
+            for (PipelineProcessor<?> processor : executableProcessors) {
+                if (processor.isExecutable()) {
+                    executePreProcessingHook(processor);
+                    processor.process();
+                    executePostProcessingHook(processor);
+                    executedProcessors.add(processor);
+                }
+            }
+            for (Pipe<?> pipe : executablePipes) {
+                if (pipe.canFire()) {
+                    pipe.transit();
+                    executedPipes.add(pipe);
+                }
+            }
+            executableProcessors.removeAll(executedProcessors);
+            executablePipes.removeAll(executedPipes);
+        } while (!executedProcessors.isEmpty());
+    }
+
+    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+        // Subclasses should add code they want to run after the execution of every processor here.
+    }
+
+    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+        // Subclasses should add code they want to run before the execution of every processor here.
     }
     
     @Override

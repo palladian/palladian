@@ -22,8 +22,8 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        String text = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+        String text = document.getContent();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
         int endPosition = 0;
