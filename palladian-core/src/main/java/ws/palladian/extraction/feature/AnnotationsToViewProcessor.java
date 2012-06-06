@@ -3,12 +3,8 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
@@ -26,7 +22,7 @@ import ws.palladian.model.features.FeatureVector;
  * @since 0.1.7
  * 
  */
-public final class AnnotationsToViewProcessor<F extends Feature<?>> extends AbstractPipelineProcessor {
+public final class AnnotationsToViewProcessor<F extends Feature<?>> extends AbstractDefaultPipelineProcessor {
 
     private final FeatureDescriptor<F> featureDescriptor;
 
@@ -38,19 +34,8 @@ public final class AnnotationsToViewProcessor<F extends Feature<?>> extends Abst
         this.featureDescriptor = featureDescriptor;
     }
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     * 
-     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     */
-    public AnnotationsToViewProcessor(Collection<Pair<String, String>> documentToInputMapping,
-            FeatureDescriptor<F> featureDescriptor) {
-        super(documentToInputMapping);
-        this.featureDescriptor = featureDescriptor;
-    }
-
     @Override
-    protected void processDocument(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector vector = document.getFeatureVector();
         List<Feature<F>> features = vector.getAll(featureDescriptor.getType());
 
@@ -59,6 +44,6 @@ public final class AnnotationsToViewProcessor<F extends Feature<?>> extends Abst
             ret.append(feature.getValue());
             ret.append(" ");
         }
-        document.setModifiedContent(ret.toString());
+        document.setContent(ret.toString());
     }
 }

@@ -3,25 +3,29 @@ package ws.palladian.extraction.feature;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
-public class TfIdfAnnotator implements PipelineProcessor {
+public class TfIdfAnnotator extends AbstractDefaultPipelineProcessor {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7141800895567075625L;
     public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.tfidf";
     public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
             PROVIDED_FEATURE, NumericFeature.class);
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE + "\" is missing.");
+            throw new IllegalStateException("The required feature \"" + TokenizerInterface.PROVIDED_FEATURE
+                    + "\" is missing.");
         }
         List<Annotation> tokenList = annotationFeature.getValue();
         for (Annotation annotation : tokenList) {

@@ -5,11 +5,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureVector;
 
-public abstract class TokenRemover implements PipelineProcessor {
+public abstract class TokenRemover extends AbstractDefaultPipelineProcessor {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1534373279424286147L;
 
     public TokenRemover() {
         super();
@@ -18,7 +22,7 @@ public abstract class TokenRemover implements PipelineProcessor {
     protected abstract boolean remove(Annotation annotation);
 
     @Override
-    public final void process(PipelineDocument document) {
+    public final void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

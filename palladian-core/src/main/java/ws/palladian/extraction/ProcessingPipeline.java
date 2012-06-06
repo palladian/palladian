@@ -13,7 +13,6 @@ import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.extraction.helper.StopWordRemover;
 import ws.palladian.extraction.helper.WordCounter;
-import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -45,7 +44,7 @@ public class ProcessingPipeline implements Serializable {
      * </p>
      */
     private List<PipelineProcessor<?>> pipelineProcessors;
-    private List<Transition<?>> transitions;
+    private List<Pipe<?>> pipes;
 
     /**
      * <p>
@@ -55,6 +54,7 @@ public class ProcessingPipeline implements Serializable {
      */
     public ProcessingPipeline() {
         pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
+        pipes = new ArrayList<Pipe<?>>();
     }
 
     /**
@@ -73,7 +73,7 @@ public class ProcessingPipeline implements Serializable {
 
                 Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
                 if ("defaultInput".equals(inputPort.getName()) && "defaultOutput".equals(previousOutputPort.getName())) {
-                    add(new Transition(previousOutputPort, inputPort));
+                    add(new Pipe(previousOutputPort, inputPort));
                 }
             }
         }
@@ -82,8 +82,8 @@ public class ProcessingPipeline implements Serializable {
         pipelineProcessors.add(pipelineProcessor);
     }
 
-    public final void add(Transition<?> transition) {
-        transitions.add(transition);
+    public final void add(Pipe<?> transition) {
+        pipes.add(transition);
     }
 
     /**
@@ -121,35 +121,40 @@ public class ProcessingPipeline implements Serializable {
     }
 
     public void process() throws DocumentUnprocessableException {
-        StopWatch stopWatch = new StopWatch();
         Collection<PipelineProcessor<?>> executableProcessors = new ArrayList<PipelineProcessor<?>>(pipelineProcessors);
-        Collection<Transition<?>> executableTransitions = new ArrayList<Transition<?>>(transitions);
+        Collection<Pipe<?>> executablePipes = new ArrayList<Pipe<?>>(pipes);
         Collection<PipelineProcessor<?>> executedProcessors = new ArrayList<PipelineProcessor<?>>();
-        Collection<Transition<?>> executedTransitions = new ArrayList<Transition<?>>();
+        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>();
 
         do {
             executedProcessors.clear();
-            executedTransitions.clear();
+            executedPipes.clear();
 
             for (PipelineProcessor<?> processor : executableProcessors) {
                 if (processor.isExecutable()) {
-                    StopWatch stopWatch2 = new StopWatch();
+                    executePreProcessingHook(processor);
                     processor.process();
-                    LOGGER.debug("processor " + processor + " took " + stopWatch2);
+                    executePostProcessingHook(processor);
                     executedProcessors.add(processor);
                 }
             }
-            for (Transition<?> transition : executableTransitions) {
-                if (transition.canFire()) {
-                    transition.transit();
-                    executedTransitions.add(transition);
+            for (Pipe<?> pipe : executablePipes) {
+                if (pipe.canFire()) {
+                    pipe.transit();
+                    executedPipes.add(pipe);
                 }
             }
             executableProcessors.removeAll(executedProcessors);
-            executableTransitions.removeAll(executedTransitions);
+            executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
+    }
 
-        LOGGER.debug("pipeline took " + stopWatch);
+    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+        // Subclasses should add code they want to run after the execution of every processor here.
+    }
+
+    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+        // Subclasses should add code they want to run before the execution of every processor here.
     }
 
     /**
@@ -186,14 +191,5 @@ public class ProcessingPipeline implements Serializable {
         classifier.train(instance);
 
         LOGGER.info(classifier.classify("This is a sample text, whether you believe it or not."));
-
-        // ProcessingPipeline pipeline = new ProcessingPipeline();
-        // PipelineProcessor processor1 = new PipelineProcessor();
-        // PipelineProcessor processor2 = new PipelineProcessor();
-        // PipelineProcessor processor3 = new PipelineProcessor();
-        // pipeline.add(processor1);
-        // pipeline.add(new Transition(processor1.getOutputPorts().get(0), processor2.getInputPorts().get(1)));
-        // pipeline.add(processor2);
-        // pipeline.add(processor3);
     }
 }

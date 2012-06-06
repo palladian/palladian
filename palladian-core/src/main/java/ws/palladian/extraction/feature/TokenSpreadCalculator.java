@@ -5,21 +5,20 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
+public final class TokenSpreadCalculator extends AbstractDefaultPipelineProcessor {
 
-public class TokenSpreadCalculator implements PipelineProcessor {
-    
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens.spread";
-    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(PROVIDED_FEATURE, NumericFeature.class);
+    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
+            PROVIDED_FEATURE, NumericFeature.class);
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
@@ -36,7 +35,7 @@ public class TokenSpreadCalculator implements PipelineProcessor {
             if (firstOccurence == null) {
                 firstOccurences.put(value, tokenPosition);
             } else {
-                firstOccurences.put(value, Math.min(tokenPosition, firstOccurence));                
+                firstOccurences.put(value, Math.min(tokenPosition, firstOccurence));
             }
             Integer lastOccurence = lastOccurences.get(value);
             if (lastOccurence == null) {
@@ -48,11 +47,10 @@ public class TokenSpreadCalculator implements PipelineProcessor {
         }
         for (Annotation annotation : tokenList) {
             String value = annotation.getValue();
-            double spread = (double) (lastOccurences.get(value) - firstOccurences.get(value)) / lastPosition;
+            double spread = (double)(lastOccurences.get(value) - firstOccurences.get(value)) / lastPosition;
             NumericFeature spreadFeature = new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, spread);
             annotation.getFeatureVector().add(spreadFeature);
         }
     }
-
 
 }

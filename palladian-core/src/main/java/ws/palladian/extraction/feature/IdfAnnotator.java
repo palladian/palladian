@@ -3,14 +3,13 @@ package ws.palladian.extraction.feature;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NumericFeature;
 
-public class IdfAnnotator implements PipelineProcessor {
+public class IdfAnnotator extends AbstractDefaultPipelineProcessor {
 
     public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.idf";
 
@@ -24,7 +23,7 @@ public class IdfAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

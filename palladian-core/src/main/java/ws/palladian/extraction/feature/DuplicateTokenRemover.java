@@ -6,16 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureVector;
 
-public class DuplicateTokenRemover implements PipelineProcessor {
+public class DuplicateTokenRemover extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void process(PipelineDocument<String> document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

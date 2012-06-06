@@ -22,7 +22,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public class FrequencyCalculator implements PipelineProcessor {
+public class FrequencyCalculator extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class FrequencyCalculator implements PipelineProcessor {
             PROVIDED_FEATURE, NumericFeature.class);
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
@@ -62,7 +62,7 @@ public class FrequencyCalculator implements PipelineProcessor {
         }
 
         for (Annotation annotation : tokenList) {
-            double frequency = (double) tokenBag.getCount(annotation.getValue()) / maxCount;
+            double frequency = (double)tokenBag.getCount(annotation.getValue()) / maxCount;
             NumericFeature frequencyFeature = new NumericFeature(PROVIDED_FEATURE, frequency);
             annotation.getFeatureVector().add(frequencyFeature);
         }

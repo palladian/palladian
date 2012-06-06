@@ -3,12 +3,7 @@
  */
 package ws.palladian.extraction.sentence;
 
-import java.util.Collection;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.PositionAnnotation;
@@ -43,24 +38,6 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     /**
      * <p>
-     * Creates a new completely initialized and ready to use sentence detector based on the implementation provided by
-     * the <a href="http://alias-i.com/lingpipe/">Lingpipe</a> framework.
-     * </p>
-     * 
-     * @param inputViewNames The names of all the input views processed when using this sentence detector as a pipeline
-     *            processor. Sentences are created from all these views.
-     */
-    public LingPipeSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-        final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
-
-        final SentenceChunker sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
-        setModel(sentenceChunker);
-    }
-
-    /**
-     * <p>
      * Creates a new completely initialized sentence detector without any parameters. The state of the new object is set
      * to default values. If used as a {@code PipelineProcessor} the new sentence detector process only the
      * "originalContent" view (see {@link ProcessingPipeline}).
@@ -79,11 +56,10 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
     public LingPipeSentenceDetector detect(String text) {
         Chunking chunking = ((SentenceChunker)getModel()).chunk(text);
         Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
-        PipelineDocument document = new PipelineDocument(text);
+        PipelineDocument<String> document = new PipelineDocument<String>(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = new PositionAnnotation(document, PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME,
-                    chunk.start(), chunk.end());
+            sentences[ite] = new PositionAnnotation(document, chunk.start(), chunk.end());
             ite++;
         }
         setSentences(sentences);
