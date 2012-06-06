@@ -8,7 +8,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -30,7 +29,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class DuplicateTokenConsolidator extends AbstractPipelineProcessor {
+public final class DuplicateTokenConsolidator extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,7 +37,7 @@ public final class DuplicateTokenConsolidator extends AbstractPipelineProcessor 
             AnnotationFeature.class);
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         AnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

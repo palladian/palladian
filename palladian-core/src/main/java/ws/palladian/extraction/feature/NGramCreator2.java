@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -27,7 +26,7 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * @author Philipp Katz
  */
-public class NGramCreator2 implements PipelineProcessor {
+public class NGramCreator2 extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -68,12 +67,12 @@ public class NGramCreator2 implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature " + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
-                    + " is missing.");
+            throw new DocumentUnprocessableException("The required feature "
+                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
@@ -101,14 +100,16 @@ public class NGramCreator2 implements PipelineProcessor {
             AnnotationGroup gramToken = new AnnotationGroup(document);
             // FIXME those extra processing steps should go to their own NGramPostprocessorAnnotator
             List<String> unstems = new ArrayList<String>();
-//            List<String> posTags = new ArrayList<String>();
+            // List<String> posTags = new ArrayList<String>();
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
                 unstems.add(tokensArray[j].getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
-//                posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
+                // posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
             }
-            gramToken.getFeatureVector().add(new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
-//            gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR, StringUtils.join(posTags, "")));
+            gramToken.getFeatureVector().add(
+                    new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
+            // gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR,
+            // StringUtils.join(posTags, "")));
             if (isConsecutive(gramToken)) {
                 gramTokens.add(gramToken);
             }
@@ -139,7 +140,8 @@ public class NGramCreator2 implements PipelineProcessor {
         return ret;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

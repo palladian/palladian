@@ -23,8 +23,8 @@ import ws.palladian.classification.WekaPredictor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -57,14 +57,14 @@ import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.NumericFeature;
 
 public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
-    
+
     static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
             NominalFeature.class);
-    
+
     // private final int TRAIN_DOC_LIMIT = Integer.MAX_VALUE;
-//    private final int TRAIN_DOC_LIMIT = 50;
+    // private final int TRAIN_DOC_LIMIT = 50;
     private final int TRAIN_DOC_LIMIT = 100;
-//    private final int TRAIN_DOC_LIMIT = 150;
+    // private final int TRAIN_DOC_LIMIT = 150;
     private final ProcessingPipeline corpusGenerationPipeline;
     private final ProcessingPipeline candidateGenerationPipeline;
     private final TermCorpus termCorpus;
@@ -93,7 +93,6 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         corpusGenerationPipeline.add(stemmer);
         corpusGenerationPipeline.add(new DuplicateTokenRemover());
 
-
         // extractionPipeline has the same steps as trainingPipeline,
         // plus idf and tf-idf annotation
         candidateGenerationPipeline = new ProcessingPipeline();
@@ -110,13 +109,14 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new TfIdfAnnotator());
         candidateGenerationPipeline.add(new PhrasenessAnnotator());
         candidateGenerationPipeline.add(new AdditionalFeatureExtractor());
-        candidateGenerationPipeline.add(new PipelineProcessor() {
-            
+        candidateGenerationPipeline.add(new AbstractDefaultPipelineProcessor() {
+
             @Override
-            public void process(PipelineDocument document) throws DocumentUnprocessableException {
+            public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
                 List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
                 for (Annotation annotation : tokenAnnotations) {
-                    double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1) / keyphraseCorpus.getNumDocs();
+                    double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1)
+                            / keyphraseCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature("prior", prior));
                 }
             }
@@ -126,8 +126,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     private Predictor<String> createClassifier() {
         return new WekaPredictor(new Bagging());
-        //return new WekaPredictor(new NaiveBayes());
-        //return new WekaPredictor(new RandomForest());
+        // return new WekaPredictor(new NaiveBayes());
+        // return new WekaPredictor(new RandomForest());
         // return new WekaPredictor(new MultilayerPerceptron());
     }
 
@@ -135,7 +135,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     public boolean needsTraining() {
         return true;
     }
-    
+
     @Override
     public void startTraining() {
         System.out.println("Building corpus ...");
@@ -164,7 +164,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         trainCount++;
     }
-    
+
     @Override
     public void endTraining() {
         System.out.println("finished building corpus, # train docs: " + trainDocuments.size());
@@ -190,7 +190,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             System.out.println(trainDocuments.size());
         }
         System.out.println("# annotations: " + annotations.size());
-        System.out.println("% sample coverage: " + (double) totallyMarked / totalKeyphrases);
+        System.out.println("% sample coverage: " + (double)totallyMarked / totalKeyphrases);
         int posSamples = 0;
         int negSamples = 0;
         List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
@@ -209,7 +209,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         System.out.println("# negative samples: " + negSamples);
         System.out.println("# positive samples: " + posSamples);
-        System.out.println("% positive sample rate: " + (double) posSamples / (negSamples+posSamples));
+        System.out.println("% positive sample rate: " + (double)posSamples / (negSamples + posSamples));
         System.out.println("building classifier ...");
         classifier.learn(instances);
         System.out.println(classifier.toString());
@@ -218,6 +218,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     /**
      * Remove those {@link Feature}s which are not to be processed by the {@link Predictor}.
+     * 
      * @param featureVector
      * @return
      */
@@ -230,7 +231,6 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         return result;
     }
 
-    
     /**
      * <p>
      * Takes a list of candidates in form of {@link Annotation}s and a list of "real" keyphrases and tries to match
@@ -303,7 +303,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         Collections.sort(result);
         return StringUtils.join(result, " ");
     }
-    
+
     private static List<String> canonicalize(Collection<String> strings) {
         List<String> result = CollectionHelper.newArrayList();
         for (String s : strings) {
@@ -319,7 +319,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         return StringUtils.join(stems, " ");
     }
-    
+
     private Set<String> stem(Set<String> strings) {
         Set<String> stems = CollectionHelper.newHashSet();
         for (String string : strings) {
@@ -327,6 +327,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         return stems;
     }
+
     @Override
     public void reset() {
         termCorpus.reset();
@@ -347,8 +348,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector()
+                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (Annotation annotation : annotations) {
@@ -361,7 +362,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             }
         }
         reRankCooccurrences(keywords);
-        //reRankOverlaps(keywords);
+        // reRankOverlaps(keywords);
         synthetesize(keywords);
         Collections.sort(keywords);
         if (keywords.size() > getKeyphraseCount()) {
@@ -376,32 +377,33 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         for (Keyphrase string : keywords) {
             keyValues.add(string.getValue());
         }
-        Map<String,Keyphrase> synthetesized = CollectionHelper.newHashMap();
-        int subSize = (int) Math.sqrt(keywords.size());
+        Map<String, Keyphrase> synthetesized = CollectionHelper.newHashMap();
+        int subSize = (int)Math.sqrt(keywords.size());
         for (Keyphrase keyphrase : keywords.subList(0, subSize)) {
-            List<Pair<String,Double>> highestPairs = cooccurrenceMatrix.getHighest(keyphrase.getValue(), 5);
+            List<Pair<String, Double>> highestPairs = cooccurrenceMatrix.getHighest(keyphrase.getValue(), 5);
             for (Pair<String, Double> pair : highestPairs) {
-                
-            String value = pair.getLeft();
-            Double weight = pair.getRight() * 1;
-            if (keyValues.contains(value)) {
-                continue;
-            }
-            if (weight < 0.01) {
-                continue;
-            }
-            if (cooccurrenceMatrix.getCount(keyphrase.getValue(), value) < 2) {
-                continue;
-            }
-            Keyphrase synthetesizedKeyphrase;
-            if (synthetesized.containsKey(value)) {
-                synthetesizedKeyphrase= synthetesized.get(value);
-                synthetesizedKeyphrase.setWeight(synthetesizedKeyphrase.getWeight() + keyphrase.getWeight() * weight);
-            } else {
-                synthetesizedKeyphrase=new Keyphrase(value);
-                synthetesizedKeyphrase.setWeight(keyphrase.getWeight() * weight);
-                synthetesized.put(value, synthetesizedKeyphrase);
-            }
+
+                String value = pair.getLeft();
+                Double weight = pair.getRight() * 1;
+                if (keyValues.contains(value)) {
+                    continue;
+                }
+                if (weight < 0.01) {
+                    continue;
+                }
+                if (cooccurrenceMatrix.getCount(keyphrase.getValue(), value) < 2) {
+                    continue;
+                }
+                Keyphrase synthetesizedKeyphrase;
+                if (synthetesized.containsKey(value)) {
+                    synthetesizedKeyphrase = synthetesized.get(value);
+                    synthetesizedKeyphrase.setWeight(synthetesizedKeyphrase.getWeight() + keyphrase.getWeight()
+                            * weight);
+                } else {
+                    synthetesizedKeyphrase = new Keyphrase(value);
+                    synthetesizedKeyphrase.setWeight(keyphrase.getWeight() * weight);
+                    synthetesized.put(value, synthetesizedKeyphrase);
+                }
             }
         }
         keywords.addAll(synthetesized.values());
@@ -432,12 +434,12 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             }
         }
     }
-    
+
     private void reRankCooccurrences(List<Keyphrase> keywords) {
-        
-        int subSize = (int) Math.sqrt(keywords.size());
+
+        int subSize = (int)Math.sqrt(keywords.size());
         Collections.sort(keywords);
-        
+
         for (Keyphrase k1 : keywords.subList(0, subSize)) {
             String value1 = k1.getValue();
             for (Keyphrase k2 : keywords.subList(0, subSize)) {

@@ -9,8 +9,8 @@ import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.model.features.Annotation;
@@ -66,10 +66,8 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
         Map<String, Double> result = new HashMap<String, Double>();
         for (Annotation annotation : feature.getValue()) {
             // String value = annotation.getValue();
-            NominalFeature stemmedValue = annotation.getFeatureVector().get(
-                    StemmerAnnotator.STEM);
-            NumericFeature frequencyFeature = annotation.getFeatureVector().get(
-                    TokenMetricsCalculator.FREQUENCY);
+            NominalFeature stemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.STEM);
+            NumericFeature frequencyFeature = annotation.getFeatureVector().get(TokenMetricsCalculator.FREQUENCY);
             result.put(stemmedValue.getValue(), frequencyFeature.getValue());
         }
         return result;

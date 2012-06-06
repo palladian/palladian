@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -30,7 +29,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class TokenMetricsCalculator extends AbstractPipelineProcessor {
+public final class TokenMetricsCalculator extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,9 +49,9 @@ public final class TokenMetricsCalculator extends AbstractPipelineProcessor {
             "ws.palladian.features.tokens.length.word", NumericFeature.class);
 
     @Override
-    protected void processDocument(PipelineDocument document) throws DocumentUnprocessableException {
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+        AnnotationFeature annotationFeature = document.getFeatureVector()
+                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature "
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");

@@ -3,9 +3,11 @@ package ws.palladian.extraction;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
 /**
  * <p>
  * A pipeline handling information processing components implemented by {@link PipelineProcessor}s to process
@@ -28,7 +30,7 @@ public class ProcessingPipeline implements Serializable {
      */
     private static final long serialVersionUID = -6173687204106619909L;
 
-	/** The logger for this class. */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
 
     /**
@@ -49,7 +51,7 @@ public class ProcessingPipeline implements Serializable {
         pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
         pipes = new ArrayList<Pipe<?>>();
     }
-    
+
     /**
      * <p>
      * Creates a new {@link ProcessingPipeline} with the {@link PipelineProcessor}s from the supplied
@@ -62,7 +64,8 @@ public class ProcessingPipeline implements Serializable {
      *            to the newly created instance.
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
+        pipelineProcessors = new ArrayList<PipelineProcessor<?>>(processingPipeline.getPipelineProcessors());
+        pipes = new ArrayList<Pipe<?>>(processingPipeline.pipes);
     }
 
     /**
@@ -164,7 +167,7 @@ public class ProcessingPipeline implements Serializable {
     protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
     }
-    
+
     @Override
     public final String toString() {
         return pipelineProcessors.toString();

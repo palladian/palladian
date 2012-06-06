@@ -39,7 +39,7 @@ public class PipelineDocument<T> {
      */
     public PipelineDocument(T content) {
         super();
-        
+
         this.featureVector = new FeatureVector();
         this.content = content;
     }
@@ -91,8 +91,7 @@ public class PipelineDocument<T> {
         this.content = content;
     }
 
-
-@Override
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("PipelineDocument [featureVector=");
@@ -107,7 +106,8 @@ public class PipelineDocument<T> {
     // but currently, the FeatureVector implementation's field is set to transient. Why? See issue #48
     // https://bitbucket.org/palladian/palladian/issue/48/transient-field-in-featurevector
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -115,11 +115,11 @@ public class PipelineDocument<T> {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((featureVector == null) ? 0 : featureVector.hashCode());
-        result = prime * result + ((views == null) ? 0 : views.hashCode());
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -130,18 +130,13 @@ public class PipelineDocument<T> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PipelineDocument other = (PipelineDocument)obj;
+        PipelineDocument<?> other = (PipelineDocument<?>)obj;
         if (featureVector == null) {
             if (other.featureVector != null)
                 return false;
         } else if (!featureVector.equals(other.featureVector))
             return false;
-        if (views == null) {
-            if (other.views != null)
-                return false;
-        } else if (!views.equals(other.views))
-            return false;
         return true;
     }
-    
+
 }
