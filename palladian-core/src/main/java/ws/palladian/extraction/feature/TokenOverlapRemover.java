@@ -4,18 +4,17 @@ import java.util.List;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
-public class TokenOverlapRemover implements PipelineProcessor {
+public final class TokenOverlapRemover extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void process(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

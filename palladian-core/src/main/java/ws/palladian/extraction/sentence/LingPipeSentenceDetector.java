@@ -45,22 +45,6 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     /**
      * <p>
-     * Creates a new completely initialized and ready to use sentence detector based on the implementation provided by
-     * the <a href="http://alias-i.com/lingpipe/">Lingpipe</a> framework.
-     * </p>
-     * 
-     * @param inputViewNames The names of all the input views processed when using this sentence detector as a pipeline
-     *            processor. Sentences are created from all these views.
-     */
-    public LingPipeSentenceDetector(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
-        sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
-    }
-
-    /**
-     * <p>
      * Creates a new completely initialized sentence detector without any parameters. The state of the new object is set
      * to default values. If used as a {@code PipelineProcessor} the new sentence detector process only the
      * "originalContent" view (see {@link ProcessingPipeline}).
@@ -77,11 +61,10 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
     public LingPipeSentenceDetector detect(String text) {
         Chunking chunking = sentenceChunker.chunk(text);
         Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
-        PipelineDocument document = new PipelineDocument(text);
+        PipelineDocument<String> document = new PipelineDocument<String>(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = new PositionAnnotation(document, PipelineProcessor.ORIGINAL_CONTENT_VIEW_NAME,
-                    chunk.start(), chunk.end());
+            sentences[ite] = new PositionAnnotation(document, chunk.start(), chunk.end());
             ite++;
         }
         setSentences(sentences);

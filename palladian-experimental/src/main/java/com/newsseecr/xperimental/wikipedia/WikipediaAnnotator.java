@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -27,7 +27,7 @@ import de.tudarmstadt.ukp.wikipedia.api.exception.WikiInitializationException;
  * 
  * @author Philipp Katz
  */
-public class WikipediaAnnotator implements PipelineProcessor {
+public class WikipediaAnnotator extends AbstractDefaultPipelineProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(WikipediaAnnotator.class);
 
@@ -63,7 +63,7 @@ public class WikipediaAnnotator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(BaseTokenizer.PROVIDED_FEATURE);
         if (annotationFeature == null) {
@@ -90,7 +90,7 @@ public class WikipediaAnnotator implements PipelineProcessor {
                 inWikipedia = true;
             } catch (WikiApiException e) {
             }
-            
+
             NominalFeature wikiFeature = new NominalFeature(PROVIDED_FEATURE_WIKIPAGE, inWikipedia + "");
             annotationFeatureVector.add(wikiFeature);
             NumericFeature inlinksFeature = new NumericFeature(PROVIDED_FEATURE_INLIKS, (double)inlinks);

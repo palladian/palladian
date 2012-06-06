@@ -3,7 +3,6 @@ package ws.palladian.extraction.feature;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.FeatureDescriptor;

@@ -6,15 +6,15 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.PositionAnnotation;
 
-public class TextPatternExtractor implements PipelineProcessor {
-    
+public class TextPatternExtractor extends AbstractDefaultPipelineProcessor {
+
     private static final long serialVersionUID = 1L;
 
     /** The logger for this class. */
@@ -22,31 +22,33 @@ public class TextPatternExtractor implements PipelineProcessor {
 
     /** Name of the feature provided by this PipelineProcessor. */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens";
-    
+
     private final NamedPattern pattern;
 
     public TextPatternExtractor(NamedPattern pattern) {
         this.pattern = pattern;
     }
+
     public TextPatternExtractor(Pattern pattern, String name) {
         this(new NamedPattern(pattern, name));
     }
+
     public TextPatternExtractor(String pattern, String name) {
         this(Pattern.compile(pattern), name);
     }
 
     @Override
-    public void process(PipelineDocument document) {
-        String content = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String content = document.getContent();
         Matcher matcher = pattern.getPattern().matcher(content);
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = (AnnotationFeature) featureVector.get(PROVIDED_FEATURE);
-        
+        AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(PROVIDED_FEATURE);
+
         if (annotationFeature == null) {
             annotationFeature = new AnnotationFeature(PROVIDED_FEATURE);
             featureVector.add(annotationFeature);
         }
-        
+
         while (matcher.find()) {
             int start = matcher.start();
             int end = matcher.end();

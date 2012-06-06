@@ -13,8 +13,9 @@ import ws.palladian.helper.StopWatch;
  * </p>
  * 
  * @author Philipp Katz
- * @version 1.0
- * @since 1.0
+ * @author Klemens Muthmann
+ * @version 2.0
+ * @since 0.1.7
  */
 public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
@@ -22,15 +23,20 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
     /** Store cumulated processing times for each single PipelineProcessor. */
     private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
+    private StopWatch sw;
 
     @Override
-    public PipelineDocument process(PipelineDocument document) throws DocumentUnprocessableException {
-        for (PipelineProcessor processor : getPipelineProcessors()) {
-            StopWatch stopWatch = new StopWatch();
-            processor.process(document);
-            addProcessingTime(processor, stopWatch.getElapsedTime());
-        }
-        return document;
+    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+        super.executePreProcessingHook(processor);
+        sw = new StopWatch();
+    }
+
+    @Override
+    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+        long elapsedTime = sw.getElapsedTime();
+        addProcessingTime(processor, elapsedTime);
+
+        super.executePostProcessingHook(processor);
     }
 
     /**
@@ -41,7 +47,7 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
      * @param processor The processor to register.
      * @param elapsedTime The time the processor took.
      */
-    private void addProcessingTime(PipelineProcessor processor, long elapsedTime) {
+    private void addProcessingTime(PipelineProcessor<?> processor, long elapsedTime) {
         String processorName = processor.getClass().getName();
         long cumulatedTime = cumulatedTimes.containsKey(processorName) ? cumulatedTimes.get(processorName) : 0;
         cumulatedTime += elapsedTime;

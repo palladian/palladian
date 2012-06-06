@@ -28,8 +28,8 @@ public final class LingPipeTokenizer extends BaseTokenizer {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String text = document.getContent();
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         int index = 0;

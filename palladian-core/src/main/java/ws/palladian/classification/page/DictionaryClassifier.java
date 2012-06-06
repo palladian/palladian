@@ -29,8 +29,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.LoremIpsumGenerator;
 
 /**
- * This classifier builds a weighed term look up table for the categories to classify new documents.
- * XXX add second dictionary: p(at|the), p(the|at) to counter the problem of sparse categories
+ * This classifier builds a weighed term look up table for the categories to
+ * classify new documents. XXX add second dictionary: p(at|the), p(the|at) to
+ * counter the problem of sparse categories
  * 
  * @author David Urbansky
  */
@@ -42,7 +43,10 @@ public class DictionaryClassifier extends TextClassifier {
     /** The context map: matrix of terms x categories with weights in cells. */
     protected Dictionary dictionary = null;
 
-    /** The path to the dictionary, whether where it should be or has been serialized. */
+    /**
+     * The path to the dictionary, whether where it should be or has been
+     * serialized.
+     */
     private String dictionaryPath = null;
 
     /** Whether to train incremental, that is much slower but scales well. */
@@ -114,14 +118,16 @@ public class DictionaryClassifier extends TextClassifier {
             // get all categories for hierarchical and tag mode
             else {
                 for (Category realCategory : trainingDocument.getRealCategories()) {
-                    // System.out.println("update " + entry.getKey() + " " + realCategory.getName());
+                    // System.out.println("update " + entry.getKey() + " " +
+                    // realCategory.getName());
                     dictionary.updateWord(entry.getKey(), realCategory.getName(), entry.getValue());
                 }
             }
         }
         dictionary.increaseNumberOfDocuments();
 
-        // co-occurrence: update the category correlation matrix of the dictionary (works but takes more time and space)
+        // co-occurrence: update the category correlation matrix of the
+        // dictionary (works but takes more time and space)
         if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
                 && classificationTypeSetting.getClassificationTypeTagSetting().isUseCooccurrence()) {
 
@@ -149,7 +155,8 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     /**
-     * <b>Note: Use this save method only if you created the DictionaryClassifier with a path.</b>
+     * <b>Note: Use this save method only if you created the
+     * DictionaryClassifier with a path.</b>
      */
     public void save() {
         save(getDictionaryPath());
@@ -176,10 +183,12 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     /**
-     * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual
-     * dictionary will be stored in the dictionary index.
+     * Serialize the dictionary. All category information and parameters will be
+     * saved in the .ser file. The actual dictionary will be stored in the
+     * dictionary index.
      * 
-     * @param classType The class type for the dictionary to distinguish the name.
+     * @param classType
+     *            The class type for the dictionary to distinguish the name.
      */
     private void saveDictionary(String path, boolean indexFirst, boolean deleteIndexFirst) {
 
@@ -194,7 +203,8 @@ public class DictionaryClassifier extends TextClassifier {
         LOGGER.info("saved model at " + path + getDictionaryName() + ".gz");
         // dictionary.saveAsCSV();
 
-        // we now have to use the index for classification because the in-memory dictionary is empty
+        // we now have to use the index for classification because the in-memory
+        // dictionary is empty
         dictionary.useIndex();
     }
 
@@ -215,7 +225,8 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         LOGGER.info("loading dictionary");
-        // XXX, we need to set this to null here so that it can be loaded, by default the classifier has an empty
+        // XXX, we need to set this to null here so that it can be loaded, by
+        // default the classifier has an empty
         // dictionary and won't load anything
         classifier.dictionary = null;
         classifier.dictionaryPath = FileHelper.getFilePath(classifierPath);
@@ -234,7 +245,8 @@ public class DictionaryClassifier extends TextClassifier {
     //
     // setDictionaryPath(dictionaryPath);
     //
-    // // XXX, we need to set this to null here so that it can be loaded, by default the classifier has an empty
+    // // XXX, we need to set this to null here so that it can be loaded, by
+    // default the classifier has an empty
     // // dictionary and won't load anything
     // dictionary = null;
     // LOGGER.info("loading dictionary");
@@ -250,7 +262,8 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     /**
-     * Load the dictionary into memory, or activate it when several have been loaded.
+     * Load the dictionary into memory, or activate it when several have been
+     * loaded.
      */
     public void loadDictionary(int classType) {
 
@@ -264,7 +277,8 @@ public class DictionaryClassifier extends TextClassifier {
 
             dictionary.setIndexPath(FileHelper.getFilePath(modelFilePath));
 
-            // all serialized dictionaries must use the index since their dictionaries are not serialized
+            // all serialized dictionaries must use the index since their
+            // dictionaries are not serialized
             dictionary.useIndex();
         }
 
@@ -302,8 +316,10 @@ public class DictionaryClassifier extends TextClassifier {
         documentCategories.add(knownCategory);
 
         TextInstance trainingDocument = preprocessDocument(instance.getTextFeature());
-        // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
-        // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
+        // ClassificationDocument trainingDocument =
+        // preprocessor.preProcessDocument(annotation.getLeftContext() +
+        // " "+ annotation.getEntity().getName() + " " +
+        // annotation.getRightContext());
         trainingDocument.setDocumentType(TextInstance.TRAINING);
         trainingDocument.setRealCategories(documentCategories);
         // getTrainingDocuments().add(trainingDocument);
@@ -340,7 +356,8 @@ public class DictionaryClassifier extends TextClassifier {
 
     }
 
-    // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry,
+    // protected abstract double calculateRelevance(Category category,
+    // Map.Entry<String, Double> categoryEntry,
     // Map.Entry<String, Double> weightedTerm);
     protected double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> map) {
         return 0.0;
@@ -397,8 +414,10 @@ public class DictionaryClassifier extends TextClassifier {
 
         // dictionary.calculateCategoryPriors();
 
-        // count the number of categories that are somehow relevant for the current document
-        // Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
+        // count the number of categories that are somehow relevant for the
+        // current document
+        // Map<String, Integer> relevantCategories = new HashMap<String,
+        // Integer>();
 
         // iterate through all weighted terms in the document
         for (Map.Entry<Term, Double> weightedTerm : document.getWeightedTerms().entrySet()) {
@@ -408,32 +427,43 @@ public class DictionaryClassifier extends TextClassifier {
             if (!dictionaryCategoryEntries.isEmpty()) {
 
                 /**
-                 * XXX Attention: The following loop will create *loads* of CategoryEntry instances, filling up the
-                 * memory in no time. We only need this for Bayes + La Place; which is commented out below. Elsewise
-                 * this code is not neccessary. It will slow down the classification process significantly and consume
+                 * XXX Attention: The following loop will create *loads* of
+                 * CategoryEntry instances, filling up the memory in no time. We
+                 * only need this for Bayes + La Place; which is commented out
+                 * below. Elsewise this code is not neccessary. It will slow
+                 * down the classification process significantly and consume
                  * great amounts of memory! -- Philipp, 2010-07-21.
                  * 
-                 * Performance comparison (1000 Entries, Tagging, Bigrams):
-                 * 4:38 Minutes, 309 MB vs. 0:18 Minutes, 72 MB
+                 * Performance comparison (1000 Entries, Tagging, Bigrams): 4:38
+                 * Minutes, 309 MB vs. 0:18 Minutes, 72 MB
                  * 
                  */
-                // // add empty category entries for categories that did not match the term
+                // // add empty category entries for categories that did not
+                // match the term
                 // for (CategoryEntry ce : bestFitList) {
-                // if (!dictionaryCategoryEntries.hasEntryWithCategory(ce.getCategory())) {
-                // dictionaryCategoryEntries.add(new CategoryEntry(dictionaryCategoryEntries, ce.getCategory(), 0));
+                // if
+                // (!dictionaryCategoryEntries.hasEntryWithCategory(ce.getCategory()))
+                // {
+                // dictionaryCategoryEntries.add(new
+                // CategoryEntry(dictionaryCategoryEntries, ce.getCategory(),
+                // 0));
                 // } else {
-                // Integer relevanceCount0 = relevantCategories.get(ce.getCategory().getName());
+                // Integer relevanceCount0 =
+                // relevantCategories.get(ce.getCategory().getName());
                 // if (relevanceCount0 == null) {
                 // relevantCategories.put(ce.getCategory().getName(), 1);
                 // } else {
-                // int relevanceCount = relevantCategories.get(ce.getCategory().getName());
+                // int relevanceCount =
+                // relevantCategories.get(ce.getCategory().getName());
                 // relevanceCount++;
-                // relevantCategories.put(ce.getCategory().getName(), relevanceCount);
+                // relevantCategories.put(ce.getCategory().getName(),
+                // relevanceCount);
                 // }
                 // }
                 // }
 
-                // iterate through all categories in the dictionary for the weighted term
+                // iterate through all categories in the dictionary for the
+                // weighted term
                 for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
                     String categoryName = categoryEntry.getCategory().getName();
                     CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
@@ -441,7 +471,8 @@ public class DictionaryClassifier extends TextClassifier {
                         continue;
                     }
 
-                    // in tag mode, boost the category entry if the category is part of the URL
+                    // in tag mode, boost the category entry if the category is
+                    // part of the URL
                     if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
                             && classificationTypeSetting.getClassificationTypeTagSetting().isTagBoost()) {
                         if (classType == ClassificationTypeSetting.TAG
@@ -451,8 +482,10 @@ public class DictionaryClassifier extends TextClassifier {
                         }
                     }
 
-                    // double relevance = calculateRelevance(c,categoryEntry,weightedTerm);
-                    // double relevance = calculateRelevance(c,weightedTerm.getText());
+                    // double relevance =
+                    // calculateRelevance(c,categoryEntry,weightedTerm);
+                    // double relevance =
+                    // calculateRelevance(c,weightedTerm.getText());
                     // c.setRelevance(relevance);
 
                     // add the absolute weight of the term to the category
@@ -461,48 +494,64 @@ public class DictionaryClassifier extends TextClassifier {
                     // add the absolute weight of the term to the category
                     if (categoryEntry.getRelevance() > 0) {
                         // c.addAbsoluteRelevance(weightedTerm.getValue());
-                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance());
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() *
+                        // categoryEntry.getRelevance());
 
                         // use prior AND relevance
-                        // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior() * weightedTerm.getValue()
+                        // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior()
+                        // * weightedTerm.getValue()
                         // * categoryEntry.getRelevance());
 
                         // use prior only
                         // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
 
-                        // int frequency = categoryEntry.getCategory().getFrequency();
-                        // System.out.println(frequency + " x in " + categoryEntry.getCategory().getName());
-                        // double mult = categoryEntry.getAbsoluteRelevance() / frequency;
+                        // int frequency =
+                        // categoryEntry.getCategory().getFrequency();
+                        // System.out.println(frequency + " x in " +
+                        // categoryEntry.getCategory().getName());
+                        // double mult = categoryEntry.getAbsoluteRelevance() /
+                        // frequency;
 
-                        // c.addAbsoluteRelevance(mult * categoryEntry.getRelevance());
+                        // c.addAbsoluteRelevance(mult *
+                        // categoryEntry.getRelevance());
 
                         // use relevance
                         c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()
                                 * categoryEntry.getRelevance());
                         // c.multAbsRel(categoryEntry.getRelevance());
 
-                        // if (weightedTerm.getKey().getText().equalsIgnoreCase("the")) {
+                        // if
+                        // (weightedTerm.getKey().getText().equalsIgnoreCase("the"))
+                        // {
                         // System.out.println("the");
-                        // System.out.println("appears " + categoryEntry.getAbsoluteRelevance() + " times in "
+                        // System.out.println("appears " +
+                        // categoryEntry.getAbsoluteRelevance() + " times in "
                         // + categoryEntry.getCategory().getName());
-                        // System.out.println("that is " + categoryEntry.getAbsoluteRelevance() + " out of "
-                        // + categoryEntry.getCategory().getFrequency() + " times the category occurs");
+                        // System.out.println("that is " +
+                        // categoryEntry.getAbsoluteRelevance() + " out of "
+                        // + categoryEntry.getCategory().getFrequency() +
+                        // " times the category occurs");
                         // }
 
                         // weight by category prior
-                        // double relevanceToAdd = weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // double relevanceToAdd = weightedTerm.getValue() *
+                        // categoryEntry.getRelevance()
                         // / categoryEntry.getCategory().getPrior();
                         // c.addAbsoluteRelevance(relevanceToAdd);
                         //
                         // categoryEntry.getCategory().getFrequency();
 
-                        // c.multAbsRel(weightedTerm.getValue() * categoryEntry.getRelevance()
+                        // c.multAbsRel(weightedTerm.getValue() *
+                        // categoryEntry.getRelevance()
                         // * categoryEntry.getRelevance());
 
-                        // double idf = categoryEntry.getAbsoluteRelevance() / (double)
+                        // double idf = categoryEntry.getAbsoluteRelevance() /
+                        // (double)
                         // dictionary.getNumberOfDocuments();
-                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance() * idf);
-                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getAbsoluteRelevance());
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() *
+                        // categoryEntry.getRelevance() * idf);
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() *
+                        // categoryEntry.getAbsoluteRelevance());
                     }
 
                     // c.addAbsoluteRelevance(weightedTerm.getValue()*categoryEntry.getRelevance()*categoryEntry.getCategory().getPrior());
@@ -530,8 +579,10 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         // XXX: experimental
-        // for (Entry<String, Integer> relevantCategory : relevantCategories.entrySet()) {
-        // CategoryEntry c = bestFitList.getCategoryEntry(relevantCategory.getKey());
+        // for (Entry<String, Integer> relevantCategory :
+        // relevantCategories.entrySet()) {
+        // CategoryEntry c =
+        // bestFitList.getCategoryEntry(relevantCategory.getKey());
         // c.multAbsRel(relevantCategory.getValue());
         // }
 
@@ -578,7 +629,8 @@ public class DictionaryClassifier extends TextClassifier {
                 }
             }
 
-            // System.out.println("main category: " +document.getMainCategory().getName());
+            // System.out.println("main category: "
+            // +document.getMainCategory().getName());
             CategoryEntries hiearchyCategories = new CategoryEntries();
             String mc = document.getMainCategoryEntry().getCategory().getName();
             try {
@@ -656,24 +708,24 @@ public class DictionaryClassifier extends TextClassifier {
 
     @Override
     public TextInstance preprocessDocument(String text, TextInstance classificationDocument) {
-        PipelineDocument processedDocument;
+        PipelineDocument<String> processedDocument;
         try {
-            processedDocument = processingPipeline.process(new PipelineDocument(text));
+            processedDocument = processingPipeline.process(new PipelineDocument<String>(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        return preprocessor.preProcessDocument(processedDocument.getModifiedContent(), classificationDocument);
+        return preprocessor.preProcessDocument(processedDocument.getContent(), classificationDocument);
     }
 
     @Override
     public TextInstance preprocessDocument(String text) {
-        PipelineDocument processedDocument;
+        PipelineDocument<String> processedDocument;
         try {
-            processedDocument = processingPipeline.process(new PipelineDocument(text));
+            processedDocument = processingPipeline.process(new PipelineDocument<String>(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        return preprocessor.preProcessDocument(processedDocument.getModifiedContent());
+        return preprocessor.preProcessDocument(processedDocument.getContent());
     }
 
     public Dictionary getDictionary() {
@@ -730,13 +782,16 @@ public class DictionaryClassifier extends TextClassifier {
      * faster since copies of classifiers are created which all use the same dictionary (read-only).
      * </p>
      * 
-     * @param classifier The classifier to use (will be copied).
-     * @param text The text to classify.
+     * @param classifier
+     *            The classifier to use (will be copied).
+     * @param text
+     *            The text to classify.
      * @return The classified text instance.
      */
     public static TextInstance classify(DictionaryClassifier classifier, String text) {
 
-        // TODO: DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+        // TODO: DictionaryClassifier copy = (DictionaryClassifier)
+        // classifier.copy();
         DictionaryClassifier copy = new DictionaryClassifier();
         copy.setDictionary(classifier.getDictionary());
         copy.setCategories(classifier.getCategories());
@@ -765,15 +820,18 @@ public class DictionaryClassifier extends TextClassifier {
                 @Override
                 public void run() {
                     StopWatch sw2 = new StopWatch();
-                    // TextInstance classify = classifier.classify(LoremIpsumGenerator.getRandomText(100));
+                    // TextInstance classify =
+                    // classifier.classify(LoremIpsumGenerator.getRandomText(100));
                     // TextInstance classify =
                     // DictionaryClassifier.classify(classifier,LoremIpsumGenerator.getRandomText(100));
-                    // DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+                    // DictionaryClassifier copy = (DictionaryClassifier)
+                    // classifier.copy();
                     DictionaryClassifier dc2 = dc2Pool.get();
                     // System.out.println(dc2.getName());
                     TextInstance classify = dc2.classify(LoremIpsumGenerator.getRandomText(100));
                     dc2Pool.release(dc2);
-                    // TextInstance classify = dc2Pool.classify(LoremIpsumGenerator.getRandomText(100));
+                    // TextInstance classify =
+                    // dc2Pool.classify(LoremIpsumGenerator.getRandomText(100));
                     System.out.println(sw2.getElapsedTimeString() + " in current thread");
                     longs.add(sw2.getElapsedTime());
                 }
@@ -791,9 +849,11 @@ public class DictionaryClassifier extends TextClassifier {
 
         // thread safe:
         // synchronized: avg. time per thread: 957.595, 1073.045, 1098.385
-        // static: avg. time per thread: 80.75, 450.79, 272.485, 196.635, 51.01, 398.265
+        // static: avg. time per thread: 80.75, 450.79, 272.485, 196.635, 51.01,
+        // 398.265
         // pooled: avg. time per thread: 1126.855, 853.05, 646.7, 879.77
-        // pooled with getting and releasing: 1844.025, 1086.12, 935.965, 762.525, 968.975
+        // pooled with getting and releasing: 1844.025, 1086.12, 935.965,
+        // 762.525, 968.975
     }
 
     public static void main(String[] args) {

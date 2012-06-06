@@ -22,8 +22,8 @@ public final class RegExTokenizer extends BaseTokenizer {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String text = document.getContent();
         Matcher matcher = Tokenizer.SPLIT_PATTERN.matcher(text);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
         int index = 0;

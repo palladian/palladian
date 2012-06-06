@@ -6,13 +6,12 @@ import java.util.Set;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
-public class TermCorpusBuilder implements PipelineProcessor {
+public class TermCorpusBuilder extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
     private final TermCorpus termCorpus;
@@ -26,7 +25,7 @@ public class TermCorpusBuilder implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) throws DocumentUnprocessableException {
+    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

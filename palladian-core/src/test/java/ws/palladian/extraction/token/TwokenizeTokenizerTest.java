@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -26,10 +25,10 @@ public class TwokenizeTokenizerTest {
             "@e_one", ":", "Texas", "(", "cont", ")", "http://tl.gd/6meogh"};
 
     @Test
-    public void testTwokenizeTokenizer() throws DocumentUnprocessableException {
+    public void testTwokenizeTokenizer() throws Exception {
         TwokenizeTokenizer tokenizer = new TwokenizeTokenizer();
-        PipelineDocument document = new PipelineDocument(TWEET);
-        tokenizer.process(document);
+        PipelineDocument<String> document = new PipelineDocument<String>(TWEET);
+        tokenizer.processDocument(document);
         AnnotationFeature annotationFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotationList = annotationFeature.getValue();
         assertEquals(TOKENS.length, annotationList.size());

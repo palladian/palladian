@@ -1,6 +1,7 @@
 package ws.palladian.extraction;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ws.palladian.model.features.FeatureVector;
 
@@ -17,33 +18,28 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * @version 2.0
+ * @version 3.0
  * @since 0.0.8
  */
-public interface PipelineProcessor extends Serializable {
+public interface PipelineProcessor<T> extends Serializable {
 
-    /**
-     * <p>
-     * The name of the default original content view.
-     * </p>
-     */
-    String ORIGINAL_CONTENT_VIEW_NAME = "originalContent";
-    /**
-     * <p>
-     * The name of the default modified content view.
-     * </p>
-     */
-    String MODIFIED_CONTENT_VIEW_NAME = "modifiedContent";
+    // /**
+    // * <p>
+    // * Execute the implemented algorithm on the provided {@link PipelineDocument}.
+    // * </p>
+    // *
+    // * @param document
+    // * The document to be processed by this processor.
+    // * @throws DocumentUnprocessableException
+    // * If the {@code document} could not be processed by this {@code PipelineProcessor}.
+    // */
+    // void process(PipelineDocument<T> document) throws DocumentUnprocessableException;
 
-    /**
-     * <p>
-     * Execute the implemented algorithm on the provided {@link PipelineDocument}.
-     * </p>
-     * 
-     * @param document The document to be processed by this processor.
-     * @throws DocumentUnprocessableException If the {@code document} could not be processed by this
-     *             {@code PipelineProcessor}.
-     */
-    void process(PipelineDocument document) throws DocumentUnprocessableException;
+    void process() throws DocumentUnprocessableException;
 
+    List<Port<?>> getInputPorts();
+
+    List<Port<?>> getOutputPorts();
+
+    Boolean isExecutable();
 }

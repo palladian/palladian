@@ -3,11 +3,6 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Collection;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 
 /**
@@ -19,7 +14,7 @@ import ws.palladian.extraction.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public class LowerCaser extends AbstractPipelineProcessor {
+public final class LowerCaser extends AbstractDefaultPipelineProcessor {
 
     /**
      * <p>
@@ -35,21 +30,11 @@ public class LowerCaser extends AbstractPipelineProcessor {
         super();
     }
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     * 
-     * @param documentToInputMapping {@see AbstractPipelineProcessor#AbstractPipelineProcessor(Collection)}
-     */
-    public LowerCaser(Collection<Pair<String, String>> documentToInputMapping) {
-        super(documentToInputMapping);
-        // TODO Auto-generated constructor stub
-    }
-
     @Override
-    protected void processDocument(PipelineDocument document) {
-        String text = document.getOriginalContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String text = document.getContent();
         String modifiedText = text.toLowerCase();
-        document.setModifiedContent(modifiedText);
+        document.setContent(modifiedText);
     }
 
 }

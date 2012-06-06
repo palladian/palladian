@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-public class StopWordRemover implements PipelineProcessor {
+public class StopWordRemover extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 5014188120999997379L;
 
@@ -38,12 +38,12 @@ public class StopWordRemover implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
-        String content = document.getModifiedContent();
+    public void processDocument(PipelineDocument<String> document) {
+        String content = document.getContent();
 
         content = removeStopWords(content);
 
-        document.setModifiedContent(content);
+        document.setContent(content);
     }
 
     public static void main(String[] args) {
