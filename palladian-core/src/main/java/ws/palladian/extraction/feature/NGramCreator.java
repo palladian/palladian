@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
 import ws.palladian.model.features.FeatureVector;
 
@@ -17,7 +16,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public class NGramCreator implements PipelineProcessor {
+public final class NGramCreator extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -58,7 +57,7 @@ public class NGramCreator implements PipelineProcessor {
     }
 
     @Override
-    public void process(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = (AnnotationFeature)featureVector.get(TokenizerInterface.PROVIDED_FEATURE);
         if (annotationFeature == null) {

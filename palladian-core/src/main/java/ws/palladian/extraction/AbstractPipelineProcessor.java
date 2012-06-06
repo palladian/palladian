@@ -57,21 +57,6 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         allOutputPortsAvailable();
     }
 
-    //
-    // @Override
-    // public final void process(PipelineDocument<T> document) throws DocumentUnprocessableException {
-    // Validate.notNull(document);
-    // Validate.isTrue(inputPorts.size() == 1);
-    // Validate.isTrue(outputPorts.size() == 1);
-    // Validate.isTrue(inputPorts.get(0).getName().equals("defaultInput"));
-    // Validate.isTrue(outputPorts.get(0).getName().equals("defaultOutput"));
-    //
-    // ((Port<T>)inputPorts.get(0)).setPipelineDocument(document);
-    // allInputPortsAvailable();
-    // processDocument();
-    // allOutputPortsAvailable();
-    // }
-
     /**
      * <p>
      * Apply the algorithm implemented by this {@code PipelineProcessor} to a {@code PipelineDocument}. This is the
@@ -150,7 +135,7 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         return (PipelineDocument<T>)inputPorts.get(0).getPipelineDocument();
     }
 
-    protected PipelineDocument<T> getDefaultOutput() {
-        return (PipelineDocument<T>)outputPorts.get(0).getPipelineDocument();
+    protected void setDefaultOutput(PipelineDocument<T> document) {
+        ((Port<T>)outputPorts.get(0)).setPipelineDocument(document);
     }
 }

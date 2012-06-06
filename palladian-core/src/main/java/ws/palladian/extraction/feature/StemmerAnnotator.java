@@ -7,7 +7,6 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.TokenizerInterface;
@@ -27,7 +26,7 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * @author Philipp Katz
  */
-public class StemmerAnnotator extends AbstractPipelineProcessor {
+public class StemmerAnnotator extends AbstractDefaultPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
@@ -91,7 +90,7 @@ public class StemmerAnnotator extends AbstractPipelineProcessor {
     }
 
     @Override
-    protected void processDocument(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {

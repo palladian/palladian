@@ -3,10 +3,10 @@ package ws.palladian.preprocessing.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.PositionAnnotation;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
@@ -33,8 +33,10 @@ import ws.palladian.model.features.Feature;
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
+ * @version 2.0
+ * @since 0.1.7
  */
-public final class QuestionAnnotator extends AbstractPipelineProcessor {
+public final class QuestionAnnotator extends AbstractDefaultPipelineProcessor {
 
     /**
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -46,7 +48,7 @@ public final class QuestionAnnotator extends AbstractPipelineProcessor {
     public final static String FEATURE_IDENTIFIER = "ws.palladian.features.question";
 
     @Override
-    public void processDocument(PipelineDocument document) {
+    public void processDocument(PipelineDocument<String> document) {
         Feature<List<Annotation>> sentences = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> questions = new ArrayList<Annotation>();

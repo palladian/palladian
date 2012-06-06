@@ -6,11 +6,11 @@ import java.util.List;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
+import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
 import ws.palladian.extraction.feature.Annotation;
 import ws.palladian.extraction.feature.AnnotationFeature;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
@@ -50,9 +50,9 @@ public class PipelineTest {
         pipeline.add(new DuplicateTokenRemover());
         pipeline.add(new WikipediaAnnotator());
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
-        pipeline.add(new PipelineProcessor() {
+        pipeline.add(new AbstractDefaultPipelineProcessor() {
             @Override
-            public void process(PipelineDocument document) {
+            public void processDocument(PipelineDocument<String> document) {
                 FeatureVector featureVector = document.getFeatureVector();
                 AnnotationFeature annotationFeature = (AnnotationFeature)featureVector
                         .get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);

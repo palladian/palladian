@@ -10,11 +10,11 @@ import org.apache.commons.lang.Validate;
  * @version 1.0
  * @since 0.1.7
  */
-public final class Transition<T> {
+public final class Pipe<T> {
     private final Port<T> inputPort;
     private final Port<T> outputPort;
 
-    public Transition(final Port<T> inputPort, final Port<T> outputPort) {
+    public Pipe(final Port<T> inputPort, final Port<T> outputPort) {
         super();
         Validate.notNull(inputPort);
         Validate.notNull(outputPort);
