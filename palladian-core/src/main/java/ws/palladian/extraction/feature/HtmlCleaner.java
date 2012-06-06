@@ -3,6 +3,8 @@
  */
 package ws.palladian.extraction.feature;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -30,7 +32,7 @@ public final class HtmlCleaner extends AbstractDefaultPipelineProcessor {
     public final void processDocument(PipelineDocument<String> document) {
         String text = document.getContent();
         String cleanedText = HtmlHelper.stripHtmlTags(text);
-        cleanedText = StringEscapeUtils.unescapeHtml(cleanedText);
+        cleanedText = StringEscapeUtils.unescapeHtml4(cleanedText);
         document.setContent(cleanedText);
     }
 }

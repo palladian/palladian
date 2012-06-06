@@ -6,11 +6,7 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
-<<<<<<< HEAD
 import ws.palladian.extraction.DocumentUnprocessableException;
-=======
-import ws.palladian.extraction.PipelineDocument;
->>>>>>> refs/remotes/origin/feature-genericpipelinedocuments
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
@@ -28,11 +24,7 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * @author Philipp Katz
  */
-<<<<<<< HEAD
 public final class StemmerAnnotator extends AbstractTokenProcessor {
-=======
-public class StemmerAnnotator extends AbstractDefaultPipelineProcessor {
->>>>>>> refs/remotes/origin/feature-genericpipelinedocuments
 
     private static final long serialVersionUID = 1L;
 
@@ -134,7 +126,6 @@ public class StemmerAnnotator extends AbstractDefaultPipelineProcessor {
     }
 
     @Override
-<<<<<<< HEAD
     protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
         String unstem = annotation.getValue();
         String stem = stem(unstem);
@@ -146,20 +137,6 @@ public class StemmerAnnotator extends AbstractDefaultPipelineProcessor {
                 annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
                 annotation.setValue(stem);
                 break;
-=======
-    public void processDocument(PipelineDocument<String> document) {
-        FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(TokenizerInterface.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new IllegalStateException("The required feature " + TokenizerInterface.PROVIDED_FEATURE
-                    + " is missing.");
-        }
-        List<Annotation> annotations = annotationFeature.getValue();
-        for (Annotation annotation : annotations) {
-            String stem = stem(annotation.getValue());
-            NominalFeature stemFeature = new NominalFeature(PROVIDED_FEATURE, stem);
-            annotation.getFeatureVector().add(stemFeature);
->>>>>>> refs/remotes/origin/feature-genericpipelinedocuments
         }
     }
 
