@@ -10,7 +10,7 @@ import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
@@ -48,7 +48,7 @@ public class PipelineTest {
         pipeline.add(new DuplicateTokenRemover());
         pipeline.add(new WikipediaAnnotator());
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
-        pipeline.add(new AbstractDefaultPipelineProcessor() {
+        pipeline.add(new StringDocumentPipelineProcessor() {
             @Override
             public void processDocument(PipelineDocument<String> document) {
                 FeatureVector featureVector = document.getFeatureVector();

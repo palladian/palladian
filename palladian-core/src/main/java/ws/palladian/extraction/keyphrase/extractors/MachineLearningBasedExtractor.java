@@ -24,7 +24,7 @@ import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -109,7 +109,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new TfIdfAnnotator());
         candidateGenerationPipeline.add(new PhrasenessAnnotator());
         candidateGenerationPipeline.add(new AdditionalFeatureExtractor());
-        candidateGenerationPipeline.add(new AbstractDefaultPipelineProcessor() {
+        candidateGenerationPipeline.add(new StringDocumentPipelineProcessor() {
 
             @Override
             public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {

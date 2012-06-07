@@ -9,7 +9,7 @@ import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
-public final class TokenOverlapRemover extends AbstractDefaultPipelineProcessor {
+public final class TokenOverlapRemover extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

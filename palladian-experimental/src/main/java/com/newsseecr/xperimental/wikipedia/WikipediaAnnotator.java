@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -27,7 +27,7 @@ import de.tudarmstadt.ukp.wikipedia.api.exception.WikiInitializationException;
  * 
  * @author Philipp Katz
  */
-public class WikipediaAnnotator extends AbstractDefaultPipelineProcessor {
+public class WikipediaAnnotator extends StringDocumentPipelineProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(WikipediaAnnotator.class);
 

@@ -6,7 +6,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
@@ -20,7 +20,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer extends AbstractDefaultPipelineProcessor {
+public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

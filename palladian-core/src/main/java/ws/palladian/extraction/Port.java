@@ -33,8 +33,6 @@ public final class Port<T> {
     }
 
     public void setPipelineDocument(final PipelineDocument<T> document) {
-        Validate.notNull(document);
-
         this.document = document;
     }
 

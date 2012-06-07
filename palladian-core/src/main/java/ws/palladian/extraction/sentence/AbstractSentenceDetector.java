@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
@@ -47,7 +47,7 @@ import ws.palladian.model.features.FeatureDescriptorBuilder;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends AbstractDefaultPipelineProcessor {
+public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor {
 
     /**
      * <p>

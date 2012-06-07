@@ -46,17 +46,23 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
 
     public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
         super();
-        
-		this.inputPorts = new ArrayList<Port<?>>(inputPorts);
+
+        this.inputPorts = new ArrayList<Port<?>>(inputPorts);
         this.outputPorts = new ArrayList<Port<?>>(outputPorts);
     }
-
 
     @Override
     public final void process() throws DocumentUnprocessableException {
         allInputPortsAvailable();
         processDocument();
         allOutputPortsAvailable();
+        cleanInputPorts();
+    }
+
+    private void cleanInputPorts() {
+        for (Port<?> inputPort : getInputPorts()) {
+            inputPort.setPipelineDocument(null);
+        }
     }
 
     /**

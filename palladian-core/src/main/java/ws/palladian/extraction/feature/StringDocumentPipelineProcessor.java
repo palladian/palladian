@@ -12,7 +12,7 @@ import ws.palladian.extraction.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public abstract class AbstractDefaultPipelineProcessor extends AbstractPipelineProcessor<String> {
+public abstract class StringDocumentPipelineProcessor extends AbstractPipelineProcessor<String> {
     /**
      * 
      */

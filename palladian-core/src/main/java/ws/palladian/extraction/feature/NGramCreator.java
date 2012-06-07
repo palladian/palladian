@@ -23,7 +23,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class NGramCreator extends AbstractDefaultPipelineProcessor {
+public final class NGramCreator extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

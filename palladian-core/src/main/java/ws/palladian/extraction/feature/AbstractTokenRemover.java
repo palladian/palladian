@@ -20,7 +20,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractTokenRemover extends AbstractDefaultPipelineProcessor {
+public abstract class AbstractTokenRemover extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

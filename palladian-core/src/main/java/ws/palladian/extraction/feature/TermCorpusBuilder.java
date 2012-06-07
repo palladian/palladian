@@ -11,7 +11,7 @@ import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureVector;
 
-public class TermCorpusBuilder extends AbstractDefaultPipelineProcessor {
+public class TermCorpusBuilder extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
     private final TermCorpus termCorpus;

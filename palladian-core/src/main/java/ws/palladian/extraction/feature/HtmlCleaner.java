@@ -19,7 +19,7 @@ import ws.palladian.helper.html.HtmlHelper;
  * @version 1.0
  * @since 0.1.7
  */
-public final class HtmlCleaner extends AbstractDefaultPipelineProcessor {
+public final class HtmlCleaner extends StringDocumentPipelineProcessor {
 
     /**
      * <p>
