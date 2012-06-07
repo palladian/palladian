@@ -29,7 +29,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class DuplicateTokenConsolidator extends AbstractDefaultPipelineProcessor {
+public final class DuplicateTokenConsolidator extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

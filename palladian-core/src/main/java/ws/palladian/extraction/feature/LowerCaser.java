@@ -14,7 +14,7 @@ import ws.palladian.extraction.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public final class LowerCaser extends AbstractDefaultPipelineProcessor {
+public final class LowerCaser extends StringDocumentPipelineProcessor {
 
     /**
      * <p>

@@ -708,9 +708,9 @@ public class DictionaryClassifier extends TextClassifier {
 
     @Override
     public TextInstance preprocessDocument(String text, TextInstance classificationDocument) {
-        PipelineDocument<String> processedDocument;
+        PipelineDocument<String> processedDocument = new PipelineDocument<String>(text);
         try {
-            processedDocument = processingPipeline.process(new PipelineDocument<String>(text));
+            processingPipeline.process(processedDocument);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }

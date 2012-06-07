@@ -21,7 +21,7 @@ import ws.palladian.model.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractTokenProcessor extends AbstractDefaultPipelineProcessor {
+public abstract class AbstractTokenProcessor extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

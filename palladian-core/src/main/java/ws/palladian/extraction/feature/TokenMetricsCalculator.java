@@ -29,7 +29,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class TokenMetricsCalculator extends AbstractDefaultPipelineProcessor {
+public final class TokenMetricsCalculator extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

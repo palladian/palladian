@@ -1,11 +1,11 @@
 package ws.palladian.extraction.helper;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.model.features.NumericFeature;
 
-public class WordCounter extends AbstractDefaultPipelineProcessor {
+public class WordCounter extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 4592668328026315402L;
 

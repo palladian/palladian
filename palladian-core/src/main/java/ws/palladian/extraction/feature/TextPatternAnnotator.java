@@ -10,7 +10,7 @@ import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.PositionAnnotation;
 
-public class TextPatternAnnotator extends AbstractDefaultPipelineProcessor {
+public class TextPatternAnnotator extends StringDocumentPipelineProcessor {
 
     /**
 	 * 

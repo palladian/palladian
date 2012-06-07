@@ -22,7 +22,7 @@ import ws.palladian.model.features.FeatureVector;
  * @since 0.1.7
  * 
  */
-public final class AnnotationsToViewProcessor<F extends Feature<?>> extends AbstractDefaultPipelineProcessor {
+public final class AnnotationsToViewProcessor<F extends Feature<?>> extends StringDocumentPipelineProcessor {
 
     private final FeatureDescriptor<F> featureDescriptor;
 

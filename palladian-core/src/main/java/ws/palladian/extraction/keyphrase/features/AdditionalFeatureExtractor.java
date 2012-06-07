@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
@@ -33,7 +33,7 @@ import ws.palladian.model.features.NumericFeature;
  * 
  * @author Philipp Katz
  */
-public final class AdditionalFeatureExtractor extends AbstractDefaultPipelineProcessor {
+public final class AdditionalFeatureExtractor extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

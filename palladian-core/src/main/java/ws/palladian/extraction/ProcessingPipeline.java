@@ -122,13 +122,16 @@ public class ProcessingPipeline implements Serializable {
      */
     // Convenience Method
     public <T> PipelineDocument<T> process(PipelineDocument<T> document) throws DocumentUnprocessableException {
+        if (!pipelineProcessors.isEmpty()) {
+            ((Port<T>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument(document);
 
-        ((Port<T>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument(document);
+            process();
 
-        process();
-
-        return (PipelineDocument<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts().get(0)
-                .getPipelineDocument();
+            return (PipelineDocument<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts().get(0)
+                    .getPipelineDocument();
+        } else {
+            return document;
+        }
     }
 
     public void process() throws DocumentUnprocessableException {

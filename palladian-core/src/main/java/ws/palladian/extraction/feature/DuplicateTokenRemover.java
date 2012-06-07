@@ -20,7 +20,7 @@ import ws.palladian.model.features.AnnotationFeature;
  * 
  * @author Philipp Katz
  */
-public final class DuplicateTokenRemover extends AbstractDefaultPipelineProcessor {
+public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

@@ -26,7 +26,7 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * @author Philipp Katz
  */
-public class NGramCreator2 extends AbstractDefaultPipelineProcessor {
+public class NGramCreator2 extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 

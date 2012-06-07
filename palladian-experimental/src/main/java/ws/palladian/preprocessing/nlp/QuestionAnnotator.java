@@ -6,7 +6,7 @@ import java.util.List;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.Feature;
@@ -36,7 +36,7 @@ import ws.palladian.model.features.PositionAnnotation;
  * @version 2.0
  * @since 0.1.7
  */
-public final class QuestionAnnotator extends AbstractDefaultPipelineProcessor {
+public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
 
     /**
      * Unique identifier to serialize and deserialize objects of this type to and from a file.

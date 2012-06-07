@@ -8,7 +8,7 @@ import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.feature.AbstractDefaultPipelineProcessor;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
@@ -38,7 +38,7 @@ import ws.palladian.model.features.NominalFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public abstract class BasePosTagger extends AbstractDefaultPipelineProcessor implements PosTagger {
+public abstract class BasePosTagger extends StringDocumentPipelineProcessor implements PosTagger {
 
     private static final long serialVersionUID = 1L;
 
