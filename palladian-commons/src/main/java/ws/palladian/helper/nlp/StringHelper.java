@@ -921,7 +921,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`"}; // whitespace is also
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"}; // whitespace is also
                                                                                             // unwanted but
         // trim() handles
         // that, " "
@@ -1051,6 +1051,9 @@ public final class StringHelper {
 
         // trim but keep sentence delimiters
         text = StringHelper.trim(text, ".?!");
+        if (text.startsWith(")")) {
+            text = text.substring(1);
+        }
 
         return text;
     }
