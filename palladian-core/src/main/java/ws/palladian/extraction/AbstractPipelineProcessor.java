@@ -6,6 +6,8 @@ package ws.palladian.extraction;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * Abstract base class for pipeline processors. Handles the mapping between input and output views.
@@ -145,5 +147,27 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
 
     protected void setDefaultOutput(PipelineDocument<T> document) {
         ((Port<T>)outputPorts.get(0)).setPipelineDocument(document);
+    }
+
+    @Override
+    public void setInput(Integer inputPortIndex, PipelineDocument<?> document) {
+        Validate.notNull(inputPortIndex);
+        Validate.notNull(document);
+        Validate.inclusiveBetween(0, inputPorts.size() - 1, inputPortIndex);
+
+        Port port = inputPorts.get(inputPortIndex);
+        port.setPipelineDocument(document);
+    }
+
+    @Override
+    public Port<?> getOutputPort(final String name) {
+        Validate.notEmpty(name);
+
+        for (Port<?> port : outputPorts) {
+            if (name.equals(port.getName())) {
+                return port;
+            }
+        }
+        return null;
     }
 }
