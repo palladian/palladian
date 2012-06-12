@@ -23,7 +23,7 @@ import ws.palladian.helper.date.ExtractedDateHelper;
 public class ExtractedDate implements AbstractDate {
 
     private static final Logger LOGGER = Logger.getLogger(ExtractedDate.class);
-    
+
     private DateType dateType = DateType.ExtractedDate;
 
     /**
@@ -168,21 +168,24 @@ public class ExtractedDate implements AbstractDate {
             dateParts = dateString.split(" ");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y[1])) {
-            String[] parts = dateString.split(" ");
-            if (parts.length == 2) {
-                String[] tempParts = new String[3];
-                tempParts[0] = parts[0].split("\\.")[0];
-                tempParts[1] = parts[0].split("\\.")[1];
-                tempParts[2] = parts[1];
-                parts = tempParts;
+            try {
+                String[] parts = dateString.split(" ");
+                if (parts.length == 2) {
+                    String[] tempParts = new String[3];
+                    tempParts[0] = parts[0].split("\\.")[0];
+                    tempParts[1] = parts[0].split("\\.")[1];
+                    tempParts[2] = parts[1];
+                    parts = tempParts;
+                }
+                setDateValues(parts, 2, 0, 1);
+            } catch (Exception e) {
             }
-            setDateValues(parts, 2, 0, 1);
 
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_SEP[1])) {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
             setDateValues(dateString.split(" "), 1, 0, -1);
-        }else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_YYYY_MMM_D[1])) {
+        } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_YYYY_MMM_D[1])) {
             setDateValues(dateString.split("-"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
             String separator = ExtractedDateHelper.getSeparator(dateString);
@@ -389,11 +392,11 @@ public class ExtractedDate implements AbstractDate {
     }
 
     @Override
-    public Date getNormalizedDate(){
+    public Date getNormalizedDate() {
         return new Date(getLongDate());
     }
 
-    public long getLongDate(){
+    public long getLongDate() {
         int year = this.year == -1 ? 0 : this.year;
         int month = this.month == -1 ? 0 : this.month - 1;
         int day = this.day == -1 ? 1 : this.day;
@@ -651,7 +654,6 @@ public class ExtractedDate implements AbstractDate {
         }
     }
 
-
     /**
      * Sets the year, month and day of this date by getting a array with this values and the position of each value in
      * the array.
@@ -782,34 +784,34 @@ public class ExtractedDate implements AbstractDate {
         for (int i = 0; i < values.size(); i++) {
             switch (i) {
                 case 0:
-                    this.dateString = (String) values.get(i);
+                    this.dateString = (String)values.get(i);
                     break;
                 case 1:
-                    this.format = (String) values.get(i);
+                    this.format = (String)values.get(i);
                     break;
                 case 2:
-                    this.year = (Integer) values.get(i);
+                    this.year = (Integer)values.get(i);
                     break;
                 case 3:
-                    this.month = (Integer) values.get(i);
+                    this.month = (Integer)values.get(i);
                     break;
                 case 4:
-                    this.day = (Integer) values.get(i);
+                    this.day = (Integer)values.get(i);
                     break;
                 case 5:
-                    this.hour = (Integer) values.get(i);
+                    this.hour = (Integer)values.get(i);
                     break;
                 case 6:
-                    this.minute = (Integer) values.get(i);
+                    this.minute = (Integer)values.get(i);
                     break;
                 case 7:
-                    this.second = (Integer) values.get(i);
+                    this.second = (Integer)values.get(i);
                     break;
                 case 8:
-                    this.timezone = (String) values.get(i);
+                    this.timezone = (String)values.get(i);
                     break;
                 case 9:
-                    this.url = (String) values.get(i);
+                    this.url = (String)values.get(i);
                     break;
             }
         }
@@ -855,7 +857,7 @@ public class ExtractedDate implements AbstractDate {
     @Override
     public String toString() {
         return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format
-        + " Technique: " + ExtractedDateHelper.getTypString(getType());
+                + " Technique: " + ExtractedDateHelper.getTypString(getType());
     }
 
     /**
@@ -879,7 +881,7 @@ public class ExtractedDate implements AbstractDate {
     @Override
     public int getTypeInt() {
         int result;
-        switch(getType()){
+        switch (getType()) {
             case UrlDate:
                 result = 1;
                 break;
@@ -975,7 +977,7 @@ public class ExtractedDate implements AbstractDate {
         return rate;
     }
 
-    public void setType(DateType dateType){
+    public void setType(DateType dateType) {
         this.dateType = dateType;
     }
 }
