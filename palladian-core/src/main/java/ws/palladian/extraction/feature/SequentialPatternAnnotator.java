@@ -64,8 +64,9 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
     private Set<String> keywords;
 
     public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
-    
-    public static final FeatureDescriptor<SequentialPatternFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(PROVIDED_FEATURE, SequentialPatternFeature.class);
+
+    public static final FeatureDescriptor<SequentialPatternFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, SequentialPatternFeature.class);
 
     private Integer maxSequentialPatternSize = 0;
 
@@ -76,6 +77,7 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
      * 
      * @param keywords
      *            The keywords used by this annotator.
+     * @param maxSequentialPatternSize
      */
     public SequentialPatternAnnotator(String[] keywords, Integer maxSequentialPatternSize) {
         super();

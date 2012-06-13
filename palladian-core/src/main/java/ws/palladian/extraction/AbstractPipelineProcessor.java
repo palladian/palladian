@@ -18,7 +18,6 @@ import org.apache.commons.lang3.Validate;
  * @version 2.0
  */
 public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<T> {
-    // TODO can we replace the IllegalStateException by DocumentUnprocessableException here?
     /**
      * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -42,8 +41,8 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         inputPorts = new ArrayList<Port<?>>();
         outputPorts = new ArrayList<Port<?>>();
 
-        inputPorts.add(new Port<String>("defaultInput"));
-        outputPorts.add(new Port<String>("defaultOutput"));
+        inputPorts.add(new Port<String>(DEFAULT_INPUT_PORT_IDENTIFIER));
+        outputPorts.add(new Port<String>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
     }
 
     public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
@@ -51,50 +50,6 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
 
         this.inputPorts = new ArrayList<Port<?>>(inputPorts);
         this.outputPorts = new ArrayList<Port<?>>(outputPorts);
-    }
-
-    @Override
-    public final void process() throws DocumentUnprocessableException {
-        allInputPortsAvailable();
-        processDocument();
-        allOutputPortsAvailable();
-        cleanInputPorts();
-    }
-
-    private void cleanInputPorts() {
-        for (Port<?> inputPort : getInputPorts()) {
-            inputPort.setPipelineDocument(null);
-        }
-    }
-
-    /**
-     * <p>
-     * Apply the algorithm implemented by this {@code PipelineProcessor} to a {@code PipelineDocument}. This is the
-     * central method of each {@code PipelineProcessor} providing the core functionality.
-     * </p>
-     * 
-     * @throws DocumentUnprocessableException
-     *             If the {@code document} could not be processed by this {@code PipelineProcessor}.
-     */
-    protected abstract void processDocument() throws DocumentUnprocessableException;
-
-    /**
-     * <p>
-     * Checks whether all output views where created in a {@code PipelineDocument} and throws an
-     * {@code DocumentUnprocessableException} if not.
-     * </p>
-     * 
-     * @throws DocumentUnprocessableException
-     *             In case the document does not provide the required output
-     *             view.
-     */
-    private void allOutputPortsAvailable() throws DocumentUnprocessableException {
-        for (Port<?> outputPort : getOutputPorts()) {
-            if (outputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Output port: " + outputPort
-                        + " does not provide required output.");
-            }
-        }
     }
 
     /**
@@ -116,9 +71,60 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         }
     }
 
+    /**
+     * <p>
+     * Checks whether all output views where created in a {@code PipelineDocument} and throws an
+     * {@code DocumentUnprocessableException} if not.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException
+     *             In case the document does not provide the required output
+     *             view.
+     */
+    private void allOutputPortsAvailable() throws DocumentUnprocessableException {
+        for (Port<?> outputPort : getOutputPorts()) {
+            if (outputPort.getPipelineDocument() == null) {
+                throw new DocumentUnprocessableException("Output port: " + outputPort
+                        + " does not provide required output.");
+            }
+        }
+    }
+
+    private void cleanInputPorts() {
+        for (Port<?> inputPort : getInputPorts()) {
+            inputPort.setPipelineDocument(null);
+        }
+    }
+
+    protected PipelineDocument<T> getDefaultInput() {
+        return (PipelineDocument<T>)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).getPipelineDocument();
+    }
+
+    @Override
+    public Port<?> getInputPort(final String name) {
+        for (Port<?> inputPort : inputPorts) {
+            if (name.equals(inputPort.getName())) {
+                return inputPort;
+            }
+        }
+        return null;
+    }
+
     @Override
     public List<Port<?>> getInputPorts() {
         return inputPorts;
+    }
+
+    @Override
+    public Port<?> getOutputPort(final String name) {
+        Validate.notEmpty(name);
+
+        for (Port<?> port : outputPorts) {
+            if (name.equals(port.getName())) {
+                return port;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -137,20 +143,30 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
     }
 
     @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    public final void process() throws DocumentUnprocessableException {
+        allInputPortsAvailable();
+        processDocument();
+        allOutputPortsAvailable();
+        cleanInputPorts();
     }
 
-    protected PipelineDocument<T> getDefaultInput() {
-        return (PipelineDocument<T>)inputPorts.get(0).getPipelineDocument();
-    }
+    /**
+     * <p>
+     * Apply the algorithm implemented by this {@code PipelineProcessor} to a {@code PipelineDocument}. This is the
+     * central method of each {@code PipelineProcessor} providing the core functionality.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException
+     *             If the {@code document} could not be processed by this {@code PipelineProcessor}.
+     */
+    protected abstract void processDocument() throws DocumentUnprocessableException;
 
     protected void setDefaultOutput(PipelineDocument<T> document) {
-        ((Port<T>)outputPorts.get(0)).setPipelineDocument(document);
+        ((Port<T>)getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER)).setPipelineDocument(document);
     }
 
     @Override
-    public void setInput(Integer inputPortIndex, PipelineDocument<?> document) {
+    public void setInput(final Integer inputPortIndex, final PipelineDocument<?> document) {
         Validate.notNull(inputPortIndex);
         Validate.notNull(document);
         Validate.inclusiveBetween(0, inputPorts.size() - 1, inputPortIndex);
@@ -159,15 +175,13 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         port.setPipelineDocument(document);
     }
 
-    @Override
-    public Port<?> getOutputPort(final String name) {
-        Validate.notEmpty(name);
+    protected void setOutput(final String outputPortName, final PipelineDocument<?> document) {
+        Port port = getOutputPort(outputPortName);
+        port.setPipelineDocument(document);
+    }
 
-        for (Port<?> port : outputPorts) {
-            if (name.equals(port.getName())) {
-                return port;
-            }
-        }
-        return null;
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }
