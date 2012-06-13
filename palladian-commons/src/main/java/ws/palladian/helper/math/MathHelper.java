@@ -183,15 +183,29 @@ public class MathHelper {
         return faculty;
     }
 
-    public static double getMedian(List<Double> valueList) {
+    public static double getMedian(Collection<? extends Number> valueList) {
         Median median = new Median();
         double[] doubles = new double[valueList.size()];
         int i = 0;
-        for (Double entry : valueList) {
-            doubles[i++] = entry;
-
+        for (Number entry : valueList) {
+            doubles[i++] = entry.doubleValue();
         }
+
         return median.evaluate(doubles);
+    }
+
+    public static double getAverage(Collection<? extends Number> values) {
+        double sum = 0;
+        double count = 0;
+
+        for (Number value : values) {
+            if (value != null) {
+                sum += value.doubleValue();
+                count++;
+            }
+        }
+
+        return sum / count;
     }
 
     public static long getMedianDifference(TreeSet<Long> valueSet) {
@@ -600,6 +614,13 @@ public class MathHelper {
 
     public static double log2(double num) {
         return (Math.log(num) / Math.log(2));
+    }
+
+    public static long crossTotal(long s) {
+        if (s < 10) {
+            return s;
+        }
+        return crossTotal(s / 10) + s % 10;
     }
 
     public static void main(String[] a) {
