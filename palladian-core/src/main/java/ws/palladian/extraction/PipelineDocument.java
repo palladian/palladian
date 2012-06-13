@@ -2,6 +2,7 @@ package ws.palladian.extraction;
 
 import org.apache.commons.lang.Validate;
 
+import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureVector;
 
 /**
@@ -91,6 +92,12 @@ public class PipelineDocument<T> {
         this.content = content;
     }
 
+    public void addFeature(final Feature<?> feature) {
+        Validate.notNull(feature);
+
+        featureVector.add(feature);
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -106,10 +113,6 @@ public class PipelineDocument<T> {
     // but currently, the FeatureVector implementation's field is set to transient. Why? See issue #48
     // https://bitbucket.org/palladian/palladian/issue/48/transient-field-in-featurevector
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -118,10 +121,6 @@ public class PipelineDocument<T> {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
