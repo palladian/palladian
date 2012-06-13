@@ -1,5 +1,7 @@
 package ws.palladian.model.features;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * Helper for creating {@link FeatureDescriptor}s.
@@ -25,12 +27,8 @@ public final class FeatureDescriptorBuilder {
      * @return
      */
     public static <T extends Feature<?>> FeatureDescriptor<T> build(final String identifier, final Class<T> type) {
-        if (identifier == null || identifier.isEmpty()) {
-            throw new IllegalArgumentException("Identifier must be supplied.");
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("Type must be supplied.");
-        }
+        Validate.notEmpty(identifier, "Identifier must be supplied");
+        Validate.notNull(type, "Type must be supplied.");
 
         FeatureDescriptor<T> descriptor = new FeatureDescriptor<T>() {
             @Override

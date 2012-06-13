@@ -83,7 +83,8 @@ public class ProcessingPipeline implements Serializable {
                 Port<?> previousOutputPort = previousOutputPorts.get(0);
 
                 Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
-                if ("defaultInput".equals(inputPort.getName()) && "defaultOutput".equals(previousOutputPort.getName())) {
+                if (PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER.equals(inputPort.getName())
+                        && PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER.equals(previousOutputPort.getName())) {
                     add(new Pipe(previousOutputPort, inputPort));
                 }
             }
