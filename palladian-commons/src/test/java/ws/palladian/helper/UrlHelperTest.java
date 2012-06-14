@@ -154,6 +154,8 @@ public class UrlHelperTest {
     
     @Test
     public void testGetCanonicalUrl() {
+        assertEquals("http://www.funs.co.uk/comic/",
+                UrlHelper.getCanonicalUrl("http://www.funs.co.uk/comic/index.html"));
         assertEquals(
                 "http://sourceforge.net/tracker/?aid=1954302&atid=377408&func=detail&group_id=23067",
                 UrlHelper
