@@ -85,12 +85,12 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     /**
      * Remember the hash of the newest {@link FeedItem} from the previous poll.
      */
-    private String lastNewestItemHash;
+    //private String lastNewestItemHash;
 
     /**
      * Remember the publish time of the newest item from the previous poll.
      */
-    private Timestamp lastNewestItemPublishTime;
+    //private Timestamp lastNewestItemPublishTime;
 
     /**
      * Identifier to load the lastNumberOfPoll from the feed.
@@ -174,12 +174,12 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Backup some parameter values from the previous poll to be used in the next poll.
      */
     private void backupFeed() {
-        this.lastNewestItemHash = feed.getNewestItemHash();
+        //this.lastNewestItemHash = feed.getNewestItemHash();
         Date lastFeedEntry = feed.getLastFeedEntry();
         if (lastFeedEntry != null) {
-            this.lastNewestItemPublishTime = new Timestamp(lastFeedEntry.getTime());
+            //this.lastNewestItemPublishTime = new Timestamp(lastFeedEntry.getTime());
         } else {
-            this.lastNewestItemPublishTime = null;
+            //this.lastNewestItemPublishTime = null;
         }
         this.lastTotalItems = feed.getNumberOfItemsReceived();
 
@@ -293,7 +293,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + "). Current simulated time is " + feed.getLastPollTime());
                 int recentMisses = feed.getMisses();
-                boolean storeMetadata = false;
+                //boolean storeMetadata = false;
 
                 // the simulated download of the feed.
                 Feed downloadedFeed = getSimulatedWindowFromDataset(new Timestamp(simulatedCurrentPollTime));
@@ -367,9 +367,9 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
                 Integer numPrePostBenchmarkItems = null;
                 if (feed.getChecks() == 1) {
-                    Timestamp oldestKnownTimestamp = feed.getOldestFeedEntryCurrentWindowSqlTimestamp();
+                    Date oldestKnownTimestamp = feed.getOldestFeedEntryCurrentWindow();
                     if (oldestKnownTimestamp == null) {
-                        oldestKnownTimestamp = feed.getLastPollTimeSQLTimestamp();
+                        oldestKnownTimestamp = feed.getLastPollTime();
                         LOGGER.debug("FeedId " + feed.getId()
                                 + " had no item at first poll, using alternative identification of dropped items.");
                     }
@@ -427,13 +427,13 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                  * pending if its publishTime is newer than the last simulated poll that is within the benchmark
                  * interval.
                  */
-                long nextSimulatedPollTime = feed.getLastPollTimeSQLTimestamp().getTime() + feed.getUpdateInterval()
+                long nextSimulatedPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval()
                         * DateHelper.MINUTE_MS;
                 Boolean noMorePolls = nextSimulatedPollTime > FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
                 Integer pendingItems = null;
                 if (noMorePolls) {
                     pendingItems = feedDatabase.getNumberOfPendingItems(feed.getId(),
-                            feed.getLastPollTimeSQLTimestamp(), feed.getLastFeedEntrySQLTimestamp());
+                            feed.getLastPollTime(), feed.getLastFeedEntry());
                     numPrePostBenchmarkItems = feedDatabase.getNumberOfPostBenchmarkItems(feed.getId());
                 }
 
@@ -554,14 +554,14 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         // if feed has a variableWindowSize or we haven't received an item so far, do expensive search
         if (feed.hasVariableWindowSize() == null || feed.hasVariableWindowSize()
-                || feed.getOldestFeedEntryCurrentWindowSqlTimestamp() == null) {
+                || feed.getOldestFeedEntryCurrentWindow() == null) {
             simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeLimit(feed.getId(),
                     simulatedCurrentPollTimestamp, windowSize);
         }
         // the else statement is much faster for large feeds since we can make better use database indices
         else {
             simulatedWindow = feedDatabase.getEvaluationItemsByIDCorrectedPublishTimeRangeLimit(feed.getId(),
-                    simulatedCurrentPollTimestamp, feed.getOldestFeedEntryCurrentWindowSqlTimestamp(), windowSize);
+                    simulatedCurrentPollTimestamp, feed.getOldestFeedEntryCurrentWindow(), windowSize);
         }
         // a bit ugly: Feed takes lists of FeedItem only...
         List<FeedItem> castedList = new ArrayList<FeedItem>(simulatedWindow.size());
