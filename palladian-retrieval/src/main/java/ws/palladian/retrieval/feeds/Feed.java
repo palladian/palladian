@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -32,7 +31,7 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 public class Feed {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(Feed.class);
+    private static final Logger LOGGER = Logger.getLogger(Feed.class);
 
     /** Internal database identifier. */
     private int id = -1;
@@ -196,13 +195,6 @@ public class Feed {
      * reachable and parsable. This timestamp should be set every time {@link #checks} is increased.
      */
     private Date lastSuccessfulCheckTime = null;
-
-    // /**
-    // * Flag, to indicate if this feed contains a new item since the last update. If this value is <code>null</code>,
-    // we
-    // * need to re-determine if we have a new item, by comparing the last {@link FeedItem}'s hashes each.
-    // */
-    // private Boolean newItem = null;
 
     /** Allows to keep arbitrary, additional information. */
     private Map<String, Object> additionalData = null;
@@ -661,20 +653,6 @@ public class Feed {
     }
 
     /**
-     * @return The timestamp of the most recent item.
-     */
-    public Timestamp getLastFeedEntrySQLTimestamp() {
-        if (recalculateDates) {
-            calculateNewestAndOldestItemHashAndDate();
-        }
-
-        if (lastFeedEntry != null) {
-            return new Timestamp(lastFeedEntry.getTime());
-        }
-        return null;
-    }
-
-    /**
      * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
      * have the same publish date. Use with caution, this value is automatically updated.
      * 
@@ -716,21 +694,6 @@ public class Feed {
     }
 
     /**
-     * @return The publish timestamp of the oldest entry in the most recent window as sql timestamp or <code>null</code>
-     *         if there is no entry at all.
-     */
-    public Timestamp getOldestFeedEntryCurrentWindowSqlTimestamp() {
-        if (recalculateDates) {
-            calculateNewestAndOldestItemHashAndDate();
-        }
-
-        if (oldestFeedEntryCurrentWindow != null) {
-            return new Timestamp(oldestFeedEntryCurrentWindow.getTime());
-        }
-        return null;
-    }
-
-    /**
      * The publish timestamp of the oldest entry in the most recent window. If date's year is > 9999, we set it to null!
      * Do not set this value, it is calculated by the feed itself. The setter is to be used by the persistence layer
      * only!
@@ -752,13 +715,6 @@ public class Feed {
 
     public Date getHttpLastModified() {
         return httpLastModified;
-    }
-
-    public Timestamp getHttpLastModifiedSQLTimestamp() {
-        if (httpLastModified != null) {
-            return new Timestamp(httpLastModified.getTime());
-        }
-        return null;
     }
 
     public void setMeticulousPostDistribution(Map<Integer, int[]> meticulousPostDistribution) {
@@ -882,8 +838,6 @@ public class Feed {
         builder.append(blocked);
         builder.append(", lastSuccessfulCheckTime=");
         builder.append(lastSuccessfulCheckTime);
-        // builder.append(", newItem=");
-        // builder.append(newItem);
         builder.append(", additionalData=");
         builder.append(additionalData);
         builder.append(", feedMetaInfo=");
@@ -911,16 +865,6 @@ public class Feed {
     }
 
     /**
-     * @return The timestamp of the last poll or <code>null</code> if the feed has never been polled so far.
-     */
-    public Timestamp getLastPollTimeSQLTimestamp() {
-        if (lastPollTime != null) {
-            return new Timestamp(lastPollTime.getTime());
-        }
-        return null;
-    }
-
-    /**
      * Sets the time as lastPollTime and sets the old value as {@link #setLastButOnePollTime(Date)}.
      * 
      * @param lastChecked The date this feed was checked for updates the last time.
@@ -929,11 +873,6 @@ public class Feed {
         setLastButOnePollTime(this.lastPollTime);
         this.lastPollTime = lastPollTime;
     }
-
-    //
-    // public void setNewItem(Boolean newItem) {
-    // this.newItem = newItem;
-    // }
 
     /**
      * 
@@ -957,13 +896,6 @@ public class Feed {
     }
 
     public Boolean hasNewItem() {
-        // if (newItem == null) {
-        // String oldNewestItemHash = getNewestItemHash();
-        // calculateNewestItemHash();
-        // newItem = !oldNewestItemHash.equals(getNewestItemHash());
-        // }
-        //
-        // return newItem;
         return getNewItems().size() > 0;
     }
 
@@ -998,7 +930,6 @@ public class Feed {
         result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + numberOfItemsReceived;
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
-        result = prime * result + ((pollDataSeries == null) ? 0 : pollDataSeries.hashCode());
         long temp;
         temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
         result = prime * result + (int)(temp ^ (temp >>> 32));
@@ -1096,11 +1027,6 @@ public class Feed {
             return false;
         if (misses != other.misses)
             return false;
-        // if (newItem == null) {
-        // if (other.newItem != null)
-        // return false;
-        // } else if (!newItem.equals(other.newItem))
-        // return false;
         if (newestItemHash == null) {
             if (other.newestItemHash != null)
                 return false;
@@ -1112,11 +1038,6 @@ public class Feed {
             if (other.oneFullDayOfItemsSeen != null)
                 return false;
         } else if (!oneFullDayOfItemsSeen.equals(other.oneFullDayOfItemsSeen))
-            return false;
-        if (pollDataSeries == null) {
-            if (other.pollDataSeries != null)
-                return false;
-        } else if (!pollDataSeries.equals(other.pollDataSeries))
             return false;
         if (Double.doubleToLongBits(targetPercentageOfNewEntries) != Double
                 .doubleToLongBits(other.targetPercentageOfNewEntries))

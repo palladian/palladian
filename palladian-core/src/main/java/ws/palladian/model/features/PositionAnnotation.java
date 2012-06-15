@@ -43,8 +43,7 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
-     * provided {@code PipelineDocument}.
+     * Creates a new {@code PositionAnnotation} completely initialized.
      * </p>
      * 
      * @param document The document this {@code Annotation} points to.
