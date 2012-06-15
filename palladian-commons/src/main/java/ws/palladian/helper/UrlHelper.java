@@ -361,7 +361,7 @@ public final class UrlHelper {
                     path = path.substring(0, path.length() - 1);
                 }
                 // delete index.* if there is no query
-                if (parts[parts.length - 1].contains("index") && query != null) {
+                if (parts[parts.length - 1].contains("index") && query == null) {
                         path = path.replaceAll("index\\..+$", "");
                 }
 
