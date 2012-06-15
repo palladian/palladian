@@ -121,6 +121,8 @@ public class UrlHelperTest {
         assertEquals("example.com", UrlHelper.extractUrls("example.com").get(0));
         assertEquals("example.com/", UrlHelper.extractUrls("example.com/").get(0));
         assertThat(UrlHelper.extractUrls("[url=http://foo.com/blah_blah]http://foo.com/blah_blah[/url]"), hasItem("http://foo.com/blah_blah"));
+        assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("'http://foo.com/blah_blah'").get(0));
+        assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("\"http://foo.com/blah_blah\"").get(0));
         
         assertEquals("cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
         assertEquals("1-2-3.net/auctions-Are-out.jpg", UrlHelper.extractUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.").get(0));
