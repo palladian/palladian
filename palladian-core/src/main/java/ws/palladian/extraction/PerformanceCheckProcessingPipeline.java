@@ -26,13 +26,13 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
     private StopWatch sw;
 
     @Override
-    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+    protected void executePreProcessingHook(final PipelineProcessor processor) {
         super.executePreProcessingHook(processor);
         sw = new StopWatch();
     }
 
     @Override
-    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+    protected void executePostProcessingHook(final PipelineProcessor processor) {
         long elapsedTime = sw.getElapsedTime();
         addProcessingTime(processor, elapsedTime);
 
@@ -47,7 +47,7 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
      * @param processor The processor to register.
      * @param elapsedTime The time the processor took.
      */
-    private void addProcessingTime(PipelineProcessor<?> processor, long elapsedTime) {
+    private void addProcessingTime(PipelineProcessor processor, long elapsedTime) {
         String processorName = processor.getClass().getName();
         long cumulatedTime = cumulatedTimes.containsKey(processorName) ? cumulatedTimes.get(processorName) : 0;
         cumulatedTime += elapsedTime;

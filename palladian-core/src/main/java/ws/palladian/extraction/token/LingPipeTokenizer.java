@@ -40,5 +40,4 @@ public final class LingPipeTokenizer extends BaseTokenizer {
         }
         document.getFeatureVector().add(annotationFeature);
     }
-
 }

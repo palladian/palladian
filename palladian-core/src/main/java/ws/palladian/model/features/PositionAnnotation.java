@@ -70,6 +70,10 @@ public final class PositionAnnotation extends Annotation {
         this(document, startPosition, endPosition, -1);
     }
 
+    public <F> PositionAnnotation(PipelineDocument<F> document, int startPosition, int endPosition, String value) {
+        this(document, startPosition, endPosition, -1, value);
+    }
+
     /**
      * <p>
      * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the

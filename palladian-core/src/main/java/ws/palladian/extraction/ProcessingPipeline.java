@@ -38,7 +38,7 @@ public class ProcessingPipeline implements Serializable {
      * The processors this pipeline will execute as ordered by this list from the first to the last.
      * </p>
      */
-    private final List<PipelineProcessor<?>> pipelineProcessors;
+    private final List<PipelineProcessor> pipelineProcessors;
     private final List<Pipe<?>> pipes;
 
     /**
@@ -48,7 +48,7 @@ public class ProcessingPipeline implements Serializable {
      * </p>
      */
     public ProcessingPipeline() {
-        pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
+        pipelineProcessors = new ArrayList<PipelineProcessor>();
         pipes = new ArrayList<Pipe<?>>();
     }
 
@@ -64,7 +64,7 @@ public class ProcessingPipeline implements Serializable {
      *            to the newly created instance.
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-        pipelineProcessors = new ArrayList<PipelineProcessor<?>>(processingPipeline.getPipelineProcessors());
+        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
         pipes = new ArrayList<Pipe<?>>(processingPipeline.pipes);
     }
 
@@ -75,7 +75,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final <T> void add(PipelineProcessor<T> pipelineProcessor) {
+    public final <T> void add(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
             Port<T> previousOutputPort = (Port<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
@@ -102,7 +102,7 @@ public class ProcessingPipeline implements Serializable {
      * @param pipelineProcessor The new processor to add.
      * @param pipes The input {@code Pipe}s to use for the new {@code PipelineProcessor}.
      */
-    public final void add(PipelineProcessor<?> pipelineProcessor, Pipe<?>... pipes) {
+    public final void add(PipelineProcessor pipelineProcessor, Pipe<?>... pipes) {
         pipelineProcessors.add(pipelineProcessor);
         for (Pipe<?> pipe : pipes) {
             this.pipes.add(pipe);
@@ -117,7 +117,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @return The list of registered {@code PipelineProcessor}s.
      */
-    public final List<PipelineProcessor<?>> getPipelineProcessors() {
+    public final List<PipelineProcessor> getPipelineProcessors() {
         return Collections.unmodifiableList(pipelineProcessors);
     }
 
@@ -147,16 +147,16 @@ public class ProcessingPipeline implements Serializable {
     }
 
     public void process() throws DocumentUnprocessableException {
-        Collection<PipelineProcessor<?>> executableProcessors = new ArrayList<PipelineProcessor<?>>(pipelineProcessors);
+        Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
         Collection<Pipe<?>> executablePipes = new ArrayList<Pipe<?>>(pipes);
-        Collection<PipelineProcessor<?>> executedProcessors = new ArrayList<PipelineProcessor<?>>();
+        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>();
         Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>();
 
         do {
             executedProcessors.clear();
             executedPipes.clear();
 
-            for (PipelineProcessor<?> processor : executableProcessors) {
+            for (PipelineProcessor processor : executableProcessors) {
                 if (processor.isExecutable()) {
                     executePreProcessingHook(processor);
                     processor.process();
@@ -175,11 +175,11 @@ public class ProcessingPipeline implements Serializable {
         } while (!executedProcessors.isEmpty());
     }
 
-    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+    protected void executePostProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
     }
 
-    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+    protected void executePreProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
     }
 

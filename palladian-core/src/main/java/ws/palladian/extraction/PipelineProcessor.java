@@ -21,7 +21,7 @@ import ws.palladian.model.features.FeatureVector;
  * @version 3.0
  * @since 0.0.8
  */
-public interface PipelineProcessor<T> extends Serializable {
+public interface PipelineProcessor extends Serializable {
 
     static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
     static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
