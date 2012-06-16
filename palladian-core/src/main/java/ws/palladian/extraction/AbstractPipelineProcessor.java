@@ -17,7 +17,7 @@ import org.apache.commons.lang3.Validate;
  * @since 0.0.8
  * @version 2.0
  */
-public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<T> {
+public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor {
     /**
      * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -41,8 +41,8 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         inputPorts = new ArrayList<Port<?>>();
         outputPorts = new ArrayList<Port<?>>();
 
-        inputPorts.add(new Port<String>(DEFAULT_INPUT_PORT_IDENTIFIER));
-        outputPorts.add(new Port<String>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
+        inputPorts.add(new Port<T>(DEFAULT_INPUT_PORT_IDENTIFIER));
+        outputPorts.add(new Port<T>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
     }
 
     public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
@@ -190,6 +190,30 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
             if (port.getName().equals(inputPortIdentifier)) {
                 port.setPipelineDocument(document);
             }
+        }
+    }
+
+    /**
+     * @return The default output port identified by {@code DEFAULT_OUTPUT_PORT_IDENTIFIER}.
+     */
+    public Port<T> getDefaultOutputPort() {
+        Port<?> defaultOutputPort = getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER);
+        if (defaultOutputPort == null) {
+            return null;
+        } else {
+            return (Port<T>)defaultOutputPort;
+        }
+    }
+
+    /**
+     * @return The default input port identified by {@code DEFAULT_INPUT_PORT_IDENTIFIER}.
+     */
+    public Port<T> getDefaultInputPort() {
+        Port<?> defaultInputPort = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER);
+        if (defaultInputPort == null) {
+            return null;
+        } else {
+            return (Port<T>)defaultInputPort;
         }
     }
 }
