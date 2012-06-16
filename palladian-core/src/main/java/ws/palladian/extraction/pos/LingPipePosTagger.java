@@ -11,8 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -103,39 +103,6 @@ public final class LingPipePosTagger extends BasePosTagger {
             assignTag(annotations.get(i), tagging.tag(i));
         }
     }
-
-    // /*
-    // * (non-Javadoc)
-    // * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String)
-    // */
-    // @Override
-    // public LingPipePosTagger tag(String sentence) {
-    //
-    // int cacheSize = Integer.valueOf(100);
-    // FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
-    //
-    // // read HMM for pos tagging
-    //
-    // // construct chunker
-    // HmmDecoder posTagger = new HmmDecoder(model, null, cache);
-    // TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-    //
-    // // apply pos tagger
-    // String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
-    // List<String> tokenList = Arrays.asList(tokens);
-    // Tagging<String> tagging = posTagger.tag(tokenList);
-    //
-    // TagAnnotations tagAnnotations = new TagAnnotations();
-    // for (int i = 0; i < tagging.size(); i++) {
-    //
-    // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tagging.token(i)), tagging.tag(i)
-    // .toUpperCase(new Locale("en")), tagging.token(i));
-    // tagAnnotations.add(tagAnnotation);
-    //
-    // }
-    // setTagAnnotations(tagAnnotations);
-    // return this;
-    // }
 
     public void evaluate(String folderPath, String modelFilePath) {
 

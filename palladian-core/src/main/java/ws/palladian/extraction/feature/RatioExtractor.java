@@ -14,7 +14,7 @@ import ws.palladian.model.features.NumericFeature;
 /**
  * @author Klemens Muthmann
  * @version 1.0
- * @since
+ * @since 0.1.7
  */
 public final class RatioExtractor extends StringDocumentPipelineProcessor {
 

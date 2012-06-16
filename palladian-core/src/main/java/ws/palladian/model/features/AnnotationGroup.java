@@ -11,7 +11,9 @@ import ws.palladian.extraction.PipelineDocument;
  * </p>
  * 
  * @author Philipp Katz
- * 
+ * @author Klemens Muthmann
+ * @version 1.0
+ * @since 0.1.7
  */
 public final class AnnotationGroup extends Annotation {
 
@@ -45,7 +47,7 @@ public final class AnnotationGroup extends Annotation {
      * @param document
      *            The document this {@link AnnotationGroup} points to.
      */
-    public AnnotationGroup(PipelineDocument document) {
+    public AnnotationGroup(PipelineDocument<?> document) {
         super(document);
         value = null;
     }
@@ -67,7 +69,7 @@ public final class AnnotationGroup extends Annotation {
         }
         return endPosition;
     }
-    
+
     @Override
     public Integer getIndex() {
         int index = -1;
@@ -165,7 +167,7 @@ public final class AnnotationGroup extends Annotation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        AnnotationGroup other = (AnnotationGroup) obj;
+        AnnotationGroup other = (AnnotationGroup)obj;
         if (annotations == null) {
             if (other.annotations != null) {
                 return false;
