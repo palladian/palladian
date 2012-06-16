@@ -44,7 +44,9 @@ public interface PipelineProcessor<T> extends Serializable {
      * @param inputPortIndex The index of the input port to set the document at.
      * @param document The document to set at the port specified by {@code inputPortIndex}.
      */
-    void setInput(Integer inputPortIndex, PipelineDocument<?> document);
+    void setInput(final Integer inputPortIndex, final PipelineDocument<?> document);
 
-    Port<?> getInputPort(String name);
+    void setInput(final String inputPortIdentifier, final PipelineDocument<?> document);
+
+    Port<?> getInputPort(final String name);
 }

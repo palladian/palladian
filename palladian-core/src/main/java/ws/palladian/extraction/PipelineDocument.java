@@ -3,6 +3,7 @@ package ws.palladian.extraction;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureVector;
 
 /**
@@ -40,6 +41,7 @@ public class PipelineDocument<T> {
      */
     public PipelineDocument(T content) {
         super();
+        Validate.notNull(content);
 
         this.featureVector = new FeatureVector();
         this.content = content;
@@ -64,6 +66,8 @@ public class PipelineDocument<T> {
      * @param featureVector The new {@code FeatureVector} of this document.
      */
     public void setFeatureVector(FeatureVector featureVector) {
+        Validate.notNull(featureVector);
+
         this.featureVector = featureVector;
     }
 
@@ -96,6 +100,12 @@ public class PipelineDocument<T> {
         Validate.notNull(feature);
 
         featureVector.add(feature);
+    }
+
+    public <F extends Feature<?>> F getFeature(final FeatureDescriptor<F> descriptor) {
+        Validate.notNull(descriptor);
+
+        return featureVector.get(descriptor);
     }
 
     @Override

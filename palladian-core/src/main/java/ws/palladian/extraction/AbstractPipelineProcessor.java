@@ -184,4 +184,12 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
     public String toString() {
         return getClass().getSimpleName();
     }
+
+    public void setInput(final String inputPortIdentifier, final PipelineDocument<?> document) {
+        for (Port port : inputPorts) {
+            if (port.getName().equals(inputPortIdentifier)) {
+                port.setPipelineDocument(document);
+            }
+        }
+    }
 }
