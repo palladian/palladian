@@ -75,17 +75,16 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void add(PipelineProcessor<?> pipelineProcessor) {
+    public final <T> void add(PipelineProcessor<T> pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
-            List<Port<?>> previousOutputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
-            if (!previousOutputPorts.isEmpty()) {
-                Port<?> previousOutputPort = previousOutputPorts.get(0);
-
-                Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
-                if (PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER.equals(inputPort.getName())
-                        && PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER.equals(previousOutputPort.getName())) {
-                    add(new Pipe(previousOutputPort, inputPort));
+            Port<T> previousOutputPort = (Port<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
+                    PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
+            if (previousOutputPort != null) {
+                Port<T> inputPort = (Port<T>)pipelineProcessor
+                        .getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
+                if (inputPort != null) {
+                    pipes.add(new Pipe<T>(previousOutputPort, inputPort));
                 }
             }
         }
@@ -94,8 +93,20 @@ public class ProcessingPipeline implements Serializable {
         pipelineProcessors.add(pipelineProcessor);
     }
 
-    public final void add(Pipe<?> transition) {
-        pipes.add(transition);
+    /**
+     * <p>
+     * Adds a new {@link PipelineProcessor} to this pipeline. The processor uses the provided {@code pipes} as input
+     * {@code Pipe}s.
+     * </p>
+     * 
+     * @param pipelineProcessor The new processor to add.
+     * @param pipes The input {@code Pipe}s to use for the new {@code PipelineProcessor}.
+     */
+    public final void add(PipelineProcessor<?> pipelineProcessor, Pipe<?>... pipes) {
+        pipelineProcessors.add(pipelineProcessor);
+        for (Pipe<?> pipe : pipes) {
+            this.pipes.add(pipe);
+        }
     }
 
     /**
