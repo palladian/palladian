@@ -25,14 +25,24 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor 
      */
     private static final long serialVersionUID = -7030337967596448903L;
 
+    /**
+     * <p>
+     * The input {@link Port}s this processor reads {@link PipelineDocument}s from.
+     * </p>
+     */
     private List<Port<?>> inputPorts;
+    /**
+     * <p>
+     * The output {@link Port}s this processor writes results to.
+     * </p>
+     */
     private List<Port<?>> outputPorts;
 
     /**
      * <p>
-     * Creates a new completely initialized {@code PipelineProcessor} working on the default views. It maps the default
-     * output view ("modifiedContent") from the previous component to the default input ("originalContent") of this
-     * component.
+     * Creates a new completely initialized {@code PipelineProcessor} working with a default input and output
+     * {@code Port}. The input {@code Port} is identified by {@link PipelineProcessor#DEFAULT_INPUT_PORT_IDENTIFIER}
+     * while the output {@code Port} is identified by {@link PipelineProcessor#DEFAULT_OUTPUT_PORT_IDENTIFIER}.
      * </p>
      */
     public AbstractPipelineProcessor() {
@@ -45,6 +55,14 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor 
         outputPorts.add(new Port<T>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
     }
 
+    /**
+     * <p>
+     * Creates a new completely initialized {@code PipelineProcessor}
+     * </p>
+     * 
+     * @param inputPorts The input {@link Port}s this processor reads {@link PipelineDocument}s from.
+     * @param outputPorts The output {@link Port}s this processor writes results to.
+     */
     public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
         super();
 

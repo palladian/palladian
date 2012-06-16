@@ -4,12 +4,12 @@
 package ws.palladian.extraction.sentence;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.feature.FeatureProvider;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
@@ -47,12 +47,13 @@ import ws.palladian.model.features.FeatureDescriptorBuilder;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor {
+public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor implements
+        FeatureProvider<AnnotationFeature> {
 
     /**
      * <p>
-     * Used for serializing and deserializing this object. Do change this value if the objects attributes change and thus
-     * old serialized version are no longer compatible.
+     * Used for serializing and deserializing this object. Do change this value if the objects attributes change and
+     * thus old serialized version are no longer compatible.
      * </p>
      */
     private static final long serialVersionUID = -8764960870080954781L;
@@ -77,12 +78,29 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
 
     /**
      * <p>
+     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+     * </p>
+     */
+    private final FeatureDescriptor<AnnotationFeature> featureDescriptor;
+
+    /**
+     * <p>
      * Creates anew completely initialized sentence detector working on the "originalContent" view if used as
      * {@code PipelineProcessor}.
      * </p>
      */
     public AbstractSentenceDetector() {
         super();
+
+        this.featureDescriptor = PROVIDED_FEATURE_DESCRIPTOR;
+    }
+
+    public AbstractSentenceDetector(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+        super();
+
+        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
+
+        this.featureDescriptor = featureDescriptor;
     }
 
     /**
@@ -124,10 +142,17 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
 
     @Override
     public final void processDocument(PipelineDocument<String> document) {
+        Validate.notNull(document, "document must not be null");
+
         detect(document.getContent());
         Annotation[] sentences = getSentences();
         List<Annotation> sentencesList = Arrays.asList(sentences);
-        AnnotationFeature sentencesFeature = new AnnotationFeature(PROVIDED_FEATURE, sentencesList);
+        AnnotationFeature sentencesFeature = new AnnotationFeature(featureDescriptor, sentencesList);
         document.getFeatureVector().add(sentencesFeature);
+    }
+
+    @Override
+    public FeatureDescriptor<AnnotationFeature> getDescriptor() {
+        return featureDescriptor;
     }
 }

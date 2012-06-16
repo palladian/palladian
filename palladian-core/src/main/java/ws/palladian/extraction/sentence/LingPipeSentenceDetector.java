@@ -3,14 +3,12 @@
  */
 package ws.palladian.extraction.sentence;
 
-import java.util.Collection;
-
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.PositionAnnotation;
 
 import com.aliasi.chunk.Chunk;
@@ -30,7 +28,7 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * @author Martin Wunderwald
  * @author Klemens Muthmann
  * @version 1.0
- * @since 1.0
+ * @since 0.0.1
  */
 public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
@@ -40,18 +38,40 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * </p>
      */
     private static final long serialVersionUID = 4827188441005628492L;
-    
+
+    /**
+     * <p>
+     * The {@code SentenceChunker} instance used and containing the core implementation for splitting a processed text
+     * into sentences.
+     * </p>
+     */
     private final SentenceChunker sentenceChunker;
 
     /**
      * <p>
      * Creates a new completely initialized sentence detector without any parameters. The state of the new object is set
-     * to default values. If used as a {@code PipelineProcessor} the new sentence detector process only the
-     * "originalContent" view (see {@link ProcessingPipeline}).
+     * to default values.
      * </p>
      */
     public LingPipeSentenceDetector() {
         super();
+
+        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
+        sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code LingPipeSentenceDetector} annotating sentences and saving those {@link Annotation}s as a
+     * {@link Feature} described by the provided {@link FeatureDescriptor}.
+     * </p>
+     * 
+     * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+     */
+    public LingPipeSentenceDetector(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+        super(featureDescriptor);
+
         TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
         sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
@@ -59,6 +79,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     @Override
     public LingPipeSentenceDetector detect(String text) {
+        Validate.notNull(text, "text must not be null");
+
         Chunking chunking = sentenceChunker.chunk(text);
         Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
         PipelineDocument<String> document = new PipelineDocument<String>(text);
