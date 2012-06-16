@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import scala.actors.threadpool.Arrays;
-import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.PipelineProcessor;
@@ -30,7 +29,7 @@ import ws.palladian.model.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class TokenOverlapCalculator extends AbstractPipelineProcessor {
+public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object, NumericFeature> {
 
     /**
      * <p>
@@ -44,7 +43,6 @@ public final class TokenOverlapCalculator extends AbstractPipelineProcessor {
 
     private final FeatureDescriptor<AnnotationFeature> input1FeatureDescriptor;
     private final FeatureDescriptor<AnnotationFeature> input2FeatureDescriptor;
-    private final FeatureDescriptor<NumericFeature> featureDescriptor;
 
     /**
      * <p>
@@ -67,9 +65,8 @@ public final class TokenOverlapCalculator extends AbstractPipelineProcessor {
         // uses the feature vector.
         super(Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
                 new Port<Object>(INPUT_PORT_TWO_IDENTIFIER)}), Arrays.asList(new Port[] {new Port<Object>(
-                PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}));
+                PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}), featureDescriptor);
 
-        this.featureDescriptor = featureDescriptor;
         this.input1FeatureDescriptor = input1FeatureDescriptor;
         this.input2FeatureDescriptor = input2FeatureDescriptor;
     }
@@ -99,7 +96,7 @@ public final class TokenOverlapCalculator extends AbstractPipelineProcessor {
 
         Double jaccardSimilarity = Integer.valueOf(overlap.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
-        document1.addFeature(new NumericFeature(featureDescriptor, jaccardSimilarity));
+        document1.addFeature(new NumericFeature(getDescriptor(), jaccardSimilarity));
         setOutput(DEFAULT_OUTPUT_PORT_IDENTIFIER, document1);
     }
 }
