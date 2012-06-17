@@ -1,7 +1,10 @@
 package ws.palladian.retrieval.helper;
 
+import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
@@ -9,29 +12,39 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
- * Some HTTP specific helper methods
+ * <p>
+ * Some HTTP specific helper methods.
+ * </p>
  * 
  * @author Sandro Reichert
- * 
+ * @author Philipp Katz
  */
-public class HttpHelper {
+public final class HttpHelper {
 
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(HttpHelper.class);
 
+    private HttpHelper() {
+        // utility class, no instances required.
+    }
+
     /**
+     * <p>
      * Get a date from http header. According to the HTTP specification [RFC2616, 14.18], the date must be in RFC 1123
      * date format. Since this is theory, we use a two step approach here to get a date from the header. First, we try
-     * it by using {@link DateUtils} from apache that findes dates in RFC 1123, RFC 1036 or ANSI C asctime() format.
-     * This fails in many cases where providers send their own format. Therefore, one may use palladian's sophisticated
-     * date recognition here, which may be expensive.
+     * it by using {@link DateUtils} from Apache that finds dates in RFC 1123, RFC 1036 or ANSI C asctime() format. This
+     * fails in many cases where providers send their own format. Therefore, one may use Palladian's sophisticated date
+     * recognition here, which may be expensive.
+     * </p>
      * 
      * @param httpResult The {@link HttpResult} to get the date from.
      * @param headerName The name of the header field to get.
      * @param strict If <code>true</code>, use {@link DateUtils} to get only dates according to the HTTP specification.
-     *            If <code>false</code>, use palladian's sophisticated date recognition here, which may be expensive.
+     *            If <code>false</code>, use Palladian's sophisticated date recognition here, which may be expensive.
      * @return The extracted date or <code>null</code> if the given header name is not present or the date is invalid.
      */
     public static final Date getDateFromHeader(HttpResult httpResult, String headerName, boolean strict) {
@@ -61,6 +74,54 @@ public class HttpHelper {
             }
         }
         return date;
+    }
+
+    /**
+     * <p>
+     * Get the content of the supplied {@link HttpResult} as string. For conversion, the "Content-Type" HTTP header with
+     * a specified charset is considered. If no default encoding is specified, <i>ISO-8859-1</i> is assumed.
+     * </p>
+     * 
+     * @see <a href="http://www.w3.org/International/O-HTTP-charset.en.php">Setting the HTTP charset parameter</a>.
+     * @param httpResult The HttpResult for which to get the content as string, not <code>null</code>.
+     * @return The string value of the supplied HttpResult.
+     */
+    public static String getStringContent(HttpResult httpResult) {
+        Validate.notNull(httpResult, "httpResult must not be null");
+
+        String foundCharset = getCharset(httpResult);
+        Charset charset;
+        if (Charset.isSupported(foundCharset)) {
+            charset = Charset.forName(foundCharset);
+        } else {
+            charset = Charset.forName("UTF-8");
+        }
+        return new String(httpResult.getContent(), charset);
+    }
+
+    /**
+     * <p>
+     * Retrieve the encoding from the supplied {@link HttpResult}, if it is specified in the "Content-Type" HTTP header.
+     * </p>
+     * 
+     * @param httpResult The HttpResult for which to determine the encoding, not <code>null</code>.
+     * @return The encoding of the HttpResult, nor <code>null</code> if no encoding was specified explicitly.
+     */
+    public static String getCharset(HttpResult httpResult) {
+        Validate.notNull(httpResult, "httpResult must not be null");
+
+        String ret = null;
+        List<String> contentTypeValues = httpResult.getHeader("Content-Type");
+        if (contentTypeValues != null) {
+            for (String contentTypeValue : contentTypeValues) {
+                int index = contentTypeValue.indexOf("charset=");
+                if (index != -1) {
+                    ret = contentTypeValue.substring(index + "charset=".length(), contentTypeValue.length());
+                    break;
+                }
+            }
+        }
+        return ret;
     }
 
     public static void main(String[] args) {
