@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>

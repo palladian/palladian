@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
