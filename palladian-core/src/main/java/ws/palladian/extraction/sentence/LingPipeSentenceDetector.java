@@ -86,7 +86,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
         PipelineDocument<String> document = new PipelineDocument<String>(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = new PositionAnnotation(document, chunk.start(), chunk.end());
+            String sentence = text.substring(chunk.start(), chunk.end());
+            sentences[ite] = new PositionAnnotation(document, chunk.start(), chunk.end(), sentence);
             ite++;
         }
         setSentences(sentences);

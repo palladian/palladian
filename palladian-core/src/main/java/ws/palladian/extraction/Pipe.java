@@ -26,7 +26,6 @@ public final class Pipe<T> {
     public void transit() {
         Validate.notNull(inputPort.getPipelineDocument());
         outputPort.setPipelineDocument(inputPort.getPipelineDocument());
-        inputPort.setPipelineDocument(null);
     }
 
     public Boolean canFire() {
@@ -37,12 +36,18 @@ public final class Pipe<T> {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "Pipe [inputPort=" + inputPort + ", outputPort=" + outputPort + "]";
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     */
+    public void clearInput() {
+        this.inputPort.setPipelineDocument(null);
     }
 }
