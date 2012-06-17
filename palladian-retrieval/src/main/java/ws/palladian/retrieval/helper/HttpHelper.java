@@ -92,7 +92,7 @@ public final class HttpHelper {
         if (Charset.isSupported(foundCharset)) {
             charset = Charset.forName(foundCharset);
         } else {
-            charset = Charset.forName("UTF-8");
+            charset = Charset.forName("ISO-8859-1");
         }
         return new String(httpResult.getContent(), charset);
     }
