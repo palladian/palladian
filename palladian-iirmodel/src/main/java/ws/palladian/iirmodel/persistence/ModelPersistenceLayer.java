@@ -1228,4 +1228,23 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             commitTransaction(openedTransaction);
         }
     }
+
+    /**
+     * <p>
+     * Runs a native SQL query through this persistence layer.
+     * </p>
+     * 
+     * @param query The query to run.
+     * @param clazz The {@code Class} of the results.
+     */
+    public <T> List<T> runNativeQuery(final String query, Class<T> clazz) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            Query queryObj = getManager().createNativeQuery(query);
+            List resultList = queryObj.getResultList();
+            return resultList;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
 }
