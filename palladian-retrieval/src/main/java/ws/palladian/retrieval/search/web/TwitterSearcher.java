@@ -18,6 +18,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -52,7 +53,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 String requestUrl = buildRequestUrl(query, resultsPerPage, page);
                 HttpResult httpResult = performHttpRequest(requestUrl);
 
-                String responseString = new String(httpResult.getContent());
+                String responseString = HttpHelper.getStringContent(httpResult);
                 LOGGER.debug("response for " + requestUrl + " : " + responseString);
 
                 JSONObject jsonObject = new JSONObject(responseString);
