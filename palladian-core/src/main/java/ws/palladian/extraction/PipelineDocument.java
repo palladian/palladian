@@ -68,7 +68,7 @@ public class PipelineDocument<T> {
     public void setFeatureVector(FeatureVector featureVector) {
         Validate.notNull(featureVector);
 
-        this.featureVector = featureVector;
+        this.featureVector.addAll(featureVector);
     }
 
     /**

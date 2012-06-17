@@ -11,9 +11,27 @@ import org.apache.commons.lang.Validate;
  * @since 0.1.7
  */
 public final class Pipe<T> {
+    /**
+     * <p>
+     * 
+     * </p>
+     */
     private final Port<T> inputPort;
+    /**
+     * <p>
+     * 
+     * </p>
+     */
     private final Port<T> outputPort;
 
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param inputPort
+     * @param outputPort
+     */
     public Pipe(final Port<T> inputPort, final Port<T> outputPort) {
         super();
         Validate.notNull(inputPort);
@@ -23,17 +41,26 @@ public final class Pipe<T> {
         this.outputPort = outputPort;
     }
 
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     */
     public void transit() {
         Validate.notNull(inputPort.getPipelineDocument());
         outputPort.setPipelineDocument(inputPort.getPipelineDocument());
     }
 
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @return
+     */
     public Boolean canFire() {
-        if (inputPort.getPipelineDocument() != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return inputPort.getPipelineDocument() != null;
     }
 
     @Override

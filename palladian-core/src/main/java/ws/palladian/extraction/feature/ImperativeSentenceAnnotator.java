@@ -18,9 +18,13 @@ import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.model.features.PositionAnnotation;
 
 /**
+ * <p>
+ * Marks imperative sentences inside the processed text.
+ * </p>
+ * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
@@ -31,8 +35,8 @@ public final class ImperativeSentenceAnnotator extends StringDocumentPipelinePro
     @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(ImperativeSentenceAnnotator.class);
 
-    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            "ws.palladian.imperative", NumericFeature.class);
+    public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build("ws.palladian.imperative", AnnotationFeature.class);
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
@@ -58,10 +62,10 @@ public final class ImperativeSentenceAnnotator extends StringDocumentPipelinePro
                 break;
             }
             if (Arrays.asList(IMPERATIVE_TAGS).contains(firstTagInSentence)) {
-                ret.add(sentence);
+                ret.add(new PositionAnnotation(document, sentence.getStartPosition(), sentence.getEndPosition(),
+                        sentence.getValue()));
             }
         }
-        document.addFeature(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, Integer.valueOf(ret.size()).doubleValue()
-                / Integer.valueOf(sentences.size()).doubleValue()));
+        document.addFeature(new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, ret));
     }
 }
