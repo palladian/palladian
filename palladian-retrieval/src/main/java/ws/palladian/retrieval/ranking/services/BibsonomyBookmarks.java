@@ -16,6 +16,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -114,7 +115,7 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
             HttpResult getResult = retriever.httpGet(
                     "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search="
                             + encUrl, headerParams);
-            String response = new String(getResult.getContent());
+            String response = HttpHelper.getStringContent(getResult);
 
             // create JSON-Object from response
             JSONObject json = null;
@@ -204,6 +205,11 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
 
     public String getApiKey() {
         return apiKey;
+    }
+    
+    public static void main(String[] args) {
+        BibsonomyBookmarks ranking = new BibsonomyBookmarks("jumehl", "e954a3a053193c36283af8a760918302");
+        ranking.getRanking("http://ard.de");
     }
 
 }

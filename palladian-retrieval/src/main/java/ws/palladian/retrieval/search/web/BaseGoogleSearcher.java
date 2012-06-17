@@ -13,6 +13,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -114,7 +115,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
             JSONException {
         String requestUrl = getRequestUrl(query, language, offset);
         HttpResult httpResult = retriever.httpGet(requestUrl);
-        String jsonString = new String(httpResult.getContent());
+        String jsonString = HttpHelper.getStringContent(httpResult);
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getJSONObject("responseData");
     }
