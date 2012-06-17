@@ -83,38 +83,39 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     protected void processDocument() throws DocumentUnprocessableException {
         PipelineDocument<Object> document = getDefaultInput();
 
-        FastVector schema = new FastVector();
-        Instances model = new Instances("model", schema, 1);
-        Instance newInstance = new SparseInstance(0);
-        newInstance.setDataset(model);
-        for (FeatureDescriptor<? extends Feature<?>> featureDescriptor : featureDescriptors) {
-            Feature<?> feature = document.getFeature(featureDescriptor);
-            if (feature instanceof NumericFeature) {
-                handleNumericFeature((NumericFeature)feature, newInstance, schema);
-            } else if (feature instanceof AnnotationFeature) {
-                handleAnnotationFeature((AnnotationFeature)feature, newInstance, schema);
-            } else if (feature instanceof BooleanFeature) {
-                handleBooleanFeature((BooleanFeature)feature, newInstance, schema);
-            } else if (feature instanceof NominalFeature) {
-                handleNominalFeature((NominalFeature)feature, newInstance, schema);
-            } else {
-                LOGGER.warn("Unsupported feature type. Ignoring feature: " + featureDescriptor.getIdentifier());
-            }
-        }
-        model.add(newInstance);
-        model.compactify();
+        Instances model = null;
         try {
             if (targetFile.exists()) {
                 FileReader in = new FileReader(targetFile);
                 try {
                     BufferedReader reader = new BufferedReader(in);
                     ArffReader arff = new ArffReader(reader);
-                    Instances existingData = arff.getData();
-                    model = Instances.mergeInstances(existingData, model);
+                    model = arff.getData();
                 } finally {
                     IOUtils.closeQuietly(in);
                 }
+            } else {
+                FastVector schema = new FastVector();
+                model = new Instances("model", schema, 1);
             }
+            Instance newInstance = new SparseInstance(0);
+            newInstance.setDataset(model);
+            for (FeatureDescriptor<? extends Feature<?>> featureDescriptor : featureDescriptors) {
+                Feature<?> feature = document.getFeature(featureDescriptor);
+                if (feature instanceof NumericFeature) {
+                    handleNumericFeature((NumericFeature)feature, newInstance, model);
+                } else if (feature instanceof AnnotationFeature) {
+                    handleAnnotationFeature((AnnotationFeature)feature, newInstance, model);
+                } else if (feature instanceof BooleanFeature) {
+                    handleBooleanFeature((BooleanFeature)feature, newInstance, model);
+                } else if (feature instanceof NominalFeature) {
+                    handleNominalFeature((NominalFeature)feature, newInstance, model);
+                } else {
+                    LOGGER.warn("Unsupported feature type. Ignoring feature: " + featureDescriptor.getIdentifier());
+                }
+            }
+            model.add(newInstance);
+            model.compactify();
             ArffSaver saver = new ArffSaver();
             saver.setInstances(model);
             saver.setFile(targetFile);
@@ -134,15 +135,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param newInstance
      * @param schema
      */
-    private void handleNominalFeature(NominalFeature feature, Instance newInstance, FastVector schema) {
+    private void handleNominalFeature(NominalFeature feature, Instance newInstance, Instances model) {
         String annotationValue = feature.getValue();
-        Attribute attribute = new Attribute(annotationValue);
-        if (schema.indexOf(attribute) == -1) {
-            schema.addElement(attribute);
+        Attribute attribute = model.attribute(annotationValue);
+        if (attribute == null) {
+            attribute = new Attribute(annotationValue);
+            model.insertAttributeAt(attribute, 0);
         }
-        Integer indexOfAttribute = schema.indexOf(attribute);
-
-        newInstance.setValue(indexOfAttribute, 1.0);
+        newInstance.setValue(attribute, 1.0);
     }
 
     /**
@@ -154,16 +154,18 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param newInstance
      * @param schema
      */
-    private void handleBooleanFeature(BooleanFeature feature, Instance newInstance, FastVector schema) {
+    private void handleBooleanFeature(BooleanFeature feature, Instance newInstance, Instances model) {
         FastVector booleanValue = new FastVector(2);
         booleanValue.addElement(new Attribute("true"));
         booleanValue.addElement(new Attribute("false"));
 
-        Attribute attribute = new Attribute(feature.getName(), booleanValue);
-        schema.addElement(attribute);
+        Attribute attribute = model.attribute(feature.getName());
+        if (attribute == null) {
+            attribute = new Attribute(feature.getName(), booleanValue);
+            model.insertAttributeAt(attribute, 0);
+        }
 
-        Integer indexOfAttribute = schema.indexOf(attribute);
-        newInstance.setValue(indexOfAttribute, feature.getValue().toString());
+        newInstance.setValue(attribute, feature.getValue().toString());
     }
 
     /**
@@ -175,16 +177,16 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param model
      * @param schema
      */
-    private void handleAnnotationFeature(AnnotationFeature feature, Instance newInstance, FastVector schema) {
+    private void handleAnnotationFeature(AnnotationFeature feature, Instance newInstance, Instances model) {
         for (Annotation annotation : feature.getValue()) {
             String annotationValue = annotation.getValue();
-            Attribute attribute = new Attribute(annotationValue);
-            if (schema.indexOf(attribute) == -1) {
-                schema.addElement(attribute);
-            }
-            Integer indexOfAttribute = schema.indexOf(attribute);
 
-            newInstance.setValue(indexOfAttribute, 1.0);
+            Attribute attribute = model.attribute(annotationValue);
+            if (attribute == null) {
+                attribute = new Attribute(annotationValue);
+                model.insertAttributeAt(attribute, 0);
+            }
+            newInstance.setValue(attribute, 1.0);
         }
     }
 
@@ -197,13 +199,30 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param model
      * @param schema
      */
-    private void handleNumericFeature(NumericFeature feature, Instance newInstance, FastVector schema) {
-        Attribute attribute = new Attribute(feature.getName());
-        schema.addElement(attribute);
-
-        Integer indexOfAttribute = schema.indexOf(attribute);
-        newInstance.setValue(indexOfAttribute, feature.getValue());
+    private void handleNumericFeature(NumericFeature feature, Instance newInstance, Instances model) {
+        Attribute attribute = model.attribute(feature.getName());
+        if (attribute == null) {
+            attribute = new Attribute(feature.getName());
+            model.insertAttributeAt(attribute, 0);
+        }
+        newInstance.setValue(attribute, feature.getValue());
     }
+    //
+    // public Pair<String, String> parseExistingArffFile() throws IOException {
+    // String arffInput = FileUtils.readFileToString(targetFile);
+    // String schema = StringUtils.substringBefore(arffInput, "@data");
+    // String data = StringUtils.substringAfter(arffInput, "@data");
+    //
+    // Pair<String, String> existingArff = new ImmutablePair<String, String>(schema, data);
+    //
+    // return existingArff;
+    // }
+    //
+    // public void writeArffFile(String schema, String data) throws IOException {
+    // FileUtils.writeStringToFile(targetFile, schema, false);
+    // FileUtils.writeStringToFile(targetFile, "\n@data\n", true);
+    // FileUtils.writeStringToFile(targetFile, data, true);
+    // }
 }
 // Collection<Item> dataset = persistenceLayer.loadItemsLabeledBy(labeler)
 //
