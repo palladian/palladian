@@ -10,14 +10,14 @@ import ws.palladian.extraction.PipelineDocument;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class Annotation implements Comparable<Annotation> {
+public abstract class Annotation<T> implements Comparable<Annotation<T>> {
 
     /**
      * <p>
      * The document this {@link Annotation} points to.
      * </p>
      */
-    private final PipelineDocument<?> document;
+    private final PipelineDocument<T> document;
 
     /**
      * <p>
@@ -33,7 +33,7 @@ public abstract class Annotation implements Comparable<Annotation> {
      * 
      * @param document The {@link PipelineDocument} the {@link Annotation} points to.
      */
-    public Annotation(PipelineDocument<?> document) {
+    public Annotation(PipelineDocument<T> document) {
         super();
         this.document = document;
         this.featureVector = new FeatureVector();
@@ -46,7 +46,7 @@ public abstract class Annotation implements Comparable<Annotation> {
      * 
      * @return The {@link PipelineDocument} containing the annotated content.
      */
-    public final PipelineDocument<?> getDocument() {
+    public final PipelineDocument<T> getDocument() {
         return this.document;
     }
 
@@ -120,7 +120,7 @@ public abstract class Annotation implements Comparable<Annotation> {
      * @param annotation The {@code Annotation} to compare this {@code Annotation} to.
      */
     @Override
-    public int compareTo(Annotation annotation) {
+    public int compareTo(Annotation<T> annotation) {
         return this.getStartPosition().compareTo(annotation.getStartPosition());
     }
 

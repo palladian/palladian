@@ -13,7 +13,7 @@ import ws.palladian.extraction.PipelineDocument;
  * @version 3.0
  * @since 0.1.7
  */
-public final class PositionAnnotation extends Annotation {
+public final class PositionAnnotation extends Annotation<String> {
 
     /**
      * <p>
@@ -52,8 +52,8 @@ public final class PositionAnnotation extends Annotation {
      * @param endPosition The position of the first character after the end of this {@code Annotation}.
      * @param index The running index of this {@link Annotation}.
      */
-    public <F> PositionAnnotation(PipelineDocument<F> document, int startPosition, int endPosition, int index) {
-        this(document, startPosition, endPosition, index, "");
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index) {
+        this(document, startPosition, endPosition, index, null);
     }
 
     /**
@@ -66,11 +66,11 @@ public final class PositionAnnotation extends Annotation {
      * @param startPosition The position of the first character of this {@code Annotation}.
      * @param endPosition The position of the first character after the end of this {@code Annotation}.
      */
-    public <F> PositionAnnotation(PipelineDocument<F> document, int startPosition, int endPosition) {
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition) {
         this(document, startPosition, endPosition, -1);
     }
 
-    public <F> PositionAnnotation(PipelineDocument<F> document, int startPosition, int endPosition, String value) {
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, String value) {
         this(document, startPosition, endPosition, -1, value);
     }
 
@@ -86,7 +86,7 @@ public final class PositionAnnotation extends Annotation {
      * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
-    public <F> PositionAnnotation(PipelineDocument<F> document, int startPosition, int endPosition, int index,
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index,
             String value) {
         super(document);
 
@@ -113,6 +113,9 @@ public final class PositionAnnotation extends Annotation {
 
     @Override
     public String getValue() {
+    	if (value == null) {
+    		value = getDocument().getContent().substring(startPosition, endPosition);
+    	}
         return value;
     }
 
