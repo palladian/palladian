@@ -44,7 +44,7 @@ public final class RatioExtractor extends StringDocumentPipelineProcessor {
         Double dividend = convertToNumber(dividendFeature.getValue());
         Double divisor = convertToNumber(divisorFeature.getValue());
 
-        document.addFeature(new NumericFeature(getFeatureDescriptor(), dividend / divisor));
+        document.addFeature(new NumericFeature(getDescriptor(), dividend / divisor));
     }
 
     private Double convertToNumber(Object value) {
@@ -59,7 +59,7 @@ public final class RatioExtractor extends StringDocumentPipelineProcessor {
         }
     }
 
-    public FeatureDescriptor<NumericFeature> getFeatureDescriptor() {
+    public FeatureDescriptor<NumericFeature> getDescriptor() {
         return featureDescriptor;
     }
 
