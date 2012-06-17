@@ -111,7 +111,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                 } else if (feature instanceof NominalFeature) {
                     handleNominalFeature((NominalFeature)feature, newInstance, model);
                 } else {
-                    LOGGER.warn("Unsupported feature type. Ignoring feature: " + featureDescriptor.getIdentifier());
+                    LOGGER.warn("Unsupported feature type or feature not found. Ignoring feature: "
+                            + featureDescriptor.getIdentifier());
                 }
             }
             model.add(newInstance);
@@ -119,7 +120,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             ArffSaver saver = new ArffSaver();
             saver.setInstances(model);
             saver.setFile(targetFile);
-            LOGGER.info("Saving dataset to: " + targetFile.getAbsoluteFile());
+            LOGGER.debug("Saving dataset to: " + targetFile.getAbsoluteFile());
             saver.writeBatch();
         } catch (IOException e) {
             throw new DocumentUnprocessableException(e);
@@ -155,13 +156,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param schema
      */
     private void handleBooleanFeature(BooleanFeature feature, Instance newInstance, Instances model) {
-        FastVector booleanValue = new FastVector(2);
-        booleanValue.addElement(new Attribute("true"));
-        booleanValue.addElement(new Attribute("false"));
-
         Attribute attribute = model.attribute(feature.getName());
         if (attribute == null) {
+            FastVector booleanValue = new FastVector(2);
+            booleanValue.addElement("true");
+            booleanValue.addElement("false");
+
             attribute = new Attribute(feature.getName(), booleanValue);
+
             model.insertAttributeAt(attribute, 0);
         }
 

@@ -178,6 +178,29 @@ public class ProcessingPipeline implements Serializable {
         LOGGER.info("Finished pipeline.");
     }
 
+    public void processContinuous() throws DocumentUnprocessableException {
+        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors.size());
+        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>(pipes.size());
+
+        do {
+            for (PipelineProcessor processor : pipelineProcessors) {
+                if (processor.isExecutable()) {
+                    executePreProcessingHook(processor);
+                    processor.process();
+                    executePostProcessingHook(processor);
+                    executedProcessors.add(processor);
+                }
+            }
+            for (Pipe<?> pipe : pipes) {
+                if (pipe.canFire()) {
+                    pipe.transit();
+                    executedPipes.add(pipe);
+                }
+            }
+            resetExecutedPipes(executedPipes);
+        } while (!executedProcessors.isEmpty());
+    }
+
     /**
      * <p>
      * 
@@ -194,12 +217,12 @@ public class ProcessingPipeline implements Serializable {
 
     protected void executePostProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
-        LOGGER.info("Start processing on " + processor.getClass().getName());
+        LOGGER.debug("Start processing on " + processor.getClass().getName());
     }
 
     protected void executePreProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
-        LOGGER.info("Finished processing on " + processor.getClass().getName());
+        LOGGER.debug("Finished processing on " + processor.getClass().getName());
     }
 
     @Override
