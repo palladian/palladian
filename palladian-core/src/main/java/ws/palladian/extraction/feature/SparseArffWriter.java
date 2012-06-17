@@ -124,6 +124,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             saver.writeBatch();
         } catch (IOException e) {
             throw new DocumentUnprocessableException(e);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new DocumentUnprocessableException(e);
         }
     }
 
@@ -142,6 +144,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         if (attribute == null) {
             attribute = new Attribute(annotationValue);
             model.insertAttributeAt(attribute, 0);
+            attribute = model.attribute(annotationValue);
         }
         newInstance.setValue(attribute, 1.0);
     }
@@ -165,6 +168,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             attribute = new Attribute(feature.getName(), booleanValue);
 
             model.insertAttributeAt(attribute, 0);
+            attribute = model.attribute(feature.getName());
         }
 
         newInstance.setValue(attribute, feature.getValue().toString());
@@ -187,6 +191,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             if (attribute == null) {
                 attribute = new Attribute(annotationValue);
                 model.insertAttributeAt(attribute, 0);
+                attribute = model.attribute(annotationValue);
             }
             newInstance.setValue(attribute, 1.0);
         }
@@ -206,6 +211,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         if (attribute == null) {
             attribute = new Attribute(feature.getName());
             model.insertAttributeAt(attribute, 0);
+            attribute = model.attribute(feature.getName());
         }
         newInstance.setValue(attribute, feature.getValue());
     }
