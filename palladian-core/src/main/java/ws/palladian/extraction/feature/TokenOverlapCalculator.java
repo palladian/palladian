@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+
 import scala.actors.threadpool.Arrays;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
@@ -76,8 +78,12 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
         PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).getPipelineDocument();
         PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).getPipelineDocument();
 
-        final List<Annotation> input1Annotations = document1.getFeature(input1FeatureDescriptor).getValue();
-        final List<Annotation> input2Annotations = document2.getFeature(input2FeatureDescriptor).getValue();
+        AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
+        Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
+        final List<Annotation> input1Annotations = feature1.getValue();
+        AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
+        Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
+        final List<Annotation> input2Annotations = feature2.getValue();
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();

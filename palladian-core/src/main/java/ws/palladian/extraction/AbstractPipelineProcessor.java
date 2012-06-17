@@ -102,8 +102,8 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor 
     private void allOutputPortsAvailable() throws DocumentUnprocessableException {
         for (Port<?> outputPort : getOutputPorts()) {
             if (outputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Output port: " + outputPort
-                        + " does not provide required output.");
+                throw new DocumentUnprocessableException("Output port: " + outputPort + " for class: "
+                        + this.getClass() + " does not provide required output.");
             }
         }
     }

@@ -12,6 +12,7 @@ import scala.actors.threadpool.Arrays;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.pos.BasePosTagger;
+import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
@@ -21,6 +22,11 @@ import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.PositionAnnotation;
 
 /**
+ * <p>
+ * Annotates all nouns in a text. The text must have been processed by an {@link AbstractSentenceDetector} and a
+ * {@link BaseTokenizer}.
+ * </p>
+ * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
@@ -47,7 +53,12 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         AnnotationFeature sentencesFeature = document.getFeature(LingPipeSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
+        Validate.notNull(
+                sentencesFeature,
+                "Nount annotator can only work if the text was processed by an AbstractSentenceDetector. Please add one to your pipeline.");
         AnnotationFeature tokenFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        Validate.notNull(tokenFeature,
+                "Nount annotator can only work if the text was processed by a BaseTokenizer. Please add one to your pipeline.");
 
         List<Annotation> ret = new ArrayList<Annotation>();
         @SuppressWarnings("unchecked")

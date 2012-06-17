@@ -170,17 +170,36 @@ public class ProcessingPipeline implements Serializable {
                     executedPipes.add(pipe);
                 }
             }
+            resetExecutedPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
+                                               // iteration again.
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
+        LOGGER.info("Finished pipeline.");
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param executedPipes
+     */
+    private void resetExecutedPipes(Collection<Pipe<?>> executedPipes) {
+        for (Pipe<?> pipe : executedPipes) {
+            pipe.clearInput();
+        }
+
     }
 
     protected void executePostProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
+        LOGGER.info("Start processing on " + processor.getClass().getName());
     }
 
     protected void executePreProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
+        LOGGER.info("Finished processing on " + processor.getClass().getName());
     }
 
     @Override
