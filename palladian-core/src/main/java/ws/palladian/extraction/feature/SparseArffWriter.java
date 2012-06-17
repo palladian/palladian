@@ -139,14 +139,20 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param schema
      */
     private void handleNominalFeature(NominalFeature feature, Instance newInstance, Instances model) {
-        String annotationValue = feature.getValue();
-        Attribute attribute = model.attribute(annotationValue);
+        String featureName = feature.getName();
+        Attribute attribute = model.attribute(featureName);
         if (attribute == null) {
-            attribute = new Attribute(annotationValue);
+            FastVector possibleValues = new FastVector(feature.getPossibleValues().length);
+            possibleValues.addElement("dummy");
+            for (String value : feature.getPossibleValues()) {
+                possibleValues.addElement(value);
+            }
+
+            attribute = new Attribute(featureName, possibleValues);
             model.insertAttributeAt(attribute, 0);
-            attribute = model.attribute(annotationValue);
+            attribute = model.attribute(featureName);
         }
-        newInstance.setValue(attribute, 1.0);
+        newInstance.setValue(attribute, feature.getValue());
     }
 
     /**
@@ -162,6 +168,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         Attribute attribute = model.attribute(feature.getName());
         if (attribute == null) {
             FastVector booleanValue = new FastVector(2);
+            booleanValue.addElement("dummy");
             booleanValue.addElement("true");
             booleanValue.addElement("false");
 
