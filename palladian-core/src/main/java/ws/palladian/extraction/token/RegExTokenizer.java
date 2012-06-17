@@ -55,13 +55,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
     public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor, final String pattern) {
-        super();
-
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-        Validate.notNull(pattern, "pattern must not be null");
-
-        this.pattern = Pattern.compile(pattern);
-        this.featureDescriptor = featureDescriptor;
+        this(featureDescriptor, Pattern.compile(pattern));
     }
 
     /**
@@ -73,13 +67,8 @@ public final class RegExTokenizer extends BaseTokenizer {
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
      */
     public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
-        super();
-
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-
         // The default case to keep compatibility to old code.
-        this.pattern = Tokenizer.SPLIT_PATTERN;
-        this.featureDescriptor = featureDescriptor;
+        this(featureDescriptor, Tokenizer.SPLIT_PATTERN);
     }
 
     /**
@@ -90,10 +79,26 @@ public final class RegExTokenizer extends BaseTokenizer {
      * 
      */
     public RegExTokenizer() {
+        this(PROVIDED_FEATURE_DESCRIPTOR, Tokenizer.SPLIT_PATTERN);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided
+     * {@link FeatureDescriptor} and annotating token matching the provided {@code pattern}.
+     * </p>
+     * 
+     * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
+     * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
+     */
+    public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor, final Pattern pattern) {
         super();
 
-        this.pattern = Tokenizer.SPLIT_PATTERN;
-        this.featureDescriptor = PROVIDED_FEATURE_DESCRIPTOR;
+        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
+        Validate.notNull(pattern, "pattern must not be null");
+
+        this.pattern = pattern;
+        this.featureDescriptor = featureDescriptor;
     }
 
     @Override
