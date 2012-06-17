@@ -87,7 +87,7 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
             HttpResult httpResult = retriever.httpGet("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
                     + "&url=" + encUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
-            Document doc = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
+            Document doc = xmlParser.parse(httpResult);
             Node refDomainsNode = XPathHelper.getNode(doc, "/Results/Result/@StatsRefDomains");
             if (refDomainsNode != null) {
                 String refDomains = refDomainsNode.getNodeValue();

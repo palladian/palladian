@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+/** @formatter:off */
 public class UrlHelperTest {
 
     @Test

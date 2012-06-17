@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -72,7 +73,7 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
         try {
             String encUrl = UrlHelper.urlEncode(url);
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
-            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             JSONArray entries = json.getJSONArray("entries");
             float posts = 0;
             float likes = 0;
@@ -104,7 +105,7 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
         boolean error = false;
         try {
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.urlEncode("http://www.google.com/"));
-            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (json != null) {
                 if (json.has("errorCode")) {
                     if (json.get("errorCode").equals("limit-exceeded")) {

@@ -6,8 +6,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import ws.palladian.retrieval.helper.HttpHelper;
+
 /**
- * <p>Represents a response for an HTTP request, e.g. GET or HEAD.</p>
+ * <p>
+ * Represents a response for an HTTP request, e.g. GET or HEAD.
+ * </p>
  * 
  * @author Philipp Katz
  * 
@@ -17,7 +21,7 @@ public class HttpResult implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final String HEADER_SEPARATOR = "; ";
-    
+
     private final String url;
     private final byte[] content;
     private final Map<String, List<String>> headers;
@@ -25,7 +29,9 @@ public class HttpResult implements Serializable {
     private final long transferedBytes;
 
     /**
-     * <p>Instantiate a new {@link HttpResult}.</p>
+     * <p>
+     * Instantiate a new {@link HttpResult}.
+     * </p>
      * 
      * @param url the result's URL.
      * @param content the content as byte array; empty byte array for response without content (e.g. HEAD).
@@ -33,11 +39,7 @@ public class HttpResult implements Serializable {
      * @param statusCode the HTTP response code.
      * @param transferedBytes the number of transfered bytes.
      */
-    public HttpResult(
-            String url, 
-            byte[] content, 
-            Map<String, List<String>> headers, 
-            int statusCode,
+    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
             long transferedBytes) {
         super();
         this.url = url;
@@ -55,7 +57,13 @@ public class HttpResult implements Serializable {
     }
 
     /**
-     * @return the content as byte array; emtpy byte array for response without content (e.g. HEAD).
+     * <p>
+     * Get this {@link HttpResult}'s content as byte array. For requests returning Strings, you may use
+     * {@link HttpHelper#getStringContent(HttpResult)} to convert considering the correct encoding. The usage of
+     * <code>new String({@link HttpResult#getContent()})</code> is discouraged, as the sytem's default encoding is used.
+     * </p>
+     * 
+     * @return the content as byte array; empty byte array for response without content (e.g. HEAD).
      */
     public byte[] getContent() {
         return content;
@@ -69,16 +77,22 @@ public class HttpResult implements Serializable {
     }
 
     /**
-     * <p>Get the HTTP header for the specified name.</p>
+     * <p>
+     * Get the HTTP header for the specified name.
+     * </p>
+     * 
      * @param name the name of the HTTP header to get.
      * @return List of values, or <code>null</code> if no such header name.
      */
     public List<String> getHeader(String name) {
         return headers.get(name);
     }
-    
+
     /**
-     * <p>Get the HTTP header for the specified name as String.</p>
+     * <p>
+     * Get the HTTP header for the specified name as String.
+     * </p>
+     * 
      * @param name the name of the HTTP header to get.
      * @return header value, or <code>null</code> if no such header name.
      */

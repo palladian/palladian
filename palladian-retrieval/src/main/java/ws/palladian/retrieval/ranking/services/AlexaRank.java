@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +51,7 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
             String encUrl = UrlHelper.urlEncode(url);
             HttpResult httpResult = retriever.httpGet("http://data.alexa.com/data?cli=10&dat=s&url=" + encUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
-            Document doc = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
+            Document doc = xmlParser.parse(httpResult);
 
             Node popularityNode = XPathHelper.getNode(doc, "/ALEXA/SD/POPULARITY/@TEXT");
             if (popularityNode != null) {
