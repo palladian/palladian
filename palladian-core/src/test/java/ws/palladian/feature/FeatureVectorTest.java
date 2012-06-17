@@ -26,7 +26,7 @@ public class FeatureVectorTest {
     @Before
     public void setUp() {
         featureVector = new FeatureVector();
-        f1 = new NominalFeature("nominalFeature1", "test");
+        f1 = new NominalFeature("nominalFeature1", "test", "value1", "value2");
         f2 = new Feature<String>("nominalFeature3", "test");
         f3 = new NumericFeature("numericFeature1", 2.);
         f4 = new Feature<Double>("numericFeature2", 3.);
@@ -35,7 +35,7 @@ public class FeatureVectorTest {
         featureVector.add(f3);
         featureVector.add(f4);
     }
-    
+
     @Test
     public void testRetrieveFeaturesByDescriptor() {
         FeatureVector featureVector = new FeatureVector();
@@ -46,11 +46,11 @@ public class FeatureVectorTest {
         featureVector.add(nominalFeature);
 
         NominalFeature retrievedFeature = featureVector.get(featureDescriptor);
-        
+
         assertEquals("test", retrievedFeature.getValue());
         assertEquals(NominalFeature.class, retrievedFeature.getClass());
     }
-    
+
     @Test
     public void testRetrieveFeaturesByType() {
         assertEquals(4, featureVector.size());
@@ -63,7 +63,7 @@ public class FeatureVectorTest {
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
     }
-    
+
     @Test
     public void testCopyFeatureVector() {
         FeatureVector newFeatureVector = new FeatureVector(featureVector);
