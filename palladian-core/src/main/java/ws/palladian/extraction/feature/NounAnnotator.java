@@ -17,7 +17,9 @@ import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.PositionAnnotation;
 
@@ -67,7 +69,9 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
             List<Annotation> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
                     sentence.getEndPosition());
             for (Annotation token : tokens) {
-                NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
+            	//NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
+            	FeatureVector tokenFeatureVector = token.getFeatureVector();
+            	NominalFeature posTag = tokenFeatureVector.get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
                 if (nounTagList.contains(posTag.getValue())) {
                     ret.add(new PositionAnnotation(document, token.getStartPosition(), token.getEndPosition()));
                 }
