@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

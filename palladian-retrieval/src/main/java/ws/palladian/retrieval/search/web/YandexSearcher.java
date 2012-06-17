@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
