@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.token.RegExTokenizer;
-
 /**
  * <p>
  * A pipeline handling information processing components implemented by {@link PipelineProcessor}s to process
@@ -174,9 +172,6 @@ public class ProcessingPipeline implements Serializable {
             executedPipes.clear();
 
             for (PipelineProcessor processor : executableProcessors) {
-                if (processor instanceof RegExTokenizer) {
-                    System.out.println(processor);
-                }
                 if (processor.isExecutable()) {
                     executePreProcessingHook(processor);
                     processor.process();

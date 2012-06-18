@@ -1,6 +1,6 @@
 package ws.palladian.extraction;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
