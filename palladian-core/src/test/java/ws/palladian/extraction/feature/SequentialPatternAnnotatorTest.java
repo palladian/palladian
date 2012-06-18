@@ -24,8 +24,8 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.model.SequentialPattern;
 import ws.palladian.model.features.Annotation;
+import ws.palladian.model.features.SequentialPattern;
 
 // TODO since the LSP algorithm is so slow this test should not run regularly.
 /**

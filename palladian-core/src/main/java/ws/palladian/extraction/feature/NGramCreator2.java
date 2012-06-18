@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
@@ -11,6 +12,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.AnnotationGroup;
+import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureVector;
 import ws.palladian.model.features.NominalFeature;
 
@@ -32,14 +34,15 @@ public class NGramCreator2 extends StringDocumentPipelineProcessor {
 
     private final int minLength;
     private final int maxLength;
+    private final FeatureDescriptor<NominalFeature>[] considerableFeatureDescriptors;
 
     /**
      * <p>
      * Create a new {@link NGramCreator2} which calculates 2-grams.
      * </p>
      */
-    public NGramCreator2() {
-        this(2, 2);
+    public NGramCreator2(final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        this(2, 2, considerableFeatureDescriptors);
     }
 
     /**
@@ -49,8 +52,8 @@ public class NGramCreator2 extends StringDocumentPipelineProcessor {
      * 
      * @param maxLength
      */
-    public NGramCreator2(int maxLength) {
-        this(2, maxLength);
+    public NGramCreator2(int maxLength, final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        this(2, maxLength, considerableFeatureDescriptors);
     }
 
     /**
@@ -61,9 +64,17 @@ public class NGramCreator2 extends StringDocumentPipelineProcessor {
      * @param minLength
      * @param maxLength
      */
-    public NGramCreator2(int minLength, int maxLength) {
+    public NGramCreator2(int minLength, int maxLength,
+            final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        super();
+
+        Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
+        Validate.inclusiveBetween(1, Integer.MAX_VALUE, minLength);
+        Validate.inclusiveBetween(minLength, Integer.MAX_VALUE, maxLength);
+
         this.minLength = minLength;
         this.maxLength = maxLength;
+        this.considerableFeatureDescriptors = considerableFeatureDescriptors;
     }
 
     @Override
@@ -93,23 +104,26 @@ public class NGramCreator2 extends StringDocumentPipelineProcessor {
      * @param length
      * @return
      */
-    private List<AnnotationGroup> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
+    private List<AnnotationGroup> createNGrams(PipelineDocument<String> document, List<Annotation> annotations,
+            int length) {
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
             AnnotationGroup gramToken = new AnnotationGroup(document);
             // FIXME those extra processing steps should go to their own NGramPostprocessorAnnotator
-            List<String> unstems = new ArrayList<String>();
-            // List<String> posTags = new ArrayList<String>();
-            for (int j = i; j < i + length; j++) {
-                gramToken.add(tokensArray[j]);
-                unstems.add(tokensArray[j].getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
-                // posTags.add(tokensArray[j].getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
+            for (FeatureDescriptor<NominalFeature> featureDescriptor : considerableFeatureDescriptors) {
+                // List<String> unstems = new ArrayList<String>();
+                List<String> posTags = new ArrayList<String>();
+                for (int j = i; j < i + length; j++) {
+                    gramToken.add(tokensArray[j]);
+                    // unstems.add(tokensArray[j].getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue());
+                    posTags.add(tokensArray[j].getFeature(featureDescriptor).getValue().toString());
+                }
+                // gramToken.getFeatureVector().add(
+                // new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
+                gramToken.getFeatureVector().add(new NominalFeature(featureDescriptor, StringUtils.join(posTags, "")));
             }
-            gramToken.getFeatureVector().add(
-                    new NominalFeature(StemmerAnnotator.UNSTEM, StringUtils.join(unstems, " ")));
-            // gramToken.getFeatureVector().add(new NominalFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR,
-            // StringUtils.join(posTags, "")));
+
             if (isConsecutive(gramToken)) {
                 gramTokens.add(gramToken);
             }

@@ -19,8 +19,6 @@ import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.model.SequentialPattern;
-import ws.palladian.model.SequentialPatternFeature;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.Feature;
@@ -28,6 +26,8 @@ import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.model.features.SequentialPattern;
+import ws.palladian.model.features.SequentialPatternFeature;
 
 /**
  * <p>
@@ -53,11 +53,13 @@ import ws.palladian.model.features.PositionAnnotation;
  * 
  * @author Klemens Muthmann
  * @version 1.0
- * @since 1.0
+ * @since 0.1.7
  */
 public final class SequentialPatternAnnotator extends StringDocumentPipelineProcessor {
     /**
-     * 
+     * <p>
+     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
+     * </p>
      */
     private static final long serialVersionUID = -1433065329363584974L;
 
