@@ -188,6 +188,9 @@ public class MathHelper {
         double[] doubles = new double[valueList.size()];
         int i = 0;
         for (Number entry : valueList) {
+            if (entry == null) {
+                continue;
+            }
             doubles[i++] = entry.doubleValue();
         }
 
