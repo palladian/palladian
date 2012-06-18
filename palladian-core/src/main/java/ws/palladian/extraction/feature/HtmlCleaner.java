@@ -32,6 +32,7 @@ public final class HtmlCleaner extends StringDocumentPipelineProcessor {
     public final void processDocument(PipelineDocument<String> document) {
         String text = document.getContent();
         String cleanedText = HtmlHelper.stripHtmlTags(text);
+        cleanedText = cleanedText.replaceAll("<br\\s*/?>", "\n");
         cleanedText = StringEscapeUtils.unescapeHtml4(cleanedText);
         document.setContent(cleanedText);
     }

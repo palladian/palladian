@@ -17,6 +17,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -81,7 +82,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
-                JSONArray jsonArray = new JSONArray(new String(httpResult.getContent()));
+                JSONArray jsonArray = new JSONArray(HttpHelper.getStringContent(httpResult));
                 if (jsonArray.length() == 1) {
                     json = jsonArray.getJSONObject(0);
                 }
@@ -132,7 +133,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                     + encUrls);
 
             HttpResult response = retriever.httpPost("https://api.facebook.com/method/fql.query", postData);
-            String content = new String(response.getContent());
+            String content = HttpHelper.getStringContent(response);
             JSONArray json = null;
             if (content.length() > 0) {
                 try {

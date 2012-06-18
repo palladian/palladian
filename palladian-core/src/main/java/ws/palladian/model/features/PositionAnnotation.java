@@ -10,9 +10,10 @@ import ws.palladian.extraction.PipelineDocument;
  * 
  * @author Philipp Katz
  * @author Klemens Muthmann
+ * @version 3.0
+ * @since 0.1.7
  */
-// FIXME PipelineDocuments are not generic here.
-public final class PositionAnnotation extends Annotation {
+public final class PositionAnnotation extends Annotation<String> {
 
     /**
      * <p>
@@ -43,8 +44,7 @@ public final class PositionAnnotation extends Annotation {
 
     /**
      * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
-     * provided {@code PipelineDocument}.
+     * Creates a new {@code PositionAnnotation} completely initialized.
      * </p>
      * 
      * @param document The document this {@code Annotation} points to.
@@ -52,8 +52,8 @@ public final class PositionAnnotation extends Annotation {
      * @param endPosition The position of the first character after the end of this {@code Annotation}.
      * @param index The running index of this {@link Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, int index) {
-        this(document, "originalContent", startPosition, endPosition, index);
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index) {
+        this(document, startPosition, endPosition, index, null);
     }
 
     /**
@@ -66,8 +66,12 @@ public final class PositionAnnotation extends Annotation {
      * @param startPosition The position of the first character of this {@code Annotation}.
      * @param endPosition The position of the first character after the end of this {@code Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition) {
-        this(document, "originalContent", startPosition, endPosition, -1);
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition) {
+        this(document, startPosition, endPosition, -1);
+    }
+
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, String value) {
+        this(document, startPosition, endPosition, -1, value);
     }
 
     /**
@@ -82,75 +86,14 @@ public final class PositionAnnotation extends Annotation {
      * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
-    public PositionAnnotation(PipelineDocument document, int startPosition, int endPosition, int index, String value) {
-        this(document, "originalContent", startPosition, endPosition, index, value);
-    }
+    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index,
+            String value) {
+        super(document);
 
-    /**
-     * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized.
-     * </p>
-     * 
-     * @param document The document this {@code Annotation} points to.
-     * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
-     *            to.
-     * @param startPosition The position of the first character of this {@code Annotation}.
-     * @param endPosition The position of the first character after the end of this {@code Annotation}.
-     * @param index The running index of this {@link Annotation}.
-     */
-    public PositionAnnotation(PipelineDocument<String> document, String viewName, int startPosition, int endPosition,
-            int index) {
-        // return a copy of the String, elsewise we will run into memory problems,
-        // as the original String from the document might never get GC'ed, as long
-        // as we keep its Tokens in memory
-        // http://fishbowl.pastiche.org/2005/04/27/the_string_memory_gotcha/
-        // this(document, viewName, startPosition, endPosition, index, new
-        // String(document.getOriginalContent().substring(startPosition, endPosition)));
-
-        // after further consideration, I think this does not make sense; an Annotation is conceptually inherently tied
-        // to its document, so we point to the document's string. If there should be a use case of keeping position
-        // annotations without the document, we might think about some "detach" method here, but currently I don't see
-        // the need.
-        this(document, viewName, startPosition, endPosition, index, document.getContent().substring(startPosition,
-                endPosition));
-    }
-
-    /**
-     * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized.
-     * </p>
-     * 
-     * @param document The document this {@code Annotation} points to.
-     * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
-     *            to.
-     * @param startPosition The position of the first character of this {@code Annotation}.
-     * @param endPosition The position of the first character after the end of this {@code Annotation}.
-     * @param index The running index of this {@link Annotation}.
-     * @param value The text value of this {@link Annotation}.
-     */
-    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition,
-            int index, String value) {
-        super(document, viewName);
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.index = index;
         this.value = value;
-    }
-
-    /**
-     * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized.
-     * </p>
-     * 
-     * @param document The document this {@code Annotation} points to.
-     * @param viewName The name of the view in the provided document holding the content the {@code Annotation} points
-     *            to.
-     * @param startPosition The position of the first character of this {@code Annotation}.
-     * @param endPosition The position of the first character after the end of this {@code Annotation}.
-     * @param value The text value of this {@link Annotation}.
-     */
-    public PositionAnnotation(PipelineDocument document, String viewName, int startPosition, int endPosition) {
-        this(document, viewName, startPosition, endPosition, -1);
     }
 
     @Override
@@ -170,6 +113,9 @@ public final class PositionAnnotation extends Annotation {
 
     @Override
     public String getValue() {
+    	if (value == null) {
+    		value = getDocument().getContent().substring(startPosition, endPosition);
+    	}
         return value;
     }
 

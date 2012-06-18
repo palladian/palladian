@@ -1,19 +1,13 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
@@ -141,116 +135,7 @@ public class FeedReaderEvaluator {
         return benchmarkModeString;
     }
 
-    /**
-     * <p>
-     * Save the feed poll information for evaluation. We also save information that is redundant for performance
-     * reasons.
-     * </p>
-     * 
-     * <p>
-     * For each update technique and evaluation mode another file must be written (8 in total = 4 techniques * 2
-     * evaluation modes). This method writes only one file for the current settings.
-     * </p>
-     * 
-     * <p>
-     * Each file contains the following fields per line, fields are separated with a semicolon:
-     * <ul>
-     * <li>feed id</li>
-     * <li>number of poll</li>
-     * <li>feed activity pattern</li>
-     * <li>conditional get response size in Byte (NULL if it neither ETag nor LastModifiedSince is supported)</li>
-     * <li>size of poll in Byte</li>
-     * <li>poll timestamp in seconds</li>
-     * <li>check interval at poll time in minutes</li>
-     * <li>number of new items in the window (missed are not counted)</li>
-     * <li>number of missed news items</li>
-     * <li>window size</li>
-     * <li>cumulated delay in seconds (only for evaluation mode MIN interesting)</li>
-     * </ul>
-     * </p>
-     * 
-     * @deprecated Recorded evaluation results can be written to database, see
-     *             {@link EvaluationFeedDatabase#addPollData(PollData, int, int, String)}
-     */
-    @Deprecated
-    public static void writeRecordedMaps(FeedReader feedReader) {
 
-        StopWatch sw = new StopWatch();
-
-        String separator = ";";
-
-        String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
-                + getBenchmarkName() + "_" + getBenchmarkModeString() + "_"
-                + FeedReaderEvaluator.benchmarkSamplePercentage + ".csv";
-
-        try {
-            FileWriter fileWriter = new FileWriter(filePath, true);
-
-            // loop through all feeds
-            for (Feed feed : feedReader.getFeeds()) {
-
-                int numberOfPoll = 1;
-                for (PollData pollData : feed.getPollDataSeries()) {
-
-                    StringBuilder csv = new StringBuilder();
-
-                    // feed related values
-                    csv.append(feed.getId()).append(separator);
-                    csv.append(numberOfPoll).append(separator);
-                    csv.append(feed.getActivityPattern()).append(separator);
-
-                    if (feed.getMetaInformation().getCgHeaderSize() != null) {
-                        csv.append(feed.getMetaInformation().getCgHeaderSize()).append(separator);
-                    } else {
-                        csv.append("\\N").append(separator);
-                    }
-
-                    // poll related values
-                    csv.append(pollData.getDownloadSize()).append(separator);
-                    csv.append(pollData.getPollTimestamp() / 1000l).append(separator);
-                    // csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
-                    csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
-                    csv.append(pollData.getNewWindowItems()).append(separator);
-                    csv.append(pollData.getMisses()).append(separator);
-                    csv.append(pollData.getWindowSize()).append(separator);
-                    csv.append(pollData.getCumulatedDelay() / 1000l).append(separator);
-                    // csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
-
-                    // if (pollData.getTimeliness() != null) {
-                    // csv.append(MathHelper.round(pollData.getTimeliness(), 4)).append(separator);
-                    // } else {
-                    // csv.append("\\N").append(separator);
-                    // }
-                    //
-                    // if (pollData.getTimelinessLate() != null) {
-                    // csv.append(MathHelper.round(pollData.getTimelinessLate(), 4)).append(separator);
-                    // } else {
-                    // csv.append("\\N").append(separator);
-                    // }
-
-                    csv.append("\n");
-
-                    fileWriter.write(csv.toString());
-                    fileWriter.flush();
-
-                    numberOfPoll++;
-                }
-
-                // data is appended to the file so we can/must clear the poll data series here, that also saves us
-                // memory
-                feed.getPollDataSeries().clear();
-            }
-
-            fileWriter.flush();
-            fileWriter.close();
-
-        } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        }
-
-        LOGGER.info("wrote record maps in " + sw.getElapsedTimeString());
-
-    }
 
     /**
      * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an

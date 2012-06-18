@@ -12,15 +12,16 @@ import org.junit.Test;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.ProcessingPipeline;
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 
 public class OpenNlpPosTaggerTest {
 
-    private final PipelineDocument document = new PipelineDocument("The quick brown fox jumps over the lazy dog.");
+    private final PipelineDocument<String> document = new PipelineDocument<String>(
+            "The quick brown fox jumps over the lazy dog.");
     private File modelFile;
 
     @Before
@@ -35,8 +36,8 @@ public class OpenNlpPosTaggerTest {
         processingPipeline.add(new OpenNlpPosTagger(modelFile));
         processingPipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector()
+                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation> annotations = annotationFeature.getValue();
 
         assertEquals(10, annotations.size());

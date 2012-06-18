@@ -21,19 +21,10 @@ import ws.palladian.model.features.FeatureVector;
  * @version 3.0
  * @since 0.0.8
  */
-public interface PipelineProcessor<T> extends Serializable {
+public interface PipelineProcessor extends Serializable {
 
-    // /**
-    // * <p>
-    // * Execute the implemented algorithm on the provided {@link PipelineDocument}.
-    // * </p>
-    // *
-    // * @param document
-    // * The document to be processed by this processor.
-    // * @throws DocumentUnprocessableException
-    // * If the {@code document} could not be processed by this {@code PipelineProcessor}.
-    // */
-    // void process(PipelineDocument<T> document) throws DocumentUnprocessableException;
+    static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
+    static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
 
     void process() throws DocumentUnprocessableException;
 
@@ -41,5 +32,21 @@ public interface PipelineProcessor<T> extends Serializable {
 
     List<Port<?>> getOutputPorts();
 
+    Port<?> getOutputPort(final String name);
+
     Boolean isExecutable();
+
+    /**
+     * <p>
+     * Sets the input at the input port with index {@code inputPortIndex}.
+     * </p>
+     * 
+     * @param inputPortIndex The index of the input port to set the document at.
+     * @param document The document to set at the port specified by {@code inputPortIndex}.
+     */
+    void setInput(final Integer inputPortIndex, final PipelineDocument<?> document);
+
+    void setInput(final String inputPortIdentifier, final PipelineDocument<?> document);
+
+    Port<?> getInputPort(final String name);
 }

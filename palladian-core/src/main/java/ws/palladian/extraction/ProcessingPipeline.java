@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.token.RegExTokenizer;
+
 /**
  * <p>
  * A pipeline handling information processing components implemented by {@link PipelineProcessor}s to process
@@ -38,7 +40,12 @@ public class ProcessingPipeline implements Serializable {
      * The processors this pipeline will execute as ordered by this list from the first to the last.
      * </p>
      */
-    private final List<PipelineProcessor<?>> pipelineProcessors;
+    private final List<PipelineProcessor> pipelineProcessors;
+    /**
+     * <p>
+     * The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}.
+     * </p>
+     */
     private final List<Pipe<?>> pipes;
 
     /**
@@ -48,7 +55,7 @@ public class ProcessingPipeline implements Serializable {
      * </p>
      */
     public ProcessingPipeline() {
-        pipelineProcessors = new ArrayList<PipelineProcessor<?>>();
+        pipelineProcessors = new ArrayList<PipelineProcessor>();
         pipes = new ArrayList<Pipe<?>>();
     }
 
@@ -64,7 +71,7 @@ public class ProcessingPipeline implements Serializable {
      *            to the newly created instance.
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-        pipelineProcessors = new ArrayList<PipelineProcessor<?>>(processingPipeline.getPipelineProcessors());
+        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
         pipes = new ArrayList<Pipe<?>>(processingPipeline.pipes);
     }
 
@@ -75,16 +82,16 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void add(PipelineProcessor<?> pipelineProcessor) {
+    public final <T> void add(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
-            List<Port<?>> previousOutputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
-            if (!previousOutputPorts.isEmpty()) {
-                Port<?> previousOutputPort = previousOutputPorts.get(0);
-
-                Port<?> inputPort = pipelineProcessor.getInputPorts().get(0);
-                if ("defaultInput".equals(inputPort.getName()) && "defaultOutput".equals(previousOutputPort.getName())) {
-                    add(new Pipe(previousOutputPort, inputPort));
+            Port<T> previousOutputPort = (Port<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
+                    PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
+            if (previousOutputPort != null) {
+                Port<T> inputPort = (Port<T>)pipelineProcessor
+                        .getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
+                if (inputPort != null) {
+                    pipes.add(new Pipe<T>(previousOutputPort, inputPort));
                 }
             }
         }
@@ -93,8 +100,20 @@ public class ProcessingPipeline implements Serializable {
         pipelineProcessors.add(pipelineProcessor);
     }
 
-    public final void add(Pipe<?> transition) {
-        pipes.add(transition);
+    /**
+     * <p>
+     * Adds a new {@link PipelineProcessor} to this pipeline. The processor uses the provided {@code pipes} as input
+     * {@code Pipe}s.
+     * </p>
+     * 
+     * @param pipelineProcessor The new processor to add.
+     * @param pipes The input {@code Pipe}s to use for the new {@code PipelineProcessor}.
+     */
+    public final void add(PipelineProcessor pipelineProcessor, Pipe<?>... pipes) {
+        pipelineProcessors.add(pipelineProcessor);
+        for (Pipe<?> pipe : pipes) {
+            this.pipes.add(pipe);
+        }
     }
 
     /**
@@ -105,7 +124,7 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @return The list of registered {@code PipelineProcessor}s.
      */
-    public final List<PipelineProcessor<?>> getPipelineProcessors() {
+    public final List<PipelineProcessor> getPipelineProcessors() {
         return Collections.unmodifiableList(pipelineProcessors);
     }
 
@@ -134,17 +153,30 @@ public class ProcessingPipeline implements Serializable {
         }
     }
 
+    /**
+     * <p>
+     * Starts the processing of this {@code ProcessingPipeline} and runs the whole process exactly once.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException If the {@link PipelineDocument} is not processable by one of the
+     *             {@code PipelineProcessors} of this {@code ProcessingPipeline}.
+     * @see {@link #processContinuous()}
+     */
     public void process() throws DocumentUnprocessableException {
-        Collection<PipelineProcessor<?>> executableProcessors = new ArrayList<PipelineProcessor<?>>(pipelineProcessors);
+        Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
         Collection<Pipe<?>> executablePipes = new ArrayList<Pipe<?>>(pipes);
-        Collection<PipelineProcessor<?>> executedProcessors = new ArrayList<PipelineProcessor<?>>();
+        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>();
         Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>();
+        cleanOutputPorts(); // This is necessary if there are results from previous processing runs.
 
         do {
             executedProcessors.clear();
             executedPipes.clear();
 
-            for (PipelineProcessor<?> processor : executableProcessors) {
+            for (PipelineProcessor processor : executableProcessors) {
+                if (processor instanceof RegExTokenizer) {
+                    System.out.println(processor);
+                }
                 if (processor.isExecutable()) {
                     executePreProcessingHook(processor);
                     processor.process();
@@ -158,17 +190,102 @@ public class ProcessingPipeline implements Serializable {
                     executedPipes.add(pipe);
                 }
             }
+            resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
+                                       // iteration again.
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
+        LOGGER.info("Finished pipeline.");
     }
 
-    protected void executePostProcessingHook(final PipelineProcessor<?> processor) {
+    /**
+     * <p>
+     * A helper function removing the {@link PipelineDocument}s from all output {@link Port}s of all
+     * {@link PipelineProcessor}s of this {@code ProcessingPipeline}, so that all {@code PipelineProcessor}s are ready
+     * to restart processing documents, even if there result was not fetched by any {@code Pipe}.
+     * </p>
+     * 
+     */
+    private void cleanOutputPorts() {
+        for (PipelineProcessor processor : pipelineProcessors) {
+            for (Port<?> port : processor.getOutputPorts()) {
+                port.setPipelineDocument(null);
+            }
+        }
+    }
+
+    /**
+     * <p>
+     * Runs the pipeline continuous as long as at least one {@link PipelineProcessor} is executable. This is for example
+     * true as long as any source {@code PipelineProcessor} still has some input to process.
+     * </p>
+     * 
+     * @throws DocumentUnprocessableException If the process encounters a {@link PipelineDocument} it can not process.
+     */
+    public void processContinuous() throws DocumentUnprocessableException {
+        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors.size());
+        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>(pipes.size());
+        // TODO actually this needs to be done after every complete run of the workflow. However I am currently not able
+        // to know when a complete run is over.
+        cleanOutputPorts();
+
+        do {
+            for (PipelineProcessor processor : pipelineProcessors) {
+                if (processor.isExecutable()) {
+                    executePreProcessingHook(processor);
+                    processor.process();
+                    executePostProcessingHook(processor);
+                    executedProcessors.add(processor);
+                }
+            }
+            for (Pipe<?> pipe : pipes) {
+                if (pipe.canFire()) {
+                    pipe.transit();
+                    executedPipes.add(pipe);
+                }
+            }
+            resetPipes(executedPipes);
+        } while (!executedProcessors.isEmpty());
+    }
+
+    /**
+     * <p>
+     * Resets the provided {@code Pipe}s so they can fire again.
+     * </p>
+     * 
+     * @param pipes The {@code Pipe}s to reset.
+     */
+    private void resetPipes(Collection<Pipe<?>> pipes) {
+        for (Pipe<?> pipe : pipes) {
+            pipe.clearInput();
+        }
+
+    }
+
+    /**
+     * <p>
+     * A hook method, doing nothing in this basic implementation. Subclasses may overwrite it to add custom behaviour
+     * after each run of {@link PipelineProcessor}.
+     * </p>
+     * 
+     * @param processor The {@code PipelineProcessor} that finished running directly before this method was called.
+     */
+    protected void executePostProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
+        LOGGER.debug("Start processing on " + processor.getClass().getName());
     }
 
-    protected void executePreProcessingHook(final PipelineProcessor<?> processor) {
+    /**
+     * <p>
+     * A hook method, doing nothing in this basic implementation. Subclasses may overwrite it to add custom behaviour
+     * before each run of {@link PipelineProcessor}.
+     * </p>
+     * 
+     * @param processor The {@code PipelineProcessor} that is about to run after this method returns.
+     */
+    protected void executePreProcessingHook(final PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
+        LOGGER.debug("Finished processing on " + processor.getClass().getName());
     }
 
     @Override

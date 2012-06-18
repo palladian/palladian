@@ -1,8 +1,10 @@
 package ws.palladian.retrieval.search;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
@@ -15,6 +17,9 @@ import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
+ * <p>
+ * The {@link SearcherFactory} is the prefered way of obtaining instances of different {@link Searcher} implementations.
+ * </p>
  * 
  * @author Philipp Katz
  */
@@ -28,7 +33,7 @@ public final class SearcherFactory {
      * <p>
      * Create and configure a new {@link Searcher} of the specified type. If the Searcher requires a configuration
      * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
-     * configuration of this factory is injected, elseweise (i.e., the Searcher implementation provides a default,
+     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
      * zero-argument constructor), it is simply instantiated without configuration.
      * </p>
      * 
@@ -40,9 +45,7 @@ public final class SearcherFactory {
     public static <S extends Searcher<R>, R extends SearchResult> S createSearcher(Class<S> searcherType,
             Configuration config) {
 
-        if (config == null) {
-            throw new IllegalArgumentException("Configuration must not be null.");
-        }
+        Validate.notNull(config, "config must not be null");
 
         S searcher = null;
 
@@ -53,9 +56,17 @@ public final class SearcherFactory {
             if (parameterTypes.length == 1 && parameterTypes[0].equals(Configuration.class)) {
                 try {
                     searcher = (S)constructor.newInstance(config);
+                } catch (InvocationTargetException e) {
+                    // the constructor threw an exception; re-throw it here was the originating message
+                    if (e.getCause() != null) {
+                        throw new IllegalStateException("Could not instantiate " + searcherType.getName()
+                                + ", exception from constructor: " + e.getCause().getMessage(), e.getCause());
+                    }
+                    throw new IllegalStateException("Could not instantiate " + searcherType.getName()
+                            + " using the constructor with Configuration: " + e.getMessage(), e);
                 } catch (Exception e) {
                     throw new IllegalStateException("Could not instantiate " + searcherType.getName()
-                            + " using the constructor with Configuration.", e);
+                            + " using the constructor with Configuration: " + e.getMessage(), e);
                 }
                 break;
             }
@@ -79,7 +90,7 @@ public final class SearcherFactory {
      * <p>
      * Create and configure a new {@link Searcher} of the specified type. If the Searcher requires a configuration
      * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
-     * configuration of this factory is injected, elseweise (i.e., the Searcher implementation provides a default,
+     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
      * zero-argument constructor), it is simply instantiated without configuration.
      * </p>
      * 
@@ -106,7 +117,6 @@ public final class SearcherFactory {
      * @return
      */
     public static WebSearcher<WebResult> createWebSearcher(String searcherTypeName, Configuration config) {
-        // return createSearcher(searcherTypeName, WebResult.class, config);
         return SearcherFactory.<WebSearcher<WebResult>, WebResult> createSearcher(searcherTypeName, WebResult.class,
                 config);
     }
@@ -118,7 +128,6 @@ public final class SearcherFactory {
      * @return
      */
     public static WebSearcher<WebImageResult> createImageSearcher(String searcherTypeName, Configuration config) {
-        // return createSearcher(searcherTypeName, WebImageResult.class, config);
         return SearcherFactory.<WebSearcher<WebImageResult>, WebImageResult> createSearcher(searcherTypeName,
                 WebImageResult.class, config);
     }
