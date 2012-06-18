@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+/** @formatter:off */
 public class UrlHelperTest {
 
     @Test
@@ -121,6 +122,8 @@ public class UrlHelperTest {
         assertEquals("example.com", UrlHelper.extractUrls("example.com").get(0));
         assertEquals("example.com/", UrlHelper.extractUrls("example.com/").get(0));
         assertThat(UrlHelper.extractUrls("[url=http://foo.com/blah_blah]http://foo.com/blah_blah[/url]"), hasItem("http://foo.com/blah_blah"));
+        assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("'http://foo.com/blah_blah'").get(0));
+        assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("\"http://foo.com/blah_blah\"").get(0));
         
         assertEquals("cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
         assertEquals("1-2-3.net/auctions-Are-out.jpg", UrlHelper.extractUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.").get(0));
@@ -133,6 +136,9 @@ public class UrlHelperTest {
         assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com. This is the next sentence").get(0));
         assertEquals("http://www.cinefreaks.com", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com, this is the next...").get(0));
         assertEquals("http://www.google.com/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m", UrlHelper.extractUrls("http://www.google.com/search?tbm=isch&hl=en&source=hp&biw=1660&bih=751&q=alfred+neuman+mad+magazine&gbv=2&aq=1s&aqi=g1g-s1g-sx1&aql=&oq=alfred+newman+m").get(0));
+
+        assertEquals("http://add.my.yahoo.com/rss?url=http://feeds.reuters.com/news/artsculture", UrlHelper.extractUrls("http://add.my.yahoo.com/rss?url=http://feeds.reuters.com/news/artsculture").get(0));
+        assertEquals("http://stockscreener.us.reuters.com/Stock/US/Index?quickscreen=gaarp", UrlHelper.extractUrls("http://stockscreener.us.reuters.com/Stock/US/Index?quickscreen=gaarp").get(0));
 
         // no URLs
         assertEquals(0, UrlHelper.extractUrls("6:00p").size());

@@ -17,7 +17,7 @@ import org.apache.commons.lang3.Validate;
  * @since 0.0.8
  * @version 2.0
  */
-public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<T> {
+public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor {
     /**
      * <p>
      * Unique identifier to serialize and deserialize objects of this type to and from a file.
@@ -25,14 +25,24 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
      */
     private static final long serialVersionUID = -7030337967596448903L;
 
+    /**
+     * <p>
+     * The input {@link Port}s this processor reads {@link PipelineDocument}s from.
+     * </p>
+     */
     private List<Port<?>> inputPorts;
+    /**
+     * <p>
+     * The output {@link Port}s this processor writes results to.
+     * </p>
+     */
     private List<Port<?>> outputPorts;
 
     /**
      * <p>
-     * Creates a new completely initialized {@code PipelineProcessor} working on the default views. It maps the default
-     * output view ("modifiedContent") from the previous component to the default input ("originalContent") of this
-     * component.
+     * Creates a new completely initialized {@code PipelineProcessor} working with a default input and output
+     * {@code Port}. The input {@code Port} is identified by {@link PipelineProcessor#DEFAULT_INPUT_PORT_IDENTIFIER}
+     * while the output {@code Port} is identified by {@link PipelineProcessor#DEFAULT_OUTPUT_PORT_IDENTIFIER}.
      * </p>
      */
     public AbstractPipelineProcessor() {
@@ -41,10 +51,18 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
         inputPorts = new ArrayList<Port<?>>();
         outputPorts = new ArrayList<Port<?>>();
 
-        inputPorts.add(new Port<String>(DEFAULT_INPUT_PORT_IDENTIFIER));
-        outputPorts.add(new Port<String>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
+        inputPorts.add(new Port<T>(DEFAULT_INPUT_PORT_IDENTIFIER));
+        outputPorts.add(new Port<T>(DEFAULT_OUTPUT_PORT_IDENTIFIER));
     }
 
+    /**
+     * <p>
+     * Creates a new completely initialized {@code PipelineProcessor}
+     * </p>
+     * 
+     * @param inputPorts The input {@link Port}s this processor reads {@link PipelineDocument}s from.
+     * @param outputPorts The output {@link Port}s this processor writes results to.
+     */
     public AbstractPipelineProcessor(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts) {
         super();
 
@@ -84,8 +102,8 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
     private void allOutputPortsAvailable() throws DocumentUnprocessableException {
         for (Port<?> outputPort : getOutputPorts()) {
             if (outputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Output port: " + outputPort
-                        + " does not provide required output.");
+                throw new DocumentUnprocessableException("Output port: " + outputPort + " for class: "
+                        + this.getClass() + " does not provide required output.");
             }
         }
     }
@@ -134,8 +152,16 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
 
     @Override
     public Boolean isExecutable() {
+        // There must be a document at each input port.
         for (Port<?> inputPort : getInputPorts()) {
             if (inputPort.getPipelineDocument() == null) {
+                return false;
+            }
+        }
+
+        // Each output port needs to be empty and ready to recieve data.
+        for (Port<?> outputPort : getOutputPorts()) {
+            if (outputPort.getPipelineDocument() != null) {
                 return false;
             }
         }
@@ -183,5 +209,37 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor<
     @Override
     public String toString() {
         return getClass().getSimpleName();
+    }
+
+    public void setInput(final String inputPortIdentifier, final PipelineDocument<?> document) {
+        for (Port port : inputPorts) {
+            if (port.getName().equals(inputPortIdentifier)) {
+                port.setPipelineDocument(document);
+            }
+        }
+    }
+
+    /**
+     * @return The default output port identified by {@code DEFAULT_OUTPUT_PORT_IDENTIFIER}.
+     */
+    public Port<T> getDefaultOutputPort() {
+        Port<?> defaultOutputPort = getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER);
+        if (defaultOutputPort == null) {
+            return null;
+        } else {
+            return (Port<T>)defaultOutputPort;
+        }
+    }
+
+    /**
+     * @return The default input port identified by {@code DEFAULT_INPUT_PORT_IDENTIFIER}.
+     */
+    public Port<T> getDefaultInputPort() {
+        Port<?> defaultInputPort = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER);
+        if (defaultInputPort == null) {
+            return null;
+        } else {
+            return (Port<T>)defaultInputPort;
+        }
     }
 }

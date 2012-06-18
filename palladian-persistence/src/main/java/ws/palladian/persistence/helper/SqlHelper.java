@@ -2,6 +2,8 @@ package ws.palladian.persistence.helper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * <p>
@@ -10,7 +12,7 @@ import java.sql.SQLException;
  * 
  * @author Sandro Reichert
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class SqlHelper {
 
@@ -108,5 +110,20 @@ public class SqlHelper {
             value = resultSet.wasNull() ? null : value;
         }
         return value;
+    }
+
+    /**
+     * <p>
+     * Convert a {@link Date} to a SQL {@link Timestamp}.
+     * </p>
+     * 
+     * @param date The date to convert.
+     * @return The {@link Timestamp}, or <code>null</code> if date was <code>null</code>.
+     */
+    public static Timestamp getTimestamp(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new Timestamp(date.getTime());
     }
 }

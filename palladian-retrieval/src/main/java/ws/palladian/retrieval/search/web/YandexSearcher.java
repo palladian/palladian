@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -141,7 +140,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
                         + e.getMessage(), e);
             }
             try {
-                Document document = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
+                Document document = xmlParser.parse(httpResult);
                 List<WebResult> currentResults = parse(document);
                 if (currentResults.isEmpty()) {
                     // we did not get any more results

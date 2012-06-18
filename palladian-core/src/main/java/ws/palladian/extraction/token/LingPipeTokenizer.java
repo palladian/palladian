@@ -33,12 +33,13 @@ public final class LingPipeTokenizer extends BaseTokenizer {
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         int index = 0;
-        while (tokenizer.nextToken() != null) {
+        String nextToken = tokenizer.nextToken();
+        while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
             int endPosition = tokenizer.lastTokenEndPosition();
-            annotationFeature.add(new PositionAnnotation(document, startPosition, endPosition, index++));
+            annotationFeature.add(new PositionAnnotation(document, startPosition, endPosition, index++, nextToken));
+            nextToken = tokenizer.nextToken();
         }
         document.getFeatureVector().add(annotationFeature);
     }
-
 }

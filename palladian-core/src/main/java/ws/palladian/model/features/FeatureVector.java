@@ -185,4 +185,17 @@ public class FeatureVector implements Iterable<Feature<?>> {
     public Iterator<Feature<?>> iterator() {
         return features.values().iterator();
     }
+
+    /**
+     * <p>
+     * Adds all features from the provided {@code FeatureVector} to this {@code FeatureVector}.
+     * </p>
+     * 
+     * @param featureVector The {@code FeatureVector} containing the {@link Feature}s to add.
+     */
+    public void addAll(final FeatureVector featureVector) {
+        for (Feature<?> feature : featureVector) {
+            this.add(feature);
+        }
+    }
 }

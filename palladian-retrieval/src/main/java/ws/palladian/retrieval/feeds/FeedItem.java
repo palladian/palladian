@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
@@ -132,18 +131,6 @@ public class FeedItem {
     }
 
     /**
-     * The original publish date as read from the feed('s item). Might be in the future.
-     * 
-     * @return
-     */
-    public Timestamp getPublishedSQLTimestamp() {
-        if (published != null) {
-            return new Timestamp(published.getTime());
-        }
-        return null;
-    }
-
-    /**
      * When the entry was added to the database, usually set by the database.
      * 
      * @return Date the entry was added to the database, usually set by the database.
@@ -242,7 +229,7 @@ public class FeedItem {
      * 
      * @return The items custom hash.
      */
-    public String getHash(){
+    public String getHash() {
         if (itemHash == null) {
             itemHash = generateHash();
         }
@@ -300,20 +287,6 @@ public class FeedItem {
     }
 
     /**
-     * The item's corrected published date. In contrast to {@link #getCorrectedPublishedDate()}, this value may be
-     * modified at the
-     * time of the poll this item has been received the first time.
-     * 
-     * @return The corrected publish date
-     */
-    public Timestamp getCorrectedPublishedSQLTimestamp() {
-        if (correctedPublishedDate != null) {
-            return new Timestamp(correctedPublishedDate.getTime());
-        }
-        return null;
-    }
-
-    /**
      * The item's corrected published date. In contrast to {@link #setPublished(Date)}, this value may be modified at
      * the time of the poll this item has been received the first time.
      * 
@@ -331,18 +304,6 @@ public class FeedItem {
     }
 
     /**
-     * The pollTimestamp as SQLTimestamp
-     * 
-     * @return the pollTimestamp
-     */
-    public Timestamp getPollSQLTimestamp() {
-        if (pollTimestamp != null) {
-            return new Timestamp(pollTimestamp.getTime());
-        }
-        return null;
-    }
-
-    /**
      * @param pollTimestamp the pollTimestamp to set
      */
     public final void setPollTimestamp(Date pollTimestamp) {
@@ -352,8 +313,8 @@ public class FeedItem {
     /**
      * <p>
      * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
-     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}.
-     * Use with caution :)
+     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}. Use
+     * with caution :)
      * </p>
      * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
      * exceed 10 million as seen in TUDCS6 dataset.

@@ -59,5 +59,4 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
         }
         return annotationFeature.getValue();
     }
-
 }

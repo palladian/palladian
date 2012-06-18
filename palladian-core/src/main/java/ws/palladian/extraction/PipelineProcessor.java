@@ -21,7 +21,7 @@ import ws.palladian.model.features.FeatureVector;
  * @version 3.0
  * @since 0.0.8
  */
-public interface PipelineProcessor<T> extends Serializable {
+public interface PipelineProcessor extends Serializable {
 
     static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
     static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
@@ -44,7 +44,9 @@ public interface PipelineProcessor<T> extends Serializable {
      * @param inputPortIndex The index of the input port to set the document at.
      * @param document The document to set at the port specified by {@code inputPortIndex}.
      */
-    void setInput(Integer inputPortIndex, PipelineDocument<?> document);
+    void setInput(final Integer inputPortIndex, final PipelineDocument<?> document);
 
-    Port<?> getInputPort(String name);
+    void setInput(final String inputPortIdentifier, final PipelineDocument<?> document);
+
+    Port<?> getInputPort(final String name);
 }
