@@ -1,7 +1,7 @@
 /**
  * Created on: 27.01.2012 19:08:23
  */
-package ws.palladian.model;
+package ws.palladian.model.features;
 
 import java.util.ArrayList;
 import java.util.List;
