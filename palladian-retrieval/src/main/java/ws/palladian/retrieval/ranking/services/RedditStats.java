@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -71,7 +72,7 @@ public final class RedditStats extends BaseRankingService implements RankingServ
 
             String encUrl = UrlHelper.urlEncode(url);
             HttpResult httpResult = retriever.httpGet(GET_INFO + encUrl);
-            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 
             JSONArray children = json.getJSONObject("data").getJSONArray("children");
             float votes = 0;

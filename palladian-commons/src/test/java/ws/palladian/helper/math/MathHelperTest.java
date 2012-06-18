@@ -67,15 +67,39 @@ public class MathHelperTest {
 
     @Test
     public void testMedian() {
+
         // see Wikipedia: http://en.wikipedia.org/wiki/Median
-        TreeSet<Long> values = new TreeSet<Long>();
-        values.add(1l);
-        values.add(2l);
-        values.add(4l);
-        values.add(9l);
-        values.add(16l);
-        values.add(24l);
-        assertEquals(5l, MathHelper.getMedianDifference(values));
+        List<Double> values = new ArrayList<Double>();
+        values.add(1.0);
+        values.add(1.0);
+        values.add(2.0);
+        values.add(3.0);
+        values.add(1035.0);
+        values.add(89898.86);
+        assertEquals(2.5, MathHelper.getMedian(values), 0.00001);
+
+        TreeSet<Long> values2 = new TreeSet<Long>();
+        values2.add(1l);
+        values2.add(2l);
+        values2.add(4l);
+        values2.add(9l);
+        values2.add(16l);
+        values2.add(24l);
+        assertEquals(5l, MathHelper.getMedianDifference(values2));
+    }
+
+    @Test
+    public void testAverage() {
+
+        List<Double> values = new ArrayList<Double>();
+        values.add(1.0);
+        values.add(1.0);
+        values.add(2.0);
+        values.add(3.0);
+        values.add(1035.0);
+        values.add(89898.86);
+        assertEquals(15156.81, MathHelper.getAverage(values), 0.00001);
+
     }
 
     @Test

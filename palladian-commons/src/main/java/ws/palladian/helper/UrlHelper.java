@@ -47,9 +47,9 @@ public final class UrlHelper {
     // this is able to match URLs, containing (brackets), but does not include trailing brackets
     public static final Pattern URL_PATTERN = Pattern
             .compile(
-                    "\\b(?:https?://)?[0-9a-zäöü.-]{1,63}?\\.(?:"
+                    "\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:"
                             + TOP_LEVEL_DOMAINS
-                            + ")(?:[?/](?:\\([^\\s()<>\\[\\]]{0,255}\\)|[^\\s()<>\\[\\]]{0,255})+(?:\\([^\\s()<>\\[\\]]{0,255}\\)|[^\\s.,;!?:()<>\\[\\]])|/|\\b)",
+                            + ")(?:[?/](?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s()<>\\[\\]\"']{0,255})+(?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s.,;!?:()<>\\[\\]\"'])|/|\\b)",
                     Pattern.CASE_INSENSITIVE);
 
     private UrlHelper() {
@@ -361,7 +361,7 @@ public final class UrlHelper {
                     path = path.substring(0, path.length() - 1);
                 }
                 // delete index.* if there is no query
-                if (parts[parts.length - 1].contains("index") && query != null) {
+                if (parts[parts.length - 1].contains("index") && query == null) {
                         path = path.replaceAll("index\\..+$", "");
                 }
 

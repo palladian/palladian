@@ -30,7 +30,7 @@ public class NGramCreatorTest {
         pipeline.add(new RegExTokenizer());
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.add(new NGramCreator(2));
-        PipelineDocument document = new PipelineDocument("the quick brown fox jumps over the lazy dog");
+        PipelineDocument<String> document = new PipelineDocument<String>("the quick brown fox jumps over the lazy dog");
         pipeline.process(document);
         
         AnnotationFeature annotationFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);

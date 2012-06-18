@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +55,7 @@ public final class WebOfTrust extends BaseRankingService implements RankingServi
         try {
             HttpResult httpResult = retriever.httpGet("http://api.mywot.com/0.4/public_query2?target=" + domain);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
-            Document doc = xmlParser.parse(new ByteArrayInputStream(httpResult.getContent()));
+            Document doc = xmlParser.parse(httpResult);
 
             Node trustworthiness = XPathHelper.getNode(doc, "//application[@name='0']/@r");
             if (trustworthiness != null) {

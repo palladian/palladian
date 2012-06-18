@@ -15,6 +15,7 @@ import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -92,7 +93,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
         List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
         try {
-            JSONObject root = new JSONObject(new String(httpResult.getContent()));
+            JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
             TOTAL_REQUEST_COUNT.incrementAndGet();
             JSONObject feed = root.getJSONObject("feed");
             JSONArray entries = feed.getJSONArray("entry");
@@ -127,7 +128,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
         int hitCount = 0;
         try {
             HttpResult httpResult = retriever.httpGet(getRequestUrl(query, 1, language));
-            JSONObject root = new JSONObject(new String(httpResult.getContent()));
+            JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getInt("$t");

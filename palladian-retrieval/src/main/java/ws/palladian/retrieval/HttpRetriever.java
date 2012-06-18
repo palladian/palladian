@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -62,7 +64,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.FileHelper;
 
 // TODO remove deprecated methods, after dependent code has been adapted
 // TODO completely remove all java.net.* stuff
@@ -84,6 +85,7 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @see http://hc.apache.org/
  * @author Philipp Katz
+ * @author David Urbansky
  */
 public class HttpRetriever {
 
@@ -137,6 +139,9 @@ public class HttpRetriever {
 
     /** Total number of downloaded pages. */
     private static int numberOfDownloadedPages = 0;
+
+    /** For secure proxies, we save USERNAME:PASSWORD and send it with the requests. */
+    private String proxyAuthentication = "";
 
     // ///////////// Misc. ////////
 
@@ -262,6 +267,14 @@ public class HttpRetriever {
         for (Entry<String, String> header : headers.entrySet()) {
             get.setHeader(header.getKey(), header.getValue());
         }
+
+        // set proxy authentication if available
+        String usernamePassword = getProxyAuthentication();
+        if (!usernamePassword.isEmpty()) {
+            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+            get.setHeader("Proxy-Authorization", "Basic " + encoded);
+        }
+
         HttpResult result = execute(url, get);
         return result;
     }
@@ -601,7 +614,7 @@ public class HttpRetriever {
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
-            FileHelper.close(out);
+            IOUtils.closeQuietly(out);
         }
 
         return result;
@@ -660,7 +673,7 @@ public class HttpRetriever {
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
-            FileHelper.close(inputStream);
+            IOUtils.closeQuietly(inputStream);
         }
 
         return httpResult;
@@ -807,6 +820,14 @@ public class HttpRetriever {
         setProxy(hostname, port);
     }
 
+    public void setSecureProxy(SecureProxy proxy) {
+        setProxy(proxy.getIp(), proxy.getPort());
+        setProxyAuthentication(proxy.getUsername() + ":" + proxy.getPassword());
+        Credentials defaultcreds = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
+        AuthScope scope = new AuthScope(proxy.getIp(), proxy.getPort(), AuthScope.ANY_REALM);
+        setCredentials(scope, defaultcreds);
+    }
+
     public void setProxy(String hostname, int port) {
         HttpHost proxy = new HttpHost(hostname, port);
         httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
@@ -887,6 +908,14 @@ public class HttpRetriever {
 
     public void setHttpHook(HttpHook httpHook) {
         this.httpHook = httpHook;
+    }
+
+    public String getProxyAuthentication() {
+        return proxyAuthentication;
+    }
+
+    public void setProxyAuthentication(String proxyAuthentication) {
+        this.proxyAuthentication = proxyAuthentication;
     }
 
 }

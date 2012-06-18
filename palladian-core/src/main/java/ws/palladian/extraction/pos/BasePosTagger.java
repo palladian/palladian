@@ -9,8 +9,8 @@ import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.FeatureDescriptor;
@@ -24,8 +24,8 @@ import ws.palladian.model.features.NominalFeature;
  * 
  * <ol>
  * <li>{@link PosTagger}, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as
- * String. In this case, the text is tokenized using a default {@link BaseTokenizer} implementation specific for
- * the respective POS tagger. Subclasses may override {@link #getTokenizer()} if they require a specific tokenizer.</li>
+ * String. In this case, the text is tokenized using a default {@link BaseTokenizer} implementation specific for the
+ * respective POS tagger. Subclasses may override {@link #getTokenizer()} if they require a specific tokenizer.</li>
  * 
  * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
  * means, that the input document must be tokenized in advance, using one of the available {@link BaseTokenizer}
@@ -70,17 +70,17 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
 
     @Override
     public TagAnnotations tag(String text) {
-        PipelineDocument document = new PipelineDocument(text);
+        PipelineDocument<String> document = new PipelineDocument<String>(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
-            tokenizer.getInputPorts().get(0).setPipelineDocument(document);
+            tokenizer.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
             tokenizer.process();
             processDocument((PipelineDocument<String>)tokenizer.getOutputPorts().get(0).getPipelineDocument());
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        AnnotationFeature annotationFeature = document.getFeatureVector()
+                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
         for (Annotation annotation : annotationFeature.getValue()) {
@@ -93,9 +93,9 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
 
     /**
      * <p>
-     * Return the {@link BaseTokenizer} which this {@link PosTagger} uses when tagging String using
-     * {@link #tag(String)}. Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if
-     * a specific {@link BaseTokenizer} is required.
+     * Return the {@link BaseTokenizer} which this {@link PosTagger} uses when tagging String using {@link #tag(String)}
+     * . Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if a specific
+     * {@link BaseTokenizer} is required.
      * </p>
      * 
      * @return The {@link BaseTokenizer} to use.

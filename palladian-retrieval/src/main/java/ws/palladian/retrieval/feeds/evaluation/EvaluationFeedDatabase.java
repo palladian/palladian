@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
@@ -199,14 +201,14 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             List<Object> parameters = new ArrayList<Object>();
             parameters.add(item.getFeedId());
             parameters.add(item.getSequenceNumber());
-            parameters.add(item.getPollSQLTimestamp());
+            parameters.add(SqlHelper.getTimestamp(item.getPollTimestamp()));
 
             // generate extended item hash
             String pollTime = DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", item.getPollTimestamp().getTime());
             String extendetItemHash = pollTime + "_" + item.getHash();
             parameters.add(extendetItemHash);
-            parameters.add(item.getPublishedSQLTimestamp());
-            parameters.add(item.getCorrectedPublishedSQLTimestamp());
+            parameters.add(SqlHelper.getTimestamp(item.getPublished()));
+            parameters.add(SqlHelper.getTimestamp(item.getCorrectedPublishedDate()));
             batchArgs.add(parameters);
         }
 
@@ -272,7 +274,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return a simulated window.
      */
     public List<EvaluationFeedItem> getEvaluationItemsByIDCorrectedPublishTimeRangeLimit(int feedId,
-            Timestamp correctedPublishTime, Timestamp correctedPublishTimeLowerBound, int window) {
+            Timestamp correctedPublishTime, Date correctedPublishTimeLowerBound, int window) {
 
         // try to get simulated window from local cache
         List<EvaluationFeedItem> simulatedWindow = getSimulatedWindowFromCache(feedId);
@@ -282,7 +284,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
             simulatedWindow = runQuery(new FeedEvaluationItemRowConverter(),
                     GET_EVALUATION_ITEMS_BY_ID_CORRECTED_PUBLISH_TIME_RANGE_LIMIT, feedId, correctedPublishTime,
-                    correctedPublishTimeLowerBound, window);
+                    SqlHelper.getTimestamp(correctedPublishTimeLowerBound), window);
 
             putSimulatedWindowToCache(feedId, simulatedWindow);
         } else {
@@ -848,6 +850,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
      *         error.
      */
+    @SuppressWarnings("unused")
     private boolean setMedianDelayPerFeed(String baseTableName) {
         boolean success = true;
 
@@ -954,6 +957,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @return <code>true</code> if result table has been created and filled with results, <code>false</code> on any
      *         error.
      */
+    @SuppressWarnings("unused")
     private boolean setMedianDelayModeFeeds(String baseTableName) {
 
         LOGGER.info("Calculating median delay from all medians per feed in mode feeds.");
@@ -1409,7 +1413,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param lastFeedEntry The timestamp of the newest entry in the newest simulated poll.
      * @return The number of pending items.
      */
-    public int getNumberOfPendingItems(int feedId, Timestamp newestPollTime, Timestamp lastFeedEntry) {
+    public int getNumberOfPendingItems(int feedId, Date newestPollTime, Date lastFeedEntry) {
         RowConverter<Integer> converter = new RowConverter<Integer>() {
 
             @Override
@@ -1418,8 +1422,8 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             }
         };
 
-        Integer numItems = runSingleQuery(converter, GET_NUMBER_PENDING_ITEMS_BY_ID, feedId, newestPollTime,
-                lastFeedEntry, new Timestamp(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND));
+        Integer numItems = runSingleQuery(converter, GET_NUMBER_PENDING_ITEMS_BY_ID, feedId, SqlHelper.getTimestamp(newestPollTime),
+                SqlHelper.getTimestamp(lastFeedEntry), new Timestamp(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND));
 
         return numItems == null ? 0 : numItems;
     }
@@ -1459,7 +1463,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * @param oldestFeedEntry The timestamp of the oldest entry in the first simulated poll.
      * @return The number of items prior to the first simulated poll.
      */
-    public int getNumberOfPreBenchmarkItems(int feedId, Timestamp oldestFeedEntry) {
+    public int getNumberOfPreBenchmarkItems(int feedId, Date oldestFeedEntry) {
         RowConverter<Integer> converter = new RowConverter<Integer>() {
 
             @Override
@@ -1468,7 +1472,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             }
         };
 
-        Integer numItems = runSingleQuery(converter, GET_NUMBER_PRE_BENCHMARK_ITEMS_BY_ID, feedId, oldestFeedEntry);
+        Integer numItems = runSingleQuery(converter, GET_NUMBER_PRE_BENCHMARK_ITEMS_BY_ID, feedId, SqlHelper.getTimestamp(oldestFeedEntry));
 
         return numItems == null ? 0 : numItems;
     }
