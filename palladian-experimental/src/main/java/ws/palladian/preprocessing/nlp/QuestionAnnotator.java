@@ -74,8 +74,8 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
      * @return A new annotation of the question type spanning the same area as the provided sentence.
      */
     private Annotation createQuestion(Annotation sentence) {
-        Annotation ret = new PositionAnnotation(sentence.getDocument(), sentence.getViewName(),
-                sentence.getStartPosition(), sentence.getEndPosition());
+        Annotation ret = new PositionAnnotation(sentence.getDocument(), sentence.getStartPosition(),
+                sentence.getEndPosition(), -1, sentence.getValue());
         return ret;
     }
 

@@ -18,6 +18,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -165,7 +166,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      */
     private JSONObject getResponseData(String requestUrl, String sourceType) throws HttpException, JSONException {
         HttpResult httpResult = retriever.httpGet(requestUrl);
-        String jsonString = new String(httpResult.getContent());
+        String jsonString = new String(HttpHelper.getStringContent(httpResult));
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONObject responseData = jsonObject.getJSONObject("SearchResponse").getJSONObject(sourceType);
         return responseData;

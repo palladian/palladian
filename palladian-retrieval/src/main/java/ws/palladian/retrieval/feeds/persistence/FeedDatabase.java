@@ -17,6 +17,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
+import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
@@ -113,11 +114,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
-        parameters.add(feed.getLastFeedEntrySQLTimestamp());
+        parameters.add(SqlHelper.getTimestamp(feed.getLastFeedEntry()));
         parameters.add(feed.getActivityPattern().getIdentifier());
-        parameters.add(feed.getLastPollTimeSQLTimestamp());
+        parameters.add(SqlHelper.getTimestamp(feed.getLastPollTime()));
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
-        parameters.add(feed.getHttpLastModifiedSQLTimestamp());
+        parameters.add(SqlHelper.getTimestamp(feed.getHttpLastModified()));
         parameters.add(feed.getLastFeedTaskResult());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
@@ -296,7 +297,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getTitle());
         parameters.add(entry.getLink());
         parameters.add(entry.getRawId());
-        parameters.add(entry.getPublishedSQLTimestamp());
+        parameters.add(SqlHelper.getTimestamp(entry.getPublished()));
         parameters.add(entry.getAuthors());
         parameters.add(entry.getDescription());
         parameters.add(entry.getText());
@@ -330,7 +331,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntry());
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getId() + ""));
-        parameters.add(feed.getHttpLastModifiedSQLTimestamp());
+        parameters.add(SqlHelper.getTimestamp(feed.getHttpLastModified()));
         if (feed.getLastFeedTaskResult() != null) {
             parameters.add(feed.getLastFeedTaskResult().toString());
         } else {

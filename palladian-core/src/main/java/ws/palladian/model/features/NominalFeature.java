@@ -8,8 +8,17 @@ package ws.palladian.model.features;
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
+ * @version 2.0
+ * @since 0.1.7
  */
 public final class NominalFeature extends Feature<String> {
+
+    /**
+     * <p>
+     * The values this {@code NominalFeature} can take on.
+     * </p>
+     */
+    private final String[] possibleValues;
 
     /**
      * <p>
@@ -18,9 +27,12 @@ public final class NominalFeature extends Feature<String> {
      * 
      * @param name The {@code FeatureVector} wide unique identifier of this {@code Feature}.
      * @param value The {@code String} value of this {@code Feature}.
+     * @param possibleValues The values this {@code NominalFeature} can take on.
      */
-    public NominalFeature(String name, String value) {
+    public NominalFeature(final String name, final String value, final String... possibleValues) {
         super(name, value);
+
+        this.possibleValues = possibleValues;
     }
 
     /**
@@ -31,9 +43,18 @@ public final class NominalFeature extends Feature<String> {
      * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
      *            {@code Feature}.
      * @param value The {@code String} value of this {@code Feature}.
+     * @param The values this {@code NominalFeature} can take on.
      */
-    public NominalFeature(FeatureDescriptor<NominalFeature> descriptor, String value) {
-        this(descriptor.getIdentifier(), value);
+    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value,
+            final String... possibleValues) {
+        this(descriptor.getIdentifier(), value, possibleValues);
+    }
+
+    /**
+     * @return The values this {@code NominalFeature} can take on.
+     */
+    public String[] getPossibleValues() {
+        return possibleValues;
     }
 
 }

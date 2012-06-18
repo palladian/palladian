@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -79,7 +80,7 @@ public final class DiggStats extends BaseRankingService implements RankingServic
 
             String encUrl = UrlHelper.urlEncode(url);
             HttpResult httpResult = retriever.httpGet(GET_STORY_INFO + encUrl);
-            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             float diggs = 0;
             float comments = 0;
             if (json.getJSONArray("stories").length() > 0) {
@@ -119,7 +120,7 @@ public final class DiggStats extends BaseRankingService implements RankingServic
             }
 
             HttpResult httpResult = retriever.httpGet(GET_STORY_INFO + encUrls);
-            JSONObject json = new JSONObject(new String(httpResult.getContent()));
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 
             Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
 

@@ -52,8 +52,8 @@ public class LingPipePosTaggerTest {
     @Test
     public void test() throws FileNotFoundException, DocumentUnprocessableException {
         File modelFile = ResourceHelper.getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel");
-        PipelineProcessor<String> tokenizer = new LingPipeTokenizer();
-        PipelineProcessor<String> objectOfClassUnderTest = new LingPipePosTagger(modelFile);
+        PipelineProcessor tokenizer = new LingPipeTokenizer();
+        PipelineProcessor objectOfClassUnderTest = new LingPipePosTagger(modelFile);
 
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(tokenizer);
