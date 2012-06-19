@@ -15,7 +15,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
 
         Feed feed = new Feed();
         feed.setId(resultSet.getInt("id"));
-        feed.setFeedUrl(resultSet.getString("feedUrl"), true);
+        feed.setFeedUrl(resultSet.getString("feedUrl"));
         feed.setChecks(resultSet.getInt("checks"));
         feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
         feed.setUnparsableCount(resultSet.getInt("unparsableCount"));
