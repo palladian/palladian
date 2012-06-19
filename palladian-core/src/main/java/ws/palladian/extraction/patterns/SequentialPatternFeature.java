@@ -1,4 +1,4 @@
-package ws.palladian.model.features;
+package ws.palladian.extraction.patterns;
 
 import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;

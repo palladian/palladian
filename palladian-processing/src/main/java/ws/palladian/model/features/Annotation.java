@@ -1,5 +1,9 @@
 package ws.palladian.model.features;
 
+import java.util.Collection;
+
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.PipelineDocument;
 
 /**
@@ -134,6 +138,27 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      */
     public <F extends Feature<?>> F getFeature(FeatureDescriptor<F> descriptor) {
         return getFeatureVector().get(descriptor);
+    }
+
+    public void addFeature(final Feature<?> feature) {
+        Validate.notNull(feature, "feature must not be null");
+
+        this.featureVector.add(feature);
+    }
+
+    /**
+     * <p>
+     * Adds all {@link Feature}s from the provided {@code Collection} to this {@code Annotation}s {@link FeatureVector}.
+     * </p>
+     * 
+     * @param features The {@code Collection} of {@code Feature}s to add.
+     */
+    public void addFeatures(final Collection<? extends Feature<?>> features) {
+        Validate.notNull(features, "features must not be null");
+
+        for (Feature<?> feature : features) {
+            featureVector.add(feature);
+        }
     }
 
     //

@@ -1,22 +1,21 @@
 /**
  * Created on: 01.02.2012 14:03:19
  */
-package ws.palladian.extraction;
+package ws.palladian.extraction.patterns;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import ws.palladian.extraction.feature.SequentialPatternAnnotator;
+import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.SequentialPattern;
-import ws.palladian.model.features.SequentialPatternFeature;
 
 /**
  * <p>
@@ -53,8 +52,8 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      * [3] https://en.wikipedia.org/wiki/English_modal_auxiliary_verb <br />
      * </p>
      */
-    private final static String[] keywords = new String[] { "where", "when", "how", "who", "what", "why", "shall",
-            "should", "will", "would", "may", "might", "can", "could", "mote", "must", "do", "anyone" };
+    private final static String[] keywords = new String[] {"where", "when", "how", "who", "what", "why", "shall",
+            "should", "will", "would", "may", "might", "can", "could", "mote", "must", "do", "anyone"};
 
     /**
      * <p>
@@ -67,12 +66,14 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      *            provide an english PoS model. You may find such models at: <a
      *            href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP models</a>.
      */
-    public SequentialPatternMiner(String pathToPartOfSpeechModel, Integer maxSequentialPatternSize) {
+    public SequentialPatternMiner(final String pathToPartOfSpeechModel, final Integer minSequentialPatternSize,
+            final Integer maxSequentialPatternSize) {
         super();
         add(new PalladianSentenceDetector());
         add(new RegExTokenizer());
         add(new OpenNlpPosTagger(new File(pathToPartOfSpeechModel)));
-        add(new SequentialPatternAnnotator(keywords, maxSequentialPatternSize));
+        add(new SequentialPatternAnnotator(keywords, minSequentialPatternSize, maxSequentialPatternSize,
+                new LabeledSequentialPatternExtractionStrategy()));
 
     }
 
@@ -95,10 +96,10 @@ public class SequentialPatternMiner extends ProcessingPipeline {
             List<Annotation> sentenceAnnotations = sentencesFeature.getValue();
 
             for (Annotation annotation : sentenceAnnotations) {
-                SequentialPatternFeature lspFeature = annotation.getFeatureVector().get(
+                SequentialPattern lspFeature = annotation.getFeatureVector().get(
                         SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
                 if (lspFeature != null) {
-                    ret.add(lspFeature.getValue());
+                    ret.add(lspFeature);
                 }
             }
         }

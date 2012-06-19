@@ -1,10 +1,9 @@
 /**
  * Created on: 27.01.2012 19:43:56
  */
-package ws.palladian.extraction.feature;
+package ws.palladian.extraction.patterns;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,20 +13,20 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.Feature;
 import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureDescriptorBuilder;
 import ws.palladian.model.features.NominalFeature;
 import ws.palladian.model.features.PositionAnnotation;
-import ws.palladian.model.features.SequentialPattern;
-import ws.palladian.model.features.SequentialPatternFeature;
 
 /**
  * <p>
@@ -67,10 +66,14 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
 
     public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
 
-    public static final FeatureDescriptor<SequentialPatternFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, SequentialPatternFeature.class);
+    public static final FeatureDescriptor<SequentialPattern> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, SequentialPattern.class);
 
     private Integer maxSequentialPatternSize = 0;
+
+    private Integer minSequentialPatternSize;
+
+    private SpanExtractionStrategy extractionStrategy;
 
     /**
      * <p>
@@ -79,13 +82,25 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
      * 
      * @param keywords
      *            The keywords used by this annotator.
+     * @param minSequentialPatternSize
      * @param maxSequentialPatternSize
      */
-    public SequentialPatternAnnotator(String[] keywords, Integer maxSequentialPatternSize) {
+    public SequentialPatternAnnotator(final String[] keywords, final Integer minSequentialPatternSize,
+            final Integer maxSequentialPatternSize, final SpanExtractionStrategy extractionStrategy) {
         super();
+
+        Validate.notNull(keywords, "keywords must not be null");
+        Validate.notNull(minSequentialPatternSize, "minSequentialPatternSize must not be null");
+        Validate.notNull(maxSequentialPatternSize, "maxSequentialPatternSize must not be null");
+        Validate.notNull(extractionStrategy, "extractionStrategy must not be null");
+        Validate.inclusiveBetween(1, Integer.MAX_VALUE, minSequentialPatternSize);
+        Validate.inclusiveBetween(minSequentialPatternSize, Integer.MAX_VALUE, maxSequentialPatternSize);
+
         this.keywords = new HashSet<String>();
         Collections.addAll(this.keywords, keywords);
+        this.minSequentialPatternSize = minSequentialPatternSize;
         this.maxSequentialPatternSize = maxSequentialPatternSize;
+        this.extractionStrategy = extractionStrategy;
     }
 
     @Override
@@ -138,15 +153,9 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
                 }
             }
 
-            Collection<List<String>> patterns = ws.palladian.extraction.token.Tokenizer.getAllSpans(
-                    sequentialPattern.toArray(new String[sequentialPattern.size()]), maxSequentialPatternSize);
-
-            for (List<String> pattern : patterns) {
-                Feature<SequentialPattern> lspFeature = new Feature<SequentialPattern>(PROVIDED_FEATURE,
-                        new SequentialPattern(pattern));
-                sentence.getFeatureVector().add(lspFeature);
-            }
-
+            sentence.addFeatures(extractionStrategy.extract(
+                    sequentialPattern.toArray(new String[sequentialPattern.size()]), minSequentialPatternSize,
+                    maxSequentialPatternSize, PROVIDED_FEATURE_DESCRIPTOR));
         }
     }
 

@@ -1,10 +1,13 @@
 /**
  * Created on: 27.01.2012 19:08:23
  */
-package ws.palladian.model.features;
+package ws.palladian.extraction.patterns;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ws.palladian.model.features.Feature;
+import ws.palladian.model.features.FeatureDescriptor;
 
 /**
  * <p>
@@ -13,22 +16,21 @@ import java.util.List;
  * </p>
  * 
  * @author Klemens Muthmann
- * 
+ * @version 1.0
+ * @since 0.1.7
  */
-public final class SequentialPattern {
-    private List<String> lhs;
+public final class SequentialPattern extends Feature<List<String>> {
 
     /**
      * 
      */
-    public SequentialPattern(List<String> lhs) {
-        this.lhs = new ArrayList<String>();
-        this.lhs.addAll(lhs);
+    public SequentialPattern(final FeatureDescriptor<SequentialPattern> descriptor, final List<String> lhs) {
+        super(descriptor, new ArrayList<String>(lhs));
     }
 
     public List<String> getPattern() {
-        List<String> ret = new ArrayList<String>(lhs.size());
-        ret.addAll(lhs);
+        List<String> ret = new ArrayList<String>(getValue().size());
+        ret.addAll(getValue());
         return ret;
     }
 
@@ -78,8 +80,8 @@ public final class SequentialPattern {
 
         // Step 1
 
-        n = this.lhs.size();
-        m = otherPattern.lhs.size();
+        n = this.getValue().size();
+        m = otherPattern.getValue().size();
         if (n == 0) {
             return m;
         }
@@ -102,13 +104,13 @@ public final class SequentialPattern {
 
         for (i = 1; i <= n; i++) {
 
-            s_i = this.lhs.get(i - 1);
+            s_i = this.getValue().get(i - 1);
 
             // Step 4
 
             for (j = 1; j <= m; j++) {
 
-                t_j = otherPattern.lhs.get(j - 1);
+                t_j = otherPattern.getValue().get(j - 1);
 
                 // Step 5
 
@@ -159,7 +161,7 @@ public final class SequentialPattern {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("\nObject: " + super.toString());
-        stringBuilder.append(" <" + lhs + ">");
+        stringBuilder.append(" <" + getValue() + ">");
         return stringBuilder.toString();
     }
 
@@ -167,7 +169,7 @@ public final class SequentialPattern {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((lhs == null) ? 0 : lhs.hashCode());
+        result = prime * result + ((getValue() == null) ? 0 : getValue().hashCode());
         return result;
     }
 
@@ -183,13 +185,23 @@ public final class SequentialPattern {
             return false;
         }
         SequentialPattern other = (SequentialPattern)obj;
-        if (lhs == null) {
-            if (other.lhs != null) {
+        if (getValue() == null) {
+            if (other.getValue() != null) {
                 return false;
             }
-        } else if (!lhs.equals(other.lhs)) {
+        } else if (!getValue().equals(other.getValue())) {
             return false;
         }
         return true;
+    }
+
+    public String getStringValue() {
+        StringBuilder ret = new StringBuilder("<");
+        for (String token : getValue()) {
+            ret.append(token);
+            ret.append(',');
+        }
+        ret.replace(ret.length() - 1, ret.length(), ">");
+        return ret.toString();
     }
 }
