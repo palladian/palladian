@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
@@ -25,6 +26,7 @@ import ws.palladian.extraction.AbstractPipelineProcessor;
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.Port;
+import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.BooleanFeature;
@@ -57,7 +59,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * </p>
      */
     private final File targetFile;
-    private final FeatureDescriptor<? extends Feature<?>>[] featureDescriptors;
+    private final List<FeatureDescriptor<? extends Feature<?>>> featureDescriptors;
 
     /**
      * <p>
@@ -76,7 +78,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         Validate.notEmpty(featureDescriptors, "featureDescriptors must not be empty");
 
         this.targetFile = new File(fileName);
-        this.featureDescriptors = featureDescriptors;
+        this.featureDescriptors = Arrays.asList(featureDescriptors);
     }
 
     @Override
@@ -100,20 +102,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             }
             Instance newInstance = new SparseInstance(0);
             newInstance.setDataset(model);
-            for (FeatureDescriptor<? extends Feature<?>> featureDescriptor : featureDescriptors) {
-                Feature<?> feature = document.getFeature(featureDescriptor);
-                if (feature instanceof NumericFeature) {
-                    handleNumericFeature((NumericFeature)feature, newInstance, model);
-                } else if (feature instanceof AnnotationFeature) {
-                    handleAnnotationFeature((AnnotationFeature)feature, newInstance, model);
-                } else if (feature instanceof BooleanFeature) {
-                    handleBooleanFeature((BooleanFeature)feature, newInstance, model);
-                } else if (feature instanceof NominalFeature) {
-                    handleNominalFeature((NominalFeature)feature, newInstance, model);
-                } else {
-                    LOGGER.warn("Unsupported feature type or feature not found. Ignoring feature: "
-                            + featureDescriptor.getIdentifier());
-                }
+            for (Feature<?> feature : document.getFeatureVector()) {
+                handleFeature(feature, newInstance, model);
             }
             model.add(newInstance);
             model.compactify();
@@ -127,6 +117,63 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new DocumentUnprocessableException(e);
         }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param feature
+     */
+    private void handleFeature(final Feature<?> feature, final Instance newInstance, final Instances model) {
+        FeatureDescriptor descriptor = feature.getDescriptor();
+        if (feature instanceof AnnotationFeature) {
+            AnnotationFeature annotationFeature = (AnnotationFeature)feature;
+            for (Annotation annotation : annotationFeature.getValue()) {
+                for (Feature<?> subFeature : annotation.getFeatureVector()) {
+                    handleFeature(subFeature, newInstance, model);
+                }
+            }
+        }
+
+        if (!featureDescriptors.contains(descriptor)) {
+            return;
+        }
+
+        if (feature instanceof NumericFeature) {
+            handleNumericFeature((NumericFeature)feature, newInstance, model);
+        } else if (feature instanceof AnnotationFeature) {
+            AnnotationFeature annotationFeature = (AnnotationFeature)feature;
+            handleAnnotationFeature(annotationFeature, newInstance, model);
+        } else if (feature instanceof BooleanFeature) {
+            handleBooleanFeature((BooleanFeature)feature, newInstance, model);
+        } else if (feature instanceof NominalFeature) {
+            handleNominalFeature((NominalFeature)feature, newInstance, model);
+        } else if (feature instanceof SequentialPattern) {
+            handleSequentialPattern((SequentialPattern)feature, newInstance, model);
+        }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param feature
+     * @param newInstance
+     * @param model
+     */
+    private void handleSequentialPattern(SequentialPattern feature, Instance newInstance, Instances model) {
+        String featureName = feature.getStringValue();
+        Attribute attribute = model.attribute(featureName);
+        if (attribute == null) {
+            attribute = new Attribute(featureName);
+            model.insertAttributeAt(attribute, 0);
+            attribute = model.attribute(featureName);
+        }
+        newInstance.setValue(attribute, 1.0);
+
     }
 
     /**

@@ -53,7 +53,7 @@ public class Feature<T> {
      *            {@link Feature}.
      * @param value The {@link Feature}'s value containing concrete extracted data from a document.
      */
-    public Feature(FeatureDescriptor<Feature<T>> descriptor, T value) {
+    public Feature(FeatureDescriptor<? extends Feature<T>> descriptor, T value) {
         this(descriptor.getIdentifier(), value);
     }
 
@@ -116,6 +116,13 @@ public class Feature<T> {
         builder.append("=");
         builder.append(value);
         return builder.toString();
+    }
+
+    /**
+     * @return The {@link FeatureDescriptor} for this class.
+     */
+    public FeatureDescriptor getDescriptor() {
+        return FeatureDescriptorBuilder.build(getName(), this.getClass());
     }
 
 }

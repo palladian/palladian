@@ -33,7 +33,7 @@ public final class Tokenizer {
 
     /** The RegExp used for tokenization. */
     public static final String SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
-    
+
     /** The compiled pattern used for tokenization, using {@link Tokenizer#SPLIT_REGEX}. */
     public static final Pattern SPLIT_PATTERN = Pattern.compile(SPLIT_REGEX, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
@@ -276,6 +276,56 @@ public final class Tokenizer {
 
     /**
      * <p>
+     * Calculates all n-grams for n ranging from {@code minSize} included up to {@code maxSize} included over a list of
+     * tokens.
+     * </p>
+     * 
+     * @param token The tokens to n-grammize.
+     * @param minSize The lower bound for the size of the extracted n-grams.
+     * @param maxSize The upper bound for the size of the extracted n-grams.
+     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
+     */
+    public static List<List<String>> calculateAllNGrams(String[] token, Integer minSize, Integer maxSize) {
+        List<List<String>> ret = new ArrayList<List<String>>();
+
+        for (int n = minSize; n <= maxSize; n++) {
+            ret.addAll(calculateNGrams(token, n));
+        }
+
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Calculates n-grams of a certain size for an array of token.
+     * </p>
+     * 
+     * @param token The token to n-grammize.
+     * @param size The size of the desired n-grams.
+     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
+     */
+    public static List<List<String>> calculateNGrams(String[] token, Integer size) {
+        List<List<String>> nGrams = new ArrayList<List<String>>();
+
+        if (token.length < size) {
+            return nGrams;
+        }
+
+        for (int i = 0; i <= token.length - size; i++) {
+
+            List<String> nGram = new ArrayList<String>(size);
+            for (int j = i; j < i + size; j++) {
+                nGram.add(token[j]);
+            }
+            nGrams.add(nGram);
+
+        }
+
+        return nGrams;
+    }
+
+    /**
+     * <p>
      * Get the sentence that the specified position is in.
      * </p>
      * 
@@ -320,7 +370,7 @@ public final class Tokenizer {
             urlMapping.put(replacement, annotation.getEntity());
             uCount++;
         }
-        
+
         // recognize URLs so we don't break them
         DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
         Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
@@ -381,7 +431,7 @@ public final class Tokenizer {
             }
             sentencesReplacedUrls.add(sentence);
         }
-        
+
         // replace dates back
         List<String> sentencesReplacedDates = new ArrayList<String>();
         for (String sentence : sentencesReplacedUrls) {
@@ -431,8 +481,7 @@ public final class Tokenizer {
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) || string
-                        .charAt(startIndex + 2) == '-')
-                        && string.charAt(startIndex + 1) == ' ';
+                        .charAt(startIndex + 2) == '-') && string.charAt(startIndex + 1) == ' ';
             }
             // break after period
             if (!pointIsSentenceDelimiter && string.charAt(startIndex + 1) == '\n') {
@@ -597,5 +646,4 @@ public final class Tokenizer {
         }
         System.out.println("# occurences 2 : " + count);
     }
-
 }
