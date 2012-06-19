@@ -124,7 +124,7 @@ public class FeedImporter {
                     }
 
                     // set feed URL
-                    feed.setFeedUrl(cleanedURL, false);
+                    feed.setFeedUrl(cleanedURL);
 
                     // set site URL
                     feed.getMetaInformation().setSiteUrl(siteURL);

@@ -211,7 +211,8 @@ public class Feed {
 
     public Feed(String feedUrl) {
         this();
-        setFeedUrl(feedUrl, true);
+//        setFeedUrl(feedUrl, true);
+        this.feedUrl = feedUrl;
     }
 
     public int getId() {
@@ -232,23 +233,24 @@ public class Feed {
      * @param feedUrl
      */
     public void setFeedUrl(String feedUrl) {
-        setFeedUrl(feedUrl, false);
+//        setFeedUrl(feedUrl, false);
+        this.feedUrl = feedUrl;
     }
 
-    /**
-     * Set the feed's URL. Optionally, set the feed's domain as site url if the site url was null.
-     * 
-     * @param feedUrl
-     */
-    public void setFeedUrl(String feedUrl, boolean setSiteUrl) {
-        this.feedUrl = feedUrl;
-        if (setSiteUrl && getMetaInformation().getSiteUrl() == null) {
-            String siteURL = UrlHelper.getDomain(feedUrl);
-            if (!siteURL.isEmpty()) {
-                getMetaInformation().setSiteUrl(siteURL);
-            }
-        }
-    }
+//    /**
+//     * Set the feed's URL. Optionally, set the feed's domain as site url if the site url was null.
+//     * 
+//     * @param feedUrl
+//     */
+//    public void setFeedUrl(String feedUrl, boolean setSiteUrl) {
+//        this.feedUrl = feedUrl;
+//        if (setSiteUrl && getMetaInformation().getSiteUrl() == null) {
+//            String siteURL = UrlHelper.getDomain(feedUrl);
+//            if (!siteURL.isEmpty()) {
+//                getMetaInformation().setSiteUrl(siteURL);
+//            }
+//        }
+//    }
 
     /**
      * Replace the feed's items with the provided items. Make sure the items' properties such as windowSize or httpDate
