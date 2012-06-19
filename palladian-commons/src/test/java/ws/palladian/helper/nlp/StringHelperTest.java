@@ -239,5 +239,18 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getFirstWords("", 10));
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
+    
+    @Test
+    public void testGetLongest() {
+        String s0 = "";
+        String s1 = "a";
+        String s2 = "aaa";
+        String s3 = "aa";
+        String s4 = null;
+        assertEquals("aaa", StringHelper.getLongest(s0, s1, s2, s3, s4));
+        assertEquals("", StringHelper.getLongest(s0, s4));
+        assertEquals("", StringHelper.getLongest(s4, s0));
+        assertEquals(null, StringHelper.getLongest(s4));
+    }
 
 }
