@@ -27,7 +27,7 @@ import ws.palladian.model.features.AnnotationGroup;
 
 /**
  * <p>
- * Tests the correct behaviour of the N-Gram creating {@code PipelineProcessor}s.
+ * Tests the correct behavior of the N-Gram creating {@code PipelineProcessor}s.
  * </p>
  * 
  * @author Philipp Katz
@@ -67,6 +67,9 @@ public class NGramCreatorTest {
         List<AnnotationGroup> annotationGroups = new ArrayList<AnnotationGroup>(CollectionUtils.select(annotations,
                 new InstanceofPredicate(AnnotationGroup.class)));
 
+        for (AnnotationGroup annotationGroup : annotationGroups) {
+            System.out.println(annotationGroup.getValue());
+        }
         assertEquals(4, annotationGroups.size(), 4);
         assertEquals("quick brown", annotationGroups.get(0).getValue());
         assertEquals("brown fox", annotationGroups.get(1).getValue());
@@ -82,11 +85,11 @@ public class NGramCreatorTest {
      * @throws Exception
      */
     @Test
-    public void testNGramCreator2() throws Exception {
+    public void testNGramCreatorPreserveAnnotations() throws Exception {
         pipeline.add(new LingPipeTokenizer());
         pipeline.add(new LingPipePosTagger(ResourceHelper
                 .getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel")));
-        pipeline.add(new NGramCreator2(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
+        pipeline.add(new NGramCreator(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
         pipeline.process(document);
 
         AnnotationFeature annotationFeature = document.getFeatureVector()
@@ -108,6 +111,12 @@ public class NGramCreatorTest {
         assertThat(
                 (String)annotationGroups.get(0).getAnnotations().get(1)
                         .getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJ"));
+        
+        assertThat((String)annotationGroups.get(0).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("ATJJ"));
+        assertThat((String)annotationGroups.get(1).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJJJ"));
+        assertThat((String)annotationGroups.get(2).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJNN"));
+        assertThat((String)annotationGroups.get(3).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNNNS"));
+        assertThat((String)annotationGroups.get(4).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNSIN"));
     }
 
 }

@@ -3,13 +3,18 @@ package ws.palladian.extraction.feature;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.AnnotationGroup;
+import ws.palladian.model.features.FeatureDescriptor;
 import ws.palladian.model.features.FeatureVector;
+import ws.palladian.model.features.NominalFeature;
 
 /**
  * <p>
@@ -22,45 +27,56 @@ import ws.palladian.model.features.FeatureVector;
  * </p>
  * 
  * @author Philipp Katz
+ * @author Klemens Muthmann
  */
-public final class NGramCreator extends StringDocumentPipelineProcessor {
+public class NGramCreator extends StringDocumentPipelineProcessor {
 
     private static final long serialVersionUID = 1L;
 
     private final int minLength;
     private final int maxLength;
+    private final FeatureDescriptor<NominalFeature>[] considerableFeatureDescriptors;
 
     /**
      * <p>
      * Create a new {@link NGramCreator} which calculates 2-grams.
      * </p>
      */
-    public NGramCreator() {
-        this(2, 2);
+    public NGramCreator(final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        this(2, 2, considerableFeatureDescriptors);
     }
 
     /**
      * <p>
-     * Create a new {@link NGramCreator} which calculates (2-maxLength)-grams.
+     * Create a new {@link NGramCreator} which calculates [2, maxLength]-grams.
      * </p>
      * 
      * @param maxLength
      */
-    public NGramCreator(int maxLength) {
-        this(2, maxLength);
+    public NGramCreator(int maxLength, final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        this(2, maxLength, considerableFeatureDescriptors);
     }
 
     /**
      * <p>
-     * Create a new {@link NGramCreator} which calculates (minLength-maxLength)-grams.
+     * Create a new {@link NGramCreator} which calculates [minLength, maxLength]-grams.
      * </p>
      * 
      * @param minLength
      * @param maxLength
+     * @param considerableFeatureDescriptors
      */
-    public NGramCreator(int minLength, int maxLength) {
+    public NGramCreator(int minLength, int maxLength,
+            final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+        super();
+
+        Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
+        Validate.inclusiveBetween(1, Integer.MAX_VALUE, minLength);
+        Validate.inclusiveBetween(minLength, Integer.MAX_VALUE, maxLength);
+
         this.minLength = minLength;
         this.maxLength = maxLength;
+        this.considerableFeatureDescriptors = considerableFeatureDescriptors;
     }
 
     @Override
@@ -68,8 +84,8 @@ public final class NGramCreator extends StringDocumentPipelineProcessor {
         FeatureVector featureVector = document.getFeatureVector();
         AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature " + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
-                    + " is missing.");
+            throw new DocumentUnprocessableException("The required feature "
+                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
         List<Annotation> annotations = annotationFeature.getValue();
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
@@ -90,7 +106,8 @@ public final class NGramCreator extends StringDocumentPipelineProcessor {
      * @param length
      * @return
      */
-    private List<AnnotationGroup> createNGrams(PipelineDocument document, List<Annotation> annotations, int length) {
+    private List<AnnotationGroup> createNGrams(PipelineDocument<String> document, List<Annotation> annotations,
+            int length) {
         List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
         Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
@@ -99,10 +116,37 @@ public final class NGramCreator extends StringDocumentPipelineProcessor {
                 gramToken.add(tokensArray[j]);
             }
             if (isConsecutive(gramToken)) {
+                postProcess(gramToken);
                 gramTokens.add(gramToken);
             }
         }
         return gramTokens;
+    }
+
+    /**
+     * <p>
+     * Re-create {@link NominalFeature}s for the created {@link AnnotationGroup}. This is done by simply concatenating
+     * the {@link NominalFeature}s together. E.g. an {@link AnnotationGroup} of size two, with the
+     * {@link NominalFeature}s "AT" and "JJ" for POS tags of its {@link Annotation}s get an annotation "ATJJ".
+     * </p>
+     * 
+     * @param gramToken
+     */
+    //
+    // TODO This method can currently be overridden by subclasses to customize the behavior, but it would be better to
+    // introduce a "CombinationStrategy" which can be also applied to NumericFeatures, e.g. by taking average/min/max
+    // etc. -- Philipp, 2012-06-19
+    //
+    protected void postProcess(AnnotationGroup gramToken) {
+        for (FeatureDescriptor<NominalFeature> descriptor : considerableFeatureDescriptors) {
+            List<String> components = new ArrayList<String>();
+            for (Annotation annotation : gramToken.getAnnotations()) {
+                String value = annotation.getFeatureVector().get(descriptor).getValue();
+                components.add(value);
+            }
+            NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
+            gramToken.getFeatureVector().add(newFeature);
+        }
     }
 
     /**
@@ -126,6 +170,21 @@ public final class NGramCreator extends StringDocumentPipelineProcessor {
             index = currentIndex;
         }
         return ret;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("NGramCreator [minLength=");
+        builder.append(minLength);
+        builder.append(", maxLength=");
+        builder.append(maxLength);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
