@@ -1680,6 +1680,29 @@ public final class StringHelper {
     public static String recoverStringFromCsv(String csvText) {
         return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
+    
+    /**
+     * <p>
+     * Get the longest of the supplied strings.
+     * </p>
+     * 
+     * @param strings The strings from which to select the longest.
+     * @return The longest string from the supplied strings. If the supplied parameters contained an empty string or
+     *         <code>null</code>, this may return empty string or <code>null</code> values.
+     */
+    public static String getLongest(String... strings) {
+        String ret = null;
+        for (String string : strings) {
+            if (string == null) {
+                continue;
+            } else if (ret == null) {
+                ret = string;
+            } else if (string.length() > ret.length()) {
+                ret = string;
+            }
+        }
+        return ret;
+    }
 
     /**
      * The main method.
