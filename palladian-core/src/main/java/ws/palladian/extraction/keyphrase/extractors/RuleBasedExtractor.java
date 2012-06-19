@@ -19,7 +19,6 @@ import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.NGramCreator;
-import ws.palladian.extraction.feature.NGramCreator2;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
@@ -72,7 +71,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         extractionPipeline.add(new LengthTokenRemover(4));
         extractionPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         extractionPipeline.add(stemmer);
-        extractionPipeline.add(new NGramCreator2(3));
+        extractionPipeline.add(new NGramCreator(3, StemmerAnnotator.UNSTEM));
         extractionPipeline.add(new TokenMetricsCalculator());
         extractionPipeline.add(new DuplicateTokenRemover());
         extractionPipeline.add(new IdfAnnotator(termCorpus));

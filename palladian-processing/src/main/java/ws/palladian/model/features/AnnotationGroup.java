@@ -83,10 +83,12 @@ public final class AnnotationGroup extends Annotation {
     public String getValue() {
         if (value == null) {
             StringBuilder valueBuilder = new StringBuilder();
-            for (Annotation annotation : annotations) {
-                valueBuilder.append(annotation.getValue()).append(TOKEN_SEPARATOR);
+            for (int i = 0; i < annotations.size(); i++) {
+                if (i > 0) {
+                    valueBuilder.append(TOKEN_SEPARATOR);
+                }
+                valueBuilder.append(annotations.get(i).getValue());
             }
-            valueBuilder.deleteCharAt(valueBuilder.length() - 1);
             value = valueBuilder.toString();
         }
         return value;

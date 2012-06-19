@@ -411,10 +411,12 @@ public class FileHelper {
         return list;
     }
 
+    // TODO why does this have to be a *Buffered*Reader?
     public static List<String> readFileToArray(BufferedReader reader) {
         return readFileToArray(reader, 0L, -1);
     }
 
+    // TODO why does this have to be a *Buffered*Reader?
     public static List<String> readFileToArray(BufferedReader reader, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
 
