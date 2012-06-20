@@ -90,6 +90,10 @@
 			<groupId>oro</groupId>
 			<artifactId>oro</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+		</dependency>
 	</dependencies>
 </project>
 

@@ -475,11 +475,7 @@ public final class StringHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-
-        return false;
+        return m.find();
     }
 
     /**
@@ -752,11 +748,9 @@ public final class StringHelper {
      * Checks if is numeric expression.
      * 
      * @param string the string
-     * @return <tt>True</tt>, if is numeric expression, <tt>false</tt> otherwise.
-     * @throws NumberFormatException the number format exception
-     * @throws OutOfMemoryError the out of memory error
+     * @return <code>true</code>, if is numeric expression, <code>false</code> otherwise.
      */
-    public static boolean isNumericExpression(String string) throws NumberFormatException, OutOfMemoryError {
+    public static boolean isNumericExpression(String string) {
         if (string.length() == 0) {
             return false;
         }
@@ -1663,7 +1657,9 @@ public final class StringHelper {
      * @param text The string to be cleaned.
      * @return The cleaned string.
      * @see #recoverStringFromCsv(String)
+     * @deprecated Use a dedicated CSV parser/writer for such tasks.
      */
+    @Deprecated
     public static String cleanStringToCsv(String text) {
         return StringHelper.removeControlCharacters(text).replaceAll("\"", DOUBLE_QUOTES_REPLACEMENT)
                 .replaceAll(";", SEMICOLON_REPLACEMENT);
@@ -1676,7 +1672,9 @@ public final class StringHelper {
      * @param csvText The text to recover.
      * @return The partly reconstructed string. Removed control characters are not recovered.
      * @see #cleanStringToCsv(String)
+     * @deprecated Use a dedicated CSV parser/writer for such tasks.
      */
+    @Deprecated
     public static String recoverStringFromCsv(String csvText) {
         return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
