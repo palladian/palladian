@@ -239,7 +239,7 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getFirstWords("", 10));
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
-    
+
     @Test
     public void testGetLongest() {
         String s0 = "";
@@ -252,11 +252,20 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getLongest(s4, s0));
         assertEquals(null, StringHelper.getLongest(s4));
     }
-    
+
     @Test
     public void testRemoveLineBreaks() {
         String test = "text\nwith\r\nline\rbreaks";
         assertEquals("text with line breaks", StringHelper.removeLineBreaks(test));
+    }
+
+    @Test
+    public void testRemoveFourByteChars() {
+        assertEquals("", StringHelper.removeFourByteChars("\uD83D\uDE01"));
+        assertEquals("\u0021", StringHelper.removeFourByteChars("\u0021"));
+        assertEquals("\u00B6", StringHelper.removeFourByteChars("\u00B6"));
+        assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
+        assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
     }
 
 }
