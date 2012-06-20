@@ -1693,13 +1693,30 @@ public final class StringHelper {
         for (String string : strings) {
             if (string == null) {
                 continue;
-            } else if (ret == null) {
-                ret = string;
-            } else if (string.length() > ret.length()) {
+            } else if (ret == null || string.length() > ret.length()) {
                 ret = string;
             }
         }
         return ret;
+    }
+    
+    /**
+     * <p>
+     * Remove line breaks from the supplied string and replace them by spaces. The method considers UNIX (<code>LF</code>), Windows
+     * (<code>CR+LF</code>) and Classical Mac OS (<code>CR</code>) line breaks.
+     * </p>
+     * 
+     * @param string The string from which to remove line breaks.
+     * @return The string without line breaks, or <code>null</code> if input was <code>null</code>.
+     * @see <a href="http://en.wikipedia.org/wiki/Newline">Wikipedia: Newline</a>
+     */
+    public static String removeLineBreaks(String string) {
+        if (string != null) {
+            string = string.replace("\r\n", " ");
+            string = string.replace('\n', ' ');
+            string = string.replace('\r', ' ');
+        }
+        return string;
     }
 
     /**

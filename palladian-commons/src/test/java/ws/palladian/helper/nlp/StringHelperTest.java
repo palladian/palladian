@@ -252,5 +252,11 @@ public class StringHelperTest {
         assertEquals("", StringHelper.getLongest(s4, s0));
         assertEquals(null, StringHelper.getLongest(s4));
     }
+    
+    @Test
+    public void testRemoveLineBreaks() {
+        String test = "text\nwith\r\nline\rbreaks";
+        assertEquals("text with line breaks", StringHelper.removeLineBreaks(test));
+    }
 
 }
