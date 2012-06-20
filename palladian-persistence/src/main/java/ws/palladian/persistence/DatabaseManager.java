@@ -110,6 +110,7 @@ public class DatabaseManager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         boolean success = true;
+        List<Object> data = null;
 
         try {
 
@@ -118,7 +119,8 @@ public class DatabaseManager {
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             for (int i = 0; i < provider.getCount(); i++) {
-                fillPreparedStatement(ps, provider.getData(i));
+                data = provider.getData(i);
+                fillPreparedStatement(ps, data);
                 ps.executeUpdate();
 
                 rs = ps.getGeneratedKeys();
@@ -140,7 +142,11 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            logError(e, sql);
+            Object[] args = null;
+            if (data != null) {
+                args = data.toArray();
+            }
+            logError(e, sql, args);
         } finally {
             close(connection, ps, rs);
         }
