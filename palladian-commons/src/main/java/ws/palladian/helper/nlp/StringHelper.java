@@ -1718,6 +1718,24 @@ public final class StringHelper {
         }
         return string;
     }
+    
+    /**
+     * <p>
+     * Remove those characters from the supplied string which are encoded as four bytes in UTF-8. Useful when data needs
+     * to be inserted in (older) MySQL databases, as four byte characters cause trouble.
+     * </p>
+     * 
+     * @param string The string from which to remove four byte characters.
+     * @return The string with four byte characters removed, or <code>null</code> if input was <code>null</code>.
+     * @see <a href="http://mzsanford.com/blog/mysql-and-unicode">MySQL and Unicode</a>
+     * @see <a href="http://stackoverflow.com/a/3220210/388827>Code snippet on Stack Overflow</a>
+     */
+    public static String removeFourByteChars(String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.replaceAll("[^\u0000-\uD7FF\uE000-\uFFFF]", "");
+    }
 
     /**
      * The main method.
