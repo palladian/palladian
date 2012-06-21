@@ -66,8 +66,8 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
 
     public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
 
-    public static final FeatureDescriptor<SequentialPattern> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, SequentialPattern.class);
+    public static final FeatureDescriptor<SequentialPatternsFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, SequentialPatternsFeature.class);
 
     private Integer maxSequentialPatternSize = 0;
 
@@ -153,9 +153,12 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
                 }
             }
 
-            sentence.addFeatures(extractionStrategy.extract(
-                    sequentialPattern.toArray(new String[sequentialPattern.size()]), minSequentialPatternSize,
-                    maxSequentialPatternSize, PROVIDED_FEATURE_DESCRIPTOR));
+            String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
+            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
+                    minSequentialPatternSize, maxSequentialPatternSize);
+            SequentialPatternsFeature feature = new SequentialPatternsFeature(PROVIDED_FEATURE_DESCRIPTOR,
+                    extractedPatterns);
+            sentence.addFeature(feature);
         }
     }
 
