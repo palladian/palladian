@@ -57,7 +57,7 @@ public final class FeatureDescriptorBuilder {
                 if (getClass() != obj.getClass()) {
                     return false;
                 }
-                FeatureDescriptor<T> other = (FeatureDescriptor<T>)obj;
+                FeatureDescriptor<?> other = (FeatureDescriptor<?>)obj;
                 if (getIdentifier() == null) {
                     if (other.getIdentifier() != null) {
                         return false;
