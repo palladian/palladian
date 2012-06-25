@@ -29,6 +29,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
@@ -40,6 +41,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -51,6 +54,7 @@ import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.ContentEncodingHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
@@ -74,7 +78,7 @@ import ws.palladian.helper.constants.SizeUnit;
  * GET, POST, and HEAD. Results for these requests are supplied as instances of {@link HttpResult}. Further more, this
  * class provides the possibility to save the results from HTTP requests as files for archival purposes. This class is
  * heavily based upon Apache HttpComponents, which provide a much more reliable HTTP implementation than the original
- * java.net.* components.
+ * <code>java.net.*</code> components.
  * </p>
  * 
  * <p>
@@ -83,7 +87,7 @@ import ws.palladian.helper.constants.SizeUnit;
  * {@link HttpRetriever} instances need to be pre-configured with specific proxy settings.
  * </p>
  * 
- * @see http://hc.apache.org/
+ * @see <a href="http://hc.apache.org/">Apache HttpComponents</a>
  * @author Philipp Katz
  * @author David Urbansky
  */
@@ -104,7 +108,7 @@ public class HttpRetriever {
     public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
-    public static final int DEFAULT_NUM_RETRIES = 1; // FIXME fails with 0 but why?
+    public static final int DEFAULT_NUM_RETRIES = 1;
 
     /** The default number of connections in the connection pool. */
     public static final int DEFAULT_NUM_CONNECTIONS = 100;
@@ -237,7 +241,7 @@ public class HttpRetriever {
      * Performs an HTTP GET operation.
      * </p>
      * 
-     * @param url the URL for the GET.
+     * @param url the URL for the GET, not <code>null</code> or empty.
      * @return response for the GET.
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
@@ -250,12 +254,13 @@ public class HttpRetriever {
      * Performs an HTTP GET operation.
      * </p>
      * 
-     * @param url the URL for the GET.
+     * @param url the URL for the GET, not <code>null</code> or empty.
      * @param headers map with key-value pairs of request headers.
      * @return response for the GET.
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
     public HttpResult httpGet(String url, Map<String, String> headers) throws HttpException {
+        Validate.notEmpty(url, "url must not be empty");
 
         HttpGet get;
         try {
@@ -264,11 +269,14 @@ public class HttpRetriever {
             throw new HttpException("invalid URL: " + url, e);
         }
 
-        for (Entry<String, String> header : headers.entrySet()) {
-            get.setHeader(header.getKey(), header.getValue());
+        if (headers != null) {
+            for (Entry<String, String> header : headers.entrySet()) {
+                get.setHeader(header.getKey(), header.getValue());
+            }
         }
 
         // set proxy authentication if available
+        // TODO -- I guess this should rather be put into #execute(String, HttpUriRequest).
         String usernamePassword = getProxyAuthentication();
         if (!usernamePassword.isEmpty()) {
             String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
@@ -284,11 +292,13 @@ public class HttpRetriever {
      * Performs an HTTP HEAD operation.
      * </p>
      * 
-     * @param url the URL for the HEAD.
+     * @param url the URL for the HEAD, not <code>null</code> or empty.
      * @return response for the HEAD.
      * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
      */
     public HttpResult httpHead(String url) throws HttpException {
+        Validate.notEmpty(url, "url must not be empty");
+        
         HttpHead head;
         try {
             head = new HttpHead(url);
@@ -304,7 +314,7 @@ public class HttpRetriever {
      * Performs an HTTP POST operation with the specified name-value pairs as content.
      * </p>
      * 
-     * @param url the URL for the POST.
+     * @param url the URL for the POST, not <code>null</code> or empty.
      * @param content name-value pairs for the POST.
      * @return response for the POST.
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
@@ -318,7 +328,7 @@ public class HttpRetriever {
      * Performs an HTTP POST operation with the specified name-value pairs as content.
      * </p>
      * 
-     * @param url the URL for the POST.
+     * @param url the URL for the POST, not <code>null</code> or empty.
      * @param headers map with key-value pairs of request headers.
      * @param content name-value pairs for the POST.
      * @return response for the POST.
@@ -326,6 +336,8 @@ public class HttpRetriever {
      */
     public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content)
             throws HttpException {
+        Validate.notEmpty(url, "url must not be empty");
+
         HttpPost post;
         try {
             post = new HttpPost(url);
@@ -334,8 +346,10 @@ public class HttpRetriever {
         }
 
         // HTTP headers
-        for (Entry<String, String> header : headers.entrySet()) {
-            post.setHeader(header.getKey(), header.getValue());
+        if (headers != null) {
+            for (Entry<String, String> header : headers.entrySet()) {
+                post.setHeader(header.getKey(), header.getValue());
+            }
         }
 
         // content name-value pairs
@@ -485,7 +499,9 @@ public class HttpRetriever {
      * 
      * @param url the URL to check for redirect.
      * @return redirected URL as String, or <code>null</code>.
+     * @deprecated Use {@link #getRedirectUrls(String)} instead.
      */
+    @Deprecated
     public String getRedirectUrl(String url) {
         // TODO should be changed to use HttpComponents
         String location = null;
@@ -500,6 +516,76 @@ public class HttpRetriever {
         }
 
         return location;
+    }
+    
+    /**
+     * <p>
+     * Get the redirect URLs for the specified URL (redirects are indicated by a HTTP response code 3xx, and the
+     * redirected URL supplied in a header field <code>location</code>). If there are multiple redirects, all of them
+     * are collected and returned, and the last element in the list represents the final target URL (e.g.
+     * <code>URL1</code> -> <code>URL2</code> -> <code>URL3</code> would return a list <code>[URL2, URL3]</code>).
+     * </p>
+     * 
+     * @param url The URL for which to retrieve the redirects, not <code>null</code> or empty.
+     * @return A list containing the redirect chain, whereas the last element in the list represents the final target,
+     *         or an empty list if the provided URL is not redirected, never <code>null</code>.
+     * @throws HttpException In case of general HTTP errors, when an invalid URL is supplied, when a redirect loop is
+     *             detected (e.g. <code>URL1</code> -> <code>URL2</code> -> <code>URL1</code>), or when a redirect
+     *             status is returned, but no <code>location</code> field is provided.
+     */
+    public List<String> getRedirectUrls(String url) throws HttpException {
+        Validate.notEmpty(url, "url must not be empty");
+
+        List<String> ret = new ArrayList<String>();
+
+        HttpClient client = new DefaultHttpClient(connectionManager);
+        HttpParams params = client.getParams();
+        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        
+        // TODO hard coded time out values for now; does it make sense to use the same values configured for normal HTTP
+        // operations? For now I set shorter timeouts to avoid lagging.
+        HttpConnectionParams.setSoTimeout(params, 1000);
+        HttpConnectionParams.setConnectionTimeout(params, 1000);
+
+        for (;;) {
+            HttpHead headRequest;
+            try {
+                headRequest = new HttpHead(url);
+            } catch (IllegalArgumentException e) {
+                throw new HttpException("Invalid URL: \"" + url + "\"");
+            }
+            try {
+                HttpResponse response = client.execute(headRequest);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode >= 300 && statusCode < 400) {
+                    Header[] locationHeaders = response.getHeaders("location");
+                    if (locationHeaders.length == 0) {
+                        throw new HttpException("Got HTTP status code " + statusCode
+                                + ", but no \"location\" field was provided.");
+                    } else {
+                        url = locationHeaders[0].getValue();
+                        if (ret.contains(url)) {
+                            throw new HttpException("Detected redirect loop for \"" + url
+                                    + "\". URLs collected so far: " + StringUtils.join(ret, ","));
+                        }
+                        
+                        // TODO: add checking for a maximum # of redirects here, to avoid endless redirects
+                        
+                        ret.add(url);
+                    }
+                } else {
+                    break; // done.
+                }
+            } catch (ClientProtocolException e) {
+                throw new HttpException(e);
+            } catch (IOException e) {
+                throw new HttpException(e);
+            } finally {
+                headRequest.abort();
+            }
+        }
+        // client.getConnectionManager().shutdown();
+        return ret;
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -776,7 +862,7 @@ public class HttpRetriever {
     /**
      * <p>
      * Resets this {@code HttpRetriever}s socket timeout time overwriting the old value. The default value for this
-     * attribute after initialisation is 180 milliseconds.
+     * attribute after initialization is {@value #DEFAULT_SOCKET_TIMEOUT}.
      * </p>
      * 
      * @param socket timeout The new socket timeout time in milliseconds
@@ -787,8 +873,8 @@ public class HttpRetriever {
 
     /**
      * <p>
-     * Provides this {@code HttpRetriever}s socket timeout time. The default value set upon initialisation is 180
-     * milliseconds.
+     * Provides this {@code HttpRetriever}s socket timeout time. The default value set upon initialization is
+     * {@value #DEFAULT_SOCKET_TIMEOUT}.
      * </p>
      * 
      * @return The socket timeout time of this {@code HttpRetriever} in milliseconds.
@@ -916,6 +1002,13 @@ public class HttpRetriever {
 
     public void setProxyAuthentication(String proxyAuthentication) {
         this.proxyAuthentication = proxyAuthentication;
+    }
+    
+    public static void main(String[] args) throws HttpException {
+        String url = "http://t.co/oEtPQ49H";
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        List<String> redirectUrls = httpRetriever.getRedirectUrls(url);
+        System.out.println(redirectUrls);
     }
 
 }
