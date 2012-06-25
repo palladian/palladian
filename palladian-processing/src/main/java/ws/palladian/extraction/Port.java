@@ -3,6 +3,8 @@
  */
 package ws.palladian.extraction;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -10,9 +12,13 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 1.7.0
  */
-public final class Port<T> {
+public final class Port<T> implements Serializable{
 
-    private PipelineDocument<T> document;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7410558916771910632L;
+	private PipelineDocument<T> document;
     private final String name;
 
     public Port(String name) {

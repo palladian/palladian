@@ -5,8 +5,6 @@ package ws.palladian.extraction.patterns;
 
 import java.util.List;
 
-import ws.palladian.model.features.FeatureDescriptor;
-
 /**
  * <p>
  * Provides an extraction strategy for the {@link SequentialPatternAnnotator}.
@@ -25,9 +23,7 @@ public interface SpanExtractionStrategy {
      * @param tokenList The tokens to extract patterns from.
      * @param minPatternSize The minimum size of the patterns.
      * @param maxPatternSize The maximum size of the pattern.
-     * @param descriptor The {@link FeatureDescriptor} for the extracted {@code SequentialPattern}s.
      * @return A {@code List} of the {@code SequentialPattern}s from the provided token.
      */
-    List<SequentialPattern> extract(final String[] tokenList, final Integer minPatternSize,
-            final Integer maxPatternSize, final FeatureDescriptor<SequentialPattern> descriptor);
+    List<SequentialPattern> extract(final String[] tokenList, final Integer minPatternSize, final Integer maxPatternSize);
 }

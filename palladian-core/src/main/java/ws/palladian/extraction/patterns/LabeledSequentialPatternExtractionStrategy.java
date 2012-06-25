@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ws.palladian.model.features.FeatureDescriptor;
-
 /**
  * <p>
  * 
@@ -22,13 +20,13 @@ public final class LabeledSequentialPatternExtractionStrategy implements SpanExt
 
     @Override
     public List<SequentialPattern> extract(final String[] tokenList, final Integer minPatternSize,
-            final Integer maxPatternSize, final FeatureDescriptor<SequentialPattern> descriptor) {
+            final Integer maxPatternSize) {
         List<SequentialPattern> extractedPatterns = new ArrayList<SequentialPattern>();
         Collection<List<String>> patterns = ws.palladian.extraction.token.Tokenizer.getAllSpans(tokenList,
                 maxPatternSize);
 
         for (List<String> pattern : patterns) {
-            SequentialPattern lspFeature = new SequentialPattern(descriptor, pattern);
+            SequentialPattern lspFeature = new SequentialPattern(pattern);
             extractedPatterns.add(lspFeature);
         }
 
