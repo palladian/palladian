@@ -95,7 +95,7 @@ public class HttpRetriever {
     // ///////////// constants with default configuration ////////
 
     /** The user agent string that is used by the crawler. */
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
 
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
