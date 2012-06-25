@@ -724,7 +724,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         	annotations.removeNestedAnnotations();
         }
 
-        FileHelper.writeToFile("data/temp/ner/palladianNerOutput.txt", tagText(inputText, annotations));
+//        FileHelper.writeToFile("data/temp/ner/palladianNerOutput.txt", tagText(inputText, annotations));
 
         LOGGER.info("got annotations in " + stopWatch.getElapsedTimeString());
 

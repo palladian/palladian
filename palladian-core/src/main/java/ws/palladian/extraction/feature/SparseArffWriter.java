@@ -27,6 +27,7 @@ import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.Port;
 import ws.palladian.extraction.patterns.SequentialPattern;
+import ws.palladian.extraction.patterns.SequentialPatternsFeature;
 import ws.palladian.model.features.Annotation;
 import ws.palladian.model.features.AnnotationFeature;
 import ws.palladian.model.features.BooleanFeature;
@@ -150,29 +151,32 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             handleBooleanFeature((BooleanFeature)feature, newInstance, model);
         } else if (feature instanceof NominalFeature) {
             handleNominalFeature((NominalFeature)feature, newInstance, model);
-        } else if (feature instanceof SequentialPattern) {
-            handleSequentialPattern((SequentialPattern)feature, newInstance, model);
+        } else if (feature instanceof SequentialPatternsFeature) {
+            handleSequentialPatterns((SequentialPatternsFeature)feature, newInstance, model);
         }
     }
 
     /**
      * <p>
-     * 
+     * Adds all sequential patterns from a {@code SequentialPatternsFeature} to the created Arff file.
      * </p>
      * 
-     * @param feature
-     * @param newInstance
+     * @param feature The {@code Feature} to add.
+     * @param newInstance The Weka {@code Instance} to add the {@code Feature} to
      * @param model
      */
-    private void handleSequentialPattern(SequentialPattern feature, Instance newInstance, Instances model) {
-        String featureName = feature.getStringValue();
-        Attribute attribute = model.attribute(featureName);
-        if (attribute == null) {
-            attribute = new Attribute(featureName);
-            model.insertAttributeAt(attribute, 0);
-            attribute = model.attribute(featureName);
+    private void handleSequentialPatterns(SequentialPatternsFeature feature, Instance newInstance, Instances model) {
+        List<SequentialPattern> sequentialPatterns = feature.getValue();
+        for (SequentialPattern pattern : sequentialPatterns) {
+            String featureName = pattern.getStringValue();
+            Attribute attribute = model.attribute(featureName);
+            if (attribute == null) {
+                attribute = new Attribute(featureName);
+                model.insertAttributeAt(attribute, 0);
+                attribute = model.attribute(featureName);
+            }
+            newInstance.setValue(attribute, 1.0);
         }
-        newInstance.setValue(attribute, 1.0);
 
     }
 
