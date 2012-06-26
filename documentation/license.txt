@@ -11,7 +11,7 @@ Palladian Free for Science License Version 1
     else grants you permission to copy, modify, or distribute the
     Software.  If you wish to receive a license from Palladian under
     different terms than those contained in this License, please contact
-    Palladian.  Otherwise, if you do not accept this License, any copying,
+    Palladian. Otherwise, if you do not accept this License, any copying,
     modifying, or distributing of the Software is strictly prohibited by
     law.
 
