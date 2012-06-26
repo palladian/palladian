@@ -53,7 +53,7 @@ public class NERTest {
         // language independent
         PalladianNer tagger = new PalladianNer();
         tagger.setLanguageMode(LanguageMode.LanguageIndependent);
-        String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model");
+        String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model.gz");
         tagger.train(trainingFile, tudnerLiModel);
 
         // EvaluationResult er = tagger.evaluate(ResourceHelper.getResourcePath("/ner/training.txt"),
@@ -88,7 +88,7 @@ public class NERTest {
         tagger.setLanguageMode(LanguageMode.English);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
-        String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model");
+        String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model.gz");
         tagger.train(trainingFile, tudnerEnModel);
 
         // EvaluationResult er = tagger.evaluate(ResourceHelper.getResourcePath("/ner/training.txt"),
