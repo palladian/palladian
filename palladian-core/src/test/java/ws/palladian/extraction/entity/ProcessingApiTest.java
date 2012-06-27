@@ -25,7 +25,7 @@ public final class ProcessingApiTest {
 
 	@Test
 	public void testProcessing() throws Exception {
-		String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model");
+		String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model.gz");
 		PalladianNer nerProcessor = new PalladianNer(
 				LanguageMode.English);
         

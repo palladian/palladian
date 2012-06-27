@@ -188,7 +188,7 @@ public class MathHelperTest {
         list2.add("c");
         list2.add("b");
         list2.add("a");
-        assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy(), 0);
+        assertEquals(0.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilartiy(), 0);
 
         list1 = new ArrayList<String>();
         list2 = new ArrayList<String>();
@@ -198,18 +198,18 @@ public class MathHelperTest {
         list2.add("a");
         list2.add("b");
         list2.add("c");
-        assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy(), 0);
+        assertEquals(1.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilartiy(), 0);
 
         assertEquals(0.37, MathHelper.round(
-                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
                         .getShiftSimilartiy(), 2), 0);
 
         assertEquals(0.57, MathHelper.round(
-                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
+                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
                         .getSquaredShiftSimilartiy(), 2), 0);
 
         assertEquals(4.16, MathHelper.round(
-                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2), 0);
+                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2), 0);
 
     }
 
@@ -224,10 +224,10 @@ public class MathHelperTest {
         values.add(new double[] { 10, 8 });
         values.add(new double[] { 22, 7 });
 
-        assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3), 0);
+        assertEquals(7.155, MathHelper.round(MathHelper.computeRootMeanSquareError(values), 3), 0);
 
         assertEquals(3.607,
-                MathHelper.round(MathHelper.calculateRMSE(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
+                MathHelper.round(MathHelper.computeRootMeanSquareError(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
     }
 
     @Test
@@ -235,13 +235,16 @@ public class MathHelperTest {
 
         List<Boolean> rankedList = Arrays.asList(true, false, true, true, true, true, false);
 
-        double[][] ap = MathHelper.calculateAP(rankedList);
+        // the total number of relevant documents for the query
+        int totalNumberRelevantForQuery = 5;
+        
+        double[][] ap = MathHelper.computeAveragePrecision(rankedList,totalNumberRelevantForQuery);
         int k = rankedList.size() - 1;
         double prAtK = ap[k][0];
         double apAtK = ap[k][1];
 
         assertEquals(5. / 7, prAtK, 0);
-        assertEquals((1 + 2. / 3 + 3. / 4 + 4. / 5 + 5. / 6) / 5, apAtK, 0);
+        assertEquals((1+2./3+3./4+4./5+5./6)/(double) totalNumberRelevantForQuery, apAtK, 0);
 
     }
 

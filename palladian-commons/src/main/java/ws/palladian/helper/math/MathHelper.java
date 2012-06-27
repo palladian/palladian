@@ -299,7 +299,7 @@ public class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    public static double calculateRMSE(String inputFile, String columnSeparator) {
+    public static double computeRootMeanSquareError(String inputFile, String columnSeparator) {
         // array with correct and predicted values
         List<double[]> values = new ArrayList<double[]>();
 
@@ -324,10 +324,10 @@ public class MathHelper {
 
         FileHelper.performActionOnEveryLine(inputFile, la);
 
-        return calculateRMSE(values);
+        return computeRootMeanSquareError(values);
     }
 
-    public static double calculateRMSE(List<double[]> values) {
+    public static double computeRootMeanSquareError(List<double[]> values) {
         double rmse = -1.0;
 
         double sum = 0.0;
@@ -347,7 +347,7 @@ public class MathHelper {
      * @param list2 The second list.
      * @return The similarity of the two lists.
      */
-    public static ListSimilarity calculateListSimilarity(List<String> list1, List<String> list2) {
+    public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
 
         ListSimilarity ls = new ListSimilarity();
 
@@ -394,12 +394,12 @@ public class MathHelper {
 
         ls.setShiftSimilartiy(similarity);
         ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
-        ls.setRmse(calculateRMSE(positionValues));
+        ls.setRmse(computeRootMeanSquareError(positionValues));
 
         return ls;
     }
 
-    public static ListSimilarity calculateListSimilarity(String listFile, String separator) {
+    public static ListSimilarity computeListSimilarity(String listFile, String separator) {
 
         // two list
         List<String> list1 = new ArrayList<String>();
@@ -425,7 +425,7 @@ public class MathHelper {
 
         FileHelper.performActionOnEveryLine(listFile, la);
 
-        return calculateListSimilarity(list1, list2);
+        return computeListSimilarity(list1, list2);
     }
 
     /**
@@ -581,9 +581,10 @@ public class MathHelper {
      * </pre>
      * 
      * @param rankedList The ranked list with Boolean values indicating the relevancies of the items.
+     * @param totalNumberRelevantForQuery The total number of relevant documents for the query.
      * @return A two dimensional array containing Precision @ Rank k and Average Precision @ Rank k.
      */
-    public static double[][] calculateAP(List<Boolean> rankedList) {
+    public static double[][] computeAveragePrecision(List<Boolean> rankedList, int totalNumberRelevantForQuery) {
 
     	// number of relevant entries at k
         int numRelevant = 0;
@@ -606,7 +607,7 @@ public class MathHelper {
                 relPrSum += prAtK;
             }
 
-            double ap = relPrSum / numRelevant;
+            double ap = relPrSum / totalNumberRelevantForQuery;
 
             result[k][0] = prAtK;
             result[k][1] = ap;
