@@ -39,7 +39,7 @@ public class ThresholdAnalyzer {
 
     /**
      * <p>
-     * Initialize a new, empty {@link ThresholdAnalyzerTest} with the specified number of bins.
+     * Initialize a new, empty {@link ThresholdAnalyzer} with the specified number of bins.
      * </p>
      * 
      * @param numBins The number of bins to use, the more, the more fine grained the result.
