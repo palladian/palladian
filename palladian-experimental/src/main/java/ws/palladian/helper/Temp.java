@@ -231,7 +231,7 @@ public class Temp {
         }
 
         FileHelper.writeToFile("data/temp/rmseOutput.txt", sb);
-        System.out.println(MathHelper.calculateRMSE("data/temp/rmseOutput.txt", ";"));
+        System.out.println(MathHelper.computeRootMeanSquareError("data/temp/rmseOutput.txt", ";"));
         System.out.println("Average Rating: " + totalRealRating / movies.size());
 
         sb = new StringBuilder();
@@ -241,7 +241,7 @@ public class Temp {
         }
 
         FileHelper.writeToFile("data/temp/rmseOutputGuess.txt", sb);
-        System.out.println(MathHelper.calculateRMSE("data/temp/rmseOutputGuess.txt", ";"));
+        System.out.println(MathHelper.computeRootMeanSquareError("data/temp/rmseOutputGuess.txt", ";"));
 
     }
 
