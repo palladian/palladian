@@ -22,6 +22,11 @@ import ws.palladian.retrieval.search.SearcherException;
  * {@link WebSearcher} implementation for blekko.
  * </p>
  * 
+ * <p>
+ * Note: blekko also works without an API key and seems to return different results depending on whether an api key is
+ * set or not (as of June 30, 2012).
+ * </p>
+ * 
  * @see http://blekko.com
  * @see http://help.blekko.com/index.php/tag/api/
  * @author Philipp Katz
@@ -55,6 +60,17 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     public BlekkoSearcher(String apiKey) {
         super();
         this.apiKey = apiKey;
+    }
+
+    /**
+     * <p>
+     * Creates a new blekko searcher WITHOUT api key.
+     * </p>
+     * 
+     */
+    public BlekkoSearcher() {
+        super();
+        this.apiKey = null;
     }
 
     /**
@@ -128,8 +144,13 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("+/json");
         urlBuilder.append("+/ps=").append(pageSize);
-        urlBuilder.append("&auth=").append(apiKey);
+        if (this.apiKey != null) {
+            urlBuilder.append("&auth=").append(apiKey);
+        }
         urlBuilder.append("&p=").append(page);
+
+        // System.out.println(urlBuilder.toString());
+
         return urlBuilder.toString();
     }
 
@@ -159,8 +180,48 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         return "Blekko";
     }
 
+    @Override
+    public int getTotalResultCount(String query) throws SearcherException {
+        int totalResults = 0;
+
+        String requestUrl = getRequestUrl(query, 1, 0);
+        checkQueryThrottling();
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(requestUrl);
+            TOTAL_REQUEST_COUNT.incrementAndGet();
+    
+            String jsonString = HttpHelper.getStringContent(httpResult);
+            JSONObject jsonObject = new JSONObject(jsonString);
+            
+            // System.out.println(jsonObject.toString(2));
+
+            if (jsonObject != null && jsonObject.has("universal_total_results")) {
+                String string = jsonObject.getString("universal_total_results");
+                string = string.replace("K", "000");
+                string = string.replace("M", "000000");
+                try {
+                    totalResults = Integer.parseInt(string);
+                } catch (Exception e) {
+                    // ccl pattern in action
+                }
+            }
+            
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching total result count for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
+        } catch (JSONException e) {
+            throw new SearcherException("Error parsing the JSON response while searching total result count for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage(), e);
+        }
+        
+        return totalResults;
+    }
+
     /**
+     * <p>
      * Gets the number of HTTP requests sent to blekko.
+     * </p>
      * 
      * @return
      */
@@ -168,7 +229,9 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         return TOTAL_REQUEST_COUNT.intValue();
     }
 
-    // public static void main(String[] args) throws SearcherException {
-    // CollectionHelper.print(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()).search("cinefreaks", 10));
-    // }
+    public static void main(String[] args) throws SearcherException {
+        // CollectionHelper.print(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()).search("cinefreaks", 10));
+        // System.out.println(new
+        // BlekkoSearcher(ConfigHolder.getInstance().getConfig()).getTotalResultCount("inurl:\"cinefreaks\""));
+    }
 }

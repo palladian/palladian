@@ -920,6 +920,15 @@ public class HttpRetriever {
         LOGGER.debug("set proxy to " + hostname + ":" + port);
     }
 
+    /**
+     * <p>
+     * If a proxy is set, we can disable it to use the direct connection again.
+     * </p>
+     */
+    public void useDirectConnection() {
+        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
+    }
+
     public void setProxy(String proxy) {
         String[] split = proxy.split(":");
         if (split.length != 2) {
@@ -930,6 +939,22 @@ public class HttpRetriever {
         setProxy(hostname, port);
     }
 
+    public String getUserAgent() {
+        String userAgent = (String)httpClient.getParams().getParameter(HttpProtocolParams.USER_AGENT);
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        httpClient.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
+    }
+
+    /**
+     * <p>
+     * Set the maximum number of bytes to download per request.
+     * </p>
+     * 
+     * @param maxFileSize The maximum number of bytes to download per request.
+     */
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }
