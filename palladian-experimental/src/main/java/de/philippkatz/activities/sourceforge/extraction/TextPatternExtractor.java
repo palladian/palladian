@@ -5,13 +5,13 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NominalFeature;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 public class TextPatternExtractor extends StringDocumentPipelineProcessor {
 

@@ -2,12 +2,12 @@ package ws.palladian.extraction.feature;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

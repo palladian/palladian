@@ -7,7 +7,7 @@ import java.util.Set;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

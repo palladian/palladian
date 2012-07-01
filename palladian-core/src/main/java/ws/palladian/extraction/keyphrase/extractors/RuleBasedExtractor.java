@@ -10,10 +10,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
@@ -34,10 +30,14 @@ import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.AnnotationGroup;
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PerformanceCheckProcessingPipeline;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.AnnotationGroup;
+import ws.palladian.processing.features.FeatureVector;
 public final class RuleBasedExtractor extends KeyphraseExtractor {
     
     private final ProcessingPipeline trainingPipeline;

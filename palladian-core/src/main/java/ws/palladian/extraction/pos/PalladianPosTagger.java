@@ -18,7 +18,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import org.apache.commons.lang.Validate;
 
 import scala.actors.threadpool.Arrays;
+import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.Port;
 
 /**
  * @author Klemens Muthmann

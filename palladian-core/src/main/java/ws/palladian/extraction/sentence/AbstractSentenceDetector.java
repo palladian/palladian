@@ -8,14 +8,14 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.feature.FeatureProvider;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.FeatureProvider;
 
 /**
  * <p>

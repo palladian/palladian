@@ -3,10 +3,6 @@ package com.newsseecr.xperimental;
 import java.util.Iterator;
 import java.util.List;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
@@ -19,11 +15,15 @@ import ws.palladian.extraction.feature.TokenOverlapRemover;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NominalFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PerformanceCheckProcessingPipeline;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
 
 import com.newsseecr.xperimental.wikipedia.WikipediaAnnotator;
 

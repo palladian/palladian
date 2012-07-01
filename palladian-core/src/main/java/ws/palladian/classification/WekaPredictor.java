@@ -11,10 +11,10 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NominalFeature;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

@@ -8,8 +8,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.NominalFeature;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.semantics.Word;
 import ws.palladian.semantics.WordDB;
 

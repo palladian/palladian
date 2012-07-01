@@ -13,12 +13,12 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

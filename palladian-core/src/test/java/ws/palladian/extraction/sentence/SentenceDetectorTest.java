@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 
 public class SentenceDetectorTest {
 
