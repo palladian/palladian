@@ -132,19 +132,39 @@ public class MathHelper {
     }
 
     /**
-     * Check whether one value is in a certain range of another value.
-     * For example, value1: 5 is within the range: 2 of value2: 3.
+     * <p>
+     * Check whether one value is in a certain range of another value. For example, value1: 5 is within the range: 2 of
+     * value2: 3.
+     * </p>
      * 
      * @param value1 The value to check whether it is in the range of the other value.
      * @param value2 The value for which the range is added or subtracted.
      * @param range The range.
-     * @return <tt>True</tt>, if value1 <= alue2 + range && value1 >= value2 - range, <tt>false</tt> otherwise.
+     * @return <tt>True</tt>, if value1 <= value2 + range && value1 >= value2 - range, <tt>false</tt> otherwise.
      */
     public static boolean isWithinRange(double value1, double value2, double range) {
         double numMin = value2 - range;
         double numMax = value2 + range;
 
         if (value1 <= numMax && value1 >= numMin) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>
+     * Check whether one value is in a certain interval. For example, value: 5 is within the interval min: 2 to max: 8.
+     * </p>
+     * 
+     * @param value The value to check whether it is in the interval.
+     * @param min The min value of the interval.
+     * @param max the max value of the interval
+     * @return <tt>True</tt>, if value >= min && value <= max, <tt>false</tt> otherwise.
+     */
+    public static boolean isWithinInterval(double value, double min, double max) {
+        if (value <= max && value >= min) {
             return true;
         }
 
@@ -185,13 +205,18 @@ public class MathHelper {
 
     public static double getMedian(Collection<? extends Number> valueList) {
         Median median = new Median();
-        double[] doubles = new double[valueList.size()];
-        int i = 0;
+        List<Double> nonNullValues = new ArrayList<Double>();
         for (Number entry : valueList) {
             if (entry == null) {
                 continue;
             }
-            doubles[i++] = entry.doubleValue();
+            nonNullValues.add(entry.doubleValue());
+        }
+
+        double[] doubles = new double[nonNullValues.size()];
+        int i = 0;
+        for (double entry : nonNullValues) {
+            doubles[i++] = entry;
         }
 
         return median.evaluate(doubles);

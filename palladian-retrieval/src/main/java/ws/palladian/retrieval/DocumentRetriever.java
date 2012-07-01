@@ -478,6 +478,10 @@ public class DocumentRetriever {
         retrieverCallbacks.remove(retrieverCallback);
     }
 
+    public String getUserAgent() {
+        return httpRetriever.getUserAgent();
+    }
+
     // ////////////////////////////////////////////////////////////////
     // main method
     // ////////////////////////////////////////////////////////////////
