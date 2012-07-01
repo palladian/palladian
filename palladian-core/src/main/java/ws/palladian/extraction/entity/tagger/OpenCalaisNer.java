@@ -13,7 +13,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,7 +110,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
      * "api.opencalais.key"
      */
     public OpenCalaisNer() {
-        this("");
+        this(ConfigHolder.getInstance().getConfig().getString("api.opencalais.key"));
     }
 
     /**
@@ -119,17 +119,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
      * @param apiKey API key to use for connecting with OpenCalais
      */
     public OpenCalaisNer(String apiKey) {
+        Validate.notEmpty(apiKey, "API key must be given.");
         setName("OpenCalais NER");
-
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        if (!apiKey.equals("")) {
-            this.apiKey = apiKey;
-        } else if (config != null) {
-            this.apiKey = config.getString("api.opencalais.key");
-        } else {
-            this.apiKey = "";
-        }
+        this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
