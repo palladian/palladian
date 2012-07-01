@@ -3,6 +3,9 @@ package ws.palladian.model.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
+
 /**
  * <p>A feature vector used for classification tasks.</p>
  * @author David Urbansky

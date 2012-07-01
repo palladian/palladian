@@ -6,14 +6,14 @@ import org.tartarus.snowball.ext.englishStemmer;
 import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.porterStemmer;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.NominalFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.NominalFeature;
 
 /**
  * <p>

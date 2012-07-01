@@ -10,14 +10,15 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import scala.actors.threadpool.Arrays;
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.Port;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.Port;
+import ws.palladian.processing.features.AbstractFeatureProvider;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

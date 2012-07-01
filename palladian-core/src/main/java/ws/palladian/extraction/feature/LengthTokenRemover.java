@@ -1,7 +1,7 @@
 package ws.palladian.extraction.feature;
 
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.PipelineDocument;
 
 public class StopWordRemover extends StringDocumentPipelineProcessor {
 

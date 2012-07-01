@@ -13,12 +13,12 @@ import opennlp.tools.util.Span;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>

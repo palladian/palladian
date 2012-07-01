@@ -1,7 +1,7 @@
 package ws.palladian.extraction.patterns;
 
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
 
 public class SequentialPatternFeature extends Feature<SequentialPattern> {
 

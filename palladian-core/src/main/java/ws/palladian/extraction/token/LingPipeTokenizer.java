@@ -1,8 +1,8 @@
 package ws.palladian.extraction.token;
 
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;

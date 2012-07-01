@@ -20,10 +20,6 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance2;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.WekaPredictor;
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PerformanceCheckProcessingPipeline;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -47,14 +43,18 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NominalFeature;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PerformanceCheckProcessingPipeline;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 

@@ -1,6 +1,6 @@
 package ws.palladian.classification;
 
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.processing.features.FeatureVector;
 
 public class Instance2<T> {
 

@@ -3,14 +3,14 @@ package ws.palladian.preprocessing.nlp;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>

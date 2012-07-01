@@ -5,11 +5,11 @@ package ws.palladian.extraction.feature;
 
 import java.util.Collection;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * @author Klemens Muthmann

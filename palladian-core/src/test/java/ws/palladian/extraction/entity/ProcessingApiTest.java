@@ -8,12 +8,12 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
 
 /**
  * @author Klemens Muthmann

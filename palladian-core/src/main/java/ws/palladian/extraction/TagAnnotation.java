@@ -1,6 +1,6 @@
 package ws.palladian.extraction;
 
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * TODO merge this class with {@link PositionAnnotation}.

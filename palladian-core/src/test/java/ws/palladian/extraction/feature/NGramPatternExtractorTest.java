@@ -7,15 +7,15 @@ import java.io.FileNotFoundException;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
 import ws.palladian.extraction.patterns.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
 
 /**
  * <p>

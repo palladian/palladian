@@ -3,9 +3,9 @@
  */
 package ws.palladian.extraction.feature;
 
-import ws.palladian.extraction.AbstractPipelineProcessor;
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
 
 /**
  * @author Klemens Muthmann

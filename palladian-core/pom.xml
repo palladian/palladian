@@ -34,7 +34,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-processing</artifactId>
+			<artifactId>palladian-processing-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
