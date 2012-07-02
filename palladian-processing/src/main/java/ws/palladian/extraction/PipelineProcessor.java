@@ -49,4 +49,11 @@ public interface PipelineProcessor extends Serializable {
     void setInput(final String inputPortIdentifier, final PipelineDocument<?> document);
 
     Port<?> getInputPort(final String name);
+
+    /**
+     * <p>
+     * Notifies the implementing class, that the observed {@link ProcessingPipeline} finished its work.
+     * </p>
+     */
+    public void processingFinished();
 }
