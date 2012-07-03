@@ -242,4 +242,14 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor 
             return (Port<T>)defaultInputPort;
         }
     }
+
+    /**
+     * <p>
+     * Notifies the implementing class, that the observed {@link ProcessingPipeline} finished its work.
+     * </p>
+     * 
+     */
+    public void processingFinished() {
+        // TODO subclasses can insert their own code here.
+    }
 }
