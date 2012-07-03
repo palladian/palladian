@@ -13,8 +13,8 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Tensor;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>

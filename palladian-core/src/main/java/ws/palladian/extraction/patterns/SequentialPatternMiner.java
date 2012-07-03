@@ -8,14 +8,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
 
 /**
  * <p>

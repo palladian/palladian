@@ -2,10 +2,10 @@ package ws.palladian.extraction.sentence;
 
 import java.util.List;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 public class PalladianSentenceDetector extends AbstractSentenceDetector {
 

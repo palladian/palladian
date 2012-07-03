@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
 
 /**
  * @author Philipp Katz

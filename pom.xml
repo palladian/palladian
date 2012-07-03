@@ -30,7 +30,7 @@
 		<module>palladian-experimental</module>
 		<module>palladian-external-code</module>
 		<module>palladian-iirmodel</module>
-		<module>palladian-processing</module>
+		<module>palladian-processing-api</module>
 	</modules>
 	<build>
 		<plugins>

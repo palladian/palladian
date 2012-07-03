@@ -17,12 +17,12 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
+import ws.palladian.processing.ProcessingPipeline;
 
 public class ClassifierEvaluator {
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
-import ws.palladian.extraction.ProcessingPipeline;
+import ws.palladian.processing.ProcessingPipeline;
 
 public abstract class Classifier<T> implements Serializable {
 

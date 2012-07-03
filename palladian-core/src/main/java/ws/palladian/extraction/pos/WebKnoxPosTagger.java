@@ -9,8 +9,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.NominalFeature;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**

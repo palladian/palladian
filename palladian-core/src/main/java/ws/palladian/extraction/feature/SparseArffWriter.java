@@ -22,20 +22,21 @@ import org.apache.log4j.Logger;
 
 import weka.core.FastVector;
 import weka.core.Instances;
-import ws.palladian.extraction.AbstractPipelineProcessor;
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.Port;
-import ws.palladian.extraction.patterns.SequentialPattern;
-import ws.palladian.extraction.patterns.SequentialPatternsFeature;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.BooleanFeature;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.NominalFeature;
-import ws.palladian.model.features.NumericFeature;
+import weka.core.SparseInstance;
+import weka.core.converters.ArffLoader.ArffReader;
+import weka.core.converters.ArffSaver;
+
+import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.Port;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.BooleanFeature;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

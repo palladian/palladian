@@ -59,7 +59,9 @@ public class PageAnalyzer {
     }
 
     /**
-     * Find and return the content of the <title> tag of the web page.
+     * <p>
+     * Find and return the content of the &lt;title&gt; tag of the web page.
+     * </p>
      * 
      * @return The title of the web page.
      */

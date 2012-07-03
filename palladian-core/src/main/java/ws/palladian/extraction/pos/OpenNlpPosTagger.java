@@ -13,7 +13,7 @@ import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
 import ws.palladian.helper.Cache;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

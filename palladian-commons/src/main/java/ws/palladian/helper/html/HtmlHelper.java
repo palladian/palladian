@@ -1,8 +1,6 @@
 package ws.palladian.helper.html;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,11 +32,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -53,7 +49,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
-import ws.palladian.helper.io.StringOutputStream;
 
 /**
  * Some HTML and XML/DOM specific helper methods.
@@ -502,7 +497,9 @@ public class HtmlHelper {
      * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
      * @param prettyPrint whether to nicely indent the result.
      * @return String representation of the supplied Node, empty String in case of errors.
+     * @deprecated Use {@link #xmlToString(Node, boolean)} instead.
      */
+    @Deprecated
     public static String getXmlDump(Node node, boolean removeWhitespace, boolean prettyPrint) {
         String strResult = "";
         try {
@@ -532,8 +529,16 @@ public class HtmlHelper {
         return strResult;
     }
 
+    /**
+     * 
+     * @param node
+     * @return
+     * @deprecated Use {@link #xmlToString(Node, boolean)} instead, with boolean set to <code>false</code>.
+     */
+    @Deprecated
     public static String getXmlDump(Node node) {
-        return getXmlDump(node, false, false);
+        //return getXmlDump(node, false, false);
+        return xmlToString(node, false);
     }
 
     /**
@@ -635,26 +640,29 @@ public class HtmlHelper {
      * 
      * @param node
      * @return
+     * @deprecated Use {@link #xmlToString(Node, boolean)} with boolean <code>true</code> instead.
      */
+    @Deprecated
     public static String getOuterXml(Node node) {
-        String result = "";
-        Transformer transformer;
-        try {
-            transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty("omit-xml-declaration", "yes");
-
-            StringWriter writer = new StringWriter();
-            transformer.transform(new DOMSource(node), new StreamResult(writer));
-            result = writer.toString();
-
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error("getOuterXml:TransformerConfigurationException", e);
-        } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error("getOuterXml:TransformerFactoryConfigurationError", e);
-        } catch (TransformerException e) {
-            LOGGER.error("getOuterXml:TransformerException", e);
-        }
-        return result;
+//        String result = "";
+//        Transformer transformer;
+//        try {
+//            transformer = TransformerFactory.newInstance().newTransformer();
+//            transformer.setOutputProperty("omit-xml-declaration", "yes");
+//
+//            StringWriter writer = new StringWriter();
+//            transformer.transform(new DOMSource(node), new StreamResult(writer));
+//            result = writer.toString();
+//
+//        } catch (TransformerConfigurationException e) {
+//            LOGGER.error("getOuterXml:TransformerConfigurationException", e);
+//        } catch (TransformerFactoryConfigurationError e) {
+//            LOGGER.error("getOuterXml:TransformerFactoryConfigurationError", e);
+//        } catch (TransformerException e) {
+//            LOGGER.error("getOuterXml:TransformerException", e);
+//        }
+//        return result;
+        return xmlToString(node, true);
     }
 
     /**
@@ -670,7 +678,10 @@ public class HtmlHelper {
         StringBuilder sb = new StringBuilder();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
-            sb.append(getOuterXml(children.item(i)));
+            String outerXml = xmlToString(children.item(i), true);
+            if (outerXml != null) {
+                sb.append(outerXml);
+            }
         }
         return sb.toString();
     }
@@ -759,23 +770,51 @@ public class HtmlHelper {
         return result;
     }
 
-    // TODO was commented, but it is currently used by Palladian-KNIME
-    // -- Philipp, 2012-05-04
-    public static String xmlToString(Node node) {
+    /**
+     * <p>
+     * Get a string representation of the supplied DOM {@link Node}.
+     * </p>
+     * 
+     * @param node The {@link Node} (or {@link Document}) for which to get the string value, not <code>null</code>.
+     * @param omitXmlDeclaration <code>true</code> to exclude the XML declaration in the generated string.
+     * @return The string representation of the {@link Node}, or <code>null</code> in case of an error.
+     */
+    // rem: Some of the other implementations of this method returned an empty string, when an error was encountered.
+    // Although some existing code might rely on that, please do *not* change this back, as the null return signify an
+    // error. Change dependent code to handle errors accordingly. -- Philipp, 2012-07-01
+    public static String xmlToString(Node node, boolean omitXmlDeclaration) {
+        Validate.notNull(node);
+        
+        String ret = null;
         try {
             Source source = new DOMSource(node);
             StringWriter stringWriter = new StringWriter();
             Result result = new StreamResult(stringWriter);
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
+            if (omitXmlDeclaration) {
+                transformer.setOutputProperty("omit-xml-declaration", "yes");
+            }
             transformer.transform(source, result);
-            return stringWriter.getBuffer().toString();
+            ret = stringWriter.toString();
         } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
+            LOGGER.error("Encountered TransformerConfigurationException while transforming Node: " + e.getMessage());
         } catch (TransformerException e) {
-            e.printStackTrace();
+            LOGGER.error("Encountered TransformerException while transforming Node: " + e.getMessage());
         }
-        return null;
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Get a string representation of the supplied DOM {@link Node}.
+     * </p>
+     * 
+     * @param node The {@link Node} (or {@link Document}) for which to get the string value.
+     * @return The string representation of the {@link Node}, or <code>null</code> in case of an error.
+     */
+    public static String xmlToString(Node node) {
+        return xmlToString(node, false);
     }
 
     /**
@@ -786,27 +825,29 @@ public class HtmlHelper {
      * @param document The web document to transform to the HTML string.
      * @return The unformatted HTML code of the document.
      */
+    @Deprecated
     public static String documentToHtmlString(Document document) {
 
-        String htmlString = "";
-
-        OutputStream os = new StringOutputStream();
-
-        try {
-            OutputFormat format = new OutputFormat(document);
-            XMLSerializer serializer = new XMLSerializer(os, format);
-            serializer.serialize(document);
-
-            // for some reason the following line is added to the document even if it doesn't exist
-            htmlString = os.toString().replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
-
-        } catch (IOException e) {
-            LOGGER.error("could not serialize document, " + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("could not serialize document, " + e.getMessage());
-        }
-
-        return htmlString;
+//        String htmlString = "";
+//
+//        OutputStream os = new StringOutputStream();
+//
+//        try {
+//            OutputFormat format = new OutputFormat(document);
+//            XMLSerializer serializer = new XMLSerializer(os, format);
+//            serializer.serialize(document);
+//
+//            // for some reason the following line is added to the document even if it doesn't exist
+//            htmlString = os.toString().replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
+//
+//        } catch (IOException e) {
+//            LOGGER.error("could not serialize document, " + e.getMessage());
+//        } catch (Exception e) {
+//            LOGGER.error("could not serialize document, " + e.getMessage());
+//        }
+//
+//        return htmlString;
+        return xmlToString(document, true);
     }
 
     /**
@@ -816,23 +857,26 @@ public class HtmlHelper {
      * 
      * @param node An HTML node that should be transformed to an HTML string.
      * @return The unformatted HTML code of the node.
+     * @deprecated Use {@link #xmlToString(Node, boolean)} instead, with boolean <code>true</code> instead.
      */
+    @Deprecated
     public static String documentToHtmlString(Node node) {
-        Document doc = new DocumentImpl();
-
-        String ret = "";
-
-        try {
-            Node clonedNode = node.cloneNode(true);
-            Node adoptedNode = doc.adoptNode(clonedNode);
-            doc.appendChild(adoptedNode);
-            String rawMarkupString = documentToHtmlString(doc);
-            ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
-        } catch (Exception e) {
-            LOGGER.error("couldn't get raw markup from node " + e.getMessage());
-        }
-
-        return ret;
+//        Document doc = new DocumentImpl();
+//
+//        String ret = "";
+//
+//        try {
+//            Node clonedNode = node.cloneNode(true);
+//            Node adoptedNode = doc.adoptNode(clonedNode);
+//            doc.appendChild(adoptedNode);
+//            String rawMarkupString = documentToHtmlString(doc);
+//            ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
+//        } catch (Exception e) {
+//            LOGGER.error("couldn't get raw markup from node " + e.getMessage());
+//        }
+//
+//        return ret;
+        return xmlToString(node, true);
     }
 
     /**
@@ -1011,29 +1055,31 @@ public class HtmlHelper {
      * <p>
      * Get the string representation of a document.
      * </p>
-     * TODO duplicate of {@link #documentToHtmlString(Document)}?
      * 
      * @param document The document.
      * @return The string representation of the document.
+     * @deprecated Use {@link #xmlToString(Node)} instead.
      */
+    @Deprecated
     public static String documentToString(Document document) {
-        String documentString = "";
-
-        try {
-            DOMSource domSource = new DOMSource(document);
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.transform(domSource, result);
-            documentString = writer.toString();
-        } catch (TransformerException e) {
-            LOGGER.error("could not get string representation of document " + e.getMessage());
-        } catch (NullPointerException e) {
-            LOGGER.error("could not get string representation of document " + e.getMessage());
-        }
-
-        return documentString;
+//        String documentString = "";
+//
+//        try {
+//            DOMSource domSource = new DOMSource(document);
+//            StringWriter writer = new StringWriter();
+//            StreamResult result = new StreamResult(writer);
+//            TransformerFactory tf = TransformerFactory.newInstance();
+//            Transformer transformer = tf.newTransformer();
+//            transformer.transform(domSource, result);
+//            documentString = writer.toString();
+//        } catch (TransformerException e) {
+//            LOGGER.error("could not get string representation of document " + e.getMessage());
+//        } catch (NullPointerException e) {
+//            LOGGER.error("could not get string representation of document " + e.getMessage());
+//        }
+//
+//        return documentString;
+        return xmlToString(document, false);
     }
 
 }

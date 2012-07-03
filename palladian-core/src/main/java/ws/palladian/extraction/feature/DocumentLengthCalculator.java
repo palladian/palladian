@@ -3,12 +3,12 @@
  */
 package ws.palladian.extraction.feature;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

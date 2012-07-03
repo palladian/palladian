@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

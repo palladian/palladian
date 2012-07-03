@@ -1,9 +1,9 @@
 package ws.palladian.extraction.helper;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.NumericFeature;
 
 public class WordCounter extends StringDocumentPipelineProcessor {
 

@@ -2,14 +2,14 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.extraction.PipelineProcessor;
-import ws.palladian.extraction.ProcessingPipeline;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
