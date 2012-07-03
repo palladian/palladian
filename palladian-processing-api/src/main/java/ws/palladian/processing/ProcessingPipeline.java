@@ -191,6 +191,7 @@ public class ProcessingPipeline implements Serializable {
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
         LOGGER.info("Finished pipeline.");
+        notifyProcessorsOfProcessFinished();
     }
 
     /**
@@ -241,6 +242,7 @@ public class ProcessingPipeline implements Serializable {
             }
             resetPipes(executedPipes);
         } while (!executedProcessors.isEmpty());
+        notifyProcessorsOfProcessFinished();
     }
 
     /**
@@ -286,6 +288,12 @@ public class ProcessingPipeline implements Serializable {
     @Override
     public final String toString() {
         return pipelineProcessors.toString();
+    }
+
+    private void notifyProcessorsOfProcessFinished() {
+        for (PipelineProcessor processor : pipelineProcessors) {
+            processor.processingFinished();
+        }
     }
 
 }
