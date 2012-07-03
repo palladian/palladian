@@ -89,7 +89,6 @@ public final class KnnClassifier extends NumericClassifier {
 
         int classType = getClassificationType();
 
-        // make a look up in the context map for every single term
         CategoryEntries bestFitList = new CategoryEntries();
 
         // create one category entry for every category with relevance 0
@@ -182,8 +181,10 @@ public final class KnnClassifier extends NumericClassifier {
     }
 
     /**
-     * Distance function, the shorter the distance the more important the category of the known instance.
-     * Euclidean Distance = sqrt(SUM_0,n (i1-i2)²)
+     * <p>
+     * Distance function, the shorter the distance the more important the category of the known instance. Euclidean
+     * Distance = sqrt(SUM_0,n (i1-i2)²)
+     * </p>
      * 
      * @param instance The instancne to classify.
      * @param knownInstance The instance in the vector space with known categories.

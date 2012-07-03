@@ -12,9 +12,9 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.model.features.ClassificationFeatureVector;
-import ws.palladian.model.features.Feature;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.FeatureVector;
+import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.FeatureVector;
 
 public class NominalClassifier extends Classifier<UniversalInstance> {
 

@@ -1,7 +1,7 @@
 package ws.palladian.extraction.pos;
 
-import ws.palladian.extraction.PipelineProcessor;
 import ws.palladian.extraction.TagAnnotations;
+import ws.palladian.processing.PipelineProcessor;
 
 /**
  * <p>

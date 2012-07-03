@@ -2,14 +2,14 @@ package ws.palladian.extraction.keyphrase.features;
 
 import java.util.List;
 
-import ws.palladian.extraction.DocumentUnprocessableException;
 import ws.palladian.extraction.feature.AbstractTokenProcessor;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationGroup;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.FeatureDescriptorBuilder;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationGroup;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

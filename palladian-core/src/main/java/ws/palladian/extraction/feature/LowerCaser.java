@@ -3,7 +3,7 @@
  */
 package ws.palladian.extraction.feature;
 
-import ws.palladian.extraction.PipelineDocument;
+import ws.palladian.processing.PipelineDocument;
 
 /**
  * <p>

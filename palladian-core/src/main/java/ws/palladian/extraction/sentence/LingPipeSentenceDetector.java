@@ -5,11 +5,11 @@ package ws.palladian.extraction.sentence;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.PipelineDocument;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.AnnotationFeature;
-import ws.palladian.model.features.FeatureDescriptor;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.PositionAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;

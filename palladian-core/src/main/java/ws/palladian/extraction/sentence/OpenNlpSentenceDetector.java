@@ -12,10 +12,10 @@ import opennlp.tools.util.Span;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.Cache;
-import ws.palladian.model.features.Annotation;
-import ws.palladian.model.features.PositionAnnotation;
+import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>

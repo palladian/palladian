@@ -6,7 +6,7 @@ import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
-import ws.palladian.model.features.Annotation;
+import ws.palladian.processing.features.Annotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
 /**

@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.model.features.FeatureVector;
-import ws.palladian.model.features.NumericFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
 
 public class NaiveBayesClassifierTest {
 

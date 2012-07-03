@@ -5,8 +5,8 @@ package ws.palladian.extraction.feature;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import ws.palladian.extraction.PipelineDocument;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.processing.PipelineDocument;
 
 /**
  * <p>
