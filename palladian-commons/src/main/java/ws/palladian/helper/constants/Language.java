@@ -8,6 +8,8 @@ package ws.palladian.helper.constants;
  * @author Philipp Katz
  */
 public enum Language {
+    
+    // TODO replace this by java.util.Locale?
 
     ENGLISH, GERMAN;
 
