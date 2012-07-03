@@ -1,18 +1,22 @@
 package ws.palladian.retrieval.search.web;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
@@ -25,8 +29,12 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
  */
 public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(YouTubeSearcher.class);
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
@@ -34,8 +42,20 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     /** Counter for total number of requests sent to YouTube. */
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
+    /** The pattern for parsing the date. */
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
     /** The API key. */
     private final String apiKey;
+
+    /**
+     * <p>
+     * Create a new {@link YouTubeSearcher}.
+     * </p>
+     */
+    public YouTubeSearcher() {
+        this.apiKey = null;
+    }
 
     /**
      * <p>
@@ -81,6 +101,8 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     @Override
     public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
 
+        // TODO pagination available? Currenty I get only 50 results max.
+
         String url = getRequestUrl(query, resultCount, language);
 
         HttpResult httpResult;
@@ -102,12 +124,12 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
                 JSONObject entry = entries.getJSONObject(i);
                 String published = entry.getJSONObject("published").getString("$t");
-                ExtractedDate date = DateGetterHelper.findDate(published);
 
                 String title = entry.getJSONObject("title").getString("$t");
                 String link = entry.getJSONObject("content").getString("src");
+                Date date = parseDate(published);
 
-                WebVideoResult webResult = new WebVideoResult(link, title, date.getNormalizedDate());
+                WebVideoResult webResult = new WebVideoResult(link, title, date);
                 webResults.add(webResult);
 
                 if (webResults.size() >= resultCount) {
@@ -121,6 +143,17 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
         }
         return webResults;
+    }
+
+    private Date parseDate(String dateString) {
+        Date date = null;
+        DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
+        try {
+            date = dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            LOGGER.error("Error parsing date " + dateString, e);
+        }
+        return date;
     }
 
     @Override
