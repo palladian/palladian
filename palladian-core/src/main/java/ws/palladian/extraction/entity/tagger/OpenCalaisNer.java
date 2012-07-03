@@ -160,19 +160,23 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         Annotations annotations = new Annotations();
 
         // we need to build chunks of texts because we can not send very long texts at once to open calais
-        List<String> sentences = Tokenizer.getSentences(inputText);
         List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        StringBuilder currentTextChunk = new StringBuilder();
-        for (String sentence : sentences) {
-
-            if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
-                textChunks.add(currentTextChunk);
-                currentTextChunk = new StringBuilder();
+        if (inputText.length() > MAXIMUM_TEXT_LENGTH) {
+            List<String> sentences = Tokenizer.getSentences(inputText);
+            StringBuilder currentTextChunk = new StringBuilder();
+            for (String sentence : sentences) {
+    
+                if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
+                    textChunks.add(currentTextChunk);
+                    currentTextChunk = new StringBuilder();
+                }
+    
+                currentTextChunk.append(sentence).append(" ");
             }
-
-            currentTextChunk.append(sentence);
+            textChunks.add(currentTextChunk);
+        } else {
+            textChunks.add(new StringBuilder(inputText));
         }
-        textChunks.add(currentTextChunk);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
@@ -314,10 +318,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         // HOW TO USE ////
         System.out
                 .println(tagger
-                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver."));
-        // System.out
-        // .println(tagger
-        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+ .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
