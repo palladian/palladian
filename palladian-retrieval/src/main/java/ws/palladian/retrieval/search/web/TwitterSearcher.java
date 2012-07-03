@@ -28,7 +28,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * accessed via {@link WebResult#getSummary()}.
  * </p>
  * 
- * @see https://dev.twitter.com/docs/api/1/get/search
+ * @see <a href="https://dev.twitter.com/docs/api/1/get/search">API Resources: GET search</a>
  * @author Philipp Katz
  */
 public final class TwitterSearcher extends WebSearcher<WebResult> {
@@ -50,7 +50,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         try {
             for (int page = 1; page <= numRequests; page++) {
 
-                String requestUrl = buildRequestUrl(query, resultsPerPage, page);
+                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page);
                 HttpResult httpResult = performHttpRequest(requestUrl);
 
                 String responseString = HttpHelper.getStringContent(httpResult);
@@ -121,18 +121,38 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
      * Create the request URL for the supplied parameters.
      * </p>
      * 
-     * @param query
-     * @param resultsPerPage
-     * @param page
+     * @param query The actual query.
+     * @param resultsPerPage The number of results to return.
+     * @param language The language.
+     * @param page The page index.
      * @return
      */
-    private String buildRequestUrl(String query, int resultsPerPage, int page) {
+    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://search.twitter.com/search.json");
         urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("&page=").append(page);
         urlBuilder.append("&rpp=").append(resultsPerPage);
+        urlBuilder.append("&lang=").append(getLanguageCode(language));
         return urlBuilder.toString();
+    }
+
+    /**
+     * <p>
+     * Get the ISO 639-1 code for the specified language.
+     * </p>
+     * 
+     * @param language
+     * @return
+     */
+    private String getLanguageCode(Language language) {
+        switch (language) {
+            case ENGLISH:
+                return "en";
+            case GERMAN:
+                return "de";
+        }
+        throw new IllegalArgumentException("No code defined for language " + language);
     }
 
     @Override
