@@ -1,5 +1,7 @@
 package ws.palladian.processing.features;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.processing.PipelineDocument;
 
 /**
@@ -80,7 +82,7 @@ public final class PositionAnnotation extends Annotation<String> {
      * provided {@code PipelineDocument}.
      * </p>
      * 
-     * @param document The document this {@code Annotation} points to.
+     * @param document The document this {@code Annotation} points to, not <code>null</code>.
      * @param startPosition The position of the first character of this {@code Annotation}.
      * @param endPosition The position of the first character after the end of this {@code Annotation}.
      * @param index The running index of this {@link Annotation}.
@@ -89,6 +91,10 @@ public final class PositionAnnotation extends Annotation<String> {
     public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index,
             String value) {
         super(document);
+        
+        Validate.notNull(document, "document must not be null.");
+        Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
+        Validate.isTrue(endPosition > startPosition, "endPosition must be greater than startPosition.");
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
