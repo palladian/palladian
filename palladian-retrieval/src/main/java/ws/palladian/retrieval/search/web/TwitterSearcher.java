@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -76,7 +78,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
 
                 for (int i = 0; i < numResults; i++) {
                     JSONObject jsonResult = jsonResults.getJSONObject(i);
-                    String text = jsonResult.getString("text");
+                    String text = StringEscapeUtils.unescapeHtml4(jsonResult.getString("text"));
                     String dateString = jsonResult.getString("created_at");
                     Date date = parseDate(dateString);
                     List<String> urls = UrlHelper.extractUrls(text);
