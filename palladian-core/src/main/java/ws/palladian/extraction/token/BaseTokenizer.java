@@ -1,5 +1,6 @@
 package ws.palladian.extraction.token;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -45,7 +46,7 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
      * implementations.
      * </p>
      * 
-     * @param document The document for which to retrieve the token annotations.
+     * @param document The document for which to retrieve the token annotations, not <code>null</code>.
      * @return List of token annotations.
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
@@ -58,5 +59,24 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
                     "The document does not provide token annotations, process it with a Tokenizer annotator first.");
         }
         return annotationFeature.getValue();
+    }
+
+    /**
+     * <p>
+     * Shortcut method to retrieve token values which were supplied by one of the {@link BaseTokenizer} implementations.
+     * </p>
+     * 
+     * @param document The document for which to retrieve the token values, not <code>null</code>.
+     * @return List of token values.
+     * @throws IllegalStateException In case the document does not provide any token annotations.
+     */
+    public static List<String> getTokens(PipelineDocument document) {
+        Validate.notNull(document, "document must not be null");
+        List<String> tokens = new ArrayList<String>();
+        List<Annotation> tokenAnnotations = getTokenAnnotations(document);
+        for (Annotation annotation : tokenAnnotations) {
+            tokens.add(annotation.getValue());
+        }
+        return tokens;
     }
 }
