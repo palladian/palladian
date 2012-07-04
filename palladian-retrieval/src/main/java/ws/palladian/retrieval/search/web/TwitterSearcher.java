@@ -36,21 +36,30 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
 
+    /** The result type for which to search. */
+    public static enum ResultType {
+        /** Popular + real time results. */
+        MIXED,
+        /** Only most recent results. */
+        RECENT,
+        /** Only most popular results. */
+        POPULAR
+    }
+
     private static final String DATE_PATTERN = "E, dd MMM yyyy HH:mm:ss Z";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
-    @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
-
+    public List<WebResult> search(String query, int resultCount, Language language, ResultType resultType)
+            throws SearcherException {
         List<WebResult> webResults = new ArrayList<WebResult>();
         int resultsPerPage = Math.min(100, resultCount);
-        int numRequests = (int) Math.ceil(resultCount / 100.);
+        int numRequests = (int)Math.ceil(resultCount / 100.);
 
         try {
             for (int page = 1; page <= numRequests; page++) {
 
-                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page);
+                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page, resultType);
                 HttpResult httpResult = performHttpRequest(requestUrl);
 
                 String responseString = HttpHelper.getStringContent(httpResult);
@@ -91,6 +100,11 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         return webResults;
     }
 
+    @Override
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+        return search(query, resultCount, language, ResultType.MIXED);
+    }
+
     private Date parseDate(String dateString) {
         Date date = null;
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
@@ -127,13 +141,14 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
      * @param page The page index.
      * @return
      */
-    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page) {
+    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page, ResultType resultType) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://search.twitter.com/search.json");
         urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("&page=").append(page);
         urlBuilder.append("&rpp=").append(resultsPerPage);
         urlBuilder.append("&lang=").append(getLanguageCode(language));
+        urlBuilder.append("&result_type").append(resultType.toString().toLowerCase());
         return urlBuilder.toString();
     }
 

@@ -22,6 +22,9 @@ public class RegExTokenRemover extends AbstractTokenRemover {
     /** The {@link Pattern} used to determine whether to remove an {@link Annotation}. */
     private final Pattern pattern;
 
+    /** Whether to inverse removal logic, i.e. remove the matching tokens, instead of the non-matching. */
+    private final boolean removeMatching;
+
     /**
      * <p>
      * Create a new {@link RegExTokenRemover} with the specified {@link Pattern}.
@@ -32,6 +35,7 @@ public class RegExTokenRemover extends AbstractTokenRemover {
     public RegExTokenRemover(Pattern pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         this.pattern = pattern;
+        this.removeMatching = false;
     }
 
     /**
@@ -44,11 +48,27 @@ public class RegExTokenRemover extends AbstractTokenRemover {
     public RegExTokenRemover(String pattern) {
         Validate.notEmpty(pattern, "pattern must not be null or empty");
         this.pattern = Pattern.compile(pattern);
+        this.removeMatching = false;
+    }
+    
+    /**
+     * <p>
+     * Create a new {@link RegExTokenRemover} with the specified pattern.
+     * </p>
+     * 
+     * @param pattern The pattern to use for removing tokens.
+     * @param removeMatching To reverse removal logic, when <code>true</code> the matching tokens will be removed,
+     *            <code>false</code> the non-matching.
+     */
+    public RegExTokenRemover(String pattern, boolean removeMatching) {
+        Validate.notEmpty(pattern, "pattern must not be null or empty");
+        this.pattern = Pattern.compile(pattern);
+        this.removeMatching = removeMatching;
     }
 
     @Override
-    protected boolean remove(Annotation annotation) {
-        return !pattern.matcher(annotation.getValue()).matches();
+    protected boolean remove(Annotation<String> annotation) {
+        return !removeMatching ^ pattern.matcher(annotation.getValue()).matches();
     }
 
     /*

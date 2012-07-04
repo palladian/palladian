@@ -25,12 +25,14 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         String text = document.getContent();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
+        System.err.println(tokens);
         AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
         int endPosition = 0;
+        int index = 0;
         for (String token : tokens) {
             int startPosition = text.indexOf(token, endPosition);
             endPosition = startPosition + token.length();
-            annotationFeature.add(new PositionAnnotation(document, startPosition, endPosition));
+            annotationFeature.add(new PositionAnnotation(document, startPosition, endPosition, index++));
         }
         document.getFeatureVector().add(annotationFeature);
     }
