@@ -152,7 +152,7 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
     public String stem(String word) {
         stemmer.setCurrent(word);
         stemmer.stem();
-        return stemmer.getCurrent();
+        return stemmer.getCurrent().toLowerCase();
     }
 
     /*
