@@ -33,7 +33,7 @@ public abstract class AbstractTokenRemover extends StringDocumentPipelineProcess
      * @param annotation The {@link Annotation} for which to determine whether to keep or remove.
      * @return <code>true</code> if {@link Annotation} shall be removed, <code>false</code> otherwise.
      */
-    protected abstract boolean remove(Annotation annotation);
+    protected abstract boolean remove(Annotation<String> annotation);
 
     @Override
     public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {

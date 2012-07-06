@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,21 +37,30 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
 
+    /** The result type for which to search. */
+    public static enum ResultType {
+        /** Popular + real time results. */
+        MIXED,
+        /** Only most recent results. */
+        RECENT,
+        /** Only most popular results. */
+        POPULAR
+    }
+
     private static final String DATE_PATTERN = "E, dd MMM yyyy HH:mm:ss Z";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
-    @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
-
+    public List<WebResult> search(String query, int resultCount, Language language, ResultType resultType)
+            throws SearcherException {
         List<WebResult> webResults = new ArrayList<WebResult>();
         int resultsPerPage = Math.min(100, resultCount);
-        int numRequests = (int) Math.ceil(resultCount / 100.);
+        int numRequests = (int)Math.ceil(resultCount / 100.);
 
         try {
             for (int page = 1; page <= numRequests; page++) {
 
-                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page);
+                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page, resultType);
                 HttpResult httpResult = performHttpRequest(requestUrl);
 
                 String responseString = HttpHelper.getStringContent(httpResult);
@@ -67,7 +77,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
 
                 for (int i = 0; i < numResults; i++) {
                     JSONObject jsonResult = jsonResults.getJSONObject(i);
-                    String text = jsonResult.getString("text");
+                    String text = StringEscapeUtils.unescapeHtml4(jsonResult.getString("text"));
                     String dateString = jsonResult.getString("created_at");
                     Date date = parseDate(dateString);
                     List<String> urls = UrlHelper.extractUrls(text);
@@ -89,6 +99,11 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
 
         LOGGER.debug("twitter requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
+    }
+
+    @Override
+    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+        return search(query, resultCount, language, ResultType.MIXED);
     }
 
     private Date parseDate(String dateString) {
@@ -127,13 +142,14 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
      * @param page The page index.
      * @return
      */
-    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page) {
+    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page, ResultType resultType) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://search.twitter.com/search.json");
         urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("&page=").append(page);
         urlBuilder.append("&rpp=").append(resultsPerPage);
         urlBuilder.append("&lang=").append(getLanguageCode(language));
+        urlBuilder.append("&result_type").append(resultType.toString().toLowerCase());
         return urlBuilder.toString();
     }
 

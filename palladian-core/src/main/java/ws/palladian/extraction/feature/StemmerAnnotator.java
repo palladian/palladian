@@ -19,7 +19,8 @@ import ws.palladian.processing.features.NominalFeature;
  * <p>
  * A {@link PipelineProcessor} for stemming a pre-tokenized text. This means, the documents to be processed by this
  * class must be processed by a {@link BaseTokenizer} in advance, supplying {@link BaseTokenizer#PROVIDED_FEATURE}
- * annotations. The stemmer is based on the <a href="http://snowball.tartarus.org/">Snowball</a> algorithm.
+ * annotations. The stemmer is based on the <a href="http://snowball.tartarus.org/">Snowball</a> algorithm. Furthermore,
+ * the tokens are converted to lower case. This class provides two operation modes, see {@link Mode}.
  * </p>
  * 
  * @author Philipp Katz
@@ -126,7 +127,7 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
     }
 
     @Override
-    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+    protected void processToken(Annotation<String> annotation) throws DocumentUnprocessableException {
         String unstem = annotation.getValue();
         String stem = stem(unstem);
         switch (mode) {

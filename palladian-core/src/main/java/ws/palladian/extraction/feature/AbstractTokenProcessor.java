@@ -48,6 +48,6 @@ public abstract class AbstractTokenProcessor extends StringDocumentPipelineProce
      * @throws DocumentUnprocessableException In case of any error, you may throw a
      *             {@link DocumentUnprocessableException}.
      */
-    protected abstract void processToken(Annotation annotation) throws DocumentUnprocessableException;
+    protected abstract void processToken(Annotation<String> annotation) throws DocumentUnprocessableException;
 
 }
