@@ -49,12 +49,12 @@ public class WiktionaryPosTagger extends BasePosTagger {
     }
     
     @Override
-    public void tag(List<Annotation> annotations) {
+    public void tag(List<Annotation<String>> annotations) {
         
         
         int lastIndex = -1;
 
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             
             String token = annotation.getValue();
 

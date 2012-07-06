@@ -22,8 +22,8 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.AnnotationGroup;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -58,16 +58,16 @@ public class NGramCreatorTest {
         pipeline.add(new NGramCreator(2));
         pipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         // get all AnnotationGroups
         @SuppressWarnings("unchecked")
-        List<AnnotationGroup> annotationGroups = new ArrayList<AnnotationGroup>(CollectionUtils.select(annotations,
+        List<AnnotationGroup<String>> annotationGroups = new ArrayList<AnnotationGroup<String>>(CollectionUtils.select(annotations,
                 new InstanceofPredicate(AnnotationGroup.class)));
 
-        for (AnnotationGroup annotationGroup : annotationGroups) {
+        for (AnnotationGroup<String> annotationGroup : annotationGroups) {
             System.out.println(annotationGroup.getValue());
         }
         assertEquals(4, annotationGroups.size(), 4);
@@ -92,11 +92,11 @@ public class NGramCreatorTest {
         pipeline.add(new NGramCreator(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
         pipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
-        List<AnnotationGroup> annotationGroups = new ArrayList<AnnotationGroup>(CollectionUtils.select(annotations,
+        List<AnnotationGroup<String>> annotationGroups = new ArrayList<AnnotationGroup<String>>(CollectionUtils.select(annotations,
                 new InstanceofPredicate(AnnotationGroup.class)));
         assertEquals(annotationGroups.size(), 8);
         assertEquals("the quick", annotationGroups.get(0).getValue());

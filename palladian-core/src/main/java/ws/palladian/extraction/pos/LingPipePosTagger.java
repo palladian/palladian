@@ -89,7 +89,7 @@ public final class LingPipePosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation> annotations) {
+    public void tag(List<Annotation<String>> annotations) {
 
         int cacheSize = Integer.valueOf(100);
         FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);

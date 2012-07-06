@@ -26,8 +26,8 @@ public class AdditionalFeatureExtractorTest {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
         pipeline.add(new DuplicateTokenConsolidator());
         pipeline.add(new AdditionalFeatureExtractor());
-        PipelineDocument document = pipeline.process(new PipelineDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
-        List<Annotation> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
+        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
+        List<Annotation<String>> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
         CollectionHelper.print(tokenAnnotations);
     }
     

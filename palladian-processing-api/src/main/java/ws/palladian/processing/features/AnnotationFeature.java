@@ -14,7 +14,7 @@ import ws.palladian.processing.PipelineProcessor;
  * 
  * @author Philipp Katz
  */
-public final class AnnotationFeature extends Feature<List<Annotation>> {
+public class AnnotationFeature<T> extends Feature<List<Annotation<T>>> {
 
     private static final char NEWLINE = '\n';
 
@@ -27,7 +27,7 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      *            identify the {@link PipelineProcessor} that extracted this {@code AnnotationFeature}.
      */
     public AnnotationFeature(String name) {
-        super(name, new ArrayList<Annotation>());
+        super(name, new ArrayList<Annotation<T>>());
     }
 
     /**
@@ -39,7 +39,7 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      *            {@code AnnotationFeature}s. This is usually used to identify the {@link PipelineProcessor} that
      *            extracted this {@code AnnotationFeature}.
      */
-    public AnnotationFeature(FeatureDescriptor<AnnotationFeature> descriptor) {
+    public AnnotationFeature(FeatureDescriptor<? extends AnnotationFeature<T>> descriptor) {
         this(descriptor.getIdentifier());
     }
 
@@ -53,7 +53,7 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      *            identify the {@link PipelineProcessor} that extracted this {@code AnnotationFeature}.
      * @param annotations The initial {@code List} of {@code Annotation}s of this feature.
      */
-    public AnnotationFeature(String name, List<Annotation> annotations) {
+    public AnnotationFeature(String name, List<Annotation<T>> annotations) {
         super(name, annotations);
     }
 
@@ -68,7 +68,8 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      *            extracted this {@code AnnotationFeature}.
      * @param annotations The initial {@code List} of {@code Annotation}s of this feature.
      */
-    public AnnotationFeature(FeatureDescriptor<AnnotationFeature> descriptor, List<Annotation> annotations) {
+    public AnnotationFeature(FeatureDescriptor<? extends AnnotationFeature<T>> descriptor,
+            List<Annotation<T>> annotations) {
         this(descriptor.getIdentifier(), annotations);
     }
 
@@ -79,7 +80,7 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      * 
      * @param annotation The Annotation to add.
      */
-    public void add(Annotation annotation) {
+    public void add(Annotation<T> annotation) {
         getValue().add(annotation);
     }
 
@@ -92,9 +93,9 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      * @param endPosition The end position until where to retrieve Annotations (inclusive).
      * @return All Annotations within the specified range, or empty List.
      */
-    public List<Annotation> getAnnotations(int startPosition, int endPosition) {
-        List<Annotation> result = new ArrayList<Annotation>();
-        for (Annotation current : getValue()) {
+    public List<Annotation<T>> getAnnotations(int startPosition, int endPosition) {
+        List<Annotation<T>> result = new ArrayList<Annotation<T>>();
+        for (Annotation<T> current : getValue()) {
             if (current.getStartPosition() >= startPosition && current.getEndPosition() <= endPosition) {
                 result.add(current);
             }
@@ -111,17 +112,17 @@ public final class AnnotationFeature extends Feature<List<Annotation>> {
      */
     public String toStringList() {
         StringBuilder sb = new StringBuilder();
-        List<Annotation> annotations = getValue();
-        for (Annotation annotation : annotations) {
+        List<Annotation<T>> annotations = getValue();
+        for (Annotation<T> annotation : annotations) {
             sb.append(annotation).append(NEWLINE);
         }
         return sb.toString();
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        List<Annotation> annotations = getValue();
+        List<Annotation<T>> annotations = getValue();
         for (int i = 0; i < annotations.size(); i++) {
             if (i > 0) {
                 sb.append(',');

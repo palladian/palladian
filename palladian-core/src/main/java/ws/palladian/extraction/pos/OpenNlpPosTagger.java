@@ -60,7 +60,7 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation> annotations) {
+    public void tag(List<Annotation<String>> annotations) {
         List<String> tokenList = getTokenList(annotations);
         String[] tags = tagger.tag(tokenList.toArray(new String[annotations.size()]));
         for (int i = 0; i < tags.length; i++) {

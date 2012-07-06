@@ -10,11 +10,11 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.AnnotationGroup;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -82,15 +82,15 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature "
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
-        List<Annotation> annotations = annotationFeature.getValue();
-        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
         for (int i = minLength; i <= maxLength; i++) {
-            List<AnnotationGroup> nGramTokens = createNGrams(document, annotations, i);
+            List<AnnotationGroup<String>> nGramTokens = createNGrams(document, annotations, i);
             gramTokens.addAll(nGramTokens);
         }
         annotations.addAll(gramTokens);
@@ -106,12 +106,13 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * @param length
      * @return
      */
-    private List<AnnotationGroup> createNGrams(PipelineDocument<String> document, List<Annotation> annotations,
+    private List<AnnotationGroup<String>> createNGrams(PipelineDocument<String> document, List<Annotation<String>> annotations,
             int length) {
-        List<AnnotationGroup> gramTokens = new ArrayList<AnnotationGroup>();
-        Annotation[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
+        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
+        @SuppressWarnings("unchecked")
+        Annotation<String>[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            AnnotationGroup gramToken = new AnnotationGroup(document);
+            AnnotationGroup<String> gramToken = new AnnotationGroup<String>(document);
             for (int j = i; j < i + length; j++) {
                 gramToken.add(tokensArray[j]);
             }
@@ -137,10 +138,10 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
     // introduce a "CombinationStrategy" which can be also applied to NumericFeatures, e.g. by taking average/min/max
     // etc. -- Philipp, 2012-06-19
     //
-    protected void postProcess(AnnotationGroup gramToken) {
+    protected void postProcess(AnnotationGroup<String> gramToken) {
         for (FeatureDescriptor<NominalFeature> descriptor : considerableFeatureDescriptors) {
             List<String> components = new ArrayList<String>();
-            for (Annotation annotation : gramToken.getAnnotations()) {
+            for (Annotation<String> annotation : gramToken.getAnnotations()) {
                 String value = annotation.getFeatureVector().get(descriptor).getValue();
                 components.add(value);
             }
@@ -158,10 +159,10 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link Annotation}s.
      * @return <code>true</code>, if {@link Annotation}s are consecutive, <code>false</code> otherwise.
      */
-    private boolean isConsecutive(AnnotationGroup annotationGroup) {
+    private boolean isConsecutive(AnnotationGroup<String> annotationGroup) {
         boolean ret = true;
         int index = -1;
-        for (Annotation annotation : annotationGroup.getAnnotations()) {
+        for (Annotation<String> annotation : annotationGroup.getAnnotations()) {
             int currentIndex = annotation.getIndex();
             if (index != -1 && index + 1 != currentIndex) {
                 ret = false;

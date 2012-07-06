@@ -12,11 +12,11 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -50,18 +50,18 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature "
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
         Bag<String> occurrences = new HashBag<String>();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
         int lastPosition = 0;
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             // changed to lower case, 2012-05-01
             String value = annotation.getValue().toLowerCase();
             occurrences.add(value);
@@ -91,7 +91,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
             maxCount = Math.max(maxCount, occurrences.getCount(token));
         }
 
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             // changed to lower case, 2012-05-01
             String value = annotation.getValue().toLowerCase();
             double first = (double)firstOccurrences.get(value) / lastPosition;

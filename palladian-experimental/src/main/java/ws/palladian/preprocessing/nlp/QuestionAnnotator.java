@@ -11,6 +11,7 @@ import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -49,10 +50,10 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
 
     @Override
     public void processDocument(PipelineDocument<String> document) {
-        Feature<List<Annotation>> sentences = document.getFeatureVector().get(
+        TextAnnotationFeature sentences = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> questions = new ArrayList<Annotation>();
-        for (Annotation sentence : sentences.getValue()) {
+        List<Annotation<String>> questions = new ArrayList<Annotation<String>>();
+        for (Annotation<String> sentence : sentences.getValue()) {
             String coveredText = sentence.getValue();
             if (coveredText.endsWith("?") || coveredText.toLowerCase().startsWith("what")
                     || coveredText.toLowerCase().startsWith("who") || coveredText.toLowerCase().startsWith("where")
@@ -61,7 +62,8 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
                 questions.add(createQuestion(sentence));
             }
         }
-        Feature<List<Annotation>> questionsFeature = new Feature<List<Annotation>>(FEATURE_IDENTIFIER, questions);
+        Feature<List<Annotation<String>>> questionsFeature = new Feature<List<Annotation<String>>>(FEATURE_IDENTIFIER,
+                questions);
         document.getFeatureVector().add(questionsFeature);
     }
 
@@ -73,10 +75,9 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
      * @param sentence The sentence {@code Annotation} representing the new question.
      * @return A new annotation of the question type spanning the same area as the provided sentence.
      */
-    private Annotation createQuestion(Annotation sentence) {
-        Annotation ret = new PositionAnnotation(sentence.getDocument(), sentence.getStartPosition(),
-                sentence.getEndPosition(), -1, sentence.getValue());
-        return ret;
+    private Annotation<String> createQuestion(Annotation<String> sentence) {
+        return new PositionAnnotation(sentence.getDocument(), sentence.getStartPosition(), sentence.getEndPosition(),
+                -1, sentence.getValue());
     }
 
 }

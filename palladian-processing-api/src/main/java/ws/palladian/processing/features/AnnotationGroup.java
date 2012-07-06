@@ -15,7 +15,7 @@ import ws.palladian.processing.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public final class AnnotationGroup extends Annotation {
+public class AnnotationGroup<T> extends Annotation<T> {
 
     /**
      * <p>
@@ -29,7 +29,7 @@ public final class AnnotationGroup extends Annotation {
      * List of annotations within this group.
      * </p>
      */
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private List<Annotation<T>> annotations = new ArrayList<Annotation<T>>();
 
     /**
      * <p>
@@ -47,7 +47,7 @@ public final class AnnotationGroup extends Annotation {
      * @param document
      *            The document this {@link AnnotationGroup} points to.
      */
-    public AnnotationGroup(PipelineDocument<?> document) {
+    public AnnotationGroup(PipelineDocument<T> document) {
         super(document);
         value = null;
     }
@@ -106,7 +106,7 @@ public final class AnnotationGroup extends Annotation {
      * 
      * @param annotation
      */
-    public void add(Annotation annotation) {
+    public void add(Annotation<T> annotation) {
         annotations.add(annotation);
     }
 
@@ -117,7 +117,7 @@ public final class AnnotationGroup extends Annotation {
      * 
      * @return
      */
-    public List<Annotation> getAnnotations() {
+    public List<Annotation<T>> getAnnotations() {
         return annotations;
     }
 
@@ -169,7 +169,7 @@ public final class AnnotationGroup extends Annotation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        AnnotationGroup other = (AnnotationGroup)obj;
+        AnnotationGroup<?> other = (AnnotationGroup<?>)obj;
         if (annotations == null) {
             if (other.annotations != null) {
                 return false;

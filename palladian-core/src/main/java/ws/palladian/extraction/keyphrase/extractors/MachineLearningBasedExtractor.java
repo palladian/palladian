@@ -55,6 +55,7 @@ import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
@@ -72,7 +73,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private final CooccurrenceMatrix<String> cooccurrenceMatrix;
     private StemmerAnnotator stemmer;
     private int trainCount;
-    private final Map<PipelineDocument, Set<String>> trainDocuments;
+    private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
     private Predictor<String> classifier;
 
     public MachineLearningBasedExtractor() {
@@ -80,7 +81,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         keyphraseCorpus = new TermCorpus();
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
-        trainDocuments = new HashMap<PipelineDocument, Set<String>>();
+        trainDocuments = new HashMap<PipelineDocument<String>, Set<String>>();
         classifier = createClassifier();
 
         corpusGenerationPipeline = new PerformanceCheckProcessingPipeline();
@@ -113,8 +114,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
             @Override
             public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-                List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
-                for (Annotation annotation : tokenAnnotations) {
+                List<Annotation<String>> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+                for (Annotation<String> annotation : tokenAnnotations) {
                     double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1)
                             / keyphraseCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature("prior", prior));
@@ -144,14 +145,14 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             corpusGenerationPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
+        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotations = feature.getValue();
         Set<String> terms = new HashSet<String>();
         for (Annotation annotation : annotations) {
             terms.add(annotation.getValue());
@@ -168,20 +169,20 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     @Override
     public void endTraining() {
         System.out.println("finished building corpus, # train docs: " + trainDocuments.size());
-        List<Annotation> annotations = new ArrayList<Annotation>();
-        Iterator<Entry<PipelineDocument, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
+        List<Annotation<String>> annotations = new ArrayList<Annotation<String>>();
+        Iterator<Entry<PipelineDocument<String>, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
         int totalKeyphrases = 0;
         int totallyMarked = 0;
         while (trainDocIterator.hasNext()) {
-            Entry<PipelineDocument, Set<String>> currentEntry = trainDocIterator.next();
-            PipelineDocument currentDoc = currentEntry.getKey();
+            Entry<PipelineDocument<String>, Set<String>> currentEntry = trainDocIterator.next();
+            PipelineDocument<String> currentDoc = currentEntry.getKey();
             Set<String> keywords = currentEntry.getValue();
             try {
                 candidateGenerationPipeline.process(currentDoc);
             } catch (DocumentUnprocessableException e) {
                 throw new IllegalStateException(e);
             }
-            AnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
+            TextAnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
                     BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
             totalKeyphrases += keywords.size();
             totallyMarked += markCandidates(annotationFeature, keywords);
@@ -242,7 +243,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      * @param keywords
      * @return
      */
-    private int markCandidates(AnnotationFeature annotationFeature, Set<String> keywords) {
+    private int markCandidates(TextAnnotationFeature annotationFeature, Set<String> keywords) {
         Set<String> modifiedKeywords = new HashSet<String>();
         int marked = 0;
         // try to match multiple different variants
@@ -256,8 +257,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim()));
             modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim().replaceAll("\\s", "")));
         }
-        List<Annotation> annotations = annotationFeature.getValue();
-        for (Annotation annotation : annotations) {
+        List<Annotation<String>> annotations = annotationFeature.getValue();
+        for (Annotation<String> annotation : annotations) {
             String stemmedValue = annotation.getValue();
             String unstemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
 
@@ -341,18 +342,18 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             corpusGenerationPipeline.process(document);
             candidateGenerationPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        AnnotationFeature<String> annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
             CategoryEntries predictionResult = classifier.predict(cleanFv);

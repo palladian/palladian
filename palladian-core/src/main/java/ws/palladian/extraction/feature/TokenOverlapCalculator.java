@@ -44,8 +44,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
 
-    private final FeatureDescriptor<AnnotationFeature> input1FeatureDescriptor;
-    private final FeatureDescriptor<AnnotationFeature> input2FeatureDescriptor;
+    private final FeatureDescriptor<AnnotationFeature<?>> input1FeatureDescriptor;
+    private final FeatureDescriptor<AnnotationFeature<?>> input2FeatureDescriptor;
 
     /**
      * <p>
@@ -62,8 +62,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
      * @param input2FeatureDescriptor The descriptor for the second input {@code Feature}.
      */
     public TokenOverlapCalculator(final FeatureDescriptor<NumericFeature> featureDescriptor,
-            final FeatureDescriptor<AnnotationFeature> input1FeatureDescriptor,
-            final FeatureDescriptor<AnnotationFeature> input2FeatureDescriptor) {
+            final FeatureDescriptor<AnnotationFeature<?>> input1FeatureDescriptor,
+            final FeatureDescriptor<AnnotationFeature<?>> input2FeatureDescriptor) {
         // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
         // uses the feature vector.
         super(Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
@@ -81,10 +81,10 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
 
         AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
         Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
-        final List<Annotation> input1Annotations = feature1.getValue();
+        final List<Annotation<?>> input1Annotations = (List<Annotation<?>>)feature1.getValue();
         AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
         Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
-        final List<Annotation> input2Annotations = feature2.getValue();
+        final List<Annotation<?>> input2Annotations = (List<Annotation<?>>)feature2.getValue();
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();

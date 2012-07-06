@@ -4,8 +4,8 @@ import java.util.List;
 
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 
 /**
@@ -25,7 +25,7 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         String text = document.getContent();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
-        AnnotationFeature annotationFeature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR);
         int endPosition = 0;
         int index = 0;
         for (String token : tokens) {

@@ -13,7 +13,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * @author Klemens Muthmann
@@ -35,7 +35,7 @@ public final class ProcessingApiTest {
 				FIXTURE);
 		nerProcessor.processDocument(document);
 		
-		AnnotationFeature extractedEntities = document.getFeature(NamedEntityRecognizer.PROVIDED_FEATURE_DESCRIPTOR);
+		TextAnnotationFeature extractedEntities = document.getFeature(NamedEntityRecognizer.PROVIDED_FEATURE_DESCRIPTOR);
 		
 		assertThat(extractedEntities.getValue().size(),Matchers.is(5));
 		for(Annotation<String> nerAnnotation:extractedEntities.getValue()) {

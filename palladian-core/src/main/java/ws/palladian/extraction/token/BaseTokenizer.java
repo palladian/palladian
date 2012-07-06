@@ -9,10 +9,10 @@ import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -37,8 +37,8 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
      * The descriptor of the feature provided by this {@link PipelineProcessor}.
      * </p>
      */
-    public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, AnnotationFeature.class);
+    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
 
     /**
      * <p>
@@ -50,10 +50,10 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
      * @return List of token annotations.
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
-    public static List<Annotation> getTokenAnnotations(PipelineDocument document) {
+    public static List<Annotation<String>> getTokenAnnotations(PipelineDocument<String> document) {
         Validate.notNull(document, "document must not be null");
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = featureVector.get(PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new IllegalStateException(
                     "The document does not provide token annotations, process it with a Tokenizer annotator first.");
@@ -70,11 +70,11 @@ public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
      * @return List of token values.
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
-    public static List<String> getTokens(PipelineDocument document) {
+    public static List<String> getTokens(PipelineDocument<String> document) {
         Validate.notNull(document, "document must not be null");
         List<String> tokens = new ArrayList<String>();
-        List<Annotation> tokenAnnotations = getTokenAnnotations(document);
-        for (Annotation annotation : tokenAnnotations) {
+        List<Annotation<String>> tokenAnnotations = getTokenAnnotations(document);
+        for (Annotation<String> annotation : tokenAnnotations) {
             tokens.add(annotation.getValue());
         }
         return tokens;

@@ -16,7 +16,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class OpenNlpPosTaggerTest {
 
@@ -36,9 +36,9 @@ public class OpenNlpPosTaggerTest {
         processingPipeline.add(new OpenNlpPosTagger(modelFile));
         processingPipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         assertEquals(10, annotations.size());
         assertEquals("DT", annotations.get(0).getFeatureVector().get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR)

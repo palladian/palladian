@@ -7,11 +7,11 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -43,7 +43,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * The descriptor for the {@code Feature} this {@code PipelineProcessor} creates.
      * </p>
      */
-    private final FeatureDescriptor<AnnotationFeature> featureDescriptor;
+    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
 
     /**
      * <p>
@@ -54,7 +54,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
-    public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor, final String pattern) {
+    public RegExTokenizer(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor, final String pattern) {
         this(featureDescriptor, Pattern.compile(pattern));
     }
 
@@ -66,7 +66,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * 
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
      */
-    public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+    public RegExTokenizer(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
         // The default case to keep compatibility to old code.
         this(featureDescriptor, Tokenizer.SPLIT_PATTERN);
     }
@@ -91,7 +91,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
-    public RegExTokenizer(final FeatureDescriptor<AnnotationFeature> featureDescriptor, final Pattern pattern) {
+    public RegExTokenizer(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor, final Pattern pattern) {
         super();
 
         Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
@@ -107,12 +107,12 @@ public final class RegExTokenizer extends BaseTokenizer {
 
         String text = document.getContent();
         Matcher matcher = pattern.matcher(text);
-        AnnotationFeature annotationFeature = new AnnotationFeature(featureDescriptor);
+        TextAnnotationFeature annotationFeature = new TextAnnotationFeature(featureDescriptor);
         int index = 0;
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();
-            Annotation annotation = new PositionAnnotation(document, startPosition, endPosition, index++);
+            Annotation<String> annotation = new PositionAnnotation(document, startPosition, endPosition, index++);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();
@@ -122,7 +122,7 @@ public final class RegExTokenizer extends BaseTokenizer {
     /**
      * @return the {@link FeatureDescriptor} used to identify the extracted {@code AnnotationFeature}.
      */
-    public FeatureDescriptor<AnnotationFeature> getFeatureDescriptor() {
+    public FeatureDescriptor<TextAnnotationFeature> getFeatureDescriptor() {
         return featureDescriptor;
     }
 

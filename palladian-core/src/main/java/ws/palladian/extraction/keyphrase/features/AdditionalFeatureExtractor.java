@@ -7,22 +7,22 @@ import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
+import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.BagHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -73,11 +73,11 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        AnnotationFeature annotationFeature = document.getFeatureVector()
+        TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
-            Annotation annotation = annotations.get(i);
+            Annotation<String> annotation = annotations.get(i);
             String unstemValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
             if (unstemValue == null) {
                 throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
@@ -141,13 +141,13 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         return digitCount / value.length();
     }
 
-    private double getCompleteUppercase(Annotation annotation) {
-        List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    private double getCompleteUppercase(Annotation<String> annotation) {
+        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         double completeUppercaseCount = 0;
-        for (Annotation current : allAnnotations) {
+        for (Annotation<String> current : allAnnotations) {
             if (StringUtils.isAllUpperCase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
                 completeUppercaseCount++;
             }
@@ -156,13 +156,13 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         return completeUppercaseCount / allAnnotations.size() > 0.5 ? 1 : 0;
     }
 
-    private String getCaseSignature(Annotation annotation) {
-        List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    private String getCaseSignature(Annotation<String> annotation) {
+        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         Bag<String> signatures = new HashBag<String>();
-        for (Annotation current : allAnnotations) {
+        for (Annotation<String> current : allAnnotations) {
             String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector()
                     .get(StemmerAnnotator.UNSTEM).getValue());
             signatures.add(caseSignature);
@@ -170,13 +170,13 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         return BagHelper.getHighest(signatures);
     }
 
-    private double getStartsUppercase(Annotation annotation) {
-        List<Annotation> allAnnotations = new ArrayList<Annotation>();
+    private double getStartsUppercase(Annotation<String> annotation) {
+        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         double uppercaseCount = 0;
-        for (Annotation current : allAnnotations) {
+        for (Annotation<String> current : allAnnotations) {
             if (StringHelper.startsUppercase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
                 uppercaseCount++;
             }

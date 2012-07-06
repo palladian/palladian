@@ -10,6 +10,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -38,18 +39,18 @@ public abstract class AbstractTokenRemover extends StringDocumentPipelineProcess
     @Override
     public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("Required feature \"" + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
                     + "\" is missing");
         }
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
-        List<Annotation> resultTokens = new ArrayList<Annotation>();
-        for (Iterator<Annotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
-            Annotation annotation = tokenIterator.next();
+        List<Annotation<String>> resultTokens = new ArrayList<Annotation<String>>();
+        for (Iterator<Annotation<String>> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
+            Annotation<String> annotation = tokenIterator.next();
             if (!remove(annotation)) {
                 resultTokens.add(annotation);
             }

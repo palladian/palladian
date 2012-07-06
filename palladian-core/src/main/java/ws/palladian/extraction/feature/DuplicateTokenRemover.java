@@ -8,8 +8,9 @@ import java.util.Set;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -26,15 +27,15 @@ public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
                 BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature \""
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing.");
         }
         Set<String> tokenValues = new HashSet<String>();
-        List<Annotation> resultTokens = new ArrayList<Annotation>();
-        for (Annotation annotation : annotationFeature.getValue()) {
+        List<Annotation<String>> resultTokens = new ArrayList<Annotation<String>>();
+        for (Annotation<String> annotation : annotationFeature.getValue()) {
             String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
                 resultTokens.add(annotation);

@@ -16,8 +16,9 @@ public class PalladianSentenceDetector extends AbstractSentenceDetector {
 
         List<String> sentences = Tokenizer.getSentences(text);
         
-        Annotation[] sentencesAnnotations = new Annotation[sentences.size()];
-        PipelineDocument document = new PipelineDocument(text);
+        @SuppressWarnings("unchecked")
+        Annotation<String>[] sentencesAnnotations = new Annotation[sentences.size()];
+        PipelineDocument<String> document = new PipelineDocument<String>(text);
         int i = 0;
         int lastOffset = -1;
         for (String sentence : sentences) {

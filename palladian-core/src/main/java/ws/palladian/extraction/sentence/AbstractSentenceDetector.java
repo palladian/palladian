@@ -11,11 +11,11 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureProvider;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -48,7 +48,7 @@ import ws.palladian.processing.features.FeatureProvider;
  * @author Philipp Katz
  */
 public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor implements
-        FeatureProvider<AnnotationFeature> {
+        FeatureProvider<TextAnnotationFeature> {
 
     /**
      * <p>
@@ -70,18 +70,18 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
      * </p>
      */
-    public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, AnnotationFeature.class);
+    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
 
     /** holds the sentences. **/
-    private Annotation[] sentences;
+    private Annotation<String>[] sentences;
 
     /**
      * <p>
      * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      * </p>
      */
-    private final FeatureDescriptor<AnnotationFeature> featureDescriptor;
+    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
 
     /**
      * <p>
@@ -95,7 +95,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
         this.featureDescriptor = PROVIDED_FEATURE_DESCRIPTOR;
     }
 
-    public AbstractSentenceDetector(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+    public AbstractSentenceDetector(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
         super();
 
         Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
@@ -124,7 +124,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * 
      * @return the extracted sentences.
      */
-    public final Annotation[] getSentences() {
+    public final Annotation<String>[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * @param sentences
      *            Extracted sentence {@code Annotation}
      */
-    protected final void setSentences(Annotation[] sentences) {
+    protected final void setSentences(Annotation<String>[] sentences) {
         this.sentences = Arrays.copyOf(sentences, sentences.length);
     }
 
@@ -145,14 +145,14 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
         Validate.notNull(document, "document must not be null");
 
         detect(document.getContent());
-        Annotation[] sentences = getSentences();
-        List<Annotation> sentencesList = Arrays.asList(sentences);
-        AnnotationFeature sentencesFeature = new AnnotationFeature(featureDescriptor, sentencesList);
+        Annotation<String>[] sentences = getSentences();
+        List<Annotation<String>> sentencesList = Arrays.asList(sentences);
+        TextAnnotationFeature sentencesFeature = new TextAnnotationFeature(featureDescriptor, sentencesList);
         document.getFeatureVector().add(sentencesFeature);
     }
 
     @Override
-    public FeatureDescriptor<AnnotationFeature> getDescriptor() {
+    public FeatureDescriptor<TextAnnotationFeature> getDescriptor() {
         return featureDescriptor;
     }
 }

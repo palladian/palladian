@@ -17,9 +17,9 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -59,15 +59,15 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
      * @return {@link Map} containing the stemmed token values as keys, their frequencies as values.
      */
     public Map<String, Double> getTokens(String text) {
-        PipelineDocument document;
+        PipelineDocument<String> document;
         try {
-            document = process(new PipelineDocument(text));
+            document = process(new PipelineDocument<String>(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature feature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Map<String, Double> result = new HashMap<String, Double>();
-        for (Annotation annotation : feature.getValue()) {
+        for (Annotation<String> annotation : feature.getValue()) {
             // String value = annotation.getValue();
             NominalFeature stemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.STEM);
             NumericFeature frequencyFeature = annotation.getFeatureVector().get(TokenMetricsCalculator.FREQUENCY);

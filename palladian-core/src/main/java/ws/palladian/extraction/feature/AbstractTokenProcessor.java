@@ -8,8 +8,8 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -28,13 +28,13 @@ public abstract class AbstractTokenProcessor extends StringDocumentPipelineProce
     @Override
     public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        AnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature \""
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " \" is missing.");
         }
-        List<Annotation> tokenList = annotationFeature.getValue();
-        for (Annotation annotation : tokenList) {
+        List<Annotation<String>> tokenList = annotationFeature.getValue();
+        for (Annotation<String> annotation : tokenList) {
             processToken(annotation);
         }
     }

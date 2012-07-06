@@ -16,12 +16,11 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -42,9 +41,9 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
 
     private final static String[] NOUN_TAGS = new String[] {"NN", "NN$", "NNS", "NNS$", "NP", "NP$", "NPS", "NPS$"};
 
-    private final FeatureDescriptor<AnnotationFeature> featureDescriptor;
+    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
 
-    public NounAnnotator(FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+    public NounAnnotator(FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
         super();
 
         Validate.notNull(featureDescriptor, "questionNounFeatureDescriptor must not be null");
@@ -54,21 +53,21 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        AnnotationFeature sentencesFeature = document.getFeature(LingPipeSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature sentencesFeature = document.getFeature(LingPipeSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         Validate.notNull(
                 sentencesFeature,
                 "Nount annotator can only work if the text was processed by an AbstractSentenceDetector. Please add one to your pipeline.");
-        AnnotationFeature tokenFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature tokenFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Validate.notNull(tokenFeature,
                 "Nount annotator can only work if the text was processed by a BaseTokenizer. Please add one to your pipeline.");
 
-        List<Annotation> ret = new ArrayList<Annotation>();
+        List<Annotation<String>> ret = new ArrayList<Annotation<String>>();
         @SuppressWarnings("unchecked")
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
-        for (Annotation sentence : sentencesFeature.getValue()) {
-            List<Annotation> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
+        for (Annotation<String> sentence : sentencesFeature.getValue()) {
+            List<Annotation<String>> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
                     sentence.getEndPosition());
-            for (Annotation token : tokens) {
+            for (Annotation<String> token : tokens) {
             	//NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
             	FeatureVector tokenFeatureVector = token.getFeatureVector();
             	NominalFeature posTag = tokenFeatureVector.get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
@@ -78,7 +77,7 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
             }
         }
 
-        document.addFeature(new AnnotationFeature(featureDescriptor, ret));
+        document.addFeature(new TextAnnotationFeature(featureDescriptor, ret));
     }
 
 }
