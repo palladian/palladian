@@ -15,7 +15,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -88,14 +88,14 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      * @return All {@code LabeledSequentialPattern}s from {@code document} or an empty {@code Collection} if no
      *         {@code LabeledSequentialPattern}s were extracted from {@code document} yet.
      */
-    public static Collection<SequentialPatternsFeature> getExtractedPatterns(PipelineDocument document) {
+    public static Collection<SequentialPatternsFeature> getExtractedPatterns(PipelineDocument<String> document) {
         Collection<SequentialPatternsFeature> ret = new HashSet<SequentialPatternsFeature>();
-        AnnotationFeature sentencesFeature = document.getFeatureVector().get(
+        TextAnnotationFeature sentencesFeature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         if (sentencesFeature != null) {
-            List<Annotation> sentenceAnnotations = sentencesFeature.getValue();
+            List<Annotation<String>> sentenceAnnotations = sentencesFeature.getValue();
 
-            for (Annotation annotation : sentenceAnnotations) {
+            for (Annotation<String> annotation : sentenceAnnotations) {
                 SequentialPatternsFeature lspFeature = annotation.getFeatureVector().get(
                         SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
                 if (lspFeature != null) {

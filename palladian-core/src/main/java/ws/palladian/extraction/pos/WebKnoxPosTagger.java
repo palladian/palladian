@@ -58,9 +58,9 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation> annotations) {
+    public void tag(List<Annotation<String>> annotations) {
         StringBuilder text = new StringBuilder();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             text.append(annotation.getValue()).append(" ");
         }
         

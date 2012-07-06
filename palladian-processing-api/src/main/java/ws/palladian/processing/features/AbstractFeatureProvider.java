@@ -20,6 +20,8 @@ import ws.palladian.processing.Port;
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
+ * @param <T> Type of default in- and output.
+ * @param <F> Type of the {@link Feature} this component supplies.
  */
 public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends AbstractPipelineProcessor<T> implements
         FeatureProvider<F> {

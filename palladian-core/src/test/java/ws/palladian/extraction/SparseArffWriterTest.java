@@ -46,16 +46,19 @@ public class SparseArffWriterTest {
 
         FeatureDescriptor<Feature<?>>[] featureDescriptors = new FeatureDescriptor[] {nominalFeatureDescriptor,
                 numericFeatureDescriptor};
+        
+        File tempFile = File.createTempFile("sparsearffwritertext", "arff");
 
-        SparseArffWriter objectOfClassUnderTest = new SparseArffWriter("sparsearffwritertest", featureDescriptors);
+        SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath(), featureDescriptors);
         objectOfClassUnderTest.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.processingFinished();
 
-        File arffFile = new File("sparsearffwritertest");
-        String actualArffFile = FileUtils.readFileToString(arffFile);
+        //File arffFile = new File("sparsearffwritertest");
+        
+        String actualArffFile = FileUtils.readFileToString(tempFile);
         assertThat(actualArffFile, is(expectedArffFile));
-        FileUtils.forceDelete(arffFile);
+        // FileUtils.forceDelete(arffFile);
     }
 
 }

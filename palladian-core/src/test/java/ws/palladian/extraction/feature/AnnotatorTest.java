@@ -14,6 +14,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class AnnotatorTest {
 
@@ -33,9 +34,9 @@ public class AnnotatorTest {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH));
         pipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
                 BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         assertEquals(12, annotations.size());
         assertEquals("tri", annotations.get(3).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
@@ -51,9 +52,9 @@ public class AnnotatorTest {
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
         pipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
                 BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         assertEquals(7, annotations.size());
     }
@@ -65,9 +66,9 @@ public class AnnotatorTest {
         pipeline.add(new LengthTokenRemover(2));
         pipeline.process(document);
 
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
                 BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = annotationFeature.getValue();
+        List<Annotation<String>> annotations = annotationFeature.getValue();
 
         assertEquals(9, annotations.size());
     }

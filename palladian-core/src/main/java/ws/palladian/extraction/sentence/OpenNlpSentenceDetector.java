@@ -74,8 +74,9 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
     @Override
     public OpenNlpSentenceDetector detect(String text) {
         Span[] sentenceBoundaries = model.sentPosDetect(text);
-        Annotation[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
-        PipelineDocument document = new PipelineDocument(text);
+        @SuppressWarnings("unchecked")
+        Annotation<String>[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
+        PipelineDocument<String> document = new PipelineDocument<String>(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();

@@ -15,10 +15,10 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -35,23 +35,23 @@ public final class ImperativeSentenceAnnotator extends StringDocumentPipelinePro
     @SuppressWarnings("unused")
     private static final Logger LOGGER = Logger.getLogger(ImperativeSentenceAnnotator.class);
 
-    public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build("ws.palladian.imperative", AnnotationFeature.class);
+    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build("ws.palladian.imperative", TextAnnotationFeature.class);
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        AnnotationFeature feature = document.getFeatureVector().get(
+        TextAnnotationFeature feature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
-        AnnotationFeature tokenAnnotations = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> sentences = feature.getValue();
-        List<Annotation> posTags = tokenAnnotations.getValue();
-        List<Annotation> ret = new LinkedList<Annotation>();
+        TextAnnotationFeature tokenAnnotations = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> sentences = feature.getValue();
+        List<Annotation<String>> posTags = tokenAnnotations.getValue();
+        List<Annotation<String>> ret = new LinkedList<Annotation<String>>();
 
-        Iterator<Annotation> posTagsIterator = posTags.iterator();
-        for (Annotation sentence : sentences) {
+        Iterator<Annotation<String>> posTagsIterator = posTags.iterator();
+        for (Annotation<String> sentence : sentences) {
             String firstTagInSentence = null;
             while (posTagsIterator.hasNext()) {
-                Annotation currentPosTag = posTagsIterator.next();
+                Annotation<String> currentPosTag = posTagsIterator.next();
                 if (currentPosTag.getStartPosition() >= sentence.getStartPosition()) {
                     firstTagInSentence = currentPosTag.getValue();
                     break;
@@ -66,6 +66,6 @@ public final class ImperativeSentenceAnnotator extends StringDocumentPipelinePro
                         sentence.getValue()));
             }
         }
-        document.addFeature(new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, ret));
+        document.addFeature(new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, ret));
     }
 }

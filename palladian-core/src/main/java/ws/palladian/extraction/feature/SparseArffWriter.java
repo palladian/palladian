@@ -20,8 +20,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
-import weka.core.FastVector;
-import weka.core.Instances;
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternsFeature;
 import ws.palladian.helper.ProgressHelper;
@@ -62,7 +60,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      */
     private final File targetFile;
     private final List<FeatureDescriptor<? extends Feature<?>>> featureDescriptors;
-    private Instances model;
 
     private final BidiMap<String, Integer> featureTypes;
     private final List<List<Pair<Integer, String>>> instances;
@@ -105,8 +102,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             targetFile.delete();
         }
         this.featureDescriptors = Arrays.asList(featureDescriptors);
-        FastVector schema = new FastVector();
-        this.model = new Instances("model", schema, batchSize);
         featureTypes = new DualHashBidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
         featuresAdded = 0;
@@ -175,10 +170,10 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param feature
      */
     private void handleFeature(final Feature<?> feature, final List<Pair<Integer, String>> newInstance) {
-        FeatureDescriptor descriptor = feature.getDescriptor();
+        FeatureDescriptor<?> descriptor = feature.getDescriptor();
         if (feature instanceof AnnotationFeature) {
-            AnnotationFeature annotationFeature = (AnnotationFeature)feature;
-            for (Annotation annotation : annotationFeature.getValue()) {
+            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
+            for (Annotation<?> annotation : annotationFeature.getValue()) {
                 for (Feature<?> subFeature : annotation.getFeatureVector()) {
                     handleFeature(subFeature, newInstance);
                 }
@@ -192,7 +187,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         if (feature instanceof NumericFeature) {
             handleNumericFeature((NumericFeature)feature, newInstance);
         } else if (feature instanceof AnnotationFeature) {
-            AnnotationFeature annotationFeature = (AnnotationFeature)feature;
+            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
             handleAnnotationFeature(annotationFeature, newInstance);
         } else if (feature instanceof BooleanFeature) {
             handleBooleanFeature((BooleanFeature)feature, newInstance);
@@ -301,8 +296,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param model
      * @param schema
      */
-    private void handleAnnotationFeature(AnnotationFeature feature, List<Pair<Integer, String>> newInstance) {
-        for (Annotation annotation : feature.getValue()) {
+    private void handleAnnotationFeature(AnnotationFeature<?> feature, List<Pair<Integer, String>> newInstance) {
+        for (Annotation<?> annotation : feature.getValue()) {
             String featureType = "\"" + annotation.getValue() + "\" numeric";
 
             Integer featureTypeIndex = featureTypes.get(featureType);

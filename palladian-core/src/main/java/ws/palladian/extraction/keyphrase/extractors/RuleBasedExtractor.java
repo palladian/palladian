@@ -38,6 +38,7 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.AnnotationGroup;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.TextAnnotationFeature;
 public final class RuleBasedExtractor extends KeyphraseExtractor {
     
     private final ProcessingPipeline trainingPipeline;
@@ -87,16 +88,16 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             trainingPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
+        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotations = feature.getValue();
         Set<String> terms = new HashSet<String>();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             terms.add(annotation.getValue());
         }
         termCorpus.addTermsFromDocument(terms);
@@ -132,7 +133,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             extractionPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -141,11 +142,11 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         return extract(document);
     }
 
-    private List<Keyphrase> extract(PipelineDocument document) {
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
+    private List<Keyphrase> extract(PipelineDocument<String> document) {
+        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotations = feature.getValue();
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             String value = annotation.getValue();
             FeatureVector annotationFeatureVector = annotation.getFeatureVector();
             double frequency = annotationFeatureVector.get(TokenMetricsCalculator.FREQUENCY).getValue();

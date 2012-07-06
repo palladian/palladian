@@ -22,11 +22,11 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -105,25 +105,25 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
 
     @Override
     public void processDocument(PipelineDocument<String> document) {
-        AnnotationFeature posFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        AnnotationFeature sentencesFeature = document.getFeatureVector().get(
+        TextAnnotationFeature posFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature sentencesFeature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> posTags = posFeature.getValue();
-        List<Annotation> sentences = sentencesFeature.getValue();
-        List<Annotation> markedKeywords = markKeywords(document);
+        List<Annotation<String>> posTags = posFeature.getValue();
+        List<Annotation<String>> sentences = sentencesFeature.getValue();
+        List<Annotation<String>> markedKeywords = markKeywords(document);
 
         Collections.sort(posTags);
         Collections.sort(sentences);
         Collections.sort(markedKeywords);
 
-        Iterator<Annotation> posTagsIterator = posTags.iterator();
-        Iterator<Annotation> markedKeywordsIterator = markedKeywords.iterator();
+        Iterator<Annotation<String>> posTagsIterator = posTags.iterator();
+        Iterator<Annotation<String>> markedKeywordsIterator = markedKeywords.iterator();
 
-        Annotation currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next() : null;
-        Annotation currentPosTag = posTagsIterator.hasNext() ? posTagsIterator.next() : null;
+        Annotation<String> currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next() : null;
+        Annotation<String> currentPosTag = posTagsIterator.hasNext() ? posTagsIterator.next() : null;
 
         // create one LSP per sentence in the document.
-        for (Annotation sentence : sentences) {
+        for (Annotation<String> sentence : sentences) {
             Integer sentenceStartPosition = sentence.getStartPosition();
             Integer sentenceEndPosition = sentence.getEndPosition();
             List<String> sequentialPattern = new ArrayList<String>();
@@ -171,8 +171,8 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
      *            The {@link PipelineDocument} to process.
      * @return A {@code List} of {@code Annotation}s
      */
-    private List<Annotation> markKeywords(PipelineDocument<String> document) {
-        List<Annotation> markedKeywords = new LinkedList<Annotation>();
+    private List<Annotation<String>> markKeywords(PipelineDocument<String> document) {
+        List<Annotation<String>> markedKeywords = new LinkedList<Annotation<String>>();
         String originalContent = document.getContent();
         String originalContentLowerCased = originalContent.toLowerCase();
         for (String keyword : keywords) {

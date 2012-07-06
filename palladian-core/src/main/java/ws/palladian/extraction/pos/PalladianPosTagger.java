@@ -50,12 +50,12 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation> annotations) {
+    public void tag(List<Annotation<String>> annotations) {
 
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
 
         String previousTag = "";
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
 
             UniversalInstance instance = new UniversalInstance(instances);
             setFeatures(instance, previousTag, annotation.getValue());

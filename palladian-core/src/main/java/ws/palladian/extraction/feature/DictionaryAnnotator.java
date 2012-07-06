@@ -19,6 +19,7 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -29,7 +30,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DictionaryAnnotator extends AbstractFeatureProvider<String, AnnotationFeature> {
+public final class DictionaryAnnotator extends AbstractFeatureProvider<String, TextAnnotationFeature> {
 
     /**
      * <p>
@@ -40,7 +41,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, A
 
     /**
      * <p>
-     * The dictionary to match token agains.
+     * The dictionary to match token against.
      * </p>
      */
     private final Set<String> dictionary;
@@ -55,7 +56,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, A
      * @param featureDescriptor The {@link FeatureDescriptor} used to save matching tokens as new {@code Annotation}s.
      * @param dictionary The dictionary to match token agains.
      */
-    public DictionaryAnnotator(final FeatureDescriptor<AnnotationFeature> featureDescriptor, final String[] dictionary) {
+    public DictionaryAnnotator(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor, final String[] dictionary) {
         super(featureDescriptor);
 
         Validate.notNull(dictionary, "dictionary must not be null");
@@ -67,19 +68,19 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, A
     protected void processDocument() throws DocumentUnprocessableException {
         PipelineDocument<String> document = getDefaultInput();
 
-        AnnotationFeature annotationFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> matchingToken = new ArrayList<Annotation>();
-        for (Annotation tokenAnnotation : annotationFeature.getValue()) {
+        TextAnnotationFeature annotationFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> matchingToken = new ArrayList<Annotation<String>>();
+        for (Annotation<String> tokenAnnotation : annotationFeature.getValue()) {
             String token = tokenAnnotation.getValue();
             if (dictionary.contains(token)) {
                 int startPosition = tokenAnnotation.getStartPosition();
                 int endPosition = tokenAnnotation.getEndPosition();
-                Annotation match = new PositionAnnotation(document, startPosition, endPosition, token);
+                Annotation<String> match = new PositionAnnotation(document, startPosition, endPosition, token);
                 matchingToken.add(match);
             }
         }
 
-        document.addFeature(new AnnotationFeature(getDescriptor(), matchingToken));
+        document.addFeature(new AnnotationFeature<String>(getDescriptor(), matchingToken));
         setDefaultOutput(document);
     }
 

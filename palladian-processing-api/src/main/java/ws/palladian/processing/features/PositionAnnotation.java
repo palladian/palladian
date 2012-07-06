@@ -15,6 +15,7 @@ import ws.palladian.processing.PipelineDocument;
  * @version 3.0
  * @since 0.1.7
  */
+// TODO rename to TextAnnotation
 public final class PositionAnnotation extends Annotation<String> {
 
     /**

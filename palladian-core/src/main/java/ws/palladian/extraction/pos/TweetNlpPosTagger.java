@@ -35,7 +35,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    protected void tag(List<Annotation> annotations) {
+    protected void tag(List<Annotation<String>> annotations) {
         TweetTaggerInstance tweetTagger = TweetTaggerInstance.getInstance();
         List<String> words = getTokenList(annotations);
         List<String> tags = tweetTagger.getTagsForOneSentence(words);

@@ -10,7 +10,7 @@ import org.junit.Test;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -39,8 +39,8 @@ public class TwokenizeTokenizerTest {
     public void testTwokenizeTokenizer() throws Exception {
         PipelineDocument<String> document = new PipelineDocument<String>(TWEET);
         tokenizer.processDocument(document);
-        AnnotationFeature annotationFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotationList = annotationFeature.getValue();
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotationList = annotationFeature.getValue();
         assertEquals(TOKENS.length, annotationList.size());
         for (int i = 0; i < TOKENS.length; i++) {
             assertEquals(TOKENS[i], annotationList.get(i).getValue());

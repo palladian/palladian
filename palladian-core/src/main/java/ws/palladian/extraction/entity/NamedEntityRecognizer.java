@@ -28,6 +28,7 @@ import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -43,7 +44,8 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = Logger.getLogger(NamedEntityRecognizer.class);
 
-	public static final FeatureDescriptor<AnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build("ws.palladian.processing.entity.ner", AnnotationFeature.class);
+    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
@@ -808,14 +810,14 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     	// TODO merge annotation classes
     	Annotations annotations = getAnnotations(content);
     	
-    	List<ws.palladian.processing.features.Annotation> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation>(annotations.size());
+    	List<ws.palladian.processing.features.Annotation<String>> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation<String>>(annotations.size());
     	for(Annotation nerAnnotation:annotations) {
     		ws.palladian.processing.features.Annotation<String> procAnnotation = new PositionAnnotation(document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
     		annotationsList.add(procAnnotation);
     		
     	}
     	
-    	AnnotationFeature feature = new AnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
+    	TextAnnotationFeature feature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
     	document.addFeature(feature);
     }
 

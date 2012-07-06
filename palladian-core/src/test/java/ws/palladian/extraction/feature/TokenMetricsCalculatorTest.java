@@ -23,12 +23,12 @@ public class TokenMetricsCalculatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new TokenMetricsCalculator());
-        PipelineDocument document = pipeline.process(new PipelineDocument(SAMPLE_TEXT));
+        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>(SAMPLE_TEXT));
 
-        AnnotationFeature annotations = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> tokens = annotations.getValue();
+        AnnotationFeature<String> annotations = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> tokens = annotations.getValue();
 
-        Annotation token = tokens.get(1);
+        Annotation<String> token = tokens.get(1);
         assertEquals("Reh", token.getValue());
         FeatureVector featureVector = token.getFeatureVector();
         assertEquals(1. / 18, (double)featureVector.get(TokenMetricsCalculator.FIRST).getValue(), 0);

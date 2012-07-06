@@ -7,9 +7,10 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -69,7 +70,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * 
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public LingPipeSentenceDetector(final FeatureDescriptor<AnnotationFeature> featureDescriptor) {
+    public LingPipeSentenceDetector(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
         super(featureDescriptor);
 
         TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
@@ -82,7 +83,8 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
         Validate.notNull(text, "text must not be null");
 
         Chunking chunking = sentenceChunker.chunk(text);
-        Annotation[] sentences = new Annotation[chunking.chunkSet().size()];
+        @SuppressWarnings("unchecked")
+        Annotation<String>[] sentences = new Annotation[chunking.chunkSet().size()];
         PipelineDocument<String> document = new PipelineDocument<String>(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {

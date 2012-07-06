@@ -22,12 +22,12 @@ public class DuplicateTokenConsolidatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new DuplicateTokenConsolidator());
-        PipelineDocument document = pipeline.process(new PipelineDocument(SAMPLE_TEXT));
+        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>(SAMPLE_TEXT));
         
-        List<Annotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
-        Annotation token1 = tokenAnnotations.get(0);
+        List<Annotation<String>> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+        Annotation<String> token1 = tokenAnnotations.get(0);
         assertEquals("Das", token1.getValue());
-        List<Annotation> duplicates1 = DuplicateTokenConsolidator.getDuplicateAnnotations(token1);
+        List<Annotation<String>> duplicates1 = DuplicateTokenConsolidator.getDuplicateAnnotations(token1);
         assertEquals(1, duplicates1.size());
         assertEquals((Integer) 22, duplicates1.get(0).getStartPosition());
         assertEquals((Integer) 25, duplicates1.get(0).getEndPosition());

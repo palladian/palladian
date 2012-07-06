@@ -30,7 +30,7 @@ import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 public final class TfidfExtractor extends KeyphraseExtractor {
     
@@ -66,16 +66,16 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             trainingPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
+        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotations = feature.getValue();
         Set<String> terms = new HashSet<String>();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             // FeatureVector featureVector = annotation.getFeatureVector();
             //String value = featureVector.get(StemmerAnnotator.STEM).getValue();
             String value = annotation.getValue();
@@ -97,7 +97,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument document = new PipelineDocument(inputText);
+        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
         try {
             extractionPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -106,12 +106,12 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         return extract(document);
     }
 
-    private List<Keyphrase> extract(PipelineDocument document) {
+    private List<Keyphrase> extract(PipelineDocument<String> document) {
         List<Keyphrase> ret = new ArrayList<Keyphrase>();
-        AnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation> annotations = feature.getValue();
+        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> annotations = feature.getValue();
         List<Pair<String, Double>> keywords = new ArrayList<Pair<String,Double>>();
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             String value = annotation.getValue();
             double tfidf = annotation.getFeatureVector().get(TfIdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
             keywords.add(new ImmutablePair<String, Double>(value, tfidf));

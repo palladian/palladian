@@ -121,7 +121,7 @@ public class Feature<T> {
     /**
      * @return The {@link FeatureDescriptor} for this class.
      */
-    public FeatureDescriptor getDescriptor() {
+    public FeatureDescriptor<?> getDescriptor() {
         return FeatureDescriptorBuilder.build(getName(), this.getClass());
     }
 
