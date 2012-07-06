@@ -1,8 +1,6 @@
 package ws.palladian.classification.page;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashSet;
 
 import ws.palladian.extraction.feature.StopTokenRemover;
@@ -84,8 +82,7 @@ public class Stopwords extends HashSet<String> {
 
     private void addFromResourceFile(String filePath) {
         InputStream stream = this.getClass().getResourceAsStream(filePath);
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        FileHelper.performActionOnEveryLine(br, readLineAction);
+        FileHelper.performActionOnEveryLine(stream, readLineAction);
     }
 
     public boolean isStopword(String string) {
