@@ -48,13 +48,18 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         List<R> webResults = new ArrayList<R>();
 
         // the number of pages we need to check; each page returns 8 results
-        int necessaryPages = (int) Math.ceil(resultCount / 8.);
+        int necessaryPages = (int)Math.ceil(resultCount / 8.);
 
-        try {
-            for (int i = 0; i < necessaryPages; i++) {
+        for (int i = 0; i < necessaryPages; i++) {
 
-                int offset = i * 8;
-                JSONObject responseData = getResponseData(query, language, offset);
+            int offset = i * 8;
+            String responseString = getResponseData(query, language, offset);
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(responseString);
+                JSONObject responseData = jsonObject.getJSONObject("responseData");
+
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 // in the first iteration find the maximum of available pages and limit the search to those
@@ -74,13 +79,10 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
                         break;
                     }
                 }
+            } catch (JSONException e) {
+                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                        + "\" with " + getName() + ": " + e.getMessage() + ", JSON was: \"" + responseString + "\"", e);
             }
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        } catch (JSONException e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
         }
 
         LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
@@ -111,13 +113,16 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         return queryBuilder.toString();
     }
 
-    private JSONObject getResponseData(String query, Language language, int offset) throws HttpException,
-            JSONException {
+    private String getResponseData(String query, Language language, int offset) throws SearcherException {
         String requestUrl = getRequestUrl(query, language, offset);
-        HttpResult httpResult = retriever.httpGet(requestUrl);
-        String jsonString = HttpHelper.getStringContent(httpResult);
-        JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("responseData");
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(requestUrl);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
+        }
+        return HttpHelper.getStringContent(httpResult);
     }
 
     /**
@@ -155,24 +160,6 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     }
 
     /**
-     * Parse the number of estimed results from the responseData object.
-     * 
-     * @param responseData
-     * @return
-     * @throws JSONException
-     */
-    private int getResultCount(JSONObject responseData) throws JSONException {
-        int resultCount = -1;
-        if (responseData.getJSONObject("cursor") != null) {
-            JSONObject cursor = responseData.getJSONObject("cursor");
-            if (cursor.has("estimatedResultCount")) {
-                resultCount = cursor.getInt("estimatedResultCount");
-            }
-        }
-        return resultCount;
-    }
-
-    /**
      * Parse one result object from JSON to an instance of {@link WebResult}.
      * 
      * @param resultData
@@ -184,15 +171,18 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     @Override
     public int getTotalResultCount(String query) throws SearcherException {
         int hitCount = 0;
+        String responseData = getResponseData(query, null, 0);
         try {
-            JSONObject responseData = getResponseData(query, null, 0);
-            hitCount = getResultCount(responseData);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
+            JSONObject responseJson = new JSONObject(responseData);
+            if (responseJson.getJSONObject("cursor") != null) {
+                JSONObject cursor = responseJson.getJSONObject("cursor");
+                if (cursor.has("estimatedResultCount")) {
+                    hitCount = cursor.getInt("estimatedResultCount");
+                }
+            }
         } catch (JSONException e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
+                    + "\" with " + getName() + ": " + e.getMessage() + ", JSON was: \"" + responseData + "\"", e);
         }
         return hitCount;
     }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -18,18 +19,34 @@ import ws.palladian.processing.features.AnnotationFeature;
  */
 public class RegExTokenRemoverTest {
     
+    private static final PipelineDocument DOCUMENT = new PipelineDocument("test 273 t_est ; •");
+    private ProcessingPipeline pipeline;
+    
+    @Before
+    public void setUp() {
+        pipeline = new ProcessingPipeline();
+        pipeline.add(new RegExTokenizer());
+    }
+
     @Test
     public void testRegExTokenRemover() throws DocumentUnprocessableException {
-        ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
         pipeline.add(new RegExTokenRemover("[A-Za-z0-9-]+"));
-        PipelineDocument document = pipeline.process(new PipelineDocument("test 273 t_est ; •"));
+        PipelineDocument document = pipeline.process(DOCUMENT);
         AnnotationFeature annotationFeature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);;
         List<Annotation> annotations = annotationFeature.getValue();
         assertEquals(2, annotations.size());
         assertEquals("test", annotations.get(0).getValue());
         assertEquals("273", annotations.get(1).getValue());
         
+    }
+    
+    @Test
+    public void testRegExTokenRemoverInverse() throws DocumentUnprocessableException {
+        pipeline.add(new RegExTokenRemover("\\d+", true));
+        PipelineDocument document = pipeline.process(DOCUMENT);
+        AnnotationFeature annotationFeature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);;
+        List<Annotation> annotations = annotationFeature.getValue();
+        assertEquals(4, annotations.size());
     }
 
 }
