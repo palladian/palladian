@@ -52,9 +52,10 @@ public class SparseArffWriterTest {
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.processingFinished();
 
-        String actualArffFile = FileUtils.readFileToString(new File("sparsearffwritertest"));
-        System.out.println(actualArffFile);
+        File arffFile = new File("sparsearffwritertest");
+        String actualArffFile = FileUtils.readFileToString(arffFile);
         assertThat(actualArffFile, is(expectedArffFile));
+        FileUtils.forceDelete(arffFile);
     }
 
 }

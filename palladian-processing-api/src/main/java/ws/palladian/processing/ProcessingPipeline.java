@@ -226,6 +226,8 @@ public class ProcessingPipeline implements Serializable {
         cleanOutputPorts();
 
         do {
+            executedProcessors.clear();
+            executedPipes.clear();
             for (PipelineProcessor processor : pipelineProcessors) {
                 if (processor.isExecutable()) {
                     executePreProcessingHook(processor);
@@ -241,7 +243,7 @@ public class ProcessingPipeline implements Serializable {
                 }
             }
             resetPipes(executedPipes);
-        } while (!executedProcessors.isEmpty());
+        } while (!executedProcessors.isEmpty() || !executedPipes.isEmpty());
         notifyProcessorsOfProcessFinished();
     }
 
