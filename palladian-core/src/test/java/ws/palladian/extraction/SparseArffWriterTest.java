@@ -32,7 +32,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @since 0.1.7
  */
 public class SparseArffWriterTest {
-    private final String expectedArffFile = "@attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 a,1 0.78}\n";
+    private final String expectedArffFile = "@relation model\n\n @attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 a,1 0.78}\n";
 
     @Test
     public void test() throws IOException, DocumentUnprocessableException {
@@ -52,9 +52,10 @@ public class SparseArffWriterTest {
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.processingFinished();
 
-        String actualArffFile = FileUtils.readFileToString(new File("sparsearffwritertest"));
-        System.out.println(actualArffFile);
+        File arffFile = new File("sparsearffwritertest");
+        String actualArffFile = FileUtils.readFileToString(arffFile);
         assertThat(actualArffFile, is(expectedArffFile));
+        FileUtils.forceDelete(arffFile);
     }
 
 }
