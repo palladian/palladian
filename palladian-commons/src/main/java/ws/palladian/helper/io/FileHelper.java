@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,6 +41,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -533,71 +533,102 @@ public class FileHelper {
     }
 
     /**
-     * Perform action on every line of the input file.
+     * <p>
+     * Perform an action on every line of the provided input file.
+     * </p>
      * 
-     * @param filePath The path to the file which should be processed line by line.
-     * @param la The line action that should be triggered on each line.
-     * @return The number of lines processed.
+     * @param filePath The path to the file which should be processed line by line, not <code>null</code>.
+     * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
+     * @return The number of lines processed, <code>-1</code> in case of errors.
      */
-    public static int performActionOnEveryLine(String filePath, LineAction la) {
+    public static int performActionOnEveryLine(String filePath, LineAction lineAction) {
+        Validate.notNull(filePath, "filePath must not be null");
+        Validate.notNull(lineAction, "lineAction must not be null");
+
         int lineNumber = -1;
-        FileReader reader = null;
-
+        FileInputStream inputStream = null;
         try {
-            reader = new FileReader(filePath);
-            lineNumber = performActionOnEveryLine(reader, la);
+            inputStream = new FileInputStream(filePath);
+            lineNumber = performActionOnEveryLine(inputStream, lineAction);
         } catch (FileNotFoundException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error("Encountered FileNotFoundException for \"" + filePath + "\": " + e.getMessage(), e);
         } finally {
-            close(reader);
+            IOUtils.closeQuietly(inputStream);
         }
-
         return lineNumber;
     }
 
     /**
-     * Perform action on every line of the input file.
+     * <p>
+     * Perform an action on every line of the provided {@link InputStream}. The input stream is <b>not</b> closed after
+     * it has been read; it is your responsibility to take care of that!
+     * </p>
      * 
-     * @param reader The reader with the file which should be processed line by line.
-     * @param la The line action that should be triggered on each line.
-     * @return The number of lines processed.
+     * @param inputStream The input stream which should be processed line by line, not <code>null</code>.
+     * @param lineAction The {@link LineAction} that should be triggered on each line, not <code>null</code>.
+     * @return The number of lines processed, <code>-1</code> in case of errors.
      */
-    public static int performActionOnEveryLine(Reader reader, LineAction la) {
+    public static int performActionOnEveryLine(InputStream inputStream, LineAction lineAction) {
+        Validate.notNull(inputStream, "inputStream must not be null");
+        Validate.notNull(lineAction, "lineAction must not be null");
 
-        int lineNumber = 1;
-        BufferedReader bufferedReader = null;
-
+        int lineNumber = 0;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         try {
-            bufferedReader = new BufferedReader(reader);
-
             String line = null;
-            while ((line = bufferedReader.readLine()) != null && la.looping) {
-                la.performAction(line, lineNumber++);
+            while ((line = bufferedReader.readLine()) != null && lineAction.looping) {
+                lineAction.performAction(line, lineNumber++);
             }
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(reader + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(reader + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            LOGGER.error(reader + ", " + e.getMessage());
-        } finally {
-            close(bufferedReader);
+            LOGGER.error("Encountered IOException: " + e.getMessage(), e);
+            lineNumber = -1;
         }
-
-        return lineNumber - 1;
+        return lineNumber;
     }
 
-    /**
-     * Perform action on every line on the input text.
-     * 
-     * @param text The text which should be processed line by line.
-     * @param la The line action that should be triggered on each line.
-     * @return The number of lines processed.
-     */
-    public static int performActionOnEveryLineText(String text, LineAction la) {
-        return performActionOnEveryLine(new StringReader(text), la);
-    }
+//    /**
+//     * Perform action on every line of the input file.
+//     * 
+//     * @param reader The reader with the file which should be processed line by line.
+//     * @param la The line action that should be triggered on each line.
+//     * @return The number of lines processed.
+//     */
+//    public static int performActionOnEveryLine(Reader reader, LineAction la) {
+//
+//        int lineNumber = 1;
+//        BufferedReader bufferedReader = null;
+//
+//        try {
+//            bufferedReader = new BufferedReader(reader);
+//
+//            String line = null;
+//            while ((line = bufferedReader.readLine()) != null && la.looping) {
+//                la.performAction(line, lineNumber++);
+//            }
+//
+//        } catch (FileNotFoundException e) {
+//            LOGGER.error(reader + ", " + e.getMessage());
+//        } catch (IOException e) {
+//            LOGGER.error(reader + ", " + e.getMessage());
+//        } catch (OutOfMemoryError e) {
+//            LOGGER.error(reader + ", " + e.getMessage());
+//        } finally {
+//            close(bufferedReader);
+//        }
+//
+//        return lineNumber - 1;
+//    }
+
+//    /**
+//     * Perform action on every line on the input text.
+//     * 
+//     * @param text The text which should be processed line by line.
+//     * @param la The line action that should be triggered on each line.
+//     * @return The number of lines processed.
+//     */
+//    public static int performActionOnEveryLineText(String text, LineAction la) {
+//        return performActionOnEveryLine(new StringReader(text), la);
+//    }
 
     public static File writeToFile(String filePath, InputStream stream) {
 

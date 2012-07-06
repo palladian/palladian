@@ -1,11 +1,9 @@
 package ws.palladian.extraction.feature;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,27 +69,27 @@ public final class StopTokenRemover extends AbstractTokenRemover {
     public StopTokenRemover(File file) {
         Validate.notNull(file, "file must not be null");
         try {
-            stopwords = loadStopwords(new FileReader(file));
+            stopwords = loadStopwords(new FileInputStream(file));
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("File \"" + file + "\" not found.");
         }
     }
 
     private Set<String> loadStopwordsResource(String resourcePath) {
-        InputStream is = StopTokenRemover.class.getResourceAsStream(resourcePath);
-        if (is == null) {
+        InputStream inputStream = StopTokenRemover.class.getResourceAsStream(resourcePath);
+        if (inputStream == null) {
             throw new IllegalStateException("Resource \"" + resourcePath + "\" not found.");
         }
         try {
-            return loadStopwords(new InputStreamReader(is));
+            return loadStopwords(inputStream);
         } finally {
-            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(inputStream);
         }
     }
 
-    private Set<String> loadStopwords(Reader reader) {
+    private Set<String> loadStopwords(InputStream fileInputStream) {
         final Set<String> result = new HashSet<String>();
-        FileHelper.performActionOnEveryLine(reader, new LineAction() {
+        FileHelper.performActionOnEveryLine(fileInputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String lineString = line.trim();
@@ -117,7 +115,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation annotation) {
+    protected boolean remove(Annotation<String> annotation) {
         return isStopword(annotation.getValue());
     }
 
