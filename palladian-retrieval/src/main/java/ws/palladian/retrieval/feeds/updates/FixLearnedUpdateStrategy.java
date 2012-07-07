@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
@@ -66,7 +67,7 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
                 long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
 
                 if (entries.size() >= 2 && intervalLength > 0) {
-                    fixedCheckInterval = (int) (intervalLength / ((entries.size() - 1) * DateHelper.MINUTE_MS));
+                    fixedCheckInterval = (int) (intervalLength / ((entries.size() - 1) * TimeUnit.MINUTES.toMillis(1)));
                 }
 
             }
@@ -78,7 +79,7 @@ public class FixLearnedUpdateStrategy extends UpdateStrategy {
                 long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
                 
                 if (entries.size() >= 1 && intervalLength > 0) {
-                    fixedCheckInterval = (int) (intervalLength / (entries.size() * DateHelper.MINUTE_MS));
+                    fixedCheckInterval = (int) (intervalLength / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
                 }
             }
         }

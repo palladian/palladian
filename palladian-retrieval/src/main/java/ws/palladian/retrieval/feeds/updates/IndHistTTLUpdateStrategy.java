@@ -3,15 +3,15 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
  * An implementation of the update strategy called IndHist/TTL [BGR2006]
@@ -66,7 +66,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      *            (1 day)
      * @param adaptiveTTLWeightM Weight to be forwarded to {@link AdaptiveTTLUpdateStrategy}.
      */
-    public IndHistTTLUpdateStrategy(double thresholdTheta, EvaluationFeedDatabase feedDb, double tBurst,
+    public IndHistTTLUpdateStrategy(double thresholdTheta, FeedDatabase feedDb, double tBurst,
             int timeWindowHours, double adaptiveTTLWeightM) {
         super(thresholdTheta, feedDb);
         this.T_BURST = tBurst;
@@ -161,7 +161,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
         Iterator<Long> it = itemTimestamps.iterator();
         while (it.hasNext()){
             Long timestamp = it.next();
-            Long windowStartTime = feed.getLastPollTime().getTime() - getTimeWindowHours() * DateHelper.HOUR_MS;
+            Long windowStartTime = feed.getLastPollTime().getTime() - getTimeWindowHours() * TimeUnit.HOURS.toMillis(1);
             if (timestamp < windowStartTime) {
                 it.remove();
             }

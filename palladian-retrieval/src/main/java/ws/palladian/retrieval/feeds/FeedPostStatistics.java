@@ -8,14 +8,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
- * <p>Capture some statistics about the posts of a feed. When reading the statistics, make sure
- * {@link #isValidStatistics()} returns <code>true</code>!</p>
+ * <p>
+ * Capture some statistics about the posts of a feed. When reading the statistics, make sure
+ * {@link #isValidStatistics()} returns <code>true</code>!
+ * </p>
  * 
  * @author David Urbansky
  * @author Sandro Reichert
@@ -88,7 +90,8 @@ public class FeedPostStatistics {
         long timeNewestEntry = 0;
         long timeSecondNewestEntry = 0;
 
-        // keep a list of times to find out the median of the time differences between posts, average is not good since one very old post can bias the value
+        // keep a list of times to find out the median of the time differences between posts, average is not good since
+        // one very old post can bias the value
         List<Long> timeList = new ArrayList<Long>();
         List<Long> timeList2 = new ArrayList<Long>();
 
@@ -151,7 +154,7 @@ public class FeedPostStatistics {
             }
             // in case no pub date was found correctly, we set the oldest entry time one week in the past
             if (timeOldestEntry == Long.MAX_VALUE) {
-                timeOldestEntry = System.currentTimeMillis() - DateHelper.WEEK_MS;
+                timeOldestEntry = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
                 warnings.append("\nDid not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: "
                         + feed.getId());
             }
@@ -180,7 +183,7 @@ public class FeedPostStatistics {
             if (timeList.size() > 1) {
                 setMedianPostGap(MathHelper.getMedianDifference(timeList));
                 setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
-                setAveragePostGap(getTimeRange() / ((double) feedPubdates.size() - 1));
+                setAveragePostGap(getTimeRange() / ((double)feedPubdates.size() - 1));
                 setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
                 setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
                 setValidStatistics(true);
@@ -188,7 +191,7 @@ public class FeedPostStatistics {
         }
 
         double avgEntriesPerDay = -1;
-        avgEntriesPerDay = (double) feedPubdates.size() / (double) getTimeRangeInDays();
+        avgEntriesPerDay = (double)feedPubdates.size() / (double)getTimeRangeInDays();
         setAvgEntriesPerDay(avgEntriesPerDay);
     }
 
@@ -213,7 +216,7 @@ public class FeedPostStatistics {
     }
 
     public int getTimeRangeInDays() {
-        return Math.max(1, (int) (getTimeRange() / DateHelper.DAY_MS));
+        return Math.max(1, (int)(getTimeRange() / TimeUnit.DAYS.toMillis(1)));
     }
 
     /**
@@ -355,11 +358,11 @@ public class FeedPostStatistics {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("FeedPostStatistics [longestPostGap=");
-        builder.append((double) longestPostInterval / DateHelper.MINUTE_MS);
+        builder.append((double)longestPostInterval / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , medianPostGap=");
-        builder.append((double) medianPostInterval / DateHelper.MINUTE_MS);
+        builder.append((double)medianPostInterval / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , time to newest post=");
-        builder.append((double) getTimeDifferenceNewestPostToCurrentTime() / DateHelper.MINUTE_MS);
+        builder.append((double)getTimeDifferenceNewestPostToCurrentTime() / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , postDistribution=");
         builder.append(postDistribution);
         builder.append(", postGapStandardDeviation=");

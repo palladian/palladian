@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -79,7 +80,7 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
             timeLastSeenEntry = feed.getLastFeedEntry().getTime();
         }
         int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
-        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
+        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + TimeUnit.MINUTES.toMillis(1); t += TimeUnit.MINUTES.toMillis(1), minuteCounter++) {
             // we have counted the chances for entries before the last seen entry already, so we skip them here
             if (t <= timeLastSeenEntry) {
                 continue;

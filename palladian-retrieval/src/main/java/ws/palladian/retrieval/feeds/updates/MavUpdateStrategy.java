@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.feeds.updates;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -100,8 +100,8 @@ public class MavUpdateStrategy extends UpdateStrategy {
 
         // ######################### simple moving average ##############################
         if (feed.hasNewItem()) {
-            minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+            minCheckInterval = (int) (fps.getAveragePostGap() / TimeUnit.MINUTES.toMillis(1));
+            maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / TimeUnit.MINUTES.toMillis(1));
         } else {
             if (fps.getIntervals().size() > 0) {
                 double averagePostGap = fps.getAveragePostGap();
@@ -114,8 +114,8 @@ public class MavUpdateStrategy extends UpdateStrategy {
                         averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
                         averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
                     }
-                    minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
-                    maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+                    minCheckInterval = (int) (averagePostGap / TimeUnit.MINUTES.toMillis(1));
+                    maxCheckInterval = (int) (entries.size() * averagePostGap / TimeUnit.MINUTES.toMillis(1));
                 }
             }
         }

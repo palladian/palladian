@@ -17,6 +17,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
+import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -67,6 +68,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
     
+    public static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
     
     /**
      * @param dataSource
@@ -590,5 +592,40 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     private boolean deleteCachedItemById(int id) {
         return runUpdate(DELETE_CACHE_ITEMS_BY_ID, id) >= 0;
+    }
+
+    /**
+     * Load the average change rates for algorithm IndHist. For each hour of the day 0-23, there is a single value
+     * representing the feeds average change rate in this hour.
+     * 
+     * @param feedId The feed the load the model for.
+     * @return Array containing the average change rate per hour
+     */
+    public double[] getIndHistModel(int feedId) {
+        // store hourly change rates, default is 0.0D
+        double[] changeRate = new double[24];
+    
+        RowConverter<int[]> converter = new RowConverter<int[]>() {
+    
+            @Override
+            public int[] convert(ResultSet resultSet) throws SQLException {
+                // store hourly data as hourOfDay, newItems, observationPeriod
+                int[] hourlyData = new int[3];
+    
+                hourlyData[0] = resultSet.getInt("hourOfDay");
+                hourlyData[1] = resultSet.getInt("newItems");
+                hourlyData[2] = resultSet.getInt("observationPeriodDays");
+                
+                return hourlyData;
+            }
+        };
+        
+        List<int[]> hourlyData = runQuery(converter, GET_INDHIST_MODEL_BY_ID, feedId);
+    
+        for (int[] oneHour : hourlyData) {
+            // estimate changeRate per Hour as newItems/observationPeriod
+            changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
+        }
+        return changeRate;
     }
 }
