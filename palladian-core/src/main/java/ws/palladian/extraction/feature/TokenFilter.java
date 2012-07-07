@@ -36,7 +36,7 @@ public final class TokenFilter extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation annotation) {
+    protected boolean remove(Annotation<String> annotation) {
         return !vocabulary.contains(annotation.getValue());
     }
 

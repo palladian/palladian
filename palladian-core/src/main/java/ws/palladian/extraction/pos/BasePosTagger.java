@@ -74,14 +74,12 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
         PipelineDocument<String> document = new PipelineDocument<String>(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
-            tokenizer.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
-            tokenizer.process();
-            processDocument((PipelineDocument<String>)tokenizer.getOutputPorts().get(0).getPipelineDocument());
+            tokenizer.processDocument(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
+                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
         for (Annotation<String> annotation : annotationFeature.getValue()) {

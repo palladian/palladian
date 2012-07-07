@@ -11,8 +11,7 @@ package ws.palladian.processing.features;
  * @author David Urbansky
  * @author Philipp Katz
  * @see ws.palladian.classification.Classifier
- * @param <T>
- *            The data type used to represent this {@code Feature}'s value.
+ * @param <T> The data type used to represent this {@code Feature}'s value.
  */
 public class Feature<T> {
     /**
