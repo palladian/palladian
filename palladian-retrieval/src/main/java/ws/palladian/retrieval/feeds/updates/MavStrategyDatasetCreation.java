@@ -1,8 +1,9 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
@@ -62,7 +63,7 @@ public class MavStrategyDatasetCreation extends UpdateStrategy {
                 minCheckInterval = getHighestUpdateInterval();
             }
         } else if (hasNewItem) {
-            minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+            minCheckInterval = (int) (averagePostGap / TimeUnit.MINUTES.toMillis(1));
             // maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
             if (fps.getIntervals().size() > 0) {
@@ -72,7 +73,7 @@ public class MavStrategyDatasetCreation extends UpdateStrategy {
                     averagePostGap += fps.getDelayToNewestPost() / (fps.getIntervals().size());
                 }
 
-                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+                minCheckInterval = (int) (averagePostGap / TimeUnit.MINUTES.toMillis(1));
 
                 // maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
             }

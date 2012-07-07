@@ -405,7 +405,7 @@ public class FeedBenchmarkFileReader {
             pollData.setCheckInterval(feed.getUpdateInterval());
 
             // add poll data object to series of poll data
-            feed.getPollDataSeries().add(pollData);
+            // feed.getPollDataSeries().add(pollData);
 
             feed.addToBenchmarkLookupTime(feed.getUpdateInterval() * DateHelper.MINUTE_MS);
 

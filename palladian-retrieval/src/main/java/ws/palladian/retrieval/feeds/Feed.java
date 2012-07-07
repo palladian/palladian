@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-
-import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.EnumHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
-import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollDataSeries;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 
 /**
@@ -31,7 +27,7 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 public class Feed {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Feed.class);
+    // private static final Logger LOGGER = Logger.getLogger(Feed.class);
 
     /** Internal database identifier. */
     private int id = -1;
@@ -135,10 +131,10 @@ public class Feed {
     /** The HTTP header's date value of the last poll (The current system time of the feed server) */
     private Date httpDateLastPoll = null;
 
-    /**
-     * Record statistics about poll data for evaluation purposes.
-     */
-    private PollDataSeries pollDataSeries = new PollDataSeries();
+//    /**
+//     * Record statistics about poll data for evaluation purposes.
+//     */
+//    private PollDataSeries pollDataSeries = new PollDataSeries();
 
     /**
      * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
@@ -816,8 +812,8 @@ public class Feed {
         builder.append(lastFeedEntry);
         builder.append(", httpLastModified=");
         builder.append(httpLastModified);
-        builder.append(", pollDataSeries=");
-        builder.append(pollDataSeries);
+//        builder.append(", pollDataSeries=");
+//        builder.append(pollDataSeries);
         builder.append(", meticulousPostDistribution=");
         builder.append(meticulousPostDistribution);
         builder.append(", oneFullDayOfItemsSeen=");
@@ -1118,13 +1114,13 @@ public class Feed {
         benchmarkLookupTime += checkInterval;
     }
 
-    public void setPollDataSeries(PollDataSeries pollDataSeries) {
-        this.pollDataSeries = pollDataSeries;
-    }
-
-    public PollDataSeries getPollDataSeries() {
-        return pollDataSeries;
-    }
+//    public void setPollDataSeries(PollDataSeries pollDataSeries) {
+//        this.pollDataSeries = pollDataSeries;
+//    }
+//
+//    public PollDataSeries getPollDataSeries() {
+//        return pollDataSeries;
+//    }
 
     public long getBenchmarkLookupTime() {
         return benchmarkLookupTime;

@@ -1,15 +1,15 @@
 package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
  * An implementation of the update strategy called IndHist [BGR2006]
@@ -31,7 +31,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
     /**
      * The data base to load the model from.
      */
-    private final EvaluationFeedDatabase feedDb;
+    private final FeedDatabase feedDb;
 
     /**
      * Identifier to be used to store the trained model as additional date with the feed.
@@ -52,7 +52,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      *            http://doi.acm.org/10.1145/1138394.1138399
      * @param feedDb The db to load the model from.
      */
-    public IndHistUpdateStrategy(double thresholdTheta, EvaluationFeedDatabase feedDb) {
+    public IndHistUpdateStrategy(double thresholdTheta, FeedDatabase feedDb) {
         super();
         this.thresholdTheta = thresholdTheta;
         this.feedDb = feedDb;
@@ -197,7 +197,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
         // add +1 to make sure the resulting date is in future of BENCHMARK_START_TIME_MILLISECOND. It would be
         // better to directly set the date of the next poll but this is not supported at the moment and would push
         // even more parameters into class feed.
-        int checkInterval = (int) ((FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND - currentPollTimestamp) / DateHelper.MINUTE_MS) + 1;
+        int checkInterval = (int) ((FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND - currentPollTimestamp) / TimeUnit.MINUTES.toMillis(1)) + 1;
         // we do not need to check for update interval bounds since this is a hack to indicate training period is
         // completed...
         feed.setUpdateInterval(checkInterval);

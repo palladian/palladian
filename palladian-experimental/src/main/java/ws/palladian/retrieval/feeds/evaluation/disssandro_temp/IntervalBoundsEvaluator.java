@@ -8,6 +8,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
@@ -94,7 +95,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (EvaluationFeedDatabase) feedStore);
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (FeedDatabase) feedStore);
                 logMsg.append(updateStrategy.getName());
 
             }

@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -16,8 +16,6 @@ import ws.palladian.retrieval.feeds.FeedUpdateMode;
  * M*(lastPollTime-newestItemTimestamp). If we dont have any item, use {@link FeedReader#DEFAULT_CHECK_TIME} instead. M
  * is 0,1 by default and can be set to any value M>0. In Web caching, M is usually set to 0,1 or 0,2.
  * </p>
- * 
- * 
  * 
  * @author Sandro Reichert
  */
@@ -64,7 +62,7 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
         // make sure we have an interval > 0, do not set checkInterval to 0 if (corrected) publish date and pollTime are
         // equal.
         if (intervalLength > 0) {
-            checkInterval = (int) (weightM * intervalLength / (DateHelper.MINUTE_MS));
+            checkInterval = (int) (weightM * intervalLength / TimeUnit.MINUTES.toMillis(1));
         }
 
         // set the (new) check interval to feed
@@ -78,7 +76,7 @@ public class AdaptiveTTLUpdateStrategy extends UpdateStrategy {
      */
     @Override
     public String getName() {
-        String weight = (getWeightM() + "");
+        String weight = getWeightM() + "";
         if (weight.length() > 4) {
             weight = weight.substring(0, 4);
         }

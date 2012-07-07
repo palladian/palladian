@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -56,7 +56,7 @@ public class LRU2UpdateStrategy extends UpdateStrategy {
         // make sure we have an interval > 0, do not set checkInterval to 0 if the last two items have the same
         // (corrected) publish date
         if (intervalLength > 0) {
-            checkInterval = (int) (intervalLength / (DateHelper.MINUTE_MS));
+            checkInterval = (int) (intervalLength / TimeUnit.MINUTES.toMillis(1));
         }
 
         // set the (new) check interval to feed

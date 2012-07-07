@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import ws.palladian.helper.date.DateHelper;
+import java.util.concurrent.TimeUnit;
+
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -29,9 +30,9 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // determine winner of last prediction
-        double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * DateHelper.MINUTE_MS
+        double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
         - fps.getTimeNewestPost();
-        double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * DateHelper.MINUTE_MS
+        double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
         - fps.getTimeNewestPost();
 
         if (feed.hasNewItem()) {

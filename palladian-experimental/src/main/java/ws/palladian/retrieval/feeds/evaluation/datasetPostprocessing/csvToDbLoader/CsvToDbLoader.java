@@ -9,6 +9,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -39,7 +40,7 @@ public class CsvToDbLoader {
 
     public void loadDataToDb() {
 
-        final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
+        final FeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
                 ConfigHolder.getInstance().getConfig());
 
         FeedReader feedChecker = new FeedReader(feedStore);

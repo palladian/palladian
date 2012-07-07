@@ -27,8 +27,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationSchedulerTask;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -154,17 +152,17 @@ public final class FeedReader {
         LOGGER.info("loaded " + feedCollection.size() + " feeds");
 
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
-        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+//        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
 
             SchedulerTask schedulerTask = new SchedulerTask(this);
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
 
-        } else {
-
-            EvaluationSchedulerTask schedulerTask = new EvaluationSchedulerTask(this);
-            checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
-
-        }
+//        } else {
+//
+//            EvaluationSchedulerTask schedulerTask = new EvaluationSchedulerTask(this);
+//            checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
+//
+//        }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
                 + " milliseconds to check all feeds whether they need to be read or not");
