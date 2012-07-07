@@ -24,7 +24,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * type.
      * </p>
      */
-    protected final transient SortedMap<String, Feature<?>> features;
+    protected final SortedMap<String, Feature<?>> features;
 
     /**
      * <p>

@@ -52,7 +52,7 @@ public class WiktionaryPosTagger extends BasePosTagger {
     public void tag(List<Annotation<String>> annotations) {
         
         
-        int lastIndex = -1;
+        // int lastIndex = -1;
 
         for (Annotation<String> annotation : annotations) {
             

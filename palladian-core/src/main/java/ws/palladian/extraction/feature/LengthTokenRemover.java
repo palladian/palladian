@@ -47,7 +47,7 @@ public final class LengthTokenRemover extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation annotation) {
+    protected boolean remove(Annotation<String> annotation) {
         int length = annotation.getValue().length();
         return length < minLength || length > maxLength;
     }

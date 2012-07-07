@@ -2,18 +2,8 @@ package ws.palladian.extraction.content;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import ws.palladian.helper.io.ResourceHelper;
 

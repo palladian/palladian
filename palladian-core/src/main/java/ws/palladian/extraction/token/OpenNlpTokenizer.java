@@ -16,15 +16,15 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
- * A {@link BaseTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP provides
- * several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a trained
- * model. For more information, see the documentation <a
+ * A {@link BaseTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP
+ * provides several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a
+ * trained model. For more information, see the documentation <a
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
  * tokenization</a> in the OpenNLP Developer Documentation.
  * </p>
@@ -88,11 +88,11 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         String content = document.getContent();
-        AnnotationFeature annotationFeature = new AnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = new TextAnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Span[] spans = tokenizer.tokenizePos(content);
         int index = 0;
         for (Span span : spans) {
-            Annotation annotation = new PositionAnnotation(document, span.getStart(), span.getEnd(), index++);
+            Annotation<String> annotation = new PositionAnnotation(document, span.getStart(), span.getEnd(), index++);
             annotationFeature.add(annotation);
         }
         FeatureVector featureVector = document.getFeatureVector();

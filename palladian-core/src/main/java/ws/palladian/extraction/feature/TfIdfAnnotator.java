@@ -26,7 +26,7 @@ public final class TfIdfAnnotator extends AbstractTokenProcessor {
             "ws.palladian.preprocessing.tokens.tfidf", NumericFeature.class);
 
     @Override
-    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+    protected void processToken(Annotation<String> annotation) throws DocumentUnprocessableException {
         FeatureVector tokenFeatureVector = annotation.getFeatureVector();
         NumericFeature tfFeature = tokenFeatureVector.get(TokenMetricsCalculator.FREQUENCY);
         if (tfFeature == null) {
