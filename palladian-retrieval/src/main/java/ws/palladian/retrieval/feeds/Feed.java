@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.helper.collection.EnumHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
@@ -1423,16 +1422,16 @@ public class Feed {
         this.lastFeedTaskResult = lastFeedTaskResult;
     }
 
-    /**
-     * Set enum from String.
-     * 
-     * @param lastFeedTaskResult the recentFeedTaskResult to set
-     * @deprecated Use {@link #setLastFeedTaskResult(FeedTaskResult)}
-     */
-    @Deprecated
-    public final void setLastFeedTaskResult(String lastFeedTaskResult) {
-        this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
-    }
+//    /**
+//     * Set enum from String.
+//     * 
+//     * @param lastFeedTaskResult the recentFeedTaskResult to set
+//     * @deprecated Use {@link #setLastFeedTaskResult(FeedTaskResult)}
+//     */
+//    @Deprecated
+//    public final void setLastFeedTaskResult(String lastFeedTaskResult) {
+//        this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
+//    }
 
     /**
      * The HTTP header's date value of the last poll (The current system time of the feed server)

@@ -9,13 +9,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.ChunkFactory;

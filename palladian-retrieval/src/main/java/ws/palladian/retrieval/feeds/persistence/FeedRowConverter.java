@@ -7,6 +7,7 @@ import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
+import ws.palladian.retrieval.feeds.FeedTaskResult;
 
 public class FeedRowConverter implements RowConverter<Feed> {
 
@@ -34,7 +35,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
-        feed.setLastFeedTaskResult(resultSet.getString("lastResult"));
+        feed.setLastFeedTaskResult(FeedTaskResult.valueOf(resultSet.getString("lastResult")));
         feed.setActivityPattern(FeedActivityPattern.fromIdentifier(resultSet.getInt("activityPattern")));
         feed.getMetaInformation().setFeedFormat(resultSet.getString("feedFormat"));
         feed.getMetaInformation().setByteSize(resultSet.getLong("feedSize"));
