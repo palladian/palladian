@@ -24,7 +24,9 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
- * <p>The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.</p>
+ * <p>
+ * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -47,7 +49,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
-    private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
+    // private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
     private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
     private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
@@ -67,9 +69,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
-    
+
     public static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
-    
+
     /**
      * @param dataSource
      */
@@ -121,7 +123,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(SqlHelper.getTimestamp(feed.getLastPollTime()));
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(SqlHelper.getTimestamp(feed.getHttpLastModified()));
-        parameters.add(feed.getLastFeedTaskResult());
+        if (feed.getLastFeedTaskResult() != null) {
+            parameters.add(feed.getLastFeedTaskResult());
+        } else {
+            parameters.add(null);
+        }
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
@@ -221,15 +227,15 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
     }
 
-    @Deprecated
-    public FeedItem getFeedItemByRawId(String rawId) {
-        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID, rawId);
-    }
+//    @Deprecated
+//    public FeedItem getFeedItemByRawId(String rawId) {
+//        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID, rawId);
+//    }
 
     public ResultIterator<FeedItem> getFeedItems() {
         return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
     }
-    
+
     /**
      * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
      * items first.
@@ -275,7 +281,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
                 int minuteOfDay = resultSet.getInt("minuteOfDay");
                 int posts = resultSet.getInt("posts");
                 int chances = resultSet.getInt("chances");
-                int[] postsChances = { posts, chances };
+                int[] postsChances = {posts, chances};
                 postDistribution.put(minuteOfDay, postsChances);
             }
         };
@@ -310,8 +316,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * Update feed in database.
      * 
      * @param feed The feed to update
-     * @param updateMetaInformation If <code>true</code>, the feed'd meta information are updated.
-     * @param replaceCachedItems Of <code>true</code>, the cached items are replaced by the ones contained in the feed.
+     * @param replaceCachedItems If <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return <code>true</code> if (all) update(s) successful.
      */
     @Override
@@ -379,12 +384,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return updated;
     }
 
-
     @Override
     public boolean updateFeed(Feed feed) {
         return updateFeed(feed, true);
     }
-    
+
     @Override
     public boolean deleteFeedByUrl(String feedUrl) {
         return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
@@ -424,7 +428,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getMetaInformation().hasSkipDays());
         parameters.add(feed.getMetaInformation().hasUpdated());
         parameters.add(feed.getMetaInformation().hasPublished());
-        
+
         parameters.add(feed.getId());
         return runUpdate(UPDATE_FEED_META_INFORMATION, parameters) != -1;
     }
@@ -438,7 +442,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public List<PollMetaInformation> getFeedPollsByID(int feedID) {
         return runQuery(new FeedPollRowConverter(), GET_FEED_POLLS_BY_ID, feedID);
     }
-
 
     /**
      * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
@@ -463,7 +466,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @see #getPreviousFeedPoll(int, Timestamp)
      */
     public PollMetaInformation getEqualOrPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
+        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID,
+                simulatedPoll);
     }
 
     /**
@@ -478,12 +482,12 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
      * @see #getPreviousFeedPoll(int, Timestamp)
      */
-    public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll, Timestamp lastPoll) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID, simulatedPoll, lastPoll);
+    public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll,
+            Timestamp lastPoll) {
+        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID,
+                simulatedPoll, lastPoll);
     }
 
-    
-    
     /**
      * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
      * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
@@ -497,8 +501,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public PollMetaInformation getPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
         return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
     }
-    
-    
+
     /**
      * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
      */
@@ -553,7 +556,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private boolean addCacheItems(Feed feed) {
 
         List<List<Object>> batchArgs = new ArrayList<List<Object>>();
-        Map<String, Date > cachedItems = feed.getCachedItems();
+        Map<String, Date> cachedItems = feed.getCachedItems();
         for (String hash : cachedItems.keySet()) {
             List<Object> parameters = new ArrayList<Object>();
             parameters.add(feed.getId());
@@ -577,7 +580,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         Map<String, Date> cachedItems = new HashMap<String, Date>();
 
         List<CachedItem> itemList = runQuery(new FeedCacheItemRowConverter(), GET_CACHE_ITEMS_BY_ID, id);
-        for(CachedItem item : itemList){
+        for (CachedItem item : itemList) {
             cachedItems.put(item.getHash(), item.getCorrectedPublishDate());
         }
 
@@ -604,27 +607,27 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public double[] getIndHistModel(int feedId) {
         // store hourly change rates, default is 0.0D
         double[] changeRate = new double[24];
-    
+
         RowConverter<int[]> converter = new RowConverter<int[]>() {
-    
+
             @Override
             public int[] convert(ResultSet resultSet) throws SQLException {
                 // store hourly data as hourOfDay, newItems, observationPeriod
                 int[] hourlyData = new int[3];
-    
+
                 hourlyData[0] = resultSet.getInt("hourOfDay");
                 hourlyData[1] = resultSet.getInt("newItems");
                 hourlyData[2] = resultSet.getInt("observationPeriodDays");
-                
+
                 return hourlyData;
             }
         };
-        
+
         List<int[]> hourlyData = runQuery(converter, GET_INDHIST_MODEL_BY_ID, feedId);
-    
+
         for (int[] oneHour : hourlyData) {
             // estimate changeRate per Hour as newItems/observationPeriod
-            changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
+            changeRate[oneHour[0]] = (double)oneHour[1] / (double)oneHour[2];
         }
         return changeRate;
     }

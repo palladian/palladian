@@ -243,51 +243,51 @@ public class DateHelper {
         return timestampUTC;
     }
 
-    /**
-     * Formats a given {@link Date} to ISO8601 "yyyy-MM-dd'T'HH:mm:ss+HH:mm.S", using the given {@link TimeZone}
-     * <p>
-     * examples: <br />
-     * "2011-02-16T17:32:35.300+01:00" for {@link TimeZone} "Europe/Berlin" and showMillisecond=<code>true</code><br />
-     * "2011-02-16T17:32:35+01:00" for {@link TimeZone} "Europe/Berlin" and showMillisecond=<code>false</code><br />
-     * "2011-02-16T17:32:35+00:00" for {@link TimeZone} "etc/UTC" and showMillisecond=<code>false</code>
-     * </p>
-     * 
-     * @param date The date to format.
-     * @param timeZoneS The {@link TimeZone} the date is in.
-     * @param showMillisecond Show millisecond if provided by {@link Date}.
-     * @return The formatted date
-     * @see http://biese.wordpress.com/2006/10/11/xml-schema-datetime-data-type/
-     */
-    public static String getISO8601DateTime(final Date date, final TimeZone timeZone, final boolean showMillisecond) {
-
-        String precisionS = "";
-        if (showMillisecond) {
-            precisionS = ".S";
-        }
-
-        SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss" + precisionS);
-        ISO8601Local.setTimeZone(timeZone);
-        DecimalFormat twoDigits = new DecimalFormat("00");
-
-        int offset = ISO8601Local.getTimeZone().getOffset(date.getTime());
-        String sign = "+";
-        if (offset < 0) {
-            offset = -offset;
-            sign = "-";
-        }
-        int hours = offset / (int) HOUR_MS;
-        int minutes = (offset - hours * (int) HOUR_MS) / (int) MINUTE_MS;
-        // As things stand any odd seconds in the offset are silently truncated.
-        // Uncomment the next 5 lines to detect that rare circumstance.
-        // if (offset != hours * 3600000 + minutes * 60000) {
-        // // E.g. TZ=Asia/Riyadh87
-        // throw new RuntimeException(“TimeZone offset (” + sign + offset +
-        // ” ms) is not an exact number of minutes”);
-        // }
-        String ISO8601Now = ISO8601Local.format(date) + sign + twoDigits.format(hours) + ":"
-                + twoDigits.format(minutes);
-        return ISO8601Now;
-    }
+//    /**
+//     * Formats a given {@link Date} to ISO8601 "yyyy-MM-dd'T'HH:mm:ss+HH:mm.S", using the given {@link TimeZone}
+//     * <p>
+//     * examples: <br />
+//     * "2011-02-16T17:32:35.300+01:00" for {@link TimeZone} "Europe/Berlin" and showMillisecond=<code>true</code><br />
+//     * "2011-02-16T17:32:35+01:00" for {@link TimeZone} "Europe/Berlin" and showMillisecond=<code>false</code><br />
+//     * "2011-02-16T17:32:35+00:00" for {@link TimeZone} "etc/UTC" and showMillisecond=<code>false</code>
+//     * </p>
+//     * 
+//     * @param date The date to format.
+//     * @param timeZoneS The {@link TimeZone} the date is in.
+//     * @param showMillisecond Show millisecond if provided by {@link Date}.
+//     * @return The formatted date
+//     * @see http://biese.wordpress.com/2006/10/11/xml-schema-datetime-data-type/
+//     */
+//    public static String getISO8601DateTime(final Date date, final TimeZone timeZone, final boolean showMillisecond) {
+//
+//        String precisionS = "";
+//        if (showMillisecond) {
+//            precisionS = ".S";
+//        }
+//
+//        SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss" + precisionS);
+//        ISO8601Local.setTimeZone(timeZone);
+//        DecimalFormat twoDigits = new DecimalFormat("00");
+//
+//        int offset = ISO8601Local.getTimeZone().getOffset(date.getTime());
+//        String sign = "+";
+//        if (offset < 0) {
+//            offset = -offset;
+//            sign = "-";
+//        }
+//        int hours = offset / (int) HOUR_MS;
+//        int minutes = (offset - hours * (int) HOUR_MS) / (int) MINUTE_MS;
+//        // As things stand any odd seconds in the offset are silently truncated.
+//        // Uncomment the next 5 lines to detect that rare circumstance.
+//        // if (offset != hours * 3600000 + minutes * 60000) {
+//        // // E.g. TZ=Asia/Riyadh87
+//        // throw new RuntimeException(“TimeZone offset (” + sign + offset +
+//        // ” ms) is not an exact number of minutes”);
+//        // }
+//        String ISO8601Now = ISO8601Local.format(date) + sign + twoDigits.format(hours) + ":"
+//                + twoDigits.format(minutes);
+//        return ISO8601Now;
+//    }
 
     /**
      * Checks whether a date's year exceeds the given maximum. Useful to store a date in a mysql database since the

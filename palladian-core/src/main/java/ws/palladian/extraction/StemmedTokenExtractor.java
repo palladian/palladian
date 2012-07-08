@@ -44,8 +44,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
         add(new StemmerAnnotator(language));
         add(new StopTokenRemover(language));
         add(new LengthTokenRemover(2));
-        // FIXME shouldn't this character class be negated?
-        add(new RegExTokenRemover("[A-Za-z0-9\\.]"));
+        add(new RegExTokenRemover("[A-Za-z0-9\\.]+"));
         add(new TokenMetricsCalculator());
         add(new DuplicateTokenRemover());
     }

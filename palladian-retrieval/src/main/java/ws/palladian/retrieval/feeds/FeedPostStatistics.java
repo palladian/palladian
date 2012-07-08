@@ -45,8 +45,8 @@ public class FeedPostStatistics {
     /** The median time gap between subsequent posts. */
     private long medianPostInterval = -1;
 
-    /** The median time gap between subsequent posts. */
-    private long medianPostInterval2 = -1;
+//    /** The median time gap between subsequent posts. */
+//    private long medianPostInterval2 = -1;
 
     /** The average time gap between subsequent posts. */
     private double averagePostInterval = -1;
@@ -93,7 +93,7 @@ public class FeedPostStatistics {
         // keep a list of times to find out the median of the time differences between posts, average is not good since
         // one very old post can bias the value
         List<Long> timeList = new ArrayList<Long>();
-        List<Long> timeList2 = new ArrayList<Long>();
+//        List<Long> timeList2 = new ArrayList<Long>();
 
         if (feedPubdates == null) {
             return;
@@ -121,21 +121,21 @@ public class FeedPostStatistics {
             }
             timeList.add(pubTime);
 
-            if (timeList.size() > 1) {
-                timeList2.add(pubTime);
-            }
+//            if (timeList.size() > 1) {
+//                timeList2.add(pubTime);
+//            }
         }
 
-        if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
-            timeList2.add(feed.getBenchmarkLookupTime());
-        } else {
-            timeList2.add(System.currentTimeMillis());
-        }
+//        if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
+//            timeList2.add(feed.getBenchmarkLookupTime());
+//        } else {
+//            timeList2.add(System.currentTimeMillis());
+//        }
 
         // fill list with interval
         intervals = new ArrayList<Long>();
         Collections.sort(timeList);
-        Collections.sort(timeList2);
+//        Collections.sort(timeList2);
 
         for (int i = 0; i < timeList.size() - 1; i++) {
             intervals.add(timeList.get(i + 1) - timeList.get(i));
@@ -182,7 +182,7 @@ public class FeedPostStatistics {
 
             if (timeList.size() > 1) {
                 setMedianPostGap(MathHelper.getMedianDifference(timeList));
-                setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
+//                setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
                 setAveragePostGap(getTimeRange() / ((double)feedPubdates.size() - 1));
                 setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
                 setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
@@ -195,7 +195,7 @@ public class FeedPostStatistics {
         setAvgEntriesPerDay(avgEntriesPerDay);
     }
 
-    public void setDelayToNewestPost(long delayToNewestPost) {
+    private void setDelayToNewestPost(long delayToNewestPost) {
         this.delayToNewestItem = delayToNewestPost;
     }
 
@@ -203,7 +203,7 @@ public class FeedPostStatistics {
         return delayToNewestItem;
     }
 
-    public void setLastInterval(long lastInterval) {
+    private void setLastInterval(long lastInterval) {
         this.lastInterval = lastInterval;
     }
 
@@ -211,11 +211,11 @@ public class FeedPostStatistics {
         return lastInterval;
     }
 
-    public long getTimeRange() {
+    private long getTimeRange() {
         return timeNewestItem - timeOldestItem;
     }
 
-    public int getTimeRangeInDays() {
+    private int getTimeRangeInDays() {
         return Math.max(1, (int)(getTimeRange() / TimeUnit.DAYS.toMillis(1)));
     }
 
@@ -263,13 +263,13 @@ public class FeedPostStatistics {
         }
     }
 
-    public Map<Integer, Integer> getPostDistribution() {
-        return postDistribution;
-    }
+//    private Map<Integer, Integer> getPostDistribution() {
+//        return postDistribution;
+//    }
 
-    public void setPostDistribution(final Map<Integer, Integer> postDistribution) {
-        this.postDistribution = postDistribution;
-    }
+//    private void setPostDistribution(final Map<Integer, Integer> postDistribution) {
+//        this.postDistribution = postDistribution;
+//    }
 
     public long getTimeOldestPost() {
         return timeOldestItem;
@@ -295,13 +295,13 @@ public class FeedPostStatistics {
         this.medianPostInterval = medianPostGap;
     }
 
-    public long getMedianPostGap2() {
-        return medianPostInterval2;
-    }
+//    private long getMedianPostGap2() {
+//        return medianPostInterval2;
+//    }
 
-    private void setMedianPostGap2(final long medianPostGap2) {
-        this.medianPostInterval2 = medianPostGap2;
-    }
+//    private void setMedianPostGap2(final long medianPostGap2) {
+//        this.medianPostInterval2 = medianPostGap2;
+//    }
 
     public double getAveragePostGap() {
         return averagePostInterval;
@@ -310,7 +310,7 @@ public class FeedPostStatistics {
     /**
      * @param averagePostGap arithmet. average
      */
-    public void setAveragePostGap(double averagePostGap) {
+    private void setAveragePostGap(double averagePostGap) {
         this.averagePostInterval = averagePostGap;
     }
 
@@ -318,9 +318,9 @@ public class FeedPostStatistics {
         return intervals;
     }
 
-    public void setIntervals(List<Long> intervals) {
-        this.intervals = intervals;
-    }
+//    private void setIntervals(List<Long> intervals) {
+//        this.intervals = intervals;
+//    }
 
     private void setPostGapStandardDeviation(final long postGapStandardDeviation) {
         this.postIntervalStandardDeviation = postGapStandardDeviation;
