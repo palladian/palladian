@@ -35,11 +35,11 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
     private static final String SERVICE_ID = "googleplus";
 
     /** The ranking value types of this service **/
-    public static final RankingType GOOGLE_PLUS_LIKES = new RankingType("googlepluslikes", "Google Plus Likes",
+    public static final RankingType LIKES = new RankingType("googlepluslikes", "Google Plus Likes",
             "The Number of Likes on Google Plus");
     
     /** All available ranking types by {@link GooglePlusLikes}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLE_PLUS_LIKES);
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES);
 
     /** Fields to check the service availability. */
     private static boolean blocked = false;
@@ -78,7 +78,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
             LOGGER.error("Exception " + e.getMessage());
             checkBlocked();
         }
-        results.put(GOOGLE_PLUS_LIKES, (float)googlePlusLikes);
+        results.put(LIKES, (float)googlePlusLikes);
         return ranking;
     }
 

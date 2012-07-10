@@ -52,7 +52,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
 
     public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
             "The number of comments users have made on the shared story.");
-    
+
     /** All available ranking types by {@link FacebookLinkStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS);
 
@@ -90,9 +90,9 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 LOGGER.error(e);
             }
             if (json != null) {
-                results.put(LIKES, (float) json.getInt("like_count"));
-                results.put(SHARES, (float) json.getInt("share_count"));
-                results.put(COMMENTS, (float) json.getInt("comment_count"));
+                results.put(LIKES, (float)json.getInt("like_count"));
+                results.put(SHARES, (float)json.getInt("share_count"));
+                results.put(COMMENTS, (float)json.getInt("comment_count"));
                 LOGGER.trace("Facebook link stats for " + url + " : " + results);
             } else {
                 results.put(LIKES, null);
@@ -230,9 +230,10 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
     public static void main(String[] args) {
         FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
         StopWatch stopWatch = new StopWatch();
-        System.out
-                .println(facebookLinkStats
-                        .getRanking("http://www.cinefreaks.com/news/698/Schau-10-Minuten-von-John-Carter-an---im-Kino-ab-08-M%C3%A4rz"));
+        // System.out
+        // .println(facebookLinkStats
+        // .getRanking("http://www.cinefreaks.com/news/698/Schau-10-Minuten-von-John-Carter-an---im-Kino-ab-08-M%C3%A4rz"));
+        System.out.println(facebookLinkStats.getRanking("http://wickedweasel.com/"));
         System.out.println(stopWatch.getElapsedTimeString());
     }
 }

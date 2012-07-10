@@ -155,6 +155,9 @@ public class HttpRetriever {
     /** Separator between HTTP header and content payload when writing HTTP results to file. */
     private static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
+    /** The secure proxy that has been set. */
+    private SecureProxy secureProxy = null;
+
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
@@ -273,14 +276,6 @@ public class HttpRetriever {
             for (Entry<String, String> header : headers.entrySet()) {
                 get.setHeader(header.getKey(), header.getValue());
             }
-        }
-
-        // set proxy authentication if available
-        // TODO -- I guess this should rather be put into #execute(String, HttpUriRequest).
-        String usernamePassword = getProxyAuthentication();
-        if (!usernamePassword.isEmpty()) {
-            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
-            get.setHeader("Proxy-Authorization", "Basic " + encoded);
         }
 
         HttpResult result = execute(url, get);
@@ -404,6 +399,13 @@ public class HttpRetriever {
         InputStream in = null;
 
         httpHook.beforeRequest(url, this);
+
+        // set proxy authentication if available
+        String usernamePassword = getProxyAuthentication();
+        if (!usernamePassword.isEmpty()) {
+            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+            request.setHeader("Proxy-Authorization", "Basic " + encoded);
+        }
 
         try {
 
@@ -912,11 +914,13 @@ public class HttpRetriever {
         Credentials defaultcreds = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
         AuthScope scope = new AuthScope(proxy.getIp(), proxy.getPort(), AuthScope.ANY_REALM);
         setCredentials(scope, defaultcreds);
+        this.secureProxy = proxy;
     }
 
     public void setProxy(String hostname, int port) {
         HttpHost proxy = new HttpHost(hostname, port);
         httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        this.secureProxy = null;
         LOGGER.debug("set proxy to " + hostname + ":" + port);
     }
 
@@ -927,6 +931,7 @@ public class HttpRetriever {
      */
     public void useDirectConnection() {
         httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
+        this.secureProxy = null;
     }
 
     public void setProxy(String proxy) {
@@ -975,6 +980,10 @@ public class HttpRetriever {
         lastDownloadedBytes = size;
         sessionDownloadedBytes += size;
         numberOfDownloadedPages++;
+
+        if (secureProxy != null) {
+            secureProxy.increaseRequestsSent();
+        }
     }
 
     public long getLastDownloadSize() {
