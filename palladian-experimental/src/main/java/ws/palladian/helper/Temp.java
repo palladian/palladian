@@ -25,7 +25,6 @@ import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
@@ -37,6 +36,7 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -601,7 +601,7 @@ public class Temp {
         return paginationUrls;
         
 //        ListDiscoverer ld = new ListDiscoverer();
-//        Set<String> urls = ld.findPaginationURLs(url);        
+//        Set<String> urls = ld.findPaginationURLs(url);
     }
     
     /**
