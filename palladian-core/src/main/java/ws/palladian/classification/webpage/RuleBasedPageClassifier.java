@@ -12,13 +12,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.extraction.ListDiscoverer;
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.resources.WebLink;
 

@@ -1,4 +1,4 @@
-package ws.palladian.extraction;
+package ws.palladian.retrieval;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;

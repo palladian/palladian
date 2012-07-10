@@ -12,6 +12,7 @@ import org.w3c.dom.Document;
 import ws.palladian.control.AllTests;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 

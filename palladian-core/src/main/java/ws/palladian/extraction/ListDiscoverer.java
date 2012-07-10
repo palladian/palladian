@@ -22,6 +22,8 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
+import ws.palladian.retrieval.XPathSet;
 
 /**
  * <p>
