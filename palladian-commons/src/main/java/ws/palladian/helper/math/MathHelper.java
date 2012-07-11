@@ -10,16 +10,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
 /**
- * The MathHelper adds mathematical functionality.
+ * <p>
+ * The MathHelper provides mathematical functionality.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -52,20 +54,20 @@ public class MathHelper {
             }
         }
 
-        similarity = aAndB / (double) aUnionB.size();
+        similarity = aAndB / (double)aUnionB.size();
 
         return similarity;
     }
-    
+
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
         double similarity = 0.0;
-        
+
         double dotProduct = computeDotProduct(vector1, vector2);
         double magnitude1 = computeMagnitude(vector1);
         double magnitude2 = computeMagnitude(vector2);
 
         similarity = dotProduct / (magnitude1 * magnitude2);
-        
+
         return similarity;
     }
 
@@ -90,9 +92,13 @@ public class MathHelper {
     }
 
     /**
-     * <p>Calculate the confidence interval with a given confidence level and mean.</p>
+     * <p>
+     * Calculate the confidence interval with a given confidence level and mean.
+     * </p>
      * 
-     * <p>See here: http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm</p>
+     * <p>
+     * See here: http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm
+     * </p>
      * 
      * @param samples The number of samples used.
      * @param confidenceLevel Must be one of the following: 0.75, 0.85, 0.90, 0.95, 0.99.
@@ -101,18 +107,18 @@ public class MathHelper {
      * @return The calculated confidence interval.
      */
     public static double computeConfidenceInterval(int samples, double confidenceLevel, double mean) {
-        
+
         Map<Double, Double> zValues = new HashMap<Double, Double>();
         zValues.put(0.75, 1.151);
         zValues.put(0.85, 1.139);
         zValues.put(0.90, 1.645);
         zValues.put(0.95, 1.96);
         zValues.put(0.99, 2.577);
-        
+
         double chosenZ = zValues.get(confidenceLevel);
-        
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1-mean) / (samples - 1.0));
-        
+
+        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
+
         return confidenceInterval;
     }
 
@@ -124,7 +130,7 @@ public class MathHelper {
     public static int getPower(String numberString) {
         int power = -99999;
         try {
-            power = (int) Math.floor(Math.log10(Double.valueOf(numberString)));
+            power = (int)Math.floor(Math.log10(Double.valueOf(numberString)));
         } catch (NumberFormatException e) {
             Logger.getRootLogger().error(numberString + ", " + e.getMessage());
         }
@@ -249,7 +255,7 @@ public class MathHelper {
             doubles[i++] = entry - lastValue;
             lastValue = entry;
         }
-        return (long) median.evaluate(doubles);
+        return (long)median.evaluate(doubles);
     }
 
     public static long getMedianDifference(List<Long> sortedList) {
@@ -266,7 +272,7 @@ public class MathHelper {
             doubles[i++] = entry - lastValue;
             lastValue = entry;
         }
-        return (long) median.evaluate(doubles);
+        return (long)median.evaluate(doubles);
     }
 
     public static long getStandardDeviation(TreeSet<Long> valueSet) {
@@ -277,7 +283,7 @@ public class MathHelper {
         for (Long entry : valueSet) {
             doubles[i++] = entry;
         }
-        return (long) sd.evaluate(doubles);
+        return (long)sd.evaluate(doubles);
     }
 
     public static long getStandardDeviation(List<Long> sortedList) {
@@ -289,7 +295,7 @@ public class MathHelper {
         for (Long entry : sortedList) {
             doubles[i++] = entry;
         }
-        return (long) sd.evaluate(doubles);
+        return (long)sd.evaluate(doubles);
     }
 
     public static long getLongestGap(TreeSet<Long> valueSet) {
@@ -337,13 +343,13 @@ public class MathHelper {
             @SuppressWarnings("unchecked")
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String) obj[1]);
+                String[] parts = line.split((String)obj[1]);
 
                 double[] pair = new double[2];
                 pair[0] = Double.valueOf(parts[0]);
                 pair[1] = Double.valueOf(parts[1]);
 
-                ((List<double[]>) obj[0]).add(pair);
+                ((List<double[]>)obj[0]).add(pair);
             }
         };
 
@@ -414,8 +420,8 @@ public class MathHelper {
             position1++;
         }
 
-        similarity = 1 - (double) summedRealDistance / (double) summedMaxDistance;
-        double squaredShiftSimilarity = 1 - (double) summedRealSquaredDistance / (double) summedMaxSquaredDistance;
+        similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
+        double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
 
         ls.setShiftSimilartiy(similarity);
         ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
@@ -437,13 +443,13 @@ public class MathHelper {
 
         LineAction la = new LineAction(obj) {
 
-            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @SuppressWarnings({"rawtypes", "unchecked"})
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split((String)obj[2]);
 
-                ((List) obj[0]).add(parts[0]);
-                ((List) obj[1]).add(parts[1]);
+                ((List)obj[0]).add(parts[0]);
+                ((List)obj[1]).add(parts[1]);
 
             }
         };
@@ -497,7 +503,7 @@ public class MathHelper {
         }
 
         Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
-        
+
         Set<Integer> indicesUsed = new HashSet<Integer>();
         Set<T> sampledCollection = new HashSet<T>();
 
@@ -540,7 +546,7 @@ public class MathHelper {
         }
 
         while (randomNumbers.size() < numbers) {
-            int randomNumber = (int) (Math.random() * max + min);
+            int randomNumber = (int)(Math.random() * max + min);
             randomNumbers.add(randomNumber);
         }
 
@@ -573,14 +579,14 @@ public class MathHelper {
         double sx = 0;
         double sy = 0;
         double sxx = 0;
-        double syy = 0;
+        // double syy = 0;
         double sxy = 0;
 
         for (int i = 0; i < n; i++) {
             sx += x[i];
             sy += y[i];
             sxx += x[i] * x[i];
-            syy += y[i] * y[i];
+            // syy += y[i] * y[i];
             sxy += x[i] * y[i];
         }
 
@@ -594,9 +600,11 @@ public class MathHelper {
     }
 
     /**
-     * <p>Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
+     * <p>
+     * Calculates the Precision and Average Precision for a ranked list. Pr and AP for each rank are returned as a two
      * dimensional array, where the first dimension indicates the Rank k, the second dimension distinguishes between Pr
-     * and AP. Example:</p>
+     * and AP. Example:
+     * </p>
      * 
      * <pre>
      * double[][] ap = MathHelper.calculateAP(rankedList);
@@ -611,9 +619,9 @@ public class MathHelper {
      */
     public static double[][] computeAveragePrecision(List<Boolean> rankedList, int totalNumberRelevantForQuery) {
 
-    	// number of relevant entries at k
+        // number of relevant entries at k
         int numRelevant = 0;
-        
+
         // sum of all relevant precisions at k
         double relPrSum = 0;
         double[][] result = new double[rankedList.size()][2];
@@ -626,7 +634,7 @@ public class MathHelper {
                 numRelevant++;
             }
 
-            double prAtK = (double) numRelevant / (k + 1);
+            double prAtK = (double)numRelevant / (k + 1);
 
             if (relevant) {
                 relPrSum += prAtK;
@@ -637,7 +645,7 @@ public class MathHelper {
             result[k][0] = prAtK;
             result[k][1] = ap;
         }
-        
+
         return result;
     }
 
@@ -652,9 +660,35 @@ public class MathHelper {
         return crossTotal(s / 10) + s % 10;
     }
 
+    /**
+     * <p>
+     * Compute distances between subsequent {@link Number}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
+     * a result of [1,4,3] is returned.
+     * </p>
+     * 
+     * @param values The Collection of Numbers, not <code>null</code>.
+     * @return The distances between the subsequent Numbers in the Collection, or empty List for empty Collections or
+     *         Collections of size 1.
+     */
+    public static List<Long> getDistances(Collection<? extends Number> values) {
+        Validate.notNull(values, "values must not be null");
+
+        List<Long> ret = new ArrayList<Long>();
+        Long lastPosition = null;
+        for (Number value : values) {
+            if (lastPosition == null) {
+                lastPosition = value.longValue();
+                continue;
+            }
+            ret.add(value.longValue() - lastPosition.longValue());
+            lastPosition = value.longValue();
+        }
+        return ret;
+    }
+
     public static void main(String[] a) {
-        
-        CollectionHelper.print(MathHelper.createRandomNumbers(10, 100, 989979));
-        
+
+        // CollectionHelper.print(MathHelper.createRandomNumbers(10, 100, 989979));
+
     }
 }
