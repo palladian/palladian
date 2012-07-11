@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -246,6 +247,13 @@ public class MathHelperTest {
         assertEquals(5. / 7, prAtK, 0);
         assertEquals((1+2./3+3./4+4./5+5./6)/(double) totalNumberRelevantForQuery, apAtK, 0);
 
+    }
+    
+    @Test
+    public void testGetDistances() {
+        assertTrue(MathHelper.getDistances(new ArrayList<Number>()).isEmpty());
+        assertTrue(MathHelper.getDistances(Arrays.asList(2)).isEmpty());
+        assertTrue(Arrays.asList(1l,4l,3l).equals(MathHelper.getDistances(Arrays.asList(2, 3, 7, 10))));
     }
 
 }
