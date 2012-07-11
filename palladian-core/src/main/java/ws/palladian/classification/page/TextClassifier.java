@@ -18,13 +18,13 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
 
 /**
  * The classifier is an abstract class that provides basic methods used by concrete classifiers.

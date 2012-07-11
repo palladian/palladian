@@ -13,14 +13,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import ws.palladian.extraction.PageAnalyzer;
-import ws.palladian.extraction.XPathSet;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.PageAnalyzer;
+import ws.palladian.retrieval.XPathSet;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**

@@ -1,4 +1,4 @@
-package ws.palladian.extraction;
+package ws.palladian.retrieval;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -28,7 +28,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.

@@ -13,12 +13,12 @@ import org.w3c.dom.Document;
 
 import ws.palladian.classification.Term;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
 
 /**
  * The preprocessor reads the terms for a given resource and weights them
