@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import ws.palladian.extraction.PageAnalyzer;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
@@ -38,6 +37,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.PageAnalyzer;
 
 /**
  * <p>
