@@ -275,45 +275,32 @@ public class MathHelper {
         return (long)median.evaluate(doubles);
     }
 
-    public static long getStandardDeviation(TreeSet<Long> valueSet) {
-        StandardDeviation sd = new StandardDeviation();
-
-        double[] doubles = new double[valueSet.size()];
+    public static long getStandardDeviation(Collection<? extends Number> values) {
+        StandardDeviation standardDeviation = new StandardDeviation();
+        double[] valueArray = new double[values.size()];
         int i = 0;
-        for (Long entry : valueSet) {
-            doubles[i++] = entry;
+        for (Number value : values) {
+            valueArray[i++] = value.doubleValue();
         }
-        return (long)sd.evaluate(doubles);
+        return (long)standardDeviation.evaluate(valueArray);
     }
 
-    public static long getStandardDeviation(List<Long> sortedList) {
-        Collections.sort(sortedList);
-        StandardDeviation sd = new StandardDeviation();
-
-        double[] doubles = new double[sortedList.size()];
-        int i = 0;
-        for (Long entry : sortedList) {
-            doubles[i++] = entry;
-        }
-        return (long)sd.evaluate(doubles);
-    }
-
-    public static long getLongestGap(TreeSet<Long> valueSet) {
+    /**
+     * <p>
+     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
+     * is returned.
+     * </p>
+     * 
+     * @param values The Collection of Numbers, not <code>null</code>.
+     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
+     *         was supplied.
+     */
+    public static long getLongestGap(Collection<? extends Number> values) {
         long longestGap = -1;
-
-        long lastValue = -1;
-        for (Long entry : valueSet) {
-            if (lastValue == -1) {
-                lastValue = entry;
-                continue;
-            }
-            long gap = entry - lastValue;
-            if (gap > longestGap) {
-                longestGap = gap;
-            }
-            lastValue = entry;
+        if (values.size() > 1) {
+            List<Long> distances = getDistances(values);
+            longestGap = Collections.max(distances);
         }
-
         return longestGap;
     }
 
@@ -686,9 +673,4 @@ public class MathHelper {
         return ret;
     }
 
-    public static void main(String[] a) {
-
-        // CollectionHelper.print(MathHelper.createRandomNumbers(10, 100, 989979));
-
-    }
 }
