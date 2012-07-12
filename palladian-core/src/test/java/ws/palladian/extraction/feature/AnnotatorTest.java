@@ -6,14 +6,13 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class AnnotatorTest {
@@ -39,9 +38,9 @@ public class AnnotatorTest {
         List<Annotation<String>> annotations = annotationFeature.getValue();
 
         assertEquals(12, annotations.size());
-        assertEquals("tri", annotations.get(3).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
-        assertEquals("token", annotations.get(7).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
-        assertEquals("languag", annotations.get(10).getFeatureVector().get(StemmerAnnotator.STEM).getValue());
+        assertEquals("tri", annotations.get(3).getFeature(StemmerAnnotator.STEM).getValue());
+        assertEquals("token", annotations.get(7).getFeature(StemmerAnnotator.STEM).getValue());
+        assertEquals("languag", annotations.get(10).getFeature(StemmerAnnotator.STEM).getValue());
         
     }
 

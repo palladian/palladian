@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ws.palladian.helper.StopWatch;
-
 /**
  * <p>
  * A specialized pipeline that registers the time necessary to run each {@link PipelineProcessor}.
@@ -23,19 +21,18 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
     /** Store cumulated processing times for each single PipelineProcessor. */
     private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
-    private StopWatch sw;
+    private long started;
 
     @Override
     protected void executePreProcessingHook(final PipelineProcessor processor) {
         super.executePreProcessingHook(processor);
-        sw = new StopWatch();
+        started = System.currentTimeMillis();
     }
 
     @Override
     protected void executePostProcessingHook(final PipelineProcessor processor) {
-        long elapsedTime = sw.getElapsedTime();
+        long elapsedTime = System.currentTimeMillis() - started;
         addProcessingTime(processor, elapsedTime);
-
         super.executePostProcessingHook(processor);
     }
 

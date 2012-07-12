@@ -83,7 +83,7 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
         for (Annotation<String> annotation : annotationFeature.getValue()) {
-            String tag = annotation.getFeatureVector().get(PROVIDED_FEATURE_DESCRIPTOR).getValue();
+            String tag = annotation.getFeature(PROVIDED_FEATURE_DESCRIPTOR).getValue();
             TagAnnotation tagAnnotation = new TagAnnotation(offset++, tag, annotation.getValue());
             ret.add(tagAnnotation);
         }
@@ -164,7 +164,7 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
      * @param tag
      */
     protected static void assignTag(Annotation<String> annotation, String tag) {
-        annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE_DESCRIPTOR, tag.toUpperCase()));
+        annotation.addFeature(new NominalFeature(PROVIDED_FEATURE_DESCRIPTOR, tag.toUpperCase()));
     }
 
 }

@@ -146,7 +146,7 @@ public class WiktionaryPosTagger extends BasePosTagger {
 
                 }
                 
-                annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, type));
+                annotation.addFeature(new NominalFeature(PROVIDED_FEATURE, type));
 
 //                tagAnnotation = new TagAnnotation(sentence.indexOf(token), type, token);
             }

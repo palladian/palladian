@@ -142,11 +142,11 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
         for (FeatureDescriptor<NominalFeature> descriptor : considerableFeatureDescriptors) {
             List<String> components = new ArrayList<String>();
             for (Annotation<String> annotation : gramToken.getAnnotations()) {
-                String value = annotation.getFeatureVector().get(descriptor).getValue();
+                String value = annotation.getFeature(descriptor).getValue();
                 components.add(value);
             }
             NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
-            gramToken.getFeatureVector().add(newFeature);
+            gramToken.addFeature(newFeature);
         }
     }
 

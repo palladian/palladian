@@ -68,12 +68,12 @@ public final class PhrasenessAnnotator extends AbstractTokenProcessor {
     }
 
     @Override
-    protected void processToken(Annotation annotation) throws DocumentUnprocessableException {
+    protected void processToken(Annotation<String> annotation) throws DocumentUnprocessableException {
         NumericFeature generalizedDiceFeature;
         double phraseCount = getCount(annotation);
 
         if (annotation instanceof AnnotationGroup) {
-            AnnotationGroup group = (AnnotationGroup)annotation;
+            AnnotationGroup<String> group = (AnnotationGroup<String>)annotation;
             int numberOfTerms = group.getAnnotations().size();
             double wordCount = getCount(group.getAnnotations());
             double generalizedDice = (numberOfTerms * Math.log10(phraseCount) * phraseCount) / wordCount;
@@ -82,19 +82,19 @@ public final class PhrasenessAnnotator extends AbstractTokenProcessor {
             double generalizedDice = Math.log10(phraseCount);
             generalizedDiceFeature = new NumericFeature(GENERALIZED_DICE, singleWordTermFactor * generalizedDice);
         }
-        annotation.getFeatureVector().add(generalizedDiceFeature);
+        annotation.addFeature(generalizedDiceFeature);
     }
 
-    private double getCount(List<Annotation> annotations) throws DocumentUnprocessableException {
+    private double getCount(List<Annotation<String>> annotations) throws DocumentUnprocessableException {
         double count = 0;
-        for (Annotation annotation : annotations) {
+        for (Annotation<String> annotation : annotations) {
             count += getCount(annotation);
         }
         return count;
     }
 
-    private double getCount(Annotation annotation) throws DocumentUnprocessableException {
-        NumericFeature countFeature = annotation.getFeatureVector().get(TokenMetricsCalculator.COUNT);
+    private double getCount(Annotation<String> annotation) throws DocumentUnprocessableException {
+        NumericFeature countFeature = annotation.getFeature(TokenMetricsCalculator.COUNT);
         if (countFeature == null) {
             throw new DocumentUnprocessableException("Expected feature \"" + TokenMetricsCalculator.COUNT
                     + "\" is missing.");

@@ -2,10 +2,10 @@ package ws.palladian.extraction.feature;
 
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -27,20 +27,19 @@ public final class TfIdfAnnotator extends AbstractTokenProcessor {
 
     @Override
     protected void processToken(Annotation<String> annotation) throws DocumentUnprocessableException {
-        FeatureVector tokenFeatureVector = annotation.getFeatureVector();
-        NumericFeature tfFeature = tokenFeatureVector.get(TokenMetricsCalculator.FREQUENCY);
+        NumericFeature tfFeature = annotation.getFeature(TokenMetricsCalculator.FREQUENCY);
         if (tfFeature == null) {
             throw new DocumentUnprocessableException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
                     + "\" is missing.");
         }
-        NumericFeature idfFeature = tokenFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+        NumericFeature idfFeature = annotation.getFeature(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
         if (idfFeature == null) {
             throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR
                     + "\" is missing.");
         }
         double tf = tfFeature.getValue();
         double idf = idfFeature.getValue();
-        tokenFeatureVector.add(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf));
+        annotation.addFeature(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, tf * idf));
     }
 
 }

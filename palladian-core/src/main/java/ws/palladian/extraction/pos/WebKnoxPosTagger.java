@@ -86,7 +86,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
             String[] parts = word.split("/");
 
             String tag = parts[1].toUpperCase();
-            annotations.get(i).getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag));
+            annotations.get(i).addFeature(new NominalFeature(PROVIDED_FEATURE, tag));
             i++;
             
 //            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(parts[0]), tag,

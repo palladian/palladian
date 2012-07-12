@@ -132,10 +132,10 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
         String stem = stem(unstem);
         switch (mode) {
             case ANNOTATE:
-                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
+                annotation.addFeature(new NominalFeature(STEM, stem));
                 break;
             case MODIFY:
-                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
+                annotation.addFeature(new NominalFeature(UNSTEM, unstem));
                 annotation.setValue(stem);
                 break;
         }

@@ -10,7 +10,6 @@ package ws.palladian.processing.features;
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
- * @see ws.palladian.classification.Classifier
  * @param <T> The data type used to represent this {@code Feature}'s value.
  */
 public class Feature<T> {
@@ -123,5 +122,51 @@ public class Feature<T> {
     public FeatureDescriptor<?> getDescriptor() {
         return FeatureDescriptorBuilder.build(getName(), this.getClass());
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Feature<?> other = (Feature<?>)obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!value.equals(other.value)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 
 }

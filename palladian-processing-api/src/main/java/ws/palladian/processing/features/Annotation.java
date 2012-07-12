@@ -51,7 +51,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * @return The {@link PipelineDocument} containing the annotated content.
      */
     public final PipelineDocument<T> getDocument() {
-        return this.document;
+        return document;
     }
 
     /**
@@ -110,7 +110,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * @return A {@link FeatureVector} containing this {@link Annotation}.
      */
     public final FeatureVector getFeatureVector() {
-        return this.featureVector;
+        return featureVector;
     }
 
     /**
@@ -125,7 +125,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      */
     @Override
     public int compareTo(Annotation<T> annotation) {
-        return this.getStartPosition().compareTo(annotation.getStartPosition());
+        return getStartPosition().compareTo(annotation.getStartPosition());
     }
 
     /**
@@ -136,14 +136,18 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * @param descriptor The {@code FeatureDescriptor} identifying the desired {@code Feature}
      * @return
      */
-    public <F extends Feature<?>> F getFeature(FeatureDescriptor<F> descriptor) {
+    public final <F extends Feature<?>> F getFeature(FeatureDescriptor<F> descriptor) {
+        Validate.notNull(descriptor, "descriptor must not be null");
         return getFeatureVector().get(descriptor);
     }
 
-    public void addFeature(final Feature<?> feature) {
+    /**
+     * <p>Adds a new {@link Feature} to this Annotation's {@link FeatureVector}.</p>
+     * @param feature The feature to add, not <code>null</code>.
+     */
+    public final void addFeature(final Feature<?> feature) {
         Validate.notNull(feature, "feature must not be null");
-
-        this.featureVector.add(feature);
+        featureVector.add(feature);
     }
 
     /**
@@ -151,11 +155,10 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * Adds all {@link Feature}s from the provided {@code Collection} to this {@code Annotation}s {@link FeatureVector}.
      * </p>
      * 
-     * @param features The {@code Collection} of {@code Feature}s to add.
+     * @param features The {@code Collection} of {@code Feature}s to add, not <code>null</code>.
      */
-    public void addFeatures(final Collection<? extends Feature<?>> features) {
+    public final void addFeatures(final Collection<? extends Feature<?>> features) {
         Validate.notNull(features, "features must not be null");
-
         for (Feature<?> feature : features) {
             featureVector.add(feature);
         }
