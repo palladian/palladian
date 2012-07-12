@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -147,7 +148,7 @@ public class MathHelperTest {
 
     @Test
     public void testLongestGap() {
-        TreeSet<Long> values = new TreeSet<Long>();
+        Collection<Long> values = new TreeSet<Long>();
         values.add(1l);
         values.add(2l);
         values.add(4l);
@@ -155,6 +156,8 @@ public class MathHelperTest {
         values.add(16l);
         values.add(24l);
         assertEquals(8l, MathHelper.getLongestGap(values));
+        
+        
     }
 
     @Test
